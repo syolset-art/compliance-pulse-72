@@ -340,7 +340,17 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                 <span className="text-muted-foreground/70">{vendorDocs.length}</span>
               </TabsTrigger>
             </TabsList>
-            {!hideUploadButton && <div className="pb-2">{uploadButton}</div>}
+            <div className="flex items-center gap-3 pb-2">
+              {historyCount > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <Switch id="show-history" checked={showHistory} onCheckedChange={setShowHistory} className="scale-75" />
+                  <Label htmlFor="show-history" className="text-[11px] text-muted-foreground cursor-pointer">
+                    {isNb ? `Vis historikk (${historyCount})` : `Show history (${historyCount})`}
+                  </Label>
+                </div>
+              )}
+              {!hideUploadButton && uploadButton}
+            </div>
           </div>
 
           <TabsContent value="all" className="mt-4">
