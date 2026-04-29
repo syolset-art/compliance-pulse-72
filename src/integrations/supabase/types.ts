@@ -3413,6 +3413,8 @@ export type Database = {
           shared_with_emails: string[] | null
           source: string | null
           status: string | null
+          superseded_at: string | null
+          superseded_by: string | null
           uploaded_by: string | null
           valid_from: string | null
           valid_to: string | null
@@ -3438,6 +3440,8 @@ export type Database = {
           shared_with_emails?: string[] | null
           source?: string | null
           status?: string | null
+          superseded_at?: string | null
+          superseded_by?: string | null
           uploaded_by?: string | null
           valid_from?: string | null
           valid_to?: string | null
@@ -3463,6 +3467,8 @@ export type Database = {
           shared_with_emails?: string[] | null
           source?: string | null
           status?: string | null
+          superseded_at?: string | null
+          superseded_by?: string | null
           uploaded_by?: string | null
           valid_from?: string | null
           valid_to?: string | null
@@ -3475,6 +3481,13 @@ export type Database = {
             columns: ["asset_id"]
             isOneToOne: false
             referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_documents_superseded_by_fkey"
+            columns: ["superseded_by"]
+            isOneToOne: false
+            referencedRelation: "vendor_documents"
             referencedColumns: ["id"]
           },
         ]
