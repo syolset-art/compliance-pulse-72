@@ -1,19 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Inbox, Send, Plus } from "lucide-react";
+import { Inbox, Send, Plus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InboundRequestsContent } from "@/components/customer-requests/InboundRequestsContent";
 import { OutboundRequestsTab } from "@/components/customer-requests/OutboundRequestsTab";
+import { LaraInboxContent } from "@/components/customer-requests/LaraInboxContent";
 
 const CustomerRequests = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const [topTab, setTopTab] = useState("inbound");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "lara";
+  const [topTab, setTopTab] = useState(initialTab);
   const [wizardOpen, setWizardOpen] = useState(false);
+
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    if (t && t !== topTab) setTopTab(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const handleTabChange = (v: string) => {
+    setTopTab(v);
+    setSearchParams((prev) => { prev.set("tab", v); return prev; }, { replace: true });
+  };
+
+  // Tellinger til badge på fanene
+  const { data: laraCount = 0 } = useQuery({
+    queryKey: ["lara-inbox-pending-count"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("lara_inbox")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["new", "auto_matched"]);
+      return count || 0;
+    },
+    refetchInterval: 15000,
+  });
 
   return (
     <SidebarProvider>
@@ -28,18 +58,27 @@ const CustomerRequests = () => {
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   {isNb
-                    ? "Håndter innkommende og utgående meldinger"
-                    : "Manage inbound and outbound messages"}
+                    ? "Lara-innboks, innkommende og utgående meldinger"
+                    : "Lara inbox, inbound and outbound messages"}
                 </p>
               </div>
-              <Button size="sm" className="gap-1.5" onClick={() => { setTopTab("outbound"); setWizardOpen(true); }}>
-                <Plus className="h-4 w-4" />
-                {isNb ? "Ny melding" : "New message"}
-              </Button>
+              {topTab === "outbound" && (
+                <Button size="sm" className="gap-1.5" onClick={() => setWizardOpen(true)}>
+                  <Plus className="h-4 w-4" />
+                  {isNb ? "Ny melding" : "New message"}
+                </Button>
+              )}
             </div>
 
-            <Tabs value={topTab} onValueChange={setTopTab}>
+            <Tabs value={topTab} onValueChange={handleTabChange}>
               <TabsList>
+                <TabsTrigger value="lara" className="gap-1.5">
+                  <Sparkles className="h-4 w-4" />
+                  {isNb ? "Lara-innboks" : "Lara inbox"}
+                  {laraCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 h-4 min-w-4 px-1 text-[10px]">{laraCount}</Badge>
+                  )}
+                </TabsTrigger>
                 <TabsTrigger value="inbound" className="gap-1.5">
                   <Inbox className="h-4 w-4" />
                   {isNb ? "Innkommende" : "Inbound"}
@@ -49,6 +88,10 @@ const CustomerRequests = () => {
                   {isNb ? "Utgående" : "Outbound"}
                 </TabsTrigger>
               </TabsList>
+
+              <TabsContent value="lara" className="mt-6">
+                <LaraInboxContent />
+              </TabsContent>
 
               <TabsContent value="inbound" className="mt-6">
                 <InboundRequestsContent />
