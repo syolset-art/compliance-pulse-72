@@ -357,7 +357,7 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
 
       // Try DB insert with only columns that exist on the table
       try {
-        await supabase.from("vendor_documents").insert({
+        const { data: inserted } = await supabase.from("vendor_documents").insert({
           asset_id: assetId,
           file_name: file.name,
           file_path: filePath,
@@ -369,7 +369,15 @@ export function UploadDocumentDialog({ open, onOpenChange, assetId }: UploadDocu
           received_at: new Date().toISOString(),
           valid_from: validFrom || null,
           valid_to: validTo || null,
-        } as any);
+        } as any).select("id").single();
+
+        // Auto-erstatt forrige current-dokument av samme type
+        const { supersedePreviousDocuments } = await import("@/lib/documentStatus");
+        await supersedePreviousDocuments(supabase, {
+          assetId,
+          documentType: docType,
+          newDocumentId: (inserted as any)?.id ?? null,
+        });
       } catch (_) { /* continue even if insert fails - demo */ }
 
       queryClient.invalidateQueries({ queryKey: ["vendor-documents", assetId] });
