@@ -170,10 +170,12 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
             <TableBody>
               {docs.map((doc: any, idx: number) => {
                 const isExpired = doc.valid_to && new Date(doc.valid_to) < new Date();
+                const replacement = doc.superseded_by ? docsById[doc.superseded_by] : null;
+                const isHistorical = doc.status === "superseded" || doc.status === "expired" || doc.status === "rejected";
                 return (
                   <TableRow
                     key={doc.id}
-                    className={`group hover:bg-muted/30 transition-colors ${idx === docs.length - 1 ? "border-b-0" : "border-b border-border/60"}`}
+                    className={`group hover:bg-muted/30 transition-colors ${isHistorical ? "opacity-60" : ""} ${idx === docs.length - 1 ? "border-b-0" : "border-b border-border/60"}`}
                   >
                     <TableCell className="py-3">
                       <div
@@ -189,6 +191,9 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                           </span>
                           <span className="text-[11px] text-muted-foreground hidden md:block">
                             {doc.version || "v1.0"} · {new Date(doc.created_at).toLocaleDateString(locale)}
+                            {replacement && (
+                              <> · {isNb ? "erstattet av" : "replaced by"} <span className="text-foreground/80">{replacement.file_name}</span></>
+                            )}
                           </span>
                         </div>
                       </div>
