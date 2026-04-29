@@ -110,7 +110,7 @@ export function SecurityBreachWidget() {
             variant="ghost"
             size="sm"
             className="text-xs text-muted-foreground"
-            onClick={() => navigate("/lara-inbox")}
+            onClick={() => navigate("/customer-requests?tab=lara")}
           >
             {isNb ? "Se alle" : "View all"} <ExternalLink className="h-3 w-3 ml-1" />
           </Button>
