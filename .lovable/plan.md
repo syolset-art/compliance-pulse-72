@@ -1,85 +1,78 @@
-## Mål
+# Plan: Agentisk gap-analyse for sikkerhetssjef
 
-Slå sammen «Lara-innboks» og «Innkommende» til én felles innboks på `/customer-requests`. Hvert element merkes tydelig med hvem som håndterer det: Lara (AI) eller menneske. Less is more — én liste, klare filtre, samme handlingsmønster.
+## Mål
+Den nåværende `BulkGapAnalysisDialog` viser kun score + tre tall (implementert/delvis/mangler). En sikkerhetssjef trenger mer kontekst, og Lara skal automatisk foreslå en handlingsplan som kan godkjennes med ett klikk – eller utdypes med kort dialog hvis viktig info mangler.
 
 ## Endringer
 
-### 1. `src/pages/CustomerRequests.tsx` — fjern doble faner
-- Fjern `lara`-fanen og `inbound`-fanen.
-- Erstatt med én fane: **Innboks** (default), pluss eksisterende **Utgående**.
-- Behold badge-telling, men slå sammen Lara-pending + nye innkommende meldinger til ett tall.
-- Beholder query for `laraCount`, legger til count for nye meldinger, summerer.
+### 1. Utvidet resultatvisning (sikkerhetssjef-perspektiv)
+I `BulkGapAnalysisDialog.tsx` byttes flat liste ut med en to-nivå visning:
 
-### 2. Ny komponent `src/components/customer-requests/UnifiedInboxContent.tsx`
-Én liste med blandet innhold sortert etter `received_at`/`created_at` (nyeste først).
+**Toppsammendrag (over listen):**
+- Porteføljescore (snitt) + delta vs. forrige kjøring
+- Antall kritiske gap totalt, fordeling per domene (Governance / Drift / Personvern / Tredjepart)
+- "Største risiko nå" – topp 3 leverandører med høyest forretningsrisiko (kritikalitet × gap-vekt)
+- Estimert tid-til-compliance basert på antall åpne gap
 
-**Topp-filterrad** (segmentert kontroll, less-is-more):
-- Alle · Venter Lara · Venter deg · Ferdig
+**Per leverandør (utvidbar rad):**
+- Score + risikoring (grønn/orange/rød etter terskler i Core-memory)
+- Mini-strek per domene (4 søyler) som viser hvor gapene ligger
+- Knapp "Vis detaljer" → ekspanderer til:
+  - Topp 3 manglende kontroller (kravreferanse + alvorlighet)
+  - Sist mottatt bevis + alder
+  - Hvilke regulatoriske artikler som trigges (NIS2 art., GDPR art.)
+  - DPA / SLA / sertifiseringsstatus i klartekst
 
-**Kilde-merking på hvert kort** (liten chip øverst til venstre):
-- `Sparkles`-ikon + «Lara» (lilla/primary) — for `lara_inbox`-elementer
-- `User`-ikon + «Manuell» (nøytral) — for `customer_compliance_requests`
-
-**Status-badge til høyre** (gjenbruk eksisterende mønstre):
-- Lara-elementer: `Analyserer` / `Klar for godkjenning` / `Godkjent` / `Avvist`
-- Manuelle: `Ny` / `Lest` / `Besvart` / `Arkivert`
-
-**Innhold per kort**:
-- Lara-elementer: gjenbruk eksakt samme ekspanderte visning fra `LaraInboxContent` (Lara foreslår + analyse + Godkjenn/Avvis-knapper).
-- Manuelle elementer: gjenbruk `CustomerRequestCard` sin innmat (tittel, kunde, due_date, handlinger).
-
-### 3. Datakilde
-Hent begge i parallell og slå sammen til ett array med en `__source: 'lara' | 'manual'`-diskriminator:
-```ts
-const items = useQuery(['unified-inbox'], async () => {
-  const [lara, manual] = await Promise.all([
-    supabase.from('lara_inbox').select('*, assets:matched_asset_id(...)').order('received_at', { ascending: false }),
-    supabase.from('customer_compliance_requests').select('*').order('created_at', { ascending: false }),
-  ]);
-  return [
-    ...(lara.data || []).map(x => ({ ...x, __source: 'lara', __ts: x.received_at })),
-    ...(manual.data || []).map(x => ({ ...x, __source: 'manual', __ts: x.created_at })),
-  ].sort((a, b) => +new Date(b.__ts) - +new Date(a.__ts));
-});
-```
-
-### 4. Filterlogikk
-- **Venter Lara**: `__source === 'lara'` og `analysis_status in (pending, analyzing)`
-- **Venter deg**: Lara-elementer med `analysis_status === 'analyzed'` + manuelle med `status in (new, read)`
-- **Ferdig**: Lara `status in (manually_assigned, rejected)` + manuelle `status in (responded, archived)`
-
-### 5. Ruting og lenker
-- Behold rute `/customer-requests` med `?tab=inbox|outbound`.
-- Redirect `?tab=lara` og `?tab=inbound` → `?tab=inbox` (i `useEffect`).
-- Topbar Inbox-ikon peker fortsatt på `/customer-requests?tab=inbox`. Oppdater i `TopBar.tsx`, `LaraAgent.tsx`, `DashboardLaraRecommendation.tsx` mfl. der `?tab=lara` brukes i dag.
-
-### 6. Beholdes uendret
-- `LaraInboxContent.tsx` og `InboundRequestsContent.tsx` slettes ikke i denne runden — vi peker bort fra dem og fjerner import i `CustomerRequests.tsx`. (Kan ryddes senere når vi er trygge på unified-flyten.)
-- `CustomerRequestCard`, `OutboundRequestsTab`, godkjennings­logikken (`approveMutation`, `supersedePreviousDocuments`), auto-progresjonen pending→analyzing→analyzed gjenbrukes som de er.
-
-## UX-skisse
+### 2. Lara-plan etter analyse (agentisk lag)
+Når kjøringen er ferdig vises et nytt panel **"Laras forslag til plan"** øverst i dialogen:
 
 ```text
-Meldinger
-─────────────────────────────────────────────
-[ Alle 12 ] [ Venter Lara 3 ] [ Venter deg 4 ] [ Ferdig 5 ]
-
-[Lara]   ISO27001-sertifikat.pdf            +10 poeng  [Klar]
-         Microsoft · ISO 27001 · 30.04
-         ▼ Lara foreslår: Koble til Microsoft, sette gyldighet ...
-                                          [Avvis] [Godkjenn]
-
-[Manuell] DPA-forespørsel                              [Ny]
-         Nordic Solutions · forfaller 5. mai
-                                          [Arkiver] [Åpne]
-
-[Lara]   SOC2-rapport.pdf                              [Analyserer]
-         Atlassian · SOC 2 · 30.04
+┌─ Lara har laget et utkast til oppfølgingsplan ────────────┐
+│ Basert på 12 åpne gap foreslår jeg 5 tiltak.              │
+│ Estimert effekt: +18 % portefølje-score, 4 uker.          │
+│                                                            │
+│ [ ] 1. Be om DPA fra 3 leverandører  · kritisk · e-post   │
+│ [ ] 2. Risikomøte med Acme AS        · høy     · møte     │
+│ [ ] 3. Innhent ISO 27001-bevis (×4)  · høy     · e-post   │
+│ [ ] 4. Oppdater SLA hos 2 leverandører· medium · e-post   │
+│ [ ] 5. Planlegg revisjon av Beta Inc · medium  · audit    │
+│                                                            │
+│ [Godkjenn alle]  [Juster]  [Spør meg først]               │
+└────────────────────────────────────────────────────────────┘
 ```
 
-## Hvorfor dette løser problemet
+- Forslagene genereres ved å mappe gap-resultater mot `vendorGuidanceData.ts` (som allerede har maler for DPA, SLA, risiko-møte) og berikes med kontaktperson + foreslått kanal.
+- "Godkjenn alle" oppretter aktiviteter via samme path som `VendorActionCards` bruker i dag.
+- "Juster" lar bruker fjerne enkelt-tiltak og endre eier/frist inline.
+- "Spør meg først" trigger en mini-wizard (samme mønster som `ConfirmRiskDialog`) for tiltak hvor Lara mangler info – f.eks. "Hvem eier oppfølgingen av Acme?" eller "Skal vi godta selv-deklarert ISO eller kreve sertifikat?".
 
-- Én innboks = én mental modell. Bruker går ett sted.
-- Kilde-chipen («Lara» vs «Manuell») gjør det øyeblikkelig synlig hva AI har tatt og hva mennesker må håndtere.
-- Filtrene matcher hvordan folk faktisk jobber: «hva venter på meg nå?» vs «hva jobber Lara med?».
-- Ingen funksjonalitet tapt — alle eksisterende handlinger (godkjenn, avvis, arkiver, les) er bevart.
+### 3. Lara-status under kjøring
+I stedet for bare progress-bar viser vi tekstlinjer ("Henter bevis for Acme AS…", "Sammenligner kontroll 7.5.1…", "Foreslår tiltak…") – samme agentiske språk som brukes i Innboks-prosjektet.
+
+### 4. Tom-tilstand etter godkjenning
+Når planen er godkjent: dialogen viser kvittering med "5 aktiviteter opprettet · se i Aktivitet" + lenke, og et lite kort "Lara fortsetter å overvåke disse leverandørene".
+
+## Tekniske detaljer
+
+**Filer som endres:**
+- `src/components/vendor-dashboard/BulkGapAnalysisDialog.tsx` – utvides betydelig; deles opp i:
+  - `BulkGapAnalysisDialog.tsx` (orchestrator + state)
+  - `GapAnalysisSummary.tsx` (ny – toppsammendrag)
+  - `GapAnalysisVendorRow.tsx` (ny – ekspanderbar rad)
+  - `LaraPlanProposal.tsx` (ny – agentisk planforslag + godkjenn-knapper)
+  - `LaraPlanClarifyDialog.tsx` (ny – mini-wizard for manglende info)
+
+**Datakilder:**
+- Eksisterende edge function `analyze-vendor-gap` brukes som før, men responsen utvides med `top_missing_controls`, `domain_breakdown`, og `evidence_age` (oppdatering i `supabase/functions/analyze-vendor-gap/index.ts`).
+- Plan-generering skjer klient-side ved å kombinere gap-resultat + `generateGuidanceForVendor` fra `src/utils/vendorGuidanceData.ts`. Ingen ny tabell.
+- Aktiviteter opprettes via samme mønster som i `VendorActivityData` / eksisterende activity-create-flow.
+
+**i18n:** Alle nye strenger legges til i `src/locales/nb.json` og `src/locales/en.json` under `vendor.gapAnalysis.*`.
+
+**Designtokens:** Følger Core – primær lilla, status-farger via `bg-success`/`bg-warning`/`bg-destructive`, Apple-aktig minimalisme, runde badges for risiko (samme som risikofanen vi nettopp bygde).
+
+## Hva sikkerhetssjefen får
+1. Ett blikk: porteføljerisiko + hvor gapene ligger per domene.
+2. Drill-down per leverandør med de faktiske manglende kontrollene og bevis-status.
+3. En ferdig plan fra Lara – godkjenn med ett klikk, eller svar på 1-2 spørsmål når Lara er usikker.
+4. Sporbarhet: alle godkjente tiltak havner som aktiviteter knyttet til riktig leverandør.
