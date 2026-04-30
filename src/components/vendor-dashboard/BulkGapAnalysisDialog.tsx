@@ -392,17 +392,6 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
                 </div>
               )}
 
-              {planApproved && (
-                <div className="rounded-lg border border-success/30 bg-success/5 p-3 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-success" />
-                  <p className="text-sm text-foreground">
-                    {isNb
-                      ? `${planApproved.count} aktiviteter opprettet. Lara fortsetter å overvåke disse leverandørene.`
-                      : `${planApproved.count} activities created. Lara will keep monitoring these vendors.`}
-                  </p>
-                </div>
-              )}
-
               {plan && !planApproved && (
                 <LaraPlanProposal
                   isNb={isNb}
