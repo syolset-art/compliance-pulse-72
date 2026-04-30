@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Plus, Sparkles } from "lucide-react";
 import { EditRiskScenarioDialog } from "@/components/dialogs/EditRiskScenarioDialog";
 import { RiskReductionSuccessDialog } from "@/components/dialogs/RiskReductionSuccessDialog";
+import { ConfirmRiskDialog } from "@/components/dialogs/ConfirmRiskDialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -130,6 +131,7 @@ const RISK_BADGE: Record<string, { label: string; ring: string; text: string; bg
 export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
   const [filter, setFilter] = useState<FilterKey>("pending");
   const [editingScenario, setEditingScenario] = useState<RiskScenario | null>(null);
+  const [confirmingScenario, setConfirmingScenario] = useState<RiskScenario | null>(null);
   const [localStates, setLocalStates] = useState<Record<string, RiskScenario["user_state"]>>({});
   const [successDialog, setSuccessDialog] = useState<{
     open: boolean;
@@ -369,7 +371,7 @@ export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
                   <div className="mt-4 flex items-center gap-2">
                     <Button
                       size="sm"
-                      onClick={() => setUserState(scenario.id, "confirmed")}
+                      onClick={() => setConfirmingScenario(scenario)}
                       className="h-8"
                     >
                       Bekreft
@@ -439,6 +441,21 @@ export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
           if (editingScenario) setUserState(editingScenario.id, "adjusted");
         }}
         onRiskReduced={handleRiskReduced}
+      />
+
+      {/* Confirm Dialog — simple confirm or mini-wizard for uncertain/high-risk */}
+      <ConfirmRiskDialog
+        open={!!confirmingScenario}
+        onOpenChange={(open) => !open && setConfirmingScenario(null)}
+        scenario={confirmingScenario}
+        onConfirm={(answers) => {
+          if (confirmingScenario) {
+            setUserState(confirmingScenario.id, "confirmed");
+            if (answers && Object.keys(answers).length > 0) {
+              toast.success("Bekreftet — Lara har fått ny innsikt");
+            }
+          }
+        }}
       />
 
       {/* Success Dialog */}
