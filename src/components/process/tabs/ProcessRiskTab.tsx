@@ -1,34 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { 
-  Plus, 
-  Edit2, 
-  Trash2, 
-  Shield, 
-  Info,
-  Filter,
-  Loader2,
-  Sparkles,
-  Brain,
-} from "lucide-react";
-import { RiskMatrixVisual, getRiskLevelLabel, getRiskLevelColor } from "../RiskMatrixVisual";
+import { Loader2, Plus, Sparkles } from "lucide-react";
 import { EditRiskScenarioDialog } from "@/components/dialogs/EditRiskScenarioDialog";
 import { RiskReductionSuccessDialog } from "@/components/dialogs/RiskReductionSuccessDialog";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface ProcessRiskTabProps {
   processId: string;
@@ -50,32 +28,109 @@ interface RiskScenario {
   risk_reduced_at: string | null;
   created_at: string;
   updated_at: string;
+  // optional agentic metadata (frontend-only fallbacks)
+  lara_state?: "recommended" | "uncertain" | "updated" | null;
+  lara_note?: string | null;
+  user_state?: "pending" | "confirmed" | "adjusted" | "irrelevant" | null;
 }
 
-// Fallback mock data for initial display
-const MOCK_SCENARIO: RiskScenario = {
-  id: "mock-1",
-  process_id: "",
-  title: "Personopplysninger og sensitiv informasjon i applikasjonslogger bryter GDPR",
-  description: "Logger fra produktet inneholder personopplysninger (bruker-ID, e-post, IP, fritekst) uten dataminimering, sletting og tilgangskontroll, som medfører brudd på personvernregler ved deling eller lang lagring.",
-  frameworks: ["GDPR", "ISO27001", "ISO27005", "NIS2"],
-  likelihood: "medium",
-  consequence: "critical",
-  risk_level: "critical",
-  mitigation: "Logghygiene: dataminimering, pseudonymisering og slettepolicy",
-  mitigation_owner: "compliance-ansvarlig",
-  mitigation_status: "not_started",
-  previous_risk_level: null,
-  risk_reduced_at: null,
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
+const MOCK_SCENARIOS: RiskScenario[] = [
+  {
+    id: "mock-1",
+    process_id: "",
+    title: "Personopplysninger om kandidater eksponeres via Meta Ads",
+    description: "Custom Audiences kan dele kandidatdata med tredjeparter uten gyldig grunnlag.",
+    frameworks: ["GDPR", "ISO27001"],
+    likelihood: "high",
+    consequence: "high",
+    risk_level: "high",
+    mitigation: null,
+    mitigation_owner: null,
+    mitigation_status: "not_started",
+    previous_risk_level: null,
+    risk_reduced_at: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    lara_state: "recommended",
+    lara_note: "Lara anbefaler å starte her",
+    user_state: "pending",
+  },
+  {
+    id: "mock-2",
+    process_id: "",
+    title: "Algoritmisk diskriminering i kandidatutvelgelse",
+    description: "Annonsealgoritmer kan ekskludere beskyttede grupper fra stillingsannonser.",
+    frameworks: ["GDPR", "AI Act"],
+    likelihood: "medium",
+    consequence: "high",
+    risk_level: "high",
+    mitigation: null,
+    mitigation_owner: null,
+    mitigation_status: "not_started",
+    previous_risk_level: null,
+    risk_reduced_at: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    lara_state: "uncertain",
+    lara_note: "Lara er usikker — datatype mangler",
+    user_state: "pending",
+  },
+  {
+    id: "mock-3",
+    process_id: "",
+    title: "Plattformnedetid stopper kampanjekjøring",
+    description: "Tekniske feil hos Meta eller Google kan stoppe kritisk rekruttering.",
+    frameworks: ["ISO27001"],
+    likelihood: "medium",
+    consequence: "medium",
+    risk_level: "medium",
+    mitigation: null,
+    mitigation_owner: null,
+    mitigation_status: "not_started",
+    previous_risk_level: null,
+    risk_reduced_at: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    lara_state: "updated",
+    lara_note: "Lara oppdaterte risiko 2t siden",
+    user_state: "pending",
+  },
+  {
+    id: "mock-4",
+    process_id: "",
+    title: "Tilgangsstyring til annonsekontoer er svak",
+    description: "Delte kontoer uten MFA gir risiko for misbruk og uautorisert publisering.",
+    frameworks: ["ISO27001"],
+    likelihood: "medium",
+    consequence: "medium",
+    risk_level: "medium",
+    mitigation: null,
+    mitigation_owner: null,
+    mitigation_status: "not_started",
+    previous_risk_level: null,
+    risk_reduced_at: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    lara_state: null,
+    lara_note: null,
+    user_state: "pending",
+  },
+];
+
+type FilterKey = "pending" | "active" | "done";
+
+const RISK_BADGE: Record<string, { label: string; ring: string; text: string; bg: string }> = {
+  critical: { label: "Kritisk", ring: "border-destructive/40", text: "text-destructive", bg: "bg-destructive/5" },
+  high: { label: "Høy", ring: "border-destructive/40", text: "text-destructive", bg: "bg-destructive/5" },
+  medium: { label: "Moderat", ring: "border-warning/40", text: "text-warning", bg: "bg-warning/5" },
+  low: { label: "Lav", ring: "border-success/40", text: "text-success", bg: "bg-success/5" },
+  acceptable: { label: "Akseptabel", ring: "border-success/40", text: "text-success", bg: "bg-success/5" },
 };
 
 export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
-  const [viewMode, setViewMode] = useState("simple");
-  const [frameworkFilter, setFrameworkFilter] = useState<string>("all");
+  const [filter, setFilter] = useState<FilterKey>("pending");
   const [editingScenario, setEditingScenario] = useState<RiskScenario | null>(null);
-  const [isGeneratingJustification, setIsGeneratingJustification] = useState(false);
+  const [localStates, setLocalStates] = useState<Record<string, RiskScenario["user_state"]>>({});
   const [successDialog, setSuccessDialog] = useState<{
     open: boolean;
     previousLevel: string;
@@ -92,103 +147,6 @@ export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
 
   const queryClient = useQueryClient();
 
-  // Fetch AI usage data for risk classification
-  const { data: aiUsage } = useQuery({
-    queryKey: ["process-ai-usage-risk", processId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("process_ai_usage")
-        .select("risk_category, risk_justification, ai_features, has_ai")
-        .eq("process_id", processId)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Fetch process info for Lara prompt
-  const { data: processInfo } = useQuery({
-    queryKey: ["process-info-risk", processId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("system_processes")
-        .select("name, description")
-        .eq("id", processId)
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const RISK_LABELS: Record<string, string> = {
-    unacceptable: "Uakseptabel risiko",
-    high: "Høy risiko",
-    limited: "Begrenset risiko",
-    minimal: "Minimal risiko",
-  };
-
-  const generateRiskJustification = async () => {
-    if (!aiUsage?.risk_category) {
-      toast.error("Ingen AI-risikoklassifisering funnet");
-      return;
-    }
-    setIsGeneratingJustification(true);
-    try {
-      const features = Array.isArray(aiUsage.ai_features) ? aiUsage.ai_features : [];
-      const riskLabel = RISK_LABELS[aiUsage.risk_category] || aiUsage.risk_category;
-
-      const { data, error } = await supabase.functions.invoke('chat', {
-        body: {
-          messages: [{
-            role: "user",
-            content: `Du er en compliance-rådgiver som hjelper med EU AI Act dokumentasjon. Skriv en kort og presis begrunnelse (2-4 setninger) for hvorfor AI-bruken i prosessen "${processInfo?.name || 'denne prosessen'}" er klassifisert som "${riskLabel}" risikonivå under EU AI Act.
-
-Kontekst:
-- Prosess: ${processInfo?.name || 'Ukjent'}${processInfo?.description ? ` - ${processInfo.description}` : ''}
-- AI-funksjoner i bruk: ${features.length > 0 ? features.join(', ') : 'Ikke spesifisert'}
-- Valgt risikonivå: ${riskLabel}
-
-Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i AI Act der det er naturlig.`
-          }]
-        }
-      });
-
-      if (error) throw error;
-
-      let justification = '';
-      if (typeof data === 'string') {
-        const lines = data.split('\n');
-        for (const line of lines) {
-          if (line.startsWith('data: ') && line.slice(6).trim() !== '[DONE]') {
-            try {
-              const parsed = JSON.parse(line.slice(6));
-              const content = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content;
-              if (content) justification += content;
-            } catch { /* skip */ }
-          }
-        }
-        justification = justification || data;
-      } else if (data?.choices?.[0]?.message?.content) {
-        justification = data.choices[0].message.content;
-      }
-
-      // Save to database
-      await supabase
-        .from("process_ai_usage")
-        .update({ risk_justification: justification })
-        .eq("process_id", processId);
-
-      queryClient.invalidateQueries({ queryKey: ["process-ai-usage-risk", processId] });
-      toast.success("Lara har foreslått en begrunnelse");
-    } catch (e) {
-      console.error("Failed to generate justification:", e);
-      toast.error("Kunne ikke generere forslag. Prøv igjen.");
-    } finally {
-      setIsGeneratingJustification(false);
-    }
-  };
-
-  // Fetch scenarios from database
   const { data: scenarios = [], isLoading } = useQuery({
     queryKey: ["process-risk-scenarios", processId],
     queryFn: async () => {
@@ -197,7 +155,6 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
         .select("*")
         .eq("process_id", processId)
         .order("created_at", { ascending: false });
-
       if (error) {
         console.error("Error fetching risk scenarios:", error);
         return [];
@@ -206,18 +163,24 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
     },
   });
 
-  // Use mock data if no scenarios exist
-  const displayScenarios = scenarios.length > 0 
-    ? scenarios 
-    : [{ ...MOCK_SCENARIO, process_id: processId }];
+  const displayScenarios: RiskScenario[] = scenarios.length > 0
+    ? scenarios.map((s, i) => ({
+        ...s,
+        lara_state: s.lara_state ?? (i === 0 ? "recommended" : null),
+        lara_note: s.lara_note ?? (i === 0 ? "Lara anbefaler å starte her" : null),
+        user_state: localStates[s.id] ?? s.user_state ?? "pending",
+      }))
+    : MOCK_SCENARIOS.map((s) => ({
+        ...s,
+        process_id: processId,
+        user_state: localStates[s.id] ?? s.user_state ?? "pending",
+      }));
 
-  // Update mutation
   const updateMutation = useMutation({
     mutationFn: async (scenario: Partial<RiskScenario> & { id: string }) => {
-      // If it's a mock scenario, create it instead
       if (scenario.id.startsWith("mock-")) {
         const { id, ...data } = scenario;
-        const insertData = {
+        const { error } = await supabase.from("process_risk_scenarios").insert({
           process_id: processId,
           title: data.title || "Nytt scenario",
           description: data.description,
@@ -229,10 +192,7 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
           mitigation_owner: data.mitigation_owner,
           mitigation_status: data.mitigation_status,
           previous_risk_level: data.previous_risk_level,
-        };
-        const { error } = await supabase
-          .from("process_risk_scenarios")
-          .insert(insertData);
+        });
         if (error) throw error;
       } else {
         const { error } = await supabase
@@ -246,47 +206,24 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
       queryClient.invalidateQueries({ queryKey: ["process-risk-scenarios", processId] });
       toast.success("Risikoscenario oppdatert");
     },
-    onError: (error) => {
-      console.error("Error updating scenario:", error);
-      toast.error("Kunne ikke oppdatere risikoscenario");
-    },
   });
 
-  // Create mutation
   const createMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
-        .from("process_risk_scenarios")
-        .insert({
-          process_id: processId,
-          title: "Nytt risikoscenario",
-          likelihood: "medium",
-          consequence: "medium",
-          risk_level: "medium",
-          frameworks: [],
-          mitigation_status: "not_started",
-        });
+      const { error } = await supabase.from("process_risk_scenarios").insert({
+        process_id: processId,
+        title: "Nytt risikoscenario",
+        likelihood: "medium",
+        consequence: "medium",
+        risk_level: "medium",
+        frameworks: [],
+        mitigation_status: "not_started",
+      });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["process-risk-scenarios", processId] });
       toast.success("Risikoscenario opprettet");
-    },
-  });
-
-  // Delete mutation
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      if (id.startsWith("mock-")) return; // Can't delete mock
-      const { error } = await supabase
-        .from("process_risk_scenarios")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["process-risk-scenarios", processId] });
-      toast.success("Risikoscenario slettet");
     },
   });
 
@@ -300,38 +237,29 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
     });
   };
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "completed": return "Håndtert";
-      case "in_progress": return "Under arbeid";
-      case "not_started": return "Ikke håndtert";
-      default: return status;
+  const counts = useMemo(() => {
+    const c = { pending: 0, active: 0, done: 0 };
+    for (const s of displayScenarios) {
+      const state = s.user_state ?? "pending";
+      if (state === "pending") c.pending++;
+      else if (state === "confirmed" || state === "adjusted") c.active++;
+      else if (state === "irrelevant") c.done++;
     }
+    return c;
+  }, [displayScenarios]);
+
+  const filtered = displayScenarios.filter((s) => {
+    const state = s.user_state ?? "pending";
+    if (filter === "pending") return state === "pending";
+    if (filter === "active") return state === "confirmed" || state === "adjusted";
+    return state === "irrelevant";
+  });
+
+  const setUserState = (id: string, state: RiskScenario["user_state"]) => {
+    setLocalStates((prev) => ({ ...prev, [id]: state }));
+    if (state === "confirmed") toast.success("Bekreftet");
+    else if (state === "irrelevant") toast.message("Markert som ikke relevant");
   };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed": return "text-status-closed";
-      case "in_progress": return "text-warning";
-      default: return "text-muted-foreground";
-    }
-  };
-
-  // Calculate risk summary
-  const riskSummary = displayScenarios.reduce(
-    (acc, s) => {
-      acc[s.risk_level] = (acc[s.risk_level] || 0) + 1;
-      return acc;
-    },
-    { critical: 0, high: 0, medium: 0, acceptable: 0, low: 0 } as Record<string, number>
-  );
-
-  // Filter scenarios
-  const filteredScenarios = frameworkFilter === "all"
-    ? displayScenarios
-    : displayScenarios.filter((s) => 
-        s.frameworks.some((f) => f.toLowerCase() === frameworkFilter.toLowerCase())
-      );
 
   if (isLoading) {
     return (
@@ -342,259 +270,163 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-lg font-semibold">Risikovurdering</h3>
-          <p className="text-sm text-muted-foreground">
-            Risikoscenarioer og tiltak for prosessen
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={viewMode} onValueChange={setViewMode}>
-            <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Visning" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="simple">Enkel matrise</SelectItem>
-              <SelectItem value="detailed">Detaljert</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={() => createMutation.mutate()}>
-            <Plus className="h-4 w-4 mr-2" />
-            Legg til scenario
-          </Button>
+    <div className="space-y-5">
+      {/* Header — agentic status line */}
+      <div className="space-y-1">
+        <h3 className="text-2xl font-semibold tracking-tight">Risikoscenarier</h3>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="inline-flex h-2 w-2 rounded-full bg-success" />
+          <span>Lara overvåker · {counts.pending} forslag venter på deg</span>
+          <span>·</span>
+          <button className="text-primary hover:underline">Se aktivitet</button>
         </div>
       </div>
 
-      {/* AI Risk Classification */}
-      {(aiUsage?.has_ai || aiUsage?.risk_category) && (
-        <Card className="border border-border">
-          <CardContent className="p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Brain className="h-4 w-4 text-primary" />
-                <Label className="text-sm font-medium">AI-risikoklassifisering</Label>
-                {aiUsage.risk_category && (
-                  <Badge variant="outline" className="text-xs">
-                    {RISK_LABELS[aiUsage.risk_category] || aiUsage.risk_category}
-                  </Badge>
+      {/* Filter tabs — clean, underline style */}
+      <div className="flex items-center gap-6 border-b">
+        {([
+          { key: "pending" as FilterKey, label: "Venter på meg", count: counts.pending, accent: true },
+          { key: "active" as FilterKey, label: "Aktivt", count: counts.active },
+          { key: "done" as FilterKey, label: "Ferdig", count: counts.done },
+        ]).map((t) => {
+          const active = filter === t.key;
+          return (
+            <button
+              key={t.key}
+              onClick={() => setFilter(t.key)}
+              className={cn(
+                "relative -mb-px flex items-center gap-2 pb-3 pt-1 text-sm font-medium transition-colors",
+                active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <span>{t.label}</span>
+              <span
+                className={cn(
+                  "inline-flex h-5 min-w-[20px] items-center justify-center rounded px-1.5 text-xs font-semibold",
+                  active && t.accent
+                    ? "bg-primary/10 text-primary"
+                    : "bg-muted text-muted-foreground"
                 )}
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={generateRiskJustification}
-                disabled={isGeneratingJustification || !aiUsage.risk_category}
-                className="gap-1.5 text-xs h-7"
               >
-                <Sparkles className={`h-3.5 w-3.5 ${isGeneratingJustification ? 'animate-spin' : ''}`} />
-                {isGeneratingJustification ? 'Genererer...' : 'Foreslå med Lara'}
-              </Button>
-            </div>
-            {aiUsage.risk_justification ? (
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {aiUsage.risk_justification}
-              </p>
-            ) : (
-              <p className="text-sm text-muted-foreground italic">
-                Ingen begrunnelse lagt til ennå. Klikk «Foreslå med Lara» for å generere en.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Risk Summary */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-red-500">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Kritisk</span>
-              <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/10">
-                {riskSummary.critical}
-              </Badge>
-            </div>
-            <div className="mt-1 h-1 bg-destructive/20 rounded" />
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-orange-500">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Høy</span>
-              <Badge className="bg-warning/10 text-warning hover:bg-warning/10">
-                {riskSummary.high}
-              </Badge>
-            </div>
-            <div className="mt-1 h-1 bg-warning/20 rounded" />
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-yellow-500">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Moderat</span>
-              <Badge className="bg-warning/10 text-warning hover:bg-warning/10">
-                {riskSummary.medium}
-              </Badge>
-            </div>
-            <div className="mt-1 h-1 bg-warning/20 rounded" />
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Akseptabel</span>
-              <Badge className="bg-status-closed/10 text-status-closed hover:bg-status-closed/10">
-                {(riskSummary.acceptable || 0) + (riskSummary.low || 0)}
-              </Badge>
-            </div>
-            <div className="mt-1 h-1 bg-status-closed/20 rounded" />
-          </CardContent>
-        </Card>
+                {t.count}
+              </span>
+              {active && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary rounded-full" />}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Warning Alert */}
-      <Alert className="bg-warning/10 border-warning/20">
-        <Info className="h-4 w-4 text-warning" />
-        <AlertDescription className="text-warning">
-          <strong>Loggfør tiltak og ansvar.</strong> Krav fra ISO 27001 og NIS2 innebærer dokumentasjon på ansvar og implementeringstidspunkt for sikkerhetstiltak.
-        </AlertDescription>
-      </Alert>
+      {/* Scenario list */}
+      <div className="space-y-3">
+        {filtered.length === 0 && (
+          <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+            Ingen scenarier i denne visningen.
+          </div>
+        )}
 
-      {/* Framework Filter */}
-      <div className="flex items-center gap-2">
-        <Filter className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium">Samsvarsfilter:</span>
-        <Select value={frameworkFilter} onValueChange={setFrameworkFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Velg rammeverk" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle rammeverk</SelectItem>
-            <SelectItem value="gdpr">GDPR</SelectItem>
-            <SelectItem value="iso27001">ISO 27001</SelectItem>
-            <SelectItem value="nis2">NIS2</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Risk Scenarios */}
-      <div className="space-y-4">
-        {filteredScenarios.map((scenario) => (
-          <Card key={scenario.id} className="border">
-            <CardContent className="p-4 space-y-4">
-              {/* Scenario Header */}
+        {filtered.map((scenario) => {
+          const badge = RISK_BADGE[scenario.risk_level] ?? RISK_BADGE.medium;
+          const reqCount = scenario.frameworks?.length || 0;
+          return (
+            <div
+              key={scenario.id}
+              className="group rounded-xl border bg-card p-5 transition-shadow hover:shadow-sm"
+            >
               <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="mt-1">
-                    <Shield className={`h-5 w-5 ${
-                      scenario.risk_level === "critical" ? "text-destructive" :
-                      scenario.risk_level === "high" ? "text-warning" :
-                      scenario.risk_level === "medium" ? "text-warning" :
-                      "text-status-closed"
-                    }`} />
+                <div className="min-w-0 flex-1">
+                  {/* meta line */}
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                    <span>Dekker {reqCount} krav</span>
+                    {scenario.lara_note && (
+                      <>
+                        <span>·</span>
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1",
+                            scenario.lara_state === "uncertain" ? "text-warning" : "text-primary"
+                          )}
+                        >
+                          <Sparkles className="h-3 w-3" />
+                          {scenario.lara_note}
+                        </span>
+                      </>
+                    )}
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium">{scenario.title}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">
+
+                  {/* title */}
+                  <h4 className="mt-1 text-base font-semibold text-foreground">
+                    {scenario.title}
+                  </h4>
+
+                  {/* description */}
+                  {scenario.description && (
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed">
                       {scenario.description}
                     </p>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {scenario.frameworks.map((fw) => (
-                        <Badge key={fw} variant="outline" className="text-xs">
-                          {fw}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8"
-                    onClick={() => setEditingScenario(scenario)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                    onClick={() => deleteMutation.mutate(scenario.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+                  )}
 
-              {/* Analysis Section with Visual Matrix */}
-              <Card className="bg-muted/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Analyse</span>
-                      <Badge variant="outline" className="text-xs">
-                        Enkel matrise
-                      </Badge>
-                    </div>
-                    <Badge className={getRiskLevelColor(scenario.risk_level)}>
-                      {getRiskLevelLabel(scenario.risk_level)}
-                    </Badge>
-                  </div>
-                  
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Plasserer risiko i et rutenett etter sannsynlighet og konsekvens. Rask måte å prioritere hva som må håndteres først.
-                  </p>
-
-                  {/* Visual Risk Matrix */}
-                  <div className="flex justify-center py-2">
-                    <RiskMatrixVisual
-                      likelihood={scenario.likelihood}
-                      consequence={scenario.consequence}
+                  {/* Actions */}
+                  <div className="mt-4 flex items-center gap-2">
+                    <Button
                       size="sm"
-                    />
+                      onClick={() => setUserState(scenario.id, "confirmed")}
+                      className="h-8"
+                    >
+                      Bekreft
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setEditingScenario(scenario)}
+                      className="h-8"
+                    >
+                      Juster
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setUserState(scenario.id, "irrelevant")}
+                      className="h-8 text-muted-foreground hover:text-foreground"
+                    >
+                      Ikke relevant
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
 
-              {/* Mitigation Section */}
-              <div className="grid grid-cols-3 gap-4 pt-2 border-t">
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Tiltak:</p>
-                  <p className="text-sm">{scenario.mitigation || "Ikke definert"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Tiltaksansvarlig:</p>
-                  <p className="text-sm">{scenario.mitigation_owner || "Ikke tildelt"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground mb-1">Status på tiltak:</p>
-                  <p className={`text-sm flex items-center gap-1.5 ${getStatusColor(scenario.mitigation_status)}`}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                    {getStatusLabel(scenario.mitigation_status)}
-                  </p>
+                {/* Risk circle */}
+                <div className="shrink-0">
+                  <div
+                    className={cn(
+                      "flex h-14 w-14 items-center justify-center rounded-full border-2",
+                      badge.ring,
+                      badge.bg
+                    )}
+                  >
+                    <span className={cn("text-xs font-semibold", badge.text)}>
+                      {badge.label}
+                    </span>
+                  </div>
                 </div>
               </div>
+            </div>
+          );
+        })}
+      </div>
 
-              {/* Edit button at bottom */}
-              <div className="pt-2 border-t">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => setEditingScenario(scenario)}
-                >
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  Endre risikoscenario
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Footer — add own */}
+      <div className="flex items-center justify-between gap-4 rounded-xl border bg-muted/30 px-5 py-4">
+        <p className="text-sm text-muted-foreground">
+          Har Lara oversett noe? Beskriv selv en risiko du tenker på.
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => createMutation.mutate()}
+          className="gap-1.5"
+        >
+          <Plus className="h-4 w-4" />
+          Legg til eget
+        </Button>
       </div>
 
       {/* Edit Dialog */}
@@ -602,7 +434,10 @@ Skriv begrunnelsen på norsk. Vær konkret og referer til relevante artikler i A
         open={!!editingScenario}
         onOpenChange={(open) => !open && setEditingScenario(null)}
         scenario={editingScenario}
-        onSave={(updated) => updateMutation.mutate(updated)}
+        onSave={(updated) => {
+          updateMutation.mutate(updated);
+          if (editingScenario) setUserState(editingScenario.id, "adjusted");
+        }}
         onRiskReduced={handleRiskReduced}
       />
 
