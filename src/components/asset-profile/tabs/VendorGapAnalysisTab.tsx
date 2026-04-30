@@ -97,7 +97,40 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
     return groups;
   }, [results]);
 
-  // (score colour handled inline below)
+  // Build aggregated proposal counts for the plan strip
+  const openItems = useMemo(
+    () => results.filter((r) => r.status !== "implemented" && r.status !== "not_relevant"),
+    [results]
+  );
+  const proposalsByKind = useMemo(() => {
+    let documents = 0, policies = 0, followUps = 0, other = 0;
+    openItems.forEach((it) => {
+      const p = buildProposal(it, assetName, isNb);
+      if (p.kind === "request_document" || p.kind === "renew_document") documents += 1;
+      else if (p.kind === "draft_policy") policies += 1;
+      else if (p.kind === "review_task" || p.kind === "find_contact") followUps += 1;
+      else other += 1;
+    });
+    return { documents, policies, followUps, other };
+  }, [openItems, assetName, isNb]);
+
+  const listRef = useRef<HTMLDivElement>(null);
+  const [bulkConfirmedAt, setBulkConfirmedAt] = useState<number>(0);
+
+  const handleReviewOne = () => {
+    // Open all domains and scroll to first open proposal
+    setOpenDomains((p) => {
+      const next = { ...p };
+      Object.keys(domainGroups).forEach((d) => (next[d] = true));
+      return next;
+    });
+    requestAnimationFrame(() => {
+      const el = listRef.current?.querySelector<HTMLElement>("[data-proposal-id]");
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      el?.focus?.();
+    });
+  };
+
 
   return (
     <div className="space-y-4">
