@@ -236,8 +236,16 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
             })}
           </div>
 
+          {/* Agent plan strip */}
+          <AgentPlanStrip
+            total={openItems.length}
+            byKind={proposalsByKind}
+            onReviewOne={handleReviewOne}
+            onBulkConfirmDocuments={() => setBulkConfirmedAt(Date.now())}
+          />
+
           {/* Per-domain results */}
-          <div className="space-y-2">
+          <div ref={listRef} className="space-y-2">
             {Object.entries(domainGroups).map(([domain, items]) => {
               const dl = DOMAIN_LABELS[domain] || { nb: domain, en: domain };
               const isOpen = openDomains[domain] ?? false;
@@ -286,15 +294,14 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
                                   )}
                                 </div>
                               </div>
-                              {item.status !== "implemented" && (
-                                <div className="ml-10 flex items-center gap-2 flex-wrap">
-                                  <p className="text-xs text-foreground flex-1 min-w-[200px]">
-                                    <strong>{isNb ? "Neste steg:" : "Next step:"}</strong> {item.next_action}
-                                  </p>
-                                  <Button size="sm" variant="outline" className="h-7 gap-1.5 text-xs">
-                                    <Mail className="h-3 w-3" />
-                                    {isNb ? "La Lara håndtere" : "Let Lara handle"}
-                                  </Button>
+                              {item.status !== "implemented" && item.status !== "not_relevant" && (
+                                <div className="ml-10">
+                                  <InlineAgentProposal
+                                    key={`${item.requirement_id}-${bulkConfirmedAt}`}
+                                    proposal={buildProposal(item, assetName, isNb)}
+                                    vendorName={assetName}
+                                    requirementId={item.requirement_id}
+                                  />
                                 </div>
                               )}
                             </div>
