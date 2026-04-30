@@ -43,6 +43,7 @@ interface Props {
   requirementId: string;
   onConfirmed?: () => void;
   compact?: boolean;
+  autoStart?: boolean;
 }
 
 type Mode = "proposal" | "clarify" | "editing" | "started" | "dismissed";
@@ -53,10 +54,11 @@ export function InlineAgentProposal({
   requirementId,
   onConfirmed,
   compact,
+  autoStart,
 }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const [mode, setMode] = useState<Mode>("proposal");
+  const [mode, setMode] = useState<Mode>(autoStart ? "started" : "proposal");
   const [recipient, setRecipient] = useState(proposal.recipient ?? "");
   const [dueDays, setDueDays] = useState(proposal.dueDays ?? 14);
   const [instruction, setInstruction] = useState("");
