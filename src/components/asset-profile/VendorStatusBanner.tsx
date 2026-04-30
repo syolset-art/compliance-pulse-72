@@ -143,7 +143,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
       const days = typeof md.invitation_days_left === "number" ? md.invitation_days_left : 5;
       const sentDate = md.invitation_sent_label || "14. april";
       return (
-        <div className="rounded-lg bg-primary/5 border border-primary/15 px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+        <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
           <p className="text-[13px] text-foreground/80 flex items-center gap-2">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
             Invitasjon sendt {sentDate}. Lenken utløper om {days} dager.
@@ -161,7 +161,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
     }
     if (status.key === "draft") {
       return (
-        <div className="rounded-lg bg-warning/5 border border-warning/20 px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+        <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
           <p className="text-[13px] text-foreground/80 flex items-center gap-2">
             <MessageSquare className="h-3.5 w-3.5 text-warning" />
             Profilen er ikke claimet av leverandøren. Du redigerer på vegne av {asset.name}.
@@ -175,7 +175,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
     if (status.key === "claimed") {
       const claimDate = md.claimed_at_label || "8. mars 2026";
       return (
-        <div className="rounded-lg bg-success/5 border border-success/20 px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
+        <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
           <p className="text-[13px] text-foreground/80 flex items-center gap-2">
             <ShieldCheck className="h-3.5 w-3.5 text-success" />
             Leverandøren eier profilen · claimet {claimDate}. Dere har lese-tilgang som kunde.
