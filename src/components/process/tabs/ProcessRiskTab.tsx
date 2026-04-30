@@ -443,6 +443,21 @@ export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
         onRiskReduced={handleRiskReduced}
       />
 
+      {/* Confirm Dialog — simple confirm or mini-wizard for uncertain/high-risk */}
+      <ConfirmRiskDialog
+        open={!!confirmingScenario}
+        onOpenChange={(open) => !open && setConfirmingScenario(null)}
+        scenario={confirmingScenario}
+        onConfirm={(answers) => {
+          if (confirmingScenario) {
+            setUserState(confirmingScenario.id, "confirmed");
+            if (answers && Object.keys(answers).length > 0) {
+              toast.success("Bekreftet — Lara har fått ny innsikt");
+            }
+          }
+        }}
+      />
+
       {/* Success Dialog */}
       <RiskReductionSuccessDialog
         open={successDialog.open}
