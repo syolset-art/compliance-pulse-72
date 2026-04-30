@@ -294,16 +294,23 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
                                   )}
                                 </div>
                               </div>
-                              {item.status !== "implemented" && item.status !== "not_relevant" && (
-                                <div className="ml-10">
-                                  <InlineAgentProposal
-                                    key={`${item.requirement_id}-${bulkConfirmedAt}`}
-                                    proposal={buildProposal(item, assetName, isNb)}
-                                    vendorName={assetName}
-                                    requirementId={item.requirement_id}
-                                  />
-                                </div>
-                              )}
+                              {item.status !== "implemented" && item.status !== "not_relevant" && (() => {
+                                const proposal = buildProposal(item, assetName, isNb);
+                                const isDocReq =
+                                  proposal.kind === "request_document" ||
+                                  proposal.kind === "renew_document";
+                                return (
+                                  <div className="ml-10">
+                                    <InlineAgentProposal
+                                      key={`${item.requirement_id}-${isDocReq ? bulkConfirmedAt : 0}`}
+                                      proposal={proposal}
+                                      vendorName={assetName}
+                                      requirementId={item.requirement_id}
+                                      autoStart={isDocReq && bulkConfirmedAt > 0}
+                                    />
+                                  </div>
+                                );
+                              })()}
                             </div>
                           );
                         })}
