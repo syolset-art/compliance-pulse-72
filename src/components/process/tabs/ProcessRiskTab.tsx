@@ -371,7 +371,7 @@ export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
                   <div className="mt-4 flex items-center gap-2">
                     <Button
                       size="sm"
-                      onClick={() => setUserState(scenario.id, "confirmed")}
+                      onClick={() => setConfirmingScenario(scenario)}
                       className="h-8"
                     >
                       Bekreft
