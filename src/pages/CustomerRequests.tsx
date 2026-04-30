@@ -66,8 +66,8 @@ const CustomerRequests = () => {
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   {isNb
-                    ? "Lara-innboks, innkommende og utgående meldinger"
-                    : "Lara inbox, inbound and outbound messages"}
+                    ? "Én innboks for Lara og manuelle meldinger – pluss utgående forespørsler"
+                    : "One inbox for Lara and manual messages – plus outbound requests"}
                 </p>
               </div>
               {topTab === "outbound" && (
