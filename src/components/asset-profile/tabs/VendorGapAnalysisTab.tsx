@@ -8,10 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CheckCircle2, AlertTriangle, XCircle, Sparkles, Loader2, ChevronDown, FileText, Mail, Download } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Sparkles, Loader2, ChevronDown, FileText, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { frameworks } from "@/lib/frameworkDefinitions";
+import { InlineAgentProposal, buildProposal } from "@/components/asset-profile/gap/InlineAgentProposal";
+import { AgentPlanStrip } from "@/components/asset-profile/gap/AgentPlanStrip";
+import { useRef } from "react";
 
 interface VendorGapAnalysisTabProps {
   assetId: string;
