@@ -293,7 +293,7 @@ export default function QualityDashboard() {
                         {isNorwegian ? "Ingen ubehandlede hendelser" : "No unprocessed incidents"}
                       </p>
                     )}
-                    <Button variant="ghost" className="w-full mt-2" onClick={() => navigate("/customer-requests?tab=lara")}>
+                    <Button variant="ghost" className="w-full mt-2" onClick={() => navigate("/customer-requests?tab=inbox")}>
                       {isNorwegian ? "Gå til innboks" : "Go to inbox"}
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
@@ -322,7 +322,7 @@ export default function QualityDashboard() {
                         {isNorwegian ? "HMS-forespørsel" : "HSE Request"}
                       </span>
                     </Button>
-                    <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => navigate("/customer-requests?tab=lara")}>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => navigate("/customer-requests?tab=inbox")}>
                       <ShieldAlert className="h-5 w-5" />
                       <span className="text-sm">
                         {isNorwegian ? "Leverandørhendelser" : "Vendor Incidents"}
@@ -373,7 +373,7 @@ export default function QualityDashboard() {
                         ? "Se live hendelser fra leverandører som 7 Security i Lara Innboks" 
                         : "View live incidents from vendors like 7 Security in Lara Inbox"}
                     </p>
-                    <Button onClick={() => navigate("/customer-requests?tab=lara")}>
+                    <Button onClick={() => navigate("/customer-requests?tab=inbox")}>
                       {isNorwegian ? "Gå til Lara Innboks" : "Go to Lara Inbox"}
                     </Button>
                   </div>

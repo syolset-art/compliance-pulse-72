@@ -155,7 +155,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
           <div className="relative flex items-end gap-2">
             {/* Inbox button */}
             <button
-              onClick={() => navigate("/customer-requests?tab=lara")}
+              onClick={() => navigate("/customer-requests?tab=inbox")}
               className="relative group flex items-center justify-center h-12 w-12 rounded-full bg-card border border-border shadow-lg hover:shadow-xl hover:scale-105 transition-all"
               title="Lara Innboks"
             >
