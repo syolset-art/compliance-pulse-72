@@ -131,6 +131,7 @@ const RISK_BADGE: Record<string, { label: string; ring: string; text: string; bg
 export const ProcessRiskTab = ({ processId }: ProcessRiskTabProps) => {
   const [filter, setFilter] = useState<FilterKey>("pending");
   const [editingScenario, setEditingScenario] = useState<RiskScenario | null>(null);
+  const [confirmingScenario, setConfirmingScenario] = useState<RiskScenario | null>(null);
   const [localStates, setLocalStates] = useState<Record<string, RiskScenario["user_state"]>>({});
   const [successDialog, setSuccessDialog] = useState<{
     open: boolean;
