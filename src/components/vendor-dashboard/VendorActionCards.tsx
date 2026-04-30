@@ -238,7 +238,7 @@ export function VendorActionCards({
                         size="sm"
                         variant="default"
                         className="gap-1.5 text-xs"
-                        onClick={() => navigate("/customer-requests?tab=lara")}
+                        onClick={() => navigate("/customer-requests?tab=inbox")}
                       >
                         <Mail className="h-3 w-3" />
                         Åpne innboks

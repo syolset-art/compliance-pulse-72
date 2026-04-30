@@ -7,23 +7,31 @@ import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Inbox, Send, Plus, Sparkles } from "lucide-react";
+import { Inbox, Send, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { InboundRequestsContent } from "@/components/customer-requests/InboundRequestsContent";
 import { OutboundRequestsTab } from "@/components/customer-requests/OutboundRequestsTab";
-import { LaraInboxContent } from "@/components/customer-requests/LaraInboxContent";
+import { UnifiedInboxContent } from "@/components/customer-requests/UnifiedInboxContent";
+
+const LEGACY_TABS = new Set(["lara", "inbound"]);
 
 const CustomerRequests = () => {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "lara";
+  const rawTab = searchParams.get("tab");
+  const initialTab = !rawTab || LEGACY_TABS.has(rawTab) ? "inbox" : rawTab;
   const [topTab, setTopTab] = useState(initialTab);
   const [wizardOpen, setWizardOpen] = useState(false);
 
+  // Redirect legacy tabs to unified inbox
   useEffect(() => {
     const t = searchParams.get("tab");
-    if (t && t !== topTab) setTopTab(t);
+    if (!t || LEGACY_TABS.has(t)) {
+      setSearchParams((prev) => { prev.set("tab", "inbox"); return prev; }, { replace: true });
+      setTopTab("inbox");
+      return;
+    }
+    if (t !== topTab) setTopTab(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
@@ -32,15 +40,15 @@ const CustomerRequests = () => {
     setSearchParams((prev) => { prev.set("tab", v); return prev; }, { replace: true });
   };
 
-  // Tellinger til badge på fanene
-  const { data: laraCount = 0 } = useQuery({
-    queryKey: ["lara-inbox-pending-count"],
+  // Combined badge: pending Lara + new manual messages
+  const { data: pendingCount = 0 } = useQuery({
+    queryKey: ["unified-inbox-pending-count"],
     queryFn: async () => {
-      const { count } = await supabase
-        .from("lara_inbox")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["new", "auto_matched"]);
-      return count || 0;
+      const [lara, manual] = await Promise.all([
+        supabase.from("lara_inbox").select("id", { count: "exact", head: true }).in("status", ["new", "auto_matched"]),
+        supabase.from("customer_compliance_requests").select("id", { count: "exact", head: true }).in("status", ["new"]),
+      ]);
+      return (lara.count || 0) + (manual.count || 0);
     },
     refetchInterval: 15000,
   });
@@ -58,8 +66,8 @@ const CustomerRequests = () => {
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   {isNb
-                    ? "Lara-innboks, innkommende og utgående meldinger"
-                    : "Lara inbox, inbound and outbound messages"}
+                    ? "Én innboks for Lara og manuelle meldinger – pluss utgående forespørsler"
+                    : "One inbox for Lara and manual messages – plus outbound requests"}
                 </p>
               </div>
               {topTab === "outbound" && (
@@ -72,16 +80,12 @@ const CustomerRequests = () => {
 
             <Tabs value={topTab} onValueChange={handleTabChange}>
               <TabsList>
-                <TabsTrigger value="lara" className="gap-1.5">
-                  <Sparkles className="h-4 w-4" />
-                  {isNb ? "Lara-innboks" : "Lara inbox"}
-                  {laraCount > 0 && (
-                    <Badge variant="secondary" className="ml-1 h-4 min-w-4 px-1 text-[10px]">{laraCount}</Badge>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="inbound" className="gap-1.5">
+                <TabsTrigger value="inbox" className="gap-1.5">
                   <Inbox className="h-4 w-4" />
-                  {isNb ? "Innkommende" : "Inbound"}
+                  {isNb ? "Innboks" : "Inbox"}
+                  {pendingCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 h-4 min-w-4 px-1 text-[10px]">{pendingCount}</Badge>
+                  )}
                 </TabsTrigger>
                 <TabsTrigger value="outbound" className="gap-1.5">
                   <Send className="h-4 w-4" />
@@ -89,12 +93,8 @@ const CustomerRequests = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="lara" className="mt-6">
-                <LaraInboxContent />
-              </TabsContent>
-
-              <TabsContent value="inbound" className="mt-6">
-                <InboundRequestsContent />
+              <TabsContent value="inbox" className="mt-6">
+                <UnifiedInboxContent />
               </TabsContent>
 
               <TabsContent value="outbound" className="mt-6">

@@ -121,7 +121,7 @@ export function TopBar() {
 
       {/* Inbox – fører til Meldinger > Lara-innboks */}
       <button
-        onClick={() => navigate("/customer-requests?tab=lara")}
+        onClick={() => navigate("/customer-requests?tab=inbox")}
         className="relative p-2 rounded-lg hover:bg-muted transition-colors"
         title={isNb ? "Lara-innboks" : "Lara inbox"}
       >
