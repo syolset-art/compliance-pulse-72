@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,10 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CheckCircle2, AlertTriangle, XCircle, Sparkles, Loader2, ChevronDown, FileText, Mail, Download } from "lucide-react";
+import { CheckCircle2, AlertTriangle, XCircle, Sparkles, Loader2, ChevronDown, FileText, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { frameworks } from "@/lib/frameworkDefinitions";
+import { InlineAgentProposal, buildProposal } from "@/components/asset-profile/gap/InlineAgentProposal";
+import { AgentPlanStrip } from "@/components/asset-profile/gap/AgentPlanStrip";
 
 interface VendorGapAnalysisTabProps {
   assetId: string;
@@ -95,7 +97,40 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
     return groups;
   }, [results]);
 
-  // (score colour handled inline below)
+  // Build aggregated proposal counts for the plan strip
+  const openItems = useMemo(
+    () => results.filter((r) => r.status !== "implemented" && r.status !== "not_relevant"),
+    [results]
+  );
+  const proposalsByKind = useMemo(() => {
+    let documents = 0, policies = 0, followUps = 0, other = 0;
+    openItems.forEach((it) => {
+      const p = buildProposal(it, assetName, isNb);
+      if (p.kind === "request_document" || p.kind === "renew_document") documents += 1;
+      else if (p.kind === "draft_policy") policies += 1;
+      else if (p.kind === "review_task" || p.kind === "find_contact") followUps += 1;
+      else other += 1;
+    });
+    return { documents, policies, followUps, other };
+  }, [openItems, assetName, isNb]);
+
+  const listRef = useRef<HTMLDivElement>(null);
+  const [bulkConfirmedAt, setBulkConfirmedAt] = useState<number>(0);
+
+  const handleReviewOne = () => {
+    // Open all domains and scroll to first open proposal
+    setOpenDomains((p) => {
+      const next = { ...p };
+      Object.keys(domainGroups).forEach((d) => (next[d] = true));
+      return next;
+    });
+    requestAnimationFrame(() => {
+      const el = listRef.current?.querySelector<HTMLElement>("[data-proposal-id]");
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      el?.focus?.();
+    });
+  };
+
 
   return (
     <div className="space-y-4">
@@ -201,8 +236,16 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
             })}
           </div>
 
+          {/* Agent plan strip */}
+          <AgentPlanStrip
+            total={openItems.length}
+            byKind={proposalsByKind}
+            onReviewOne={handleReviewOne}
+            onBulkConfirmDocuments={() => setBulkConfirmedAt(Date.now())}
+          />
+
           {/* Per-domain results */}
-          <div className="space-y-2">
+          <div ref={listRef} className="space-y-2">
             {Object.entries(domainGroups).map(([domain, items]) => {
               const dl = DOMAIN_LABELS[domain] || { nb: domain, en: domain };
               const isOpen = openDomains[domain] ?? false;
@@ -251,17 +294,23 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
                                   )}
                                 </div>
                               </div>
-                              {item.status !== "implemented" && (
-                                <div className="ml-10 flex items-center gap-2 flex-wrap">
-                                  <p className="text-xs text-foreground flex-1 min-w-[200px]">
-                                    <strong>{isNb ? "Neste steg:" : "Next step:"}</strong> {item.next_action}
-                                  </p>
-                                  <Button size="sm" variant="outline" className="h-7 gap-1.5 text-xs">
-                                    <Mail className="h-3 w-3" />
-                                    {isNb ? "La Lara håndtere" : "Let Lara handle"}
-                                  </Button>
-                                </div>
-                              )}
+                              {item.status !== "implemented" && item.status !== "not_relevant" && (() => {
+                                const proposal = buildProposal(item, assetName, isNb);
+                                const isDocReq =
+                                  proposal.kind === "request_document" ||
+                                  proposal.kind === "renew_document";
+                                return (
+                                  <div className="ml-10">
+                                    <InlineAgentProposal
+                                      key={`${item.requirement_id}-${isDocReq ? bulkConfirmedAt : 0}`}
+                                      proposal={proposal}
+                                      vendorName={assetName}
+                                      requirementId={item.requirement_id}
+                                      autoStart={isDocReq && bulkConfirmedAt > 0}
+                                    />
+                                  </div>
+                                );
+                              })()}
                             </div>
                           );
                         })}
