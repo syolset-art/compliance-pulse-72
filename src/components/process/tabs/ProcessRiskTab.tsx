@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Plus, Sparkles } from "lucide-react";
 import { EditRiskScenarioDialog } from "@/components/dialogs/EditRiskScenarioDialog";
 import { RiskReductionSuccessDialog } from "@/components/dialogs/RiskReductionSuccessDialog";
+import { ConfirmRiskDialog } from "@/components/dialogs/ConfirmRiskDialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
