@@ -148,7 +148,7 @@ export function VendorStatusRow({
   const renderBanner = () => {
     if (status.key === "draft") {
       return (
-        <div className="mt-3 rounded-lg bg-warning/10 border border-warning/25 px-3 py-2.5 flex items-center justify-between gap-3">
+        <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <MessageSquare className="h-4 w-4 text-warning shrink-0" />
             <span className="text-[13px] text-foreground truncate">
@@ -167,7 +167,7 @@ export function VendorStatusRow({
       const sent = formatLongDate(md.invited_at) || formatLongDate(vendor.updated_at);
       const days = typeof md.invitation_days_left === "number" ? md.invitation_days_left : 5;
       return (
-        <div className="mt-3 rounded-lg bg-primary/10 border border-primary/20 px-3 py-2.5 flex items-center justify-between gap-3">
+        <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <Clock className="h-4 w-4 text-primary shrink-0" />
             <span className="text-[13px] text-foreground truncate">
@@ -190,7 +190,7 @@ export function VendorStatusRow({
     if (status.key === "claimed") {
       const claimedOn = formatLongDate(md.claimed_at) || "—";
       return (
-        <div className="mt-3 rounded-lg bg-success/10 border border-success/25 px-3 py-2.5 flex items-center justify-between gap-3">
+        <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <ShieldCheck className="h-4 w-4 text-success shrink-0" />
             <span className="text-[13px] text-foreground truncate">
