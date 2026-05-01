@@ -116,10 +116,15 @@ export function AgentFitChip({ rec, workAreaId, processName }: Props) {
             <Button
               size="sm"
               className="h-7"
-              onClick={() => handle("recruited")}
-              disabled={setStatus.isPending}
+              onClick={() =>
+                recruitAgent.mutate(
+                  { rec, processName: processName || "" },
+                  { onSuccess: () => setOpen(false) }
+                )
+              }
+              disabled={recruitAgent.isPending}
             >
-              {setStatus.isPending ? (
+              {recruitAgent.isPending ? (
                 <Loader2 className="h-3 w-3 mr-1 animate-spin" />
               ) : (
                 <Check className="h-3 w-3 mr-1" />
