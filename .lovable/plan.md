@@ -1,86 +1,90 @@
-## Mål
 
-Gjøre "Gap og foreslåtte tiltak" på leverandørsiden mer agentisk og inline. Ingen store modaler — Lara skal selv foreslå konkrete tiltak rett under hvert gap, og brukeren bekrefter, justerer eller ber om mer info i samme rad.
+# AI-agent rekruttering for arbeidsområder
 
-## Hva som er i dag
+## Problem
+En leder ser i dag en lang liste prosesser pr. arbeidsområde, men har ingen hjelp til å vurdere *hvor en AI-agent kan ta over eller forsterke arbeidet*. Det er en kjerneverdi vi bør levere når kunder kartlegger arbeidsområdene sine.
 
-`VendorGapAnalysisTab.tsx` viser per krav: status, rationale, evidens, og en `Neste steg`-tekst med en passiv knapp `La Lara håndtere` (gjør ingenting). Tiltaket er kun en setning — ikke et reelt agentforslag man kan handle på.
+## Konsept: "AI Agent Readiness"
+Lara analyserer hver prosess og scorer den langs 4 akser:
+- **Repetisjon** — gjentas oppgaven ofte?
+- **Strukturert input** — finnes data/dokumenter den jobber på?
+- **Regelbasert / lavt skjønn** — kan beslutninger beskrives?
+- **Lavt risikonivå for full automasjon** (ellers: "co-pilot" istedenfor "autonom")
 
-## Endringer
+Ut fra dette får hver prosess én av tre anbefalinger (less-is-more, ingen tunge bannere):
+- **Autonom agent anbefales** — Lara kan utføre selv
+- **Co-pilot anbefales** — agent assisterer menneske
+- **Hold manuelt** — krever skjønn / mennesker
 
-### 1. Inline agent-forslag per gap (ingen modal)
+Hver anbefaling kommer med:
+- 1 setning *hvorfor*
+- Forslag til konkret agent-rolle (f.eks. "DPA-overvåker", "Onboarding-screener", "Avviksklassifiserer")
+- Estimert tidsbesparelse pr. mnd (rough)
 
-For hvert krav med status `partial` eller `missing` erstattes "Neste steg + knapp" med en kompakt agent-rad direkte i kortet:
+## UI — to nivåer
 
-```text
-┌──────────────────────────────────────────────────────────┐
-│ [✦] Lara foreslår: Be om SOC 2 Type II-rapport (2024)    │
-│     Jeg sender forespørsel til kontaktperson hos Acme    │
-│     med 14 dagers frist. Knyttes til krav NS.4.2.        │
-│                                                          │
-│     [Bekreft og start]  [Endre]  [Trenger mer info]  [⋯] │
-└──────────────────────────────────────────────────────────┘
-```
-
-- Forslaget er forhåndsutfylt fra `next_action` + leverandørens kontekst (kontaktperson, dokumenttype som mangler, frist).
-- Tre primære valg, alle inline:
-  - **Bekreft og start** — oppretter tiltaket umiddelbart (dokumentforespørsel, oppgave eller policy-utkast) og rader endrer seg til "Startet av Lara · venter på leverandør".
-  - **Endre** — utvider raden inline (ikke dialog) med 2-3 felt: mottaker, frist, fritekst-instruksjon. Lagre/Avbryt i samme rad.
-  - **Trenger mer info** — Lara stiller ett konkret spørsmål inline (f.eks. "Hvem er riktig kontakt for sikkerhetsdokumentasjon?"). Svaret oppdaterer forslaget.
-- En "⋯"-meny gir sekundære valg: `Avvis forslag`, `Marker som ikke relevant`, `Lag manuell oppgave`.
-
-### 2. Tiltakstyper Lara kan foreslå
-
-Basert på gap-type velger agenten automatisk én av disse aksjonene (vises i forslagsteksten):
-
-| Gap-signal | Foreslått tiltak |
-|---|---|
-| Mangler dokument (SOC2, ISO, DPA, pentest) | Send dokumentforespørsel til kontaktperson |
-| Delvis dokument utdatert | Be om fornyet versjon med ny frist |
-| Mangler intern policy/rutine | Generer policy-utkast for godkjenning |
-| Mangler kategorisering/metadata | Forhåndsutfyll felt på leverandøren — bekreft inline |
-| Mangler kontaktperson/DPO | Slå opp via Lara web-søk + foreslå kontakt |
-| Risiko-signal (brudd, sanksjon) | Opprett gjennomgangsoppgave til Vendor Manager |
-
-### 3. Toppnivå plan-stripe (kort, ikke modal)
-
-Over selve gap-listen vises en smal stripe når det finnes uløste gap:
+### 1. Arbeidsområde-nivå: kompakt "Agent-potensial"-strip
+På valgt arbeidsområde, over prosesslisten, en diskret linje:
 
 ```text
-Lara har 7 forslag klare · 4 dokumentforespørsler, 2 policy-utkast, 1 oppfølging
-[Gjennomgå én etter én]   [Bekreft alle dokumentforespørsler]
+✦ Lara har funnet 3 prosesser hvor en AI-agent kan ta over og 5 hvor agent kan assistere.
+   [Se forslag]   [Rekrutter alle anbefalte]
 ```
 
-- Ingen dialog. "Gjennomgå én etter én" scroller til første ubekreftede forslag og fokuserer raden.
-- "Bekreft alle dokumentforespørsler" utfører bulk-aksjon på de tryggeste tiltakene (kun dokumentforespørsler til kjent kontakt med standard frist).
+Stil: `bg-muted/40 border border-border`, ingen lilla/grønn dominans (følger memory).
 
-### 4. Tilstand per forslag
+### 2. Prosess-nivå: liten "Agent-egnethet"-chip på hvert ProcessOverviewCard
+Inline i kortets metadata-rad, ved siden av kritikalitet/AI-bruk:
 
-Hver forslagsrad har én av disse tilstandene, vist med liten ikon/tekst — ingen fargete bannere:
+- ⚡ **Autonom-klar** (subtil)
+- 🤝 **Co-pilot** (nøytral)
+- 👤 **Manuell** (muted)
 
-- `Forslag` (default, agent foreslår)
-- `Avklaring` (Lara venter på svar fra brukeren inline)
-- `Startet` (tiltak er igangsatt, vis lenke til oppgave/forespørsel)
-- `Avvist` (kollapset, kan gjenåpnes)
+Klikk på chippen åpner en *inline drawer* (ikke modal) med:
+- Begrunnelse fra Lara
+- Foreslått agent-rolle + ansvar
+- Knapper: **Rekrutter agent** / **Be om mer info** / **Avvis**
 
-### 5. Fjernes / forenkles
+Følger samme agentiske inline-mønster som vi nettopp innførte for Gap-analyse (`InlineAgentProposal`). Ingen store dialoger.
 
-- Den nåværende "Neste steg: …" + passiv `La Lara håndtere`-knapp fjernes.
-- Ingen ny dialog/modal åpnes noe sted i denne fanen.
-- "Eksporter PDF"-knappen beholdes som i dag.
+### 3. Status etter "rekruttering"
+Når bruker klikker *Rekrutter*, opprettes en `agent_assignment` som er synlig i Lara Inbox / Aktivitet. Prosessen får et lite "Agent tildelt"-merke. Ikke noe nytt fullt arbeidsflyt-system — bare en oppgave + audit-spor.
 
-## Tekniske detaljer
+## Teknisk
 
-- Filendring: `src/components/asset-profile/tabs/VendorGapAnalysisTab.tsx` — bytt ut `next_action`-blokken (linje 254–264) med ny inline-komponent.
-- Ny komponent: `src/components/asset-profile/gap/InlineAgentProposal.tsx` — håndterer tilstand `proposal | clarify | editing | started | dismissed` lokalt, med callbacks ut.
-- Ny komponent: `src/components/asset-profile/gap/AgentPlanStrip.tsx` — toppstripe med aggregat og bulk-aksjon.
-- Forslagstekst genereres klientside fra `item.next_action` + `item.signal_key` + leverandørens `contact_person`/`name`. Ingen ny edge-funksjon i denne runden — vi gjenbruker `request-vendor-document` for "Bekreft og start" på dokumenttiltak, og oppretter en aktivitet (`activity`) for øvrige tiltak via eksisterende mønster.
-- Bulk-bekreft kaller samme handler i loop med liten throttle og viser progress inline i stripen (ikke toast-spam — én oppsummerende toast på slutten).
-- Stil følger memory: ingen lilla/grønn/oransje fyll. Bruk `bg-muted/40`, `border-border`, ikon med `text-muted-foreground`. Statusikoner (✓ ! ✗) beholder sine semantiske farger kun som små glyfer, ikke flater.
-- i18n: nye nøkler under `vendor.gap.agent.*` for både `nb` og `en`.
+### Ny tabell: `process_agent_recommendations`
+```text
+id (uuid)
+process_id (uuid → system_processes.id)
+work_area_id (uuid → work_areas.id)
+recommendation enum('autonomous','copilot','manual')
+rationale text
+suggested_agent_role text
+estimated_hours_saved_per_month numeric
+generated_at timestamptz
+generated_by_model text
+status enum('proposed','recruited','dismissed') default 'proposed'
+```
+RLS: les/skriv for autentiserte brukere i samme org (følger eksisterende mønster).
 
-## Ikke i scope
+### Ny edge function: `analyze-process-agent-fit`
+- Input: `{ workAreaId }` eller `{ processId }`
+- Henter prosessdata + tilknyttede systemer + AI-bruk + risikonivå
+- Bruker Lovable AI (`google/gemini-2.5-flash`) med strukturert JSON-output
+- Skriver resultat til `process_agent_recommendations` (upsert pr. process_id)
 
-- Ingen endring av selve gap-analysen / edge-funksjonen.
-- Ingen endring av domeneoppsummeringen eller score-kortet.
-- Ingen ny PDF-eksport.
+### Frontend
+- **Ny:** `src/components/process/AgentRecommendationStrip.tsx` (arbeidsområde-nivå sammendrag + bulk)
+- **Ny:** `src/components/process/AgentFitChip.tsx` (chip + inline drawer pr. prosess)
+- **Ny hook:** `src/hooks/useProcessAgentRecommendations.ts` (les + trigger generering)
+- **Endre:** `src/components/process/ProcessList.tsx` — vise stripen øverst, sende anbefaling ned i kort
+- **Endre:** `src/components/process/ProcessOverviewCard.tsx` — vise `AgentFitChip` i metadata-rad
+- i18n nøkler i `nb` og `en`
+
+### Lara Inbox
+- Når status settes til `recruited` opprettes en `user_tasks`-oppføring "Sett opp AI-agent for {prosess}", slik at ledere får oppfølging i eksisterende oppgaveflyt. Ingen ny page nødvendig.
+
+## Hva vi *ikke* gjør nå
+- Ingen automatisk eksekvering av agenten — bare *kartlegging og rekruttering*
+- Ingen ny side; alt er inline i eksisterende WorkAreas-side
+- Ingen dominante farger — følger "less is more"-stilen

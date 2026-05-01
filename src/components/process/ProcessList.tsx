@@ -9,6 +9,8 @@ import { AddProcessDialog } from "@/components/dialogs/AddProcessDialog";
 import { ProcessSuggestionsDialog, ProcessSuggestion } from "@/components/dialogs/ProcessSuggestionsDialog";
 import { AISuggestionStatusPanel } from "./AISuggestionStatusPanel";
 import { ProcessOverviewCard } from "./ProcessOverviewCard";
+import { AgentRecommendationStrip } from "./AgentRecommendationStrip";
+import { useProcessAgentRecommendations } from "@/hooks/useProcessAgentRecommendations";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 
@@ -31,6 +33,9 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
   const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
   const [generationDuration, setGenerationDuration] = useState(0);
   const [availableSystems, setAvailableSystems] = useState<{ id: string; name: string }[]>([]);
+
+  // Agent recommendations
+  const { data: agentRecs = [] } = useProcessAgentRecommendations(workAreaId);
 
   // Fetch systems for this work area
   const { data: systems } = useQuery({
@@ -344,10 +349,14 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
         </div>
       </div>
 
+      {/* AI Agent Recommendation Strip */}
+      <AgentRecommendationStrip workAreaId={workAreaId} workAreaName={workAreaName} />
+
       {/* Process Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {processes.map((process) => {
           const aiInfo = processAIUsage?.find(p => p.process_id === process.id);
+          const agentRec = agentRecs.find((r) => r.process_id === process.id);
           return (
             <ProcessOverviewCard
               key={process.id}
@@ -360,6 +369,8 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
                 riskCategory: aiInfo.risk_category,
                 complianceStatus: aiInfo.compliance_status
               } : undefined}
+              agentRec={agentRec}
+              workAreaId={workAreaId}
               onClick={() => navigate(`/processes/${process.id}`)}
             />
           );

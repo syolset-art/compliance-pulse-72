@@ -2,6 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, BarChart3, User, Check, AlertTriangle, Bot, ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AgentFitChip } from "./AgentFitChip";
+import type { ProcessAgentRec } from "@/hooks/useProcessAgentRecommendations";
 
 interface AIUsageInfo {
   hasAI: boolean;
@@ -24,6 +26,8 @@ interface ProcessOverviewCardProps {
   criticality?: "low" | "medium" | "high" | "critical";
   processOwner?: string;
   aiUsage?: AIUsageInfo;
+  agentRec?: ProcessAgentRec;
+  workAreaId?: string;
   onClick: () => void;
 }
 
@@ -85,6 +89,8 @@ export const ProcessOverviewCard = ({
   criticality = "medium",
   processOwner = "Ukjent bruker",
   aiUsage,
+  agentRec,
+  workAreaId,
   onClick,
 }: ProcessOverviewCardProps) => {
   const getCriticalityConfig = (level: string) => {
@@ -152,6 +158,11 @@ export const ProcessOverviewCard = ({
               </div>
             )}
           </div>
+          {agentRec && workAreaId && (
+            <div onClick={(e) => e.stopPropagation()}>
+              <AgentFitChip rec={agentRec} workAreaId={workAreaId} />
+            </div>
+          )}
           {process.description && (
             <p className="text-[13px] sm:text-xs text-muted-foreground line-clamp-2 sm:line-clamp-3">
               {process.description}
