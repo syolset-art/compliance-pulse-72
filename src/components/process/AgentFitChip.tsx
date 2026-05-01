@@ -48,7 +48,7 @@ export function AgentFitChip({ rec, workAreaId }: Props) {
   const isRecruited = rec.status === "recruited";
   const isDismissed = rec.status === "dismissed";
 
-  const handle = (status: "recruited" | "dismissed") => {
+  const handle = (status: "recruited" | "dismissed" | "proposed") => {
     setStatus.mutate(
       { id: rec.id, status },
       {
