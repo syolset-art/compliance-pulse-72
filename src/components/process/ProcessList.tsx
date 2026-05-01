@@ -349,10 +349,14 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
         </div>
       </div>
 
+      {/* AI Agent Recommendation Strip */}
+      <AgentRecommendationStrip workAreaId={workAreaId} workAreaName={workAreaName} />
+
       {/* Process Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {processes.map((process) => {
           const aiInfo = processAIUsage?.find(p => p.process_id === process.id);
+          const agentRec = agentRecs.find((r) => r.process_id === process.id);
           return (
             <ProcessOverviewCard
               key={process.id}
@@ -365,6 +369,8 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
                 riskCategory: aiInfo.risk_category,
                 complianceStatus: aiInfo.compliance_status
               } : undefined}
+              agentRec={agentRec}
+              workAreaId={workAreaId}
               onClick={() => navigate(`/processes/${process.id}`)}
             />
           );
