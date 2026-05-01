@@ -2184,6 +2184,7 @@ export type Database = {
           process_id: string
           rationale: string | null
           recommendation: string
+          recruited_at: string | null
           status: string
           suggested_agent_role: string | null
           updated_at: string
@@ -2198,6 +2199,7 @@ export type Database = {
           process_id: string
           rationale?: string | null
           recommendation: string
+          recruited_at?: string | null
           status?: string
           suggested_agent_role?: string | null
           updated_at?: string
@@ -2212,6 +2214,7 @@ export type Database = {
           process_id?: string
           rationale?: string | null
           recommendation?: string
+          recruited_at?: string | null
           status?: string
           suggested_agent_role?: string | null
           updated_at?: string
