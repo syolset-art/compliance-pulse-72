@@ -158,6 +158,11 @@ export const ProcessOverviewCard = ({
               </div>
             )}
           </div>
+          {agentRec && workAreaId && (
+            <div onClick={(e) => e.stopPropagation()}>
+              <AgentFitChip rec={agentRec} workAreaId={workAreaId} />
+            </div>
+          )}
           {process.description && (
             <p className="text-[13px] sm:text-xs text-muted-foreground line-clamp-2 sm:line-clamp-3">
               {process.description}
