@@ -387,6 +387,7 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
                 complianceStatus: aiInfo.compliance_status
               } : undefined}
               agentRec={agentRec}
+              showAgentChip={agentRevealed}
               workAreaId={workAreaId}
               onClick={() => navigate(`/processes/${process.id}`)}
             />
