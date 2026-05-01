@@ -11,7 +11,8 @@ import { AISuggestionStatusPanel } from "./AISuggestionStatusPanel";
 import { ProcessOverviewCard } from "./ProcessOverviewCard";
 import { AgentRecommendationStrip } from "./AgentRecommendationStrip";
 import { useProcessAgentRecommendations } from "@/hooks/useProcessAgentRecommendations";
-import { useState, useCallback } from "react";
+import { useAgentInsightReveal } from "@/hooks/useAgentInsightReveal";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 interface ProcessListProps {
@@ -35,7 +36,10 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
   const [availableSystems, setAvailableSystems] = useState<{ id: string; name: string }[]>([]);
 
   // Agent recommendations
-  const { data: agentRecs = [] } = useProcessAgentRecommendations(workAreaId);
+  const { data: agentRecs = [], isLoading: agentRecsLoading, generate: generateAgentRecs } =
+    useProcessAgentRecommendations(workAreaId);
+  const { revealed: agentRevealed } = useAgentInsightReveal(workAreaId);
+  const backfillTriggered = useRef(false);
 
   // Fetch systems for this work area
   const { data: systems } = useQuery({
