@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { workAreaId, language = "nb" } = await req.json();
+    const { workAreaId, language = "nb", processIds } = await req.json();
     if (!workAreaId) {
       return new Response(JSON.stringify({ error: "workAreaId is required" }), {
         status: 400,
@@ -55,11 +55,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Fetch processes
-    const { data: processes } = await supabase
+    // Fetch processes (optionally narrowed to specific IDs for incremental analysis)
+    let procQuery = supabase
       .from("system_processes")
       .select("id, name, description")
       .in("system_id", systemIds);
+    if (Array.isArray(processIds) && processIds.length > 0) {
+      procQuery = procQuery.in("id", processIds);
+    }
+    const { data: processes } = await procQuery;
 
     const procList: ProcessInput[] = (processes || []) as any;
     if (procList.length === 0) {

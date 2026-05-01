@@ -11,7 +11,8 @@ import { AISuggestionStatusPanel } from "./AISuggestionStatusPanel";
 import { ProcessOverviewCard } from "./ProcessOverviewCard";
 import { AgentRecommendationStrip } from "./AgentRecommendationStrip";
 import { useProcessAgentRecommendations } from "@/hooks/useProcessAgentRecommendations";
-import { useState, useCallback } from "react";
+import { useAgentInsightReveal } from "@/hooks/useAgentInsightReveal";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 interface ProcessListProps {
@@ -35,7 +36,10 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
   const [availableSystems, setAvailableSystems] = useState<{ id: string; name: string }[]>([]);
 
   // Agent recommendations
-  const { data: agentRecs = [] } = useProcessAgentRecommendations(workAreaId);
+  const { data: agentRecs = [], isLoading: agentRecsLoading, generate: generateAgentRecs } =
+    useProcessAgentRecommendations(workAreaId);
+  const { revealed: agentRevealed } = useAgentInsightReveal(workAreaId);
+  const backfillTriggered = useRef(false);
 
   // Fetch systems for this work area
   const { data: systems } = useQuery({
@@ -92,6 +96,19 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
       return data || [];
     },
   });
+
+  // Lazy backfill: if processes exist but no agent analysis exists yet,
+  // silently run Lara so the insight is "ready" when the user opens the
+  // workspace. Runs at most once per mount.
+  useEffect(() => {
+    if (backfillTriggered.current) return;
+    if (!processes || processes.length === 0) return;
+    if (agentRecsLoading) return;
+    if (agentRecs.length > 0) return;
+    if (generateAgentRecs.isPending) return;
+    backfillTriggered.current = true;
+    generateAgentRecs.mutate({ silent: true });
+  }, [processes, agentRecs.length, agentRecsLoading, generateAgentRecs]);
 
   // Create processes mutation with automatic AI usage registration
   const createProcessesMutation = useMutation({
@@ -370,6 +387,7 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
                 complianceStatus: aiInfo.compliance_status
               } : undefined}
               agentRec={agentRec}
+              showAgentChip={agentRevealed}
               workAreaId={workAreaId}
               onClick={() => navigate(`/processes/${process.id}`)}
             />

@@ -16,6 +16,7 @@ import {
 interface Props {
   rec: ProcessAgentRec;
   workAreaId: string;
+  processName?: string;
 }
 
 const config = {
@@ -36,10 +37,10 @@ const config = {
   },
 } as const;
 
-export function AgentFitChip({ rec, workAreaId }: Props) {
+export function AgentFitChip({ rec, workAreaId, processName }: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const { setStatus } = useProcessAgentRecommendations(workAreaId);
+  const { setStatus, recruitAgent } = useProcessAgentRecommendations(workAreaId);
   const [open, setOpen] = useState(false);
 
   const cfg = config[rec.recommendation];
@@ -115,10 +116,15 @@ export function AgentFitChip({ rec, workAreaId }: Props) {
             <Button
               size="sm"
               className="h-7"
-              onClick={() => handle("recruited")}
-              disabled={setStatus.isPending}
+              onClick={() =>
+                recruitAgent.mutate(
+                  { rec, processName: processName || "" },
+                  { onSuccess: () => setOpen(false) }
+                )
+              }
+              disabled={recruitAgent.isPending}
             >
-              {setStatus.isPending ? (
+              {recruitAgent.isPending ? (
                 <Loader2 className="h-3 w-3 mr-1 animate-spin" />
               ) : (
                 <Check className="h-3 w-3 mr-1" />
