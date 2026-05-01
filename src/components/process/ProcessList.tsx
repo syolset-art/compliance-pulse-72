@@ -9,6 +9,8 @@ import { AddProcessDialog } from "@/components/dialogs/AddProcessDialog";
 import { ProcessSuggestionsDialog, ProcessSuggestion } from "@/components/dialogs/ProcessSuggestionsDialog";
 import { AISuggestionStatusPanel } from "./AISuggestionStatusPanel";
 import { ProcessOverviewCard } from "./ProcessOverviewCard";
+import { AgentRecommendationStrip } from "./AgentRecommendationStrip";
+import { useProcessAgentRecommendations } from "@/hooks/useProcessAgentRecommendations";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 
