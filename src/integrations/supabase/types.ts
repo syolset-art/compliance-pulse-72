@@ -2174,6 +2174,51 @@ export type Database = {
         }
         Relationships: []
       }
+      process_agent_recommendations: {
+        Row: {
+          created_at: string
+          estimated_hours_saved_per_month: number | null
+          generated_at: string
+          generated_by_model: string | null
+          id: string
+          process_id: string
+          rationale: string | null
+          recommendation: string
+          status: string
+          suggested_agent_role: string | null
+          updated_at: string
+          work_area_id: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_hours_saved_per_month?: number | null
+          generated_at?: string
+          generated_by_model?: string | null
+          id?: string
+          process_id: string
+          rationale?: string | null
+          recommendation: string
+          status?: string
+          suggested_agent_role?: string | null
+          updated_at?: string
+          work_area_id: string
+        }
+        Update: {
+          created_at?: string
+          estimated_hours_saved_per_month?: number | null
+          generated_at?: string
+          generated_by_model?: string | null
+          id?: string
+          process_id?: string
+          rationale?: string | null
+          recommendation?: string
+          status?: string
+          suggested_agent_role?: string | null
+          updated_at?: string
+          work_area_id?: string
+        }
+        Relationships: []
+      }
       process_ai_usage: {
         Row: {
           affected_persons: string[] | null
