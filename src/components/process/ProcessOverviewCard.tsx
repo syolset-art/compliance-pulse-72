@@ -28,6 +28,7 @@ interface ProcessOverviewCardProps {
   aiUsage?: AIUsageInfo;
   agentRec?: ProcessAgentRec;
   workAreaId?: string;
+  showAgentChip?: boolean;
   onClick: () => void;
 }
 
@@ -91,6 +92,7 @@ export const ProcessOverviewCard = ({
   aiUsage,
   agentRec,
   workAreaId,
+  showAgentChip = false,
   onClick,
 }: ProcessOverviewCardProps) => {
   const getCriticalityConfig = (level: string) => {
@@ -158,9 +160,9 @@ export const ProcessOverviewCard = ({
               </div>
             )}
           </div>
-          {agentRec && workAreaId && (
+          {showAgentChip && agentRec && workAreaId && (
             <div onClick={(e) => e.stopPropagation()}>
-              <AgentFitChip rec={agentRec} workAreaId={workAreaId} />
+              <AgentFitChip rec={agentRec} workAreaId={workAreaId} processName={process.name} />
             </div>
           )}
           {process.description && (
