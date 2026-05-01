@@ -89,6 +89,8 @@ export const ProcessOverviewCard = ({
   criticality = "medium",
   processOwner = "Ukjent bruker",
   aiUsage,
+  agentRec,
+  workAreaId,
   onClick,
 }: ProcessOverviewCardProps) => {
   const getCriticalityConfig = (level: string) => {
