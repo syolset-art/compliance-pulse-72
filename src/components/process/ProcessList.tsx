@@ -97,6 +97,19 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
     },
   });
 
+  // Lazy backfill: if processes exist but no agent analysis exists yet,
+  // silently run Lara so the insight is "ready" when the user opens the
+  // workspace. Runs at most once per mount.
+  useEffect(() => {
+    if (backfillTriggered.current) return;
+    if (!processes || processes.length === 0) return;
+    if (agentRecsLoading) return;
+    if (agentRecs.length > 0) return;
+    if (generateAgentRecs.isPending) return;
+    backfillTriggered.current = true;
+    generateAgentRecs.mutate({ silent: true });
+  }, [processes, agentRecs.length, agentRecsLoading, generateAgentRecs]);
+
   // Create processes mutation with automatic AI usage registration
   const createProcessesMutation = useMutation({
     mutationFn: async (processesToCreate: ProcessSuggestion[]) => {
