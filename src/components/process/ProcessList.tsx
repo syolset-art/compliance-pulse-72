@@ -34,6 +34,9 @@ export const ProcessList = ({ workAreaId, workAreaName = "Arbeidsområde" }: Pro
   const [generationDuration, setGenerationDuration] = useState(0);
   const [availableSystems, setAvailableSystems] = useState<{ id: string; name: string }[]>([]);
 
+  // Agent recommendations
+  const { data: agentRecs = [] } = useProcessAgentRecommendations(workAreaId);
+
   // Fetch systems for this work area
   const { data: systems } = useQuery({
     queryKey: ["work-area-systems", workAreaId],
