@@ -2,6 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, BarChart3, User, Check, AlertTriangle, Bot, ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AgentFitChip } from "./AgentFitChip";
+import type { ProcessAgentRec } from "@/hooks/useProcessAgentRecommendations";
 
 interface AIUsageInfo {
   hasAI: boolean;
@@ -24,6 +26,8 @@ interface ProcessOverviewCardProps {
   criticality?: "low" | "medium" | "high" | "critical";
   processOwner?: string;
   aiUsage?: AIUsageInfo;
+  agentRec?: ProcessAgentRec;
+  workAreaId?: string;
   onClick: () => void;
 }
 
