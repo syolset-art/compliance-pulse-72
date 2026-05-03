@@ -56,6 +56,16 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --sidebar-ring: 270 45% 35%;
     
     --gradient-mynder: linear-gradient(135deg, hsl(220 14% 95%) 0%, hsl(220 14% 87%) 100%);
+
+    /* Vendor status palette (lifecycle ownership) */
+    --vendor-draft: 28 79% 41%;        /* #BA7517 — Utkast (Mynder eier) */
+    --vendor-draft-foreground: 0 0% 100%;
+    --vendor-invited: 210 74% 37%;     /* #185FA5 — Invitert */
+    --vendor-invited-foreground: 0 0% 100%;
+    --vendor-claimed: 240 53% 23%;     /* #1F1B5A — Claimet (Mynder Blue) */
+    --vendor-claimed-foreground: 0 0% 100%;
+    --vendor-archived: 52 4% 40%;      /* #6B6A62 — Arkivert */
+    --vendor-archived-foreground: 0 0% 100%;
   }
 
   .dark {

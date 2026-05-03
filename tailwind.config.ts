@@ -79,6 +79,22 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "vendor-draft": {
+          DEFAULT: "hsl(var(--vendor-draft))",
+          foreground: "hsl(var(--vendor-draft-foreground))",
+        },
+        "vendor-invited": {
+          DEFAULT: "hsl(var(--vendor-invited))",
+          foreground: "hsl(var(--vendor-invited-foreground))",
+        },
+        "vendor-claimed": {
+          DEFAULT: "hsl(var(--vendor-claimed))",
+          foreground: "hsl(var(--vendor-claimed-foreground))",
+        },
+        "vendor-archived": {
+          DEFAULT: "hsl(var(--vendor-archived))",
+          foreground: "hsl(var(--vendor-archived-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
