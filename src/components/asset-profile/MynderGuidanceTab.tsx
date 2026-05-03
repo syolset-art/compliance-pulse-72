@@ -1,23 +1,26 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Check, X, Sliders, ChevronDown, CheckCircle2, Send, CalendarPlus, ClipboardList, Edit3, SkipForward, Sparkles, ListChecks } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
-import { LevelChip } from "@/components/asset-profile/LevelChip";
-import { LaraActionPreviewDialog } from "@/components/asset-profile/LaraActionPreviewDialog";
-import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
-import { InlineStatusEditor } from "@/components/asset-profile/InlineStatusEditor";
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
 import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
+import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
+import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import type { LaraPlanTask } from "@/components/lara/types";
 import {
-  generateGuidanceForVendor, recomputeSummary,
-  STATUS_CONFIG, CRITICALITY_CONFIG,
-  type SuggestedActivity, type GapStatus, type NextActionDraft,
+  generateGuidanceForVendor,
+  type SuggestedActivity,
 } from "@/utils/vendorGuidanceData";
-import type { ActivityStatus, VendorActivity } from "@/utils/vendorActivityData";
+import type { VendorActivity } from "@/utils/vendorActivityData";
+
+interface Props {
+  assetId: string;
+  assetName?: string;
+  baselinePercent?: number;
+  enrichmentPercent?: number;
+  externalActivities?: VendorActivity[];
+  dismissedSuggestionIds: string[];
+  onActivitySaved: (activity: VendorActivity, fromSuggestion?: SuggestedActivity) => void;
+}
 
 interface Props {
   assetId: string;
