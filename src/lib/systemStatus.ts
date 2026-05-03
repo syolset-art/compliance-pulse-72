@@ -40,8 +40,8 @@ const STATUS_META: Record<SystemStatusKey, SystemStatusMeta> = {
     stripeLabel: "SYSTEM · TILDELT",
     stripeBg: "bg-system-assigned",
     stripeText: "text-system-assigned-foreground",
-    hex: "#185FA5",
-    tone: "primary",
+    hex: "#BA7517",
+    tone: "warning",
   },
   owned: {
     key: "owned",
