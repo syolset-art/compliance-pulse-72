@@ -51,10 +51,7 @@ export function VendorStatusLegend({ className }: { className?: string }) {
                 )}
               </div>
               <div className="flex-1 min-w-0 px-2.5 py-1.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-[13px] font-semibold text-foreground">{s.label}</span>
-                  <span className="text-[11px] font-mono text-muted-foreground tabular-nums">{s.hex}</span>
-                </div>
+                <span className="text-[13px] font-semibold text-foreground">{s.label}</span>
                 <p className="text-[12px] text-muted-foreground leading-snug mt-0.5">
                   {s.description}
                   {s.hasActiveDot && " · grønn prikk = aktiv"}
