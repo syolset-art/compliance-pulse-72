@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/lib/vendorStatus";
 import { VendorInlinePillSelect } from "@/components/vendor-dashboard/VendorInlinePillSelect";
+import { InviteVendorDialog } from "@/components/vendor-dashboard/InviteVendorDialog";
+import { useState } from "react";
 
 interface VendorStatusBannerProps {
   asset: {
