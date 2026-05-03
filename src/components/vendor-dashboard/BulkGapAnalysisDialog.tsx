@@ -155,7 +155,12 @@ function generatePlan(details: VendorGapDetail[]): { proposals: PlanProposal[]; 
       needsClarification: {
         questionNb: "Skal vi godta selv-deklarert ISO eller kreve sertifikat?",
         questionEn: "Accept self-declared ISO or require a certificate?",
-        placeholder: "Krever sertifikat",
+        placeholder: "Skriv eget svar…",
+        suggestedAnswers: [
+          { nb: "Krever gyldig sertifikat", en: "Require valid certificate" },
+          { nb: "Godta selv-deklarert ISO", en: "Accept self-declared ISO" },
+          { nb: "Aksepter SOC 2 som alternativ", en: "Accept SOC 2 as alternative" },
+        ],
       },
     });
   }
