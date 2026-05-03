@@ -30,8 +30,8 @@ const STATUS_META: Record<SystemStatusKey, SystemStatusMeta> = {
     stripeLabel: "SYSTEM · KARTLAGT",
     stripeBg: "bg-system-mapped",
     stripeText: "text-system-mapped-foreground",
-    hex: "#BA7517",
-    tone: "warning",
+    hex: "#534AB7",
+    tone: "primary",
   },
   assigned: {
     key: "assigned",
