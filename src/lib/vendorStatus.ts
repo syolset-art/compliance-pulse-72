@@ -40,8 +40,8 @@ const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
     stripeLabel: "LEVERANDØR · UTKAST",
     stripeBg: "bg-vendor-draft",
     stripeText: "text-vendor-draft-foreground",
-    hex: "#BA7517",
-    tone: "warning",
+    hex: "#534AB7",
+    tone: "primary",
   },
   invited: {
     key: "invited",
