@@ -164,11 +164,13 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
       );
     }
     if (status.key === "draft") {
+      const mapped = md.lara_mapped_at_label || md.lara_mapped_at;
+      const isMapping = !mapped;
       return (
         <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
           <p className="text-[13px] text-foreground/80 flex items-center gap-2">
-            <MessageSquare className="h-3.5 w-3.5 text-warning" />
-            Profilen er ikke claimet av leverandøren. Du redigerer på vegne av {asset.name}.
+            <Sparkles className={cn("h-3.5 w-3.5 text-primary", isMapping && "animate-pulse")} />
+            {isMapping ? "Lara kartlegger profilen…" : <>Lara kartla profilen {mapped}</>}
           </p>
           <Button size="sm" className="gap-1.5 h-8" onClick={() => toast.success("Invitasjon sendt til leverandør")}>
             <Send className="h-3.5 w-3.5" /> Inviter leverandøren
