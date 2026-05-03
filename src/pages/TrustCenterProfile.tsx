@@ -287,9 +287,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         <Card className="overflow-hidden p-0">
           <div className="flex items-stretch">
             {/* Vertical Verified stripe */}
-            <div className="relative w-9 shrink-0 bg-success/15 border-r border-success/30">
+            <div className="relative w-10 shrink-0 bg-success border-r border-success">
               <span
-                className="absolute inset-0 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap text-success"
+                className="absolute inset-0 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap text-success-foreground"
                 style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
               >
                 <CheckCircle2 className="h-3 w-3" />
@@ -931,9 +931,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <Card className="overflow-hidden p-0">
                 <div className="flex items-stretch">
                   {/* Vertical Verified stripe */}
-                  <div className="relative w-9 shrink-0 bg-success/15 border-r border-success/30">
+                  <div className="relative w-10 shrink-0 bg-success border-r border-success">
                     <span
-                      className="absolute inset-0 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap text-success"
+                      className="absolute inset-0 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap text-success-foreground"
                       style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
                     >
                       <CheckCircle2 className="h-3 w-3" />
