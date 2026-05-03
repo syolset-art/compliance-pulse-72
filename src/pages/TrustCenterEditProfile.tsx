@@ -262,6 +262,7 @@ const TrustCenterEditProfile = () => {
               frameworks={frameworks}
               linkedProducts={[]}
               evaluation={evaluation}
+              asset={asset}
             />
 
             {/* Quick nav tabs */}
