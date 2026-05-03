@@ -847,10 +847,10 @@ export default function Systems() {
         onOpenChange={setHelpOpen}
         icon={Cpu}
         title="Hva er systemregisteret?"
-        description="Systemregisteret gir deg oversikt over alle IT-systemer og applikasjoner organisasjonen bruker. Her kan du dokumentere eierskap, risikonivå, compliance-status og koble systemer til arbeidsområder."
+        description="Systemregisteret gir deg oversikt over alle IT-systemer og applikasjoner organisasjonen bruker. Her kan du dokumentere eierskap, kritikalitet, compliance-status og koble systemer til arbeidsområder."
         itemsHeading="Hva kan du gjøre her?"
         items={[
-          { icon: ShieldIcon, title: "Vurder risiko og modenhet", description: "Se compliance-score og risikonivå for hvert system." },
+          { icon: ShieldIcon, title: "Vurder kritikalitet og modenhet", description: "Du setter kritikalitet selv — Mynder beregner risiko ut fra data." },
           { icon: FileCheck, title: "Dokumenter eierskap", description: "Knytt hvert system til et arbeidsområde og tildel ansvarlig person." },
           { icon: ClipboardList, title: "Spor AI-bruk", description: "Registrer om systemer bruker kunstig intelligens og dokumenter formål." },
         ]}
@@ -860,7 +860,7 @@ export default function Systems() {
         steps={[
           { text: "Legg til systemer organisasjonen bruker" },
           { text: "Knytt hvert system til riktig arbeidsområde" },
-          { text: "Vurder risikonivå og compliance-status" },
+          { text: "Vurder kritikalitet og compliance-status" },
           { text: "Dokumenter AI-bruk der det er relevant" },
         ]}
         laraSuggestion="Hjelp meg med å kartlegge og vurdere systemene mine"
