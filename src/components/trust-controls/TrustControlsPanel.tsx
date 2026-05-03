@@ -490,14 +490,24 @@ export function TrustControlsPanel({
                       );
                     })}
 
+                    {/* Sources discovered by Lara (web findings) */}
+                    <SourcesPanel
+                      assetId={asset.id}
+                      controlArea={area}
+                      assetWebsite={(asset.metadata as any)?.website || null}
+                    />
+
                     {/* Inline document checklist for this area */}
-                    {docChecklistArea === area && (
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-foreground mb-1">
+                        {isNb ? "Dokumentasjon" : "Documentation"}
+                      </p>
                       <InlineDocumentChecklist
                         assetId={asset.id}
                         controlArea={area}
                         onNavigateToDocuments={onNavigateToTab ? () => onNavigateToTab("documents") : undefined}
                       />
-                    )}
+                    </div>
                   </div>
                 )}
               </div>
