@@ -51,6 +51,9 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
   /** Per-kort steg-tilstand. */
   const [cardSteps, setCardSteps] = useState<Record<string, CardStep>>({});
 
+  /** Filter for "Pågående aktiviteter"-listen nederst. */
+  const [ongoingFilter, setOngoingFilter] = useState<"all" | "operasjonelt" | "taktisk" | "strategisk">("all");
+
   /** Aktiv preview-dialog (forhåndsvisning av e-post / møte / oppgave). */
   const [previewDraft, setPreviewDraft] = useState<{ suggestionId: string; draft: NextActionDraft } | null>(null);
 
