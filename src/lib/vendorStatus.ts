@@ -7,12 +7,18 @@ export interface VendorStatusMeta {
   key: VendorStatusKey;
   /** Kort label brukt i pille (f.eks. «Utkast») */
   label: string;
+  /** Lengre forklaring brukt i fargeforklaring */
+  description: string;
   /** Tekst på vertikal stripe (f.eks. «LEVERANDØR · UTKAST») */
   stripeLabel: string;
   /** Tailwind bg-class for vertikal stripe */
   stripeBg: string;
   /** Tailwind text-class for stripe-label */
   stripeText: string;
+  /** Hex-verdi for fargeforklaring/tooltip */
+  hex: string;
+  /** Om stripen skal ha en grønn aktiv-prikk (Claimet) */
+  hasActiveDot?: boolean;
   /** Tone-navn brukt til donut/banner */
   tone: "warning" | "primary" | "success" | "muted";
 }
@@ -30,33 +36,42 @@ const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
   draft: {
     key: "draft",
     label: "Utkast",
+    description: "Mynder eier profilen — leverandøren er ikke invitert ennå",
     stripeLabel: "LEVERANDØR · UTKAST",
-    stripeBg: "bg-warning",
-    stripeText: "text-warning-foreground",
+    stripeBg: "bg-vendor-draft",
+    stripeText: "text-vendor-draft-foreground",
+    hex: "#BA7517",
     tone: "warning",
   },
   invited: {
     key: "invited",
     label: "Invitert",
+    description: "Invitasjon sendt — venter på at leverandøren claimer profilen",
     stripeLabel: "LEVERANDØR · INVITERT",
-    stripeBg: "bg-primary",
-    stripeText: "text-primary-foreground",
+    stripeBg: "bg-vendor-invited",
+    stripeText: "text-vendor-invited-foreground",
+    hex: "#185FA5",
     tone: "primary",
   },
   claimed: {
     key: "claimed",
     label: "Claimet",
+    description: "Leverandøren eier og oppdaterer profilen selv",
     stripeLabel: "LEVERANDØR · CLAIMET",
-    stripeBg: "bg-success",
-    stripeText: "text-success-foreground",
+    stripeBg: "bg-vendor-claimed",
+    stripeText: "text-vendor-claimed-foreground",
+    hex: "#1F1B5A",
+    hasActiveDot: true,
     tone: "success",
   },
   archived: {
     key: "archived",
     label: "Arkivert",
+    description: "Samarbeidet er avsluttet — profilen er fryst",
     stripeLabel: "LEVERANDØR · ARKIVERT",
-    stripeBg: "bg-muted-foreground/60",
-    stripeText: "text-background",
+    stripeBg: "bg-vendor-archived",
+    stripeText: "text-vendor-archived-foreground",
+    hex: "#6B6A62",
     tone: "muted",
   },
 };
