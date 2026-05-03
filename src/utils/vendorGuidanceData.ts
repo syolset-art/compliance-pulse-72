@@ -134,6 +134,16 @@ const TEMPLATES: Omit<SuggestedActivity, "id">[] = [
     themeEn: "DPA & privacy",
     suggestedType: "email",
     suggestedPhase: "onboarding",
+    nextAction: {
+      type: "email",
+      proposalNb: "Send e-post til kontakt@leverandor.no og be om signert DPA.",
+      proposalEn: "Send an email to kontakt@leverandor.no requesting a signed DPA.",
+      recipient: "kontakt@leverandor.no",
+      subjectNb: "Forespørsel om signert databehandleravtale",
+      subjectEn: "Request for signed Data Processing Agreement",
+      bodyNb: "Hei,\n\nVi gjennomgår vår leverandøroversikt og trenger en signert databehandleravtale (DPA) som dekker behandlingsformål, sikkerhetstiltak og underleverandører i tråd med GDPR art. 28.\n\nKan dere sende oss en oppdatert versjon innen 14 dager?\n\nMvh",
+      bodyEn: "Hi,\n\nDuring our vendor review we need a signed Data Processing Agreement (DPA) covering processing purpose, security measures and sub-processors in line with GDPR art. 28.\n\nCould you share an updated version within 14 days?\n\nBest regards",
+    },
   },
   {
     gapId: "gap-sla",
@@ -152,6 +162,16 @@ const TEMPLATES: Omit<SuggestedActivity, "id">[] = [
     themeEn: "SLA & delivery",
     suggestedType: "email",
     suggestedPhase: "ongoing",
+    nextAction: {
+      type: "email",
+      proposalNb: "Send e-post og be om gjeldende SLA med oppetidsgaranti og responstider.",
+      proposalEn: "Send an email requesting the current SLA with uptime guarantee and response times.",
+      recipient: "kontakt@leverandor.no",
+      subjectNb: "Forespørsel om oppdatert SLA",
+      subjectEn: "Request for updated SLA",
+      bodyNb: "Hei,\n\nKan dere sende oss gjeldende tjenestenivåavtale (SLA), inkludert oppetidsgaranti, responstider og prosedyrer for hendelseshåndtering?\n\nMvh",
+      bodyEn: "Hi,\n\nCould you share the current Service Level Agreement (SLA), including uptime guarantee, response times and incident-handling procedures?\n\nBest regards",
+    },
   },
   {
     gapId: "gap-risk",
@@ -170,6 +190,16 @@ const TEMPLATES: Omit<SuggestedActivity, "id">[] = [
     themeEn: "Audit & control",
     suggestedType: "meeting",
     suggestedPhase: "audit",
+    nextAction: {
+      type: "meeting",
+      proposalNb: "Foreslå 3 møtetider og send invitasjon til sikkerhetskontakten.",
+      proposalEn: "Propose 3 time slots and send a meeting invitation to the security contact.",
+      recipient: "security@leverandor.no",
+      subjectNb: "Møteforespørsel: årlig risikogjennomgang",
+      subjectEn: "Meeting request: annual risk review",
+      bodyNb: "Hei,\n\nVi ønsker å avtale en gjennomgang av risikobildet for vårt samarbeid — endringer i underleverandørkjeden, kontrollnivå og hendelseshåndtering.\n\nForslag til tider:\n• Tirsdag 12.05 kl. 10:00\n• Onsdag 13.05 kl. 14:00\n• Fredag 15.05 kl. 09:00\n\nMvh",
+      bodyEn: "Hi,\n\nWe'd like to schedule a review of the risk picture for our partnership — sub-processor changes, control level and incident handling.\n\nProposed times:\n• Tuesday 12/05 at 10:00\n• Wednesday 13/05 at 14:00\n• Friday 15/05 at 09:00\n\nBest regards",
+    },
   },
 ];
 
