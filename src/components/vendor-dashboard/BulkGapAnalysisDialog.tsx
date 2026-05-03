@@ -135,7 +135,8 @@ function generatePlan(details: VendorGapDetail[]): { proposals: PlanProposal[]; 
       needsClarification: {
         questionNb: "Hvem hos oss skal eie oppfølgingen?",
         questionEn: "Who on our side should own the follow-up?",
-        placeholder: "F.eks. Anne Hansen",
+        placeholder: "Velg en bruker",
+        requiresUser: true,
       },
     });
   }
