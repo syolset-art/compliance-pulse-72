@@ -1,16 +1,18 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, RefreshCw, Check, X, Sliders, ChevronDown } from "lucide-react";
+import { Plus, RefreshCw, Check, X, Sliders, ChevronDown, CheckCircle2, Send, CalendarPlus, ClipboardList, Edit3, SkipForward, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
+import { LevelChip } from "@/components/asset-profile/LevelChip";
+import { LaraActionPreviewDialog } from "@/components/asset-profile/LaraActionPreviewDialog";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { InlineStatusEditor } from "@/components/asset-profile/InlineStatusEditor";
 import {
   generateGuidanceForVendor, recomputeSummary,
-  STATUS_CONFIG, LEVEL_CONFIG, LEVEL_DOT, CRITICALITY_CONFIG,
-  type SuggestedActivity, type GapStatus,
+  STATUS_CONFIG, CRITICALITY_CONFIG,
+  type SuggestedActivity, type GapStatus, type NextActionDraft,
 } from "@/utils/vendorGuidanceData";
 import type { ActivityStatus, VendorActivity } from "@/utils/vendorActivityData";
 
@@ -26,6 +28,12 @@ interface GapOverride {
   changedAt: Date;
 }
 
+/** Per-kort tilstand i den agentiske flyten. */
+type CardStep =
+  | { kind: "suggested" }                                  // før brukeren har "akseptert"
+  | { kind: "created" }                                    // aktivitet opprettet, ikke påbegynt
+  | { kind: "sent"; whenNb: string; whenEn: string };       // Lara's neste handling utført
+
 export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivitySaved }: Props) {
   const { i18n } = useTranslation();
   const { toast } = useToast();
@@ -36,8 +44,19 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
   const [editingStatusId, setEditingStatusId] = useState<string | null>(null);
   const [locallyDismissed, setLocallyDismissed] = useState<string[]>([]);
   const [summaryDismissed, setSummaryDismissed] = useState(false);
+  const [summaryAccepted, setSummaryAccepted] = useState(false);
   const [reanalyzing, setReanalyzing] = useState(false);
   const [lastAnalyzed, setLastAnalyzed] = useState<Date>(new Date());
+
+  /** Per-kort steg-tilstand. */
+  const [cardSteps, setCardSteps] = useState<Record<string, CardStep>>({});
+
+  /** Aktiv preview-dialog (forhåndsvisning av e-post / møte / oppgave). */
+  const [previewDraft, setPreviewDraft] = useState<{ suggestionId: string; draft: NextActionDraft } | null>(null);
+
+  /** Manuell aktivitetsdialog (gammel flyt — fortsatt tilgjengelig via "Endre forslag"). */
+  const [activePrefill, setActivePrefill] = useState<SuggestedActivity | null>(null);
+  const [emptyOpen, setEmptyOpen] = useState(false);
 
   const allDismissed = useMemo(
     () => [...dismissedSuggestionIds, ...locallyDismissed],
@@ -51,10 +70,30 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
     [guidance.suggestions, allDismissed, gapStatusOverrides]
   );
 
-  const [activePrefill, setActivePrefill] = useState<SuggestedActivity | null>(null);
-  const [emptyOpen, setEmptyOpen] = useState(false);
-
   const summary = recomputeSummary(visibleSuggestions, isNb);
+  const createdCount = Object.values(cardSteps).filter(s => s.kind !== "suggested").length;
+
+  const stepOf = (id: string): CardStep => cardSteps[id] ?? { kind: "suggested" };
+
+  const handleAcceptSummary = () => {
+    // Opprett alle synlige forslag som "Opprettet, ikke påbegynt".
+    const next: Record<string, CardStep> = { ...cardSteps };
+    visibleSuggestions.forEach(s => { if (!next[s.id]) next[s.id] = { kind: "created" }; });
+    setCardSteps(next);
+    setSummaryAccepted(true);
+    toast({
+      title: isNb ? `${visibleSuggestions.length} aktiviteter opprettet` : `${visibleSuggestions.length} activities created`,
+      description: isNb ? "Ikke påbegynt — Lara foreslår neste handling for hver enkelt." : "Not started — Lara suggests the next action for each one.",
+    });
+  };
+
+  const handleAcceptOne = (s: SuggestedActivity) => {
+    setCardSteps(prev => ({ ...prev, [s.id]: { kind: "created" } }));
+    toast({
+      title: isNb ? "Aktivitet opprettet" : "Activity created",
+      description: isNb ? "Lara foreslår neste handling under." : "Lara suggests the next action below.",
+    });
+  };
 
   const handleSubmit = (activity: VendorActivity) => {
     onActivitySaved(activity, activePrefill ?? undefined);
@@ -76,6 +115,28 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
       title: isNb ? "Forslag avvist" : "Suggestion dismissed",
       description: isNb ? `Lara vil ikke foreslå "${title}" igjen.` : `Lara won't suggest "${title}" again.`,
     });
+  };
+
+  const handleSendAction = (final: { recipient?: string; subject: string; body: string }) => {
+    if (!previewDraft) return;
+    const today = new Date().toLocaleDateString(isNb ? "nb-NO" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
+    setCardSteps(prev => ({
+      ...prev,
+      [previewDraft.suggestionId]: {
+        kind: "sent",
+        whenNb: `Sendt ${today} — venter på svar`,
+        whenEn: `Sent ${today} — awaiting reply`,
+      },
+    }));
+    setGapStatusOverrides(prev => ({
+      ...prev,
+      [previewDraft.suggestionId]: { status: "in_progress", changedAt: new Date() },
+    }));
+    toast({
+      title: isNb ? "Sendt" : "Sent",
+      description: isNb ? `Til ${final.recipient ?? ""} · ${final.subject}` : `To ${final.recipient ?? ""} · ${final.subject}`,
+    });
+    setPreviewDraft(null);
   };
 
   const handleReanalyze = () => {
@@ -126,9 +187,9 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
         </Button>
       </div>
 
-      {/* Lara summary bubble */}
-      {!summaryDismissed && (
-        <div className="rounded-2xl bg-purple-100 p-4 relative">
+      {/* Steg 1 / 2 — sammendrags-boble */}
+      {!summaryDismissed && !summaryAccepted && (
+        <div className="rounded-2xl bg-purple-100 p-4">
           <div className="flex items-start gap-3">
             <LaraAvatar size={28} className="mt-0.5" />
             <div className="min-w-0 flex-1">
@@ -136,24 +197,34 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
                 {isNb ? "Lara foreslår" : "Lara suggests"}
               </p>
               <p className="text-sm leading-relaxed text-purple-900">{summary}</p>
+              <p className="text-[12px] text-purple-900/70 mt-1.5 leading-snug">
+                {isNb
+                  ? "Aktivitetene blir opprettet — men ikke påbegynt. Du bestemmer når og hvordan vi følger opp."
+                  : "Activities will be created — not started. You decide when and how to follow up."}
+              </p>
               <div className="mt-3 flex items-center gap-2 flex-wrap">
                 <Button
                   size="sm"
                   className="rounded-pill bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white gap-1.5 h-8"
-                  onClick={() => {
-                    toast({
-                      title: isNb ? "Takk – Lara fortsetter" : "Thanks – Lara continues",
-                      description: isNb ? "Forslagene er prioritert nedenfor." : "Suggestions are prioritized below.",
-                    });
-                  }}
+                  onClick={handleAcceptSummary}
                 >
                   <Check className="h-3.5 w-3.5" />
-                  {isNb ? "Godta sammendrag" : "Accept summary"}
+                  {isNb
+                    ? `Opprett ${visibleSuggestions.length} aktivitet${visibleSuggestions.length === 1 ? "" : "er"}`
+                    : `Create ${visibleSuggestions.length} activit${visibleSuggestions.length === 1 ? "y" : "ies"}`}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   className="rounded-pill gap-1.5 h-8 border-purple-900/20 text-purple-900 hover:bg-white"
+                  onClick={() => setSummaryDismissed(true)}
+                >
+                  {isNb ? "Vis først" : "Show first"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="rounded-pill gap-1.5 h-8 text-purple-900/80 hover:bg-white"
                   onClick={() => setSummaryDismissed(true)}
                 >
                   <X className="h-3.5 w-3.5" />
@@ -165,16 +236,44 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
         </div>
       )}
 
-      {/* Section header */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-          {isNb ? `Foreslåtte handlinger (${visibleSuggestions.length})` : `Suggested actions (${visibleSuggestions.length})`}
-        </h3>
-        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-status-closed" />{isNb ? "Operasjonelt" : "Operational"}</span>
-          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-warning" />{isNb ? "Taktisk" : "Tactical"}</span>
-          <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-primary" />{isNb ? "Strategisk" : "Strategic"}</span>
+      {/* Steg 2-kvittering */}
+      {summaryAccepted && (
+        <div className="rounded-2xl bg-success/10 border border-success/30 p-3 flex items-center gap-3">
+          <CheckCircle2 className="h-5 w-5 text-success shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-foreground">
+              {isNb
+                ? `${createdCount} aktivitet${createdCount === 1 ? "" : "er"} opprettet — ikke påbegynt`
+                : `${createdCount} activit${createdCount === 1 ? "y" : "ies"} created — not started`}
+            </p>
+            <p className="text-[12px] text-muted-foreground">
+              {isNb
+                ? "Lara foreslår en konkret neste handling for hver aktivitet under."
+                : "Lara suggests a concrete next action for each activity below."}
+            </p>
+          </div>
         </div>
+      )}
+
+      {/* Section header med forklaringer */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {summaryAccepted
+              ? (isNb ? `Aktiviteter klare for handling (${visibleSuggestions.length})` : `Activities ready for action (${visibleSuggestions.length})`)
+              : (isNb ? `Foreslåtte handlinger (${visibleSuggestions.length})` : `Suggested actions (${visibleSuggestions.length})`)}
+          </h3>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <LevelChip level="operasjonelt" isNb={isNb} />
+            <LevelChip level="taktisk" isNb={isNb} />
+            <LevelChip level="strategisk" isNb={isNb} />
+          </div>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          {isNb
+            ? "Lara prioriterer aktiviteter etter hvor mye de påvirker virksomheten — hold pekeren over et nivå for å se hva det betyr."
+            : "Lara prioritises activities by their business impact — hover a level to see what it means."}
+        </p>
       </div>
 
       {/* Suggestion cards */}
@@ -182,9 +281,7 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
         <div className="rounded-2xl bg-purple-100 p-6 flex items-start gap-3">
           <LaraAvatar size={32} />
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-purple-900/70 mb-1">
-              {isNb ? "Lara" : "Lara"}
-            </p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-purple-900/70 mb-1">Lara</p>
             <p className="text-sm text-purple-900">
               {isNb
                 ? "Ingen åpne gap akkurat nå. Jeg fortsetter å overvåke leverandøren og varsler deg hvis noe endrer seg."
@@ -196,10 +293,37 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
         <div className="space-y-3">
           {visibleSuggestions.map((s) => {
             const status = STATUS_CONFIG[s.status];
-            const lvl = LEVEL_CONFIG[s.level];
             const crit = CRITICALITY_CONFIG[s.criticality];
             const isEditing = editingStatusId === s.id;
             const title = isNb ? s.titleNb : s.titleEn;
+            const step = stepOf(s.id);
+
+            // Status-badge byttes ut når aktiviteten er opprettet
+            const renderStatusBadge = () => {
+              if (step.kind === "created") {
+                return (
+                  <span className="inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+                    <CheckCircle2 className="h-2.5 w-2.5" />
+                    {isNb ? "Opprettet" : "Created"}
+                  </span>
+                );
+              }
+              if (step.kind === "sent") {
+                return (
+                  <span className="inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-warning/10 text-warning border border-warning/20">
+                    <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+                    {isNb ? "Under oppfølging" : "In progress"}
+                  </span>
+                );
+              }
+              return (
+                <span className={cn("inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider", status.badge)}>
+                  <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
+                  {isNb ? status.nb : status.en}
+                </span>
+              );
+            };
+
             return (
               <div
                 key={s.id}
@@ -208,82 +332,119 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
                   "transition-all hover:border-primary/40 hover:shadow-sm"
                 )}
               >
-                {/* level color bar */}
-                <span className={cn("absolute left-0 top-0 bottom-0 w-1 z-[1]", LEVEL_DOT[s.level])} aria-hidden />
-
-                <div className="pl-4 pr-4 py-4">
-                  {/* Top row: Lara label + status/criticality */}
+                <div className="px-4 py-4">
+                  {/* Top row */}
                   <div className="flex items-center justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <LaraAvatar size={22} />
                       <span className="text-[11px] font-bold uppercase tracking-wider text-purple-900/80">
-                        {isNb ? "Lara foreslår" : "Lara suggests"}
+                        {step.kind === "suggested"
+                          ? (isNb ? "Lara foreslår" : "Lara suggests")
+                          : (isNb ? "Aktivitet" : "Activity")}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {s.status === "open" && (
+                      {step.kind === "suggested" && s.status === "open" && (
                         <span className={cn("inline-flex items-center rounded-pill px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider", crit.badge)}>
                           {isNb ? crit.nb : crit.en}
                         </span>
                       )}
-                      <span className={cn("inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider", status.badge)}>
-                        <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
-                        {isNb ? status.nb : status.en}
-                      </span>
+                      {renderStatusBadge()}
                     </div>
                   </div>
 
                   {/* Title */}
                   <h4 className="text-sm font-bold text-foreground mb-2">{title}</h4>
 
-                  {/* Lara quote bubble */}
-                  <div className="rounded-lg bg-purple-100 px-3 py-2 mb-3">
-                    <p className="text-xs text-purple-900 leading-relaxed">
-                      "{isNb ? s.statusNoteNb : s.statusNoteEn}"
-                    </p>
-                  </div>
+                  {/* Hvorfor (Lara's begrunnelse) — vises bare før aktivitet er opprettet */}
+                  {step.kind === "suggested" && (
+                    <div className="rounded-lg bg-purple-100 px-3 py-2 mb-3">
+                      <p className="text-xs text-purple-900 leading-relaxed">
+                        "{isNb ? s.statusNoteNb : s.statusNoteEn}"
+                      </p>
+                    </div>
+                  )}
 
-                  {/* Tags */}
+                  {/* Tags — nivå (med tooltip) + tema */}
                   <div className="flex items-center gap-1.5 flex-wrap mb-3">
-                    <span className="inline-flex items-center gap-1 rounded-pill bg-muted px-2 py-0.5 text-[11px] text-foreground/80">
-                      <span className={cn("h-1.5 w-1.5 rounded-full", LEVEL_DOT[s.level])} />
-                      {isNb ? lvl.nb : lvl.en}
-                    </span>
+                    <LevelChip level={s.level} isNb={isNb} />
                     <span className="inline-flex items-center rounded-pill bg-muted px-2 py-0.5 text-[11px] text-foreground/80">
                       {isNb ? s.themeNb : s.themeEn}
                     </span>
                   </div>
 
-                  {/* Explicit accept / reject / change */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Button
-                      size="sm"
-                      className="rounded-pill bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white gap-1.5 h-8"
-                      onClick={() => setActivePrefill(s)}
-                    >
-                      <Check className="h-3.5 w-3.5" />
-                      {isNb ? "Godta og start aktivitet" : "Accept and start activity"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="rounded-pill gap-1.5 h-8"
-                      onClick={() => handleDismiss(s.id, title)}
-                    >
-                      <X className="h-3.5 w-3.5" />
-                      {isNb ? "Avvis" : "Dismiss"}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="rounded-pill gap-1.5 h-8 ml-auto text-muted-foreground"
-                      onClick={() => setEditingStatusId(isEditing ? null : s.id)}
-                    >
-                      <Sliders className="h-3.5 w-3.5" />
-                      {isNb ? "Endre status" : "Change status"}
-                      <ChevronDown className={cn("h-3 w-3 transition-transform", isEditing && "rotate-180")} />
-                    </Button>
-                  </div>
+                  {/* Actions per steg */}
+                  {step.kind === "suggested" && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        className="rounded-pill bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white gap-1.5 h-8"
+                        onClick={() => handleAcceptOne(s)}
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                        {isNb ? "Opprett aktivitet" : "Create activity"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-pill gap-1.5 h-8"
+                        onClick={() => setActivePrefill(s)}
+                      >
+                        <Edit3 className="h-3.5 w-3.5" />
+                        {isNb ? "Endre forslag" : "Edit suggestion"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="rounded-pill gap-1.5 h-8 text-muted-foreground"
+                        onClick={() => handleDismiss(s.id, title)}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        {isNb ? "Avvis" : "Dismiss"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="rounded-pill gap-1.5 h-8 ml-auto text-muted-foreground"
+                        onClick={() => setEditingStatusId(isEditing ? null : s.id)}
+                      >
+                        <Sliders className="h-3.5 w-3.5" />
+                        {isNb ? "Endre status" : "Change status"}
+                        <ChevronDown className={cn("h-3 w-3 transition-transform", isEditing && "rotate-180")} />
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Steg 3 — Lara's neste handling */}
+                  {step.kind === "created" && s.nextAction && (
+                    <NextStepBubble
+                      draft={s.nextAction}
+                      isNb={isNb}
+                      onPreview={() => setPreviewDraft({ suggestionId: s.id, draft: s.nextAction! })}
+                      onSkip={() => {
+                        toast({
+                          title: isNb ? "Hoppet over" : "Skipped",
+                          description: isNb ? "Aktiviteten venter til du er klar." : "The activity will wait until you're ready.",
+                        });
+                      }}
+                    />
+                  )}
+
+                  {step.kind === "created" && !s.nextAction && (
+                    <p className="text-[12px] text-muted-foreground italic">
+                      {isNb ? "Aktiviteten venter — Lara har ingen automatisk neste handling for denne." : "Activity waiting — Lara has no automated next step for this one."}
+                    </p>
+                  )}
+
+                  {/* Steg 4 — bekreftelse */}
+                  {step.kind === "sent" && (
+                    <div className="rounded-lg bg-success/10 border border-success/30 px-3 py-2 flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                      <span className="text-[13px] text-foreground">
+                        {isNb ? step.whenNb : step.whenEn}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {isEditing && (
@@ -309,7 +470,16 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
         </Button>
       </div>
 
-      {/* Prefilled dialog (from suggestion) */}
+      {/* Lara's preview-dialog (e-post/møte/oppgave) */}
+      <LaraActionPreviewDialog
+        open={!!previewDraft}
+        onOpenChange={(o) => { if (!o) setPreviewDraft(null); }}
+        draft={previewDraft?.draft ?? null}
+        isNb={isNb}
+        onSend={handleSendAction}
+      />
+
+      {/* Manuell aktivitetsdialog (for "Endre forslag") */}
       <RegisterActivityDialog
         open={!!activePrefill}
         onOpenChange={(o) => { if (!o) setActivePrefill(null); }}
@@ -318,13 +488,63 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
         hideTrigger
       />
 
-      {/* Empty dialog */}
+      {/* Tom aktivitetsdialog */}
       <RegisterActivityDialog
         open={emptyOpen}
         onOpenChange={setEmptyOpen}
         onSubmit={handleSubmit}
         hideTrigger
       />
+    </div>
+  );
+}
+
+/** Lara's neste-handling-boble — vises i kort etter at aktiviteten er opprettet. */
+function NextStepBubble({
+  draft, isNb, onPreview, onSkip,
+}: {
+  draft: NextActionDraft;
+  isNb: boolean;
+  onPreview: () => void;
+  onSkip: () => void;
+}) {
+  const Icon = draft.type === "email" ? Send : draft.type === "meeting" ? CalendarPlus : ClipboardList;
+  const ctaNb = draft.type === "email" ? "Forhåndsvis e-post" : draft.type === "meeting" ? "Forhåndsvis invitasjon" : "Forhåndsvis oppgave";
+  const ctaEn = draft.type === "email" ? "Preview email"      : draft.type === "meeting" ? "Preview invitation"     : "Preview task";
+
+  return (
+    <div className="rounded-lg bg-purple-100 px-3 py-3">
+      <div className="flex items-start gap-2 mb-2.5">
+        <LaraAvatar size={20} className="mt-0.5" />
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-purple-900/70 mb-0.5 inline-flex items-center gap-1">
+            <Sparkles className="h-2.5 w-2.5" />
+            {isNb ? "Lara foreslår neste handling" : "Lara suggests the next step"}
+          </p>
+          <p className="text-[13px] text-purple-900 leading-relaxed">
+            {isNb ? draft.proposalNb : draft.proposalEn}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 flex-wrap">
+        <Button
+          size="sm"
+          className="rounded-pill bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white gap-1.5 h-8"
+          onClick={onPreview}
+        >
+          <Icon className="h-3.5 w-3.5" />
+          {isNb ? ctaNb : ctaEn}
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="rounded-pill gap-1.5 h-8 text-purple-900/80 hover:bg-white"
+          onClick={onSkip}
+        >
+          <SkipForward className="h-3.5 w-3.5" />
+          {isNb ? "Hopp over" : "Skip"}
+        </Button>
+      </div>
     </div>
   );
 }
