@@ -418,17 +418,21 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </div>
             </div>
 
-            {/* Metadata stripe */}
+            {/* Identity stripe */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-lg overflow-hidden border border-border">
               {[
-                { label: "ORG.NR", value: companyProfile?.org_number || "–" },
+                { label: isNb ? "ORG.NR" : "REG. NUMBER", value: companyProfile?.org_number || (isNb ? "Mangler" : "Missing"), missing: !companyProfile?.org_number },
+                { label: isNb ? "LAND" : "COUNTRY", value: (companyProfile as any)?.country || (isNb ? "Mangler" : "Missing"), missing: !(companyProfile as any)?.country },
+                { label: isNb ? "NETTSIDE" : "WEBSITE", value: companyProfile?.domain || (isNb ? "Mangler" : "Missing"), missing: !companyProfile?.domain, isLink: !!companyProfile?.domain },
                 { label: isNb ? "BRANSJE" : "INDUSTRY", value: companyProfile?.industry || "–" },
-                { label: isNb ? "KATEGORI" : "CATEGORY", value: asset.vendor_category || asset.category || "–" },
-                { label: isNb ? "NETTSIDE" : "WEBSITE", value: companyProfile?.domain || "–" },
               ].map(item => (
                 <div key={item.label} className="bg-card px-4 py-3">
                   <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
-                  <p className="text-sm font-medium text-foreground mt-0.5 truncate">{item.value}</p>
+                  {item.isLink ? (
+                    <a href={item.value.startsWith("http") ? item.value : `https://${item.value}`} target="_blank" rel="noreferrer" className="text-sm font-medium text-primary hover:underline mt-0.5 truncate block">{item.value}</a>
+                  ) : (
+                    <p className={`text-sm font-medium mt-0.5 truncate ${item.missing ? "text-muted-foreground italic" : "text-foreground"}`}>{item.value}</p>
+                  )}
                 </div>
               ))}
             </div>
