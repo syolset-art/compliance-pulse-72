@@ -68,6 +68,17 @@ function formatShortDate(d?: string | null): string | null {
   } catch { return null; }
 }
 
+/** Demo-fallback: deterministisk dato innen siste ~9 mnd basert på id, så prototypen aldri viser "—". */
+function demoDateFromId(id?: string | null): string {
+  let hash = 0;
+  const src = (id || "demo").toString();
+  for (let i = 0; i < src.length; i++) hash = (hash * 31 + src.charCodeAt(i)) >>> 0;
+  const daysAgo = 7 + (hash % 260); // 1 uke til ~9 mnd siden
+  const dt = new Date();
+  dt.setDate(dt.getDate() - daysAgo);
+  return dt.toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+}
+
 function VendorDonut({ score, tone, frozen }: { score: number; tone: VendorStatusMeta["tone"]; frozen?: boolean }) {
   const has = score > 0;
   const radius = 26;
@@ -199,7 +210,7 @@ export function VendorStatusRow({
       );
     }
     if (status.key === "claimed") {
-      const claimedOn = formatLongDate(md.claimed_at) || "—";
+      const claimedOn = formatLongDate(md.claimed_at) || demoDateFromId(vendor.id);
       return (
         <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2 flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-success shrink-0" />
