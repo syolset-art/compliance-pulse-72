@@ -30,6 +30,7 @@ import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
+import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
