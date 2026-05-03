@@ -140,10 +140,12 @@ const getMaturityBadge = (score: number) => {
 };
 
 const getRiskLabel = (risk: string | null) => {
+  // Brukervalg: kritikalitet (tidligere kalt "risiko"). Skiller seg fra avledet risiko (Lara).
   switch (risk) {
-    case "high": return { label: "Høy risiko", dotClass: "bg-destructive" };
-    case "medium": return { label: "Moderat risiko", dotClass: "bg-primary" };
-    case "low": return { label: "Lav risiko", dotClass: "bg-status-closed" };
+    case "critical": return { label: "Kritisk", dotClass: "bg-primary" };
+    case "high": return { label: "Høy kritikalitet", dotClass: "bg-primary" };
+    case "medium": return { label: "Middels kritikalitet", dotClass: "bg-foreground/50" };
+    case "low": return { label: "Lav kritikalitet", dotClass: "bg-muted-foreground/40" };
     default: return { label: "Ikke satt", dotClass: "bg-muted-foreground/30" };
   }
 };
@@ -478,13 +480,13 @@ export default function Systems() {
             </TooltipProvider>
           </span>
           <span className="flex items-center gap-1">
-            Risiko
+            Kritikalitet
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3 w-3 cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent><p>Risikonivå for dette systemet</p></TooltipContent>
+                <TooltipContent><p>Hvor kritisk dette systemet er for virksomheten — du setter dette selv. Risiko beregnes separat av Mynder.</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </span>
@@ -845,10 +847,10 @@ export default function Systems() {
         onOpenChange={setHelpOpen}
         icon={Cpu}
         title="Hva er systemregisteret?"
-        description="Systemregisteret gir deg oversikt over alle IT-systemer og applikasjoner organisasjonen bruker. Her kan du dokumentere eierskap, risikonivå, compliance-status og koble systemer til arbeidsområder."
+        description="Systemregisteret gir deg oversikt over alle IT-systemer og applikasjoner organisasjonen bruker. Her kan du dokumentere eierskap, kritikalitet, compliance-status og koble systemer til arbeidsområder."
         itemsHeading="Hva kan du gjøre her?"
         items={[
-          { icon: ShieldIcon, title: "Vurder risiko og modenhet", description: "Se compliance-score og risikonivå for hvert system." },
+          { icon: ShieldIcon, title: "Vurder kritikalitet og modenhet", description: "Du setter kritikalitet selv — Mynder beregner risiko ut fra data." },
           { icon: FileCheck, title: "Dokumenter eierskap", description: "Knytt hvert system til et arbeidsområde og tildel ansvarlig person." },
           { icon: ClipboardList, title: "Spor AI-bruk", description: "Registrer om systemer bruker kunstig intelligens og dokumenter formål." },
         ]}
@@ -858,7 +860,7 @@ export default function Systems() {
         steps={[
           { text: "Legg til systemer organisasjonen bruker" },
           { text: "Knytt hvert system til riktig arbeidsområde" },
-          { text: "Vurder risikonivå og compliance-status" },
+          { text: "Vurder kritikalitet og compliance-status" },
           { text: "Dokumenter AI-bruk der det er relevant" },
         ]}
         laraSuggestion="Hjelp meg med å kartlegge og vurdere systemene mine"

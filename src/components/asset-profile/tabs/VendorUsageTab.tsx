@@ -223,12 +223,12 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
           </CardContent>
         </Card>
 
-        {/* Risk Level */}
+        {/* Criticality (user-set) */}
         <Card className="relative group">
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Shield className="h-3.5 w-3.5" />
-              {isNb ? "Risikonivå" : "Risk level"}
+              {isNb ? "Kritikalitet" : "Criticality"}
               <Pencil className="h-3 w-3 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
             </div>
             <div className="flex gap-1.5">
@@ -236,11 +236,11 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
                 value={asset?.risk_level || "medium"}
                 onValueChange={(v) => handleFieldChange("risk_level", v)}
               >
-                <SelectTrigger className={`h-9 text-sm font-semibold border flex-1 ${severityColor(asset?.risk_level)}`}>
+                <SelectTrigger className="h-9 text-sm font-semibold border flex-1 bg-secondary text-secondary-foreground">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {riskOptions.map(o => (
+                  {criticalityOptions.map(o => (
                     <SelectItem key={o.value} value={o.value}>
                       {isNb ? o.labelNb : o.labelEn}
                     </SelectItem>
@@ -260,8 +260,8 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
             </div>
             <p className="text-[13px] text-muted-foreground leading-tight">
               {isNb
-                ? "Risikonivået påvirker oppfølgingskrav og kontrollfrekvens."
-                : "Risk level affects follow-up requirements and control frequency."}
+                ? "Du setter kritikalitet selv. Risiko beregner Mynder ut fra dokumentasjon, sikkerhet og tredjeparts­eksponering."
+                : "You set criticality. Risk is computed by Mynder from documentation, security and third-party exposure."}
             </p>
             <button
               onClick={() => onNavigateToTab?.("overview")}
