@@ -171,82 +171,29 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
 
   return (
     <div className="space-y-5">
-      {/* Agent header */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-3 min-w-0">
-          <LaraAvatar size={36} pulse={reanalyzing} />
-          <div className="min-w-0">
-            <h2 className="text-base font-bold text-foreground leading-tight font-sans">
-              {isNb ? "Lara – din veileder" : "Lara – your guide"}
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isNb ? "Sist analysert" : "Last analyzed"}: {reanalyzing ? (isNb ? "analyserer…" : "analyzing…") : lastAnalyzedLabel}
-            </p>
-          </div>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-pill gap-1.5"
-          onClick={handleReanalyze}
-          disabled={reanalyzing}
-        >
-          <RefreshCw className={cn("h-3.5 w-3.5", reanalyzing && "animate-spin")} />
-          {isNb ? "Analyser på nytt" : "Re-analyze"}
-        </Button>
-      </div>
-
-      {/* Steg 1 / 2 — sammendrags-boble */}
-      {!summaryDismissed && !summaryAccepted && (
-        <div className="rounded-2xl bg-purple-100 p-4">
-          <div className="flex items-start gap-3">
-            <LaraAvatar size={28} className="mt-0.5" />
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-purple-900/70 mb-1">
-                {isNb ? "Lara foreslår" : "Lara suggests"}
-              </p>
-              <p className="text-sm leading-relaxed text-purple-900">{summary}</p>
-              <p className="text-[12px] text-purple-900/70 mt-1.5 leading-snug">
-                {isNb
-                  ? "Aktivitetene blir opprettet — men ikke påbegynt. Du bestemmer når og hvordan vi følger opp."
-                  : "Activities will be created — not started. You decide when and how to follow up."}
-              </p>
-              <div className="mt-3 flex items-center gap-2 flex-wrap">
-                <Button
-                  size="sm"
-                  className="rounded-pill bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/90 text-white gap-1.5 h-8"
-                  onClick={handleAcceptSummary}
-                >
-                  <Check className="h-3.5 w-3.5" />
-                  {isNb
-                    ? `Opprett ${visibleSuggestions.length} aktivitet${visibleSuggestions.length === 1 ? "" : "er"}`
-                    : `Create ${visibleSuggestions.length} activit${visibleSuggestions.length === 1 ? "y" : "ies"}`}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="rounded-pill gap-1.5 h-8 border-purple-900/20 text-purple-900 hover:bg-white"
-                  onClick={() => setSummaryDismissed(true)}
-                >
-                  {isNb ? "Vis først" : "Show first"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="rounded-pill gap-1.5 h-8 text-purple-900/80 hover:bg-white"
-                  onClick={() => setSummaryDismissed(true)}
-                >
-                  <X className="h-3.5 w-3.5" />
-                  {isNb ? "Avvis" : "Dismiss"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Lara-anbefalingsbanner — samme komponent som dashbordet */}
+      {planTasks.length > 0 && (
+        <LaraRecommendationBanner
+          totalCount={planTasks.length}
+          criticalCount={planCriticalCount}
+          tasks={planTasks}
+          hideDismiss
+          onPrimaryAction={(t) => {
+            const s = visibleSuggestions.find(x => x.id === t.id);
+            if (s) handleAcceptOne(s);
+          }}
+          onSecondaryAction={(t) => {
+            const s = visibleSuggestions.find(x => x.id === t.id);
+            if (s) setActivePrefill(s);
+          }}
+        />
       )}
 
-      {/* Steg 2-kvittering */}
-      {summaryAccepted && (
+      {/* Standard Trust Profile-blokk: modenhet per kontrollområde */}
+      <AssetMaturityByDomainCard assetId={assetId} />
+
+      {/* Bekreftelse når aktiviteter er opprettet */}
+      {summaryAccepted && createdCount > 0 && (
         <div className="rounded-2xl bg-success/10 border border-success/30 p-3 flex items-center gap-3">
           <CheckCircle2 className="h-5 w-5 text-success shrink-0" />
           <div className="min-w-0 flex-1">
