@@ -182,7 +182,7 @@ export function VendorStatusRow({
                   })()}
             </span>
           </div>
-          <Button size="sm" onClick={(e) => { e.stopPropagation(); handleOpen(); }} className="gap-1.5 shrink-0">
+          <Button size="sm" onClick={(e) => { e.stopPropagation(); setInviteOpen(true); }} className="gap-1.5 shrink-0">
             <Send className="h-3.5 w-3.5" /> Inviter leverandøren
           </Button>
         </div>
