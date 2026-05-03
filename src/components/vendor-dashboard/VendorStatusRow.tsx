@@ -292,6 +292,7 @@ export function VendorStatusRow({
   const isArchived = status.key === "archived";
 
   return (
+    <>
     <Card
       variant="flat"
       onClick={handleOpen}
