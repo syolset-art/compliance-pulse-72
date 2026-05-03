@@ -215,7 +215,7 @@ const AssetTrustProfile = () => {
     { value: 'evidence', label: isNb ? 'Dokumenter' : 'Docs', labelFull: isNb ? 'Dokumentasjon' : 'Documentation' },
     { value: 'gap-analysis', label: isNb ? 'Gap-analyse' : 'Gap analysis', labelFull: isNb ? 'Gap-analyse mot rammeverk' : 'Gap analysis vs framework' },
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', labelFull: isNb ? 'Forespørsler' : 'Requests' },
-    { value: 'vendor-activity', label: isNb ? 'Aktivitet' : 'Activity', labelFull: isNb ? 'Aktivitetslogg' : 'Activity Log' },
+    
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
     { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit', labelFull: isNb ? 'Revisjon og risiko' : 'Audit & Risk' },
     { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
