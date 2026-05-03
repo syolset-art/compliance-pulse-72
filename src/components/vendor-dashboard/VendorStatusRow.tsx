@@ -232,27 +232,8 @@ export function VendorStatusRow({
   // ---- Footer-rad ----
   const renderFooter = () => {
     if (status.key === "claimed" || status.key === "draft") {
-      const contact = vendor.contact_person;
-      return (
-        <div className="mt-3 pt-3 border-t border-border/60 grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Kontakt hos leverandør</p>
-            {contact ? (
-              <p className="text-[13px] text-foreground mt-1">{contact}</p>
-            ) : (
-              <p className="text-[13px] italic text-muted-foreground mt-1">Legg til kontaktperson</p>
-            )}
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Ansvarlig hos oss</p>
-            {ownerName ? (
-              <p className="text-[13px] text-foreground mt-1">{ownerName}</p>
-            ) : (
-              <p className="text-[13px] italic text-muted-foreground mt-1">Ikke tildelt</p>
-            )}
-          </div>
-        </div>
-      );
+      // Less is more på oversikten – ingen kontakt/ansvarlig her.
+      return null;
     }
     if (status.key === "invited") {
       const created = formatShortDate(vendor.created_at);
