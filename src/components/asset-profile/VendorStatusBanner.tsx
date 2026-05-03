@@ -175,7 +175,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
             <Sparkles className={cn("h-3.5 w-3.5 text-primary", isMapping && "animate-pulse")} />
             {isMapping ? "Lara kartlegger profilen…" : <>Lara kartla profilen {mapped}</>}
           </p>
-          <Button size="sm" className="gap-1.5 h-8" onClick={() => toast.success("Invitasjon sendt til leverandør")}>
+          <Button size="sm" className="gap-1.5 h-8" onClick={() => setInviteOpen(true)}>
             <Send className="h-3.5 w-3.5" /> Inviter leverandøren
           </Button>
         </div>
