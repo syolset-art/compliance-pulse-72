@@ -3521,12 +3521,14 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           asset_id: string
+          available_on_request: boolean | null
           category: string | null
           created_at: string
           display_name: string | null
           document_type: string
+          external_url: string | null
           file_name: string
-          file_path: string
+          file_path: string | null
           id: string
           linked_regulations: string[] | null
           notes: string | null
@@ -3548,12 +3550,14 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           asset_id: string
+          available_on_request?: boolean | null
           category?: string | null
           created_at?: string
           display_name?: string | null
           document_type?: string
+          external_url?: string | null
           file_name: string
-          file_path: string
+          file_path?: string | null
           id?: string
           linked_regulations?: string[] | null
           notes?: string | null
@@ -3575,12 +3579,14 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           asset_id?: string
+          available_on_request?: boolean | null
           category?: string | null
           created_at?: string
           display_name?: string | null
           document_type?: string
+          external_url?: string | null
           file_name?: string
-          file_path?: string
+          file_path?: string | null
           id?: string
           linked_regulations?: string[] | null
           notes?: string | null
