@@ -46,10 +46,7 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
   const [gapStatusOverrides, setGapStatusOverrides] = useState<Record<string, GapOverride>>({});
   const [editingStatusId, setEditingStatusId] = useState<string | null>(null);
   const [locallyDismissed, setLocallyDismissed] = useState<string[]>([]);
-  const [summaryDismissed, setSummaryDismissed] = useState(false);
   const [summaryAccepted, setSummaryAccepted] = useState(false);
-  const [reanalyzing, setReanalyzing] = useState(false);
-  const [lastAnalyzed, setLastAnalyzed] = useState<Date>(new Date());
 
   /** Per-kort steg-tilstand. */
   const [cardSteps, setCardSteps] = useState<Record<string, CardStep>>({});
