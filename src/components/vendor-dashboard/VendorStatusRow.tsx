@@ -381,5 +381,17 @@ export function VendorStatusRow({
         </div>
       </div>
     </Card>
+    <InviteVendorDialog
+      open={inviteOpen}
+      onOpenChange={setInviteOpen}
+      vendor={{
+        id: vendor.id,
+        name: vendor.name,
+        contact_person: vendor.contact_person,
+        contact_email: (vendor as any).contact_email,
+        org_number: vendor.org_number,
+        description: vendor.description,
+      }}
+    />
+    </>
   );
-}
