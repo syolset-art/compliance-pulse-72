@@ -321,8 +321,8 @@ export function VendorStatusRow({
                     </Badge>
                   ) : (
                     <>
-                      <VendorInlinePillSelect assetId={vendor.id} field="priority" value={vendor.priority} />
                       <VendorInlinePillSelect assetId={vendor.id} field="criticality" value={vendor.criticality} />
+                      <VendorInlinePillSelect assetId={vendor.id} field="priority" value={vendor.priority} />
                     </>
                   )}
                 </div>
