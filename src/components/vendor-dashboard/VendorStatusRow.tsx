@@ -305,6 +305,12 @@ export function VendorStatusRow({
       <div className="flex">
         {/* Vertikal tilstandsstripe */}
         <div className={cn("relative w-7 shrink-0 flex items-center justify-center", status.stripeBg)}>
+          {status.hasActiveDot && (
+            <span
+              className="absolute top-1.5 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-success ring-2 ring-success/30"
+              aria-hidden
+            />
+          )}
           <span
             className={cn("absolute text-[10px] font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
             style={{ transform: "rotate(-90deg)" }}
