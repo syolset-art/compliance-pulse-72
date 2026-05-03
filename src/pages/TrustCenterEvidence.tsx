@@ -395,6 +395,13 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
+      {/* Required artifacts checklist */}
+      {!isLoading && asset?.id && (
+        <div className="mb-6">
+          <RequiredArtifactsBlock assetId={asset.id} vendorDocs={vendorDocs as any} variant="evidence" />
+        </div>
+      )}
+
       {/* Search and filters */}
       {vendorDocs.length > 0 && !isLoading && (
         <div className="mb-6 flex flex-wrap items-center gap-3">
