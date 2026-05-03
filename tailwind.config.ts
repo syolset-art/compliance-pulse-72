@@ -95,6 +95,26 @@ export default {
           DEFAULT: "hsl(var(--vendor-archived))",
           foreground: "hsl(var(--vendor-archived-foreground))",
         },
+        "system-mapped": {
+          DEFAULT: "hsl(var(--system-mapped))",
+          foreground: "hsl(var(--system-mapped-foreground))",
+        },
+        "system-assigned": {
+          DEFAULT: "hsl(var(--system-assigned))",
+          foreground: "hsl(var(--system-assigned-foreground))",
+        },
+        "system-owned": {
+          DEFAULT: "hsl(var(--system-owned))",
+          foreground: "hsl(var(--system-owned-foreground))",
+        },
+        "system-phasing": {
+          DEFAULT: "hsl(var(--system-phasing))",
+          foreground: "hsl(var(--system-phasing-foreground))",
+        },
+        "system-archived": {
+          DEFAULT: "hsl(var(--system-archived))",
+          foreground: "hsl(var(--system-archived-foreground))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

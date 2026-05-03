@@ -63,6 +63,7 @@ import {
 } from "@/components/ui/tooltip";
 import { SystemPremiumBanner } from "@/components/systems/SystemPremiumBanner";
 import { SystemActivateDialog } from "@/components/systems/SystemActivateDialog";
+import { SystemStatusRow } from "@/components/systems/SystemStatusRow";
 
 const MAX_FREE_SYSTEMS = 5;
 
@@ -342,132 +343,23 @@ export default function Systems() {
 
   const renderSystemCard = (system: System) => {
     const { icon: IconComponent, color } = getSystemIcon(system.name, system.vendor);
-    const maturity = getMaturityBadge(system.compliance_score || 0);
-    const risk = getRiskLabel(system.risk_level);
     const ownerWa = getOwnerWorkArea(system);
-    const isArchived = system.status === "archived";
-    const statusBadge = getStatusBadge(system.status);
 
     return (
-      <div
+      <SystemStatusRow
         key={system.id}
-        className="rounded-xl border border-border bg-card p-5 hover:shadow-md transition-shadow cursor-pointer"
-        onClick={() => navigate(`/systems/${system.id}`)}
-      >
-        {/* Top row: icon + name + actions */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${color}`}>
-              <IconComponent className="h-5 w-5" />
-            </div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-foreground text-base">{system.name}</h3>
-              <span className={`inline-flex px-2 py-0.5 rounded-full text-[13px] font-medium ${statusBadge.badgeClass}`}>
-                {statusBadge.label}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-            <AssetRowActionMenu
-              itemId={system.id}
-              currentWorkAreaId={system.work_area_id}
-              currentStatus={system.status}
-              isArchived={isArchived}
-              workAreas={workAreas}
-              statusOptions={SYSTEM_STATUSES.map((s) => ({ value: s.value, label: s.label }))}
-              onSetOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
-              onArchive={(itemId) => archiveSystem.mutate(itemId)}
-              onRestore={(itemId) => restoreSystem.mutate(itemId)}
-              onDelete={(itemId) => deleteSystem.mutate(itemId)}
-              onSetStatus={(itemId, status) => changeStatus.mutate({ id: itemId, status })}
-            />
-          </div>
-        </div>
-
-        {/* Info grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Systemtype */}
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Systemtype</p>
-            <p className="text-sm font-medium text-foreground">{system.category || "-"}</p>
-          </div>
-
-          {/* Modenhet */}
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Modenhet</p>
-            <div className="flex items-center gap-1.5">
-              <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${maturity.className}`}>
-                {maturity.label}
-              </span>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground/50 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Basert på dokumentasjon og kontrolldekning</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-
-          {/* Risiko */}
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">Risiko</p>
-            <div className="flex items-center gap-2">
-              <span className={`h-3 w-3 rounded-full ${risk.dotClass}`} />
-              <span className="text-sm text-foreground">{risk.label}</span>
-            </div>
-          </div>
-
-          {/* Eier (Arbeidsområde) */}
-          <div>
-            <div className="flex items-center gap-1 mb-1">
-              <p className="text-xs text-muted-foreground">Eier (Arbeidsområde)</p>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-3.5 w-3.5 text-primary cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Arbeidsområdet som eier og er ansvarlig for dette systemet</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div onClick={(e) => e.stopPropagation()}>
-              {ownerWa ? (
-                <div className="flex items-center gap-1 border border-border rounded-md px-2.5 py-1 bg-background max-w-[180px]">
-                  <span className="text-sm text-foreground truncate">{ownerWa.name}</span>
-                  <button
-                    onClick={() => removeOwner.mutate(system.id)}
-                    className="ml-auto shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <Select
-                  value=""
-                  onValueChange={(waId) => assignOwner.mutate({ id: system.id, workAreaId: waId })}
-                >
-                  <SelectTrigger className="h-8 text-sm max-w-[180px] bg-background">
-                    <SelectValue placeholder="Ikke satt" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {workAreas.map((area: WorkArea) => (
-                      <SelectItem key={area.id} value={area.id}>
-                        {area.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+        system={system as any}
+        ownerWorkArea={ownerWa}
+        IconComponent={IconComponent}
+        iconColor={color}
+        workAreas={workAreas}
+        statusOptions={SYSTEM_STATUSES.map((s) => ({ value: s.value, label: s.label }))}
+        onAssignOwner={(itemId, waId) => assignOwner.mutate({ id: itemId, workAreaId: waId })}
+        onArchive={(itemId) => archiveSystem.mutate(itemId)}
+        onRestore={(itemId) => restoreSystem.mutate(itemId)}
+        onDelete={(itemId) => deleteSystem.mutate(itemId)}
+        onSetStatus={(itemId, st) => changeStatus.mutate({ id: itemId, status: st })}
+      />
     );
   };
 
