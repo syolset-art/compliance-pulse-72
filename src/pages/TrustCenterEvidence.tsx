@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
+import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
 
 const statusOptions = [
   { value: "draft", labelNb: "Utkast", labelEn: "Draft" },
