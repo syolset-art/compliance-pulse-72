@@ -21,6 +21,7 @@ interface VendorStatusBannerProps {
     updated_at?: string | null;
     vendor_category?: string | null;
     category?: string | null;
+    description?: string | null;
     url?: string | null;
     logo_url?: string | null;
     asset_manager?: string | null;
@@ -251,13 +252,14 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
                     </a>
                   </>
                 )}
-                {category && (
-                  <>
-                    <span className="text-muted-foreground/40">·</span>
-                    <span>{category}</span>
-                  </>
-                )}
               </div>
+
+              {/* Short description about the vendor */}
+              {asset.description && (
+                <p className="mt-1.5 text-[13px] text-foreground/75 leading-relaxed line-clamp-2">
+                  {asset.description}
+                </p>
+              )}
             </div>
 
             {/* Donut */}
