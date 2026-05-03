@@ -2742,6 +2742,7 @@ export type Database = {
       }
       system_incidents: {
         Row: {
+          agent_reasoning: string | null
           ai_system_id: string | null
           auto_created: boolean | null
           category: string | null
@@ -2756,6 +2757,7 @@ export type Database = {
           linked_work_area_ids: string[] | null
           measures_completed: number | null
           measures_count: number | null
+          normative_rules: Json | null
           processes_count: number | null
           relevant_frameworks: string[] | null
           responsible: string | null
@@ -2764,6 +2766,7 @@ export type Database = {
           source_incident_id: string | null
           source_severity: string | null
           status: string | null
+          suggested_measures: Json | null
           system_id: string
           systems_count: number | null
           time_hours: number | null
@@ -2771,6 +2774,7 @@ export type Database = {
           work_area_scope: string | null
         }
         Insert: {
+          agent_reasoning?: string | null
           ai_system_id?: string | null
           auto_created?: boolean | null
           category?: string | null
@@ -2785,6 +2789,7 @@ export type Database = {
           linked_work_area_ids?: string[] | null
           measures_completed?: number | null
           measures_count?: number | null
+          normative_rules?: Json | null
           processes_count?: number | null
           relevant_frameworks?: string[] | null
           responsible?: string | null
@@ -2793,6 +2798,7 @@ export type Database = {
           source_incident_id?: string | null
           source_severity?: string | null
           status?: string | null
+          suggested_measures?: Json | null
           system_id: string
           systems_count?: number | null
           time_hours?: number | null
@@ -2800,6 +2806,7 @@ export type Database = {
           work_area_scope?: string | null
         }
         Update: {
+          agent_reasoning?: string | null
           ai_system_id?: string | null
           auto_created?: boolean | null
           category?: string | null
@@ -2814,6 +2821,7 @@ export type Database = {
           linked_work_area_ids?: string[] | null
           measures_completed?: number | null
           measures_count?: number | null
+          normative_rules?: Json | null
           processes_count?: number | null
           relevant_frameworks?: string[] | null
           responsible?: string | null
@@ -2822,6 +2830,7 @@ export type Database = {
           source_incident_id?: string | null
           source_severity?: string | null
           status?: string | null
+          suggested_measures?: Json | null
           system_id?: string
           systems_count?: number | null
           time_hours?: number | null
