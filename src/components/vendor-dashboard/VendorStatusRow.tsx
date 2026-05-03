@@ -12,6 +12,7 @@ import {
   deriveVendorStatus, deriveCriticality,
   type VendorStatusMeta,
 } from "@/lib/vendorStatus";
+import { VendorInlinePillSelect } from "./VendorInlinePillSelect";
 
 const CATEGORY_LABELS: Record<string, string> = {
   saas: "SaaS",
@@ -30,6 +31,7 @@ interface VendorRowAsset {
   compliance_score?: number | null;
   risk_level?: string | null;
   criticality?: string | null;
+  priority?: string | null;
   lifecycle_status?: string | null;
   org_number?: string | null;
   url?: string | null;
