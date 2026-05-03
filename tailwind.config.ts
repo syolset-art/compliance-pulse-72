@@ -82,38 +82,47 @@ export default {
         "vendor-draft": {
           DEFAULT: "hsl(var(--vendor-draft))",
           foreground: "hsl(var(--vendor-draft-foreground))",
+          soft: "hsl(var(--vendor-draft-soft))",
         },
         "vendor-invited": {
           DEFAULT: "hsl(var(--vendor-invited))",
           foreground: "hsl(var(--vendor-invited-foreground))",
+          soft: "hsl(var(--vendor-invited-soft))",
         },
         "vendor-claimed": {
           DEFAULT: "hsl(var(--vendor-claimed))",
           foreground: "hsl(var(--vendor-claimed-foreground))",
+          soft: "hsl(var(--vendor-claimed-soft))",
         },
         "vendor-archived": {
           DEFAULT: "hsl(var(--vendor-archived))",
           foreground: "hsl(var(--vendor-archived-foreground))",
+          soft: "hsl(var(--vendor-archived-soft))",
         },
         "system-mapped": {
           DEFAULT: "hsl(var(--system-mapped))",
           foreground: "hsl(var(--system-mapped-foreground))",
+          soft: "hsl(var(--system-mapped-soft))",
         },
         "system-assigned": {
           DEFAULT: "hsl(var(--system-assigned))",
           foreground: "hsl(var(--system-assigned-foreground))",
+          soft: "hsl(var(--system-assigned-soft))",
         },
         "system-owned": {
           DEFAULT: "hsl(var(--system-owned))",
           foreground: "hsl(var(--system-owned-foreground))",
+          soft: "hsl(var(--system-owned-soft))",
         },
         "system-phasing": {
           DEFAULT: "hsl(var(--system-phasing))",
           foreground: "hsl(var(--system-phasing-foreground))",
+          soft: "hsl(var(--system-phasing-soft))",
         },
         "system-archived": {
           DEFAULT: "hsl(var(--system-archived))",
           foreground: "hsl(var(--system-archived-foreground))",
+          soft: "hsl(var(--system-archived-soft))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

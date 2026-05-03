@@ -60,24 +60,33 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     /* Vendor status palette (lifecycle ownership) */
     --vendor-draft: 245 43% 51%;       /* #534AB7 — Utkast (Mynder/Lara eier) */
     --vendor-draft-foreground: 0 0% 100%;
-    --vendor-invited: 28 79% 41%;      /* #BA7517 — Invitert (forespørsel) */
+    --vendor-draft-soft: 245 88% 96%;  /* #EEEDFE */
+    --vendor-invited: 28 79% 41%;      /* #BA7517 — Forespørsel/Invitert */
     --vendor-invited-foreground: 0 0% 100%;
+    --vendor-invited-soft: 33 84% 92%; /* #FAEEDA */
     --vendor-claimed: 165 76% 25%;     /* #0F6E56 — Claimet */
     --vendor-claimed-foreground: 0 0% 100%;
+    --vendor-claimed-soft: 153 56% 92%;/* #E1F5EE */
     --vendor-archived: 52 4% 52%;      /* #888780 — Arkivert */
     --vendor-archived-foreground: 0 0% 100%;
+    --vendor-archived-soft: 48 21% 93%;/* #F1EFE8 */
 
     /* System status palette (lifecycle ownership) — mirrors vendor */
-    --system-mapped: 245 43% 51%;       /* #534AB7 — Lara har kartlagt */
+    --system-mapped: 245 43% 51%;       /* #534AB7 */
     --system-mapped-foreground: 0 0% 100%;
-    --system-assigned: 28 79% 41%;      /* #BA7517 — Tildelt arbeidsområde */
+    --system-mapped-soft: 245 88% 96%;
+    --system-assigned: 28 79% 41%;      /* #BA7517 */
     --system-assigned-foreground: 0 0% 100%;
-    --system-owned: 165 76% 25%;        /* #0F6E56 — Eid/aktivt vedlikeholdt */
+    --system-assigned-soft: 33 84% 92%;
+    --system-owned: 165 76% 25%;        /* #0F6E56 */
     --system-owned-foreground: 0 0% 100%;
-    --system-phasing: 28 79% 41%;       /* #BA7517 — Under utfasing */
+    --system-owned-soft: 153 56% 92%;
+    --system-phasing: 28 79% 41%;       /* #BA7517 */
     --system-phasing-foreground: 0 0% 100%;
-    --system-archived: 52 4% 52%;       /* #888780 — Arkivert */
+    --system-phasing-soft: 33 84% 92%;
+    --system-archived: 52 4% 52%;       /* #888780 */
     --system-archived-foreground: 0 0% 100%;
+    --system-archived-soft: 48 21% 93%;
   }
 
   .dark {
