@@ -1,133 +1,146 @@
-
 ## Mål
 
-Erstatt dagens 3-stegs modal (`AddDeviationDialog`) med en **agentisk inline-flyt** der Lara er proaktiv: brukeren beskriver hendelsen i klartekst (eller via en kort spørsmål-trigger), og Lara klassifiserer, foreslår alle felter, kobler til **normative regler** (GDPR art. 33 / 72t, NIS2 24t tidlig varsling, ISO 27001 A.5.24–A.5.27, personvernforordning art. 34) og presenterer ett **bekreft-kort** i stedet for et skjema.
+Når brukeren lurer på *hvorfor* et kontrollområde har en gitt modenhet, skal det være tydelig hva Lara faktisk har funnet av kilder — typisk informasjon hentet fra leverandørens nettsider — og hvordan dette henger sammen med dokumentene de selv laster opp under **Trust Center → Dokumentasjon**.
 
-## UX — fra skjema til samtale
+Vi løser det med en ny **Kilder**-komponent som vises inline når et kontrollområde utvides i "Modenhet per kontrollområde", side om side med dagens "Forventet dokumentasjon"-sjekkliste.
 
-Trigger "Legg til avvik" på `/deviations` åpner ikke lenger et modalt vindu. I stedet utvides en **inline agent-stripe** rett under header-en (samme mønster som `AgentPlanStrip` / `InlineAgentProposal` vi allerede bruker for gap-tiltak).
+## Konsept
 
-Tre tilstander, alle inline:
+For hvert kontrollområde (Governance, Drift og sikkerhet, Identitet og tilgang, Personvern, Leverandører) viser vi tre lag — i samme rekkefølge slik at sammenhengen blir intuitiv:
 
 ```text
-┌─ State 1: PROMPT ─────────────────────────────────────────┐
-│ Lara: "Hva har skjedd? Beskriv kort så klassifiserer jeg │
-│        avviket og sjekker varslingsfrister for deg."      │
-│ [ tekstfelt: "f.eks. e-post sendt til feil mottaker..." ] │
-│ Hurtigvalg: [Datalekkasje] [Systemnedetid] [Phishing]     │
-│             [Fysisk hendelse] [Ansattfeil] [Annet]        │
-│                                          [Avbryt] [Send]  │
-└───────────────────────────────────────────────────────────┘
-
-┌─ State 2: ANALYSING (2–4 sek) ───────────────────────────┐
-│ ● Lara analyserer...                                      │
-│   ✓ Klassifisert som: Datalekkasje (personopplysninger)   │
-│   ✓ Sjekker GDPR art. 33, NIS2, ISO 27001                 │
-│   … Vurderer alvorlighetsgrad og frist                    │
-└───────────────────────────────────────────────────────────┘
-
-┌─ State 3: DRAFT CARD (Laras forslag) ────────────────────┐
-│ Lara foreslår dette avviket — bekreft eller juster:       │
-│                                                            │
-│ Tittel:        E-post med kundeliste til feil mottaker    │
-│ Kategori:      Datalekkasje · Personopplysninger          │
-│ Alvorlighet:   HØY    Lara: "Omfatter særlige kategorier" │
-│ Rammeverk:     GDPR · ISO 27001 · NIS2                    │
-│ Ansvarlig:     Maria Johansen (DPO)  ← foreslått av Lara  │
-│ Oppdaget:      03.05.2026                                  │
-│                                                            │
-│ ⚠ Normativ frist  GDPR art. 33 — meld Datatilsynet innen  │
-│                   72 timer (06.05.2026 14:00)             │
-│ ⚠ Normativ frist  GDPR art. 34 — vurder varsling av de    │
-│                   registrerte                              │
-│                                                            │
-│ Foreslåtte umiddelbare tiltak:                             │
-│   ☑ Be mottaker slette e-posten (bevis sikres)            │
-│   ☑ Logg hendelsen i avviksregisteret                     │
-│   ☑ Start vurdering av meldeplikt til Datatilsynet        │
-│                                                            │
-│ Trenger Lara mer info? Svar på:                            │
-│   • Hvor mange registrerte er berørt? [< 10] [10–100] [>] │
-│   • Inneholdt e-posten sensitive opplysninger? [Ja] [Nei] │
-│                                                            │
-│       [Juster manuelt]   [Avvis]   [Bekreft og opprett]   │
-└───────────────────────────────────────────────────────────┘
+┌─ Kontrollområde (utvidet) ──────────────────────────────┐
+│ • Kontroller (eksisterende liste)                       │
+│ ─────────────────────────────────────────────────────── │
+│  KILDER  — hva Lara har funnet                          │
+│   ✓ Privacy policy (vendor.com/privacy)   [Aksepter]    │
+│   ✓ ISO 27001-omtale (vendor.com/security)[Forkast]     │
+│   + Legg til kilde manuelt                              │
+│ ─────────────────────────────────────────────────────── │
+│  DOKUMENTASJON  — egne opplastede dokumenter            │
+│   (eksisterende InlineDocumentChecklist + lenke til     │
+│    Trust Center → Dokumentasjon)                        │
+└─────────────────────────────────────────────────────────┘
 ```
 
-Sentrale prinsipper:
-- **Ingen tomme skjemaer.** Lara fyller alle felter; brukeren bekrefter.
-- **Proaktive oppfølgingsspørsmål kun når det påvirker normativ klassifisering** (f.eks. antall berørte → meldeplikt).
-- **Normative frister** vises som egne "normativ frist"-chips med paragraf-referanse, ikke som vanlige due dates.
-- **"Juster manuelt"** kollapser kortet til redigerbart skjema for de som vil overstyre — fallback, ikke standard.
+Kilder = "passive funn fra nettet" (lavere vekt). Dokumentasjon = "verifiserte filer" (høyere vekt). Begge teller inn i modenheten — vi gjør den koblingen synlig.
 
-## Teknisk
+Kilder kan vær en del av det - men vi skal også ha med kontrollpunker - se under.  
+Dersom kunden har aktivert Mynder Core kan Lara agenten hente dette og svar ja - at det er på plass (kunden har da oppgitt denne informasjonen som ledd i å bruke plattformen) og dersom Lara ikke kan finne informasjonen er den ikke huket av - men står mangler data - og brukeren må svare manuelt - eller at det er noe som agenten fant basert på dokumentasjon kunden har lastet opp - eller som vi finne på websidene til brukeren (personvernerklæing, databehandleravtale, åpenhetsrapport o.l).
 
-### Ny komponent
-`src/components/deviations/InlineDeviationAgent.tsx` — erstatter `AddDeviationDialog` som default-flyt. Tre interne tilstander: `prompt | analysing | draft`. Eksponerer `onCreated` callback.
+  
+**Governance & Accountability (100%)**
 
-### Ny edge-funksjon
-`supabase/functions/classify-deviation/index.ts` — bruker `google/gemini-2.5-flash` via Lovable AI Gateway. Tar inn `{ description, quickCategory?, companyProfile, workAreas }` og returnerer via tool-call:
+- Ansvar for sikkerhet og personvern
+- Dokumenterte policyer
+- Risikovurdering siste 12 mnd
+- Hendelseshåndtering
 
-```ts
-{
-  title: string,
-  description: string,           // ryddet versjon av brukerens tekst
-  category: DeviationCategoryId, // matchet mot deviationCategories
-  criticality: "critical"|"high"|"medium"|"low",
-  frameworks: string[],          // GDPR, NIS2, ISO 27001, etc.
-  normativeRules: Array<{
-    code: string,                // "gdpr-art-33"
-    label: string,               // "GDPR art. 33 – melding til tilsyn"
-    deadlineHours: number,       // 72
-    action: string,              // "Meld Datatilsynet"
-    triggered: boolean,          // true hvis kriterier oppfylt
-  }>,
-  suggestedResponsible: { name: string, reason: string } | null,
-  suggestedMeasures: string[],   // 2–4 umiddelbare tiltak
-  followUpQuestions: Array<{
-    id: string,
-    question: string,
-    options: string[],           // chip-svar
-    affects: string,             // hvilket felt svaret kan endre
-  }>,
-  reasoning: string,             // kort begrunnelse vist i kortet
-}
+---
+
+### **Security (20%)**
+
+- Tilgangsstyring (least privilege)
+- MFA
+- Kryptering
+- Logging og overvåking
+- Sikkerhetstesting
+
+---
+
+### **Privacy & Data Handling (60%)**
+
+- Behandlingsoversikt (ROPA)
+- Databehandleravtale (DPA)
+- DPIA
+- Registrertes rettigheter
+- Kontroll over datalagringssted
+
+---
+
+### **Third-Party & Supply Chain (67%)**
+
+- Leverandørkartlegging
+- Kontroll på underleverandører
+- Jevnlig oppfølging
+
+## Komponentstruktur
+
+**Ny komponent:** `src/components/trust-controls/SourcesPanel.tsx`
+
+- Props: `assetId`, `controlArea`, `onNavigateToDocuments?`
+- Viser en liste over `trust_profile_sources`-rader filtrert på `control_area`
+- Status pr kilde: `suggested` (Laras forslag, blå chip), `accepted` (grønn), `rejected` (utgrået), `manual` (lagt til av bruker)
+- Handlinger pr rad: Aksepter, Forkast, Gjenopprett (for forkastede), Slett (for manuelle), åpne kildelenke
+- Knapp øverst: "Legg til kilde manuelt" (URL + tittel + valgfri kommentar)
+- Tom-tilstand: "Lara har ikke funnet kilder ennå" + knapp "Be Lara analysere nettsidene"
+- Footer-lenke: "Se alle dokumenter i Dokumentasjon" → `onNavigateToDocuments` (eksisterende mønster fra `InlineDocumentChecklist`)
+
+**Oppdatert:** `src/components/trust-controls/TrustControlsPanel.tsx`
+
+- I `isExpanded`-blokken (linje 452) renderer vi `<SourcesPanel>` rett under kontrollene og over `InlineDocumentChecklist`
+- Liten seksjonsoverskrift "Kilder" og "Dokumentasjon" for å gjøre lagdelingen tydelig
+- Knappen "Hvor kommer scoren fra?" øverst i utvidet visning som scroller til Kilder
+
+**Oppdatert:** `useTrustControlEvaluation.ts`
+
+- Henter også `trust_profile_sources` for asset
+- Antall `accepted`/`manual` kilder per område mates inn som ekstra signal i `evidenceSummary` og brukes til en liten "Kilder: 3 aksepterte"-badge i area-headeren
+
+## Datamodell
+
+Ny tabell `trust_profile_sources`:
+
+```text
+id              uuid pk
+asset_id        uuid fk → assets.id
+control_area    text  (governance | risk_compliance | …)
+title           text
+url             text nullable
+snippet         text nullable        -- Laras kort utdrag/begrunnelse
+source_type     text  ('webpage' | 'document_link' | 'manual')
+status          text  ('suggested' | 'accepted' | 'rejected' | 'manual')
+discovered_by   text  ('lara' | 'user')
+created_at, updated_at, decided_at, decided_by
 ```
 
-Regelmotor i prompt: GDPR art. 33 (72t hvis personopplysninger berørt), art. 34 (sannsynlig høy risiko → varsle registrerte), NIS2 art. 23 (24t early warning + 72t notification for "vesentlige" enheter), ISO 27001 A.5.24–A.5.27 (incident management), personopplysningsloven §§ relevante henvisninger.
+RLS: select/insert/update for autentiserte brukere som eier asset (samme mønster som øvrige asset-relaterte tabeller — vi gjenbruker eksisterende policy-stil).
 
-Oppfølgingsspørsmål brukes til å re-kjøre klassifisering uten å åpne nytt skjema — Lara oppdaterer draft-kortet inline.
+## Lara-analyse (edge function)
 
-### Hook
-`src/hooks/useDeviationAgent.ts` — håndterer state-maskin (prompt → analysing → draft), kaller edge-funksjonen, re-kjører ved follow-up-svar, og persisterer via samme `system_incidents`-insert som i dag (gjenbruker mutation-logikken fra `AddDeviationDialog`). Lagrer i tillegg `normative_rules` og `suggested_measures` som metadata på avviket.
+Ny funksjon: `supabase/functions/discover-trust-sources/index.ts`
 
-### DB
-Migrasjon: legg til `normative_rules jsonb` og `agent_reasoning text` på `system_incidents` for å spore hva Lara konkluderte. Foreslåtte tiltak skrives som `user_tasks` koblet til avviket (samme mønster som "Recruit agent" allerede gjør).
+- Input: `assetId`
+- Henter asset (navn + nettside fra `assets.metadata.website`)
+- Bruker Lovable AI Gateway (`google/gemini-2.5-flash`) med en strukturert prompt: "Gå gjennom typiske Trust/Security/Privacy-sider på {domain}. Returner JSON med funn pr kontrollområde."
+- Hvis Firecrawl-konnektoren er tilkoblet, brukes `scrape`/`map` for å faktisk hente sider; hvis ikke, fallback til ren AI-inferens basert på domenet (markert tydelig som "AI-antatt")
+- Skriver funnene som `status='suggested'` rader i `trust_profile_sources` (idempotent på `(asset_id, url, control_area)`)
 
-### Oppdatering av `Deviations.tsx`
-- Fjern `AddDeviationDialog`-bruk fra "Legg til avvik"-knappen.
-- Knappen toggler nå `InlineDeviationAgent` rett under header (animert utvidelse).
-- Behold `AddDeviationDialog` midlertidig som "Juster manuelt"-fallback fra draft-kortet.
+Trigges:
 
-### Eksisterende komponenter som beholdes
-- `EditDeviationDialog` — uendret.
-- `deviationCategories` — uendret, brukes som whitelist for AI-output.
-- `suggest-deviations` edge-funksjon — kan deprekeres etter at ny flyt er stabil.
+- Lazy ved første expand av et område (samme mønster som `analyze-process-agent-fit`)
+- Manuelt via "Be Lara analysere nettsidene"-knapp
 
-## Filer som lages/endres
+## Kobling til Trust Center → Dokumentasjon
 
-Nye:
-- `src/components/deviations/InlineDeviationAgent.tsx`
-- `src/hooks/useDeviationAgent.ts`
-- `src/lib/normativeDeviationRules.ts` (referanse-konstanter for GDPR/NIS2/ISO frister, brukes også til UI-labels)
-- `supabase/functions/classify-deviation/index.ts`
-- Migrasjon for `system_incidents.normative_rules` + `agent_reasoning`
+- I `SourcesPanel`-footeren: lenke "Konverter til dokument" pr akseptert kilde → åpner `AddEvidenceDialog` forhåndsutfylt med URL og tittel, slik at brukeren kan løfte en kilde til et formelt bevis
+- I `TrustCenterPolicies` / dokumentasjonssidene: en liten info-stripe "Disse dokumentene utfyller kildene Lara har funnet — se kontrollområdet for full kontekst"
+- Området-header viser tellere: `"Kilder: 3 · Dokumenter: 2"` slik at sammenhengen er synlig før utvidelse
 
-Endres:
-- `src/pages/Deviations.tsx` (bytter trigger fra dialog til inline agent)
-- `src/components/dialogs/AddDeviationDialog.tsx` (kun beholdt som fallback fra "Juster manuelt")
+## Filer som opprettes/endres
 
-## Avgrensninger
-- Bruker Lovable AI Gateway (ingen ny API-nøkkel).
-- Ingen endringer i listing/filter-delen av `/deviations`.
-- Norsk språk i Lara-tekster (matcher resten av appen).
+- ny: `src/components/trust-controls/SourcesPanel.tsx`
+- ny: `src/hooks/useTrustProfileSources.ts` (queries + mutations: accept/reject/addManual/triggerDiscovery)
+- ny: `supabase/functions/discover-trust-sources/index.ts`
+- ny migrasjon: tabellen `trust_profile_sources` + RLS
+- endret: `src/components/trust-controls/TrustControlsPanel.tsx` (render Sources i utvidet område + tellere i header)
+- endret: `src/hooks/useTrustControlEvaluation.ts` (les inn kilder for evidenceSummary)
+- endret: `src/components/trust-controls/InlineDocumentChecklist.tsx` (mindre endring: legg seksjonstittel "Dokumentasjon" så lagdelingen blir tydelig)
+- endret: `src/pages/TrustCenterPolicies.tsx` (info-stripe som peker tilbake til Kilder)
+
+## Hvorfor dette gir mening for brukeren
+
+1. **Transparent score** — "Modenhet" får et synlig "hvorfor": kilder + dokumenter
+2. **Brukerkontroll** — Lara foreslår, brukeren bestemmer (aksepter/forkast/legg til)
+3. **Tydelig hierarki** — Kilder (web-funn) er svakere bevis enn opplastede Dokumenter, og UIet viser det
+4. **Naturlig bro** — Én knapp "Konverter til dokument" tar brukeren fra Laras funn til formell dokumentasjon i Trust Center → Dokumentasjon

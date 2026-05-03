@@ -3141,6 +3141,54 @@ export type Database = {
         }
         Relationships: []
       }
+      trust_profile_sources: {
+        Row: {
+          asset_id: string
+          control_area: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          discovered_by: string
+          id: string
+          snippet: string | null
+          source_type: string
+          status: string
+          title: string
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          asset_id: string
+          control_area: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          discovered_by?: string
+          id?: string
+          snippet?: string | null
+          source_type?: string
+          status?: string
+          title: string
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          asset_id?: string
+          control_area?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          discovered_by?: string
+          id?: string
+          snippet?: string | null
+          source_type?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
       uploaded_documents: {
         Row: {
           analysis_results: Json | null
