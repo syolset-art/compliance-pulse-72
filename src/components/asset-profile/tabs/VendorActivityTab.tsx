@@ -269,10 +269,16 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   )}
                                 </div>
                                 {act.actor && (
-                                  <p className="text-xs text-muted-foreground mt-1">
+                                  <p className="text-xs text-muted-foreground mt-0.5">
                                     <span className="font-medium text-foreground/80">{act.actor}</span>
                                     {act.actorRole && <span className="text-muted-foreground">, {act.actorRole}</span>}
                                   </p>
+                                )}
+                                {shouldShowAction(act.outcomeStatus) && (
+                                  <ActivityActionAffordance
+                                    activity={act}
+                                    onLaraStart={() => updateActivity(act.id, { outcomeStatus: "in_progress", outcomeNb: ACTIVITY_STATUS_CONFIG.in_progress.nb, outcomeEn: ACTIVITY_STATUS_CONFIG.in_progress.en })}
+                                  />
                                 )}
                               </div>
                               <div className="flex items-center gap-1.5 shrink-0">
@@ -280,7 +286,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); toggleStatusEditor(act.id); }}
                                   className={cn(
-                                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-all hover:opacity-80",
+                                    "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-all hover:opacity-80",
                                     statusConf.pill
                                   )}
                                   aria-label={isNb ? "Endre status" : "Change status"}
@@ -289,10 +295,9 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   {isNb ? statusConf.nb : statusConf.en}
                                   <ChevronDown className={cn("h-3 w-3 transition-transform", isStatusEditing && "rotate-180")} />
                                 </button>
-                                <Badge variant="outline" className="text-xs whitespace-nowrap">
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">
                                   {formatRelativeDate(act.date, isNb)}
-                                </Badge>
-                                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -312,8 +317,8 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
