@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/lib/vendorStatus";
 import { VendorInlinePillSelect } from "@/components/vendor-dashboard/VendorInlinePillSelect";
+import { InviteVendorDialog } from "@/components/vendor-dashboard/InviteVendorDialog";
+import { useState } from "react";
 
 interface VendorStatusBannerProps {
   asset: {
@@ -123,6 +125,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
 
   const score = asset.compliance_score || 0;
   const md = asset.metadata || {};
+  const [inviteOpen, setInviteOpen] = useState(false);
   const criticality = deriveCriticality({ risk_level: asset.risk_level });
   const hostname = (() => {
     if (!asset.url) return null;
@@ -172,7 +175,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
             <Sparkles className={cn("h-3.5 w-3.5 text-primary", isMapping && "animate-pulse")} />
             {isMapping ? "Lara kartlegger profilen…" : <>Lara kartla profilen {mapped}</>}
           </p>
-          <Button size="sm" className="gap-1.5 h-8" onClick={() => toast.success("Invitasjon sendt til leverandør")}>
+          <Button size="sm" className="gap-1.5 h-8" onClick={() => setInviteOpen(true)}>
             <Send className="h-3.5 w-3.5" /> Inviter leverandøren
           </Button>
         </div>
@@ -195,6 +198,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
   };
 
   return (
+    <>
     <Card variant="flat" className="relative overflow-hidden p-0">
       <div className="flex items-stretch">
         {/* Vertical stripe */}
@@ -332,5 +336,18 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
         </div>
       </div>
     </Card>
+    <InviteVendorDialog
+      open={inviteOpen}
+      onOpenChange={setInviteOpen}
+      vendor={{
+        id: asset.id,
+        name: asset.name,
+        contact_person: asset.contact_person,
+        contact_email: asset.contact_email,
+        org_number: asset.org_number,
+        description: asset.description,
+      }}
+    />
+    </>
   );
 }

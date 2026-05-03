@@ -13,6 +13,8 @@ import {
   type VendorStatusMeta,
 } from "@/lib/vendorStatus";
 import { VendorInlinePillSelect } from "./VendorInlinePillSelect";
+import { InviteVendorDialog } from "./InviteVendorDialog";
+import { useState } from "react";
 
 const CATEGORY_LABELS: Record<string, string> = {
   saas: "SaaS",
@@ -66,6 +68,17 @@ function formatShortDate(d?: string | null): string | null {
     const dt = new Date(d);
     return `${String(dt.getDate()).padStart(2, "0")}.${String(dt.getMonth() + 1).padStart(2, "0")}`;
   } catch { return null; }
+}
+
+/** Demo-fallback: deterministisk dato innen siste ~9 mnd basert på id, så prototypen aldri viser "—". */
+function demoDateFromId(id?: string | null): string {
+  let hash = 0;
+  const src = (id || "demo").toString();
+  for (let i = 0; i < src.length; i++) hash = (hash * 31 + src.charCodeAt(i)) >>> 0;
+  const daysAgo = 7 + (hash % 260); // 1 uke til ~9 mnd siden
+  const dt = new Date();
+  dt.setDate(dt.getDate() - daysAgo);
+  return dt.toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
 }
 
 function VendorDonut({ score, tone, frozen }: { score: number; tone: VendorStatusMeta["tone"]; frozen?: boolean }) {
@@ -129,6 +142,7 @@ export function VendorStatusRow({
   const score = vendor.compliance_score || 0;
   const md = vendor.metadata || {};
   const isLaraMapping = inboxCount > 0 && status.key === "draft";
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   // Modenhet-label (under prosent)
   const maturityLabel =
@@ -168,7 +182,7 @@ export function VendorStatusRow({
                   })()}
             </span>
           </div>
-          <Button size="sm" onClick={(e) => { e.stopPropagation(); handleOpen(); }} className="gap-1.5 shrink-0">
+          <Button size="sm" onClick={(e) => { e.stopPropagation(); setInviteOpen(true); }} className="gap-1.5 shrink-0">
             <Send className="h-3.5 w-3.5" /> Inviter leverandøren
           </Button>
         </div>
@@ -199,7 +213,7 @@ export function VendorStatusRow({
       );
     }
     if (status.key === "claimed") {
-      const claimedOn = formatLongDate(md.claimed_at) || "—";
+      const claimedOn = formatLongDate(md.claimed_at) || demoDateFromId(vendor.id);
       return (
         <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2 flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-success shrink-0" />
@@ -278,6 +292,7 @@ export function VendorStatusRow({
   const isArchived = status.key === "archived";
 
   return (
+    <>
     <Card
       variant="flat"
       onClick={handleOpen}
@@ -366,5 +381,18 @@ export function VendorStatusRow({
         </div>
       </div>
     </Card>
+    <InviteVendorDialog
+      open={inviteOpen}
+      onOpenChange={setInviteOpen}
+      vendor={{
+        id: vendor.id,
+        name: vendor.name,
+        contact_person: vendor.contact_person,
+        contact_email: (vendor as any).contact_email,
+        org_number: vendor.org_number,
+        description: vendor.description,
+      }}
+    />
+    </>
   );
 }
