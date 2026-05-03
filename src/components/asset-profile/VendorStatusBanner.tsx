@@ -7,6 +7,7 @@ import { Bell, Copy, Send, Sparkles, ExternalLink, Building2, UserPlus, MessageS
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { deriveVendorStatus, deriveCriticality, type VendorStatusMeta } from "@/lib/vendorStatus";
+import { VendorInlinePillSelect } from "@/components/vendor-dashboard/VendorInlinePillSelect";
 
 interface VendorStatusBannerProps {
   asset: {
@@ -26,6 +27,8 @@ interface VendorStatusBannerProps {
     logo_url?: string | null;
     asset_manager?: string | null;
     org_number?: string | null;
+    criticality?: string | null;
+    priority?: string | null;
   };
 }
 
@@ -226,12 +229,29 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-lg md:text-xl font-bold text-foreground truncate">{asset.name}</h1>
-                {/* Verified badge removed — claimed state is conveyed by the green card design */}
-                {criticality && (
-                  <Badge variant="outline" className={cn("text-[11px] gap-1 px-2 py-0.5 font-medium", criticality.pillClass)}>
-                    <span className={cn("h-1.5 w-1.5 rounded-full", criticality.dotClass)} />
-                    {criticality.label}
-                  </Badge>
+              </div>
+
+              {/* Kritikalitet (objektiv) + Prioritet (subjektiv, valgfri) */}
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                <VendorInlinePillSelect
+                  assetId={asset.id}
+                  field="criticality"
+                  value={asset.criticality ?? asset.risk_level ?? null}
+                />
+                <VendorInlinePillSelect
+                  assetId={asset.id}
+                  field="priority"
+                  value={asset.priority ?? null}
+                />
+                {!(asset.criticality || asset.risk_level) && !asset.priority && (
+                  <button
+                    onClick={() => toast.info("Lara analyserer leverandøren og foreslår kritikalitet…")}
+                    className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[12px] text-primary hover:bg-primary/10 transition-colors"
+                    title="La Lara foreslå kritikalitet basert på det vi vet om leverandøren"
+                  >
+                    <Sparkles className="h-3 w-3" />
+                    Lara foreslår
+                  </button>
                 )}
               </div>
 
