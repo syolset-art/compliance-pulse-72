@@ -12,6 +12,7 @@ import {
   deriveVendorStatus, deriveCriticality,
   type VendorStatusMeta,
 } from "@/lib/vendorStatus";
+import { VendorInlinePillSelect } from "./VendorInlinePillSelect";
 
 const CATEGORY_LABELS: Record<string, string> = {
   saas: "SaaS",
@@ -30,6 +31,7 @@ interface VendorRowAsset {
   compliance_score?: number | null;
   risk_level?: string | null;
   criticality?: string | null;
+  priority?: string | null;
   lifecycle_status?: string | null;
   org_number?: string | null;
   url?: string | null;
@@ -230,27 +232,8 @@ export function VendorStatusRow({
   // ---- Footer-rad ----
   const renderFooter = () => {
     if (status.key === "claimed" || status.key === "draft") {
-      const contact = vendor.contact_person;
-      return (
-        <div className="mt-3 pt-3 border-t border-border/60 grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Kontakt hos leverandør</p>
-            {contact ? (
-              <p className="text-[13px] text-foreground mt-1">{contact}</p>
-            ) : (
-              <p className="text-[13px] italic text-muted-foreground mt-1">Legg til kontaktperson</p>
-            )}
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Ansvarlig hos oss</p>
-            {ownerName ? (
-              <p className="text-[13px] text-foreground mt-1">{ownerName}</p>
-            ) : (
-              <p className="text-[13px] italic text-muted-foreground mt-1">Ikke tildelt</p>
-            )}
-          </div>
-        </div>
-      );
+      // Less is more på oversikten – ingen kontakt/ansvarlig her.
+      return null;
     }
     if (status.key === "invited") {
       const created = formatShortDate(vendor.created_at);
@@ -336,11 +319,11 @@ export function VendorStatusRow({
                     <Badge variant="outline" className="text-[12px] gap-1 px-2 py-0.5 bg-muted/60 text-muted-foreground border-border font-medium">
                       <Archive className="h-3 w-3" /> Arkivert
                     </Badge>
-                  ) : criticality && (
-                    <Badge variant="outline" className={cn("text-[12px] gap-1 px-2 py-0.5 font-medium", criticality.pillClass)}>
-                      <span className={cn("h-1.5 w-1.5 rounded-full", criticality.dotClass)} />
-                      {criticality.label}
-                    </Badge>
+                  ) : (
+                    <>
+                      <VendorInlinePillSelect assetId={vendor.id} field="priority" value={vendor.priority} />
+                      <VendorInlinePillSelect assetId={vendor.id} field="criticality" value={vendor.criticality} />
+                    </>
                   )}
                 </div>
                 <p className="text-[13px] text-muted-foreground mt-1 truncate">
