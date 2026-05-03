@@ -61,7 +61,7 @@ const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
     stripeBg: "bg-vendor-claimed",
     stripeText: "text-vendor-claimed-foreground",
     hex: "#0F6E56",
-    hasActiveDot: true,
+    hasActiveDot: false,
     tone: "success",
   },
   archived: {
