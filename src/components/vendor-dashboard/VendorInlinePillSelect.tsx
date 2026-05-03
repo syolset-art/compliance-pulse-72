@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Check, Plus, Flag } from "lucide-react";
+import { Check, Plus, Flag, ChevronsUp, ChevronUp, Minus, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
@@ -11,21 +11,31 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import type { LucideIcon } from "lucide-react";
 
 type Field = "criticality" | "priority";
 
-const OPTIONS: Record<Field, { value: string; label: string; dot: string; pill: string }[]> = {
+interface Option {
+  value: string;
+  label: string;
+  /** Liten farge brukt KUN på ikonet — ingen bakgrunnsfyll */
+  iconColor: string;
+  Icon: LucideIcon;
+}
+
+const OPTIONS: Record<Field, Option[]> = {
+  // Kritikalitet = objektiv intensitet → signal-bars-metafor
   criticality: [
-    { value: "high",   label: "Høy",     dot: "bg-destructive", pill: "bg-destructive/10 text-destructive border-destructive/20" },
-    { value: "medium", label: "Middels", dot: "bg-warning",     pill: "bg-warning/10 text-warning border-warning/20" },
-    { value: "low",    label: "Lav",     dot: "bg-success",     pill: "bg-success/10 text-success border-success/20" },
+    { value: "high",   label: "Høy",     iconColor: "text-destructive",  Icon: ChevronsUp },
+    { value: "medium", label: "Middels", iconColor: "text-warning",      Icon: ChevronUp },
+    { value: "low",    label: "Lav",     iconColor: "text-muted-foreground", Icon: Minus },
   ],
-  // Prioritet bruker en nøytral amber-flagg-stil for å skille seg fra kritikalitetens risiko-farger
+  // Prioritet = subjektivt fokus → flagg-metafor, alle samme nøytrale farge
   priority: [
-    { value: "critical", label: "Kritisk", dot: "bg-amber-600", pill: "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900" },
-    { value: "high",     label: "Høy",     dot: "bg-amber-500", pill: "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900" },
-    { value: "medium",   label: "Medium",  dot: "bg-amber-400", pill: "bg-amber-50/70 text-amber-700 border-amber-200/70 dark:bg-amber-950/30 dark:text-amber-300/90 dark:border-amber-900/70" },
-    { value: "low",      label: "Lav",     dot: "bg-amber-300", pill: "bg-amber-50/50 text-amber-700/90 border-amber-200/60 dark:bg-amber-950/20 dark:text-amber-300/80 dark:border-amber-900/60" },
+    { value: "critical", label: "Kritisk", iconColor: "text-foreground",        Icon: Flag },
+    { value: "high",     label: "Høy",     iconColor: "text-foreground/80",     Icon: Flag },
+    { value: "medium",   label: "Medium",  iconColor: "text-muted-foreground",  Icon: Flag },
+    { value: "low",      label: "Lav",     iconColor: "text-muted-foreground/70", Icon: ChevronDown },
   ],
 };
 
@@ -67,27 +77,16 @@ export function VendorInlinePillSelect({ assetId, field, value }: Props) {
       <DropdownMenuTrigger asChild onClick={stop}>
         {current ? (
           <button
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[12px] font-medium transition-colors hover:opacity-80",
-              current.pill
-            )}
+            className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-[12px] text-foreground/80 hover:bg-muted/60 hover:text-foreground transition-colors"
+            title={`${LABELS[field].title}: ${current.label}`}
           >
-            {field === "priority" ? (
-              <Flag className="h-3 w-3" />
-            ) : (
-              <span className={cn("h-1.5 w-1.5 rounded-full", current.dot)} />
-            )}
-            <span className="text-[10px] uppercase tracking-wider opacity-70">{LABELS[field].title}:</span>
-            {current.label}
+            <current.Icon className={cn("h-3.5 w-3.5", current.iconColor)} strokeWidth={2.25} />
+            <span className="text-muted-foreground/80 text-[11px]">{LABELS[field].title}</span>
+            <span className="font-medium">{current.label}</span>
           </button>
         ) : (
           <button
-            className={cn(
-              "inline-flex items-center gap-1 rounded-full border border-dashed px-2 py-0.5 text-[12px] transition-colors",
-              field === "priority"
-                ? "border-border/50 text-muted-foreground/70 hover:border-border hover:text-foreground hover:bg-muted/30"
-                : "border-border text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-            )}
+            className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[12px] text-muted-foreground/70 hover:bg-muted/40 hover:text-foreground transition-colors"
           >
             <Plus className="h-3 w-3" />
             {LABELS[field].placeholder}
@@ -105,7 +104,7 @@ export function VendorInlinePillSelect({ assetId, field, value }: Props) {
             onSelect={() => mutate.mutate(o.value)}
             className="flex items-center gap-2 text-[13px]"
           >
-            <span className={cn("h-2 w-2 rounded-full", o.dot)} />
+            <o.Icon className={cn("h-3.5 w-3.5", o.iconColor)} strokeWidth={2.25} />
             <span className="flex-1">{o.label}</span>
             {current?.value === o.value && <Check className="h-3.5 w-3.5 text-primary" />}
           </DropdownMenuItem>
