@@ -22,6 +22,8 @@ export interface PlanProposal {
     questionNb: string;
     questionEn: string;
     placeholder?: string;
+    /** When true, render a picker of platform users (with option to invite new). */
+    requiresUser?: boolean;
   };
 }
 
