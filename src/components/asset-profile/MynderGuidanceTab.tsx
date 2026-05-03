@@ -73,25 +73,13 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
     [guidance.suggestions, allDismissed, gapStatusOverrides]
   );
 
-  const summary = recomputeSummary(visibleSuggestions, isNb);
   const createdCount = Object.values(cardSteps).filter(s => s.kind !== "suggested").length;
 
   const stepOf = (id: string): CardStep => cardSteps[id] ?? { kind: "suggested" };
 
-  const handleAcceptSummary = () => {
-    // Opprett alle synlige forslag som "Opprettet, ikke påbegynt".
-    const next: Record<string, CardStep> = { ...cardSteps };
-    visibleSuggestions.forEach(s => { if (!next[s.id]) next[s.id] = { kind: "created" }; });
-    setCardSteps(next);
-    setSummaryAccepted(true);
-    toast({
-      title: isNb ? `${visibleSuggestions.length} aktiviteter opprettet` : `${visibleSuggestions.length} activities created`,
-      description: isNb ? "Ikke påbegynt — Lara foreslår neste handling for hver enkelt." : "Not started — Lara suggests the next action for each one.",
-    });
-  };
-
   const handleAcceptOne = (s: SuggestedActivity) => {
     setCardSteps(prev => ({ ...prev, [s.id]: { kind: "created" } }));
+    setSummaryAccepted(true);
     toast({
       title: isNb ? "Aktivitet opprettet" : "Activity created",
       description: isNb ? "Lara foreslår neste handling under." : "Lara suggests the next action below.",
