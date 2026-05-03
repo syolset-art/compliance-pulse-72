@@ -1,14 +1,12 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { CreateUserTaskDialog } from "@/components/tasks/CreateUserTaskDialog";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { ActivityDetailPanel } from "@/components/asset-profile/ActivityDetailPanel";
 import { InlineStatusEditor } from "@/components/asset-profile/InlineStatusEditor";
 import { useUserTasks } from "@/hooks/useUserTasks";
+import { ActivityActionAffordance, shouldShowAction } from "@/components/asset-profile/ActivityActionAffordance";
 import {
   generateDemoActivities, formatRelativeDate, PHASE_CONFIG, ACTIVITY_COLORS, ACTIVITY_STATUS_CONFIG,
   type Phase, type VendorActivity, type ActivityStatus,
@@ -17,7 +15,7 @@ import { cn } from "@/lib/utils";
 import {
   FileText, AlertTriangle, UserCheck, ClipboardCheck,
   Package, TrendingUp, Settings, Upload, Eye, Clock,
-  ListTodo, Filter, Mail, Phone, Users, PenLine, ChevronDown, Sparkles,
+  ListTodo, Mail, Phone, Users, PenLine, ChevronDown,
 } from "lucide-react";
 
 interface VendorActivityTabProps {
@@ -119,15 +117,6 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
   const lastActivity = activities[0];
   const lastPhase = lastActivity ? PHASE_CONFIG[lastActivity.phase] : null;
 
-  const filterButtons: { key: Phase | "all"; nb: string; en: string }[] = [
-    { key: "all", nb: "Alle", en: "All" },
-    { key: "pre_assessment", nb: "Vurdering", en: "Pre-contract" },
-    { key: "onboarding", nb: "Onboarding", en: "Onboarding" },
-    { key: "ongoing", nb: "Løpende", en: "Ongoing" },
-    { key: "audit", nb: "Revisjon", en: "Audit" },
-    { key: "incident", nb: "Hendelser", en: "Incidents" },
-    { key: "termination", nb: "Avslutning", en: "Termination" },
-  ];
 
   const statusFilters: { key: StatusFilter; nb: string; en: string; count: number; dot?: string }[] = [
     { key: "all", nb: "Alle", en: "All", count: activities.length },
@@ -148,167 +137,76 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
   };
 
   return (
-    <div className="space-y-6">
-      {/* Maturity History Chart */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            {isNb ? "Modenhetsutvikling" : "Maturity Development"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <MaturityHistoryChart assetId={assetId} baselinePercent={baselinePercent} enrichmentPercent={enrichmentPercent} />
-        </CardContent>
-      </Card>
-
-      {/* Status Summary */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isNb ? "Nåværende fase" : "Current phase"}
-              </p>
-              {lastPhase && (
-                <Badge className={`${lastPhase.color} border-0`}>
-                  {isNb ? lastPhase.nb : lastPhase.en}
-                </Badge>
-              )}
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isNb ? "Siste aktivitet" : "Last activity"}
-              </p>
-              {lastActivity && (
-                <div>
-                  <p className="text-sm font-medium">{isNb ? lastActivity.titleNb : lastActivity.titleEn}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {lastActivity.actor}, {lastActivity.actorRole} — {formatRelativeDate(lastActivity.date, isNb)}
-                  </p>
-                </div>
-              )}
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                {isNb ? "Neste planlagt" : "Next planned"}
-              </p>
-              <p className="text-sm font-medium">{isNb ? "Årlig gjennomgang" : "Annual review"}</p>
-              <p className="text-xs text-muted-foreground">Q2 2026</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Open Tasks */}
+    <div className="space-y-4">
+      {/* Open Tasks (compact) */}
       {vendorTasks.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center gap-2">
-              <ListTodo className="h-4 w-4 text-primary" />
-              {isNb ? `Åpne oppgaver (${vendorTasks.length})` : `Open tasks (${vendorTasks.length})`}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {vendorTasks.map(task => (
-                <div key={task.id} className="flex items-center justify-between rounded-md border p-2.5 text-sm">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{task.title}</p>
-                    {task.assignee && <p className="text-xs text-muted-foreground">{task.assignee}</p>}
-                  </div>
-                  {task.due_date && (
-                    <Badge variant="outline" className="text-xs shrink-0 ml-2">
-                      {new Date(task.due_date).toLocaleDateString(isNb ? "nb-NO" : "en-GB")}
-                    </Badge>
-                  )}
+        <div className="rounded-lg border bg-card p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <ListTodo className="h-3.5 w-3.5 text-primary" />
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {isNb ? `Åpne oppgaver · ${vendorTasks.length}` : `Open tasks · ${vendorTasks.length}`}
+            </h3>
+          </div>
+          <div className="space-y-1">
+            {vendorTasks.map(task => (
+              <div key={task.id} className="flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-muted/40">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate">{task.title}</p>
+                  {task.assignee && <p className="text-xs text-muted-foreground">{task.assignee}</p>}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                {task.due_date && (
+                  <Badge variant="outline" className="text-xs shrink-0 ml-2">
+                    {new Date(task.due_date).toLocaleDateString(isNb ? "nb-NO" : "en-GB")}
+                  </Badge>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Activity Timeline */}
-      <Card>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              {isNb ? "Aktivitetslogg" : "Activity Log"}
-            </CardTitle>
-            <div className="flex items-center gap-2">
-              <RegisterActivityDialog onSubmit={(act) => { setManualActivities(prev => [act, ...prev]); onActivityAdded?.(act); }} />
-              <CreateUserTaskDialog
-                onSubmit={(task) => createTask.mutate({ ...task, asset_id: assetId })}
-                isLoading={createTask.isPending}
-              />
-            </div>
+      <div className="rounded-lg border bg-card">
+        <div className="flex items-center justify-between flex-wrap gap-2 p-4 pb-2">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <Clock className="h-4 w-4 text-primary" />
+            {isNb ? "Aktivitetslogg" : "Activity log"}
+            <span className="text-muted-foreground font-normal">· {activities.length}</span>
+          </h3>
+          <div className="flex items-center gap-1.5">
+            <RegisterActivityDialog onSubmit={(act) => { setManualActivities(prev => [act, ...prev]); onActivityAdded?.(act); }} />
+            <CreateUserTaskDialog
+              onSubmit={(task) => createTask.mutate({ ...task, asset_id: assetId })}
+              isLoading={createTask.isPending}
+            />
           </div>
-          <p className="text-sm text-muted-foreground">
-            {isNb
-              ? "Sporbar oversikt over alle endringer, hendelser og oppdateringer knyttet til denne leverandøren."
-              : "Traceable overview of all changes, events, and updates related to this vendor."}
-          </p>
-          {/* Mynder summary line */}
-          <div className="mt-3 flex items-center gap-2 flex-wrap text-xs">
-            <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
-            <span className="text-muted-foreground font-medium">{isNb ? "Mynder ser:" : "Mynder sees:"}</span>
-            <span className="text-destructive font-semibold">
-              {statusCounts.open} {isNb ? (statusCounts.open === 1 ? "åpent gap" : "åpne gap") : (statusCounts.open === 1 ? "open gap" : "open gaps")}
-            </span>
-            <span className="text-muted-foreground">·</span>
-            <span className="text-warning font-semibold">
-              {statusCounts.in_progress} {isNb ? "under oppfølging" : "in progress"}
-            </span>
-            <span className="text-muted-foreground">·</span>
-            <span className="text-success font-semibold">
-              {closedLast30} {isNb ? `lukket siste 30 dg` : `closed last 30 days`}
-            </span>
-            <span className="ml-auto text-muted-foreground">{isNb ? "Oppdatert nå" : "Updated now"}</span>
-          </div>
+        </div>
 
-          {/* Status filters */}
-          <div className="flex items-center gap-1.5 pt-3 flex-wrap">
-            {statusFilters.map(sf => {
-              const isActive = statusFilter === sf.key;
-              return (
-                <button
-                  key={sf.key}
-                  type="button"
-                  onClick={() => setStatusFilter(sf.key)}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-all",
-                    isActive
-                      ? "border-foreground/40 bg-foreground/5 text-foreground"
-                      : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
-                  )}
-                >
-                  {sf.dot && <span className={cn("h-1.5 w-1.5 rounded-full", sf.dot)} />}
-                  <span>{isNb ? sf.nb : sf.en}</span>
-                  <span className="text-muted-foreground">· {sf.count}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Phase filters */}
-          <div className="flex items-center gap-1.5 pt-2 flex-wrap">
-            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-            {filterButtons.map(fb => (
-              <Button
-                key={fb.key}
-                variant={phaseFilter === fb.key ? "default" : "outline"}
-                size="sm"
-                className="h-7 text-xs"
-                onClick={() => setPhaseFilter(fb.key)}
+        {/* Status filters only — phase filters removed for clarity */}
+        <div className="flex items-center gap-1.5 px-4 pb-3 flex-wrap">
+          {statusFilters.map(sf => {
+            const isActive = statusFilter === sf.key;
+            return (
+              <button
+                key={sf.key}
+                type="button"
+                onClick={() => setStatusFilter(sf.key)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-all",
+                  isActive
+                    ? "border-foreground/40 bg-foreground/5 text-foreground"
+                    : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
+                )}
               >
-                {isNb ? fb.nb : fb.en}
-              </Button>
-            ))}
-          </div>
-        </CardHeader>
-        <CardContent>
+                {sf.dot && <span className={cn("h-1.5 w-1.5 rounded-full", sf.dot)} />}
+                <span>{isNb ? sf.nb : sf.en}</span>
+                <span className="text-muted-foreground/70">· {sf.count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="px-4 pb-4">
+
           <div className="space-y-6">
             {grouped.map((group) => (
               <div key={group.label}>
@@ -359,10 +257,16 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   )}
                                 </div>
                                 {act.actor && (
-                                  <p className="text-xs text-muted-foreground mt-1">
+                                  <p className="text-xs text-muted-foreground mt-0.5">
                                     <span className="font-medium text-foreground/80">{act.actor}</span>
                                     {act.actorRole && <span className="text-muted-foreground">, {act.actorRole}</span>}
                                   </p>
+                                )}
+                                {shouldShowAction(act.outcomeStatus) && (
+                                  <ActivityActionAffordance
+                                    activity={act}
+                                    onLaraStart={() => updateActivity(act.id, { outcomeStatus: "in_progress", outcomeNb: ACTIVITY_STATUS_CONFIG.in_progress.nb, outcomeEn: ACTIVITY_STATUS_CONFIG.in_progress.en })}
+                                  />
                                 )}
                               </div>
                               <div className="flex items-center gap-1.5 shrink-0">
@@ -370,7 +274,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); toggleStatusEditor(act.id); }}
                                   className={cn(
-                                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-all hover:opacity-80",
+                                    "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-all hover:opacity-80",
                                     statusConf.pill
                                   )}
                                   aria-label={isNb ? "Endre status" : "Change status"}
@@ -379,10 +283,9 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   {isNb ? statusConf.nb : statusConf.en}
                                   <ChevronDown className={cn("h-3 w-3 transition-transform", isStatusEditing && "rotate-180")} />
                                 </button>
-                                <Badge variant="outline" className="text-xs whitespace-nowrap">
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">
                                   {formatRelativeDate(act.date, isNb)}
-                                </Badge>
-                                <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -402,8 +305,8 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
