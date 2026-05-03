@@ -197,13 +197,38 @@ export function LaraPlanClarifyDialog({ open, onOpenChange, isNb, proposals, onS
                 )}
               </div>
             ) : (
-              <Input
-                id="clarify-input"
-                autoFocus
-                value={answers[current.id] ?? ""}
-                onChange={(e) => setAnswers((a) => ({ ...a, [current.id]: e.target.value }))}
-                placeholder={current.needsClarification?.placeholder ?? ""}
-              />
+              <div className="space-y-2">
+                {current.needsClarification?.suggestedAnswers && current.needsClarification.suggestedAnswers.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {current.needsClarification.suggestedAnswers.map((s, i) => {
+                      const label = isNb ? s.nb : s.en;
+                      const selected = answers[current.id] === label;
+                      return (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setAnswers((a) => ({ ...a, [current.id]: label }))}
+                          className={cn(
+                            "px-2.5 py-1 rounded-full border text-xs transition-colors",
+                            selected
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background border-border text-foreground hover:bg-muted/40"
+                          )}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                <Input
+                  id="clarify-input"
+                  autoFocus
+                  value={answers[current.id] ?? ""}
+                  onChange={(e) => setAnswers((a) => ({ ...a, [current.id]: e.target.value }))}
+                  placeholder={current.needsClarification?.placeholder ?? (isNb ? "Eller skriv eget svar…" : "Or write your own answer…")}
+                />
+              </div>
             )}
           </div>
         </div>
