@@ -1,9 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { CreateUserTaskDialog } from "@/components/tasks/CreateUserTaskDialog";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { ActivityDetailPanel } from "@/components/asset-profile/ActivityDetailPanel";
