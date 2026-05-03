@@ -145,26 +145,29 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
     setPreviewDraft(null);
   };
 
-  const handleReanalyze = () => {
-    setReanalyzing(true);
-    setTimeout(() => {
-      setReanalyzing(false);
-      setLastAnalyzed(new Date());
-      toast({
-        title: isNb ? "Lara har analysert på nytt" : "Lara re-analyzed",
-        description: isNb ? "Ingen nye gap funnet." : "No new gaps found.",
+  // Bygg plan-tasks for Lara-banneret fra synlige forslag som ikke er opprettet ennå.
+  const planTasks: LaraPlanTask[] = useMemo(() => {
+    return visibleSuggestions
+      .filter(s => stepOf(s.id).kind === "suggested")
+      .map(s => {
+        const sev: LaraPlanTask["severity"] =
+          s.criticality === "kritisk" ? "critical" :
+          s.criticality === "hoy" ? "high" : "medium";
+        return {
+          id: s.id,
+          severity: sev,
+          title: isNb ? s.titleNb : s.titleEn,
+          category: isNb ? s.themeNb : s.themeEn,
+          insight: isNb ? s.statusNoteNb : s.statusNoteEn,
+          primaryCtaLabelNb: "Opprett aktivitet",
+          primaryCtaLabelEn: "Create activity",
+          secondaryCtaLabelNb: "Endre forslag",
+          secondaryCtaLabelEn: "Edit suggestion",
+        };
       });
-    }, 1200);
-  };
+  }, [visibleSuggestions, cardSteps, isNb]);
 
-  const lastAnalyzedLabel = useMemo(() => {
-    const diffMin = Math.max(0, Math.round((Date.now() - lastAnalyzed.getTime()) / 60000));
-    if (diffMin < 1) return isNb ? "akkurat nå" : "just now";
-    if (diffMin === 1) return isNb ? "1 minutt siden" : "1 minute ago";
-    if (diffMin < 60) return isNb ? `${diffMin} minutter siden` : `${diffMin} minutes ago`;
-    const h = Math.round(diffMin / 60);
-    return isNb ? `${h} t siden` : `${h}h ago`;
-  }, [lastAnalyzed, isNb]);
+  const planCriticalCount = planTasks.filter(t => t.severity === "critical").length;
 
   return (
     <div className="space-y-5">
