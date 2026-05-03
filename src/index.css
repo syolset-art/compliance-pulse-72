@@ -58,25 +58,25 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --gradient-mynder: linear-gradient(135deg, hsl(220 14% 95%) 0%, hsl(220 14% 87%) 100%);
 
     /* Vendor status palette (lifecycle ownership) */
-    --vendor-draft: 28 79% 41%;        /* #BA7517 — Utkast (Mynder eier) */
+    --vendor-draft: 245 43% 51%;       /* #534AB7 — Utkast (Mynder/Lara eier) */
     --vendor-draft-foreground: 0 0% 100%;
-    --vendor-invited: 210 74% 37%;     /* #185FA5 — Invitert */
+    --vendor-invited: 28 79% 41%;      /* #BA7517 — Invitert (forespørsel) */
     --vendor-invited-foreground: 0 0% 100%;
     --vendor-claimed: 165 76% 25%;     /* #0F6E56 — Claimet */
     --vendor-claimed-foreground: 0 0% 100%;
-    --vendor-archived: 52 4% 40%;      /* #6B6A62 — Arkivert */
+    --vendor-archived: 52 4% 52%;      /* #888780 — Arkivert */
     --vendor-archived-foreground: 0 0% 100%;
 
     /* System status palette (lifecycle ownership) — mirrors vendor */
-    --system-mapped: 28 79% 41%;        /* Lara har kartlagt */
+    --system-mapped: 245 43% 51%;       /* #534AB7 — Lara har kartlagt */
     --system-mapped-foreground: 0 0% 100%;
-    --system-assigned: 210 74% 37%;     /* Tildelt arbeidsområde */
+    --system-assigned: 28 79% 41%;      /* #BA7517 — Tildelt arbeidsområde */
     --system-assigned-foreground: 0 0% 100%;
-    --system-owned: 165 76% 25%;        /* Eid/aktivt vedlikeholdt */
+    --system-owned: 165 76% 25%;        /* #0F6E56 — Eid/aktivt vedlikeholdt */
     --system-owned-foreground: 0 0% 100%;
-    --system-phasing: 33 87% 42%;       /* Under utfasing */
+    --system-phasing: 28 79% 41%;       /* #BA7517 — Under utfasing */
     --system-phasing-foreground: 0 0% 100%;
-    --system-archived: 52 4% 40%;       /* Arkivert */
+    --system-archived: 52 4% 52%;       /* #888780 — Arkivert */
     --system-archived-foreground: 0 0% 100%;
   }
 

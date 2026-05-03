@@ -30,8 +30,8 @@ const STATUS_META: Record<SystemStatusKey, SystemStatusMeta> = {
     stripeLabel: "SYSTEM · KARTLAGT",
     stripeBg: "bg-system-mapped",
     stripeText: "text-system-mapped-foreground",
-    hex: "#BA7517",
-    tone: "warning",
+    hex: "#534AB7",
+    tone: "primary",
   },
   assigned: {
     key: "assigned",
@@ -40,8 +40,8 @@ const STATUS_META: Record<SystemStatusKey, SystemStatusMeta> = {
     stripeLabel: "SYSTEM · TILDELT",
     stripeBg: "bg-system-assigned",
     stripeText: "text-system-assigned-foreground",
-    hex: "#185FA5",
-    tone: "primary",
+    hex: "#BA7517",
+    tone: "warning",
   },
   owned: {
     key: "owned",
@@ -61,7 +61,7 @@ const STATUS_META: Record<SystemStatusKey, SystemStatusMeta> = {
     stripeLabel: "SYSTEM · UTFASES",
     stripeBg: "bg-system-phasing",
     stripeText: "text-system-phasing-foreground",
-    hex: "#C97A1F",
+    hex: "#BA7517",
     tone: "warning",
   },
   archived: {
@@ -71,7 +71,7 @@ const STATUS_META: Record<SystemStatusKey, SystemStatusMeta> = {
     stripeLabel: "SYSTEM · ARKIVERT",
     stripeBg: "bg-system-archived",
     stripeText: "text-system-archived-foreground",
-    hex: "#6B6A62",
+    hex: "#888780",
     tone: "muted",
   },
 };

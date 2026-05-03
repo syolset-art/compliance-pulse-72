@@ -40,8 +40,8 @@ const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
     stripeLabel: "LEVERANDØR · UTKAST",
     stripeBg: "bg-vendor-draft",
     stripeText: "text-vendor-draft-foreground",
-    hex: "#BA7517",
-    tone: "warning",
+    hex: "#534AB7",
+    tone: "primary",
   },
   invited: {
     key: "invited",
@@ -50,8 +50,8 @@ const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
     stripeLabel: "LEVERANDØR · INVITERT",
     stripeBg: "bg-vendor-invited",
     stripeText: "text-vendor-invited-foreground",
-    hex: "#185FA5",
-    tone: "primary",
+    hex: "#BA7517",
+    tone: "warning",
   },
   claimed: {
     key: "claimed",
@@ -71,7 +71,7 @@ const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
     stripeLabel: "LEVERANDØR · ARKIVERT",
     stripeBg: "bg-vendor-archived",
     stripeText: "text-vendor-archived-foreground",
-    hex: "#6B6A62",
+    hex: "#888780",
     tone: "muted",
   },
 };
