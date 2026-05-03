@@ -94,22 +94,32 @@ Deno.serve(async (req) => {
 
     const sources = (await llmSources(name, domain)) ?? templateSources(domain, name);
 
+    // Skip rows that already exist (unique index on asset_id, control_area, COALESCE(url, title))
+    const { data: existing } = await supabase
+      .from("trust_profile_sources")
+      .select("control_area, url, title")
+      .eq("asset_id", assetId);
+    const seen = new Set((existing || []).map((r: any) => `${r.control_area}|${r.url || r.title}`));
+
+    const toInsert = sources
+      .filter((s) => !seen.has(`${s.control_area}|${s.url || s.title}`))
+      .map((s) => ({
+        asset_id: assetId,
+        control_area: s.control_area,
+        title: s.title,
+        url: s.url || null,
+        snippet: s.snippet || null,
+        source_type: "webpage" as const,
+        status: "suggested" as const,
+        discovered_by: "lara" as const,
+      }));
+
     let inserted = 0;
-    for (const s of sources) {
-      const { error } = await supabase.from("trust_profile_sources").upsert(
-        {
-          asset_id: assetId,
-          control_area: s.control_area,
-          title: s.title,
-          url: s.url || null,
-          snippet: s.snippet || null,
-          source_type: "webpage",
-          status: "suggested",
-          discovered_by: "lara",
-        },
-        { onConflict: "asset_id,control_area,url", ignoreDuplicates: true }
-      );
-      if (!error) inserted += 1;
+    if (toInsert.length) {
+      const { error, count } = await supabase
+        .from("trust_profile_sources")
+        .insert(toInsert, { count: "exact" });
+      if (!error) inserted = count || toInsert.length;
     }
 
     return new Response(JSON.stringify({ ok: true, count: sources.length, inserted }), {
