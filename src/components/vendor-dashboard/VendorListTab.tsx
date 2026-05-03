@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { VendorCard } from "./VendorCard";
 import { VendorStatusRow } from "./VendorStatusRow";
+import { VendorStatusLegend } from "./VendorStatusLegend";
 import { AssetRowActionMenu } from "@/components/shared/AssetRowActionMenu";
 import { ALL_VENDOR_STATUSES, deriveVendorStatus } from "@/lib/vendorStatus";
 import {
@@ -270,6 +271,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
 
   return (
     <div className="space-y-4">
+      <VendorStatusLegend />
       {/* Toolbar */}
       <div className="flex items-center gap-2">
         <Input
