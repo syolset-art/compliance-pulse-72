@@ -610,14 +610,14 @@ function OngoingActivitiesSection({
                 className={cn(
                   "rounded-pill border px-2.5 py-1 text-[11px] font-medium transition-all inline-flex items-center gap-1.5",
                   active
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
+                    ? "border-foreground/20 bg-foreground/5 text-foreground"
+                    : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-foreground/30"
                 )}
               >
                 {isNb ? f.nb : f.en}
                 <span className={cn(
                   "rounded-full px-1.5 text-[10px] font-semibold",
-                  active ? "bg-primary/20" : "bg-muted"
+                  active ? "bg-foreground/10" : "bg-muted"
                 )}>{count}</span>
               </button>
             );
