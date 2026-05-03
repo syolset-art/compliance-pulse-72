@@ -723,6 +723,7 @@ export type Database = {
           compliance_officer: string | null
           compliance_officer_email: string | null
           compliance_organization: string | null
+          country: string | null
           created_at: string | null
           domain: string | null
           dpo_email: string | null
@@ -738,6 +739,7 @@ export type Database = {
           industry: string
           initial_maturity: string | null
           is_msp_partner: boolean
+          legal_name: string | null
           maturity: string | null
           maturity_calculated_at: string | null
           name: string
@@ -756,6 +758,7 @@ export type Database = {
           compliance_officer?: string | null
           compliance_officer_email?: string | null
           compliance_organization?: string | null
+          country?: string | null
           created_at?: string | null
           domain?: string | null
           dpo_email?: string | null
@@ -771,6 +774,7 @@ export type Database = {
           industry: string
           initial_maturity?: string | null
           is_msp_partner?: boolean
+          legal_name?: string | null
           maturity?: string | null
           maturity_calculated_at?: string | null
           name: string
@@ -789,6 +793,7 @@ export type Database = {
           compliance_officer?: string | null
           compliance_officer_email?: string | null
           compliance_organization?: string | null
+          country?: string | null
           created_at?: string | null
           domain?: string | null
           dpo_email?: string | null
@@ -804,6 +809,7 @@ export type Database = {
           industry?: string
           initial_maturity?: string | null
           is_msp_partner?: boolean
+          legal_name?: string | null
           maturity?: string | null
           maturity_calculated_at?: string | null
           name?: string

@@ -22,6 +22,7 @@ interface PublishingReadinessProps {
   frameworks: any[];
   linkedProducts: any[];
   evaluation: any;
+  asset?: any;
 }
 
 export function PublishingReadiness({
@@ -30,25 +31,33 @@ export function PublishingReadiness({
   frameworks,
   linkedProducts,
   evaluation,
+  asset,
 }: PublishingReadinessProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [expanded, setExpanded] = useState(false);
 
   const checks = useMemo<ReadinessCheck[]>(() => {
-    const hasCompanyInfo = !!(companyProfile?.name && companyProfile?.org_number);
+    const idMissing: string[] = [];
+    if (!(companyProfile?.legal_name || companyProfile?.name)) idMissing.push(isNb ? "juridisk navn" : "legal name");
+    if (!companyProfile?.org_number) idMissing.push(isNb ? "org.nr" : "reg. number");
+    if (!companyProfile?.country) idMissing.push(isNb ? "land" : "country");
+    if (!companyProfile?.domain) idMissing.push(isNb ? "nettside" : "website");
+    if (!asset?.description) idMissing.push(isNb ? "beskrivelse" : "description");
+    if (!asset?.logo_url) idMissing.push(isNb ? "logo" : "logo");
+    const hasIdentity = idMissing.length === 0;
+
     const hasContact = !!(companyProfile?.compliance_officer || companyProfile?.dpo_name);
     const hasControls = trustScore >= 70;
     const hasFramework = frameworks.length > 0;
-    
 
     return [
       {
-        id: "company",
-        labelNb: "Virksomhetsinformasjon utfylt",
-        labelEn: "Company information completed",
+        id: "identity",
+        labelNb: hasIdentity ? "Identitet komplett (juridisk navn, org.nr, land, nettside, beskrivelse, logo)" : `Identitet mangler: ${idMissing.join(", ")}`,
+        labelEn: hasIdentity ? "Identity complete (legal name, reg. number, country, website, description, logo)" : `Identity missing: ${idMissing.join(", ")}`,
         anchor: "#company",
-        passed: hasCompanyInfo,
+        passed: hasIdentity,
       },
       {
         id: "contact",
@@ -72,7 +81,7 @@ export function PublishingReadiness({
         passed: hasFramework,
       },
     ];
-  }, [trustScore, companyProfile, frameworks]);
+  }, [trustScore, companyProfile, frameworks, asset, isNb]);
 
   const passedCount = checks.filter((c) => c.passed).length;
   const readinessPercent = Math.round((passedCount / checks.length) * 100);

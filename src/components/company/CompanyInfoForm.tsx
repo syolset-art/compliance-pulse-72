@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Shield, Save, Pencil, X, Users, Sparkles } from "lucide-react";
+import { Upload, Shield, Save, Pencil, X, Users, Sparkles, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface CompanyInfoFormProps {
@@ -22,6 +22,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(defaultEditing);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const { data: companyProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["company-profile-shared"],
@@ -44,6 +46,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   // Local form state
   const [form, setForm] = useState({
     name: "",
+    legal_name: "",
+    country: "Norge",
     org_number: "",
     domain: "",
     industry: "",
@@ -58,6 +62,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     if (companyProfile) {
       setForm({
         name: companyProfile.name || "",
+        legal_name: (companyProfile as any).legal_name || "",
+        country: (companyProfile as any).country || "Norge",
         org_number: companyProfile.org_number || "",
         domain: companyProfile.domain || "",
         industry: companyProfile.industry || "",
@@ -77,13 +83,15 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       const { error: profileErr } = await supabase
         .from("company_profile")
         .update({
-        name: form.name,
+          name: form.name,
+          legal_name: form.legal_name,
+          country: form.country,
           domain: form.domain,
           industry: form.industry,
           employees: form.employees,
           compliance_officer: form.compliance_officer,
           compliance_officer_email: form.compliance_officer_email,
-        })
+        } as any)
         .eq("id", companyProfile.id);
       if (profileErr) throw profileErr;
 
@@ -95,6 +103,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       queryClient.invalidateQueries({ queryKey: ["company-profile-shared"] });
       queryClient.invalidateQueries({ queryKey: ["company_profile_edit"] });
       queryClient.invalidateQueries({ queryKey: ["company-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
       queryClient.invalidateQueries({ queryKey: ["self-asset-shared"] });
       queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
 
@@ -112,6 +121,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     if (companyProfile) {
       setForm({
         name: companyProfile.name || "",
+        legal_name: (companyProfile as any).legal_name || "",
+        country: (companyProfile as any).country || "Norge",
         org_number: companyProfile.org_number || "",
         domain: companyProfile.domain || "",
         industry: companyProfile.industry || "",
@@ -123,6 +134,40 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       });
     }
     setIsEditing(false);
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selfAsset) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Må være en bildefil");
+      return;
+    }
+    if (file.size > 1024 * 1024) {
+      toast.error("Maks filstørrelse er 1 MB");
+      return;
+    }
+    setUploadingLogo(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const filePath = `${selfAsset.id}/logo.${ext}`;
+      await supabase.storage.from("company-logos").remove([filePath]);
+      const { error: upErr } = await supabase.storage.from("company-logos").upload(filePath, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("company-logos").getPublicUrl(filePath);
+      const { error: updErr } = await supabase.from("assets").update({ logo_url: urlData.publicUrl } as any).eq("id", selfAsset.id);
+      if (updErr) throw updErr;
+      queryClient.invalidateQueries({ queryKey: ["self-asset-shared"] });
+      queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+      queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+      toast.success("Logo lastet opp");
+    } catch (err) {
+      console.error(err);
+      toast.error("Kunne ikke laste opp logo");
+    } finally {
+      setUploadingLogo(false);
+      if (logoInputRef.current) logoInputRef.current.value = "";
+    }
   };
 
   const update = (key: keyof typeof form, value: string) => {
@@ -169,9 +214,16 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
       {/* Logo */}
       <div className="space-y-2">
-        <label className="text-xs font-medium text-foreground">Logo</label>
+        <label className="text-xs font-medium text-foreground flex items-center gap-2">
+          Logo
+          {!selfAsset?.logo_url && (
+            <Badge variant="outline" className="text-[11px] gap-1 border-warning/40 text-warning">
+              <AlertCircle className="h-2.5 w-2.5" /> Mangler
+            </Badge>
+          )}
+        </label>
         <div className="flex items-center gap-3">
-          <div className="h-14 w-14 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/30">
+          <div className="h-14 w-14 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/30 overflow-hidden">
             {selfAsset?.logo_url ? (
               <img src={selfAsset.logo_url} className="h-12 w-12 rounded object-contain" alt="" />
             ) : (
@@ -179,9 +231,22 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             )}
           </div>
           <div>
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleLogoUpload}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs"
+              disabled={uploadingLogo || !selfAsset}
+              onClick={() => logoInputRef.current?.click()}
+            >
               <Upload className="h-3 w-3" />
-              Last opp logo
+              {uploadingLogo ? "Laster opp…" : selfAsset?.logo_url ? "Bytt logo" : "Last opp logo"}
             </Button>
             <p className="text-[13px] text-muted-foreground mt-1">PNG, JPG eller SVG. Maks 1 MB.</p>
           </div>
@@ -194,11 +259,41 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           <Input value={form.org_number || "Ikke registrert"} readOnly className="bg-muted/30 text-sm" />
         </FieldBlock>
 
-        <FieldBlock label="Selskapsnavn" hint="Hentet fra Brønnøysundregistrene">
+        <FieldBlock label="Juridisk navn" hint="Det offisielle, registrerte foretaksnavnet">
+          {isEditing ? (
+            <Input value={form.legal_name} onChange={(e) => update("legal_name", e.target.value)} placeholder={form.name || "Eksempel AS"} className="text-sm" />
+          ) : (
+            <Input value={form.legal_name || form.name || "—"} readOnly className="bg-muted/30 text-sm" />
+          )}
+        </FieldBlock>
+
+        <FieldBlock label="Selskapsnavn (markedsnavn)" hint="Hentet fra Brønnøysundregistrene">
           {isEditing ? (
             <Input value={form.name} onChange={(e) => update("name", e.target.value)} className="text-sm" />
           ) : (
             <Input value={form.name || "—"} readOnly className="bg-muted/30 text-sm" />
+          )}
+        </FieldBlock>
+
+        <FieldBlock label="Land for registrering" hint="Hvor er selskapet registrert?">
+          {isEditing ? (
+            <select
+              value={form.country}
+              onChange={(e) => update("country", e.target.value)}
+              className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
+            >
+              <option value="Norge">Norge</option>
+              <option value="Sverige">Sverige</option>
+              <option value="Danmark">Danmark</option>
+              <option value="Finland">Finland</option>
+              <option value="Island">Island</option>
+              <option value="Tyskland">Tyskland</option>
+              <option value="Storbritannia">Storbritannia</option>
+              <option value="USA">USA</option>
+              <option value="Annet">Annet</option>
+            </select>
+          ) : (
+            <Input value={form.country || "—"} readOnly className="bg-muted/30 text-sm" />
           )}
         </FieldBlock>
 
