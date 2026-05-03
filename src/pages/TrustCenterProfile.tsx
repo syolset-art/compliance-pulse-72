@@ -371,10 +371,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <circle cx="64" cy="64" r={radius} fill="none" stroke={strokeColor} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className={`text-4xl font-bold tabular-nums ${trustColor}`}>{trustScore}</span>
-                    <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">{trustLabel}</span>
+                    <span className={`text-4xl font-bold tabular-nums leading-none ${trustColor}`}>{trustScore}</span>
+                    <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
                   </div>
                 </div>
+                <span className={`text-sm font-semibold uppercase tracking-wider ${trustColor}`}>{trustLabel}</span>
                 <p className="text-[13px] text-muted-foreground text-center">
                   {trustScore >= 80 ? (isNb ? "Godt egnet for de fleste bruksområder" : "Suitable for most use cases") : trustScore >= 50 ? (isNb ? "Egnet for standard bruksområder" : "Suitable for standard use cases") : (isNb ? "Begrenset egnethet" : "Limited suitability")}
                 </p>
