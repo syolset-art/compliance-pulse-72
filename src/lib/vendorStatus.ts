@@ -71,7 +71,7 @@ const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
     stripeLabel: "LEVERANDØR · ARKIVERT",
     stripeBg: "bg-vendor-archived",
     stripeText: "text-vendor-archived-foreground",
-    hex: "#6B6A62",
+    hex: "#888780",
     tone: "muted",
   },
 };
