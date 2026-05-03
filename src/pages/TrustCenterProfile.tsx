@@ -30,6 +30,7 @@ import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
+import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
@@ -113,7 +114,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, display_name, status, created_at, expiry_date, valid_to, visibility")
+        .select("id, document_type, file_name, display_name, status, created_at, valid_to, visibility, external_url, available_on_request, file_path, category")
         .eq("asset_id", asset!.id)
         .eq("visibility", "published");
       return data || [];
@@ -515,7 +516,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                 {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
               </h3>
-              <div className="space-y-2.5">
+              <RequiredArtifactsBlock assetId={asset?.id} vendorDocs={vendorDocs} variant="profile" />
+              <div className="space-y-2.5 pt-1">
                 {[
                   { key: "policies", icon: FileText, label: isNb ? "Retningslinjer" : "Policies", count: docsCount, color: "text-primary", items: policies },
                   { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-accent", items: certs },
@@ -1249,7 +1251,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                       {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
                     </h3>
-                    <div className="space-y-2.5">
+                    <RequiredArtifactsBlock assetId={asset?.id} vendorDocs={vendorDocs} variant="profile" />
+                    <div className="space-y-2.5 pt-1">
                       {[
                         { key: "policies", icon: FileText, label: isNb ? "Retningslinjer" : "Policies", count: docsCount, color: "text-primary", items: policies },
                         { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-accent", items: certs },

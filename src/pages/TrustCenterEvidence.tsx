@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
+import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
 
 const statusOptions = [
   { value: "draft", labelNb: "Utkast", labelEn: "Draft" },
@@ -137,7 +138,7 @@ const TrustCenterEvidence = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, status, created_at, valid_to, display_name, category, visibility, notes, approved_by, approved_at")
+        .select("id, document_type, file_name, file_path, status, created_at, valid_to, display_name, category, visibility, notes, approved_by, approved_at, external_url, available_on_request")
         .eq("asset_id", asset!.id)
         .order("created_at", { ascending: false });
       return data || [];
@@ -391,6 +392,13 @@ const TrustCenterEvidence = () => {
             <span className="font-medium">{vendorDocs.filter((d: any) => d.visibility !== "published").length}</span>
             <span className="text-muted-foreground">{isNb ? "kun internt" : "internal only"}</span>
           </div>
+        </div>
+      )}
+
+      {/* Required artifacts checklist */}
+      {!isLoading && asset?.id && (
+        <div className="mb-6">
+          <RequiredArtifactsBlock assetId={asset.id} vendorDocs={vendorDocs as any} variant="evidence" />
         </div>
       )}
 
