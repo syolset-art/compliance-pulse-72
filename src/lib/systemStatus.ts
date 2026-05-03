@@ -71,7 +71,7 @@ const STATUS_META: Record<SystemStatusKey, SystemStatusMeta> = {
     stripeLabel: "SYSTEM · ARKIVERT",
     stripeBg: "bg-system-archived",
     stripeText: "text-system-archived-foreground",
-    hex: "#6B6A62",
+    hex: "#888780",
     tone: "muted",
   },
 };
