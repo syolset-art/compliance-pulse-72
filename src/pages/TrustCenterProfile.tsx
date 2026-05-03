@@ -1021,10 +1021,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className={`text-4xl font-bold tabular-nums ${trustColor}`}>{trustScore}</span>
-                          <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider mt-0.5">{trustLabel}</span>
+                          <span className={`text-4xl font-bold tabular-nums leading-none ${trustColor}`}>{trustScore}</span>
+                          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
                         </div>
                       </div>
+                      <span className={`text-sm font-semibold uppercase tracking-wider ${trustColor}`}>{trustLabel}</span>
                       <p className="text-[13px] text-muted-foreground text-center">
                         {trustScore >= 80
                           ? (isNb ? "Godt egnet for de fleste bruksområder" : "Suitable for most use cases")
