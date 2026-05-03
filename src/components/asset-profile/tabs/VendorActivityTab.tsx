@@ -117,15 +117,6 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
   const lastActivity = activities[0];
   const lastPhase = lastActivity ? PHASE_CONFIG[lastActivity.phase] : null;
 
-  const filterButtons: { key: Phase | "all"; nb: string; en: string }[] = [
-    { key: "all", nb: "Alle", en: "All" },
-    { key: "pre_assessment", nb: "Vurdering", en: "Pre-contract" },
-    { key: "onboarding", nb: "Onboarding", en: "Onboarding" },
-    { key: "ongoing", nb: "Løpende", en: "Ongoing" },
-    { key: "audit", nb: "Revisjon", en: "Audit" },
-    { key: "incident", nb: "Hendelser", en: "Incidents" },
-    { key: "termination", nb: "Avslutning", en: "Termination" },
-  ];
 
   const statusFilters: { key: StatusFilter; nb: string; en: string; count: number; dot?: string }[] = [
     { key: "all", nb: "Alle", en: "All", count: activities.length },
