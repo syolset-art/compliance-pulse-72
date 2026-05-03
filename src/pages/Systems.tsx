@@ -140,10 +140,12 @@ const getMaturityBadge = (score: number) => {
 };
 
 const getRiskLabel = (risk: string | null) => {
+  // Brukervalg: kritikalitet (tidligere kalt "risiko"). Skiller seg fra avledet risiko (Lara).
   switch (risk) {
-    case "high": return { label: "Høy risiko", dotClass: "bg-destructive" };
-    case "medium": return { label: "Moderat risiko", dotClass: "bg-primary" };
-    case "low": return { label: "Lav risiko", dotClass: "bg-status-closed" };
+    case "critical": return { label: "Kritisk", dotClass: "bg-primary" };
+    case "high": return { label: "Høy kritikalitet", dotClass: "bg-primary" };
+    case "medium": return { label: "Middels kritikalitet", dotClass: "bg-foreground/50" };
+    case "low": return { label: "Lav kritikalitet", dotClass: "bg-muted-foreground/40" };
     default: return { label: "Ikke satt", dotClass: "bg-muted-foreground/30" };
   }
 };
@@ -478,13 +480,13 @@ export default function Systems() {
             </TooltipProvider>
           </span>
           <span className="flex items-center gap-1">
-            Risiko
+            Kritikalitet
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3 w-3 cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent><p>Risikonivå for dette systemet</p></TooltipContent>
+                <TooltipContent><p>Hvor kritisk dette systemet er for virksomheten — du setter dette selv. Risiko beregnes separat av Mynder.</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </span>
