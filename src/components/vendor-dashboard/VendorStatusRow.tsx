@@ -142,6 +142,7 @@ export function VendorStatusRow({
   const score = vendor.compliance_score || 0;
   const md = vendor.metadata || {};
   const isLaraMapping = inboxCount > 0 && status.key === "draft";
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   // Modenhet-label (under prosent)
   const maturityLabel =
