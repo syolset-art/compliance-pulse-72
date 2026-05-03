@@ -4,6 +4,23 @@ export type GuidanceLevel = "strategisk" | "taktisk" | "operasjonelt";
 export type Criticality = "kritisk" | "hoy" | "medium";
 export type GapStatus = "open" | "in_progress" | "closed" | "not_relevant";
 
+export type NextActionType = "email" | "meeting" | "task";
+
+export interface NextActionDraft {
+  /** Hva Lara foreslår å gjøre — én kort setning. */
+  proposalNb: string;
+  proposalEn: string;
+  type: NextActionType;
+  /** For e-post / møte: foreslått mottaker. */
+  recipient?: string;
+  /** Forhåndsutfylt emne / agenda / oppgave-tittel. */
+  subjectNb?: string;
+  subjectEn?: string;
+  /** Forhåndsutfylt brødtekst. */
+  bodyNb?: string;
+  bodyEn?: string;
+}
+
 export interface SuggestedActivity {
   id: string;
   gapId: string;
@@ -23,6 +40,8 @@ export interface SuggestedActivity {
   suggestedType: ActivityType;
   suggestedPhase: Phase;
   contactPerson?: string;
+  /** Lara's neste konkrete handling — vises etter at aktiviteten er opprettet. */
+  nextAction?: NextActionDraft;
 }
 
 export const STATUS_CONFIG: Record<GapStatus, { nb: string; en: string; badge: string; dot: string; bar: string }> = {
