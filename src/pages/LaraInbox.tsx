@@ -5,12 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, X, Mail, Sparkles, FileText, AlertTriangle, ShieldAlert, Database, Loader2, Trash2 } from "lucide-react";
+import { CheckCircle2, X, Mail, FileText, ShieldAlert, Database, Loader2, Trash2, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
-import laraButterfly from "@/assets/lara-butterfly.png";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ApprovalSuccessDialog, type ApprovedItemData } from "@/components/ApprovalSuccessDialog";
 
