@@ -61,7 +61,7 @@ const STATUS_META: Record<SystemStatusKey, SystemStatusMeta> = {
     stripeLabel: "SYSTEM · UTFASES",
     stripeBg: "bg-system-phasing",
     stripeText: "text-system-phasing-foreground",
-    hex: "#C97A1F",
+    hex: "#BA7517",
     tone: "warning",
   },
   archived: {
