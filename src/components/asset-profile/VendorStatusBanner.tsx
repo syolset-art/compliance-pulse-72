@@ -336,5 +336,18 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
         </div>
       </div>
     </Card>
+    <InviteVendorDialog
+      open={inviteOpen}
+      onOpenChange={setInviteOpen}
+      vendor={{
+        id: asset.id,
+        name: asset.name,
+        contact_person: asset.contact_person,
+        contact_email: asset.contact_email,
+        org_number: asset.org_number,
+        description: asset.description,
+      }}
+    />
+    </>
   );
 }
