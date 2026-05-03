@@ -214,9 +214,16 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
       {/* Logo */}
       <div className="space-y-2">
-        <label className="text-xs font-medium text-foreground">Logo</label>
+        <label className="text-xs font-medium text-foreground flex items-center gap-2">
+          Logo
+          {!selfAsset?.logo_url && (
+            <Badge variant="outline" className="text-[11px] gap-1 border-warning/40 text-warning">
+              <AlertCircle className="h-2.5 w-2.5" /> Mangler
+            </Badge>
+          )}
+        </label>
         <div className="flex items-center gap-3">
-          <div className="h-14 w-14 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/30">
+          <div className="h-14 w-14 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/30 overflow-hidden">
             {selfAsset?.logo_url ? (
               <img src={selfAsset.logo_url} className="h-12 w-12 rounded object-contain" alt="" />
             ) : (
@@ -224,9 +231,22 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             )}
           </div>
           <div>
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleLogoUpload}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs"
+              disabled={uploadingLogo || !selfAsset}
+              onClick={() => logoInputRef.current?.click()}
+            >
               <Upload className="h-3 w-3" />
-              Last opp logo
+              {uploadingLogo ? "Laster opp…" : selfAsset?.logo_url ? "Bytt logo" : "Last opp logo"}
             </Button>
             <p className="text-[13px] text-muted-foreground mt-1">PNG, JPG eller SVG. Maks 1 MB.</p>
           </div>
@@ -239,11 +259,41 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           <Input value={form.org_number || "Ikke registrert"} readOnly className="bg-muted/30 text-sm" />
         </FieldBlock>
 
-        <FieldBlock label="Selskapsnavn" hint="Hentet fra Brønnøysundregistrene">
+        <FieldBlock label="Juridisk navn" hint="Det offisielle, registrerte foretaksnavnet">
+          {isEditing ? (
+            <Input value={form.legal_name} onChange={(e) => update("legal_name", e.target.value)} placeholder={form.name || "Eksempel AS"} className="text-sm" />
+          ) : (
+            <Input value={form.legal_name || form.name || "—"} readOnly className="bg-muted/30 text-sm" />
+          )}
+        </FieldBlock>
+
+        <FieldBlock label="Selskapsnavn (markedsnavn)" hint="Hentet fra Brønnøysundregistrene">
           {isEditing ? (
             <Input value={form.name} onChange={(e) => update("name", e.target.value)} className="text-sm" />
           ) : (
             <Input value={form.name || "—"} readOnly className="bg-muted/30 text-sm" />
+          )}
+        </FieldBlock>
+
+        <FieldBlock label="Land for registrering" hint="Hvor er selskapet registrert?">
+          {isEditing ? (
+            <select
+              value={form.country}
+              onChange={(e) => update("country", e.target.value)}
+              className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
+            >
+              <option value="Norge">Norge</option>
+              <option value="Sverige">Sverige</option>
+              <option value="Danmark">Danmark</option>
+              <option value="Finland">Finland</option>
+              <option value="Island">Island</option>
+              <option value="Tyskland">Tyskland</option>
+              <option value="Storbritannia">Storbritannia</option>
+              <option value="USA">USA</option>
+              <option value="Annet">Annet</option>
+            </select>
+          ) : (
+            <Input value={form.country || "—"} readOnly className="bg-muted/30 text-sm" />
           )}
         </FieldBlock>
 
