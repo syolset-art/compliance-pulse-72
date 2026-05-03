@@ -540,6 +540,10 @@ const AssetTrustProfile = () => {
                 <TabsContent value="overview" className="mt-6">
                   <MynderGuidanceTab
                     assetId={asset.id}
+                    assetName={asset.name}
+                    baselinePercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                    enrichmentPercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                    externalActivities={guidanceActivities}
                     dismissedSuggestionIds={dismissedSuggestionIds}
                     onActivitySaved={handleGuidanceActivitySaved}
                   />
