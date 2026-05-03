@@ -1,70 +1,28 @@
 ## Mål
-
-På Veiledning fra Mynder-tab-en (Trust Profile-mal):
-1. Erstatte dagens header + lilla "Lara foreslår"-boble med samme **Lara-anbefalingsbanner som dashbordet** — ekspanderbar fra kompakt banner til "plan-modus".
-2. Under banneret legge til en kompakt **"Modenhet per kontrollområde"-widget** som standard-blokk for alle Trust Profiler.
+Rydde opp i Veiledning fra Mynder-fanen på systemkortet (`ValidationTab`) slik at den følger samme mal som leverandørkortet: Lara-anbefalingsbanner øverst, deretter modenhet per kontrollområde, og til slutt modenhet per regelverk — med tydelig kontekst om at sistnevnte gjelder systemleverandøren.
 
 ## Endringer
 
-### 1. Ekstrahere gjenbrukbar Lara-anbefalingskomponent
+**Fjernes fra `src/components/system-profile/tabs/ValidationTab.tsx`:**
+- Overskriften "Vårt modenhetsarbeid" (`Briefcase`-headeren).
+- "Oppgaver"-kortet (expand/collapse).
+- "Compliance per standard" + donut "Total Compliance" + "AI Insights"-kort.
+- Hele "Leverandørens baseline"-seksjonen (`VendorTrustScoreCard`, `VendorPrivacyAssessment`).
 
-Refaktorere `src/components/dashboard/DashboardLaraRecommendation.tsx` slik at den tar props i stedet for å hente DPA-tall fra databasen selv:
+**Legges til (i denne rekkefølgen):**
+1. **`LaraRecommendationBanner`** — samme komponent som brukes på dashbordet og leverandørkortet. Mates med `planTasks` generert fra `generateGuidanceForVendor(systemId)`. Klikk på "Be Lara håndtere det" åpner `RegisterActivityDialog` med forhåndsutfylt forslag.
+2. **`AssetMaturityByDomainCard assetId={systemId}`** — eksisterende standardblokk (2x2-grid: Governance, Security, Privacy, Third-Party).
+3. **Modenhet per regelverk — leverandøren** — seksjon med:
+   - Tittel: "Modenhet per regelverk — leverandøren" (NO) / "Maturity per framework — vendor" (EN).
+   - Liten infolinje under tittelen som forklarer:
+     > "Viser hvordan {vendorName} oppfyller kravene i hvert regelverk. Virksomhetens egen modenhet beregnes per krav i de regelverkene dere har valgt."
+   - `FrameworkMaturityGrid frameworks={frameworks}` (eksisterende komponent).
 
-```ts
-interface LaraRecommendationProps {
-  context: "dashboard" | "vendor-profile";
-  totalCount: number;          // f.eks. 13
-  criticalCount: number;       // f.eks. 8
-  tasks: PlanTask[];           // forhåndsbygde plan-oppgaver
-  onShowAllPath?: string;      // /tasks eller vendor-spesifikk
-}
-```
+## Teknisk
+- Behold `frameworks`-spørringen mot `selected_frameworks`.
+- Fjern ubrukte imports (`Card`, `Progress`, `Badge`, `useTrustControlEvaluation`, `TrustControlsPanel`, `VendorTrustScoreCard`, `VendorPrivacyAssessment`, `tasks`-query osv.).
+- Behold props-signaturen (`systemId`, `systemAsAsset`, `tasksCount`, `onTrustMetrics`) for å ikke bryte kallere — `onTrustMetrics`/`tasksCount` blir bare ubrukt internt.
+- Lokal state: `dismissed: string[]` for forslag, `activePrefill: SuggestedActivity | null` for aktivitetsdialogen.
 
-- Behold dagens dashboard-bruk (lag en thin wrapper som beholder navnet `DashboardLaraRecommendation` og kaller den nye delte komponenten).
-- Ny delt komponent: `src/components/lara/LaraRecommendationBanner.tsx`.
-
-### 2. Bruke banneret i `MynderGuidanceTab.tsx`
-
-- **Fjern**: dagens "Agent header" (Lara avatar + "Sist analysert" + "Analyser på nytt"-knapp) og dagens lilla `purple-100`-sammendrags-boble.
-- **Legg inn**: `<LaraRecommendationBanner context="vendor-profile" ... />` øverst.
-  - `totalCount` = `visibleSuggestions.length`
-  - `criticalCount` = antall med `criticality === "kritisk"` eller `"hoy"`
-  - `tasks` = mappe `visibleSuggestions` til `PlanTask`-formatet (vendor = denne leverandøren / asset-navn, category = `theme`, insight = `statusNoteNb/En`).
-  - "Be Lara håndtere det"-CTA-en i plan-kortet skal i denne konteksten kalle `handleAcceptOne(s)` (oppretter aktiviteten med Lara's neste-steg-flyt) i stedet for å åpne DPA-modal.
-- **Behold**: "Foreslåtte handlinger"-listen og "Pågående aktiviteter"-seksjonen som de er nå.
-
-### 3. Ny modenhets-widget på Trust Profile
-
-Lage `src/components/asset-profile/AssetMaturityByDomainCard.tsx` — en kompakt 2x2-grid over de 4 kontrollområdene (Governance & Accountability, Security, Privacy & Data Handling, Third-Party & Supply Chain) med:
-- Ikon + label til venstre
-- Prosent til høyre (farget: grønn ≥75%, oransje 50-74%, rød <50% — matcher Risk Colors-regelen)
-- Tynn fremdriftslinje under
-- Header "Modenhet per kontrollområde" + "Trust Score X/100" til høyre
-- Klikkbare kort som ekspanderer (chevron) — i første versjon navigerer de til `/reports/compliance` (samme mønster som `AggregatedMaturityWidget`).
-
-Plassere den i `MynderGuidanceTab.tsx` rett under Lara-banneret (før forslagslisten). Dette gjør den til en standard-blokk i Trust Profile-malen.
-
-### 4. Rydde opp
-
-Fjerne nå-ubrukte imports (`LaraAvatar`, `RefreshCw`, `reanalyzing`-state) fra `MynderGuidanceTab.tsx`.
-
-## Tekniske detaljer
-
-- `PlanTask`-typen flyttes til `src/components/lara/types.ts` så både dashboard-wrapperen og `MynderGuidanceTab` importerer fra samme sted.
-- Modenhets-data hentes fra `useComplianceRequirements` på samme måte som `AggregatedMaturityWidget` gjør i dag — gjenbruk `byDomain`-strukturen.
-- I første versjon brukes samme aggregerte data; per-asset breakdown kan komme senere.
-
-## Filer
-
-**Nye:**
-- `src/components/lara/LaraRecommendationBanner.tsx`
-- `src/components/lara/types.ts`
-- `src/components/asset-profile/AssetMaturityByDomainCard.tsx`
-
-**Endrede:**
-- `src/components/dashboard/DashboardLaraRecommendation.tsx` (refaktoreres til wrapper)
-- `src/components/asset-profile/MynderGuidanceTab.tsx` (bytter header/sammendragsboble + legger inn modenhets-kort)
-
-## Resultat
-
-Veiledning fra Mynder får samme visuelle Lara-banner som dashbordet (konsistens), og under får brukeren et standard modenhetsoverblikk per kontrollområde — som blir en mal-komponent for alle Trust Profiler.
+## Filer som endres
+- `src/components/system-profile/tabs/ValidationTab.tsx` (omskrives).
