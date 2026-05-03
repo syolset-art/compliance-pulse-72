@@ -13,6 +13,8 @@ import {
   type VendorStatusMeta,
 } from "@/lib/vendorStatus";
 import { VendorInlinePillSelect } from "./VendorInlinePillSelect";
+import { InviteVendorDialog } from "./InviteVendorDialog";
+import { useState } from "react";
 
 const CATEGORY_LABELS: Record<string, string> = {
   saas: "SaaS",
