@@ -12,6 +12,9 @@ import {
   deriveVendorStatus, deriveCriticality,
   type VendorStatusMeta,
 } from "@/lib/vendorStatus";
+import { computeRisk } from "@/lib/derivedRisk";
+import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { VendorInlinePillSelect } from "./VendorInlinePillSelect";
 import { InviteVendorDialog } from "./InviteVendorDialog";
 import { useState } from "react";
