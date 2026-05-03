@@ -9,6 +9,7 @@ import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActiv
 import { ActivityDetailPanel } from "@/components/asset-profile/ActivityDetailPanel";
 import { InlineStatusEditor } from "@/components/asset-profile/InlineStatusEditor";
 import { useUserTasks } from "@/hooks/useUserTasks";
+import { ActivityActionAffordance, shouldShowAction } from "@/components/asset-profile/ActivityActionAffordance";
 import {
   generateDemoActivities, formatRelativeDate, PHASE_CONFIG, ACTIVITY_COLORS, ACTIVITY_STATUS_CONFIG,
   type Phase, type VendorActivity, type ActivityStatus,
@@ -17,7 +18,7 @@ import { cn } from "@/lib/utils";
 import {
   FileText, AlertTriangle, UserCheck, ClipboardCheck,
   Package, TrendingUp, Settings, Upload, Eye, Clock,
-  ListTodo, Filter, Mail, Phone, Users, PenLine, ChevronDown, Sparkles,
+  ListTodo, Mail, Phone, Users, PenLine, ChevronDown,
 } from "lucide-react";
 
 interface VendorActivityTabProps {
