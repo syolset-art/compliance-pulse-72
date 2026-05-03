@@ -338,11 +338,11 @@ export function VendorStatusRow({
                     <Badge variant="outline" className="text-[12px] gap-1 px-2 py-0.5 bg-muted/60 text-muted-foreground border-border font-medium">
                       <Archive className="h-3 w-3" /> Arkivert
                     </Badge>
-                  ) : criticality && (
-                    <Badge variant="outline" className={cn("text-[12px] gap-1 px-2 py-0.5 font-medium", criticality.pillClass)}>
-                      <span className={cn("h-1.5 w-1.5 rounded-full", criticality.dotClass)} />
-                      {criticality.label}
-                    </Badge>
+                  ) : (
+                    <>
+                      <VendorInlinePillSelect assetId={vendor.id} field="priority" value={vendor.priority} />
+                      <VendorInlinePillSelect assetId={vendor.id} field="criticality" value={vendor.criticality} />
+                    </>
                   )}
                 </div>
                 <p className="text-[13px] text-muted-foreground mt-1 truncate">
