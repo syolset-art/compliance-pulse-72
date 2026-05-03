@@ -51,6 +51,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { AddDeviationDialog } from "@/components/dialogs/AddDeviationDialog";
+import { InlineDeviationAgent } from "@/components/deviations/InlineDeviationAgent";
 import { deviationCategories } from "@/lib/deviationCategories";
 import { toast } from "sonner";
 
