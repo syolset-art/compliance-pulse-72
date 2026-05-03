@@ -345,9 +345,11 @@ const AssetTrustProfile = () => {
           <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-5">
             {/* Back button */}
             <div className="flex items-center justify-between mb-1">
-              <Button variant="ghost" onClick={() => navigate("/assets")}>
+              <Button variant="ghost" onClick={() => navigate(isVendor ? "/vendors" : "/assets")}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                {t("common.back")}
+                {isVendor
+                  ? (isNb ? "Tilbake til leverandører" : "Back to vendors")
+                  : t("common.back")}
               </Button>
               {isVendor && (
                 <div className="flex items-center gap-2">
