@@ -284,16 +284,27 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         </div>
 
         {/* Render only preview content — the Card from line ~598 */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden p-0">
+          <div className="flex items-stretch">
+            {/* Vertical Verified stripe */}
+            <div className="relative w-10 shrink-0 bg-success border-r border-success">
+              <span
+                className="absolute inset-0 flex items-center justify-center text-[11px] font-bold uppercase tracking-[0.2em] whitespace-nowrap text-success-foreground"
+                style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+              >
+                
+                {isNb ? "Verifisert" : "Verified"}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
           {/* Powered by header */}
           <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Shield className="h-3.5 w-3.5 text-primary" />
               <span className="font-medium">Powered by Mynder Trust Center</span>
             </div>
-            <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed text-[13px] gap-1">
-              <CheckCircle2 className="h-3 w-3" />
-              Verified
+            <Badge variant="outline" className="text-[13px]">
+              {isNb ? "Egenerklæring" : "Self-declared"}
             </Badge>
           </div>
 
@@ -565,6 +576,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <div className="text-[13px] text-muted-foreground/60">
                 Org.nr 933 036 729 &middot; mynder.io
               </div>
+            </div>
+          </div>
             </div>
           </div>
         </Card>
@@ -915,16 +928,27 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </div>
             ) : (
               /* ── PREVIEW TAB ── */
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden p-0">
+                <div className="flex items-stretch">
+                  {/* Vertical Verified stripe */}
+                  <div className="relative w-10 shrink-0 bg-success border-r border-success">
+                    <span
+                      className="absolute inset-0 flex items-center justify-center text-[11px] font-bold uppercase tracking-[0.2em] whitespace-nowrap text-success-foreground"
+                      style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+                    >
+                      
+                      {isNb ? "Verifisert" : "Verified"}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
                 {/* Powered by header */}
                 <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Shield className="h-3.5 w-3.5 text-primary" />
                     <span className="font-medium">Powered by Mynder Trust Center</span>
                   </div>
-                  <Badge className="bg-status-closed/10 text-status-closed border-status-closed/20 dark:bg-status-closed/30 dark:text-status-closed text-[13px] gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Verified
+                  <Badge variant="outline" className="text-[13px]">
+                    {isNb ? "Egenerklæring" : "Self-declared"}
                   </Badge>
                 </div>
 
@@ -1309,6 +1333,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <div className="text-[13px] text-muted-foreground/60">
                       Org.nr 933 036 729 &middot; mynder.io
                     </div>
+                  </div>
+                </div>
                   </div>
                 </div>
               </Card>
