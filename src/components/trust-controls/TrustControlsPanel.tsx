@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { MaturityHistoryChart } from "./MaturityHistoryChart";
 import { InlineDocumentChecklist } from "./InlineDocumentChecklist";
+import { SourcesPanel } from "./SourcesPanel";
 import {
   type EvaluatedControl,
   type TrustControlStatus,
