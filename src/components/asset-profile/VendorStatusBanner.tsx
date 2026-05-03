@@ -225,12 +225,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-lg md:text-xl font-bold text-foreground truncate">{asset.name}</h1>
-                {isClaimed && (
-                  <Badge variant="outline" className="text-[11px] gap-1 px-2 py-0.5 font-medium bg-success/10 text-success border-success/30">
-                    <ShieldCheck className="h-3 w-3" />
-                    Verifisert Trust Profile
-                  </Badge>
-                )}
+                {/* Verified badge removed — claimed state is conveyed by the green card design */}
                 {criticality && (
                   <Badge variant="outline" className={cn("text-[11px] gap-1 px-2 py-0.5 font-medium", criticality.pillClass)}>
                     <span className={cn("h-1.5 w-1.5 rounded-full", criticality.dotClass)} />
