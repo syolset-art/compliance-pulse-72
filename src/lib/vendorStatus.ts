@@ -60,7 +60,7 @@ const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
     stripeLabel: "LEVERANDØR · CLAIMET",
     stripeBg: "bg-vendor-claimed",
     stripeText: "text-vendor-claimed-foreground",
-    hex: "#1F1B5A",
+    hex: "#0F6E56",
     hasActiveDot: true,
     tone: "success",
   },
