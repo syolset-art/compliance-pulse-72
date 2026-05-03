@@ -1,55 +1,64 @@
 ## Mål
-Tydeliggjøre **hvem en kjøper kan kontakte** hos en leverandør for henholdsvis personvern (DPO) og sikkerhetshendelser (CISO/IRT) — i tillegg til dagens hovedkontakt.
+Sørge for at Trust Profile har de minimum nødvendige identitetsfeltene som gjør profilen troverdig for kjøpere.
+
+## Nåsituasjon
+På Trust Profile (`src/pages/TrustCenterProfile.tsx`) vises i dag i header / metadata-stripen:
+- Navn (`companyProfile.name`)
+- Org.nr
+- Bransje
+- Kategori
+- Nettside (`domain`)
+
+Manglende eller ikke synlige minimumsfelt:
+- Juridisk navn (eget felt – i dag finnes bare `name`)
+- Land for registrering (mangler helt i `company_profile`)
+- Kort beskrivelse (finnes på `assets.description` for self-asset, men vises ikke på Trust Profile-headeren)
+- Logo (lagres som `assets.logo_url`, men Trust Profile-headeren viser et generisk Shield-ikon i stedet for logoen; opplastingsknappen i `CompanyInfoForm.tsx` har heller ingen handler)
 
 ## Endringer
 
-### 1) Database (migrasjon)
-Legge til 4 nye, valgfrie felter på `assets`:
-- `privacy_contact_name` (text)
-- `privacy_contact_email` (text)
-- `security_contact_name` (text)
-- `security_contact_email` (text)
+### 1. Database (migrasjon på `company_profile`)
+Legg til to nye nullable kolonner:
+- `legal_name text` – juridisk navn
+- `country text` – land for registrering (ISO-kode eller fritekst, default "NO")
 
-Begrunnelse: holder hovedkontakt uendret, og lar samme person fylles inn i begge dersom de dekker begge rollene.
+(Beskrivelse og logo bruker eksisterende felter på `assets` for self-asset – ingen nye kolonner.)
 
-### 2) UI — ny "Kontakter for kjøper"-blokk
-Erstatte dagens enkle `ContactPersonField` på leverandørkortet (header) med en kompakt **3-rads kontaktblokk**:
+### 2. Trust Profile – Identitet-blokk (`src/pages/TrustCenterProfile.tsx`)
+Erstatt dagens header + metadata-stripe med en tydelig "Identitet"-seksjon øverst:
+- Logo (vis `selfAsset.logo_url` hvis satt, ellers initial-fallback i stedet for Shield)
+- Juridisk navn (fall back til `name` hvis `legal_name` mangler)
+- Org.nr + Land (samlet linje, f.eks. "933 036 729 · Norge")
+- Nettside (klikkbar lenke)
+- Kort beskrivelse (1–2 setninger fra self-asset)
 
-```text
-KONTAKTER
-Hovedkontakt        Navn · e-post · tlf            [rediger]
-Personvern (DPO)    navn · e-post                  [rediger / kopier hovedkontakt]
-Sikkerhet/IRT       navn · e-post                  [rediger / kopier hovedkontakt]
-```
+Gjør samme oppdatering i preview-varianten lengre ned i filen (rundt linje 960–1075) som dupliserer headeren.
 
-Designprinsipper (Apple-minimal, i tråd med eksisterende stil):
-- Samme dempede stil som nåværende felt: liten ikon-firkant + label uppercase + verdi inline
-- Ikoner: `User` (hovedkontakt), `Shield` (personvern/DPO), `AlertTriangle` (sikkerhet/IRT)
-- Manglende kontakt vises med stiplet venstrekant + advarselsfarget ikon (samme mønster som i dag)
-- "Bruk hovedkontakt"-snarvei (én klikk) når DPO eller sikkerhetskontakt er tom
-- Inline edit-modus per rad (navn + e-post; tlf kun på hovedkontakt)
-- Validering av e-postformat
-- Rask "kopier e-post"-handling på hover
+### 3. Readiness-sjekk
+I `src/components/trust-center/PublishingReadiness.tsx` (eller tilsvarende readiness-logikk): legg til "Identitet" som et eget krav som må være komplett for at profilen skal regnes som troverdig. Manglende felter listes som åpne punkter:
+- Juridisk navn
+- Org.nr
+- Land
+- Nettside
+- Beskrivelse
+- Logo
 
-### 3) Trust-profil (publikum)
-På leverandørens **Trust Profile** (det kjøper ser) eksponere de tre kontaktene tydelig under "Kontakt":
-- Hovedkontakt (eksisterende)
-- **Personvern / DPO** (ny)
-- **Sikkerhet / hendelser** (ny)
+### 4. Redigering (`src/components/company/CompanyInfoForm.tsx`)
+- Legg til input for `legal_name` og `country` (select med vanlige land, default Norge), lagre til `company_profile`.
+- Implementer faktisk logo-opplasting (bruker eksisterende `company-logos` storage-bucket – samme mønster som i `AssetHeader.tsx` linje 382), lagre `logo_url` på self-asset.
+- Vis "Mangler – legg til" badge på tomme minimumsfelt.
 
-Dersom kun ett felt er fylt ut, vises kun det. Hvis begge spesialkontaktene mangler, faller det tilbake til hovedkontakt med teksten *"Ingen egen kontakt registrert — bruk hovedkontakt"*.
+### 5. i18n
+Legge til EN/NB nøkler: `identity.legal_name`, `identity.country`, `identity.description`, `identity.logo`, `identity.missing`.
 
-### 4) Lara-tips
-Når en leverandør mangler enten personvern- eller sikkerhetskontakt, legges et lavprioritetsforslag inn i Lara-veiledning på leverandørkortet:
-*"Be leverandøren oppgi DPO- og sikkerhetskontakt — viktig ved hendelser og innsynsbegjæringer."*
+## Tekniske detaljer
+- Migrasjon: `ALTER TABLE public.company_profile ADD COLUMN legal_name text, ADD COLUMN country text;`
+- Beskrivelse leses allerede via `selfAsset` i Trust Profile-spørringen – gjenbruk eksisterende query.
+- Logo-opplasting: gjenbruk pattern fra `AssetHeader.tsx` (samme bucket, `${assetId}/${filename}`).
 
-## Filer som berøres
-- **Migrasjon (ny):** legge til 4 kolonner på `assets`
-- `src/components/asset-profile/ContactPersonField.tsx` → utvides til ny `VendorContactsBlock` (eller ny fil `VendorContactsBlock.tsx`, gammel beholdes som intern rad-komponent)
-- `src/components/asset-profile/AssetHeader.tsx` → bytter ut bruken
-- `src/components/trust-profile/...` → vise de tre kontaktene på publikumsvisningen (finner riktig fil ved implementasjon)
-- `src/lib/laraGuidance.ts` (eller tilsvarende) → legge inn nytt veiledningssignal
-
-## Ute av scope
-- Ingen endring i tilgangsstyring/RLS (feltene er offentlige innenfor eksisterende `assets`-policy)
-- Ingen ny tabell — feltene er flate på `assets` for enkelhet og lesbarhet
+## Filer som påvirkes
+- `supabase/migrations/<ny>.sql` (ny)
+- `src/pages/TrustCenterProfile.tsx`
+- `src/components/company/CompanyInfoForm.tsx`
+- `src/components/trust-center/PublishingReadiness.tsx`
+- i18n-filer (nb/en)
