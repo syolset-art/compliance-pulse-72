@@ -22,6 +22,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(defaultEditing);
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const { data: companyProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["company-profile-shared"],
@@ -44,6 +46,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   // Local form state
   const [form, setForm] = useState({
     name: "",
+    legal_name: "",
+    country: "Norge",
     org_number: "",
     domain: "",
     industry: "",
@@ -58,6 +62,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     if (companyProfile) {
       setForm({
         name: companyProfile.name || "",
+        legal_name: (companyProfile as any).legal_name || "",
+        country: (companyProfile as any).country || "Norge",
         org_number: companyProfile.org_number || "",
         domain: companyProfile.domain || "",
         industry: companyProfile.industry || "",
@@ -77,13 +83,15 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       const { error: profileErr } = await supabase
         .from("company_profile")
         .update({
-        name: form.name,
+          name: form.name,
+          legal_name: form.legal_name,
+          country: form.country,
           domain: form.domain,
           industry: form.industry,
           employees: form.employees,
           compliance_officer: form.compliance_officer,
           compliance_officer_email: form.compliance_officer_email,
-        })
+        } as any)
         .eq("id", companyProfile.id);
       if (profileErr) throw profileErr;
 
@@ -95,6 +103,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       queryClient.invalidateQueries({ queryKey: ["company-profile-shared"] });
       queryClient.invalidateQueries({ queryKey: ["company_profile_edit"] });
       queryClient.invalidateQueries({ queryKey: ["company-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
       queryClient.invalidateQueries({ queryKey: ["self-asset-shared"] });
       queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
 
@@ -112,6 +121,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     if (companyProfile) {
       setForm({
         name: companyProfile.name || "",
+        legal_name: (companyProfile as any).legal_name || "",
+        country: (companyProfile as any).country || "Norge",
         org_number: companyProfile.org_number || "",
         domain: companyProfile.domain || "",
         industry: companyProfile.industry || "",
@@ -123,6 +134,40 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       });
     }
     setIsEditing(false);
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selfAsset) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Må være en bildefil");
+      return;
+    }
+    if (file.size > 1024 * 1024) {
+      toast.error("Maks filstørrelse er 1 MB");
+      return;
+    }
+    setUploadingLogo(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const filePath = `${selfAsset.id}/logo.${ext}`;
+      await supabase.storage.from("company-logos").remove([filePath]);
+      const { error: upErr } = await supabase.storage.from("company-logos").upload(filePath, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("company-logos").getPublicUrl(filePath);
+      const { error: updErr } = await supabase.from("assets").update({ logo_url: urlData.publicUrl } as any).eq("id", selfAsset.id);
+      if (updErr) throw updErr;
+      queryClient.invalidateQueries({ queryKey: ["self-asset-shared"] });
+      queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+      queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+      toast.success("Logo lastet opp");
+    } catch (err) {
+      console.error(err);
+      toast.error("Kunne ikke laste opp logo");
+    } finally {
+      setUploadingLogo(false);
+      if (logoInputRef.current) logoInputRef.current.value = "";
+    }
   };
 
   const update = (key: keyof typeof form, value: string) => {
