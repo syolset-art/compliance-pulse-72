@@ -43,7 +43,7 @@ import { VendorEvidenceTab } from "@/components/asset-profile/tabs/VendorEvidenc
 import { VendorHistoryTab } from "@/components/asset-profile/tabs/VendorHistoryTab";
 import { DeliveriesTab } from "@/components/asset-profile/tabs/DeliveriesTab";
 import { VendorAuditTab } from "@/components/asset-profile/tabs/VendorAuditTab";
-import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
+
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { MynderGuidanceTab } from "@/components/asset-profile/MynderGuidanceTab";
 import { VendorAccessTab } from "@/components/asset-profile/tabs/VendorAccessTab";
@@ -215,7 +215,7 @@ const AssetTrustProfile = () => {
     { value: 'evidence', label: isNb ? 'Dokumenter' : 'Docs', labelFull: isNb ? 'Dokumentasjon' : 'Documentation' },
     { value: 'gap-analysis', label: isNb ? 'Gap-analyse' : 'Gap analysis', labelFull: isNb ? 'Gap-analyse mot rammeverk' : 'Gap analysis vs framework' },
     { value: 'requests', label: isNb ? 'Forespørsler' : 'Requests', labelFull: isNb ? 'Forespørsler' : 'Requests' },
-    { value: 'vendor-activity', label: isNb ? 'Aktivitet' : 'Activity', labelFull: isNb ? 'Aktivitetslogg' : 'Activity Log' },
+    
     { value: 'deliveries', label: isNb ? 'Leveranser' : 'Deliveries', labelFull: isNb ? 'Leveranser' : 'Deliveries' },
     { value: 'vendor-audit', label: isNb ? 'Revisjon' : 'Audit', labelFull: isNb ? 'Revisjon og risiko' : 'Audit & Risk' },
     { value: 'vendor-access', label: isNb ? 'Tilgang' : 'Access', labelFull: isNb ? 'Tilgang og roller' : 'Access & Roles' },
@@ -540,6 +540,10 @@ const AssetTrustProfile = () => {
                 <TabsContent value="overview" className="mt-6">
                   <MynderGuidanceTab
                     assetId={asset.id}
+                    assetName={asset.name}
+                    baselinePercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                    enrichmentPercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
+                    externalActivities={guidanceActivities}
                     dismissedSuggestionIds={dismissedSuggestionIds}
                     onActivitySaved={handleGuidanceActivitySaved}
                   />
@@ -572,15 +576,6 @@ const AssetTrustProfile = () => {
                 </TabsContent>
                 <TabsContent value="requests" className="mt-6">
                   <CustomerRequestsTab />
-                </TabsContent>
-                <TabsContent value="vendor-activity" className="mt-6">
-                  <VendorActivityTab
-                    assetId={asset.id}
-                    assetName={asset.name}
-                    baselinePercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
-                    enrichmentPercent={trustMetrics ? Math.round(trustMetrics.trustScore * 0.5) : 19}
-                    externalActivities={guidanceActivities}
-                  />
                 </TabsContent>
                 <TabsContent value="vendor-access" className="mt-6">
                   <VendorAccessTab assetId={asset.id} assetName={asset.name} />
