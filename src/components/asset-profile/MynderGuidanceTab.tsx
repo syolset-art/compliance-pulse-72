@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, RefreshCw, Check, X, Sliders, ChevronDown, CheckCircle2, Send, CalendarPlus, ClipboardList, Edit3, SkipForward, Sparkles, ListChecks } from "lucide-react";
+import { Plus, Check, X, Sliders, ChevronDown, CheckCircle2, Send, CalendarPlus, ClipboardList, Edit3, SkipForward, Sparkles, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,9 @@ import { LevelChip } from "@/components/asset-profile/LevelChip";
 import { LaraActionPreviewDialog } from "@/components/asset-profile/LaraActionPreviewDialog";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { InlineStatusEditor } from "@/components/asset-profile/InlineStatusEditor";
+import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
+import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
+import type { LaraPlanTask } from "@/components/lara/types";
 import {
   generateGuidanceForVendor, recomputeSummary,
   STATUS_CONFIG, CRITICALITY_CONFIG,
