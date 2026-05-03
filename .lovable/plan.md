@@ -1,81 +1,133 @@
 
-## Hva skjer i dag etter Lara har analysert?
+## Mål
 
-Når brukeren trykker "Analyser med Lara" på et arbeidsområde i dag:
+Erstatt dagens 3-stegs modal (`AddDeviationDialog`) med en **agentisk inline-flyt** der Lara er proaktiv: brukeren beskriver hendelsen i klartekst (eller via en kort spørsmål-trigger), og Lara klassifiserer, foreslår alle felter, kobler til **normative regler** (GDPR art. 33 / 72t, NIS2 24t tidlig varsling, ISO 27001 A.5.24–A.5.27, personvernforordning art. 34) og presenterer ett **bekreft-kort** i stedet for et skjema.
 
-1. `AgentRecommendationStrip` kaller edge-funksjonen `analyze-process-agent-fit`.
-2. Funksjonen henter alle prosessene i arbeidsområdet, sender dem til Gemini, og lagrer én rad pr. prosess i `process_agent_recommendations` med `recommendation` (autonomous / copilot / manual), `rationale`, `suggested_agent_role` og `estimated_hours_saved_per_month`.
-3. UI oppdateres:
-   - Stripen øverst viser totaler: "X autonom-klare · Y co-pilot · ~Z t/mnd potensiell besparelse".
-   - Hvert `ProcessOverviewCard` får en `AgentFitChip` (Bot / Users / User-ikon).
-   - Klikk på chip åpner en popover med rationale, foreslått agent-rolle, estimert besparelse, og knappene **Rekrutter agent** / **Avvis** / (for manual) en notis om at Lara anbefaler manuelt.
-4. "Rekrutter agent" oppdaterer bare status til `recruited` i databasen i dag – det skjer ingen videre handling. Dette er løs ende #1.
+## UX — fra skjema til samtale
 
-Så analysen produserer altså innsikt + en CTA, men "rekrutteringen" leder ingen steder ennå.
+Trigger "Legg til avvik" på `/deviations` åpner ikke lenger et modalt vindu. I stedet utvides en **inline agent-stripe** rett under header-en (samme mønster som `AgentPlanStrip` / `InlineAgentProposal` vi allerede bruker for gap-tiltak).
 
-## Bør analysen heller ligge klar?
-
-Ja – og det matcher hvordan resten av plattformen fungerer (Lara forbereder, brukeren bekrefter). Argumenter:
-
-- Prosesser endrer seg sjelden. En ny analyse hver gang er sløsing av credits og latency.
-- "Less is more": Brukeren skal ikke trenge å trykke "Kjør analyse" for å forstå verdien – verdien skal være synlig fra første sekund.
-- Demo / salg: dette blir et sterkt "wow"-element hvis kunden ser klare AI-anbefalinger umiddelbart etter at de har lagt inn arbeidsområdet sitt.
-- Vi får et tydelig credits-skille: forhåndsanalyse er gratis innsikt, *rekruttering* av en agent er det som faktisk koster.
-
-## Foreslått løsning
-
-### 1. Forhåndsberegnet analyse ("ligger klar")
-
-- Når prosesser opprettes (manuelt eller via `suggest-processes`), trigge `analyze-process-agent-fit` automatisk i bakgrunnen for de nye prosessene (debounced, ikke per insert).
-- For eksisterende arbeidsområder uten anbefalinger: kjør analysen én gang første gang noen åpner arbeidsområdet (lazy backfill), uten at brukeren må trykke noe.
-- Lagre `generated_at` (finnes allerede). Vis "Sist oppdatert: …" diskret i stripen. Tilby fortsatt "Oppdater analyse" som en stille refresh-knapp for power users.
-
-### 2. Avduking i stedet for "kjør analyse"
-
-`AgentRecommendationStrip` endres fra "trykk for å starte" til en *teaser* som allerede vet svaret:
+Tre tilstander, alle inline:
 
 ```text
-Lara har identifisert 3 prosesser hvor en AI-agent kan ta over arbeidet.    [Vis innsikt]
+┌─ State 1: PROMPT ─────────────────────────────────────────┐
+│ Lara: "Hva har skjedd? Beskriv kort så klassifiserer jeg │
+│        avviket og sjekker varslingsfrister for deg."      │
+│ [ tekstfelt: "f.eks. e-post sendt til feil mottaker..." ] │
+│ Hurtigvalg: [Datalekkasje] [Systemnedetid] [Phishing]     │
+│             [Fysisk hendelse] [Ansattfeil] [Annet]        │
+│                                          [Avbryt] [Send]  │
+└───────────────────────────────────────────────────────────┘
+
+┌─ State 2: ANALYSING (2–4 sek) ───────────────────────────┐
+│ ● Lara analyserer...                                      │
+│   ✓ Klassifisert som: Datalekkasje (personopplysninger)   │
+│   ✓ Sjekker GDPR art. 33, NIS2, ISO 27001                 │
+│   … Vurderer alvorlighetsgrad og frist                    │
+└───────────────────────────────────────────────────────────┘
+
+┌─ State 3: DRAFT CARD (Laras forslag) ────────────────────┐
+│ Lara foreslår dette avviket — bekreft eller juster:       │
+│                                                            │
+│ Tittel:        E-post med kundeliste til feil mottaker    │
+│ Kategori:      Datalekkasje · Personopplysninger          │
+│ Alvorlighet:   HØY    Lara: "Omfatter særlige kategorier" │
+│ Rammeverk:     GDPR · ISO 27001 · NIS2                    │
+│ Ansvarlig:     Maria Johansen (DPO)  ← foreslått av Lara  │
+│ Oppdaget:      03.05.2026                                  │
+│                                                            │
+│ ⚠ Normativ frist  GDPR art. 33 — meld Datatilsynet innen  │
+│                   72 timer (06.05.2026 14:00)             │
+│ ⚠ Normativ frist  GDPR art. 34 — vurder varsling av de    │
+│                   registrerte                              │
+│                                                            │
+│ Foreslåtte umiddelbare tiltak:                             │
+│   ☑ Be mottaker slette e-posten (bevis sikres)            │
+│   ☑ Logg hendelsen i avviksregisteret                     │
+│   ☑ Start vurdering av meldeplikt til Datatilsynet        │
+│                                                            │
+│ Trenger Lara mer info? Svar på:                            │
+│   • Hvor mange registrerte er berørt? [< 10] [10–100] [>] │
+│   • Inneholdt e-posten sensitive opplysninger? [Ja] [Nei] │
+│                                                            │
+│       [Juster manuelt]   [Avvis]   [Bekreft og opprett]   │
+└───────────────────────────────────────────────────────────┘
 ```
 
-- Før klikk: Chips på prosesskort er skjult. Stripen viser bare antallet og en mild CTA ("Vis innsikt" / "Se hvilke").
-- Etter klikk: Chipsene fades inn på relevante kort, stripen utvides med fordelingen (autonom / co-pilot / besparelse).
-- Dette gjør "less is more"-aestetikken: ingen ekstra støy med mindre brukeren ber om det, men verdien er forhåndsberegnet og umiddelbar.
+Sentrale prinsipper:
+- **Ingen tomme skjemaer.** Lara fyller alle felter; brukeren bekrefter.
+- **Proaktive oppfølgingsspørsmål kun når det påvirker normativ klassifisering** (f.eks. antall berørte → meldeplikt).
+- **Normative frister** vises som egne "normativ frist"-chips med paragraf-referanse, ikke som vanlige due dates.
+- **"Juster manuelt"** kollapser kortet til redigerbart skjema for de som vil overstyre — fallback, ikke standard.
 
-State lagres som user preference (localStorage pr. arbeidsområde) så valget huskes.
+## Teknisk
 
-### 3. Rekruttering må lede et sted (lukke løs ende)
+### Ny komponent
+`src/components/deviations/InlineDeviationAgent.tsx` — erstatter `AddDeviationDialog` som default-flyt. Tre interne tilstander: `prompt | analysing | draft`. Eksponerer `onCreated` callback.
 
-Når brukeren trykker "Rekrutter agent":
-- Opprett en oppgave i Lara Inbox / Activity feed: "Sett opp [suggested_agent_role] for [prosess]".
-- Marker `recruited_at` på raden.
-- Vis bekreftelse i popover: "Lara har lagt dette i innboksen din. Du får varsel når agenten er klar til testing."
+### Ny edge-funksjon
+`supabase/functions/classify-deviation/index.ts` — bruker `google/gemini-2.5-flash` via Lovable AI Gateway. Tar inn `{ description, quickCategory?, companyProfile, workAreas }` og returnerer via tool-call:
 
-Dette gjør "Rekrutter" konkret og verdt credits, uten å bygge selve agent-runtime ennå.
+```ts
+{
+  title: string,
+  description: string,           // ryddet versjon av brukerens tekst
+  category: DeviationCategoryId, // matchet mot deviationCategories
+  criticality: "critical"|"high"|"medium"|"low",
+  frameworks: string[],          // GDPR, NIS2, ISO 27001, etc.
+  normativeRules: Array<{
+    code: string,                // "gdpr-art-33"
+    label: string,               // "GDPR art. 33 – melding til tilsyn"
+    deadlineHours: number,       // 72
+    action: string,              // "Meld Datatilsynet"
+    triggered: boolean,          // true hvis kriterier oppfylt
+  }>,
+  suggestedResponsible: { name: string, reason: string } | null,
+  suggestedMeasures: string[],   // 2–4 umiddelbare tiltak
+  followUpQuestions: Array<{
+    id: string,
+    question: string,
+    options: string[],           // chip-svar
+    affects: string,             // hvilket felt svaret kan endre
+  }>,
+  reasoning: string,             // kort begrunnelse vist i kortet
+}
+```
 
-### 4. Demo-/test-vennlig
+Regelmotor i prompt: GDPR art. 33 (72t hvis personopplysninger berørt), art. 34 (sannsynlig høy risiko → varsle registrerte), NIS2 art. 23 (24t early warning + 72t notification for "vesentlige" enheter), ISO 27001 A.5.24–A.5.27 (incident management), personopplysningsloven §§ relevante henvisninger.
 
-- Legg til en "demo-seed" så demo-organisasjoner får forhåndsutfylte anbefalinger uten edge-kall (raskere demo, ingen credits).
-- Logg `recruited` events så vi kan måle hvilke agent-roller kunder faktisk velger – kjernedata for å prioritere hvilke agenter vi bygger neste.
+Oppfølgingsspørsmål brukes til å re-kjøre klassifisering uten å åpne nytt skjema — Lara oppdaterer draft-kortet inline.
 
-## Tekniske endringer
+### Hook
+`src/hooks/useDeviationAgent.ts` — håndterer state-maskin (prompt → analysing → draft), kaller edge-funksjonen, re-kjører ved follow-up-svar, og persisterer via samme `system_incidents`-insert som i dag (gjenbruker mutation-logikken fra `AddDeviationDialog`). Lagrer i tillegg `normative_rules` og `suggested_measures` som metadata på avviket.
 
-**Frontend**
-- `src/components/process/ProcessList.tsx`: trigge auto-analyse når prosesser finnes men `agentRecs` er tom (lazy backfill, kun én gang pr. session).
-- `src/components/process/AgentRecommendationStrip.tsx`: ny "teaser"/"reveal"-modus, stille refresh-knapp, vise `generated_at`.
-- `src/components/process/ProcessOverviewCard.tsx`: vis `AgentFitChip` kun når `revealed === true`.
-- Ny `src/hooks/useAgentInsightReveal.ts`: localStorage-basert reveal-state pr. workAreaId.
-- `src/components/process/AgentFitChip.tsx`: ved "Rekrutter agent" – kall ny mutation som oppretter Lara Inbox-oppgave.
+### DB
+Migrasjon: legg til `normative_rules jsonb` og `agent_reasoning text` på `system_incidents` for å spore hva Lara konkluderte. Foreslåtte tiltak skrives som `user_tasks` koblet til avviket (samme mønster som "Recruit agent" allerede gjør).
 
-**Backend**
-- `supabase/functions/analyze-process-agent-fit/index.ts`: legg til parameter `processIds?: string[]` så vi kan analysere kun nye prosesser i stedet for hele arbeidsområdet.
-- Ny migration: legg til kolonne `recruited_at timestamptz` på `process_agent_recommendations`.
-- (Valgfritt senere) DB-trigger på `system_processes` som markerer arbeidsområdet "needs reanalysis" – holder seg unna automatiske AI-kall fra triggere.
+### Oppdatering av `Deviations.tsx`
+- Fjern `AddDeviationDialog`-bruk fra "Legg til avvik"-knappen.
+- Knappen toggler nå `InlineDeviationAgent` rett under header (animert utvidelse).
+- Behold `AddDeviationDialog` midlertidig som "Juster manuelt"-fallback fra draft-kortet.
 
-**Demo-data**
-- `src/lib/demoSeedSystems.ts` (eller tilsvarende): seede `process_agent_recommendations` for demo-prosesser så det vises umiddelbart.
+### Eksisterende komponenter som beholdes
+- `EditDeviationDialog` — uendret.
+- `deviationCategories` — uendret, brukes som whitelist for AI-output.
+- `suggest-deviations` edge-funksjon — kan deprekeres etter at ny flyt er stabil.
 
-## Hva som *ikke* gjøres nå
+## Filer som lages/endres
 
-- Vi bygger ikke selve agent-runtime / agent-konfigurasjonsside. Rekruttering = oppgave i innboksen.
-- Ingen automatisk re-analyse hver gang en prosess endres – kun ved nye prosesser, ellers manuell refresh. Holder credits-bruk i sjakk.
+Nye:
+- `src/components/deviations/InlineDeviationAgent.tsx`
+- `src/hooks/useDeviationAgent.ts`
+- `src/lib/normativeDeviationRules.ts` (referanse-konstanter for GDPR/NIS2/ISO frister, brukes også til UI-labels)
+- `supabase/functions/classify-deviation/index.ts`
+- Migrasjon for `system_incidents.normative_rules` + `agent_reasoning`
+
+Endres:
+- `src/pages/Deviations.tsx` (bytter trigger fra dialog til inline agent)
+- `src/components/dialogs/AddDeviationDialog.tsx` (kun beholdt som fallback fra "Juster manuelt")
+
+## Avgrensninger
+- Bruker Lovable AI Gateway (ingen ny API-nøkkel).
+- Ingen endringer i listing/filter-delen av `/deviations`.
+- Norsk språk i Lara-tekster (matcher resten av appen).

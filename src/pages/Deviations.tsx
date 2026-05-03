@@ -51,6 +51,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { nb } from "date-fns/locale";
 import { AddDeviationDialog } from "@/components/dialogs/AddDeviationDialog";
+import { InlineDeviationAgent } from "@/components/deviations/InlineDeviationAgent";
 import { deviationCategories } from "@/lib/deviationCategories";
 import { toast } from "sonner";
 
@@ -108,6 +109,7 @@ export default function Deviations() {
   const [criticalityFilter, setCriticalityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [agentOpen, setAgentOpen] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [liveEnabled, setLiveEnabled] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -370,11 +372,20 @@ export default function Deviations() {
             <h1 className="text-2xl font-bold text-foreground">{t("nav.deviations")}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Administrer og følg opp alle avvik</p>
           </div>
-          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2 w-full sm:w-auto">
+          <Button onClick={() => setAgentOpen((v) => !v)} className="gap-2 w-full sm:w-auto">
             <Plus className="h-4 w-4" />
-            Legg til avvik
+            Registrer avvik med Lara
           </Button>
         </div>
+
+        <InlineDeviationAgent
+          open={agentOpen}
+          onClose={() => setAgentOpen(false)}
+          onOpenManualFallback={() => {
+            setAgentOpen(false);
+            setIsAddDialogOpen(true);
+          }}
+        />
 
         {/* Live Deviations Activation Banner */}
         <Card className={cn(
