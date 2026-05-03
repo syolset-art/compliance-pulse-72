@@ -359,19 +359,52 @@ export function VendorStatusRow({
               </div>
             </div>
 
-            {/* Donut + maturity label */}
+            {/* Donut + maturity label + avledet risiko (Lara) */}
             <div className="hidden md:flex items-center gap-3 shrink-0 pl-3 border-l border-border/60">
               <VendorDonut score={score} tone={status.tone} frozen={isArchived} />
-              <div className="text-right">
+              <div className="text-right space-y-1">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
                   {isArchived ? "Siste modenhet" : "Modenhet"}
                 </p>
                 <p className={cn(
-                  "text-[12px] mt-0.5",
+                  "text-[12px]",
                   isArchived ? "italic text-muted-foreground" : "text-muted-foreground"
                 )}>
                   {maturityLabel || "—"}
                 </p>
+                {!isArchived && (() => {
+                  const risk = computeRisk({
+                    criticality: vendor.criticality || vendor.risk_level,
+                    complianceScore: score,
+                    openDeviations: expiredDocsCount,
+                    hasDPA: !!md.has_dpa,
+                  });
+                  return (
+                    <TooltipProvider delayDuration={150}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            type="button"
+                            onClick={(e) => e.stopPropagation()}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-pill px-2 py-0.5 border text-[11px] font-medium",
+                              risk.pillClass
+                            )}
+                          >
+                            <LaraAvatar size={12} />
+                            {risk.labelNb}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="left" className="max-w-[260px]">
+                          <p className="text-[11px] font-semibold mb-1">Beregnet av Mynder</p>
+                          <ul className="text-[11px] space-y-0.5 list-disc pl-4">
+                            {risk.reasons.map((r, i) => <li key={i}>{r}</li>)}
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  );
+                })()}
               </div>
             </div>
           </div>
