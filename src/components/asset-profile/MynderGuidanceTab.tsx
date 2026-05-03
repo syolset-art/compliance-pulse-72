@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, RefreshCw, Check, X, Sliders, ChevronDown, CheckCircle2, Send, CalendarPlus, ClipboardList, Edit3, SkipForward, Sparkles } from "lucide-react";
+import { Plus, RefreshCw, Check, X, Sliders, ChevronDown, CheckCircle2, Send, CalendarPlus, ClipboardList, Edit3, SkipForward, Sparkles, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -50,6 +50,9 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
 
   /** Per-kort steg-tilstand. */
   const [cardSteps, setCardSteps] = useState<Record<string, CardStep>>({});
+
+  /** Filter for "Pågående aktiviteter"-listen nederst. */
+  const [ongoingFilter, setOngoingFilter] = useState<"all" | "operasjonelt" | "taktisk" | "strategisk">("all");
 
   /** Aktiv preview-dialog (forhåndsvisning av e-post / møte / oppgave). */
   const [previewDraft, setPreviewDraft] = useState<{ suggestionId: string; draft: NextActionDraft } | null>(null);
@@ -462,6 +465,15 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
         </div>
       )}
 
+      {/* Pågående aktiviteter — alle som er opprettet eller sendt */}
+      <OngoingActivitiesSection
+        suggestions={visibleSuggestions}
+        cardSteps={cardSteps}
+        filter={ongoingFilter}
+        onFilterChange={setOngoingFilter}
+        isNb={isNb}
+      />
+
       {/* Empty activity CTA */}
       <div className="pt-1">
         <Button variant="outline" size="sm" className="rounded-pill gap-1.5" onClick={() => setEmptyOpen(true)}>
@@ -545,6 +557,128 @@ function NextStepBubble({
           {isNb ? "Hopp over" : "Skip"}
         </Button>
       </div>
+    </div>
+  );
+}
+
+type OngoingFilter = "all" | "operasjonelt" | "taktisk" | "strategisk";
+
+/** Liste over alle aktiviteter som er opprettet eller sendt — med nivå-filter. */
+function OngoingActivitiesSection({
+  suggestions, cardSteps, filter, onFilterChange, isNb,
+}: {
+  suggestions: SuggestedActivity[];
+  cardSteps: Record<string, CardStep>;
+  filter: OngoingFilter;
+  onFilterChange: (f: OngoingFilter) => void;
+  isNb: boolean;
+}) {
+  const ongoing = useMemo(
+    () => suggestions
+      .map(s => ({ s, step: cardSteps[s.id] }))
+      .filter(x => x.step && x.step.kind !== "suggested"),
+    [suggestions, cardSteps]
+  );
+
+  const filtered = useMemo(
+    () => filter === "all" ? ongoing : ongoing.filter(x => x.s.level === filter),
+    [ongoing, filter]
+  );
+
+  const counts = useMemo(() => ({
+    all: ongoing.length,
+    operasjonelt: ongoing.filter(x => x.s.level === "operasjonelt").length,
+    taktisk: ongoing.filter(x => x.s.level === "taktisk").length,
+    strategisk: ongoing.filter(x => x.s.level === "strategisk").length,
+  }), [ongoing]);
+
+  if (ongoing.length === 0) return null;
+
+  const FILTERS: { value: OngoingFilter; nb: string; en: string }[] = [
+    { value: "all", nb: "Alle", en: "All" },
+    { value: "operasjonelt", nb: "Operasjonelt", en: "Operational" },
+    { value: "taktisk", nb: "Taktisk", en: "Tactical" },
+    { value: "strategisk", nb: "Strategisk", en: "Strategic" },
+  ];
+
+  return (
+    <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2 min-w-0">
+          <ListChecks className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-bold text-foreground">
+            {isNb ? `Pågående aktiviteter (${ongoing.length})` : `Ongoing activities (${ongoing.length})`}
+          </h3>
+        </div>
+        <div className="flex items-center gap-1 flex-wrap">
+          {FILTERS.map(f => {
+            const active = filter === f.value;
+            const count = counts[f.value];
+            return (
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => onFilterChange(f.value)}
+                className={cn(
+                  "rounded-pill border px-2.5 py-1 text-[11px] font-medium transition-all inline-flex items-center gap-1.5",
+                  active
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
+                )}
+              >
+                {isNb ? f.nb : f.en}
+                <span className={cn(
+                  "rounded-full px-1.5 text-[10px] font-semibold",
+                  active ? "bg-primary/20" : "bg-muted"
+                )}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-xs text-muted-foreground italic px-1 py-2">
+          {isNb ? "Ingen aktiviteter på dette nivået." : "No activities on this level."}
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map(({ s, step }) => {
+            const title = isNb ? s.titleNb : s.titleEn;
+            const isSent = step.kind === "sent";
+            return (
+              <div
+                key={s.id}
+                className="flex items-center gap-3 rounded-lg border border-border bg-background px-3 py-2.5"
+              >
+                <div className={cn(
+                  "h-2 w-2 rounded-full shrink-0",
+                  isSent ? "bg-warning" : "bg-primary"
+                )} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-foreground truncate">{title}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {isSent
+                      ? (isNb ? step.whenNb : step.whenEn)
+                      : (isNb ? "Opprettet — ikke påbegynt" : "Created — not started")}
+                  </p>
+                </div>
+                <LevelChip level={s.level} isNb={isNb} />
+                <span className={cn(
+                  "inline-flex items-center gap-1 rounded-pill px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider shrink-0",
+                  isSent
+                    ? "bg-warning/10 text-warning border border-warning/20"
+                    : "bg-primary/10 text-primary border border-primary/20"
+                )}>
+                  {isSent
+                    ? (isNb ? "Under oppfølging" : "In progress")
+                    : (isNb ? "Opprettet" : "Created")}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
