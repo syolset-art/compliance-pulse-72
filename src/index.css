@@ -66,6 +66,18 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --vendor-claimed-foreground: 0 0% 100%;
     --vendor-archived: 52 4% 40%;      /* #6B6A62 — Arkivert */
     --vendor-archived-foreground: 0 0% 100%;
+
+    /* System status palette (lifecycle ownership) — mirrors vendor */
+    --system-mapped: 28 79% 41%;        /* Lara har kartlagt */
+    --system-mapped-foreground: 0 0% 100%;
+    --system-assigned: 210 74% 37%;     /* Tildelt arbeidsområde */
+    --system-assigned-foreground: 0 0% 100%;
+    --system-owned: 165 76% 25%;        /* Eid/aktivt vedlikeholdt */
+    --system-owned-foreground: 0 0% 100%;
+    --system-phasing: 33 87% 42%;       /* Under utfasing */
+    --system-phasing-foreground: 0 0% 100%;
+    --system-archived: 52 4% 40%;       /* Arkivert */
+    --system-archived-foreground: 0 0% 100%;
   }
 
   .dark {
