@@ -289,10 +289,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             {/* Vertical Verified stripe */}
             <div className="relative w-10 shrink-0 bg-success border-r border-success">
               <span
-                className="absolute inset-0 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap text-success-foreground"
+                className="absolute inset-0 flex items-center justify-center text-[11px] font-bold uppercase tracking-[0.2em] whitespace-nowrap text-success-foreground"
                 style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
               >
-                <CheckCircle2 className="h-3 w-3" />
+                
                 {isNb ? "Verifisert" : "Verified"}
               </span>
             </div>
@@ -933,10 +933,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   {/* Vertical Verified stripe */}
                   <div className="relative w-10 shrink-0 bg-success border-r border-success">
                     <span
-                      className="absolute inset-0 flex items-center justify-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap text-success-foreground"
+                      className="absolute inset-0 flex items-center justify-center text-[11px] font-bold uppercase tracking-[0.2em] whitespace-nowrap text-success-foreground"
                       style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
                     >
-                      <CheckCircle2 className="h-3 w-3" />
+                      
                       {isNb ? "Verifisert" : "Verified"}
                     </span>
                   </div>
