@@ -198,6 +198,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
   };
 
   return (
+    <>
     <Card variant="flat" className="relative overflow-hidden p-0">
       <div className="flex items-stretch">
         {/* Vertical stripe */}
