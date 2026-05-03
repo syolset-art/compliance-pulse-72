@@ -147,10 +147,6 @@ export function useDeviationAgent(onCreated?: () => void) {
           user_id: user.id,
           title: m,
           description: `Tiltak fra avvik: ${final.title}`,
-          status: "pending" as const,
-          priority: final.criticality === "critical" ? 0 : final.criticality === "high" ? 1 : 2,
-          source: "deviation_agent",
-          source_id: inserted.id,
         }));
         await supabase.from("user_tasks").insert(tasks);
       }
