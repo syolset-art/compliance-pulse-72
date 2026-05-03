@@ -63,6 +63,7 @@ import {
 } from "@/components/ui/tooltip";
 import { SystemPremiumBanner } from "@/components/systems/SystemPremiumBanner";
 import { SystemActivateDialog } from "@/components/systems/SystemActivateDialog";
+import { SystemStatusRow } from "@/components/systems/SystemStatusRow";
 
 const MAX_FREE_SYSTEMS = 5;
 
