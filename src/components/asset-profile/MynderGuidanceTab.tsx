@@ -465,6 +465,15 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
         </div>
       )}
 
+      {/* Pågående aktiviteter — alle som er opprettet eller sendt */}
+      <OngoingActivitiesSection
+        suggestions={visibleSuggestions}
+        cardSteps={cardSteps}
+        filter={ongoingFilter}
+        onFilterChange={setOngoingFilter}
+        isNb={isNb}
+      />
+
       {/* Empty activity CTA */}
       <div className="pt-1">
         <Button variant="outline" size="sm" className="rounded-pill gap-1.5" onClick={() => setEmptyOpen(true)}>
