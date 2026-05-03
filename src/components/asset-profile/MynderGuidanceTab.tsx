@@ -258,25 +258,13 @@ export function MynderGuidanceTab({ assetId, dismissedSuggestionIds, onActivityS
         </div>
       )}
 
-      {/* Section header med forklaringer */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {summaryAccepted
-              ? (isNb ? `Aktiviteter klare for handling (${visibleSuggestions.length})` : `Activities ready for action (${visibleSuggestions.length})`)
-              : (isNb ? `Foreslåtte handlinger (${visibleSuggestions.length})` : `Suggested actions (${visibleSuggestions.length})`)}
-          </h3>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <LevelChip level="operasjonelt" isNb={isNb} />
-            <LevelChip level="taktisk" isNb={isNb} />
-            <LevelChip level="strategisk" isNb={isNb} />
-          </div>
-        </div>
-        <p className="text-[11px] text-muted-foreground">
-          {isNb
-            ? "Lara prioriterer aktiviteter etter hvor mye de påvirker virksomheten — hold pekeren over et nivå for å se hva det betyr."
-            : "Lara prioritises activities by their business impact — hover a level to see what it means."}
-        </p>
+      {/* Section header */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {summaryAccepted
+            ? (isNb ? `Aktiviteter klare for handling (${visibleSuggestions.length})` : `Activities ready for action (${visibleSuggestions.length})`)
+            : (isNb ? `Foreslåtte handlinger (${visibleSuggestions.length})` : `Suggested actions (${visibleSuggestions.length})`)}
+        </h3>
       </div>
 
       {/* Suggestion cards */}
