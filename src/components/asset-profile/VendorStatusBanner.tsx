@@ -125,6 +125,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
 
   const score = asset.compliance_score || 0;
   const md = asset.metadata || {};
+  const [inviteOpen, setInviteOpen] = useState(false);
   const criticality = deriveCriticality({ risk_level: asset.risk_level });
   const hostname = (() => {
     if (!asset.url) return null;
