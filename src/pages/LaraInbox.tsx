@@ -199,39 +199,36 @@ const LaraInbox = () => {
 
   const isIncident = (item: any) => item.matched_document_type === "incident";
 
+  const [showProcessed, setShowProcessed] = useState(false);
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
         <main className="flex-1 overflow-auto pt-11">
-          <div className="p-4 md:p-6 space-y-6">
-            {/* Header */}
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <img src={laraButterfly} alt="Lara" className="h-10 w-10" />
-                <div>
-                  <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
-                    Lara Innboks
-                    {pendingItems.length > 0 && (
-                      <Badge className="bg-primary/15 text-primary border-primary/30">{pendingItems.length} nye</Badge>
-                    )}
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Dokumenter og hendelser mottatt fra leverandører, analysert og foreslått av Lara.
-                  </p>
-                </div>
+          <div className="max-w-3xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-8">
+            {/* Header — minimal */}
+            <header className="flex items-end justify-between gap-4 border-b border-border/60 pb-5">
+              <div>
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                  Innboks
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {pendingItems.length === 0
+                    ? "Alt er behandlet."
+                    : `${pendingItems.length} ${pendingItems.length === 1 ? "element venter" : "elementer venter"} på godkjenning.`}
+                </p>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" disabled={isSeeding || isClearing}>
+                  <Button variant="ghost" size="sm" className="text-muted-foreground" disabled={isSeeding || isClearing}>
                     {(isSeeding || isClearing) ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
-                    Demo-data
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={seedDemoInboxItems} disabled={isSeeding}>
                     <Database className="h-4 w-4 mr-2" />
-                    Legg til 3 demo-elementer
+                    Legg til demo-elementer
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={clearInbox} disabled={isClearing} className="text-destructive">
                     <Trash2 className="h-4 w-4 mr-2" />
@@ -239,140 +236,110 @@ const LaraInbox = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+            </header>
 
-            {/* Pending items */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  Ventende godkjenning
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {isLoading ? (
-                  <div className="space-y-3">{[1, 2, 3].map((i) => <div key={i} className="h-24 bg-muted animate-pulse rounded-lg" />)}</div>
-                ) : pendingItems.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Mail className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                    <p className="text-sm font-medium">Ingen ventende elementer</p>
-                    <p className="text-xs mt-1">Lara vil varsle deg når nye dokumenter eller hendelser mottas.</p>
-                  </div>
-                ) : (
-                  pendingItems.map((item: any) => {
+            {/* Pending list — flat, calm */}
+            <section>
+              {isLoading ? (
+                <div className="space-y-2">{[1, 2, 3].map((i) => <div key={i} className="h-16 bg-muted/50 animate-pulse rounded-md" />)}</div>
+              ) : pendingItems.length === 0 ? (
+                <div className="text-center py-16 text-muted-foreground">
+                  <Mail className="h-8 w-8 mx-auto mb-3 opacity-30" strokeWidth={1.5} />
+                  <p className="text-sm">Ingen nye elementer.</p>
+                </div>
+              ) : (
+                <ul className="divide-y divide-border/60">
+                  {pendingItems.map((item: any) => {
                     const asset = item.assets;
                     const incident = isIncident(item);
                     const severity = incident ? getSeverityFromFileName(item.file_name) : null;
                     const sevConfig = severity ? SEVERITY_CONFIG[severity] : null;
+                    const docLabel = DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type;
 
                     return (
-                      <div key={item.id} className={`p-4 rounded-lg border bg-card hover:shadow-sm transition-all ${incident ? "border-warning/30" : "border-border"}`}>
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex items-start gap-3 min-w-0">
-                            <div className={`p-2 rounded-lg ${incident ? "bg-warning/10" : "bg-primary/10"}`}>
-                              {incident ? (
-                                <ShieldAlert className="h-4 w-4 text-warning" />
-                              ) : (
-                                <FileText className="h-4 w-4 text-primary" />
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium truncate">{item.subject || item.file_name}</p>
-                                {incident && sevConfig && (
-                                  <Badge className={`text-[13px] ${sevConfig.className}`}>{sevConfig.label}</Badge>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                Fra: {item.sender_name || item.sender_email} · {new Date(item.received_at).toLocaleDateString(locale)}
-                              </p>
-                              {incident && item.file_path && (
-                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.file_path}</p>
-                              )}
-
-                              {/* Lara suggestion */}
-                              <div className="flex items-center gap-2 mt-2 p-2 rounded-md bg-primary/5 border border-primary/10">
-                                <Sparkles className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-                                <p className="text-xs">
-                                  <span className="font-medium">Lara foreslår:</span>{" "}
-                                  {incident ? "Opprett avvik for" : "Koble til"}{" "}
-                                  <button
-                                    onClick={() => asset?.id && navigate(`/assets/${asset.id}`)}
-                                    className="font-semibold text-primary hover:underline"
-                                  >
-                                    {asset?.name || "Ukjent leverandør"}
-                                  </button>{" "}
-                                  {!incident && (
-                                    <>
-                                      som{" "}
-                                      <Badge variant="secondary" className="text-[13px] mx-0.5">
-                                        {DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type}
-                                      </Badge>
-                                    </>
-                                  )}
-                                </p>
-                                {item.confidence_score && (
-                                  <Badge className="bg-status-closed/15 text-status-closed border-status-closed/30 text-[13px] ml-auto flex-shrink-0">
-                                    {Math.round(item.confidence_score * 100)}% sikker
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <Button
-                              size="sm"
-                              className={`h-8 text-xs ${incident ? "bg-warning hover:bg-warning" : ""}`}
-                              onClick={() => incident ? approveIncidentMutation.mutate(item) : approveMutation.mutate(item)}
-                            >
-                              <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                              {incident ? "Opprett avvik" : "Godkjenn"}
-                            </Button>
-                            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => rejectMutation.mutate(item.id)}>
-                              <X className="h-3.5 w-3.5 mr-1" />
-                              Avvis
-                            </Button>
-                          </div>
+                      <li key={item.id} className="group py-4 flex items-start gap-4">
+                        <div className="mt-0.5 text-muted-foreground">
+                          {incident ? <ShieldAlert className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
                         </div>
-                      </div>
-                    );
-                  })
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Processed items */}
-            {processedItems.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm text-muted-foreground">Behandlede ({processedItems.length})</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {processedItems.map((item: any) => {
-                    const asset = (item as any).assets;
-                    const incident = isIncident(item);
-                    return (
-                      <div key={item.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border opacity-60">
-                        {incident ? (
-                          <ShieldAlert className="h-4 w-4 text-warning" />
-                        ) : (
-                          <FileText className="h-4 w-4 text-muted-foreground" />
-                        )}
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium truncate">{item.subject || item.file_name}</p>
-                          <p className="text-[13px] text-muted-foreground">
-                            {item.sender_name || item.sender_email} → {asset?.name || "Ukjent"}
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {item.subject || item.file_name}
+                            </p>
+                            {incident && sevConfig && (
+                              <span className={`text-[11px] px-1.5 py-0.5 rounded ${sevConfig.className} border-0 bg-opacity-50`}>
+                                {sevConfig.label}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {incident ? "Avvik for" : docLabel + " · "}
+                            <button
+                              onClick={() => asset?.id && navigate(`/assets/${asset.id}`)}
+                              className="text-foreground/80 hover:text-primary hover:underline"
+                            >
+                              {asset?.name || "Ukjent"}
+                            </button>
+                            <span className="mx-1.5">·</span>
+                            {new Date(item.received_at).toLocaleDateString(locale)}
                           </p>
                         </div>
-                        <Badge variant={item.status === "manually_assigned" ? "default" : "secondary"} className="text-[13px]">
-                          {item.status === "manually_assigned" ? (incident ? "Avvik opprettet" : "Godkjent") : "Avvist"}
-                        </Badge>
-                      </div>
+                        <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                            onClick={() => rejectMutation.mutate(item.id)}
+                            title="Avvis"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
+                            onClick={() => incident ? approveIncidentMutation.mutate(item) : approveMutation.mutate(item)}
+                            title={incident ? "Opprett avvik" : "Godkjenn"}
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </li>
                     );
                   })}
-                </CardContent>
-              </Card>
+                </ul>
+              )}
+            </section>
+
+            {/* Processed — collapsed by default */}
+            {processedItems.length > 0 && (
+              <section className="pt-2">
+                <button
+                  onClick={() => setShowProcessed(v => !v)}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showProcessed ? "" : "-rotate-90"}`} />
+                  Behandlet ({processedItems.length})
+                </button>
+                {showProcessed && (
+                  <ul className="mt-3 divide-y divide-border/40">
+                    {processedItems.map((item: any) => {
+                      const asset = (item as any).assets;
+                      const incident = isIncident(item);
+                      return (
+                        <li key={item.id} className="py-2.5 flex items-center gap-3 text-xs text-muted-foreground">
+                          {incident ? <ShieldAlert className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />}
+                          <span className="truncate flex-1">{item.subject || item.file_name}</span>
+                          <span className="truncate">{asset?.name || "Ukjent"}</span>
+                          <span className="text-[11px]">
+                            {item.status === "manually_assigned" ? (incident ? "Avvik" : "Godkjent") : "Avvist"}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </section>
             )}
           </div>
         </main>
