@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, RefreshCw, Check, X, Sliders, ChevronDown, CheckCircle2, Send, CalendarPlus, ClipboardList, Edit3, SkipForward, Sparkles } from "lucide-react";
+import { Plus, RefreshCw, Check, X, Sliders, ChevronDown, CheckCircle2, Send, CalendarPlus, ClipboardList, Edit3, SkipForward, Sparkles, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
