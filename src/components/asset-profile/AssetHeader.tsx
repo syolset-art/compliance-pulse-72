@@ -854,13 +854,17 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
 
             {/* Single row: Kontaktperson (left) — Bransje & Org.nr & Nettsted (right) */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              {/* Left: Kontaktperson */}
-              <div className="shrink-0">
-                <ContactPersonField
+              {/* Left: Kontakter for kjøper (hovedkontakt + DPO + sikkerhet) */}
+              <div className="min-w-0 flex-1 max-w-md">
+                <VendorContactsBlock
                   assetId={asset.id}
                   contactPerson={(asset as any).contact_person}
                   contactEmail={(asset as any).contact_email}
                   contactPhone={(asset as any).contact_phone}
+                  privacyContactName={(asset as any).privacy_contact_name}
+                  privacyContactEmail={(asset as any).privacy_contact_email}
+                  securityContactName={(asset as any).security_contact_name}
+                  securityContactEmail={(asset as any).security_contact_email}
                   isNb={isNb}
                 />
               </div>
