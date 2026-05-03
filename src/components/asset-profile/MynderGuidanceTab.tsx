@@ -24,21 +24,13 @@ interface Props {
 
 interface Props {
   assetId: string;
+  assetName?: string;
+  baselinePercent?: number;
+  enrichmentPercent?: number;
+  externalActivities?: VendorActivity[];
   dismissedSuggestionIds: string[];
   onActivitySaved: (activity: VendorActivity, fromSuggestion?: SuggestedActivity) => void;
 }
-
-interface GapOverride {
-  status: GapStatus;
-  comment?: string;
-  changedAt: Date;
-}
-
-/** Per-kort tilstand i den agentiske flyten. */
-type CardStep =
-  | { kind: "suggested" }                                  // før brukeren har "akseptert"
-  | { kind: "created" }                                    // aktivitet opprettet, ikke påbegynt
-  | { kind: "sent"; whenNb: string; whenEn: string };       // Lara's neste handling utført
 
 export function MynderGuidanceTab({
   assetId,
