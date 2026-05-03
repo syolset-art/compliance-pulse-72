@@ -1,42 +1,86 @@
-## Kritikalitet og prioritet i leverandørkortet
+## Mål
 
-To akser, samme rad rett under leverandørnavnet — visuelt sammenhørende, men tydelig adskilt via farge og ikon.
+Gjøre "Veiledning fra Mynder"-fanen på leverandørkortet om til en tydelig agentisk Lara-opplevelse — i tråd med Mynder Design System (purple-100-boble, sommerfugl-avatar, "Lara foreslår…", eksplisitt Godta/Avvis).
 
-### Designprinsipp
+## Problem med dagens design
 
-- **Kritikalitet** (objektiv): fargekodet pille (rød/oransje/grønn) med prikk. Vises alltid — enten som verdi eller som "+ Sett kritikalitet".
-- **Prioritet** (subjektiv, valgfri): pille med flagg-ikon i amber/blå nøytral palett, så den ikke konkurrerer med kritikalitetens risiko-farger. Vises kun hvis satt; ellers diskret stiplet "+ Sett prioritet".
-- **Ingenting satt**: en lilla "Lara foreslår"-pille med stjerne-ikon dukker opp ved siden av Sett-knappene. Klikk åpner Lara med begrunnelse + "Godta / Endre".
+`MynderGuidanceTab.tsx` viser i dag:
+- En generisk "Sparkles"-boks med "Veiledning fra Mynder"
+- En statisk liste av gap-kort uten agent-personlighet
+- Ingen tydelig Lara-identitet, ingen accept/reject-flow, ingen progresjonsfølelse
+- Statuspille-redigering er gjemt og lite agentisk
 
-### De tre tilstandene
+Designet føles som en regel-motor, ikke en samarbeidende agent.
+
+## Ny opplevelse — agentisk Lara-veileder
 
 ```text
-A · Bare kritikalitet (vanligst)
-   [● Lav kritikalitet]   [⊕ Sett prioritet]
-
-B · Begge satt
-   [● Lav kritikalitet]   [▲ Prioritert Q2]
-
-C · Ingenting satt
-   [⊕ Sett kritikalitet]   [⊕ Sett prioritet]   [✦ Lara foreslår]
+┌──────────────────────────────────────────────────────────┐
+│  [🦋]  Lara — Veileder for {leverandør}                  │
+│        Sist analysert: 2 min siden  · Analyserer på nytt│
+├──────────────────────────────────────────────────────────┤
+│  ╭─ Lara foreslår ─────────────────────────── purple-100╮│
+│  │ "Jeg ser 3 gap som bør lukkes før neste revisjon.   ││
+│  │  Det viktigste er DPA — den utløper om 18 dager."   ││
+│  │                                                      ││
+│  │  [Se prioriteringen]  [Avvis sammendraget]          ││
+│  ╰──────────────────────────────────────────────────────╯│
+│                                                          │
+│  Foreslåtte handlinger (3)        Operasjonelt│Taktisk..│
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ [🦋] Lara foreslår                       Kritisk │   │
+│  │ Forny databehandleravtale før 15. mai            │   │
+│  │ "DPA fra 2024 utløper. Jeg kan utkaste fornyelse  │  │
+│  │  basert på forrige versjon."                     │   │
+│  │                                                  │   │
+│  │ [Godta og start aktivitet] [Avvis] [Endre status]│   │
+│  └──────────────────────────────────────────────────┘   │
+│  ...                                                    │
+└──────────────────────────────────────────────────────────┘
 ```
 
-Plassering: rett under `<h1>` i `VendorStatusBanner`, før org-meta-linjen. Ikke på samme linje som navnet — gir pillene pusterom og navnet beholder visuell tyngde.
+## Nøkkelendringer
 
-### Endringer
+1. **Agent-header (ny)**
+   - Lara-avatar (mynder-blue sirkel + hvit sommerfugl, gjenbruk eksisterende `LaraAvatar`/SVG hvis funnet, ellers inline SVG)
+   - Tittel: "Lara — Veileder for {vendorName}"
+   - Meta-linje: "Sist analysert: {tid}" + en `Analyser på nytt`-lenke (prototype: simulert pulsanimasjon i 1.2s)
 
-**`src/components/asset-profile/VendorStatusBanner.tsx`**
-- Utvid `asset`-interface med `criticality?: string | null` og `priority?: string | null`.
-- Fjern den eksisterende `criticality` Badge ved siden av navnet.
-- Legg inn ny rad rett under `<h1>` med to `VendorInlinePillSelect`-instanser (criticality + priority) + betinget "Lara foreslår"-knapp når begge er null.
-- Fjern den nå ubrukte `criticality`/`deriveCriticality`-koden i komponenten.
+2. **Sammendrags-boble (Lara-stil)**
+   - Bakgrunn `bg-purple-100` (Mulish, purple-900-tekst)
+   - Prefiks "Lara foreslår:" i bold
+   - To eksplisitte handlinger: `Godta` (primary pill) og `Avvis` (outline pill) — godta = ingen endring (kun bekreftelse-toast); avvis = collapser boblen
+   - Erstatter dagens `bg-primary/[0.04]` Sparkles-boks
 
-**`src/components/vendor-dashboard/VendorInlinePillSelect.tsx`**
-- Endre prioritet-pill til amber/flagg-ikon-stil (Flag-ikon fra lucide) i stedet for å gjenbruke risiko-farger — så den visuelt skiller seg fra kritikalitet.
-- La "tom" tilstand for prioritet være enda mer dempet (ghost, ingen border) så den ikke skriker.
+3. **Kort som agent-forslag**
+   - Hvert gap-kort får venstre Lara-avatar (24px) + label "Lara foreslår"
+   - Tittel beholdes; rasjonalet (`statusNote`) flyttes inn i en liten purple-100-sub-boble som sitatet fra Lara
+   - Tre eksplisitte CTA-er nederst på kortet, alltid synlige (ikke gjemt bak hover):
+     - **Godta og start aktivitet** (pill, mynder-blue) → åpner `RegisterActivityDialog` (samme som i dag)
+     - **Avvis** (pill, outline) → bruker eksisterende `dismissedSuggestionIds`-mekanisme via ny callback, eller lokal state
+     - **Endre status** (ghost) → toggler `InlineStatusEditor` (eksisterende)
+   - Statuspille flyttes til toppen som ren badge (ikke knapp)
+   - Kritikalitets-badge og nivå-chip beholdes, men strammes til høyre
 
-**Hover/detaljvisning** (mindre tillegg): pillene har allerede dropdown for å endre verdi via `VendorInlinePillSelect` — det dekker behovet for inline-redigering uten å åpne kortet.
+4. **Tomtilstand**
+   - Lara-avatar + "Ingen åpne gap akkurat nå. Jeg fortsetter å overvåke." (purple-100-boble)
+   - Knapp: "Spør Lara om noe annet" (åpner global chat hvis tilgjengelig — ellers no-op med toast)
 
-### Lara-pille adferd
+5. **Visuell justering mot designsystem**
+   - Alle knapper: `rounded-pill` (allerede i tailwind config)
+   - Bruk `bg-purple-100` + `text-purple-900` for Lara-bobler (eksisterende tokens)
+   - Mulish er allerede default font
+   - Beholde eksisterende status- og nivå-farger (matcher allerede `status-closed`/`warning`/`primary`)
 
-Klikk på "Lara foreslår" trigger toast nå (`toast.info`). I neste iterasjon kan vi koble til `analyze-vendor`-edge-funksjonen for å få et faktisk forslag — men holder denne planen scoped til UI-strukturen.
+## Filer som endres
+
+- `src/components/asset-profile/MynderGuidanceTab.tsx` — full redesign av layout (header, sammendrags-boble, kort) — beholder all eksisterende logikk (`generateGuidanceForVendor`, `recomputeSummary`, `gapStatusOverrides`, `RegisterActivityDialog`-integrasjon).
+- Ny lokal komponent (inline i samme fil, eller egen fil `LaraSuggestionCard.tsx`) for det agentiske kortet — bestemmes ved implementering, sannsynligvis egen fil for ryddighet.
+- Ny liten `LaraAvatar`-komponent (`src/components/asset-profile/LaraAvatar.tsx`) hvis ikke en eksisterende finnes — sjekk `LaraAgent.tsx` først for gjenbruk.
+
+## Ut av scope
+
+- Ingen endringer i `vendorGuidanceData.ts` (samme datastruktur, samme suggestions)
+- Ingen backend-/Supabase-endringer
+- Ingen endringer i `RegisterActivityDialog`, `InlineStatusEditor` eller `VendorStatusRow`
+- i18n-strenger holdes inline (samme mønster som dagens fil)
