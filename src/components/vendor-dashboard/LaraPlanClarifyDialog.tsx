@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sparkles, UserPlus, Check, Mail } from "lucide-react";
+import { Sparkles, UserPlus, Check, Mail, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getPlatformUsers, type PlatformUser } from "@/lib/platformUsers";
@@ -168,10 +168,24 @@ export function LaraPlanClarifyDialog({ open, onOpenChange, isNb, proposals, onS
 
                 {inviting && (
                   <div className="space-y-2 rounded-md border border-border bg-muted/20 p-3">
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <UserPlus className="h-3.5 w-3.5" />
-                      {isNb ? "Inviter ny bruker til plattformen" : "Invite a new user to the platform"}
-                    </p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <UserPlus className="h-3.5 w-3.5" />
+                        {isNb ? "Inviter ny bruker til plattformen" : "Invite a new user to the platform"}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setInviting(false);
+                          setInviteName("");
+                          setInviteEmail("");
+                        }}
+                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <ArrowLeft className="h-3 w-3" />
+                        {isNb ? "Tilbake" : "Back"}
+                      </button>
+                    </div>
                     <Input
                       autoFocus
                       placeholder={isNb ? "Navn" : "Name"}
@@ -189,7 +203,15 @@ export function LaraPlanClarifyDialog({ open, onOpenChange, isNb, proposals, onS
                         <Mail className="h-3.5 w-3.5" />
                         {isNb ? "Send invitasjon" : "Send invite"}
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => setInviting(false)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          setInviting(false);
+                          setInviteName("");
+                          setInviteEmail("");
+                        }}
+                      >
                         {isNb ? "Avbryt" : "Cancel"}
                       </Button>
                     </div>
