@@ -24,6 +24,8 @@ export interface PlanProposal {
     placeholder?: string;
     /** When true, render a picker of platform users (with option to invite new). */
     requiresUser?: boolean;
+    /** Predefined answers the user can pick. Free-text always available as fallback. */
+    suggestedAnswers?: { nb: string; en: string }[];
   };
 }
 
