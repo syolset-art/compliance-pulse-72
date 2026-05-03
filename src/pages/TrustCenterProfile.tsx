@@ -974,12 +974,25 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex-1 space-y-3">
                       <div className="flex items-start gap-4">
-                        <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center shrink-0">
-                          <Shield className="h-7 w-7 text-muted-foreground" />
+                        <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden border border-border">
+                          {(asset as any)?.logo_url ? (
+                            <img src={(asset as any).logo_url} alt={`${companyProfile?.name || asset.name} logo`} className="h-full w-full object-contain bg-background" />
+                          ) : (
+                            <span className="text-lg font-bold text-muted-foreground">
+                              {(companyProfile?.name || asset.name || "?").slice(0, 2).toUpperCase()}
+                            </span>
+                          )}
                         </div>
                         <div className="min-w-0">
-                          <h2 className="text-xl font-bold text-foreground">{companyProfile?.name || asset.name}</h2>
-                          <p className="text-sm text-muted-foreground">Shareable compliance profile for due diligence</p>
+                          <h2 className="text-xl font-bold text-foreground">{(companyProfile as any)?.legal_name || companyProfile?.name || asset.name}</h2>
+                          {(companyProfile as any)?.legal_name && companyProfile?.name && (companyProfile as any).legal_name !== companyProfile.name && (
+                            <p className="text-[13px] text-muted-foreground">{isNb ? "Markedsnavn: " : "Trading as: "}{companyProfile.name}</p>
+                          )}
+                          {asset?.description ? (
+                            <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{asset.description}</p>
+                          ) : (
+                            <p className="text-sm text-muted-foreground italic mt-0.5">{isNb ? "Mangler kort beskrivelse" : "Missing short description"}</p>
+                          )}
                         </div>
                       </div>
 
