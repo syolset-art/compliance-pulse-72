@@ -28,6 +28,7 @@ interface VendorRowAsset {
   name: string;
   category?: string | null;
   vendor_category?: string | null;
+  description?: string | null;
   compliance_score?: number | null;
   risk_level?: string | null;
   criticality?: string | null;
@@ -330,9 +331,13 @@ export function VendorStatusRow({
                   {[
                     vendor.org_number ? `Org.nr ${vendor.org_number}` : null,
                     vendor.url ? vendor.url.replace(/^https?:\/\//, "").replace(/\/$/, "") : null,
-                    segmentChips.length > 0 ? segmentChips.join(" · ") : null,
                   ].filter(Boolean).join("  ·  ")}
                 </p>
+                {vendor.description && (
+                  <p className="text-[13px] text-foreground/75 mt-1 line-clamp-1">
+                    {vendor.description}
+                  </p>
+                )}
               </div>
             </div>
 
