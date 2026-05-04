@@ -294,17 +294,23 @@ export default function Tasks() {
 
   const startAiDraft = (task: AutoTask) => {
     setAiProcessing(task.id);
-    // Simulate AI processing
-    setTimeout(() => {
-      setAiProcessing(null);
-      toast.success(`Lara har opprettet utkast for «${task.title}»`, {
-        description: "Gå til utkastet for å gjennomgå og godkjenne.",
-        action: {
-          label: "Se utkast",
-          onClick: () => navigate(task.actionRoute || "/tasks"),
-        },
-      });
-    }, 2500);
+    setAiStep(0);
+    setExpandedTask(task.id);
+    const steps = workingSteps(task);
+    let s = 0;
+    const tick = () => {
+      s += 1;
+      if (s < steps.length) {
+        setAiStep(s);
+        setTimeout(tick, 900);
+      } else {
+        setAiProcessing(null);
+        setAiStep(0);
+        setDraftsReady((prev) => ({ ...prev, [task.id]: true }));
+        toast.success(`Lara har opprettet utkast for «${task.title}»`);
+      }
+    };
+    setTimeout(tick, 900);
   };
 
   const handleApproveAndRun = () => {
