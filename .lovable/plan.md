@@ -1,66 +1,70 @@
-# Les og godkjenn dokument — full flyt med Lara-vurdering
+## Vurdering: Er Oppgavesiden agentisk nok?
 
-I dag åpner "Les og godkjenn dokument" bare et lite Lara-utkast i aktivitetsraden. Vi gjør om dette til en tydelig 4-stegs dialog som speiler hva Mynder faktisk gjør med dokumentet.
+**Kort svar: Delvis.** Siden har god agentisk *intensjon* (Lara-utkast, godkjenning av høyrisiko, "La Lara lage utkast"-knapp), men den bruker **ingen** av Mynders delte agent-komponenter. Hver Lara-interaksjon er bygget fra scratch lokalt i `Tasks.tsx`, og mangler Mynders signaturmønstre: agentisk plan-banner, capability-badges, og live "AI jobber"-tilstand.
 
-## Terminologivalg: «Berikelse»
+### Hva som finnes i Mynders agent-bibliotek (men ikke brukes på Oppgaver)
+- `LaraRecommendationBanner` (`src/components/lara/`) — kompakt → ekspanderbar agentisk plan med stegvis gjennomgang, kritikalitetsfarger, "Be Lara håndtere det"
+- `AgentCapabilityBadge` / `AgentCapabilitySummary` (`src/components/compliance/`) — viser hva Lara kan gjøre automatisk vs. assistert vs. manuelt
+- `AIWorkingWidget` (`src/components/compliance/`) — live status mens Lara arbeider (i dag bruker Tasks bare en `Loader2`-spinner og en toast)
+- `InlineDeviationAgent` (`src/components/deviations/`) — mønster for inline agent-handling i en liste
 
-Etablert ord i Mynder (brukes i `enrichmentPercent`, `MynderGuidanceTab`, `BulkGapAnalysisDialog`). Andre vurderte alternativer:
+### Konkrete gap på `/tasks` i dag
+1. **Ingen agentisk inngang øverst.** Siden åpner med en filterstripe. Andre Mynder-flater (Vendor Profile, Veiledning fra Mynder) åpner med `LaraRecommendationBanner` som sier "Lara har lagt en plan" og lar brukeren bla gjennom topp-N kritiske oppgaver med tydelig "Be Lara håndtere det"-CTA.
+2. **"La Lara lage utkast" er gjemt bak ekspandering.** Man må klikke et kort før man ser at Lara kan hjelpe. Agentiske flater i Mynder eksponerer evnen umiddelbart.
+3. **"Lara jobber…" er bare en spinner i en knapp.** Ingen synlig progresjon, ingen "Lara analyserer Hubspot-vilkår → genererer DPA-utkast → klar for gjennomgang"-stegvis tilbakemelding (slik `AIWorkingWidget` gjør).
+4. **Ingen capability-merking per oppgave.** I dag står det bare "Lara kan hjelpe" som flat badge. `AgentCapabilityBadge` skiller mellom *Automatisk*, *Assistert (Lara)*, *Manuell* — i tråd med Mynders 3-nivå AI-autonomi-filosofi (core memory).
+5. **Manglende batch-handling.** Agentisk UX innebærer at Lara kan ta flere oppgaver i én økt. I dag er hver handling per kort.
+6. **Mangler "Lara kan rydde X av Y oppgaver nå"-oppsummering.** Et klassisk agentisk hook.
+7. **Toast-only fullføring.** Når Lara er ferdig sees kun en toast. Bør ha vedvarende "Utkast klart for gjennomgang"-tilstand på kortet.
 
-- **Kunnskapsgrunnlag** — for langt, mindre presist
-- **Datakilde / Kilde** — teknisk, men mister koblingen til at det *forbedrer* analysen
-- **Bevis / Evidens** — kolliderer med "Evidence level" i Trust-terminologien
-- **Innsikt** — for vag
+---
 
-**Konklusjon:** behold **«Berikelse»** som primærord, men forklar det første gang i dialogen: *"Berikelse betyr at Lara bruker dokumentet som kilde i fremtidige analyser av leverandøren."* Dette holder konsistent språk på tvers av modulene.
+## Foreslåtte endringer
 
-## Ny flyt — 4 steg i én dialog
+### 1. Topp-banner: agentisk plan (gjenbruk `LaraRecommendationBanner`)
+Plasseres rett under sidetittelen, over filterstripen. Mappe `autoTasks` → `LaraPlanTask[]`, vise topp 3–5 kritiske, med "Be Lara håndtere det" som primær-CTA og "Åpne oppgave" som sekundær. Dette gir umiddelbar agentisk inngang, identisk mønster som Vendor Profile.
 
-```text
-[1 Les]  →  [2 Lara analyserer]  →  [3 Foreslått påvirkning]  →  [4 Lagt til]
- Sammendrag    Spinner ~1 sek         Kontroller / modenhet /     Bekreftelse
- + Godkjenn                           risiko + "Legg til som      + toast
-                                       berikelse"-knapp
-```
+### 2. Capability-badge per oppgave (gjenbruk `AgentCapabilityBadge`)
+Erstatte dagens flate "Lara kan hjelpe"-badge med:
+- **Automatisk** — for lavrisiko utkast (DPIA-utkast, revisjonssjekkliste)
+- **Assistert (Lara)** — for høyrisiko som krever godkjenning (DPA, risikovurdering)
+- **Manuell** — for oppgaver uten `aiDraftable`
 
-**Steg 1 — Les og godkjenn**
-- Lara's sammendrag (3 nøkkelpunkter trukket ut av dokumentet)
-- Info-tekst: *"Når du godkjenner, vurderer Lara hvordan dokumentet påvirker leverandørens analyse — du bestemmer deretter om det skal brukes som berikelse."*
-- Knapper: **Avbryt** · **Godkjenn dokument**
+Dette samsvarer med core-memory-regelen om 3 autonomi-nivåer.
 
-**Steg 2 — Lara analyserer (~1 sek)**
-- Pulserende Sparkles-ikon + spinner
-- Tekst: *"Lara vurderer påvirkning på kontroller, modenhet og risiko …"*
+### 3. Erstatte spinner-knapp med `AIWorkingWidget`
+Når brukeren trykker "La Lara lage utkast", vis et inline `AIWorkingWidget`-panel inni det ekspanderte kortet med stegvis fremdrift ("Henter Hubspot-vilkår… → Genererer DPA-utkast… → Klar for gjennomgang"). Behold simulering med `setTimeout`-stegnivåer.
 
-**Steg 3 — Foreslått påvirkning**
-- Kort i primær-tone med tre konkrete punkter:
-  - `ShieldCheck` Påvirker 4 kontroller i området «Tredjepart»
-  - `TrendingUp` Foreslår modenhet «Databehandleravtaler»: 2 → 3
-  - `↓` Senker avledet risiko: Middels → Lav
-- Forklaring av berikelse (én setning)
-- Knapper: **Ikke nå** · **Legg til som berikelse**
+### 4. Ny tilstand: "Utkast klart"
+Når Lara er ferdig, vis vedvarende grønt panel på kortet med "Lara har laget et utkast — gjennomgå og godkjenn", ikke bare en toast som forsvinner. Gjenbruk samme mønster som `InlineDeviationAgent` bruker etter agent-handling.
 
-**Steg 4 — Ferdig**
-- Grønn check + "Berikelse lagt til"
-- Sonner-toast: *"Lagt til som berikelse — Lara bruker nå dokumentet som kilde i leverandøranalysen."*
-- Dialog lukker seg automatisk etter ~0.9 sek
+### 5. Batch-handling i toppbanneret
+I `LaraRecommendationBanner`-onPrimaryAction: la Lara behandle alle ekspanderte agentiske oppgaver i sekvens, med en samlet `AIWorkingWidget` som viser fremdrift (3 av 5 fullført). Gir reelt agentisk preg.
 
-## Filer som endres
+### 6. Header-mikrokopi
+Bytte undertittelen fra "Automatisk genererte oppgaver basert på mangler Lara har oppdaget…" til en agentisk åpning, f.eks.: "Lara har funnet N oppgaver. K av dem kan hun løse for deg nå — med din godkjenning."
 
-**Ny fil:** `src/components/asset-profile/ApproveDocumentDialog.tsx`
-- Stateful dialog som håndterer alle 4 steg internt
-- Props: `open`, `onOpenChange`, `activity`, `onApproved`, `onAddedAsEnrichment`
-- Bruker `sonner` toast for bekreftelse
-- i18n NB/EN
+### 7. "Manuell oppgave"-knapp får sekundær styling
+"Opprett oppgave"-knappen blir `variant="outline"` siden den agentiske handlingen (Vis Laras plan) skal være den primære.
 
-**Endres:** `src/components/asset-profile/ActivityActionAffordance.tsx`
-- For `activity.type === "document"`: erstatt dagens inline-popover med å åpne den nye dialogen
-- Når `onApproved` triggres → marker aktiviteten som `closed` (via eksisterende `onLaraStart`-callback eller ny `onApproved`-callback)
-- Andre aktivitetstyper beholder dagens flyt uendret
+---
 
-**Lett endring:** `src/components/asset-profile/tabs/VendorActivityTab.tsx`
-- Hvis vi trenger en ny callback (`onAddedAsEnrichment`) for å oppdatere `enrichmentPercent` lokalt, sendes den ned via `ActivityActionAffordance`. Foreløpig holder vi oss til en toast og lar Lara-jobben vise seg via eksisterende statusoppdatering.
+## Teknisk
 
-## Designnotater
-- Bruker semantiske tokens (`bg-primary/5`, `text-success`, `border-primary/20`) — ingen hardkodede farger
-- Apple-minimal: én dialog, tydelige steg, ingen skjemafelter
-- WCAG: ikoner har tekst ved siden av seg, knapper har klare labels
+**Endrede filer:**
+- `src/pages/Tasks.tsx` — integrere `LaraRecommendationBanner` øverst, bytte ut spinner mot `AIWorkingWidget`-panel inne i ekspandert kort, mappe `AutoTask → LaraPlanTask`, legge til `draftReady`-state per task.
+- Bruke `AgentCapabilityBadge` fra `@/components/compliance` i stedet for dagens lokale "Lara kan hjelpe"-badge.
+
+**Ingen nye komponenter, ingen DB-endringer, ingen nye dependencies** — alt gjenbrukes fra eksisterende agent-bibliotek.
+
+**Risiko:** Lav. Endringene er lokale til `Tasks.tsx` og bruker allerede etablerte mønstre fra Vendor Profile og Veiledning fra Mynder.
+
+---
+
+## Resultat
+Etter endringene vil Oppgavesiden:
+- Åpne med en agentisk plan, ikke en filterstripe
+- Bruke samme Lara-banner-mønster som resten av plattformen (visuell konsistens)
+- Vise ekte 3-nivå autonomi-merking (Automatisk / Assistert / Manuell)
+- Ha synlig "Lara jobber"-progresjon i stedet for skjult spinner
+- Tilby batch-håndtering — kjernen i agentisk UX
