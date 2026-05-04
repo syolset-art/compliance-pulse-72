@@ -11,9 +11,14 @@ import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Sidebar } from "@/components/Sidebar";
 import { useTranslation } from "react-i18next";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
+import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
+import type { LaraPlanTask } from "@/components/lara/types";
+import { AgentCapabilityBadge, AgentCapabilitySummary } from "@/components/compliance/AgentCapabilityBadge";
+import type { AgentCapability } from "@/lib/complianceRequirementsData";
 import {
   ClipboardList as ClipboardListHelp,
   Zap,
@@ -186,6 +191,52 @@ type CategoryFilter = "alle" | TaskCategory;
 
 const isHighRisk = (priority: TaskPriority) => priority === "høy";
 
+// Map task → 3-nivå AI-autonomi (Mynders agent-bibliotek)
+const taskCapability = (task: AutoTask): AgentCapability => {
+  if (!task.aiDraftable) return "manual";
+  return isHighRisk(task.priority) ? "assisted" : "full";
+};
+
+// Map AutoTask → LaraPlanTask for the agentic recommendation banner
+const toPlanTask = (task: AutoTask): LaraPlanTask => ({
+  id: task.id,
+  severity: task.priority === "høy" ? "critical" : task.priority === "middels" ? "high" : "medium",
+  title: task.title,
+  category: `${categoryConfig[task.category].label} · ${task.linkedEntity}`,
+  insight: task.aiAction || task.description,
+  primaryCtaLabelNb: task.aiDraftable ? "Be Lara håndtere det" : "Åpne oppgaven",
+  secondaryCtaLabelNb: "Åpne oppgaven",
+});
+
+// Stegvis arbeidsbeskrivelse for inline AI-working-panel
+const workingSteps = (task: AutoTask): string[] => {
+  const entity = task.linkedEntity;
+  if (task.title.includes("DPA")) return [
+    `Henter vilkår fra ${entity}`,
+    "Sammenligner med Mynders DPA-mal",
+    "Genererer utkast og fyller inn felter",
+    "Klar for gjennomgang",
+  ];
+  if (task.title.toLowerCase().includes("revisjon")) return [
+    `Henter konfigurasjon for ${entity}`,
+    "Bygger tilgangsoversikt og dataflyt",
+    "Genererer revisjonssjekkliste",
+    "Klar for gjennomgang",
+  ];
+  if (task.title.includes("DPIA")) return [
+    "Analyserer behandlingsaktivitetens egenskaper",
+    "Vurderer risiko og profileringsgrad",
+    "Genererer DPIA-utkast",
+    "Klar for gjennomgang",
+  ];
+  return [
+    `Henter data om ${entity}`,
+    "Analyserer mangler og kontekst",
+    "Genererer utkast",
+    "Klar for gjennomgang",
+  ];
+};
+
 // ── Component ──────────────────────────────────────────────
 export default function Tasks() {
   const { t } = useTranslation();
@@ -199,6 +250,8 @@ export default function Tasks() {
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
   const [approvalTask, setApprovalTask] = useState<AutoTask | null>(null);
   const [aiProcessing, setAiProcessing] = useState<string | null>(null);
+  const [aiStep, setAiStep] = useState<number>(0);
+  const [draftsReady, setDraftsReady] = useState<Record<string, boolean>>({});
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [manualTasks, setManualTasks] = useState<AutoTask[]>([]);
 
@@ -241,17 +294,23 @@ export default function Tasks() {
 
   const startAiDraft = (task: AutoTask) => {
     setAiProcessing(task.id);
-    // Simulate AI processing
-    setTimeout(() => {
-      setAiProcessing(null);
-      toast.success(`Lara har opprettet utkast for «${task.title}»`, {
-        description: "Gå til utkastet for å gjennomgå og godkjenne.",
-        action: {
-          label: "Se utkast",
-          onClick: () => navigate(task.actionRoute || "/tasks"),
-        },
-      });
-    }, 2500);
+    setAiStep(0);
+    setExpandedTask(task.id);
+    const steps = workingSteps(task);
+    let s = 0;
+    const tick = () => {
+      s += 1;
+      if (s < steps.length) {
+        setAiStep(s);
+        setTimeout(tick, 900);
+      } else {
+        setAiProcessing(null);
+        setAiStep(0);
+        setDraftsReady((prev) => ({ ...prev, [task.id]: true }));
+        toast.success(`Lara har opprettet utkast for «${task.title}»`);
+      }
+    };
+    setTimeout(tick, 900);
   };
 
   const handleApproveAndRun = () => {
@@ -277,6 +336,7 @@ export default function Tasks() {
             </div>
             <Button
               size="sm"
+              variant="outline"
               className="gap-2 w-full sm:w-auto"
               onClick={() => setIsCreateOpen(true)}
             >
@@ -284,9 +344,55 @@ export default function Tasks() {
               Opprett oppgave
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground mb-6">
-            Automatisk genererte oppgaver basert på mangler Lara har oppdaget i dine systemer, leverandører og behandlingsaktiviteter.
-          </p>
+          {(() => {
+            const open = allTasks.filter((t) => t.status !== "fullført");
+            const counts = {
+              full: open.filter((t) => taskCapability(t) === "full").length,
+              assisted: open.filter((t) => taskCapability(t) === "assisted").length,
+              manual: open.filter((t) => taskCapability(t) === "manual").length,
+            };
+            const handleable = counts.full + counts.assisted;
+            return (
+              <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+                <p className="text-sm text-muted-foreground">
+                  Lara har funnet <strong className="text-foreground">{open.length}</strong> oppgaver.{" "}
+                  <strong className="text-foreground">{handleable}</strong> av dem kan hun løse for deg nå — med din godkjenning.
+                </p>
+                <AgentCapabilitySummary counts={counts} />
+              </div>
+            );
+          })()}
+
+          {/* Agentisk plan-banner — Mynders Lara-mønster */}
+          {(() => {
+            const planTasks = autoTasks
+              .filter((t) => t.aiDraftable && t.status !== "fullført")
+              .slice(0, 5)
+              .map(toPlanTask);
+            const criticalCount = autoTasks.filter((t) => t.priority === "høy").length;
+            const totalAgentic = autoTasks.filter((t) => t.aiDraftable && t.status !== "fullført").length;
+            return (
+              <div className="mb-6">
+                <LaraRecommendationBanner
+                  totalCount={totalAgentic}
+                  criticalCount={criticalCount}
+                  tasks={planTasks}
+                  hideDismiss
+                  onPrimaryAction={(planTask) => {
+                    const original = autoTasks.find((t) => t.id === planTask.id);
+                    if (original) handleLetLaraDo(original);
+                  }}
+                  onSecondaryAction={(planTask) => {
+                    const original = autoTasks.find((t) => t.id === planTask.id);
+                    if (original) {
+                      setExpandedTask(original.id);
+                      document.getElementById(`task-${original.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                  }}
+                />
+              </div>
+            );
+          })()}
 
           {/* Filters */}
           <div className="flex items-center gap-2 flex-wrap mb-6">
@@ -377,9 +483,10 @@ export default function Tasks() {
               return (
                 <Card
                   key={task.id}
+                  id={`task-${task.id}`}
                   className={`transition-all hover:shadow-sm ${
                     task.status === "fullført" ? "opacity-60" : ""
-                  }`}
+                  } ${draftsReady[task.id] ? "border-status-closed/40" : ""}`}
                 >
                   <div
                     className="p-4 cursor-pointer"
@@ -406,10 +513,11 @@ export default function Tasks() {
                               Forfalt
                             </Badge>
                           )}
-                          {task.aiDraftable && (
-                            <Badge variant="outline" className="text-[13px] gap-1 bg-primary/5 text-primary border-primary/20">
-                              <Sparkles className="h-2.5 w-2.5" />
-                              Lara kan hjelpe
+                          <AgentCapabilityBadge capability={taskCapability(task)} size="sm" />
+                          {draftsReady[task.id] && (
+                            <Badge variant="outline" className="text-[13px] gap-1 bg-status-closed/10 text-status-closed border-status-closed/30">
+                              <CheckCircle2 className="h-2.5 w-2.5" />
+                              Utkast klart
                             </Badge>
                           )}
                         </div>
@@ -470,6 +578,74 @@ export default function Tasks() {
                                   Høy prioritet — krever din godkjenning før Lara utfører
                                 </div>
                               )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Live AI working panel — Mynders signature pattern */}
+                        {isProcessing && (
+                          <div className="rounded-lg border border-primary/20 bg-gradient-to-br from-card to-primary/5 p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Bot className="h-4 w-4 text-primary" />
+                                <span className="text-sm font-semibold text-foreground">Lara jobber nå</span>
+                              </div>
+                              <Badge variant="outline" className="text-xs gap-1.5 bg-status-closed/10 text-status-closed border-status-closed/30">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-closed opacity-75" />
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-status-closed" />
+                                </span>
+                                Live
+                              </Badge>
+                            </div>
+                            {(() => {
+                              const steps = workingSteps(task);
+                              const pct = Math.round(((aiStep + 1) / steps.length) * 100);
+                              return (
+                                <>
+                                  <Progress value={pct} className="h-1.5" />
+                                  <ul className="space-y-1.5">
+                                    {steps.map((s, i) => (
+                                      <li key={i} className="flex items-center gap-2 text-xs">
+                                        {i < aiStep ? (
+                                          <CheckCircle2 className="h-3.5 w-3.5 text-status-closed shrink-0" />
+                                        ) : i === aiStep ? (
+                                          <Loader2 className="h-3.5 w-3.5 text-primary animate-spin shrink-0" />
+                                        ) : (
+                                          <span className="h-3.5 w-3.5 rounded-full border border-border shrink-0" />
+                                        )}
+                                        <span className={i <= aiStep ? "text-foreground" : "text-muted-foreground"}>
+                                          {s}
+                                        </span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        )}
+
+                        {/* Persistent draft-ready state */}
+                        {draftsReady[task.id] && !isProcessing && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-status-closed/10 border border-status-closed/30">
+                            <CheckCircle2 className="h-5 w-5 text-status-closed mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-foreground">Lara har laget et utkast</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Gjennomgå og godkjenn før det ferdigstilles. Ingenting publiseres uten din endelige godkjenning.
+                              </p>
+                              <Button
+                                size="sm"
+                                className="mt-2 gap-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(task.actionRoute || "/tasks");
+                                }}
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                                Gjennomgå utkast
+                              </Button>
                             </div>
                           </div>
                         )}
