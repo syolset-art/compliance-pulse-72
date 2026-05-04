@@ -56,6 +56,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     description: "",
     compliance_officer: "",
     compliance_officer_email: "",
+    dpo_name: "",
+    dpo_email: "",
+    ciso_name: "",
+    ciso_email: "",
   });
 
   useEffect(() => {
@@ -72,12 +76,25 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         description: selfAsset?.description || "",
         compliance_officer: companyProfile.compliance_officer || "",
         compliance_officer_email: companyProfile.compliance_officer_email || "",
+        dpo_name: (companyProfile as any).dpo_name || "",
+        dpo_email: (companyProfile as any).dpo_email || "",
+        ciso_name: (companyProfile as any).ciso_name || "",
+        ciso_email: (companyProfile as any).ciso_email || "",
       });
     }
   }, [companyProfile, selfAsset]);
 
   const handleSave = async () => {
     if (!companyProfile) return;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!form.dpo_email.trim() || !emailRe.test(form.dpo_email.trim())) {
+      toast.error("Personvern/DPO-kontakt e-post er påkrevd og må være gyldig");
+      return;
+    }
+    if (!form.ciso_email.trim() || !emailRe.test(form.ciso_email.trim())) {
+      toast.error("Sikkerhetskontakt e-post er påkrevd og må være gyldig");
+      return;
+    }
     setSaving(true);
     try {
       const { error: profileErr } = await supabase
@@ -91,6 +108,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           employees: form.employees,
           compliance_officer: form.compliance_officer,
           compliance_officer_email: form.compliance_officer_email,
+          dpo_name: form.dpo_name,
+          dpo_email: form.dpo_email,
+          ciso_name: form.ciso_name,
+          ciso_email: form.ciso_email,
         } as any)
         .eq("id", companyProfile.id);
       if (profileErr) throw profileErr;
@@ -131,6 +152,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         description: selfAsset?.description || "",
         compliance_officer: companyProfile.compliance_officer || "",
         compliance_officer_email: companyProfile.compliance_officer_email || "",
+        dpo_name: (companyProfile as any).dpo_name || "",
+        dpo_email: (companyProfile as any).dpo_email || "",
+        ciso_name: (companyProfile as any).ciso_name || "",
+        ciso_email: (companyProfile as any).ciso_email || "",
       });
     }
     setIsEditing(false);
@@ -356,6 +381,84 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
               <Input value={form.compliance_officer_email} onChange={(e) => update("compliance_officer_email", e.target.value)} placeholder="ola@firma.no" className="text-sm" type="email" />
             ) : (
               <Input value={form.compliance_officer_email || "—"} readOnly className="bg-muted/30 text-sm" />
+            )}
+          </FieldBlock>
+        </div>
+      </div>
+
+      {/* Personvern/DPO-kontakt */}
+      <div className="space-y-2 pt-2 border-t border-border">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4 text-primary" />
+          <div>
+            <label className="text-xs font-semibold text-foreground">
+              Personvern/DPO-kontakt <span className="text-destructive">*</span>
+            </label>
+            <p className="text-[13px] text-muted-foreground">
+              Kontakt for personvernhenvendelser. E-post er påkrevd og publiseres på Trust Profilen.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FieldBlock label="Navn" hint="DPO eller personvernansvarlig">
+            {isEditing ? (
+              <Input value={form.dpo_name} onChange={(e) => update("dpo_name", e.target.value)} placeholder="Kari Nordmann" className="text-sm" maxLength={120} />
+            ) : (
+              <Input value={form.dpo_name || "—"} readOnly className="bg-muted/30 text-sm" />
+            )}
+          </FieldBlock>
+          <FieldBlock label="E-post *" hint="Påkrevd. F.eks. dpo@firma.no">
+            {isEditing ? (
+              <Input value={form.dpo_email} onChange={(e) => update("dpo_email", e.target.value)} placeholder="dpo@firma.no" className="text-sm" type="email" maxLength={255} required />
+            ) : (
+              <Input value={form.dpo_email || "—"} readOnly className="bg-muted/30 text-sm" />
+            )}
+          </FieldBlock>
+        </div>
+      </div>
+
+      {/* Sikkerhetskontakt for hendelser */}
+      <div className="space-y-2 pt-2 border-t border-border">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 text-primary" />
+            <div>
+              <label className="text-xs font-semibold text-foreground">
+                Sikkerhetskontakt for hendelser <span className="text-destructive">*</span>
+              </label>
+              <p className="text-[13px] text-muted-foreground">
+                Hvem skal kontaktes ved sikkerhetshendelser. Kan være samme som personvernkontakten.
+              </p>
+            </div>
+          </div>
+          {isEditing && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-xs h-7"
+              onClick={() => {
+                update("ciso_name", form.dpo_name);
+                update("ciso_email", form.dpo_email);
+              }}
+            >
+              Samme som personvernkontakt
+            </Button>
+          )}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FieldBlock label="Navn" hint="CISO, sikkerhetsansvarlig eller incident-team">
+            {isEditing ? (
+              <Input value={form.ciso_name} onChange={(e) => update("ciso_name", e.target.value)} placeholder="Per Hansen / Security Team" className="text-sm" maxLength={120} />
+            ) : (
+              <Input value={form.ciso_name || "—"} readOnly className="bg-muted/30 text-sm" />
+            )}
+          </FieldBlock>
+          <FieldBlock label="E-post *" hint="Påkrevd. F.eks. security@firma.no">
+            {isEditing ? (
+              <Input value={form.ciso_email} onChange={(e) => update("ciso_email", e.target.value)} placeholder="security@firma.no" className="text-sm" type="email" maxLength={255} required />
+            ) : (
+              <Input value={form.ciso_email || "—"} readOnly className="bg-muted/30 text-sm" />
             )}
           </FieldBlock>
         </div>
