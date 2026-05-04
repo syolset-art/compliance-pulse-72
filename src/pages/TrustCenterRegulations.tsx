@@ -48,6 +48,7 @@ interface SelectedFramework {
   is_recommended: boolean;
   is_selected: boolean;
   notes: string | null;
+  is_public?: boolean;
 }
 
 interface CompanyProfile {
