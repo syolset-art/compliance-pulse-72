@@ -11,9 +11,14 @@ import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Sidebar } from "@/components/Sidebar";
 import { useTranslation } from "react-i18next";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
+import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
+import type { LaraPlanTask } from "@/components/lara/types";
+import { AgentCapabilityBadge, AgentCapabilitySummary } from "@/components/compliance/AgentCapabilityBadge";
+import type { AgentCapability } from "@/lib/complianceRequirementsData";
 import {
   ClipboardList as ClipboardListHelp,
   Zap,
