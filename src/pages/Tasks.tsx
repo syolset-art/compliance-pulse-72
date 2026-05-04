@@ -582,6 +582,74 @@ export default function Tasks() {
                           </div>
                         )}
 
+                        {/* Live AI working panel — Mynders signature pattern */}
+                        {isProcessing && (
+                          <div className="rounded-lg border border-primary/20 bg-gradient-to-br from-card to-primary/5 p-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Bot className="h-4 w-4 text-primary" />
+                                <span className="text-sm font-semibold text-foreground">Lara jobber nå</span>
+                              </div>
+                              <Badge variant="outline" className="text-xs gap-1.5 bg-status-closed/10 text-status-closed border-status-closed/30">
+                                <span className="relative flex h-2 w-2">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-closed opacity-75" />
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-status-closed" />
+                                </span>
+                                Live
+                              </Badge>
+                            </div>
+                            {(() => {
+                              const steps = workingSteps(task);
+                              const pct = Math.round(((aiStep + 1) / steps.length) * 100);
+                              return (
+                                <>
+                                  <Progress value={pct} className="h-1.5" />
+                                  <ul className="space-y-1.5">
+                                    {steps.map((s, i) => (
+                                      <li key={i} className="flex items-center gap-2 text-xs">
+                                        {i < aiStep ? (
+                                          <CheckCircle2 className="h-3.5 w-3.5 text-status-closed shrink-0" />
+                                        ) : i === aiStep ? (
+                                          <Loader2 className="h-3.5 w-3.5 text-primary animate-spin shrink-0" />
+                                        ) : (
+                                          <span className="h-3.5 w-3.5 rounded-full border border-border shrink-0" />
+                                        )}
+                                        <span className={i <= aiStep ? "text-foreground" : "text-muted-foreground"}>
+                                          {s}
+                                        </span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        )}
+
+                        {/* Persistent draft-ready state */}
+                        {draftsReady[task.id] && !isProcessing && (
+                          <div className="flex items-start gap-3 p-3 rounded-lg bg-status-closed/10 border border-status-closed/30">
+                            <CheckCircle2 className="h-5 w-5 text-status-closed mt-0.5 shrink-0" />
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-foreground">Lara har laget et utkast</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                Gjennomgå og godkjenn før det ferdigstilles. Ingenting publiseres uten din endelige godkjenning.
+                              </p>
+                              <Button
+                                size="sm"
+                                className="mt-2 gap-2"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(task.actionRoute || "/tasks");
+                                }}
+                              >
+                                <Eye className="h-3.5 w-3.5" />
+                                Gjennomgå utkast
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Action buttons */}
                         <div className="flex items-center gap-2 flex-wrap">
                           {/* Primary CTA */}
