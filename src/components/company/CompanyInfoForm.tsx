@@ -56,6 +56,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     description: "",
     compliance_officer: "",
     compliance_officer_email: "",
+    dpo_name: "",
+    dpo_email: "",
+    ciso_name: "",
+    ciso_email: "",
   });
 
   useEffect(() => {
