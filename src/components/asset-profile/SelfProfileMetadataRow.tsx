@@ -85,11 +85,11 @@ export function SelfProfileMetadataRow({
     }
   };
 
-  // Demo fallback values when fields are empty
-  const demoOrgNumber = "983 052 968";
+  // Demo fallback values when fields are empty (Dintero AS demo data)
+  const demoOrgNumber = "916 132 088";
   const demoCountry = "Norge";
-  const demoUrl = "https://mynder.io";
-  const demoIndustry = "saas";
+  const demoUrl = "https://dintero.com";
+  const demoIndustry = "Betalingsløsninger / Fintech";
   const demoCategory = "saas";
 
   const industry = companyProfile?.industry || "";
