@@ -579,6 +579,37 @@ export default function TrustCenterRegulations() {
                           </div>
 
                           <div className="flex items-center gap-2 shrink-0 ml-3">
+                            {isActive && !(framework as any).comingSoon && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant={status?.is_public ? "default" : "outline"}
+                                    size="sm"
+                                    className="h-8 gap-1.5 px-2.5 text-xs"
+                                    onClick={() => togglePublic(framework.id, !!status?.is_public)}
+                                    disabled={updating === framework.id}
+                                  >
+                                    {status?.is_public ? (
+                                      <>
+                                        <Eye className="h-3.5 w-3.5" />
+                                        <span className="hidden sm:inline">Synlig offentlig</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <EyeOff className="h-3.5 w-3.5" />
+                                        <span className="hidden sm:inline">Kun internt</span>
+                                      </>
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {status?.is_public
+                                    ? "Vises på offentlig Trust Profile. Klikk for å skjule."
+                                    : "Kun synlig internt. Klikk for å vise på Trust Profilen."}
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
                             {isMandatory ? (
                               <Tooltip>
                                 <TooltipTrigger>
