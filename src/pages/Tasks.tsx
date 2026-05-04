@@ -250,6 +250,8 @@ export default function Tasks() {
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
   const [approvalTask, setApprovalTask] = useState<AutoTask | null>(null);
   const [aiProcessing, setAiProcessing] = useState<string | null>(null);
+  const [aiStep, setAiStep] = useState<number>(0);
+  const [draftsReady, setDraftsReady] = useState<Record<string, boolean>>({});
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [manualTasks, setManualTasks] = useState<AutoTask[]>([]);
 
