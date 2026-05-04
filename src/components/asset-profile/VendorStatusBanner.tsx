@@ -144,6 +144,13 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
     return "data fryst";
   })();
 
+  // Qualitative maturity level — mirrors Donut tone
+  const maturityLevel = (() => {
+    if (score >= 75) return { label: "Høy", cls: "bg-success/10 text-success border-success/20" };
+    if (score >= 50) return { label: "Moderat", cls: "bg-warning/10 text-warning border-warning/20" };
+    return { label: "Lav", cls: "bg-destructive/10 text-destructive border-destructive/20" };
+  })();
+
   // Context banner (action row)
   const renderContextBanner = () => {
     if (status.key === "invited") {
@@ -288,13 +295,16 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
               )}
             </div>
 
-            {/* Donut */}
+            {/* Modenhet — tekst venstre, donut høyre */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
-              <Donut score={score} tone={status.tone} />
-              <div className="flex flex-col">
+              <div className="flex flex-col items-end text-right">
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Modenhet</span>
-                <span className="text-[11px] text-muted-foreground italic">{maturityLabel}</span>
+                <span className={`mt-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${maturityLevel.cls}`}>
+                  {maturityLevel.label}
+                </span>
+                <span className="mt-1 text-[11px] text-muted-foreground italic">{maturityLabel}</span>
               </div>
+              <Donut score={score} tone={status.tone} />
             </div>
           </div>
 
