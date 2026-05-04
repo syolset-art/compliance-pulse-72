@@ -483,9 +483,10 @@ export default function Tasks() {
               return (
                 <Card
                   key={task.id}
+                  id={`task-${task.id}`}
                   className={`transition-all hover:shadow-sm ${
                     task.status === "fullført" ? "opacity-60" : ""
-                  }`}
+                  } ${draftsReady[task.id] ? "border-status-closed/40" : ""}`}
                 >
                   <div
                     className="p-4 cursor-pointer"
@@ -512,10 +513,11 @@ export default function Tasks() {
                               Forfalt
                             </Badge>
                           )}
-                          {task.aiDraftable && (
-                            <Badge variant="outline" className="text-[13px] gap-1 bg-primary/5 text-primary border-primary/20">
-                              <Sparkles className="h-2.5 w-2.5" />
-                              Lara kan hjelpe
+                          <AgentCapabilityBadge capability={taskCapability(task)} size="sm" />
+                          {draftsReady[task.id] && (
+                            <Badge variant="outline" className="text-[13px] gap-1 bg-status-closed/10 text-status-closed border-status-closed/30">
+                              <CheckCircle2 className="h-2.5 w-2.5" />
+                              Utkast klart
                             </Badge>
                           )}
                         </div>
