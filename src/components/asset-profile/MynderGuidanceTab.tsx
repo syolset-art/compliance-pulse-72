@@ -5,6 +5,8 @@ import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBa
 import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
+import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
+import { Card, CardContent } from "@/components/ui/card";
 import type { LaraPlanTask } from "@/components/lara/types";
 import {
   generateGuidanceForVendor,
@@ -109,6 +111,17 @@ export function MynderGuidanceTab({
 
       {/* Standard Trust Profile-blokk: modenhet per kontrollområde */}
       <AssetMaturityByDomainCard assetId={assetId} />
+
+      {/* Tidslinje: aktiviteter over tid og påvirkning på modenhet */}
+      <Card>
+        <CardContent className="pt-5">
+          <MaturityHistoryChart
+            assetId={assetId}
+            baselinePercent={baselinePercent ?? 40}
+            enrichmentPercent={enrichmentPercent ?? 20}
+          />
+        </CardContent>
+      </Card>
 
       {/* Aktivitetslogg — flyttet hit fra egen fane */}
       <VendorActivityTab
