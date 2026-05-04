@@ -55,9 +55,9 @@ const STATUS_META: Record<VendorStatusKey, VendorStatusMeta> = {
   },
   claimed: {
     key: "claimed",
-    label: "Claimet",
+    label: "Overtatt",
     description: "Leverandøren eier og oppdaterer profilen selv",
-    stripeLabel: "LEVERANDØR · CLAIMET",
+    stripeLabel: "LEVERANDØR · OVERTATT",
     stripeBg: "bg-vendor-claimed",
     stripeText: "text-vendor-claimed-foreground",
     hex: "#0F6E56",

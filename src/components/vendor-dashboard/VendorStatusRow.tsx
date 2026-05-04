@@ -220,7 +220,7 @@ export function VendorStatusRow({
       return (
         <div className="mt-3 rounded-lg bg-muted/40 border border-border px-3 py-2 flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-success shrink-0" />
-          <span className="text-[13px] text-foreground/80">Claimet {claimedOn}</span>
+          <span className="text-[13px] text-foreground/80">Overtatt {claimedOn}</span>
         </div>
       );
     }
