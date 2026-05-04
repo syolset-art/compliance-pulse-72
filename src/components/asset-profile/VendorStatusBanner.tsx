@@ -186,7 +186,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
       return (
         <div className="rounded-lg bg-muted/40 border border-border px-4 py-2 flex items-center gap-2">
           <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
-          <p className="text-[13px] text-foreground/80">Claimet {claimDate}</p>
+          <p className="text-[13px] text-foreground/80">Overtatt {claimDate}</p>
         </div>
       );
     }

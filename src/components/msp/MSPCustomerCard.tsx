@@ -110,7 +110,7 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {claimed ? "Trust Profile claimet av leverandøren" : "Trust Profile ikke claimet"}
+                  {claimed ? "Trust Profile overtatt av leverandøren" : "Trust Profile ikke overtatt"}
                 </TooltipContent>
               </Tooltip>
               {getStatusBadge(customer.status)}
