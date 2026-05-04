@@ -207,12 +207,42 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
         </div>
         <div className="px-4 pb-4">
 
-          <div className="space-y-6">
-            {grouped.map((group) => (
+          {/* Kompakt sammendrag — totalantall + Lara-venting */}
+          <div className="flex items-center justify-between flex-wrap gap-2 mb-4 rounded-md border bg-muted/30 px-3 py-2">
+            <div className="text-xs text-muted-foreground">
+              <span className="font-semibold text-foreground">{filtered.length}</span>{" "}
+              {isNb ? "aktivitet(er) i loggen" : "activities in log"}
+            </div>
+            {statusCounts.open > 0 && (
+              <button
+                type="button"
+                onClick={() => setStatusFilter(statusFilter === "open" ? "all" : "open")}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-all",
+                  statusFilter === "open"
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
+                )}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+                <span className="font-semibold text-foreground">{statusCounts.open}</span>
+                <span>{isNb ? "venter på Lara-oppfølging" : "awaiting Lara follow-up"}</span>
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            {grouped.map((group, gIdx) => (
               <div key={group.label}>
-                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 sticky top-0 bg-card z-10 py-1">
-                  {group.label}
-                </h4>
+                <div className="flex items-center gap-3 mb-3">
+                  <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                    {group.label}
+                  </h4>
+                  <div className="h-px flex-1 bg-border/70" />
+                  <span className="text-[11px] text-muted-foreground/70 tabular-nums">
+                    {group.items.length}
+                  </span>
+                </div>
                 <div className="space-y-0">
                   {group.items.map((act, idx) => {
                     const Icon = ACTIVITY_ICONS[act.type];
