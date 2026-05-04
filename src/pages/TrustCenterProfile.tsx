@@ -402,9 +402,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </div>
                 </div>
                 <span className={`text-sm font-semibold uppercase tracking-wider ${trustColor}`}>{trustLabel}</span>
-                <p className="text-[13px] text-muted-foreground text-center">
-                  {trustScore >= 80 ? (isNb ? "Godt egnet for de fleste bruksområder" : "Suitable for most use cases") : trustScore >= 50 ? (isNb ? "Egnet for standard bruksområder" : "Suitable for standard use cases") : (isNb ? "Begrenset egnethet" : "Limited suitability")}
-                </p>
                 <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
@@ -1083,13 +1080,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                       </div>
                       <span className={`text-sm font-semibold uppercase tracking-wider ${trustColor}`}>{trustLabel}</span>
-                      <p className="text-[13px] text-muted-foreground text-center">
-                        {trustScore >= 80
-                          ? (isNb ? "Godt egnet for de fleste bruksområder" : "Suitable for most use cases")
-                          : trustScore >= 50
-                            ? (isNb ? "Egnet for standard bruksområder" : "Suitable for standard use cases")
-                            : (isNb ? "Begrenset egnethet" : "Limited suitability")}
-                      </p>
                       <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
                         <Clock className="h-3 w-3" />
                         <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
