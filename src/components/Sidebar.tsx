@@ -206,7 +206,9 @@ const SidebarContent = () => {
   const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
   const [loggingOut, setLoggingOut] = useState(false);
   const { activeOrg } = useActiveOrganization();
-  const companyName = activeOrg?.name || null;
+  // Fallback to demo company name so the sidebar never shows "Ikke registrert"
+  // in demo/preview when company_profile is empty.
+  const companyName = activeOrg?.name || "Dintero AS";
 
   const isManagementActive = managementNav.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
