@@ -336,6 +336,7 @@ export default function Tasks() {
             </div>
             <Button
               size="sm"
+              variant="outline"
               className="gap-2 w-full sm:w-auto"
               onClick={() => setIsCreateOpen(true)}
             >
@@ -343,9 +344,55 @@ export default function Tasks() {
               Opprett oppgave
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground mb-6">
-            Automatisk genererte oppgaver basert på mangler Lara har oppdaget i dine systemer, leverandører og behandlingsaktiviteter.
-          </p>
+          {(() => {
+            const open = allTasks.filter((t) => t.status !== "fullført");
+            const counts = {
+              full: open.filter((t) => taskCapability(t) === "full").length,
+              assisted: open.filter((t) => taskCapability(t) === "assisted").length,
+              manual: open.filter((t) => taskCapability(t) === "manual").length,
+            };
+            const handleable = counts.full + counts.assisted;
+            return (
+              <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+                <p className="text-sm text-muted-foreground">
+                  Lara har funnet <strong className="text-foreground">{open.length}</strong> oppgaver.{" "}
+                  <strong className="text-foreground">{handleable}</strong> av dem kan hun løse for deg nå — med din godkjenning.
+                </p>
+                <AgentCapabilitySummary counts={counts} />
+              </div>
+            );
+          })()}
+
+          {/* Agentisk plan-banner — Mynders Lara-mønster */}
+          {(() => {
+            const planTasks = autoTasks
+              .filter((t) => t.aiDraftable && t.status !== "fullført")
+              .slice(0, 5)
+              .map(toPlanTask);
+            const criticalCount = autoTasks.filter((t) => t.priority === "høy").length;
+            const totalAgentic = autoTasks.filter((t) => t.aiDraftable && t.status !== "fullført").length;
+            return (
+              <div className="mb-6">
+                <LaraRecommendationBanner
+                  totalCount={totalAgentic}
+                  criticalCount={criticalCount}
+                  tasks={planTasks}
+                  hideDismiss
+                  onPrimaryAction={(planTask) => {
+                    const original = autoTasks.find((t) => t.id === planTask.id);
+                    if (original) handleLetLaraDo(original);
+                  }}
+                  onSecondaryAction={(planTask) => {
+                    const original = autoTasks.find((t) => t.id === planTask.id);
+                    if (original) {
+                      setExpandedTask(original.id);
+                      document.getElementById(`task-${original.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                  }}
+                />
+              </div>
+            );
+          })()}
 
           {/* Filters */}
           <div className="flex items-center gap-2 flex-wrap mb-6">
