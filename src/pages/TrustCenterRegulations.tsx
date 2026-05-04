@@ -258,6 +258,32 @@ export default function TrustCenterRegulations() {
     await executeToggleFramework(fw.id, false);
   };
 
+  const togglePublic = async (frameworkId: string, currentlyPublic: boolean) => {
+    const existing = selectedFrameworks.find((f) => f.framework_id === frameworkId);
+    if (!existing) return;
+    setUpdating(frameworkId);
+    try {
+      const { error } = await supabase
+        .from("selected_frameworks")
+        .update({ is_public: !currentlyPublic })
+        .eq("id", existing.id);
+      if (error) throw error;
+      setSelectedFrameworks((prev) =>
+        prev.map((f) => (f.id === existing.id ? { ...f, is_public: !currentlyPublic } : f))
+      );
+      toast({
+        title: !currentlyPublic ? "Synlig på Trust Profile" : "Skjult fra Trust Profile",
+        description: !currentlyPublic
+          ? "Regelverket vises nå offentlig på Trust Profilen din."
+          : "Regelverket er nå kun synlig internt.",
+      });
+    } catch (e) {
+      toast({ title: "Feil", description: "Kunne ikke oppdatere synlighet", variant: "destructive" });
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories((prev) => {
       const next = new Set(prev);
