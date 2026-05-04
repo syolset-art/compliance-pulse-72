@@ -159,9 +159,9 @@ export function SelfProfileMetadataRow({
                 </Button>
               </div>
             ) : f.type === "select" ? (
-              <Select value={asset.country || ""} onValueChange={handleCountryChange}>
+              <Select value={asset.country || demoCountry} onValueChange={handleCountryChange}>
                 <SelectTrigger className="h-7 text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded w-fit min-w-[80px]">
-                  <SelectValue placeholder="–" />
+                  <SelectValue placeholder={demoCountry} />
                 </SelectTrigger>
                 <SelectContent>
                   {COUNTRIES.map((c) => (
@@ -171,21 +171,17 @@ export function SelfProfileMetadataRow({
               </Select>
             ) : f.type === "url" ? (
               <div className="flex items-center gap-1 group">
-                {asset.url ? (
-                  <a
-                    href={asset.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-primary hover:underline flex items-center gap-1"
-                  >
-                    {getShortUrl(asset.url)}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                ) : (
-                  <span className="text-xs text-muted-foreground">–</span>
-                )}
+                <a
+                  href={asset.url || demoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                >
+                  {getShortUrl(asset.url || demoUrl)}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
                 <button
-                  onClick={() => startEdit("url", asset.url || "")}
+                  onClick={() => startEdit("url", asset.url || demoUrl)}
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <Pencil className="h-3 w-3 text-muted-foreground" />
@@ -208,9 +204,9 @@ export function SelfProfileMetadataRow({
           <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
             {isNb ? "KATEGORI" : "CATEGORY"}
           </p>
-          <Select value={asset.vendor_category || ""} onValueChange={handleCategoryChange}>
+          <Select value={asset.vendor_category || demoCategory} onValueChange={handleCategoryChange}>
             <SelectTrigger className="h-7 text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded w-fit min-w-[80px]">
-              <SelectValue placeholder={categoryLabel || "–"} />
+              <SelectValue placeholder={categoryLabel || "SaaS"} />
             </SelectTrigger>
             <SelectContent>
               {CATEGORIES.map((c) => (
