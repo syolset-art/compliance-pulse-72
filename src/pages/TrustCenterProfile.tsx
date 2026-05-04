@@ -102,8 +102,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     queryFn: async () => {
       const { data, error } = await supabase
         .from("selected_frameworks")
-        .select("framework_id, framework_name")
-        .eq("is_selected", true);
+        .select("framework_id, framework_name, is_public")
+        .eq("is_selected", true)
+        .eq("is_public", true);
       if (error) return [];
       return data || [];
     },
