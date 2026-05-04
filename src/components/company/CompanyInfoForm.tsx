@@ -139,6 +139,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         description: selfAsset?.description || "",
         compliance_officer: companyProfile.compliance_officer || "",
         compliance_officer_email: companyProfile.compliance_officer_email || "",
+        dpo_name: (companyProfile as any).dpo_name || "",
+        dpo_email: (companyProfile as any).dpo_email || "",
+        ciso_name: (companyProfile as any).ciso_name || "",
+        ciso_email: (companyProfile as any).ciso_email || "",
       });
     }
     setIsEditing(false);
