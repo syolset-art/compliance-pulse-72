@@ -113,13 +113,38 @@ export function MynderGuidanceTab({
       <AssetMaturityByDomainCard assetId={assetId} />
 
       {/* Tidslinje: aktiviteter over tid og påvirkning på modenhet */}
-      <Card>
-        <CardContent className="pt-5">
+      <Card className="border-primary/20">
+        <CardContent className="pt-5 space-y-4">
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-foreground">
+                {isNb ? "Modenhetsutvikling drevet av aktiviteter" : "Maturity driven by activities"}
+              </h3>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                {isNb
+                  ? "Hver markør på linjen er en aktivitet fra loggen under. Tiltak hever modenhet, hendelser senker den."
+                  : "Each marker on the line is an activity from the log below. Actions raise maturity, incidents lower it."}
+              </p>
+            </div>
+          </div>
+
           <MaturityHistoryChart
             assetId={assetId}
             baselinePercent={baselinePercent ?? 40}
             enrichmentPercent={enrichmentPercent ?? 20}
           />
+
+          <div className="flex items-center gap-2 pt-3 border-t border-border/60 text-[12px] text-muted-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary shrink-0"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+            <span>
+              {isNb
+                ? "Se hver enkelt aktivitet i aktivitetsloggen under."
+                : "See each individual activity in the activity log below."}
+            </span>
+          </div>
         </CardContent>
       </Card>
 
