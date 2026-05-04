@@ -204,9 +204,9 @@ export function SelfProfileMetadataRow({
           <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
             {isNb ? "KATEGORI" : "CATEGORY"}
           </p>
-          <Select value={asset.vendor_category || ""} onValueChange={handleCategoryChange}>
+          <Select value={asset.vendor_category || demoCategory} onValueChange={handleCategoryChange}>
             <SelectTrigger className="h-7 text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded w-fit min-w-[80px]">
-              <SelectValue placeholder={categoryLabel || "–"} />
+              <SelectValue placeholder={categoryLabel || "SaaS"} />
             </SelectTrigger>
             <SelectContent>
               {CATEGORIES.map((c) => (
