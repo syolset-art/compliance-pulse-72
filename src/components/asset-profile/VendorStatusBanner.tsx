@@ -295,13 +295,16 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
               )}
             </div>
 
-            {/* Donut */}
+            {/* Modenhet — tekst venstre, donut høyre */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
-              <Donut score={score} tone={status.tone} />
-              <div className="flex flex-col">
+              <div className="flex flex-col items-end text-right">
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Modenhet</span>
-                <span className="text-[11px] text-muted-foreground italic">{maturityLabel}</span>
+                <span className={`mt-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${maturityLevel.cls}`}>
+                  {maturityLevel.label}
+                </span>
+                <span className="mt-1 text-[11px] text-muted-foreground italic">{maturityLabel}</span>
               </div>
+              <Donut score={score} tone={status.tone} />
             </div>
           </div>
 
