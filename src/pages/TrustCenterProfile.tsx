@@ -1587,15 +1587,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               {/* Stats teaser */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="rounded-lg bg-muted/30 p-3 text-center">
-                  <p className="text-2xl font-bold text-foreground">0</p>
+                  <p className="text-2xl font-bold text-foreground">1 247</p>
                   <p className="text-[13px] text-muted-foreground">{isNb ? "Visninger" : "Views"}</p>
                 </div>
                 <div className="rounded-lg bg-muted/30 p-3 text-center">
-                  <p className="text-2xl font-bold text-foreground">0</p>
+                  <p className="text-2xl font-bold text-foreground">328</p>
                   <p className="text-[13px] text-muted-foreground">{isNb ? "Unike besøkende" : "Unique visitors"}</p>
                 </div>
                 <div className="rounded-lg bg-muted/30 p-3 text-center">
-                  <p className="text-2xl font-bold text-foreground">∞</p>
+                  <p className="text-2xl font-bold text-foreground">42</p>
                   <p className="text-[13px] text-muted-foreground">{isNb ? "Timer spart" : "Hours saved"}</p>
                 </div>
               </div>
