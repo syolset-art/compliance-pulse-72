@@ -144,6 +144,13 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
     return "data fryst";
   })();
 
+  // Qualitative maturity level — mirrors Donut tone
+  const maturityLevel = (() => {
+    if (score >= 75) return { label: "Høy", cls: "bg-success/10 text-success border-success/20" };
+    if (score >= 50) return { label: "Moderat", cls: "bg-warning/10 text-warning border-warning/20" };
+    return { label: "Lav", cls: "bg-destructive/10 text-destructive border-destructive/20" };
+  })();
+
   // Context banner (action row)
   const renderContextBanner = () => {
     if (status.key === "invited") {
