@@ -191,6 +191,52 @@ type CategoryFilter = "alle" | TaskCategory;
 
 const isHighRisk = (priority: TaskPriority) => priority === "høy";
 
+// Map task → 3-nivå AI-autonomi (Mynders agent-bibliotek)
+const taskCapability = (task: AutoTask): AgentCapability => {
+  if (!task.aiDraftable) return "manual";
+  return isHighRisk(task.priority) ? "assisted" : "full";
+};
+
+// Map AutoTask → LaraPlanTask for the agentic recommendation banner
+const toPlanTask = (task: AutoTask): LaraPlanTask => ({
+  id: task.id,
+  severity: task.priority === "høy" ? "critical" : task.priority === "middels" ? "high" : "medium",
+  title: task.title,
+  category: `${categoryConfig[task.category].label} · ${task.linkedEntity}`,
+  insight: task.aiAction || task.description,
+  primaryCtaLabelNb: task.aiDraftable ? "Be Lara håndtere det" : "Åpne oppgaven",
+  secondaryCtaLabelNb: "Åpne oppgaven",
+});
+
+// Stegvis arbeidsbeskrivelse for inline AI-working-panel
+const workingSteps = (task: AutoTask): string[] => {
+  const entity = task.linkedEntity;
+  if (task.title.includes("DPA")) return [
+    `Henter vilkår fra ${entity}`,
+    "Sammenligner med Mynders DPA-mal",
+    "Genererer utkast og fyller inn felter",
+    "Klar for gjennomgang",
+  ];
+  if (task.title.toLowerCase().includes("revisjon")) return [
+    `Henter konfigurasjon for ${entity}`,
+    "Bygger tilgangsoversikt og dataflyt",
+    "Genererer revisjonssjekkliste",
+    "Klar for gjennomgang",
+  ];
+  if (task.title.includes("DPIA")) return [
+    "Analyserer behandlingsaktivitetens egenskaper",
+    "Vurderer risiko og profileringsgrad",
+    "Genererer DPIA-utkast",
+    "Klar for gjennomgang",
+  ];
+  return [
+    `Henter data om ${entity}`,
+    "Analyserer mangler og kontekst",
+    "Genererer utkast",
+    "Klar for gjennomgang",
+  ];
+};
+
 // ── Component ──────────────────────────────────────────────
 export default function Tasks() {
   const { t } = useTranslation();
