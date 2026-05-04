@@ -235,29 +235,32 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                             </div>
                             {!isLast && <div className="w-px flex-1 bg-border min-h-[16px]" />}
                           </div>
-                          <div className="flex-1 pb-4">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="text-sm font-medium text-foreground">
-                                    {isNb ? act.titleNb : act.titleEn}
-                                  </p>
-                                  <Badge variant="outline" className={`text-[13px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
+                          <div className="flex-1 min-w-0 pb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 sm:gap-2">
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium text-foreground break-words">
+                                  {isNb ? act.titleNb : act.titleEn}
+                                </p>
+                                <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                                  <Badge variant="outline" className={`text-[11px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
                                     {isNb ? phaseConf.nb : phaseConf.en}
                                   </Badge>
                                   {act.linkedGapId && (
-                                    <Badge className="text-[13px] px-1.5 py-0 bg-success/15 text-success border border-success/20 hover:bg-success/20">
+                                    <Badge className="text-[11px] px-1.5 py-0 bg-success/15 text-success border border-success/20 hover:bg-success/20">
                                       {isNb ? "Lukker gap" : "Closes gap"}
                                     </Badge>
                                   )}
                                   {act.isManual && !act.linkedGapId && (
-                                    <Badge variant="outline" className="text-[13px] px-1.5 py-0 border-dashed text-muted-foreground">
+                                    <Badge variant="outline" className="text-[11px] px-1.5 py-0 border-dashed text-muted-foreground">
                                       {isNb ? "Manuell" : "Manual"}
                                     </Badge>
                                   )}
+                                  <span className="text-[11px] text-muted-foreground whitespace-nowrap sm:hidden">
+                                    · {formatRelativeDate(act.date, isNb)}
+                                  </span>
                                 </div>
                                 {act.actor && (
-                                  <p className="text-xs text-muted-foreground mt-0.5">
+                                  <p className="text-xs text-muted-foreground mt-1 break-words">
                                     <span className="font-medium text-foreground/80">{act.actor}</span>
                                     {act.actorRole && <span className="text-muted-foreground">, {act.actorRole}</span>}
                                   </p>
@@ -269,7 +272,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   />
                                 )}
                               </div>
-                              <div className="flex items-center gap-1.5 shrink-0">
+                              <div className="flex items-center gap-1.5 shrink-0 self-start">
                                 <button
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); toggleStatusEditor(act.id); }}
@@ -283,7 +286,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   {isNb ? statusConf.nb : statusConf.en}
                                   <ChevronDown className={cn("h-3 w-3 transition-transform", isStatusEditing && "rotate-180")} />
                                 </button>
-                                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                <span className="hidden sm:inline text-xs text-muted-foreground whitespace-nowrap">
                                   {formatRelativeDate(act.date, isNb)}
                                 </span>
                               </div>
