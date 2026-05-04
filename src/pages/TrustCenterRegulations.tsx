@@ -20,6 +20,8 @@ import {
   ShieldCheck,
   ToggleRight,
   CreditCard,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +50,7 @@ interface SelectedFramework {
   is_recommended: boolean;
   is_selected: boolean;
   notes: string | null;
+  is_public?: boolean;
 }
 
 interface CompanyProfile {
@@ -253,6 +256,32 @@ export default function TrustCenterRegulations() {
     const fw = purchaseFramework;
     setPurchaseFramework(null);
     await executeToggleFramework(fw.id, false);
+  };
+
+  const togglePublic = async (frameworkId: string, currentlyPublic: boolean) => {
+    const existing = selectedFrameworks.find((f) => f.framework_id === frameworkId);
+    if (!existing) return;
+    setUpdating(frameworkId);
+    try {
+      const { error } = await supabase
+        .from("selected_frameworks")
+        .update({ is_public: !currentlyPublic })
+        .eq("id", existing.id);
+      if (error) throw error;
+      setSelectedFrameworks((prev) =>
+        prev.map((f) => (f.id === existing.id ? { ...f, is_public: !currentlyPublic } : f))
+      );
+      toast({
+        title: !currentlyPublic ? "Synlig på Trust Profile" : "Skjult fra Trust Profile",
+        description: !currentlyPublic
+          ? "Regelverket vises nå offentlig på Trust Profilen din."
+          : "Regelverket er nå kun synlig internt.",
+      });
+    } catch (e) {
+      toast({ title: "Feil", description: "Kunne ikke oppdatere synlighet", variant: "destructive" });
+    } finally {
+      setUpdating(null);
+    }
   };
 
   const toggleCategory = (categoryId: string) => {
@@ -550,6 +579,37 @@ export default function TrustCenterRegulations() {
                           </div>
 
                           <div className="flex items-center gap-2 shrink-0 ml-3">
+                            {isActive && !(framework as any).comingSoon && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant={status?.is_public ? "default" : "outline"}
+                                    size="sm"
+                                    className="h-8 gap-1.5 px-2.5 text-xs"
+                                    onClick={() => togglePublic(framework.id, !!status?.is_public)}
+                                    disabled={updating === framework.id}
+                                  >
+                                    {status?.is_public ? (
+                                      <>
+                                        <Eye className="h-3.5 w-3.5" />
+                                        <span className="hidden sm:inline">Synlig offentlig</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <EyeOff className="h-3.5 w-3.5" />
+                                        <span className="hidden sm:inline">Kun internt</span>
+                                      </>
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {status?.is_public
+                                    ? "Vises på offentlig Trust Profile. Klikk for å skjule."
+                                    : "Kun synlig internt. Klikk for å vise på Trust Profilen."}
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
                             {isMandatory ? (
                               <Tooltip>
                                 <TooltipTrigger>

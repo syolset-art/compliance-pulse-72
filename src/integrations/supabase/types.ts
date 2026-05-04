@@ -2602,6 +2602,7 @@ export type Database = {
           id: string
           included_in_plan: boolean | null
           is_mandatory: boolean | null
+          is_public: boolean
           is_recommended: boolean | null
           is_selected: boolean | null
           notes: string | null
@@ -2616,6 +2617,7 @@ export type Database = {
           id?: string
           included_in_plan?: boolean | null
           is_mandatory?: boolean | null
+          is_public?: boolean
           is_recommended?: boolean | null
           is_selected?: boolean | null
           notes?: string | null
@@ -2630,6 +2632,7 @@ export type Database = {
           id?: string
           included_in_plan?: boolean | null
           is_mandatory?: boolean | null
+          is_public?: boolean
           is_recommended?: boolean | null
           is_selected?: boolean | null
           notes?: string | null
