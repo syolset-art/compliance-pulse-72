@@ -171,21 +171,17 @@ export function SelfProfileMetadataRow({
               </Select>
             ) : f.type === "url" ? (
               <div className="flex items-center gap-1 group">
-                {asset.url ? (
-                  <a
-                    href={asset.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-primary hover:underline flex items-center gap-1"
-                  >
-                    {getShortUrl(asset.url)}
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                ) : (
-                  <span className="text-xs text-muted-foreground">–</span>
-                )}
+                <a
+                  href={asset.url || demoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                >
+                  {getShortUrl(asset.url || demoUrl)}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
                 <button
-                  onClick={() => startEdit("url", asset.url || "")}
+                  onClick={() => startEdit("url", asset.url || demoUrl)}
                   className="opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <Pencil className="h-3 w-3 text-muted-foreground" />
