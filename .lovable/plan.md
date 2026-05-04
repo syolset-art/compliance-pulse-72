@@ -1,93 +1,66 @@
-## Mål
-Sørge for at Trust Profile alltid viser status på de tre obligatoriske artefaktene en kjøper alltid spør etter, og at brukeren enkelt kan legge dem til (lenke eller opplastet fil) fra Dokumentasjon-siden i Trust Center.
+# Les og godkjenn dokument — full flyt med Lara-vurdering
 
-## De tre minimumskravene
-1. **Personvernpolicy** — lenke eller opplastet dokument
-2. **Databehandleravtale (DPA)** — lenke, opplastet dokument, eller markert som "tilgjengelig på forespørsel"
-3. **Sikkerhetssertifisering ELLER security whitepaper** — minst én av: ISO 27001 / SOC 2 / ISAE 3402-sertifisering, eller egenerklært security whitepaper (lenke/dokument)
+I dag åpner "Les og godkjenn dokument" bare et lite Lara-utkast i aktivitetsraden. Vi gjør om dette til en tydelig 4-stegs dialog som speiler hva Mynder faktisk gjør med dokumentet.
 
-Hvis noen av disse mangler, skal det vises **synlig som "Ikke dokumentert"** — ikke skjules.
+## Terminologivalg: «Berikelse»
 
-## Nåsituasjon
-- `TrustCenterProfile.tsx` viser i dag policies/certs/documents gruppert, men har ingen eksplisitt "må-ha"-sjekkliste. Manglende dokumenter er kun synlige som "Nothing visible yet" inni en kollapsbar seksjon.
-- DPA-statusen finnes som `meta.dpa_verified` (boolean), men ingen lenke/fil-felt.
-- `TrustCenterEvidence.tsx` (Dokumentasjon-undermenyen) lar deg laste opp filer, men har ingen quick-action for å legge inn en **lenke** til en eksisterende, offentlig policy (vanlig for personvernpolicy som ofte ligger på selskapets nettside).
+Etablert ord i Mynder (brukes i `enrichmentPercent`, `MynderGuidanceTab`, `BulkGapAnalysisDialog`). Andre vurderte alternativer:
 
-## Endringer
+- **Kunnskapsgrunnlag** — for langt, mindre presist
+- **Datakilde / Kilde** — teknisk, men mister koblingen til at det *forbedrer* analysen
+- **Bevis / Evidens** — kolliderer med "Evidence level" i Trust-terminologien
+- **Innsikt** — for vag
 
-### 1. Utvid `vendor_documents` med URL og "on request"-flagg (migrasjon)
-Legg til to nullable kolonner slik at lenker kan registreres på linje med opplastede filer:
-- `external_url text` — direktelenke til en publisert policy (f.eks. https://acme.no/personvern)
-- `available_on_request boolean default false` — DPA-spesifikk: "tilgjengelig på forespørsel"
+**Konklusjon:** behold **«Berikelse»** som primærord, men forklar det første gang i dialogen: *"Berikelse betyr at Lara bruker dokumentet som kilde i fremtidige analyser av leverandøren."* Dette holder konsistent språk på tvers av modulene.
 
-Eksisterende `file_path` blir nullable i praksis (vi sender tom streng i dag — dette gjøres ved at vi bruker `external_url` når fil mangler).
+## Ny flyt — 4 steg i én dialog
 
-### 2. Ny komponent `RequiredArtifactsBlock`
-Ny fil: `src/components/trust-center/RequiredArtifactsBlock.tsx`. Viser de tre må-ha-kravene som tre rader øverst i Dokumentasjon-seksjonen på Trust Profile:
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ Påkrevde dokumenter for kjøpere                             │
-├─────────────────────────────────────────────────────────────┤
-│ ✓ Personvernpolicy            → Åpne (lenke til acme.no)    │
-│ ⚠ Databehandleravtale          [ Ikke dokumentert ] [Legg til]│
-│ ✓ Sikkerhetssertifisering      ISO 27001:2022               │
-└─────────────────────────────────────────────────────────────┘
+```text
+[1 Les]  →  [2 Lara analyserer]  →  [3 Foreslått påvirkning]  →  [4 Lagt til]
+ Sammendrag    Spinner ~1 sek         Kontroller / modenhet /     Bekreftelse
+ + Godkjenn                           risiko + "Legg til som      + toast
+                                       berikelse"-knapp
 ```
 
-Logikk for hver rad:
-- **Privacy Policy:** `documented = vendorDocs.some(d => d.document_type === "privacy_policy")` (lenke eller fil)
-- **DPA:** `documented = vendorDocs.some(d => ["agreement","dpa"].includes(d.category) || d.document_type==="agreement" && d.display_name kontains "DPA"/"databehandler")` ELLER `meta.dpa_on_request`
-- **Sikkerhet:** `documented = certs.length > 0 || vendorDocs.some(d => d.document_type === "security_policy" || d.document_type === "security_whitepaper")`
+**Steg 1 — Les og godkjenn**
+- Lara's sammendrag (3 nøkkelpunkter trukket ut av dokumentet)
+- Info-tekst: *"Når du godkjenner, vurderer Lara hvordan dokumentet påvirker leverandørens analyse — du bestemmer deretter om det skal brukes som berikelse."*
+- Knapper: **Avbryt** · **Godkjenn dokument**
 
-Status-pille:
-- ✓ "Dokumentert" (success-grønn) med visning av kilden (lenke-ikon eller filnavn)
-- ⚠ "Ikke dokumentert" (warning-oransje) med CTA "Legg til" som åpner Dokumentasjon-siden med riktig dialog forhåndsfylt
+**Steg 2 — Lara analyserer (~1 sek)**
+- Pulserende Sparkles-ikon + spinner
+- Tekst: *"Lara vurderer påvirkning på kontroller, modenhet og risiko …"*
 
-### 3. Trust Profile (`TrustCenterProfile.tsx`)
-- Sett inn `<RequiredArtifactsBlock />` øverst i "DOKUMENTASJON OG BEVIS"-seksjonen (linje 513) — over den eksisterende kollapsbare gruppeoversikten.
-- Gjør det samme i preview-varianten rundt linje 1240.
-- Oppdater "Sammendrag"-tellerne (linje 496–508) til å vise en ny "Må-ha 2/3"-teller i stedet for kun DPA-status, slik at kjøperen ser umiddelbart om profilen mangler noe kritisk.
+**Steg 3 — Foreslått påvirkning**
+- Kort i primær-tone med tre konkrete punkter:
+  - `ShieldCheck` Påvirker 4 kontroller i området «Tredjepart»
+  - `TrendingUp` Foreslår modenhet «Databehandleravtaler»: 2 → 3
+  - `↓` Senker avledet risiko: Middels → Lav
+- Forklaring av berikelse (én setning)
+- Knapper: **Ikke nå** · **Legg til som berikelse**
 
-### 4. Dokumentasjon-siden (`TrustCenterEvidence.tsx`)
-Legg til en sticky toppseksjon "Påkrevd dokumentasjon" (over de eksisterende Policies/Certs/Documents-listene):
-- Tre rader med samme status som Trust Profile (✓ / ⚠).
-- Hver rad har to handlinger:
-  - **Lim inn lenke** → liten input + "Lagre" knapp (oppretter en `vendor_documents`-rad med `external_url` satt og tom `file_path`)
-  - **Last opp fil** → åpner eksisterende `AddEvidenceDialog` med dokumenttype forhåndsvalgt
-- For DPA: tilleggsvalg "Tilgjengelig på forespørsel" som setter `meta.dpa_on_request = true` på self-asset.
+**Steg 4 — Ferdig**
+- Grønn check + "Berikelse lagt til"
+- Sonner-toast: *"Lagt til som berikelse — Lara bruker nå dokumentet som kilde i leverandøranalysen."*
+- Dialog lukker seg automatisk etter ~0.9 sek
 
-### 5. Utvid `AddEvidenceDialog.tsx`
-- Legg til en `defaultDocumentType?: string`-prop slik at vi kan åpne dialogen med riktig type forhåndsvalgt fra "Legg til"-knappene.
-- Legg til en "Lim inn lenke i stedet for fil"-modus som setter `external_url` og hopper over storage-opplasting.
-- Legg til ny subtype `security_whitepaper` (cat: certification eller egen kategori).
+## Filer som endres
 
-### 6. Visning av lenke-baserte dokumenter
-Der vendor_documents listes (Trust Profile + Evidence), endre rad-handlingen slik at:
-- Hvis `external_url` er satt: åpne lenken i ny fane (med ekstern-ikon).
-- Ellers: bruk dagens signed-URL preview.
+**Ny fil:** `src/components/asset-profile/ApproveDocumentDialog.tsx`
+- Stateful dialog som håndterer alle 4 steg internt
+- Props: `open`, `onOpenChange`, `activity`, `onApproved`, `onAddedAsEnrichment`
+- Bruker `sonner` toast for bekreftelse
+- i18n NB/EN
 
-### 7. i18n-nøkler (NB/EN)
-- `trust.required.title` → "Påkrevde dokumenter for kjøpere" / "Required documents for buyers"
-- `trust.required.privacy` → "Personvernpolicy" / "Privacy Policy"
-- `trust.required.dpa` → "Databehandleravtale" / "Data Processing Agreement"
-- `trust.required.security` → "Sikkerhetssertifisering eller whitepaper" / "Security certification or whitepaper"
-- `trust.required.documented` → "Dokumentert" / "Documented"
-- `trust.required.missing` → "Ikke dokumentert" / "Not documented"
-- `trust.required.onRequest` → "Tilgjengelig på forespørsel" / "Available on request"
-- `trust.required.addLink` → "Legg til lenke" / "Add link"
-- `trust.required.addFile` → "Last opp fil" / "Upload file"
+**Endres:** `src/components/asset-profile/ActivityActionAffordance.tsx`
+- For `activity.type === "document"`: erstatt dagens inline-popover med å åpne den nye dialogen
+- Når `onApproved` triggres → marker aktiviteten som `closed` (via eksisterende `onLaraStart`-callback eller ny `onApproved`-callback)
+- Andre aktivitetstyper beholder dagens flyt uendret
 
-## Tekniske detaljer
-- **Migrasjon:** `ALTER TABLE public.vendor_documents ADD COLUMN external_url text, ADD COLUMN available_on_request boolean DEFAULT false; ALTER TABLE public.vendor_documents ALTER COLUMN file_path DROP NOT NULL;`
-- **Ingen RLS-endringer** — bruker eksisterende policies.
-- **`AddEvidenceDialog` insert** må håndtere både `file_path` (opplasting) og `external_url` (lenke). For lenker: sett `file_name = external_url`, `file_path = ''`, `external_url = url`, `status = "verified"`.
-- **DPA on-request:** lagres i `assets.metadata.dpa_on_request` på self-asset (samme mønster som `dpa_verified`).
+**Lett endring:** `src/components/asset-profile/tabs/VendorActivityTab.tsx`
+- Hvis vi trenger en ny callback (`onAddedAsEnrichment`) for å oppdatere `enrichmentPercent` lokalt, sendes den ned via `ActivityActionAffordance`. Foreløpig holder vi oss til en toast og lar Lara-jobben vise seg via eksisterende statusoppdatering.
 
-## Filer som påvirkes
-- Ny: `src/components/trust-center/RequiredArtifactsBlock.tsx`
-- `src/pages/TrustCenterProfile.tsx` (sett inn blokken to steder)
-- `src/pages/TrustCenterEvidence.tsx` (sticky toppseksjon)
-- `src/components/trust-center/AddEvidenceDialog.tsx` (defaultDocumentType + lenke-modus + security_whitepaper-type)
-- `src/lib/trustDocumentTypes.ts` (legg til `security_whitepaper`)
-- Ny migrasjon for `vendor_documents`
+## Designnotater
+- Bruker semantiske tokens (`bg-primary/5`, `text-success`, `border-primary/20`) — ingen hardkodede farger
+- Apple-minimal: én dialog, tydelige steg, ingen skjemafelter
+- WCAG: ikoner har tekst ved siden av seg, knapper har klare labels
