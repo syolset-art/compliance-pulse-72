@@ -159,9 +159,9 @@ export function SelfProfileMetadataRow({
                 </Button>
               </div>
             ) : f.type === "select" ? (
-              <Select value={asset.country || ""} onValueChange={handleCountryChange}>
+              <Select value={asset.country || demoCountry} onValueChange={handleCountryChange}>
                 <SelectTrigger className="h-7 text-xs bg-transparent border-none shadow-none p-0 hover:bg-muted/50 rounded w-fit min-w-[80px]">
-                  <SelectValue placeholder="–" />
+                  <SelectValue placeholder={demoCountry} />
                 </SelectTrigger>
                 <SelectContent>
                   {COUNTRIES.map((c) => (
