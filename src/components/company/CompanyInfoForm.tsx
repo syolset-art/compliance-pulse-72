@@ -86,6 +86,15 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
   const handleSave = async () => {
     if (!companyProfile) return;
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!form.dpo_email.trim() || !emailRe.test(form.dpo_email.trim())) {
+      toast.error("Personvern/DPO-kontakt e-post er påkrevd og må være gyldig");
+      return;
+    }
+    if (!form.ciso_email.trim() || !emailRe.test(form.ciso_email.trim())) {
+      toast.error("Sikkerhetskontakt e-post er påkrevd og må være gyldig");
+      return;
+    }
     setSaving(true);
     try {
       const { error: profileErr } = await supabase
@@ -99,6 +108,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           employees: form.employees,
           compliance_officer: form.compliance_officer,
           compliance_officer_email: form.compliance_officer_email,
+          dpo_name: form.dpo_name,
+          dpo_email: form.dpo_email,
+          ciso_name: form.ciso_name,
+          ciso_email: form.ciso_email,
         } as any)
         .eq("id", companyProfile.id);
       if (profileErr) throw profileErr;
