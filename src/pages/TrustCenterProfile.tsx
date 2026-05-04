@@ -1018,7 +1018,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <Eye className="h-4 w-4" />
                         <span>
                           {isNb ? "Profilvisninger: " : "Profile views: "}
-                          <span className="font-semibold text-foreground">—</span>
+                          <span className="font-semibold text-foreground">1 247</span>
                         </span>
                       </div>
 
