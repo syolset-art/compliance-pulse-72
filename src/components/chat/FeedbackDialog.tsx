@@ -229,12 +229,11 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
 
               <div className="flex gap-2">
                 <Button onClick={handleClose} variant="outline" className="flex-1">
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  {isNb ? "Det holder!" : "That works!"}
+                  {isNb ? "Nei takk" : "No thanks"}
                 </Button>
-                <Button onClick={handleEscalate} variant="secondary" className="flex-1">
+                <Button onClick={handleEscalate} className="flex-1">
                   <UserRound className="h-4 w-4 mr-2" />
-                  {isNb ? "Snakk med rådgiver" : "Talk to advisor"}
+                  {isNb ? "Ja, ta kontakt" : "Yes, contact me"}
                 </Button>
               </div>
             </div>
@@ -261,10 +260,18 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                 </label>
                 <Input
                   type="email"
-                  value={contactEmail}
+                  value={contactEmail || suggestedEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder="navn@firma.no"
+                  placeholder={suggestedEmail || "navn@firma.no"}
                 />
+                {suggestedEmail && (
+                  <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    {isNb
+                      ? `Lara foreslår e-posten du er logget inn med (${suggestedEmail}). Endre om nødvendig.`
+                      : `Lara suggests the email you're signed in with (${suggestedEmail}). Change if needed.`}
+                  </p>
+                )}
               </div>
 
               <div className="rounded-lg bg-muted/30 border border-border p-3 text-sm text-muted-foreground space-y-1">
