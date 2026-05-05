@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import {
   Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
   Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users,
@@ -98,52 +98,6 @@ const TrustCenterEditProfile = () => {
   const selectedAreasEarly: string[] = assetMeta.business_areas || [];
   const selectedServiceCatsEarly: string[] = assetMeta.service_categories || [];
 
-  // AI-suggested GDPR role based on service categories
-  const suggestedRole = useMemo(() => {
-    if (selectedServiceCatsEarly.length === 0) return null;
-    const hasSaas = selectedServiceCatsEarly.includes("saas");
-    const hasInfra = selectedServiceCatsEarly.includes("infra");
-    const hasConsulting = selectedServiceCatsEarly.includes("consulting");
-    const hasDigital = selectedServiceCatsEarly.includes("digital");
-
-    if ((hasSaas || hasInfra) && !hasConsulting) {
-      return {
-        role: "sub_processor" as const,
-        labelNb: "Databehandler",
-        labelEn: "Data Processor",
-        reasonNb: "Virksomheter som leverer SaaS eller infrastruktur behandler som regel data på vegne av kundene sine.",
-        reasonEn: "Companies providing SaaS or infrastructure typically process data on behalf of their customers.",
-      };
-    }
-    if (hasConsulting && !hasSaas && !hasInfra) {
-      return {
-        role: "processor" as const,
-        labelNb: "Behandlingsansvarlig",
-        labelEn: "Data Controller",
-        reasonNb: "Konsulentvirksomheter bestemmer ofte selv formål og middel for behandling av persondata.",
-        reasonEn: "Consulting firms typically determine the purpose and means of processing personal data.",
-      };
-    }
-    if ((hasSaas || hasInfra || hasDigital) && hasConsulting) {
-      return {
-        role: "both" as const,
-        labelNb: "Begge roller",
-        labelEn: "Both roles",
-        reasonNb: "Med både tjenesteprodukter og rådgivning vil dere typisk ha begge roller avhengig av kundeavtale.",
-        reasonEn: "With both service products and consulting, you'll typically have both roles depending on the agreement.",
-      };
-    }
-    if (hasDigital) {
-      return {
-        role: "both" as const,
-        labelNb: "Begge roller",
-        labelEn: "Both roles",
-        reasonNb: "Digitale tjenester innebærer ofte en kombinasjon av egne og kunders data.",
-        reasonEn: "Digital services often involve a combination of your own and customers' data.",
-      };
-    }
-    return null;
-  }, [selectedServiceCatsEarly]);
 
   const slug = useMemo(() => {
     const base = (companyProfile?.name || asset?.name || "")
@@ -211,7 +165,7 @@ const TrustCenterEditProfile = () => {
   const meta = (asset?.metadata || {}) as Record<string, any>;
   const selectedAreas: string[] = meta.business_areas || [];
   const selectedServiceCats: string[] = meta.service_categories || [];
-  const gdprRole: string = meta.gdpr_data_role || "processor";
+  
   const customServiceType: string = meta.custom_service_type || "";
   const serviceDescription: string = meta.service_description || "";
 
@@ -482,54 +436,6 @@ const TrustCenterEditProfile = () => {
                   </div>
                 </div>
               </Card>
-
-              {/* Din rolle i datahåndtering */}
-              <Card className="p-5 space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">
-                  {isNb ? "Din rolle i datahåndtering" : "Your role in data handling"}
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  {isNb
-                    ? "Din rolle bestemmer hvilke personvernkrav som gjelder i Trust Profilen din."
-                    : "Your role determines which privacy requirements apply in your Trust Profile."}
-                </p>
-
-                {/* AI suggestion */}
-                {suggestedRole && (
-                  <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                    <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-foreground">
-                        {isNb ? "Anbefalt rolle: " : "Recommended role: "}
-                        <span className="text-primary">{isNb ? suggestedRole.labelNb : suggestedRole.labelEn}</span>
-                      </p>
-                      <p className="text-[13px] text-muted-foreground">
-                        {isNb ? suggestedRole.reasonNb : suggestedRole.reasonEn}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <RadioGroup defaultValue={gdprRole} className="space-y-2">
-                  {[
-                    { value: "processor", labelNb: "Behandlingsansvarlig", labelEn: "Data Controller", descNb: "Vi bestemmer formål og middel for behandling av personopplysninger.", descEn: "We determine the purpose and means of processing personal data." },
-                    { value: "sub_processor", labelNb: "Databehandler", labelEn: "Data Processor", descNb: "Vi behandler personopplysninger på vegne av andre virksomheter.", descEn: "We process personal data on behalf of other organizations." },
-                    { value: "both", labelNb: "Begge roller", labelEn: "Both roles", descNb: "Vi har begge roller avhengig av tjeneste eller kundeavtale.", descEn: "We have both roles depending on service or agreement." },
-                  ].map(role => (
-                    <label
-                      key={role.value}
-                      className="flex items-start gap-3 rounded-lg border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
-                    >
-                      <RadioGroupItem value={role.value} className="mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{isNb ? role.labelNb : role.labelEn}</p>
-                        <p className="text-xs text-muted-foreground">{isNb ? role.descNb : role.descEn}</p>
-                      </div>
-                    </label>
-                  ))}
-                </RadioGroup>
-              </Card>
-
 
             </section>
 
