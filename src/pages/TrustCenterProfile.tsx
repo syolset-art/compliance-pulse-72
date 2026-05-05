@@ -1228,59 +1228,74 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <div className="border-t border-border" />
 
                   {/* ── Dokumentasjon og bevis ── */}
-                  <section className="space-y-3">
-                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                      {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
-                    </h3>
-                    
-                    <div className="space-y-5 pt-1">
-                      {[
-                        { key: "policies", label: isNb ? "Retningslinjer" : "Policies", items: policies },
-                        { key: "certs", label: isNb ? "Sertifiseringer" : "Certifications", items: certs },
-                        { key: "documents", label: isNb ? "Dokumenter" : "Documents", items: otherDocs },
-                      ].map(group => (
-                        <div key={group.key} className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{group.label}</h4>
-                            {group.items.length > 0 && (
-                              <span className="text-[11px] text-muted-foreground/70">({group.items.length})</span>
+                  <section className="rounded-xl border border-border bg-card overflow-hidden">
+                    <button
+                      onClick={() => setDocsSectionOpen(o => !o)}
+                      className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-muted/40 transition-colors text-left"
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" />
+                        <h3 className="text-sm font-semibold text-foreground">
+                          {isNb ? "Dokumentasjon og bevis" : "Documentation and evidence"}
+                        </h3>
+                        {(policies.length + certs.length + otherDocs.length) > 0 && (
+                          <Badge variant="secondary" className="text-[11px] rounded-full px-2">
+                            {policies.length + certs.length + otherDocs.length}
+                          </Badge>
+                        )}
+                      </div>
+                      {docsSectionOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                    </button>
+                    {docsSectionOpen && (
+                      <div className="px-5 pb-5 pt-1 space-y-5 border-t border-border">
+                        {[
+                          { key: "policies", label: isNb ? "Retningslinjer" : "Policies", items: policies },
+                          { key: "certs", label: isNb ? "Sertifiseringer" : "Certifications", items: certs },
+                          { key: "documents", label: isNb ? "Dokumenter" : "Documents", items: otherDocs },
+                        ].map(group => (
+                          <div key={group.key} className="space-y-2 pt-3">
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{group.label}</h4>
+                              {group.items.length > 0 && (
+                                <span className="text-[11px] text-muted-foreground/70">({group.items.length})</span>
+                              )}
+                            </div>
+                            {group.items.length === 0 ? (
+                              <p className="text-xs text-muted-foreground/70 italic px-1">
+                                {isNb ? "Ingen publisert." : "None published."}
+                              </p>
+                            ) : (
+                              <div className="space-y-1.5">
+                                {group.items.map((doc: any) => {
+                                  const content = (
+                                    <>
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                        <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                        <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        {doc.status && (
+                                          <Badge variant={doc.status === "verified" ? "default" : "outline"} className="text-[13px]">
+                                            {doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}
+                                          </Badge>
+                                        )}
+                                        {doc.external_url && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
+                                      </div>
+                                    </>
+                                  );
+                                  const cls = "w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left";
+                                  return doc.external_url ? (
+                                    <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
+                                  ) : (
+                                    <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
+                                  );
+                                })}
+                              </div>
                             )}
                           </div>
-                          {group.items.length === 0 ? (
-                            <p className="text-xs text-muted-foreground/70 italic px-1">
-                              {isNb ? "Ingen publisert." : "None published."}
-                            </p>
-                          ) : (
-                            <div className="space-y-1.5">
-                              {group.items.map((doc: any) => {
-                                const content = (
-                                  <>
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                      <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                      <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                      {doc.status && (
-                                        <Badge variant={doc.status === "verified" ? "default" : "outline"} className="text-[13px]">
-                                          {doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}
-                                        </Badge>
-                                      )}
-                                      {doc.external_url && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
-                                    </div>
-                                  </>
-                                );
-                                const cls = "w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left";
-                                return doc.external_url ? (
-                                  <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
-                                ) : (
-                                  <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </section>
 
                   <div className="border-t border-border" />
