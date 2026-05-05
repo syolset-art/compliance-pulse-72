@@ -533,25 +533,16 @@ const TrustCenterEditProfile = () => {
 
             </section>
 
-
-
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Produkter og tjenester */}
-            {/* ═══════════════════════════════════════════ */}
             {/* Compact link to Products & Services */}
             <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-4">
               <div className="flex items-center gap-3">
                 <Package className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-foreground">
-                    {isNb
-                      ? "Har du flere produkter eller tjenester?"
-                      : "Do you have additional products or services?"}
+                    {isNb ? "Har du flere produkter eller tjenester?" : "Do you have additional products or services?"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {isNb
-                      ? "Du kan opprette egne Trust Profiler for disse — helt valgfritt."
-                      : "You can create separate Trust Profiles for these — completely optional."}
+                    {isNb ? "Du kan opprette egne Trust Profiler for disse — helt valgfritt." : "You can create separate Trust Profiles for these — completely optional."}
                   </p>
                 </div>
               </div>
@@ -560,6 +551,11 @@ const TrustCenterEditProfile = () => {
                 <ChevronDown className="h-3 w-3 -rotate-90" />
               </Button>
             </div>
+
+            {/* NYE SEKSJONER */}
+            <ContactsSection asset={asset} />
+            <DataStorageSection asset={asset} />
+            <PrivacySection asset={asset} />
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Sikkerhet og kontroller */}
