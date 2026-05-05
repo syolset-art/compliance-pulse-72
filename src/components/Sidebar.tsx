@@ -619,6 +619,7 @@ const SidebarContent = () => {
                 {partnerOpen && (
                   <div className="ml-4 space-y-1">
                     {[
+                      { name: "Bli Partner", href: "/bli-partner", icon: Sparkles },
                       { name: "Dashbord", href: "/msp-partner", icon: LayoutDashboard },
                       { name: "Kunder", href: "/msp-dashboard", icon: Users },
                       { name: "Faktura", href: "/msp-invoices", icon: FileText },
