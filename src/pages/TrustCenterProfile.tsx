@@ -504,6 +504,61 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
             <div className="border-t border-border" />
 
+            {/* Contacts */}
+            {(() => {
+              const contacts = [
+                {
+                  role: isNb ? "Generell kontakt" : "General contact",
+                  icon: MessageSquare,
+                  name: asset?.contact_person,
+                  email: asset?.contact_email,
+                },
+                {
+                  role: isNb ? "Personvernansvarlig (DPO)" : "Data Protection Officer (DPO)",
+                  icon: Shield,
+                  name: asset?.privacy_contact_name || companyProfile?.dpo_name,
+                  email: asset?.privacy_contact_email || companyProfile?.dpo_email,
+                },
+                {
+                  role: isNb ? "Sikkerhetsansvarlig (CISO)" : "Security Officer (CISO)",
+                  icon: Lock,
+                  name: asset?.security_contact_name || companyProfile?.ciso_name,
+                  email: asset?.security_contact_email || companyProfile?.ciso_email,
+                },
+              ].filter(c => c.name || c.email);
+              if (contacts.length === 0) return null;
+              return (
+                <>
+                  <section className="rounded-xl border border-border bg-card overflow-hidden">
+                    <div className="px-5 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
+                      <Users className="h-4 w-4 text-primary" />
+                      <h3 className="text-sm font-semibold">{isNb ? "Kontakter" : "Contacts"}</h3>
+                    </div>
+                    <div className="divide-y divide-border">
+                      {contacts.map((c, i) => {
+                        const Icon = c.icon;
+                        return (
+                          <div key={i} className="px-5 py-3 flex items-center gap-4">
+                            <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{c.role}</p>
+                              <p className="text-sm font-medium text-foreground truncate">{c.name || (isNb ? "Ikke oppgitt" : "Not provided")}</p>
+                            </div>
+                            {c.email && (
+                              <a href={`mailto:${c.email}`} className="text-xs text-primary hover:underline shrink-0 truncate">
+                                {c.email}
+                              </a>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                  <div className="border-t border-border" />
+                </>
+              );
+            })()}
+
             {/* Documentation */}
             <section className="rounded-xl border border-border bg-card overflow-hidden">
               <button
