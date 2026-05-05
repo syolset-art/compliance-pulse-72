@@ -495,7 +495,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   label: isNb ? "Personvernkontakt (DPO)" : "Privacy contact (DPO)",
                   sub: isNb ? "For registrertes rettigheter under GDPR" : "For data subject rights under GDPR",
                   primary: { text: privacyEmail, href: `mailto:${privacyEmail}` },
-                  secondary: { text: isNb ? "Send DSAR" : "Send DSAR", href: `mailto:${privacyEmail}?subject=${encodeURIComponent(isNb ? "Innsynsbegjæring (DSAR)" : "Data Subject Access Request")}` },
                 },
                 securityEmail && {
                   label: isNb ? "Sikkerhetskontakt" : "Security contact",
