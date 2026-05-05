@@ -15,7 +15,7 @@ import {
   Shield, Eye, Share2, Settings, CheckCircle2, AlertTriangle, XCircle,
   ChevronDown, ChevronUp, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
-  Sparkles, Zap, Server, Package, ArrowRight,
+  Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -530,33 +530,32 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     {expandedDoc === item.key && (
                       <div className="mt-1.5 ml-5 space-y-1">
                         {item.items.length === 0 ? (
-                          <button
-                            onClick={() => navigate("/trust-center/evidence")}
-                            className="w-full text-left px-4 py-3 rounded-lg border border-dashed border-border hover:border-primary/40 hover:bg-muted/30 transition-colors group"
-                          >
-                            <p className="text-xs text-muted-foreground group-hover:text-foreground">
-                              {isNb
-                                ? "Ingen synlige her ennå. Gå til Dokumentasjon for å gjøre dokumenter offentlige."
-                                : "Nothing visible yet. Go to Documentation to make documents public."}
+                          <div className="w-full text-left px-4 py-3 rounded-lg border border-dashed border-border">
+                            <p className="text-xs text-muted-foreground italic">
+                              {isNb ? "Ingen dokumenter publisert i denne kategorien." : "No documents published in this category."}
                             </p>
-                          </button>
+                          </div>
                         ) : (
-                          item.items.map((doc: any) => (
-                            <button
-                              key={doc.id}
-                              onClick={() => setPreviewDoc(doc)}
-                              className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left"
-                            >
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                {doc.status && <Badge variant={doc.status === "verified" ? "default" : "outline"} className="text-[13px]">{doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}</Badge>}
-                                {doc.expiry_date && <span className="text-[13px] text-muted-foreground">{isNb ? "Utløper" : "Expires"} {new Date(doc.expiry_date).toLocaleDateString()}</span>}
-                              </div>
-                            </button>
-                          ))
+                          item.items.map((doc: any) => {
+                            const content = (
+                              <>
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                  <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  {doc.status && <Badge variant={doc.status === "verified" ? "default" : "outline"} className="text-[13px]">{doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}</Badge>}
+                                  {doc.external_url && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
+                                </div>
+                              </>
+                            );
+                            const cls = "w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left";
+                            return doc.external_url ? (
+                              <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
+                            ) : (
+                              <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
+                            );
+                          })
                         )}
                       </div>
                     )}
@@ -1254,44 +1253,39 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           {expandedDoc === item.key && (
                             <div className="mt-1.5 ml-5 space-y-1">
                               {item.items.length === 0 ? (
-                                <button
-                                  onClick={() => navigate("/trust-center/evidence")}
-                                  className="w-full text-left px-4 py-3 rounded-lg border border-dashed border-border hover:border-primary/40 hover:bg-muted/30 transition-colors group"
-                                >
-                                  <p className="text-xs text-muted-foreground group-hover:text-foreground">
-                                    {isNb
-                                      ? "Ingen synlige her ennå. Gå til Dokumentasjon for å gjøre dokumenter offentlige."
-                                      : "Nothing visible yet. Go to Documentation to make documents public."}
+                                <div className="w-full text-left px-4 py-3 rounded-lg border border-dashed border-border">
+                                  <p className="text-xs text-muted-foreground italic">
+                                    {isNb ? "Ingen dokumenter publisert i denne kategorien." : "No documents published in this category."}
                                   </p>
-                                </button>
+                                </div>
                               ) : (
-                                item.items.map((doc: any) => (
-                                  <button
-                                    key={doc.id}
-                                    onClick={() => setPreviewDoc(doc)}
-                                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left"
-                                  >
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                      <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                      <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                      {doc.status && (
-                                        <Badge
-                                          variant={doc.status === "verified" ? "default" : "outline"}
-                                          className="text-[13px]"
-                                        >
-                                          {doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}
-                                        </Badge>
-                                      )}
-                                      {doc.expiry_date && (
-                                        <span className="text-[13px] text-muted-foreground">
-                                          {isNb ? "Utløper" : "Expires"} {new Date(doc.expiry_date).toLocaleDateString()}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </button>
-                                ))
+                                item.items.map((doc: any) => {
+                                  const content = (
+                                    <>
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                        <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                        <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        {doc.status && (
+                                          <Badge
+                                            variant={doc.status === "verified" ? "default" : "outline"}
+                                            className="text-[13px]"
+                                          >
+                                            {doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}
+                                          </Badge>
+                                        )}
+                                        {doc.external_url && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
+                                      </div>
+                                    </>
+                                  );
+                                  const cls = "w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left";
+                                  return doc.external_url ? (
+                                    <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
+                                  ) : (
+                                    <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
+                                  );
+                                })
                               )}
                             </div>
                           )}
