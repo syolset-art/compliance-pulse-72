@@ -6,9 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Shield, Save, Pencil, X, Users, Sparkles, AlertCircle } from "lucide-react";
+import { Upload, Shield, Save, Pencil, X, Sparkles, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { LaraContactAssist } from "./LaraContactAssist";
 
 interface CompanyInfoFormProps {
   /** If true, starts in edit mode */
