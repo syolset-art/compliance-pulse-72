@@ -998,18 +998,34 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <Shield className="h-3.5 w-3.5 text-primary" />
                     <span className="font-medium">Powered by Mynder Trust Center</span>
                   </div>
-                  <a
-                    href={`/trust-engine/profile/${asset.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={isPublished
-                      ? (isNb ? "Åpne ditt publiserte Trust Center" : "Open your published Trust Center")
-                      : (isNb ? "Forhåndsvis hvordan kjøperen vil se Trust Centeret" : "Preview how buyers will see the Trust Center")}
-                    className="inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:underline"
-                  >
-                    {isNb ? "Utforsk Trust Center" : "Explore Trust Center"}
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </a>
+                  {isPublished ? (
+                    <a
+                      href={`/trust-engine/profile/${asset.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={isNb ? "Åpne ditt publiserte Trust Center" : "Open your published Trust Center"}
+                      className="inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:underline"
+                    >
+                      {isNb ? "Utforsk Trust Center" : "Explore Trust Center"}
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </a>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground/70 cursor-help">
+                          <Lock className="h-3 w-3" />
+                          {isNb ? "Utforsk Trust Center" : "Explore Trust Center"}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-xs">
+                        <p className="text-xs leading-relaxed">
+                          {isNb
+                            ? "Trust Centeret aktiveres når du publiserer profilen. Da kan kunder og partnere se all informasjonen du har valgt å dele — dokumenter, sertifiseringer, modenhet og kontaktinfo — samlet på ett sted."
+                            : "The Trust Center activates when you publish your profile. Customers and partners can then see all the information you've chosen to share — documents, certifications, maturity and contact info — gathered in one place."}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
 
                 <div className="p-6 md:p-8 space-y-8">
