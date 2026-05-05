@@ -246,20 +246,49 @@ const TrustCenterEditProfile = () => {
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
                 {isNb
-                  ? "Fyll ut seksjonene for å styrke din tillitsprofil."
-                  : "Fill in the sections to strengthen your trust profile."}
+                  ? "Lara har generert din profil basert på offentlig informasjon. Bekreft eller juster forslagene under, og last opp egne dokumenter."
+                  : "Lara has generated your profile from public information. Confirm or adjust the suggestions below, and upload your own documents."}
               </p>
             </div>
 
-            {/* Contextual intro box */}
+            {/* Trust Center URL — flyttet opp */}
+            <Card className="p-4 space-y-3 border-primary/20 bg-primary/5">
+              <div className="flex items-center gap-2 text-sm">
+                <Link2 className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isNb
+                  ? "Dette er din offentlige lenke til din Trust Center-profil. Kopier og del med kunder og partnere."
+                  : "This is your public link to your Trust Center profile. Copy and share with customers and partners."}
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 min-w-0">
+                  <code className="text-sm font-mono text-foreground truncate block">{publicUrl}</code>
+                </div>
+                <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate("/trust-center/profile")}>
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={handleCopyUrl}>
+                  {copiedUrl ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </Card>
+
+            {/* Lara intro */}
             <Card className="p-4 border-primary/20 bg-primary/5">
               <div className="flex gap-3">
-                <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <p className="text-sm text-muted-foreground">
-                  {isNb
-                    ? "Trust Profilen er din virksomhets digitale tillitserklæring. Start med å beskrive organisasjonen — du kan legge til produktprofiler når som helst."
-                    : "Your Trust Profile is your organization's digital trust declaration. Start by describing your organization — you can add product profiles at any time."}
-                </p>
+                <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-foreground">
+                    {isNb ? "Lara har gjort startjobben for deg" : "Lara has done the initial work for you"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {isNb
+                      ? "Profilen er forhåndsutfylt basert på Brønnøysund, nettstedet ditt og bransjedata. Du trenger bare å bekrefte at det stemmer, og laste opp dokumentasjon der det trengs."
+                      : "The profile is pre-filled from public registries, your website and industry data. You only need to confirm it's correct, and upload documentation where needed."}
+                  </p>
+                </div>
               </div>
             </Card>
 
@@ -276,11 +305,15 @@ const TrustCenterEditProfile = () => {
             {/* Quick nav tabs */}
             <div className="flex flex-wrap gap-2">
               {[
-                { icon: Eye, label: isNb ? "Offentlig profil" : "Public profile", anchor: "#public" },
                 { icon: Building2, label: isNb ? "Virksomhet" : "Company", anchor: "#company" },
-                
+                { icon: Users, label: isNb ? "Kontakter" : "Contacts", anchor: "#contacts" },
+                { icon: Database, label: isNb ? "Datalagring" : "Data storage", anchor: "#data-storage" },
+                { icon: Globe, label: isNb ? "Personvern" : "Privacy", anchor: "#privacy" },
                 { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
+                { icon: AlertTriangle, label: isNb ? "Hendelser" : "Incidents", anchor: "#incidents" },
+                { icon: Sparkles, label: isNb ? "AI og leverandører" : "AI & vendors", anchor: "#ai-vendors" },
                 { icon: Scale, label: isNb ? "Regelverk" : "Regulations", anchor: "#regulations" },
+                { icon: FileText, label: isNb ? "Dokumentasjon" : "Documentation", anchor: "#documentation" },
               ].map(tab => (
                 <button
                   key={tab.anchor}
@@ -296,53 +329,9 @@ const TrustCenterEditProfile = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
               >
                 <Settings className="h-3 w-3" />
-                {isNb ? "Detaljinnstillinger og basis" : "Detail settings"}
+                {isNb ? "Detaljinnstillinger" : "Detail settings"}
               </button>
             </div>
-
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Offentlig profil */}
-            {/* ═══════════════════════════════════════════ */}
-            <section id="public" className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-primary" />
-                <h2 className="text-base font-semibold text-foreground">
-                  {isNb ? "Offentlig profil" : "Public Profile"}
-                </h2>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {isNb
-                  ? "Din offentlige Trust Center-lenke som du kan dele med kunder og partnere."
-                  : "Your public Trust Center link that you can share with customers and partners."}
-              </p>
-
-              {/* Trust Center URL */}
-              <Card className="p-4 space-y-3 border-primary/20 bg-primary/5">
-                <div className="flex items-center gap-2 text-sm">
-                  <Link2 className="h-4 w-4 text-primary" />
-                  <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {isNb
-                    ? "Dette er din offentlige lenke til din Trust Center-profil."
-                    : "This is your public link to your Trust Center profile."}
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5">
-                    <code className="text-sm font-mono text-foreground">{publicUrl}</code>
-                  </div>
-                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate("/trust-center/profile")}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={handleCopyUrl}>
-                    {copiedUrl ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </Card>
-            </section>
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Virksomhet */}
