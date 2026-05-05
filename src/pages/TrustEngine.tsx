@@ -20,6 +20,8 @@ export default function TrustEngine() {
         .from("assets")
         .select("*")
         .eq("asset_type", "self")
+        .neq("publish_mode", "private")
+        .not("publish_mode", "is", null)
         .order("name");
       if (query) {
         q = q.ilike("name", `%${query}%`);
