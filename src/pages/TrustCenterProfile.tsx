@@ -435,6 +435,13 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </div>
               ))}
             </div>
+            </div>
+            </div>
+          </div>
+
+          {/* Sections below — full width without verified stripe */}
+          <div className="p-6 md:p-8 pt-0 space-y-8">
+
 
             {/* Control areas */}
             <section>
@@ -593,8 +600,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <div className="text-[13px] text-muted-foreground/60">
                 Org.nr 933 036 729 &middot; mynder.io
               </div>
-            </div>
-          </div>
             </div>
           </div>
         </Card>
@@ -1105,6 +1110,13 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       </div>
                     ))}
                   </div>
+                </div>
+                  </div>
+                </div>
+
+                {/* Sections below — full width without verified stripe */}
+                <div className="p-6 md:p-8 pt-0 space-y-8">
+
 
                   {/* ── Sikkerhet og kontroller ── */}
                   <section>
@@ -1361,8 +1373,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <div className="text-[13px] text-muted-foreground/60">
                       Org.nr 933 036 729 &middot; mynder.io
                     </div>
-                  </div>
-                </div>
                   </div>
                 </div>
               </Card>
