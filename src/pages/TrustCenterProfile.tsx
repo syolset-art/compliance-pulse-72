@@ -572,7 +572,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 } catch { return ""; }
               };
               return (
-                <section className="rounded-xl border border-border bg-card overflow-hidden">
+                <section id="tc-section-documentation" className="rounded-xl border border-border bg-card overflow-hidden">
                   <div className="flex items-center justify-between px-5 py-3.5">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-primary" />
