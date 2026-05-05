@@ -186,12 +186,12 @@ export const RequiredArtifactsBlock = ({ assetId, vendorDocs, variant = "profile
                       <CheckCircle2 className="h-3 w-3" />
                       {isNb ? "Dokumentert" : "Documented"}
                     </Badge>
-                  ) : (
+                  ) : variant === "evidence" ? (
                     <Badge className="bg-warning/10 text-warning border-warning/30 gap-1 font-normal text-[11px]">
                       <AlertTriangle className="h-3 w-3" />
                       {isNb ? "Ikke dokumentert" : "Not documented"}
                     </Badge>
-                  )}
+                  ) : null}
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">
                   {documented ? sourceLabel : row.helper}
