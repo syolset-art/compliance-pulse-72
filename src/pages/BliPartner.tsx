@@ -31,10 +31,10 @@ export default function BliPartner() {
                 Mynder Partnerprogram
               </div>
               <h1 className="text-5xl md:text-6xl font-semibold tracking-tight text-foreground mb-4 leading-[1.05]">
-                Bygg en lønnsom <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">compliance-praksis</span>.
+                Lever <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">KI-agenter</span> som gjør compliance-arbeidet.
               </h1>
               <p className="text-lg text-muted-foreground max-w-xl">
-                Lever AI-drevet compliance og leverandørstyring til kundene dine — med tilbakevendende inntekt.
+                Bruk våre agenter — eller samarbeid med dine egne (BYOA). Alle agenter er 100% audit-ready: hver handling og begrunnelse logges i Mynder, slik at både Lara og BYOA etterlater et komplett revisjonsspor.
               </p>
             </div>
           </div>
