@@ -796,7 +796,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </div>
                           <Button variant="outline" onClick={openPublishDialog} className="gap-2">
                             <Share2 className="h-4 w-4" />
-                            {isNb ? "Oppdater publisering" : "Update publishing"}
+                            {isNb ? "Publiser" : "Publish"}
                           </Button>
                         </>
                       ) : (
@@ -810,7 +810,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </div>
                           <Button onClick={openPublishDialog} className="gap-2 bg-primary hover:bg-primary/90">
                             <Share2 className="h-4 w-4" />
-                            {isNb ? "Publiser Trust Center" : "Publish Trust Center"}
+                            {isNb ? "Publiser" : "Publish"}
                           </Button>
                         </>
                       )}
