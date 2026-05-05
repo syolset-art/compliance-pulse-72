@@ -181,12 +181,7 @@ export const RequiredArtifactsBlock = ({ assetId, vendorDocs, variant = "profile
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium">{row.label}</span>
-                  {documented ? (
-                    <Badge className="bg-success/10 text-success border-success/20 gap-1 font-normal text-[11px]">
-                      <CheckCircle2 className="h-3 w-3" />
-                      {isNb ? "Dokumentert" : "Documented"}
-                    </Badge>
-                  ) : variant === "evidence" ? (
+                  {!documented && variant === "evidence" ? (
                     <Badge className="bg-warning/10 text-warning border-warning/30 gap-1 font-normal text-[11px]">
                       <AlertTriangle className="h-3 w-3" />
                       {isNb ? "Ikke dokumentert" : "Not documented"}
