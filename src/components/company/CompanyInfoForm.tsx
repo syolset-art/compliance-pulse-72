@@ -87,15 +87,6 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
   const handleSave = async () => {
     if (!companyProfile) return;
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!form.dpo_email.trim() || !emailRe.test(form.dpo_email.trim())) {
-      toast.error("Personvern/DPO-kontakt e-post er påkrevd og må være gyldig");
-      return;
-    }
-    if (!form.ciso_email.trim() || !emailRe.test(form.ciso_email.trim())) {
-      toast.error("Sikkerhetskontakt e-post er påkrevd og må være gyldig");
-      return;
-    }
     setSaving(true);
     try {
       const { error: profileErr } = await supabase
