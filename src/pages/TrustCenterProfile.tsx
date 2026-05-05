@@ -1216,67 +1216,49 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
                     </h3>
                     
-                    <div className="space-y-2.5 pt-1">
+                    <div className="space-y-5 pt-1">
                       {[
-                        { key: "policies", icon: FileText, label: isNb ? "Retningslinjer" : "Policies", count: docsCount, color: "text-primary", items: policies },
-                        { key: "certs", icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", count: certsCount, color: "text-accent", items: certs },
-                        { key: "documents", icon: FileText, label: isNb ? "Dokumenter" : "Documents", count: otherDocsCount, color: "text-primary", items: otherDocs },
-                      ].map(item => (
-                        <div key={item.key}>
-                          <button
-                            onClick={() => setExpandedDoc(expandedDoc === item.key ? null : item.key)}
-                            className="w-full flex items-center justify-between px-5 py-3.5 rounded-xl border border-border hover:bg-muted/40 hover:border-border/80 transition-all text-left group"
-                          >
-                            <div className="flex items-center gap-3">
-                              <item.icon className={`h-4 w-4 ${item.color}`} />
-                              <span className="text-sm font-medium text-foreground">{item.label}</span>
-                              {item.count > 0 && (
-                                <Badge variant="secondary" className="text-[13px] rounded-full px-2 font-semibold">{item.count}</Badge>
-                              )}
-                            </div>
-                            {expandedDoc === item.key ? (
-                              <ChevronUp className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        { key: "policies", label: isNb ? "Retningslinjer" : "Policies", items: policies },
+                        { key: "certs", label: isNb ? "Sertifiseringer" : "Certifications", items: certs },
+                        { key: "documents", label: isNb ? "Dokumenter" : "Documents", items: otherDocs },
+                      ].map(group => (
+                        <div key={group.key} className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{group.label}</h4>
+                            {group.items.length > 0 && (
+                              <span className="text-[11px] text-muted-foreground/70">({group.items.length})</span>
                             )}
-                          </button>
-                          {expandedDoc === item.key && (
-                            <div className="mt-1.5 ml-5 space-y-1">
-                              {item.items.length === 0 ? (
-                                <div className="w-full text-left px-4 py-3 rounded-lg border border-dashed border-border">
-                                  <p className="text-xs text-muted-foreground italic">
-                                    {isNb ? "Ingen dokumenter publisert i denne kategorien." : "No documents published in this category."}
-                                  </p>
-                                </div>
-                              ) : (
-                                item.items.map((doc: any) => {
-                                  const content = (
-                                    <>
-                                      <div className="flex items-center gap-2.5 min-w-0">
-                                        <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                        <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
-                                      </div>
-                                      <div className="flex items-center gap-2 shrink-0">
-                                        {doc.status && (
-                                          <Badge
-                                            variant={doc.status === "verified" ? "default" : "outline"}
-                                            className="text-[13px]"
-                                          >
-                                            {doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}
-                                          </Badge>
-                                        )}
-                                        {doc.external_url && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
-                                      </div>
-                                    </>
-                                  );
-                                  const cls = "w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left";
-                                  return doc.external_url ? (
-                                    <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
-                                  ) : (
-                                    <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
-                                  );
-                                })
-                              )}
+                          </div>
+                          {group.items.length === 0 ? (
+                            <p className="text-xs text-muted-foreground/70 italic px-1">
+                              {isNb ? "Ingen publisert." : "None published."}
+                            </p>
+                          ) : (
+                            <div className="space-y-1.5">
+                              {group.items.map((doc: any) => {
+                                const content = (
+                                  <>
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                      <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0">
+                                      {doc.status && (
+                                        <Badge variant={doc.status === "verified" ? "default" : "outline"} className="text-[13px]">
+                                          {doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}
+                                        </Badge>
+                                      )}
+                                      {doc.external_url && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
+                                    </div>
+                                  </>
+                                );
+                                const cls = "w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left";
+                                return doc.external_url ? (
+                                  <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
+                                ) : (
+                                  <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
+                                );
+                              })}
                             </div>
                           )}
                         </div>
