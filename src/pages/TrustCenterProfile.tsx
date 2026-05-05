@@ -55,6 +55,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [publishStep, setPublishStep] = useState<"confirm" | "publishing" | "success">("confirm");
   const [isPublishing, setIsPublishing] = useState(false);
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null);
+  const [docsSectionOpen, setDocsSectionOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<any>(null);
