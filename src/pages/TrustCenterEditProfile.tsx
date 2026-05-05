@@ -294,7 +294,22 @@ const TrustCenterEditProfile = () => {
             </div>
 
             {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Offentlig profil */}
+            {/* SECTION: Innholdsmatrise (oversikt) */}
+            {/* ═══════════════════════════════════════════ */}
+            <TrustContentMatrix />
+
+            {/* Divider before edit surfaces */}
+            <div className="pt-4 border-t border-border">
+              <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                {isNb ? "Rediger felt" : "Edit fields"}
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isNb
+                  ? "Seksjonene under er der du fyller inn data som vises i matrisen over."
+                  : "The sections below are where you fill in the data shown in the matrix above."}
+              </p>
+            </div>
+
             {/* ═══════════════════════════════════════════ */}
             <section id="public" className="space-y-4">
               <div className="flex items-center gap-2">
