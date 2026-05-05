@@ -666,10 +666,16 @@ const TrustCenterEditProfile = () => {
               </div>
             </section>
 
+            {/* Hendelser og kontinuitet */}
+            <IncidentsSection asset={asset} />
+
+            {/* AI og leverandørstyring */}
+            <AIVendorsSection asset={asset} />
+
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Regelverk */}
             {/* ═══════════════════════════════════════════ */}
-            <section id="regulations" className="space-y-4">
+            <section id="regulations" className="space-y-4 scroll-mt-24">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Scale className="h-4 w-4 text-primary" />
@@ -701,46 +707,21 @@ const TrustCenterEditProfile = () => {
               </div>
             </section>
 
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Dokumentasjon og bevis */}
-            {/* ═══════════════════════════════════════════ */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-primary" />
-                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-                  {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
-                </h2>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {isNb
-                  ? "Administrer policies, sertifiseringer, databehandling og dokumenter."
-                  : "Manage policies, certifications, data handling and documents."}
-              </p>
-              <div className="space-y-2">
-                {[
-                  { icon: FileText, label: isNb ? "Retningslinjer" : "Policies", href: "/trust-center/evidence" },
-                  { icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", href: "/trust-center/evidence" },
-                  { icon: Eye, label: isNb ? "Datahåndtering" : "Data Handling", href: "/trust-center/evidence" },
-                  { icon: FileText, label: isNb ? "Dokumenter" : "Documents", href: "/trust-center/evidence" },
-                ].map(item => (
-                  <button
-                    key={item.label}
-                    onClick={() => navigate(item.href)}
-                    className="w-full flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <item.icon className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium text-foreground">{item.label}</span>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90" />
-                  </button>
-                ))}
-              </div>
-            </section>
+            {/* Dokumentasjon (opplastingsflyt) */}
+            <DocumentationSection asset={asset} />
 
-            {/* Spacer */}
-            <div className="h-8" />
+            {/* Spacer for sticky bar */}
+            <div className="h-24" />
           </div>
+
+          {/* Sticky publish bar */}
+          <PublishStickyBar
+            readinessPercent={trustScore}
+            passedCount={trustScore}
+            totalCount={100}
+            onPreview={() => navigate("/trust-center/profile")}
+            onPublish={() => toast.success(isNb ? "Trust Profile publisert" : "Trust Profile published")}
+          />
         </main>
       </div>
 
