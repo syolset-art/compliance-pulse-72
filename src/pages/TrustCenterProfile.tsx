@@ -518,6 +518,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   icon: Shield,
                   name: asset?.privacy_contact_name || companyProfile?.dpo_name,
                   email: asset?.privacy_contact_email || companyProfile?.dpo_email,
+                  address: (asset as any)?.privacy_contact_address,
                 },
                 {
                   role: isNb ? "Sikkerhetsansvarlig (CISO)" : "Security Officer (CISO)",
@@ -525,7 +526,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   name: asset?.security_contact_name || companyProfile?.ciso_name,
                   email: asset?.security_contact_email || companyProfile?.ciso_email,
                 },
-              ].filter(c => c.name || c.email);
+              ].filter(c => c.name || c.email || (c as any).address);
               if (contacts.length === 0) return null;
               return (
                 <>
