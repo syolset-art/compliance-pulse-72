@@ -327,19 +327,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </div>
                 </div>
 
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge variant="outline" className="text-[13px] cursor-help">
-                      {isNb ? "Egenerklæring" : "Self-declared"}
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-xs max-w-[220px]">
-                      {isNb ? "Selverklæring og compliance-dokumentasjon" : "Self-declared compliance documentation"}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Eye className="h-4 w-4" />
                   <span>{isNb ? "Profilvisninger: " : "Profile views: "}<span className="font-semibold text-foreground">1 247</span></span>
@@ -980,21 +967,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           )}
                         </div>
                       </div>
-
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Badge variant="outline" className="text-[13px] cursor-help">
-                            {isNb ? "Egenerklæring" : "Self-declared"}
-                          </Badge>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p className="text-xs max-w-[220px]">
-                            {isNb
-                              ? "Selverklæring og compliance-dokumentasjon"
-                              : "Self-declared compliance documentation"}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
 
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Eye className="h-4 w-4" />
