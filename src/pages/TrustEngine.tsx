@@ -32,6 +32,25 @@ export default function TrustEngine() {
     },
   });
 
+  const { data: myAsset } = useQuery({
+    queryKey: ["trust-engine-my-asset"],
+    queryFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes?.user) return null;
+      const { data } = await supabase
+        .from("assets")
+        .select("*")
+        .eq("asset_type", "self")
+        .order("updated_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const myAssetPublished = myAsset && myAsset.publish_mode && myAsset.publish_mode !== "private";
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setQuery(search);
