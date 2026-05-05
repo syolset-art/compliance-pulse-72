@@ -145,7 +145,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                 {isSubmitting ? (
                   <><Loader2 className="h-4 w-4 animate-spin mr-2" />{isNb ? "Sender..." : "Sending..."}</>
                 ) : (
-                  <><Send className="h-4 w-4 mr-2" />{isNb ? "Send til Lara" : "Send to Lara"}</>
+                  <><Send className="h-4 w-4 mr-2" />{isNb ? "Send til Mynder" : "Send to Mynder"}</>
                 )}
               </Button>
             </div>
