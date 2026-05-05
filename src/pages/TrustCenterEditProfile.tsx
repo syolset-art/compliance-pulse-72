@@ -18,7 +18,7 @@ import {
   Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
   Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users,
   ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
-  Info, Settings, Package, Sparkles, Settings2,
+  Info, Settings, Package, Sparkles, Settings2, Database,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
@@ -26,6 +26,14 @@ import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 import { PublishingReadiness } from "@/components/trust-center/PublishingReadiness";
+import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
+import { DataStorageSection } from "@/components/trust-center/edit/DataStorageSection";
+import { PrivacySection } from "@/components/trust-center/edit/PrivacySection";
+import { SecurityDetailsCard } from "@/components/trust-center/edit/SecurityDetailsCard";
+import { IncidentsSection } from "@/components/trust-center/edit/IncidentsSection";
+import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
+import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
+import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
@@ -238,20 +246,49 @@ const TrustCenterEditProfile = () => {
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
                 {isNb
-                  ? "Fyll ut seksjonene for å styrke din tillitsprofil."
-                  : "Fill in the sections to strengthen your trust profile."}
+                  ? "Lara har generert din profil basert på offentlig informasjon. Bekreft eller juster forslagene under, og last opp egne dokumenter."
+                  : "Lara has generated your profile from public information. Confirm or adjust the suggestions below, and upload your own documents."}
               </p>
             </div>
 
-            {/* Contextual intro box */}
+            {/* Trust Center URL — flyttet opp */}
+            <Card className="p-4 space-y-3 border-primary/20 bg-primary/5">
+              <div className="flex items-center gap-2 text-sm">
+                <Link2 className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isNb
+                  ? "Dette er din offentlige lenke til din Trust Center-profil. Kopier og del med kunder og partnere."
+                  : "This is your public link to your Trust Center profile. Copy and share with customers and partners."}
+              </p>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 min-w-0">
+                  <code className="text-sm font-mono text-foreground truncate block">{publicUrl}</code>
+                </div>
+                <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate("/trust-center/profile")}>
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={handleCopyUrl}>
+                  {copiedUrl ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+                </Button>
+              </div>
+            </Card>
+
+            {/* Lara intro */}
             <Card className="p-4 border-primary/20 bg-primary/5">
               <div className="flex gap-3">
-                <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <p className="text-sm text-muted-foreground">
-                  {isNb
-                    ? "Trust Profilen er din virksomhets digitale tillitserklæring. Start med å beskrive organisasjonen — du kan legge til produktprofiler når som helst."
-                    : "Your Trust Profile is your organization's digital trust declaration. Start by describing your organization — you can add product profiles at any time."}
-                </p>
+                <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-foreground">
+                    {isNb ? "Lara har gjort startjobben for deg" : "Lara has done the initial work for you"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {isNb
+                      ? "Profilen er forhåndsutfylt basert på Brønnøysund, nettstedet ditt og bransjedata. Du trenger bare å bekrefte at det stemmer, og laste opp dokumentasjon der det trengs."
+                      : "The profile is pre-filled from public registries, your website and industry data. You only need to confirm it's correct, and upload documentation where needed."}
+                  </p>
+                </div>
               </div>
             </Card>
 
@@ -268,11 +305,15 @@ const TrustCenterEditProfile = () => {
             {/* Quick nav tabs */}
             <div className="flex flex-wrap gap-2">
               {[
-                { icon: Eye, label: isNb ? "Offentlig profil" : "Public profile", anchor: "#public" },
                 { icon: Building2, label: isNb ? "Virksomhet" : "Company", anchor: "#company" },
-                
+                { icon: Users, label: isNb ? "Kontakter" : "Contacts", anchor: "#contacts" },
+                { icon: Database, label: isNb ? "Datalagring" : "Data storage", anchor: "#data-storage" },
+                { icon: Globe, label: isNb ? "Personvern" : "Privacy", anchor: "#privacy" },
                 { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
+                { icon: AlertTriangle, label: isNb ? "Hendelser" : "Incidents", anchor: "#incidents" },
+                { icon: Sparkles, label: isNb ? "AI og leverandører" : "AI & vendors", anchor: "#ai-vendors" },
                 { icon: Scale, label: isNb ? "Regelverk" : "Regulations", anchor: "#regulations" },
+                { icon: FileText, label: isNb ? "Dokumentasjon" : "Documentation", anchor: "#documentation" },
               ].map(tab => (
                 <button
                   key={tab.anchor}
@@ -288,53 +329,9 @@ const TrustCenterEditProfile = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
               >
                 <Settings className="h-3 w-3" />
-                {isNb ? "Detaljinnstillinger og basis" : "Detail settings"}
+                {isNb ? "Detaljinnstillinger" : "Detail settings"}
               </button>
             </div>
-
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Offentlig profil */}
-            {/* ═══════════════════════════════════════════ */}
-            <section id="public" className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-primary" />
-                <h2 className="text-base font-semibold text-foreground">
-                  {isNb ? "Offentlig profil" : "Public Profile"}
-                </h2>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {isNb
-                  ? "Din offentlige Trust Center-lenke som du kan dele med kunder og partnere."
-                  : "Your public Trust Center link that you can share with customers and partners."}
-              </p>
-
-              {/* Trust Center URL */}
-              <Card className="p-4 space-y-3 border-primary/20 bg-primary/5">
-                <div className="flex items-center gap-2 text-sm">
-                  <Link2 className="h-4 w-4 text-primary" />
-                  <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {isNb
-                    ? "Dette er din offentlige lenke til din Trust Center-profil."
-                    : "This is your public link to your Trust Center profile."}
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5">
-                    <code className="text-sm font-mono text-foreground">{publicUrl}</code>
-                  </div>
-                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate("/trust-center/profile")}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={handleCopyUrl}>
-                    {copiedUrl ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </Card>
-            </section>
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Virksomhet */}
@@ -536,25 +533,16 @@ const TrustCenterEditProfile = () => {
 
             </section>
 
-
-
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Produkter og tjenester */}
-            {/* ═══════════════════════════════════════════ */}
             {/* Compact link to Products & Services */}
             <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-4">
               <div className="flex items-center gap-3">
                 <Package className="h-5 w-5 text-muted-foreground" />
                 <div>
                   <p className="text-sm text-foreground">
-                    {isNb
-                      ? "Har du flere produkter eller tjenester?"
-                      : "Do you have additional products or services?"}
+                    {isNb ? "Har du flere produkter eller tjenester?" : "Do you have additional products or services?"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {isNb
-                      ? "Du kan opprette egne Trust Profiler for disse — helt valgfritt."
-                      : "You can create separate Trust Profiles for these — completely optional."}
+                    {isNb ? "Du kan opprette egne Trust Profiler for disse — helt valgfritt." : "You can create separate Trust Profiles for these — completely optional."}
                   </p>
                 </div>
               </div>
@@ -563,6 +551,11 @@ const TrustCenterEditProfile = () => {
                 <ChevronDown className="h-3 w-3 -rotate-90" />
               </Button>
             </div>
+
+            {/* NYE SEKSJONER */}
+            <ContactsSection asset={asset} />
+            <DataStorageSection asset={asset} />
+            <PrivacySection asset={asset} />
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Sikkerhet og kontroller */}
@@ -578,30 +571,8 @@ const TrustCenterEditProfile = () => {
                 <span className="text-xs text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
               </div>
 
-              {/* Info box */}
-              <Card className="p-4 border-primary/20 bg-primary/5 space-y-2">
-                <div className="flex items-start gap-2">
-                  <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{isNb ? "Hvordan fungerer dette?" : "How does this work?"}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {isNb
-                        ? "For å henest kontrollstatus, sørg for at det er på plass i din virksomhet. Definer din regelverkssamling, last inn dine sertifiseringer og dokumenter."
-                        : "To achieve control status, make sure it is in place in your organization. Define your regulations, upload certifications and documents."}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {isNb
-                        ? "Resultatet vises i din Trust Center-profil slik at dine kunder og partnere kan se den."
-                        : "The result is shown in your Trust Center profile for your customers and partners to see."}
-                    </p>
-                    <p className="text-[13px] text-muted-foreground/70 mt-2 italic">
-                      {isNb
-                        ? "Alle svar er egenerklærte med mindre annet er angitt."
-                        : "All responses are self-declared unless otherwise noted."}
-                    </p>
-                  </div>
-                </div>
-              </Card>
+              {/* Strukturerte sikkerhetstiltak */}
+              <SecurityDetailsCard asset={asset} />
 
               {/* Control areas */}
               <div className="space-y-2">
@@ -695,10 +666,16 @@ const TrustCenterEditProfile = () => {
               </div>
             </section>
 
+            {/* Hendelser og kontinuitet */}
+            <IncidentsSection asset={asset} />
+
+            {/* AI og leverandørstyring */}
+            <AIVendorsSection asset={asset} />
+
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Regelverk */}
             {/* ═══════════════════════════════════════════ */}
-            <section id="regulations" className="space-y-4">
+            <section id="regulations" className="space-y-4 scroll-mt-24">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Scale className="h-4 w-4 text-primary" />
@@ -730,46 +707,21 @@ const TrustCenterEditProfile = () => {
               </div>
             </section>
 
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Dokumentasjon og bevis */}
-            {/* ═══════════════════════════════════════════ */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-primary" />
-                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-                  {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
-                </h2>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {isNb
-                  ? "Administrer policies, sertifiseringer, databehandling og dokumenter."
-                  : "Manage policies, certifications, data handling and documents."}
-              </p>
-              <div className="space-y-2">
-                {[
-                  { icon: FileText, label: isNb ? "Retningslinjer" : "Policies", href: "/trust-center/evidence" },
-                  { icon: Award, label: isNb ? "Sertifiseringer" : "Certifications", href: "/trust-center/evidence" },
-                  { icon: Eye, label: isNb ? "Datahåndtering" : "Data Handling", href: "/trust-center/evidence" },
-                  { icon: FileText, label: isNb ? "Dokumenter" : "Documents", href: "/trust-center/evidence" },
-                ].map(item => (
-                  <button
-                    key={item.label}
-                    onClick={() => navigate(item.href)}
-                    className="w-full flex items-center justify-between p-4 rounded-lg border border-border hover:bg-muted/30 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3">
-                      <item.icon className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium text-foreground">{item.label}</span>
-                    </div>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground -rotate-90" />
-                  </button>
-                ))}
-              </div>
-            </section>
+            {/* Dokumentasjon (opplastingsflyt) */}
+            <DocumentationSection asset={asset} />
 
-            {/* Spacer */}
-            <div className="h-8" />
+            {/* Spacer for sticky bar */}
+            <div className="h-24" />
           </div>
+
+          {/* Sticky publish bar */}
+          <PublishStickyBar
+            readinessPercent={trustScore}
+            passedCount={trustScore}
+            totalCount={100}
+            onPreview={() => navigate("/trust-center/profile")}
+            onPublish={() => toast.success(isNb ? "Trust Profile publisert" : "Trust Profile published")}
+          />
         </main>
       </div>
 
