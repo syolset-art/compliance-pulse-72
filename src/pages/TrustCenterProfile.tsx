@@ -490,9 +490,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
                   { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
-                  { value: evaluation ? `${evaluation.implementedCount + evaluation.partialCount}/${evaluation.allControls.length}` : "0/0", label: isNb ? "Modenhet per kontrollområde" : "Maturity by control areas", color: "text-warning" },
+                  { value: String(policies.length), label: isNb ? "Retningslinjer" : "Policies", color: "" },
                   { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
-                  { value: dpaOk ? "✓" : "–", label: dpaOk ? "DPA OK" : "DPA", color: dpaOk ? "text-success" : "" },
+                  { value: dpaOk ? "✓" : "–", label: "DPA", color: dpaOk ? "text-success" : "text-muted-foreground" },
                 ].map((item, i) => (
                   <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
                     <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
@@ -1213,9 +1213,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {[
                         { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
-                        { value: evaluation ? `${evaluation.implementedCount + evaluation.partialCount}/${evaluation.allControls.length}` : "0/0", label: isNb ? "Modenhet per kontrollområde" : "Maturity by control areas", color: "text-warning" },
+                        { value: String(policies.length), label: isNb ? "Retningslinjer" : "Policies", color: "" },
                         { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
-                        { value: dpaOk ? "✓" : "–", label: dpaOk ? "DPA OK" : "DPA", color: dpaOk ? "text-success" : "" },
+                        { value: dpaOk ? "✓" : "–", label: "DPA", color: dpaOk ? "text-success" : "text-muted-foreground" },
                       ].map((item, i) => (
                         <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
                           <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
