@@ -269,9 +269,7 @@ const TrustCenterEditProfile = () => {
             {/* Quick nav tabs */}
             <div className="flex flex-wrap gap-2">
               {[
-                { icon: Eye, label: isNb ? "Offentlig profil" : "Public profile", anchor: "#public" },
                 { icon: Building2, label: isNb ? "Virksomhet" : "Company", anchor: "#company" },
-                
                 { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
                 { icon: Scale, label: isNb ? "Regelverk" : "Regulations", anchor: "#regulations" },
               ].map(tab => (
@@ -284,6 +282,13 @@ const TrustCenterEditProfile = () => {
                   {tab.label}
                 </button>
               ))}
+              <button
+                onClick={() => navigate("/trust-center/public-profile")}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+              >
+                <Globe className="h-3 w-3" />
+                {isNb ? "Offentlig profil" : "Public profile"}
+              </button>
               <button
                 onClick={() => navigate(`/assets/${asset.id}`)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
@@ -311,43 +316,51 @@ const TrustCenterEditProfile = () => {
             </div>
 
             {/* ═══════════════════════════════════════════ */}
-            <section id="public" className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-primary" />
-                <h2 className="text-base font-semibold text-foreground">
-                  {isNb ? "Offentlig profil" : "Public Profile"}
-                </h2>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {isNb
-                  ? "Din offentlige Trust Center-lenke som du kan dele med kunder og partnere."
-                  : "Your public Trust Center link that you can share with customers and partners."}
-              </p>
-
-              {/* Trust Center URL */}
-              <Card className="p-4 space-y-3 border-primary/20 bg-primary/5">
-                <div className="flex items-center gap-2 text-sm">
-                  <Link2 className="h-4 w-4 text-primary" />
-                  <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {isNb
-                    ? "Dette er din offentlige lenke til din Trust Center-profil."
-                    : "This is your public link to your Trust Center profile."}
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5">
-                    <code className="text-sm font-mono text-foreground">{publicUrl}</code>
+            {/* SECTION: Offentlig profil — link til egen side */}
+            {/* ═══════════════════════════════════════════ */}
+            <section id="public" className="space-y-3">
+              <Card className="p-4 border-primary/20 bg-primary/5">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Globe className="h-4 w-4 text-primary" />
                   </div>
-                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate("/trust-center/profile")}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={handleCopyUrl}>
-                    {copiedUrl ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                  </Button>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm font-semibold text-foreground">
+                        {isNb ? "Offentlig profil" : "Public profile"}
+                      </h3>
+                      <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
+                        {isNb ? "Egen side" : "Dedicated page"}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {isNb
+                        ? "Administrer din offentlige Trust Center-lenke, synlighet og deling på en egen side."
+                        : "Manage your public Trust Center link, visibility and sharing on a dedicated page."}
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate("/trust-center/public-profile")}
+                      >
+                        <Globe className="h-3.5 w-3.5 mr-1.5" />
+                        {isNb ? "Åpne offentlig profil" : "Open public profile"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleCopyUrl}
+                      >
+                        {copiedUrl ? (
+                          <Check className="h-3.5 w-3.5 mr-1.5 text-success" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5 mr-1.5" />
+                        )}
+                        {isNb ? "Kopier lenke" : "Copy link"}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </Card>
             </section>
