@@ -3,6 +3,9 @@ project_id = "yyvadlijsovebszximjv"
 [functions.analyze-document]
 verify_jwt = false
 
+[functions.suggest-key-contacts]
+verify_jwt = false
+
 [functions.chat]
 verify_jwt = false
 

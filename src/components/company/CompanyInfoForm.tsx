@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Upload, Shield, Save, Pencil, X, Users, Sparkles, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { LaraContactAssist } from "./LaraContactAssist";
 
 interface CompanyInfoFormProps {
   /** If true, starts in edit mode */
@@ -384,6 +385,15 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             )}
           </FieldBlock>
         </div>
+        {isEditing && (
+          <LaraContactAssist
+            role="compliance"
+            currentName={form.compliance_officer}
+            currentEmail={form.compliance_officer_email}
+            companyProfile={companyProfile}
+            onApply={(n, e) => { update("compliance_officer", n); update("compliance_officer_email", e); }}
+          />
+        )}
       </div>
 
       {/* Personvern/DPO-kontakt */}
@@ -415,9 +425,16 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             )}
           </FieldBlock>
         </div>
+        {isEditing && (
+          <LaraContactAssist
+            role="dpo"
+            currentName={form.dpo_name}
+            currentEmail={form.dpo_email}
+            companyProfile={companyProfile}
+            onApply={(n, e) => { update("dpo_name", n); update("dpo_email", e); }}
+          />
+        )}
       </div>
-
-      {/* Sikkerhetskontakt for hendelser */}
       <div className="space-y-2 pt-2 border-t border-border">
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
@@ -462,6 +479,15 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             )}
           </FieldBlock>
         </div>
+        {isEditing && (
+          <LaraContactAssist
+            role="ciso"
+            currentName={form.ciso_name}
+            currentEmail={form.ciso_email}
+            companyProfile={companyProfile}
+            onApply={(n, e) => { update("ciso_name", n); update("ciso_email", e); }}
+          />
+        )}
       </div>
 
       {/* Description */}
