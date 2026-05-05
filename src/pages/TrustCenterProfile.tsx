@@ -518,7 +518,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
               return (
                 <>
-                  <section className="rounded-xl border border-border bg-card overflow-hidden">
+                  <section id="tc-section-contact" className="rounded-xl border border-border bg-card overflow-hidden">
                     <div className="px-5 py-3.5 flex items-center gap-2">
                       <MessageSquare className="h-4 w-4 text-primary" />
                       <h3 className="text-sm font-semibold text-foreground">{isNb ? "Kontaktinformasjon" : "Contact information"}</h3>
