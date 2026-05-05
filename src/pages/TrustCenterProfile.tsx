@@ -1681,6 +1681,48 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     {isNb ? "Åpne Trust Engine" : "Open Trust Engine"}
                   </Button>
                 </div>
+
+                {/* Social share */}
+                <div className="rounded-lg border border-border p-4 text-left space-y-3">
+                  <p className="text-sm font-semibold text-foreground">
+                    {isNb ? "Del profilen" : "Share the profile"}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-2"
+                      onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://${publicUrl}`)}`, "_blank", "noopener,noreferrer")}
+                    >
+                      <Linkedin className="h-4 w-4" />
+                      LinkedIn
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-2"
+                      onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://${publicUrl}`)}`, "_blank", "noopener,noreferrer")}
+                    >
+                      <Facebook className="h-4 w-4" />
+                      Facebook
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-2"
+                      onClick={() => {
+                        const subject = isNb ? "Vår Trust Profile" : "Our Trust Profile";
+                        const body = isNb
+                          ? `Hei,\n\nDu kan se vår Trust Profile her: https://${publicUrl}\n`
+                          : `Hi,\n\nYou can view our Trust Profile here: https://${publicUrl}\n`;
+                        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                      }}
+                    >
+                      <Mail className="h-4 w-4" />
+                      {isNb ? "E-post" : "Email"}
+                    </Button>
+                  </div>
+                </div>
                 <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => {
                   setPublishDialogOpen(false);
                   setPublishStep("confirm");
