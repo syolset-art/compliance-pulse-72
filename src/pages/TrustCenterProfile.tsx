@@ -518,6 +518,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   icon: Shield,
                   name: asset?.privacy_contact_name || companyProfile?.dpo_name,
                   email: asset?.privacy_contact_email || companyProfile?.dpo_email,
+                  address: (asset as any)?.privacy_contact_address,
                 },
                 {
                   role: isNb ? "Sikkerhetsansvarlig (CISO)" : "Security Officer (CISO)",
@@ -525,7 +526,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   name: asset?.security_contact_name || companyProfile?.ciso_name,
                   email: asset?.security_contact_email || companyProfile?.ciso_email,
                 },
-              ].filter(c => c.name || c.email);
+              ].filter(c => c.name || c.email || (c as any).address);
               if (contacts.length === 0) return null;
               return (
                 <>
@@ -543,6 +544,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <div className="flex-1 min-w-0">
                               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{c.role}</p>
                               <p className="text-sm font-medium text-foreground truncate">{c.name || (isNb ? "Ikke oppgitt" : "Not provided")}</p>
+                              {(c as any).address && (
+                                <p className="text-xs text-muted-foreground truncate">{(c as any).address}</p>
+                              )}
                             </div>
                             {c.email && (
                               <a href={`mailto:${c.email}`} className="text-xs text-primary hover:underline shrink-0 truncate">
@@ -1285,10 +1289,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   {/* ── Kontakter ── */}
                   {(() => {
                     const contacts = [
-                      { role: isNb ? "Generell kontakt" : "General contact", icon: MessageSquare, name: asset?.contact_person, email: asset?.contact_email },
-                      { role: isNb ? "Personvernansvarlig (DPO)" : "Data Protection Officer (DPO)", icon: Shield, name: asset?.privacy_contact_name || companyProfile?.dpo_name, email: asset?.privacy_contact_email || companyProfile?.dpo_email },
-                      { role: isNb ? "Sikkerhetsansvarlig (CISO)" : "Security Officer (CISO)", icon: Lock, name: asset?.security_contact_name || companyProfile?.ciso_name, email: asset?.security_contact_email || companyProfile?.ciso_email },
-                    ].filter(c => c.name || c.email);
+                      { role: isNb ? "Generell kontakt" : "General contact", icon: MessageSquare, name: asset?.contact_person, email: asset?.contact_email, address: undefined as string | undefined },
+                      { role: isNb ? "Personvernansvarlig (DPO)" : "Data Protection Officer (DPO)", icon: Shield, name: asset?.privacy_contact_name || companyProfile?.dpo_name, email: asset?.privacy_contact_email || companyProfile?.dpo_email, address: (asset as any)?.privacy_contact_address as string | undefined },
+                      { role: isNb ? "Sikkerhetsansvarlig (CISO)" : "Security Officer (CISO)", icon: Lock, name: asset?.security_contact_name || companyProfile?.ciso_name, email: asset?.security_contact_email || companyProfile?.ciso_email, address: undefined as string | undefined },
+                    ].filter(c => c.name || c.email || c.address);
                     if (contacts.length === 0) return null;
                     return (
                       <>
@@ -1306,6 +1310,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                   <div className="flex-1 min-w-0">
                                     <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{c.role}</p>
                                     <p className="text-sm font-medium text-foreground truncate">{c.name || (isNb ? "Ikke oppgitt" : "Not provided")}</p>
+                                    {c.address && (
+                                      <p className="text-xs text-muted-foreground truncate">{c.address}</p>
+                                    )}
                                   </div>
                                   {c.email && (
                                     <a href={`mailto:${c.email}`} className="text-xs text-primary hover:underline shrink-0 truncate">{c.email}</a>
