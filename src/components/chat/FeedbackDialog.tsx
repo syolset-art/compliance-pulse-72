@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Send, CheckCircle2, UserRound, ArrowRight, Loader2, Upload, X } from "lucide-react";
+import { Camera, Send, CheckCircle2, UserRound, ArrowRight, Loader2, Upload, X, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
+import { useAuth } from "@/hooks/useAuth";
 
 interface FeedbackDialogProps {
   open: boolean;
@@ -19,6 +20,8 @@ type FeedbackStep = "describe" | "lara-response" | "escalate" | "submitted";
 export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const { user } = useAuth();
+  const suggestedEmail = user?.email ?? "";
 
   const [step, setStep] = useState<FeedbackStep>("describe");
   const [description, setDescription] = useState("");
@@ -59,7 +62,8 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
   };
 
   const handleSubmitEscalation = async () => {
-    if (!contactEmail.trim()) return;
+    const email = (contactEmail || suggestedEmail).trim();
+    if (!email) return;
     setIsSubmitting(true);
     await new Promise((r) => setTimeout(r, 1000));
     setIsSubmitting(false);
@@ -212,20 +216,25 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                   <div className="flex items-start gap-2 text-sm">
                     <Badge variant="outline" className="text-[13px] px-1.5 py-0 mt-0.5 shrink-0">3</Badge>
                     <span className="text-foreground">
-                      {isNb ? "Du får beskjed når det er løst (vi bygger løsninger på ~30 min)" : "You'll be notified when it's resolved (we build solutions in ~30 min)"}
+                      {isNb ? "Du får beskjed når det er løst" : "You'll be notified when it's resolved"}
                     </span>
                   </div>
                 </div>
               </div>
 
+              <p className="text-sm text-muted-foreground text-center">
+                {isNb
+                  ? "Vil du at en rådgiver tar kontakt om denne saken?"
+                  : "Would you like an advisor to follow up on this?"}
+              </p>
+
               <div className="flex gap-2">
                 <Button onClick={handleClose} variant="outline" className="flex-1">
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  {isNb ? "Det holder!" : "That works!"}
+                  {isNb ? "Nei takk" : "No thanks"}
                 </Button>
-                <Button onClick={handleEscalate} variant="secondary" className="flex-1">
+                <Button onClick={handleEscalate} className="flex-1">
                   <UserRound className="h-4 w-4 mr-2" />
-                  {isNb ? "Snakk med rådgiver" : "Talk to advisor"}
+                  {isNb ? "Ja, ta kontakt" : "Yes, contact me"}
                 </Button>
               </div>
             </div>
@@ -252,10 +261,18 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                 </label>
                 <Input
                   type="email"
-                  value={contactEmail}
+                  value={contactEmail || suggestedEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  placeholder="navn@firma.no"
+                  placeholder={suggestedEmail || "navn@firma.no"}
                 />
+                {suggestedEmail && (
+                  <p className="mt-1.5 text-xs text-muted-foreground flex items-center gap-1.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    {isNb
+                      ? `Lara foreslår e-posten du er logget inn med (${suggestedEmail}). Endre om nødvendig.`
+                      : `Lara suggests the email you're signed in with (${suggestedEmail}). Change if needed.`}
+                  </p>
+                )}
               </div>
 
               <div className="rounded-lg bg-muted/30 border border-border p-3 text-sm text-muted-foreground space-y-1">
@@ -267,7 +284,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
 
               <Button
                 onClick={handleSubmitEscalation}
-                disabled={!contactEmail.trim() || isSubmitting}
+                disabled={!(contactEmail || suggestedEmail).trim() || isSubmitting}
                 className="w-full"
               >
                 {isSubmitting ? (
