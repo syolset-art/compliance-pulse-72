@@ -298,9 +298,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <Shield className="h-3.5 w-3.5 text-primary" />
               <span className="font-medium">Powered by Mynder Trust Center</span>
             </div>
-            <Badge variant="outline" className="text-[13px]">
-              {isNb ? "Egenerklæring" : "Self-declared"}
-            </Badge>
           </div>
 
           <div className="p-6 md:p-8 space-y-8">
