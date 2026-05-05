@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Send, CheckCircle2, UserRound, ArrowRight, Loader2 } from "lucide-react";
+import { Camera, Send, CheckCircle2, UserRound, ArrowRight, Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
@@ -22,18 +22,27 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
 
   const [step, setStep] = useState<FeedbackStep>("describe");
   const [description, setDescription] = useState("");
-  const [screenshot, setScreenshot] = useState<File | null>(null);
-  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<{ file: File; preview: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [contactEmail, setContactEmail] = useState("");
 
-  const handleScreenshotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setScreenshot(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => setScreenshotPreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const preview = ev.target?.result as string;
+        setAttachments((prev) => [...prev, { file, preview }]);
+      };
+      reader.readAsDataURL(file);
+    });
+    // reset value so same file can be picked again
+    e.target.value = "";
+  };
+
+  const removeAttachment = (idx: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const handleSubmitFeedback = async () => {
@@ -68,8 +77,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
     setTimeout(() => {
       setStep("describe");
       setDescription("");
-      setScreenshot(null);
-      setScreenshotPreview(null);
+      setAttachments([]);
       setContactEmail("");
     }, 300);
   };
@@ -94,33 +102,53 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
               {/* Screenshot upload */}
               <div>
                 <label className="text-sm font-medium text-foreground mb-1.5 block">
-                  {isNb ? "Skjermbilde (valgfritt)" : "Screenshot (optional)"}
+                  {isNb ? "Bilder eller skjermbilder (valgfritt)" : "Images or screenshots (optional)"}
                 </label>
-                {screenshotPreview ? (
-                  <div className="relative rounded-lg overflow-hidden border border-border">
-                    <img src={screenshotPreview} alt="Screenshot" className="w-full max-h-48 object-cover" />
-                    <button
-                      onClick={() => { setScreenshot(null); setScreenshotPreview(null); }}
-                      className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-foreground rounded-full p-1 hover:bg-background"
-                    >
-                      ✕
-                    </button>
+
+                {/* Previews */}
+                {attachments.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mb-2">
+                    {attachments.map((att, i) => (
+                      <div key={i} className="relative rounded-lg overflow-hidden border border-border aspect-square">
+                        <img src={att.preview} alt={`Attachment ${i + 1}`} className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeAttachment(i)}
+                          className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm text-foreground rounded-full p-0.5 hover:bg-background"
+                          aria-label={isNb ? "Fjern" : "Remove"}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <label className="flex items-center justify-center gap-2 h-24 rounded-lg border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors bg-muted/30">
-                    <Camera className="h-5 w-5 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      {isNb ? "Legg til skjermbilde" : "Add screenshot"}
-                    </span>
+                )}
+
+                {/* Two-button picker: take photo or upload */}
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="flex items-center justify-center gap-2 h-11 rounded-lg border border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors bg-muted/30 text-sm text-muted-foreground">
+                    <Camera className="h-4 w-4" />
+                    {isNb ? "Ta bilde" : "Take photo"}
                     <input
                       type="file"
                       accept="image/*"
                       capture="environment"
                       className="hidden"
-                      onChange={handleScreenshotChange}
+                      onChange={handleFilesChange}
                     />
                   </label>
-                )}
+                  <label className="flex items-center justify-center gap-2 h-11 rounded-lg border border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors bg-muted/30 text-sm text-muted-foreground">
+                    <Upload className="h-4 w-4" />
+                    {isNb ? "Last opp" : "Upload"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleFilesChange}
+                    />
+                  </label>
+                </div>
               </div>
 
               {/* Description */}
