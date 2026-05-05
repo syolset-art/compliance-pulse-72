@@ -3,8 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function BliPartner() {
-  const navigate = useNavigate();
-
   const benefits = [
     {
       icon: TrendingUp,
