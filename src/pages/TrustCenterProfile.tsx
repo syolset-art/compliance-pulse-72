@@ -1110,6 +1110,13 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       </div>
                     ))}
                   </div>
+                </div>
+                  </div>
+                </div>
+
+                {/* Sections below — full width without verified stripe */}
+                <div className="p-6 md:p-8 pt-0 space-y-8">
+
 
                   {/* ── Sikkerhet og kontroller ── */}
                   <section>
