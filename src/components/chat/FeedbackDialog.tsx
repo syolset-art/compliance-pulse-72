@@ -62,7 +62,8 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
   };
 
   const handleSubmitEscalation = async () => {
-    if (!contactEmail.trim()) return;
+    const email = (contactEmail || suggestedEmail).trim();
+    if (!email) return;
     setIsSubmitting(true);
     await new Promise((r) => setTimeout(r, 1000));
     setIsSubmitting(false);
@@ -283,7 +284,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
 
               <Button
                 onClick={handleSubmitEscalation}
-                disabled={!contactEmail.trim() || isSubmitting}
+                disabled={!(contactEmail || suggestedEmail).trim() || isSubmitting}
                 className="w-full"
               >
                 {isSubmitting ? (
