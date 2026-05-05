@@ -1326,10 +1326,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               {isNb ? "Dokumentasjon" : "Documentation"}
                             </h3>
                           </div>
-                          <div className="flex items-center gap-1.5 text-[12px] text-success">
-                            <ShieldCheck className="h-3.5 w-3.5" />
-                            <span>{isNb ? "Inkludert i profilsignaturen" : "Included in profile signature"}</span>
-                          </div>
                         </div>
                         {allDocs.length === 0 ? (
                           <div className="px-5 pb-5 pt-1 border-t border-border">
