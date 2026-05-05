@@ -26,6 +26,7 @@ import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 import { PublishingReadiness } from "@/components/trust-center/PublishingReadiness";
+import { TrustContentMatrix } from "@/components/trust-center/TrustContentMatrix";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
