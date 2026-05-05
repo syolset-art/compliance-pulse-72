@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -10,17 +10,12 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Eye, Link2, Copy, Check, Pencil, Globe, Share2, Lock, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { usePageHelpListener } from "@/hooks/usePageHelpListener";
-import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 
 const TrustCenterPublicProfile = () => {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [copiedUrl, setCopiedUrl] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
-  const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
-  usePageHelpListener(setHelpOpenCb);
 
   const { data: asset } = useQuery({
     queryKey: ["self-asset-public-profile"],
@@ -210,11 +205,6 @@ const TrustCenterPublicProfile = () => {
           </div>
         </main>
       </div>
-      <ContextualHelpPanel
-        open={helpOpen}
-        onOpenChange={setHelpOpen}
-        pageId="trust-center-public-profile"
-      />
     </SidebarProvider>
   );
 };
