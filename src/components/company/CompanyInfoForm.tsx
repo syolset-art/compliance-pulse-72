@@ -479,6 +479,15 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             )}
           </FieldBlock>
         </div>
+        {isEditing && (
+          <LaraContactAssist
+            role="ciso"
+            currentName={form.ciso_name}
+            currentEmail={form.ciso_email}
+            companyProfile={companyProfile}
+            onApply={(n, e) => { update("ciso_name", n); update("ciso_email", e); }}
+          />
+        )}
       </div>
 
       {/* Description */}
