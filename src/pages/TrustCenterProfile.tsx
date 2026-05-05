@@ -405,7 +405,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
 
             {/* Control areas */}
-            <section>
+            <section id="tc-section-maturity">
               <div className="flex items-center justify-between gap-2 mb-4">
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-muted-foreground" />
