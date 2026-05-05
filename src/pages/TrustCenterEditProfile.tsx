@@ -18,7 +18,7 @@ import {
   Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
   Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users,
   ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
-  Info, Settings, Package, Sparkles, Settings2,
+  Info, Settings, Package, Sparkles, Settings2, Database,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
@@ -26,6 +26,14 @@ import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 import { PublishingReadiness } from "@/components/trust-center/PublishingReadiness";
+import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
+import { DataStorageSection } from "@/components/trust-center/edit/DataStorageSection";
+import { PrivacySection } from "@/components/trust-center/edit/PrivacySection";
+import { SecurityDetailsCard } from "@/components/trust-center/edit/SecurityDetailsCard";
+import { IncidentsSection } from "@/components/trust-center/edit/IncidentsSection";
+import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
+import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
+import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
