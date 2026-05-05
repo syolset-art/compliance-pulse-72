@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { TrendingUp, ArrowRight } from "lucide-react";
+import { TrendingUp, ArrowRight, ShieldCheck } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +21,12 @@ function scoreColor(score: number) {
   return "text-destructive";
 }
 
+function scoreProgressClass(score: number) {
+  if (score >= 75) return "[&>div]:bg-success";
+  if (score >= 50) return "[&>div]:bg-warning";
+  return "[&>div]:bg-destructive";
+}
+
 export function DashboardOverallMaturity() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
@@ -28,16 +36,42 @@ export function DashboardOverallMaturity() {
   const overall = Math.round(stats.overallScore?.score || 0);
   const byDomain = stats.byDomainArea || {};
 
+  const { data: frameworkCount = 0 } = useQuery({
+    queryKey: ["dashboard-active-frameworks-count"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("selected_frameworks")
+        .select("id", { count: "exact" })
+        .eq("is_selected", true);
+      if (error) return 0;
+      return (data || []).length;
+    },
+  });
+
   return (
     <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <TrendingUp className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-semibold text-foreground">
-          {isNb ? "Samlet modenhetsscore" : "Overall maturity score"}
-        </h3>
+      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">
+            {isNb ? "Samlet modenhetsscore" : "Overall maturity score"}
+          </h3>
+        </div>
+        <button
+          onClick={() => navigate("/regulations")}
+          className="inline-flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+          <span className="font-semibold text-foreground tabular-nums">{frameworkCount}</span>
+          <span>
+            {isNb
+              ? `aktive regelverk${frameworkCount === 1 ? "" : ""}`
+              : `active framework${frameworkCount === 1 ? "" : "s"}`}
+          </span>
+        </button>
       </div>
 
-      <div className="text-4xl sm:text-5xl font-bold text-foreground mb-5 tracking-tight">
+      <div className={cn("text-4xl sm:text-5xl font-bold mb-5 tracking-tight tabular-nums", scoreColor(overall))}>
         {overall}%
       </div>
 
@@ -52,7 +86,7 @@ export function DashboardOverallMaturity() {
               <p className={cn("text-lg font-bold tabular-nums", scoreColor(score))}>
                 {score}%
               </p>
-              <Progress value={score} className="h-2 [&>div]:bg-primary" />
+              <Progress value={score} className={cn("h-2", scoreProgressClass(score))} />
             </div>
           );
         })}
