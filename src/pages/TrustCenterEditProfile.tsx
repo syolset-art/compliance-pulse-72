@@ -165,7 +165,7 @@ const TrustCenterEditProfile = () => {
   const meta = (asset?.metadata || {}) as Record<string, any>;
   const selectedAreas: string[] = meta.business_areas || [];
   const selectedServiceCats: string[] = meta.service_categories || [];
-  const gdprRole: string = meta.gdpr_data_role || "processor";
+  
   const customServiceType: string = meta.custom_service_type || "";
   const serviceDescription: string = meta.service_description || "";
 
