@@ -334,7 +334,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       <span className="text-muted-foreground/50">·</span>
                       <span>{isNb ? "sist signert 3. mai 2026" : "last signed May 3, 2026"}</span>
                       <span className="text-muted-foreground/50">·</span>
-                      <a href="#" className="text-primary hover:underline">{isNb ? "se bevis" : "view proof"}</a>
+                      <button type="button" onClick={() => setProofDialogOpen(true)} className="text-primary hover:underline">{isNb ? "se bevis" : "view proof"}</button>
                     </div>
                   </div>
                 </div>
@@ -1037,7 +1037,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <span className="text-muted-foreground/50">·</span>
                             <span>{isNb ? "sist signert 3. mai 2026" : "last signed May 3, 2026"}</span>
                             <span className="text-muted-foreground/50">·</span>
-                            <a href="#" className="text-primary hover:underline">{isNb ? "se bevis" : "view proof"}</a>
+                            <button type="button" onClick={() => setProofDialogOpen(true)} className="text-primary hover:underline">{isNb ? "se bevis" : "view proof"}</button>
                           </div>
                         </div>
                       </div>
