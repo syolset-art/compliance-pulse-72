@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Shield, Globe, Building2, ArrowRight, Loader2 } from "lucide-react";
+import { Search, Shield, Globe, Building2, ArrowRight, Loader2, User } from "lucide-react";
 
 export default function TrustEngine() {
   const navigate = useNavigate();
