@@ -298,9 +298,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <Shield className="h-3.5 w-3.5 text-primary" />
               <span className="font-medium">Powered by Mynder Trust Center</span>
             </div>
-            <Badge variant="outline" className="text-[13px]">
-              {isNb ? "Egenerklæring" : "Self-declared"}
-            </Badge>
           </div>
 
           <div className="p-6 md:p-8 space-y-8">
@@ -1001,9 +998,18 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <Shield className="h-3.5 w-3.5 text-primary" />
                     <span className="font-medium">Powered by Mynder Trust Center</span>
                   </div>
-                  <Badge variant="outline" className="text-[13px]">
-                    {isNb ? "Egenerklæring" : "Self-declared"}
-                  </Badge>
+                  <a
+                    href={`/trust-engine/profile/${asset.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={isPublished
+                      ? (isNb ? "Åpne ditt publiserte Trust Center" : "Open your published Trust Center")
+                      : (isNb ? "Forhåndsvis hvordan kjøperen vil se Trust Centeret" : "Preview how buyers will see the Trust Center")}
+                    className="inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:underline"
+                  >
+                    {isNb ? "Utforsk Trust Center" : "Explore Trust Center"}
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </a>
                 </div>
 
                 <div className="p-6 md:p-8 space-y-8">
