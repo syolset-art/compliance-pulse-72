@@ -343,38 +343,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <span>{isNb ? "Profilvisninger: " : "Profile views: "}<span className="font-semibold text-foreground">1 247</span></span>
                 </div>
 
-                {recognizedFrameworks.length > 0 && (
-                  <div className="space-y-3">
-                    {standardFrameworks.length > 0 && (
-                      <div>
-                        <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                          {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {standardFrameworks.map((fw: any) => (
-                            <Badge key={fw.framework_id} variant="outline" className={`text-[13px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}>
-                              {fw.framework_name}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {regulationFrameworks.length > 0 && (
-                      <div>
-                        <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                          {isNb ? "Regulatorisk dekning" : "Regulatory Coverage"}
-                        </p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {regulationFrameworks.map((fw: any) => (
-                            <Badge key={fw.framework_id} variant="outline" className={`text-[13px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}>
-                              {fw.framework_name}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
 
               {/* Trust Score Gauge */}
@@ -1088,47 +1056,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </span>
                       </div>
 
-                      {/* Framework badges — split into Standards & Regulations */}
-                      {recognizedFrameworks.length > 0 && (
-                        <div className="space-y-3">
-                          {standardFrameworks.length > 0 && (
-                            <div>
-                              <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                                {isNb ? "Standarder og sertifiseringer" : "Standards & Certifications"}
-                              </p>
-                              <div className="flex flex-wrap gap-1.5">
-                                {standardFrameworks.map((fw: any) => (
-                                  <Badge
-                                    key={fw.framework_id}
-                                    variant="outline"
-                                    className={`text-[13px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}
-                                  >
-                                    {fw.framework_name}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {regulationFrameworks.length > 0 && (
-                            <div>
-                              <p className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
-                                {isNb ? "Regulatorisk dekning" : "Regulatory Coverage"}
-                              </p>
-                              <div className="flex flex-wrap gap-1.5">
-                                {regulationFrameworks.map((fw: any) => (
-                                  <Badge
-                                    key={fw.framework_id}
-                                    variant="outline"
-                                    className={`text-[13px] font-medium ${frameworkBadgeClass(fw.framework_name)}`}
-                                  >
-                                    {fw.framework_name}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
                     </div>
 
                     {/* Trust Score Gauge */}
