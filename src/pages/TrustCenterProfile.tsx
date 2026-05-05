@@ -1165,7 +1165,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                       ? (isNb ? "Dokumentert" : "Documented")
                                       : control.verificationSource === "customer_asserted"
                                         ? (isNb ? "Dokumentert" : "Documented")
-                                        : (isNb ? "Egenerklæring" : "Self-declared");
+                                        : null;
 
                                   return (
                                     <div key={control.key} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0">
@@ -1177,7 +1177,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                         <Badge variant="outline" className={`text-[13px] ${statusBadgeClass}`}>
                                           {statusBadgeLabel}
                                         </Badge>
-                                        <span className="text-[13px] text-muted-foreground">{verificationLabel}</span>
+                                        {verificationLabel && <span className="text-[13px] text-muted-foreground">{verificationLabel}</span>}
                                       </div>
                                     </div>
                                   );
