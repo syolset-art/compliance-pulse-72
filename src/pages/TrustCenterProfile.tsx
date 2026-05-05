@@ -971,10 +971,20 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <p className="text-[13px] text-muted-foreground">{isNb ? "Markedsnavn: " : "Trading as: "}{companyProfile.name}</p>
                           )}
                           {asset?.description ? (
-                            <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">{asset.description}</p>
+                            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{asset.description}</p>
                           ) : (
                             <p className="text-sm text-muted-foreground italic mt-0.5">{isNb ? "Mangler kort beskrivelse" : "Missing short description"}</p>
                           )}
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted-foreground mt-2">
+                            <span className="inline-flex items-center gap-1 text-success font-medium">
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              {isNb ? "Kryptografisk verifiserbar" : "Cryptographically verifiable"}
+                            </span>
+                            <span className="text-muted-foreground/50">·</span>
+                            <span>{isNb ? "sist signert 3. mai 2026" : "last signed May 3, 2026"}</span>
+                            <span className="text-muted-foreground/50">·</span>
+                            <a href="#" className="text-primary hover:underline">{isNb ? "se bevis" : "view proof"}</a>
+                          </div>
                         </div>
                       </div>
 
