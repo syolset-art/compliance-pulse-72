@@ -82,23 +82,24 @@ export default function BliPartner() {
           </section>
 
           {/* CTA */}
-          <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-accent p-10 md:p-14">
-            <div className="absolute -bottom-12 -right-12 h-56 w-56 bg-white/10 rounded-full blur-2xl" />
-            <div className="relative max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-semibold text-white mb-3">
-                Vil du vite mer?
-              </h2>
-              <p className="text-white/80 mb-8 text-lg">
-                Les om partnerprogrammet på mynder.no eller ta kontakt direkte.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" variant="glass">
+          <section className="rounded-3xl border border-border bg-card p-8 md:p-12">
+            <div className="grid gap-8 md:grid-cols-2 md:items-center">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-2">
+                  Vil du vite mer?
+                </h2>
+                <p className="text-muted-foreground">
+                  Les om partnerprogrammet på mynder.no eller ta kontakt direkte.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 md:justify-end">
+                <Button asChild size="lg">
                   <a href="https://mynder.no/bli-partner" target="_blank" rel="noopener noreferrer">
                     Les mer på mynder.no
                     <ExternalLink className="h-4 w-4 ml-2" />
                   </a>
                 </Button>
-                <Button asChild size="lg" variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
+                <Button asChild size="lg" variant="outline">
                   <a href="mailto:partner@mynder.no">
                     <Mail className="h-4 w-4 mr-2" />
                     partner@mynder.no
