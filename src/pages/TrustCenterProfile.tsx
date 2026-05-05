@@ -544,6 +544,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <div className="flex-1 min-w-0">
                               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{c.role}</p>
                               <p className="text-sm font-medium text-foreground truncate">{c.name || (isNb ? "Ikke oppgitt" : "Not provided")}</p>
+                              {(c as any).address && (
+                                <p className="text-xs text-muted-foreground truncate">{(c as any).address}</p>
+                              )}
                             </div>
                             {c.email && (
                               <a href={`mailto:${c.email}`} className="text-xs text-primary hover:underline shrink-0 truncate">
