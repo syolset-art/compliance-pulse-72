@@ -1601,7 +1601,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </Button>
                   <Button className="flex-1 gap-2 bg-primary hover:bg-primary/90" onClick={handlePublish}>
                     <Share2 className="h-4 w-4" />
-                    {isNb ? "Publiser nå" : "Publish now"}
+                    {isNb ? "Publiser" : "Publish"}
                   </Button>
                 </div>
               </div>
