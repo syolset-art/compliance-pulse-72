@@ -548,6 +548,7 @@ export type Database = {
           external_source_provider: string | null
           gdpr_role: string | null
           id: string
+          incident_report_url: string | null
           last_synced_at: string | null
           lifecycle_status: string | null
           logo_url: string | null
@@ -559,6 +560,7 @@ export type Database = {
           privacy_contact_address: string | null
           privacy_contact_email: string | null
           privacy_contact_name: string | null
+          privacy_policy_url: string | null
           publish_mode: string | null
           publish_to_customers: string[] | null
           region: string | null
@@ -567,6 +569,7 @@ export type Database = {
           risk_score: number | null
           security_contact_email: string | null
           security_contact_name: string | null
+          security_contact_phone: string | null
           sync_enabled: boolean | null
           tprm_status: string | null
           updated_at: string | null
@@ -593,6 +596,7 @@ export type Database = {
           external_source_provider?: string | null
           gdpr_role?: string | null
           id?: string
+          incident_report_url?: string | null
           last_synced_at?: string | null
           lifecycle_status?: string | null
           logo_url?: string | null
@@ -604,6 +608,7 @@ export type Database = {
           privacy_contact_address?: string | null
           privacy_contact_email?: string | null
           privacy_contact_name?: string | null
+          privacy_policy_url?: string | null
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
@@ -612,6 +617,7 @@ export type Database = {
           risk_score?: number | null
           security_contact_email?: string | null
           security_contact_name?: string | null
+          security_contact_phone?: string | null
           sync_enabled?: boolean | null
           tprm_status?: string | null
           updated_at?: string | null
@@ -638,6 +644,7 @@ export type Database = {
           external_source_provider?: string | null
           gdpr_role?: string | null
           id?: string
+          incident_report_url?: string | null
           last_synced_at?: string | null
           lifecycle_status?: string | null
           logo_url?: string | null
@@ -649,6 +656,7 @@ export type Database = {
           privacy_contact_address?: string | null
           privacy_contact_email?: string | null
           privacy_contact_name?: string | null
+          privacy_policy_url?: string | null
           publish_mode?: string | null
           publish_to_customers?: string[] | null
           region?: string | null
@@ -657,6 +665,7 @@ export type Database = {
           risk_score?: number | null
           security_contact_email?: string | null
           security_contact_name?: string | null
+          security_contact_phone?: string | null
           sync_enabled?: boolean | null
           tprm_status?: string | null
           updated_at?: string | null
