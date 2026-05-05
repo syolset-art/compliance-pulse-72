@@ -253,12 +253,6 @@ export const RequiredArtifactsBlock = ({ assetId, vendorDocs, variant = "profile
                     )}
                   </>
                 )}
-                {!documented && variant === "profile" && (
-                  <Button variant="outline" size="sm" className="gap-1.5 h-8" onClick={goToEvidence}>
-                    <Plus className="h-3.5 w-3.5" />
-                    {isNb ? "Legg til" : "Add"}
-                  </Button>
-                )}
               </div>
             </div>
           );
