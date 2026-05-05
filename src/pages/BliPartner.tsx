@@ -56,27 +56,26 @@ export default function BliPartner() {
           </section>
 
           {/* Hvem passer det for */}
-          <section className="space-y-10">
+          <section className="space-y-6">
             <div className="max-w-2xl">
-              <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground mb-3">
+              <h2 className="text-xl md:text-2xl font-semibold tracking-tight text-foreground mb-1.5">
                 Hvem passer det for?
               </h2>
-              <p className="text-base text-muted-foreground">
-                Partnerprogrammet er laget for fagmiljøer som leverer etterlevelse som en tjeneste
-                — eller som vil løfte kvaliteten i eget arbeid.
+              <p className="text-sm text-muted-foreground">
+                Fagmiljøer som leverer etterlevelse som tjeneste — eller vil løfte kvaliteten i eget arbeid.
               </p>
             </div>
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {audiences.map(({ icon: Icon, title, desc }) => (
                 <div
                   key={title}
-                  className="group rounded-2xl border border-border bg-card p-7 hover-lift shadow-luxury"
+                  className="rounded-xl border border-border bg-card p-4"
                 >
-                  <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-5">
-                    <Icon className="h-5 w-5" />
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-3">
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                  <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
               ))}
             </div>
