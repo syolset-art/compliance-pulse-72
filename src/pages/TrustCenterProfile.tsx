@@ -1051,14 +1051,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Eye className="h-4 w-4" />
-                        <span>
-                          {isNb ? "Profilvisninger: " : "Profile views: "}
-                          <span className="font-semibold text-foreground">1 247</span>
-                        </span>
-                      </div>
-
                     </div>
 
                     {/* Trust Score Gauge */}
