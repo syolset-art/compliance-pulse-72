@@ -1224,7 +1224,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
                       {isNb ? "DOKUMENTASJON OG BEVIS" : "DOCUMENTATION AND EVIDENCE"}
                     </h3>
-                    <RequiredArtifactsBlock assetId={asset?.id} vendorDocs={vendorDocs} variant="profile" />
+                    
                     <div className="space-y-2.5 pt-1">
                       {[
                         { key: "policies", icon: FileText, label: isNb ? "Retningslinjer" : "Policies", count: docsCount, color: "text-primary", items: policies },
