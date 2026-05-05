@@ -486,28 +486,28 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               const incidentUrl = a.incident_report_url;
               const privacyAddress = a.privacy_contact_address;
 
+              const generalName = a.contact_name || cp.ceo_name;
+              const generalRole = a.contact_role || (cp.ceo_name ? (isNb ? "Daglig leder" : "CEO") : null);
+              const generalSub = [generalName, generalRole].filter(Boolean).join(" · ");
+
               const rows = [
                 generalEmail && {
                   label: isNb ? "Generell kontakt" : "General contact",
+                  sub: generalSub || undefined,
                   primary: { text: generalEmail, href: `mailto:${generalEmail}` },
                 },
                 privacyEmail && {
-                  label: isNb ? "Personvernkontakt (DPO)" : "Privacy contact (DPO)",
-                  sub: isNb ? "For registrertes rettigheter under GDPR" : "For data subject rights under GDPR",
+                  label: isNb ? "Personvernkontakt" : "Privacy contact",
+                  sub: isNb ? "For spørsmål om dine personopplysninger" : "For questions about your personal data",
                   primary: { text: privacyEmail, href: `mailto:${privacyEmail}` },
                 },
                 securityEmail && {
                   label: isNb ? "Sikkerhetskontakt" : "Security contact",
-                  sub: isNb ? "For sårbarhetsrapportering og sikkerhetshenvendelser" : "For vulnerability reports and security inquiries",
+                  sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues",
                   primary: { text: securityEmail, href: `mailto:${securityEmail}` },
-                  secondary: incidentUrl ? { text: isNb ? "Rapporter hendelse" : "Report incident", href: incidentUrl, external: true } : undefined,
-                },
-                privacyUrl && {
-                  label: isNb ? "Personvernerklæring" : "Privacy policy",
-                  primary: { text: privacyUrl.replace(/^https?:\/\//, "") + " →", href: privacyUrl, external: true },
                 },
                 privacyAddress && {
-                  label: isNb ? "Postadresse for personvernhenvendelser" : "Postal address for privacy inquiries",
+                  label: isNb ? "Postadresse" : "Postal address",
                   block: privacyAddress,
                 },
               ].filter(Boolean) as any[];
@@ -517,11 +517,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               return (
                 <>
                   <section className="rounded-xl border border-border bg-card overflow-hidden">
-                    <div className="px-5 py-3 border-b border-border bg-primary/5 flex items-center gap-2">
+                    <div className="px-5 py-3.5 flex items-center gap-2">
                       <MessageSquare className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-semibold text-primary">{isNb ? "Kontaktinformasjon" : "Contact information"}</h3>
+                      <h3 className="text-sm font-semibold text-foreground">{isNb ? "Kontaktinformasjon" : "Contact information"}</h3>
                     </div>
-                    <div className="divide-y divide-border">
+                    <div className="divide-y divide-border border-t border-border">
                       {rows.map((r, i) => (
                         <div key={i} className={`px-5 py-3.5 ${r.block ? "" : "flex items-start justify-between gap-6"}`}>
                           <div className="min-w-0">
@@ -1248,28 +1248,28 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     const incidentUrl = a.incident_report_url;
                     const privacyAddress = a.privacy_contact_address;
 
+                    const generalName = a.contact_name || cp.ceo_name;
+                    const generalRole = a.contact_role || (cp.ceo_name ? (isNb ? "Daglig leder" : "CEO") : null);
+                    const generalSub = [generalName, generalRole].filter(Boolean).join(" · ");
+
                     const rows = [
                       generalEmail && {
                         label: isNb ? "Generell kontakt" : "General contact",
+                        sub: generalSub || undefined,
                         primary: { text: generalEmail, href: `mailto:${generalEmail}` },
                       },
                       privacyEmail && {
-                        label: isNb ? "Personvernkontakt (DPO)" : "Privacy contact (DPO)",
-                        sub: isNb ? "For registrertes rettigheter under GDPR" : "For data subject rights under GDPR",
+                        label: isNb ? "Personvernkontakt" : "Privacy contact",
+                        sub: isNb ? "For spørsmål om dine personopplysninger" : "For questions about your personal data",
                         primary: { text: privacyEmail, href: `mailto:${privacyEmail}` },
                       },
                       securityEmail && {
                         label: isNb ? "Sikkerhetskontakt" : "Security contact",
-                        sub: isNb ? "For sårbarhetsrapportering og sikkerhetshenvendelser" : "For vulnerability reports and security inquiries",
+                        sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues",
                         primary: { text: securityEmail, href: `mailto:${securityEmail}` },
-                        secondary: incidentUrl ? { text: isNb ? "Rapporter hendelse" : "Report incident", href: incidentUrl, external: true } : undefined,
-                      },
-                      privacyUrl && {
-                        label: isNb ? "Personvernerklæring" : "Privacy policy",
-                        primary: { text: privacyUrl.replace(/^https?:\/\//, "") + " →", href: privacyUrl, external: true },
                       },
                       privacyAddress && {
-                        label: isNb ? "Postadresse for personvernhenvendelser" : "Postal address for privacy inquiries",
+                        label: isNb ? "Postadresse" : "Postal address",
                         block: privacyAddress,
                       },
                     ].filter(Boolean) as any[];
@@ -1278,11 +1278,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     return (
                       <>
                         <section className="rounded-xl border border-border bg-card overflow-hidden">
-                          <div className="px-5 py-3 border-b border-border bg-primary/5 flex items-center gap-2">
+                          <div className="px-5 py-3.5 flex items-center gap-2">
                             <MessageSquare className="h-4 w-4 text-primary" />
-                            <h3 className="text-sm font-semibold text-primary">{isNb ? "Kontaktinformasjon" : "Contact information"}</h3>
+                            <h3 className="text-sm font-semibold text-foreground">{isNb ? "Kontaktinformasjon" : "Contact information"}</h3>
                           </div>
-                          <div className="divide-y divide-border">
+                          <div className="divide-y divide-border border-t border-border">
                             {rows.map((r, i) => (
                               <div key={i} className={`px-5 py-3.5 ${r.block ? "" : "flex items-start justify-between gap-6"}`}>
                                 <div className="min-w-0">
