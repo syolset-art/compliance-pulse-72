@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Camera, Send, CheckCircle2, UserRound, ArrowRight, Loader2, Upload, X } from "lucide-react";
+import { Camera, Send, CheckCircle2, UserRound, ArrowRight, Loader2, Upload, X, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import laraButterfly from "@/assets/lara-butterfly.png";
+import { useAuth } from "@/hooks/useAuth";
 
 interface FeedbackDialogProps {
   open: boolean;
@@ -19,6 +20,8 @@ type FeedbackStep = "describe" | "lara-response" | "escalate" | "submitted";
 export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const { user } = useAuth();
+  const suggestedEmail = user?.email ?? "";
 
   const [step, setStep] = useState<FeedbackStep>("describe");
   const [description, setDescription] = useState("");
@@ -212,11 +215,17 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
                   <div className="flex items-start gap-2 text-sm">
                     <Badge variant="outline" className="text-[13px] px-1.5 py-0 mt-0.5 shrink-0">3</Badge>
                     <span className="text-foreground">
-                      {isNb ? "Du får beskjed når det er løst (vi bygger løsninger på ~30 min)" : "You'll be notified when it's resolved (we build solutions in ~30 min)"}
+                      {isNb ? "Du får beskjed når det er løst" : "You'll be notified when it's resolved"}
                     </span>
                   </div>
                 </div>
               </div>
+
+              <p className="text-sm text-muted-foreground text-center">
+                {isNb
+                  ? "Vil du at en rådgiver tar kontakt om denne saken?"
+                  : "Would you like an advisor to follow up on this?"}
+              </p>
 
               <div className="flex gap-2">
                 <Button onClick={handleClose} variant="outline" className="flex-1">
