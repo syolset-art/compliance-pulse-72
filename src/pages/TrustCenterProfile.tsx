@@ -338,11 +338,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Eye className="h-4 w-4" />
-                  <span>{isNb ? "Profilvisninger: " : "Profile views: "}<span className="font-semibold text-foreground">1 247</span></span>
-                </div>
-
               </div>
 
               {/* Trust Score Gauge */}
@@ -358,9 +353,17 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </div>
                 </div>
                 <span className={`text-sm font-semibold uppercase tracking-wider ${trustColor}`}>{trustLabel}</span>
-                <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
+                <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {lastUpdated}
+                  </span>
+                  <span className="text-muted-foreground/40">·</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Eye className="h-3 w-3" />
+                    <span className="tabular-nums font-medium text-foreground">1 247</span>
+                    <span>{isNb ? "visninger" : "views"}</span>
+                  </span>
                 </div>
                 {evaluation?.evidenceChecks && evaluation.evidenceChecks.length > 0 && (
                   <div className="flex items-center gap-1.5 mt-1">
@@ -1048,14 +1051,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Eye className="h-4 w-4" />
-                        <span>
-                          {isNb ? "Profilvisninger: " : "Profile views: "}
-                          <span className="font-semibold text-foreground">1 247</span>
-                        </span>
-                      </div>
-
                     </div>
 
                     {/* Trust Score Gauge */}
@@ -1076,9 +1071,17 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                       </div>
                       <span className={`text-sm font-semibold uppercase tracking-wider ${trustColor}`}>{trustLabel}</span>
-                      <div className="flex items-center gap-1 text-[13px] text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{isNb ? "Sist oppdatert:" : "Last updated:"} {lastUpdated}</span>
+                      <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {lastUpdated}
+                        </span>
+                        <span className="text-muted-foreground/40">·</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          <span className="tabular-nums font-medium text-foreground">1 247</span>
+                          <span>{isNb ? "visninger" : "views"}</span>
+                        </span>
                       </div>
                     </div>
                   </div>
