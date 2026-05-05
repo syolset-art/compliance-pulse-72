@@ -12,8 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import {
-  Shield, Eye, Share2, Settings, CheckCircle2, AlertTriangle, XCircle,
-  ChevronDown, ChevronUp, Clock, MessageSquare, FileText, Award, Globe,
+  Shield, ShieldCheck, Eye, Share2, Settings, CheckCircle2, AlertTriangle, XCircle,
+  ChevronDown, ChevronUp, ChevronRight, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
 } from "lucide-react";
@@ -561,71 +561,66 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             })()}
 
             {/* Documentation */}
-            <section className="rounded-xl border border-border bg-card overflow-hidden">
-              <button
-                onClick={() => setDocsSectionOpen(o => !o)}
-                className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-muted/40 transition-colors text-left"
-              >
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {isNb ? "Dokumentasjon og bevis" : "Documentation and evidence"}
-                  </h3>
-                  {(policies.length + certs.length + otherDocs.length) > 0 && (
-                    <Badge variant="secondary" className="text-[11px] rounded-full px-2">
-                      {policies.length + certs.length + otherDocs.length}
-                    </Badge>
-                  )}
-                </div>
-                {docsSectionOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-              </button>
-              {docsSectionOpen && (
-                <div className="px-5 pb-5 pt-1 space-y-5 border-t border-border">
-                  {[
-                    { key: "policies", label: isNb ? "Retningslinjer" : "Policies", items: policies },
-                    { key: "certs", label: isNb ? "Sertifiseringer" : "Certifications", items: certs },
-                    { key: "documents", label: isNb ? "Dokumenter" : "Documents", items: otherDocs },
-                  ].map(group => (
-                    <div key={group.key} className="space-y-2 pt-3">
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{group.label}</h4>
-                        {group.items.length > 0 && (
-                          <span className="text-[11px] text-muted-foreground/70">({group.items.length})</span>
-                        )}
-                      </div>
-                      {group.items.length === 0 ? (
-                        <p className="text-xs text-muted-foreground/70 italic px-1">
-                          {isNb ? "Ingen publisert." : "None published."}
-                        </p>
-                      ) : (
-                        <div className="space-y-1.5">
-                          {group.items.map((doc: any) => {
-                            const content = (
-                              <>
-                                <div className="flex items-center gap-2.5 min-w-0">
-                                  <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                  <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
-                                </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                  {doc.status && <Badge variant={doc.status === "verified" ? "default" : "outline"} className="text-[13px]">{doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}</Badge>}
-                                  {doc.external_url && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
-                                </div>
-                              </>
-                            );
-                            const cls = "w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left";
-                            return doc.external_url ? (
-                              <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
-                            ) : (
-                              <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
-                            );
-                          })}
-                        </div>
-                      )}
+            {(() => {
+              const allDocs = [...policies, ...certs, ...otherDocs];
+              const fmtDate = (d: string) => {
+                if (!d) return "";
+                try {
+                  return new Date(d).toLocaleDateString(isNb ? "nb-NO" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
+                } catch { return ""; }
+              };
+              return (
+                <section className="rounded-xl border border-border bg-card overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-3.5">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-primary" />
+                      <h3 className="text-sm font-semibold text-foreground">
+                        {isNb ? "Dokumentasjon" : "Documentation"}
+                      </h3>
                     </div>
-                  ))}
-                </div>
-              )}
-            </section>
+                    <div className="flex items-center gap-1.5 text-[12px] text-success">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      <span>{isNb ? "Inkludert i profilsignaturen" : "Included in profile signature"}</span>
+                    </div>
+                  </div>
+                  {allDocs.length === 0 ? (
+                    <div className="px-5 pb-5 pt-1 border-t border-border">
+                      <p className="text-xs text-muted-foreground/70 italic">
+                        {isNb ? "Ingen publisert." : "None published."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="border-t border-border divide-y divide-border">
+                      {allDocs.map((doc: any) => {
+                        const updated = doc.valid_to || doc.created_at;
+                        const content = (
+                          <>
+                            <FileText className="h-4 w-4 text-primary shrink-0" strokeWidth={1.5} />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-foreground truncate">
+                                {doc.display_name || doc.file_name}
+                              </p>
+                              {updated && (
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  {isNb ? "Oppdatert" : "Updated"} {fmtDate(updated)}
+                                </p>
+                              )}
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                          </>
+                        );
+                        const cls = "w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/40 transition-colors text-left";
+                        return doc.external_url ? (
+                          <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
+                        ) : (
+                          <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              );
+            })()}
 
             <div className="border-t border-border" />
 
@@ -1317,76 +1312,67 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   })()}
 
 
-                  {/* ── Dokumentasjon og bevis ── */}
-                  <section className="rounded-xl border border-border bg-card overflow-hidden">
-                    <button
-                      onClick={() => setDocsSectionOpen(o => !o)}
-                      className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-muted/40 transition-colors text-left"
-                    >
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-primary" />
-                        <h3 className="text-sm font-semibold text-foreground">
-                          {isNb ? "Dokumentasjon og bevis" : "Documentation and evidence"}
-                        </h3>
-                        {(policies.length + certs.length + otherDocs.length) > 0 && (
-                          <Badge variant="secondary" className="text-[11px] rounded-full px-2">
-                            {policies.length + certs.length + otherDocs.length}
-                          </Badge>
-                        )}
-                      </div>
-                      {docsSectionOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                    </button>
-                    {docsSectionOpen && (
-                      <div className="px-5 pb-5 pt-1 space-y-5 border-t border-border">
-                        {[
-                          { key: "policies", label: isNb ? "Retningslinjer" : "Policies", items: policies },
-                          { key: "certs", label: isNb ? "Sertifiseringer" : "Certifications", items: certs },
-                          { key: "documents", label: isNb ? "Dokumenter" : "Documents", items: otherDocs },
-                        ].map(group => (
-                          <div key={group.key} className="space-y-2 pt-3">
-                            <div className="flex items-center gap-2">
-                              <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{group.label}</h4>
-                              {group.items.length > 0 && (
-                                <span className="text-[11px] text-muted-foreground/70">({group.items.length})</span>
-                              )}
-                            </div>
-                            {group.items.length === 0 ? (
-                              <p className="text-xs text-muted-foreground/70 italic px-1">
-                                {isNb ? "Ingen publisert." : "None published."}
-                              </p>
-                            ) : (
-                              <div className="space-y-1.5">
-                                {group.items.map((doc: any) => {
-                                  const content = (
-                                    <>
-                                      <div className="flex items-center gap-2.5 min-w-0">
-                                        <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                        <span className="text-xs font-medium text-foreground truncate">{doc.display_name || doc.file_name}</span>
-                                      </div>
-                                      <div className="flex items-center gap-2 shrink-0">
-                                        {doc.status && (
-                                          <Badge variant={doc.status === "verified" ? "default" : "outline"} className="text-[13px]">
-                                            {doc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : doc.status}
-                                          </Badge>
-                                        )}
-                                        {doc.external_url && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
-                                      </div>
-                                    </>
-                                  );
-                                  const cls = "w-full flex items-center justify-between px-4 py-2.5 rounded-lg bg-muted/30 border border-border/50 hover:border-primary/40 hover:bg-muted/50 transition-colors text-left";
-                                  return doc.external_url ? (
-                                    <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
-                                  ) : (
-                                    <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
-                                  );
-                                })}
-                              </div>
-                            )}
+                  {/* ── Dokumentasjon ── */}
+                  {(() => {
+                    const allDocs = [...policies, ...certs, ...otherDocs];
+                    const fmtDate = (d: string) => {
+                      if (!d) return "";
+                      try {
+                        return new Date(d).toLocaleDateString(isNb ? "nb-NO" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
+                      } catch { return ""; }
+                    };
+                    return (
+                      <section className="rounded-xl border border-border bg-card overflow-hidden">
+                        <div className="flex items-center justify-between px-5 py-3.5">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-primary" />
+                            <h3 className="text-sm font-semibold text-foreground">
+                              {isNb ? "Dokumentasjon" : "Documentation"}
+                            </h3>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </section>
+                          <div className="flex items-center gap-1.5 text-[12px] text-success">
+                            <ShieldCheck className="h-3.5 w-3.5" />
+                            <span>{isNb ? "Inkludert i profilsignaturen" : "Included in profile signature"}</span>
+                          </div>
+                        </div>
+                        {allDocs.length === 0 ? (
+                          <div className="px-5 pb-5 pt-1 border-t border-border">
+                            <p className="text-xs text-muted-foreground/70 italic">
+                              {isNb ? "Ingen publisert." : "None published."}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="border-t border-border divide-y divide-border">
+                            {allDocs.map((doc: any) => {
+                              const updated = doc.valid_to || doc.created_at;
+                              const content = (
+                                <>
+                                  <FileText className="h-4 w-4 text-primary shrink-0" strokeWidth={1.5} />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold text-foreground truncate">
+                                      {doc.display_name || doc.file_name}
+                                    </p>
+                                    {updated && (
+                                      <p className="text-xs text-muted-foreground mt-0.5">
+                                        {isNb ? "Oppdatert" : "Updated"} {fmtDate(updated)}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                                </>
+                              );
+                              const cls = "w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/40 transition-colors text-left";
+                              return doc.external_url ? (
+                                <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
+                              ) : (
+                                <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </section>
+                    );
+                  })()}
 
                   <div className="border-t border-border" />
 
