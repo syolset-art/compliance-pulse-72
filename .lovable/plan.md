@@ -1,73 +1,77 @@
-## Mål
 
-Når brukeren redigerer kontaktpersoner på Trust Center (`/trust-center/edit` → `CompanyInfoForm`), skal Lara-agenten kunne foreslå og fylle ut feltene automatisk. Lara henter først fra eksisterende kilder (Core / leverandørmodulen / onboarding), og hvis ingen data finnes, foreslår hun navn/e-post basert på selskapets data og brukerens egen profil.
+# Plan: Restrukturere Rediger Trust Profile
 
-## UX
+Jeg implementerer alle 14 endringene i prompten i én sammenhengende refaktorering av `TrustCenterEditProfile.tsx` + `CompanyInfoForm.tsx`, og oppretter nye komponenter for AI-godkjenningsflyt og nye seksjoner.
 
-Tre kontaktblokker får en ny "Spør Lara"-knapp i headeren ved siden av tittelen (kun synlig i `isEditing`):
-- **Kontaktperson (Compliance)**
-- **Personvern/DPO-kontakt**
-- **Sikkerhetskontakt for hendelser (CISO)**
+## Filer som endres
 
-Knappen er liten, sekundær (`Sparkles`-ikon + "Spør Lara"). Ved klikk:
+- `src/pages/TrustCenterEditProfile.tsx` — full omstrukturering av seksjonsrekkefølge og navigasjon
+- `src/components/company/CompanyInfoForm.tsx` — fjerne kontaktperson-felter (flyttes til ny seksjon), legge til AI-godkjent/foreslått visning
 
-1. Lara analyserer eksisterende data og viser en kompakt forslags-banner rett under blokken med:
-   - Kilde-badge: `Hentet fra Leverandørmodulen` / `Hentet fra Core onboarding` / `Foreslått av Lara`
-   - Navn + e-post i lese-format
-   - To knapper: **Bruk forslag** (fyller inn feltene) og **Avvis**
-2. Hvis Lara ikke finner noen data, viser banneren:
-   - "Lara fant ingen registrert kontakt. Vil du at jeg foreslår en basert på selskapets profil?" + knapp **Generer forslag** (kaller edge function)
+## Nye komponenter
 
-Empty-state hint under feltene (kun når begge er tomme og isEditing): liten lenke "✨ La Lara fylle ut" som trigger samme flyt.
+- `src/components/trust-center/edit/AISuggestionField.tsx` — gjenbrukbar wrapper for Lara-foreslått / Bekreftet / Tomt-tilstand med Bekreft/Endre/Avvis-handlinger. Bruker `metadata.confirmed_fields[]` på asset for persistens.
+- `src/components/trust-center/edit/ContactsSection.tsx` — rolleadresser (generell, personvern, sikkerhet, hendelse, postadresse). Lagrer i `assets.metadata.contacts`.
+- `src/components/trust-center/edit/DataStorageSection.tsx` — region (multi), oppbevaringsperiode, GDPR-rettsgrunnlag (multi), rolle i behandling. Lagrer i `assets.metadata.data_storage`.
+- `src/components/trust-center/edit/PrivacySection.tsx` — GDPR-status, datatyper, oppbevaringspolicy, overføringsmekanismer, lagringslokasjoner, sertifiseringer. `assets.metadata.privacy`.
+- `src/components/trust-center/edit/SecurityDetailsCard.tsx` — strukturerte felter (kryptering, tilgangskontroll, pentest, opplæring) som vises over de eksisterende 17 kontrollene. `assets.metadata.security_details`.
+- `src/components/trust-center/edit/IncidentsSection.tsx` — hendelseshåndtering + forretningskontinuitet. `assets.metadata.incidents`.
+- `src/components/trust-center/edit/AIVendorsSection.tsx` — AI-bruk, leverandørrisikostyring, underleverandører-liste. `assets.metadata.ai_vendors`.
+- `src/components/trust-center/edit/DocumentationSection.tsx` — opplastingsflyt mot eksisterende `framework_documents` / vendor_documents-tabell, med "Les"-knapp (åpner i `<iframe>` dialog), public-toggle, slett.
+- `src/components/trust-center/edit/PublishStickyBar.tsx` — sticky bottom bar når readiness ≥ 80%.
 
-## Datakilder (prioritert rekkefølge)
+## Edge function
 
-For hver rolle leter Lara i:
+- `supabase/functions/suggest-trust-profile/index.ts` (ny) — Lara-forslag for de nye strukturerte feltene. Mottar domene/bransje/teknologi-hint, returnerer JSON med forslag per seksjon. Bruker `google/gemini-2.5-flash` via Lovable AI gateway. Forslag caches i `assets.metadata.lara_suggestions`.
 
-1. **company_profile** — eksisterende `dpo_name/email`, `ciso_name/email`, `compliance_officer/email`
-2. **Core onboarding / key personnel** — `KeyPersonnelSection`-data (samme tabell, brukes som fallback hvis felt mangler i edit-form state)
-3. **Leverandørmodulen** — for "self"-asset eller relaterte assets: `assets.contact_person/email/phone` (typisk satt for organisasjonen via `ContactPersonField`)
-4. **profiles** — innlogget bruker (navn + e-post) som siste fallback for compliance officer
-5. **AI-forslag** — hvis ingenting finnes, ny edge function `suggest-key-contacts` kaller Lovable AI (google/gemini-3-flash-preview) med selskapsnavn, bransje, antall ansatte, domene og foreslår plausible plasshold-roller (f.eks. "DPO – ikke utnevnt, kontakt: dpo@<domene>"). Returnerer alltid med `source: "ai_suggestion"` og forklarende tekst.
+## Datamodell
 
-## Teknisk implementering
+Ingen migrasjoner nødvendig for nye seksjoner — alt lagres som JSON i eksisterende `assets.metadata`-felt under nøklene over. `confirmed_fields: string[]` driver "bekreftet"-state per felt-id.
 
-### Ny komponent
-`src/components/company/LaraContactAssist.tsx`
-- Props: `role: "compliance" | "dpo" | "ciso"`, `currentName`, `currentEmail`, `companyProfile`, `onApply(name, email)`, `isNb`
-- Intern state: `suggestion | null`, `loading`, `dismissed`
-- Funksjon `findSuggestion()`: kjører kildene 1–4 synkront (data allerede i React Query cache via eksisterende queries)
-- Funksjon `requestAISuggestion()`: invoke `suggest-key-contacts` edge function
-- Renderer en `Card` med kilde-badge, navn/epost, og to CTA-knapper
+For dokumentasjon brukes eksisterende `vendor_documents`-tabell (filtrert på self-asset).
 
-### Endringer i `src/components/company/CompanyInfoForm.tsx`
-- Importer `LaraContactAssist`
-- I hver av de tre kontaktblokkene (linje ~362, ~389, ~420), legg til:
-  - "Spør Lara"-knapp i blokk-headeren (kun `isEditing`)
-  - `<LaraContactAssist>` rett under `grid` med `onApply` som setter form-feltene via `update()`
-- Henter også `assets`-data (self-asset finnes allerede i `selfAsset`-query) og innlogget bruker (`useAuth`) for å gi til komponenten
+## Endringer i `TrustCenterEditProfile.tsx`
 
-### Ny edge function
-`supabase/functions/suggest-key-contacts/index.ts`
-- Input: `{ role, companyName, industry, employees, domain }`
-- Bruker Lovable AI Gateway (`google/gemini-3-flash-preview`) med structured output (tool calling) for `{ name, email, rationale }`
-- Returnerer forslag + kort begrunnelse på norsk
-- Standard CORS, ingen auth nødvendig, registreres i `supabase/config.toml` med `verify_jwt = false`
+Ny rekkefølge i `<main>`:
 
-### Tekster (NB primær, EN sekundær)
-- "Spør Lara" / "Ask Lara"
-- "Hentet fra Leverandørmodulen" / "Found in Vendor module"
-- "Hentet fra Core onboarding" / "Found in Core onboarding"
-- "Foreslått av Lara" / "Suggested by Lara"
-- "Bruk forslag" / "Use suggestion"
-- "Avvis" / "Dismiss"
-- "Lara fant ingen registrert kontakt — generer forslag basert på selskapsprofilen?" / "Lara found no contact on file — generate one from the company profile?"
+```text
+1. Page header (tilbake-link + tittel + ny subtittel)
+2. Trust Center URL-card (flyttet fra #public til toppen)
+3. Lara-intro card (Sparkles-ikon, ny tekst)
+4. PublishingReadiness
+5. Quick nav tabs (9 ankere + Detaljinnstillinger-knapp)
+6. <section id="company"> — CompanyInfoForm (uten kontaktpersoner) + Hva leverer
+7. <section id="contacts"> — ContactsSection
+8. <section id="data-storage"> — DataStorageSection
+9. <section id="privacy"> — PrivacySection
+10. <section id="security"> — SecurityDetailsCard + eksisterende 17 kontroller (Info-card fjernes)
+11. <section id="incidents"> — IncidentsSection
+12. <section id="ai-vendors"> — AIVendorsSection
+13. <section id="regulations"> — uendret
+14. <section id="documentation"> — DocumentationSection (erstatter "Dokumentasjon og bevis")
+15. PublishStickyBar (når readiness ≥ 80%)
+```
 
-## Filer som endres / opprettes
+Den gamle `<section id="public">` (linje 298–337) fjernes (URL-en er flyttet opp).
 
-- **NY** `src/components/company/LaraContactAssist.tsx`
-- **NY** `supabase/functions/suggest-key-contacts/index.ts`
-- **EDIT** `src/components/company/CompanyInfoForm.tsx` (3 blokker + import + bruker-/asset-data prop)
-- **EDIT** `supabase/config.toml` (registrer ny function)
+## Endringer i `CompanyInfoForm.tsx`
 
-Ingen DB-migrasjoner. Ingen nye secrets — `LOVABLE_API_KEY` finnes allerede.
+- Fjern alle kontaktperson-blokker (Kontaktperson / DPO / Sikkerhetskontakt + tilhørende `LaraContactAssist`).
+- Behold selskapsfelter (org.nr, navn, land, bransje, ansatte, beskrivelse, logo).
+- Pakk hvert felt i `<AISuggestionField>` slik at de viser "Foreslått av Lara"-state inntil bruker bekrefter.
+
+## Språk og tilgjengelighet
+
+- Alle nye komponenter implementerer både `nb` og `en` via `i18n.language` (følger eksisterende mønster).
+- Tailwind semantiske tokens (`bg-primary`, `text-success`, `border-border`) — ingen hardkodede farger.
+- Ikoner får eksplisitt `h-4 w-4` / `h-3 w-3`.
+
+## Akseptansekriterier
+
+- URL-card vises øverst, ingen duplikat lengre nede.
+- 9 quick nav-tabs scroller til riktig anker.
+- CompanyInfoForm viser ikke lenger DPO/CISO/Compliance-navn.
+- Hver Lara-foreslått verdi har Bekreft/Endre/Avvis-knapper og oppdaterer `confirmed_fields`.
+- Dokumentasjon-seksjonen kan laste opp, toggle public, lese (in-app dialog) og slette.
+- Sticky publiseringsbar vises kun når readiness ≥ 80%.
+- Ingen jargong (PGP, security.txt, DSAR, ECDSA) i brukervendt tekst.
