@@ -1,11 +1,8 @@
-import { ExternalLink, TrendingUp, Sparkles, GraduationCap, Calculator } from "lucide-react";
+import { ExternalLink, TrendingUp, Sparkles, GraduationCap, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
 
 export default function BliPartner() {
-  const navigate = useNavigate();
-
   const benefits = [
     {
       icon: TrendingUp,
@@ -74,9 +71,11 @@ export default function BliPartner() {
                   <ExternalLink className="h-4 w-4 ml-2" />
                 </a>
               </Button>
-              <Button variant="outline" size="lg" onClick={() => navigate("/msp-roi")}>
-                <Calculator className="h-4 w-4 mr-2" />
-                Se ROI-kalkulator
+              <Button asChild variant="outline" size="lg">
+                <a href="mailto:partner@mynder.no">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Send e-post til partner@mynder.no
+                </a>
               </Button>
             </div>
           </CardContent>
