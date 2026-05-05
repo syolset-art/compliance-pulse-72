@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Shield, Globe, Building2, ArrowRight, Loader2 } from "lucide-react";
+import { Search, Shield, Globe, Building2, ArrowRight, Loader2, User } from "lucide-react";
 
 export default function TrustEngine() {
   const navigate = useNavigate();
@@ -31,6 +31,25 @@ export default function TrustEngine() {
       return data;
     },
   });
+
+  const { data: myAsset } = useQuery({
+    queryKey: ["trust-engine-my-asset"],
+    queryFn: async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes?.user) return null;
+      const { data } = await supabase
+        .from("assets")
+        .select("*")
+        .eq("asset_type", "self")
+        .order("updated_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const myAssetPublished = myAsset && myAsset.publish_mode && myAsset.publish_mode !== "private";
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +108,55 @@ export default function TrustEngine() {
           </form>
         </div>
       </section>
+
+      {/* My Trust Profile shortcut */}
+      {myAsset && (
+        <section className="px-6 -mt-6 mb-2">
+          <div className="container max-w-4xl mx-auto">
+            <Card variant="luxury" className="p-5 border-primary/20 bg-primary/5">
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="h-11 w-11 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+                    <User className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                      Min Trust Profile
+                    </p>
+                    <h3 className="text-base font-semibold text-foreground truncate">
+                      {myAsset.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      {myAssetPublished
+                        ? "Publisert i Trust Engine — alt samlet i ditt Trust Center"
+                        : "Ikke publisert ennå"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {myAssetPublished ? (
+                    <Button
+                      onClick={() => navigate(`/trust-engine/profile/${myAsset.id}`)}
+                      className="gap-2"
+                    >
+                      Åpne mitt Trust Center
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => navigate("/trust-center/profile")}
+                      className="gap-2"
+                    >
+                      Publiser Trust Profile
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </div>
+        </section>
+      )}
 
       {/* Results */}
       <section className="pb-20 px-6">

@@ -16,6 +16,7 @@ import {
   ChevronDown, ChevronUp, ChevronRight, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
+  Linkedin, Facebook, Mail,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -404,7 +405,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
 
             {/* Control areas */}
-            <section>
+            <section id="tc-section-maturity">
               <div className="flex items-center justify-between gap-2 mb-4">
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-muted-foreground" />
@@ -517,7 +518,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
               return (
                 <>
-                  <section className="rounded-xl border border-border bg-card overflow-hidden">
+                  <section id="tc-section-contact" className="rounded-xl border border-border bg-card overflow-hidden">
                     <div className="px-5 py-3.5 flex items-center gap-2">
                       <MessageSquare className="h-4 w-4 text-primary" />
                       <h3 className="text-sm font-semibold text-foreground">{isNb ? "Kontaktinformasjon" : "Contact information"}</h3>
@@ -571,7 +572,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 } catch { return ""; }
               };
               return (
-                <section className="rounded-xl border border-border bg-card overflow-hidden">
+                <section id="tc-section-documentation" className="rounded-xl border border-border bg-card overflow-hidden">
                   <div className="flex items-center justify-between px-5 py-3.5">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-primary" />
@@ -1679,6 +1680,48 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <Globe className="h-4 w-4" />
                     {isNb ? "Åpne Trust Engine" : "Open Trust Engine"}
                   </Button>
+                </div>
+
+                {/* Social share */}
+                <div className="rounded-lg border border-border p-4 text-left space-y-3">
+                  <p className="text-sm font-semibold text-foreground">
+                    {isNb ? "Del profilen" : "Share the profile"}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-2"
+                      onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://${publicUrl}`)}`, "_blank", "noopener,noreferrer")}
+                    >
+                      <Linkedin className="h-4 w-4" />
+                      LinkedIn
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-2"
+                      onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://${publicUrl}`)}`, "_blank", "noopener,noreferrer")}
+                    >
+                      <Facebook className="h-4 w-4" />
+                      Facebook
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-2"
+                      onClick={() => {
+                        const subject = isNb ? "Vår Trust Profile" : "Our Trust Profile";
+                        const body = isNb
+                          ? `Hei,\n\nDu kan se vår Trust Profile her: https://${publicUrl}\n`
+                          : `Hi,\n\nYou can view our Trust Profile here: https://${publicUrl}\n`;
+                        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                      }}
+                    >
+                      <Mail className="h-4 w-4" />
+                      {isNb ? "E-post" : "Email"}
+                    </Button>
+                  </div>
                 </div>
                 <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => {
                   setPublishDialogOpen(false);

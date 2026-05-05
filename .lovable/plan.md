@@ -1,51 +1,88 @@
 ## Mål
 
-Når brukeren publiserer Trust Profilen sin, skal flyten gjøre det tydelig at profilen nå ligger i **Mynder Trust Engine** (Mynders eide register over verifiserte Trust Profiler). Knappen skal hete kun **Publiser / Publish** (også når den er publisert fra før).
+Når brukeren publiserer Trust Profilen skal alt være samlet i ett Trust Center på Mynder Trust Engine — med direkte deling til LinkedIn/Facebook, en snarvei tilbake til "min profil" fra Trust Engine-forsiden, og en venstre sidemeny som lar besøkende lese dokumentasjon, sertifikater og policyer **uten å forlate** Trust Centeret.
 
-## Endringer
+---
 
-### 1. `src/pages/TrustCenterProfile.tsx` — knappetekster
-- Endre knappen i "Ready to publish"-kortet fra "Publiser Trust Center" → **"Publiser" / "Publish"**.
-- Endre knappen i "Published"-kortet fra "Oppdater publisering" → **"Publiser" / "Publish"** (samme tekst i begge tilstander, slik bruker bestilte).
-- Endre dialog-knappen "Publiser nå" → **"Publiser" / "Publish"**.
-- Endre dialog-tittel-følelsen til å nevne "publiseres til Mynder Trust Engine".
+## 1. Suksessdialog: legg til sosiale delingsknapper
 
-### 2. `src/pages/TrustCenterProfile.tsx` — suksesssteg
-- Etter vellykket publisering legge til en tydelig CTA-blokk:
-  - Lite Mynder-merke + tekst: *"Profilen din ligger nå i Mynder Trust Engine"*.
-  - To knapper: **"Se profilen i Trust Engine"** (navigerer til `/trust-engine/profile/{asset.id}`) og **"Åpne Trust Engine"** (navigerer til `/trust-engine`).
-- Legg URL-eksempelet om så det viser `trust.mynder.com/...` som hostet av Mynder Trust Engine.
+I publiseringsdialogen (`TrustCenterProfile.tsx`, `publishStep === "success"`) legge til tre nye delingsknapper under "Kopier lenke":
 
-### 3. `src/pages/TrustEngine.tsx` — vis kun publiserte profiler
-- Filtrer søkeresultatene på `publish_mode` ulik `'private'` slik at registret kun lister organisasjoner som faktisk har trykket Publiser.
-- Legg til en liten badge "Publisert" på hvert kort.
-- Etter publisering blir Dintero (eneste demo-self-asset) automatisk synlig i `/trust-engine` siden `handlePublish` setter `publish_mode = 'all'`.
+- **LinkedIn** — åpner `https://www.linkedin.com/sharing/share-offsite/?url={publicUrl}`
+- **Facebook** — åpner `https://www.facebook.com/sharer/sharer.php?u={publicUrl}`
+- **E-post** — `mailto:?subject=...&body={publicUrl}`
 
-### 4. Demo-data
-- Sett `publish_mode = 'all'` på Dintero sitt self-asset slik at det er synlig i Trust Engine fra start (ellers ser bruker tomt register).
+Bruk `lucide-react` `Linkedin`, `Facebook`, `Mail` ikoner. Knappene grupperes i en kompakt rad: "Del profilen" med outline-knapper i merkevarefarger.
 
-## Teknisk
+---
 
-- Ingen schema-endringer; `assets.publish_mode` finnes allerede.
-- Ingen nye routes; bruker eksisterende `/trust-engine` (oversikt) og `/trust-engine/profile/:assetId` (offentlig profil).
-- Lokalisering: alle tekster mappes mot `isNb` etter eksisterende mønster (ingen i18n-keys i denne filen).
-- Bruk eksisterende ikoner (`Globe`, `ExternalLink`, `Shield`) — ingen nye dependencies.
+## 2. Trust Engine-forsiden: "Min Trust Profile"-snarvei
 
-## Flyt etter endringene
+I `src/pages/TrustEngine.tsx` legge til en seksjon over søkefeltet (kun synlig når brukeren er innlogget og har et `self`-asset med `publish_mode != 'private'`):
+
+- Et eget kort: "Min Trust Profile" med firmalogo + Trust Score
+- Knapp: "Åpne min profil" → `/trust-engine/profile/{minAssetId}`
+- Hvis ikke publisert ennå: "Publiser din Trust Profile" → `/trust-center/profile`
+
+Spørringen henter brukerens egen `assets` der `asset_type=self` og `created_by = auth.uid()` (eller den første self-asset i deres organisasjon).
+
+---
+
+## 3. Publisert Trust Center: nytt layout med venstre sidemeny
+
+Dette er hovedendringen. I dag bruker `PublicTrustProfile.tsx` `TrustCenterProfile` rett ut uten sidemeny. Vi lager en ny vertikal navigasjon som "låser" besøkende inn i brukerens Trust Center.
+
+### Ny komponent: `src/components/trust-center/PublicTrustCenterLayout.tsx`
 
 ```text
-[Trust Profile] -> klikk "Publiser"
-       |
-       v
-[Bekreftelses-dialog] -> klikk "Publiser"
-       |
-       v
-[Spinner: "Publiserer til Mynder Trust Engine..."]
-       |
-       v
-[Suksess-steg]
-  - "Trust Center publisert!"
-  - URL: trust.mynder.com/<slug>
-  - CTA: "Se profilen i Trust Engine" -> /trust-engine/profile/<id>
-  - CTA: "Åpne Trust Engine"          -> /trust-engine
++----------------------------------------------------------+
+| Mynder Trust Engine [tilbake til søk]   Open Database    |
++----------------------------------------------------------+
+| [Logo]                                                   |
+| Acme AS Trust Center                                     |
+| Trust Score 87% · Sist signert 3. mai 2026               |
++--------+-------------------------------------------------+
+| Sidebar|  Hovedinnhold                                   |
+|        |                                                 |
+| Profil |  (default = Trust Profile)                      |
+| Doku-  |                                                 |
+| menter |                                                 |
+| Serti- |                                                 |
+| fikater|                                                 |
+| Policy |                                                 |
+| Kontakt|                                                 |
+| Del v  |                                                 |
++--------+-------------------------------------------------+
 ```
+
+Venstre sidemeny (sticky, ca 220px):
+- **Trust Profile** (default — viser hele `TrustCenterProfile` som nå)
+- **Dokumentasjon** — viser alle publiserte dokumenter i en lesbar liste (PDF-viewer i panelet)
+- **Sertifiseringer** — egen seksjon med ISO/SOC2 etc.
+- **Policyer** — privacy, security, AUP etc.
+- **Kontakt** — kontaktblokken alene
+- **Del profilen** — viser delingsalternativene (lenke + LinkedIn/Facebook/e-post)
+
+Når besøkende klikker en menypunkt, byttes innholdet **inne i layoutet** — ingen full-side navigation. Bruk lokal `useState` for aktiv seksjon, eller URL-fragment (`#dokumenter`).
+
+### Dokumentvisning (uten å forlate Trust Centeret)
+
+I "Dokumenter"-seksjonen vises hver fil som en kort-rad. Klikk åpner et innebygd PDF/IFrame-panel i samme view (eller eksisterende `previewDoc`-Dialog som allerede finnes i `TrustCenterProfile`). Eksterne lenker åpnes i nytt vindu, men interne dokumenter vises i en in-line viewer.
+
+### Filer
+
+- **Ny:** `src/components/trust-center/PublicTrustCenterLayout.tsx` — venstre sidemeny + innhold-switcher
+- **Ny:** `src/components/trust-center/PublicDocumentList.tsx` — listevisning + innebygd preview
+- **Endret:** `src/pages/PublicTrustProfile.tsx` — bruker det nye layoutet i stedet for å rendre `TrustCenterProfile` direkte
+- **Endret:** `src/pages/TrustCenterProfile.tsx` — tar inn ny prop `hideHeader?: boolean` så vi unngår dobbel header når den vises inne i det publike layoutet; legger til delingsknapper i suksessdialog
+- **Endret:** `src/pages/TrustEngine.tsx` — "Min Trust Profile"-kort på toppen for innloggede brukere
+
+---
+
+## 4. Tekniske notater
+
+- Sidemenyen bruker `Sidebar`/`SidebarMenu` fra shadcn med `collapsible="icon"` så den krymper på mobil.
+- Bruk eksisterende `vendor_documents`-spørring (`useQuery(['vendor-documents-tc', assetId])`) i den nye `PublicDocumentList` for å unngå duplikat-logikk.
+- Aktiv seksjon synkroniseres med URL-hash slik at delbare lenker som `…/profile/{id}#sertifikater` fungerer.
+- Header på `PublicTrustProfile` beholdes (Mynder Trust Engine-stripen) — brukerens Trust Center-tittel ligger under, slik at det er tydelig at innholdet eies av brukeren mens hosten er Mynder.
+- Ingen DB-endringer kreves; alle publiserte dokumenter er allerede tilgjengelige via `vendor_documents` med `visibility = 'published'`.
