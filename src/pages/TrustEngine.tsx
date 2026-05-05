@@ -115,9 +115,15 @@ export default function TrustEngine() {
                         <Building2 className="h-6 w-6 text-primary" />
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-lg font-semibold text-foreground truncate">
-                          {asset.name}
-                        </h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-semibold text-foreground truncate">
+                            {asset.name}
+                          </h3>
+                          <Badge variant="outline" className="text-[10px] gap-1 border-success/30 text-success bg-success/5">
+                            <Shield className="h-2.5 w-2.5" />
+                            Publisert
+                          </Badge>
+                        </div>
                         <p className="text-sm text-muted-foreground truncate">
                           {asset.description || asset.category || "Organisasjon"}
                         </p>
