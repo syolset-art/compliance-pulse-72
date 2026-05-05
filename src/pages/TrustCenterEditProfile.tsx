@@ -483,54 +483,6 @@ const TrustCenterEditProfile = () => {
                 </div>
               </Card>
 
-              {/* Din rolle i datahåndtering */}
-              <Card className="p-5 space-y-3">
-                <h3 className="text-sm font-semibold text-foreground">
-                  {isNb ? "Din rolle i datahåndtering" : "Your role in data handling"}
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  {isNb
-                    ? "Din rolle bestemmer hvilke personvernkrav som gjelder i Trust Profilen din."
-                    : "Your role determines which privacy requirements apply in your Trust Profile."}
-                </p>
-
-                {/* AI suggestion */}
-                {suggestedRole && (
-                  <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-primary/5 p-3">
-                    <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <div className="space-y-1">
-                      <p className="text-xs font-medium text-foreground">
-                        {isNb ? "Anbefalt rolle: " : "Recommended role: "}
-                        <span className="text-primary">{isNb ? suggestedRole.labelNb : suggestedRole.labelEn}</span>
-                      </p>
-                      <p className="text-[13px] text-muted-foreground">
-                        {isNb ? suggestedRole.reasonNb : suggestedRole.reasonEn}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <RadioGroup defaultValue={gdprRole} className="space-y-2">
-                  {[
-                    { value: "processor", labelNb: "Behandlingsansvarlig", labelEn: "Data Controller", descNb: "Vi bestemmer formål og middel for behandling av personopplysninger.", descEn: "We determine the purpose and means of processing personal data." },
-                    { value: "sub_processor", labelNb: "Databehandler", labelEn: "Data Processor", descNb: "Vi behandler personopplysninger på vegne av andre virksomheter.", descEn: "We process personal data on behalf of other organizations." },
-                    { value: "both", labelNb: "Begge roller", labelEn: "Both roles", descNb: "Vi har begge roller avhengig av tjeneste eller kundeavtale.", descEn: "We have both roles depending on service or agreement." },
-                  ].map(role => (
-                    <label
-                      key={role.value}
-                      className="flex items-start gap-3 rounded-lg border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5"
-                    >
-                      <RadioGroupItem value={role.value} className="mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{isNb ? role.labelNb : role.labelEn}</p>
-                        <p className="text-xs text-muted-foreground">{isNb ? role.descNb : role.descEn}</p>
-                      </div>
-                    </label>
-                  ))}
-                </RadioGroup>
-              </Card>
-
-
             </section>
 
             {/* Compact link to Products & Services */}
