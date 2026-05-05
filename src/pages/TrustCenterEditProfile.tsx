@@ -571,30 +571,8 @@ const TrustCenterEditProfile = () => {
                 <span className="text-xs text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
               </div>
 
-              {/* Info box */}
-              <Card className="p-4 border-primary/20 bg-primary/5 space-y-2">
-                <div className="flex items-start gap-2">
-                  <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{isNb ? "Hvordan fungerer dette?" : "How does this work?"}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {isNb
-                        ? "For å henest kontrollstatus, sørg for at det er på plass i din virksomhet. Definer din regelverkssamling, last inn dine sertifiseringer og dokumenter."
-                        : "To achieve control status, make sure it is in place in your organization. Define your regulations, upload certifications and documents."}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {isNb
-                        ? "Resultatet vises i din Trust Center-profil slik at dine kunder og partnere kan se den."
-                        : "The result is shown in your Trust Center profile for your customers and partners to see."}
-                    </p>
-                    <p className="text-[13px] text-muted-foreground/70 mt-2 italic">
-                      {isNb
-                        ? "Alle svar er egenerklærte med mindre annet er angitt."
-                        : "All responses are self-declared unless otherwise noted."}
-                    </p>
-                  </div>
-                </div>
-              </Card>
+              {/* Strukturerte sikkerhetstiltak */}
+              <SecurityDetailsCard asset={asset} />
 
               {/* Control areas */}
               <div className="space-y-2">
