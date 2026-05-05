@@ -504,60 +504,71 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
             <div className="border-t border-border" />
 
-            {/* Contacts */}
+            {/* Contact / Privacy / Security sections */}
             {(() => {
-              const contacts = [
+              const a: any = asset || {};
+              const cp: any = companyProfile || {};
+              const sections = [
                 {
-                  role: isNb ? "Generell kontakt" : "General contact",
+                  title: isNb ? "Generell kontakt" : "General contact",
                   icon: MessageSquare,
-                  name: asset?.contact_person,
-                  email: asset?.contact_email,
+                  rows: [
+                    { label: isNb ? "Kontaktperson" : "Contact person", value: a.contact_person },
+                    { label: isNb ? "E-post" : "Email", value: a.contact_email, href: a.contact_email ? `mailto:${a.contact_email}` : undefined },
+                    { label: isNb ? "Telefon" : "Phone", value: a.contact_phone, href: a.contact_phone ? `tel:${a.contact_phone}` : undefined },
+                  ],
                 },
                 {
-                  role: isNb ? "Personvernansvarlig (DPO)" : "Data Protection Officer (DPO)",
+                  title: isNb ? "Personvern" : "Privacy",
                   icon: Shield,
-                  name: asset?.privacy_contact_name || companyProfile?.dpo_name,
-                  email: asset?.privacy_contact_email || companyProfile?.dpo_email,
-                  address: (asset as any)?.privacy_contact_address,
+                  rows: [
+                    { label: isNb ? "Personvernerklæring" : "Privacy policy", value: a.privacy_policy_url, href: a.privacy_policy_url, displayAs: isNb ? "Gå til personvernerklæring" : "Go to privacy policy" },
+                    { label: isNb ? "Personvernansvarlig (DPO)" : "DPO contact", value: a.privacy_contact_name || cp.dpo_name },
+                    { label: isNb ? "E-post personvern" : "Privacy contact email", value: a.privacy_contact_email || cp.dpo_email, href: (a.privacy_contact_email || cp.dpo_email) ? `mailto:${a.privacy_contact_email || cp.dpo_email}` : undefined },
+                    { label: isNb ? "Postadresse personvern" : "Privacy contact address", value: a.privacy_contact_address, multiline: true },
+                  ],
                 },
                 {
-                  role: isNb ? "Sikkerhetsansvarlig (CISO)" : "Security Officer (CISO)",
+                  title: isNb ? "Sikkerhet og avviksrapportering" : "Security & incident reporting",
                   icon: Lock,
-                  name: asset?.security_contact_name || companyProfile?.ciso_name,
-                  email: asset?.security_contact_email || companyProfile?.ciso_email,
+                  rows: [
+                    { label: isNb ? "Sikkerhetsansvarlig (CISO)" : "Security officer (CISO)", value: a.security_contact_name || cp.ciso_name },
+                    { label: isNb ? "E-post sikkerhet" : "Security contact email", value: a.security_contact_email || cp.ciso_email, href: (a.security_contact_email || cp.ciso_email) ? `mailto:${a.security_contact_email || cp.ciso_email}` : undefined },
+                    { label: isNb ? "Telefon sikkerhetshendelser" : "Incident phone", value: a.security_contact_phone, href: a.security_contact_phone ? `tel:${a.security_contact_phone}` : undefined },
+                    { label: isNb ? "Rapporter en hendelse" : "Report an incident", value: a.incident_report_url, href: a.incident_report_url, displayAs: isNb ? "Gå til skjema" : "Go to form" },
+                  ],
                 },
-              ].filter(c => c.name || c.email || (c as any).address);
-              if (contacts.length === 0) return null;
+              ].map(s => ({ ...s, rows: s.rows.filter(r => r.value) })).filter(s => s.rows.length > 0);
+
+              if (sections.length === 0) return null;
+
               return (
                 <>
-                  <section className="rounded-xl border border-border bg-card overflow-hidden">
-                    <div className="px-5 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
-                      <Users className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-semibold">{isNb ? "Kontakter" : "Contacts"}</h3>
-                    </div>
-                    <div className="divide-y divide-border">
-                      {contacts.map((c, i) => {
-                        const Icon = c.icon;
-                        return (
-                          <div key={i} className="px-5 py-3 flex items-center gap-4">
-                            <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{c.role}</p>
-                              <p className="text-sm font-medium text-foreground truncate">{c.name || (isNb ? "Ikke oppgitt" : "Not provided")}</p>
-                              {(c as any).address && (
-                                <p className="text-xs text-muted-foreground truncate">{(c as any).address}</p>
+                  {sections.map((s, si) => {
+                    const Icon = s.icon;
+                    return (
+                      <section key={si} className="rounded-xl border border-border bg-card overflow-hidden">
+                        <div className="px-5 py-3 border-b border-border bg-muted/30 flex items-center gap-2">
+                          <Icon className="h-4 w-4 text-primary" />
+                          <h3 className="text-sm font-semibold">{s.title}</h3>
+                        </div>
+                        <div className="divide-y divide-border">
+                          {s.rows.map((r: any, i: number) => (
+                            <div key={i} className={`px-5 py-3 flex gap-4 ${r.multiline ? "flex-col" : "items-center justify-between"}`}>
+                              <p className="text-xs text-muted-foreground font-medium">{r.label}</p>
+                              {r.href ? (
+                                <a href={r.href} target={r.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer" className="text-sm text-primary hover:underline truncate">
+                                  {r.displayAs || r.value}
+                                </a>
+                              ) : (
+                                <p className={`text-sm text-foreground ${r.multiline ? "" : "truncate font-medium"}`}>{r.value}</p>
                               )}
                             </div>
-                            {c.email && (
-                              <a href={`mailto:${c.email}`} className="text-xs text-primary hover:underline shrink-0 truncate">
-                                {c.email}
-                              </a>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </section>
+                          ))}
+                        </div>
+                      </section>
+                    );
+                  })}
                   <div className="border-t border-border" />
                 </>
               );
