@@ -13,22 +13,23 @@ const VALID_CUSTOMER_IDS = [
   "7SEC-DEMO-00001",
 ];
 
-// Mock Acronis assets from 7 Security
+// Generic placeholder assets used by the demo prototype.
+// Do NOT include real hostnames, network ranges, addresses, hardware models or vendor names here.
 const MOCK_ACRONIS_ASSETS = [
-  { id: "sys-1", name: "Microsoft 365", hostname: "m365.microsoft.com", type: "system", os: "SaaS", status: "protected", lastSeen: "1 min ago", complianceScore: 92, frameworks: ["ISO 27001", "GDPR"], vendor: "Microsoft" },
-  { id: "sys-2", name: "SAP S/4HANA", hostname: "sap-prod.company.no", type: "system", os: "HANA DB", status: "protected", lastSeen: "3 min ago", complianceScore: 88, frameworks: ["ISO 27001", "SOC 2"], vendor: "SAP" },
-  { id: "sys-3", name: "Salesforce CRM", hostname: "company.my.salesforce.com", type: "system", os: "SaaS", status: "protected", lastSeen: "2 min ago", complianceScore: 95, frameworks: ["ISO 27001", "GDPR", "SOC 2"], vendor: "Salesforce" },
-  { id: "sys-4", name: "ServiceNow ITSM", hostname: "company.service-now.com", type: "system", os: "SaaS", status: "warning", lastSeen: "8 min ago", complianceScore: 78, frameworks: ["ISO 27001"], vendor: "ServiceNow" },
-  { id: "sys-5", name: "Visma Business", hostname: "visma-prod.company.no", type: "system", os: "Windows Server 2022", status: "protected", lastSeen: "5 min ago", complianceScore: 85, frameworks: ["GDPR"], vendor: "Visma" },
-  { id: "loc-1", name: "Headquarters Oslo", hostname: "oslo-hq.company.no", type: "location", os: "Akersgata 20, 0158 Oslo", status: "protected", lastSeen: "1 min ago", complianceScore: 94, frameworks: ["ISO 27001", "NS-EN 50600"] },
-  { id: "loc-2", name: "Branch Bergen", hostname: "bergen.company.no", type: "location", os: "Bryggen 12, 5003 Bergen", status: "protected", lastSeen: "2 min ago", complianceScore: 89, frameworks: ["ISO 27001"] },
-  { id: "loc-3", name: "Data Center Green Mountain", hostname: "dc1.greenmountain.no", type: "location", os: "Rennesøy, Rogaland", status: "protected", lastSeen: "30 sec ago", complianceScore: 98, frameworks: ["ISO 27001", "SOC 2", "NS-EN 50600"] },
-  { id: "net-1", name: "Headquarters LAN", hostname: "10.0.0.0/16", type: "network", os: "Cisco Catalyst 9300", status: "protected", lastSeen: "1 min ago", complianceScore: 90, frameworks: ["ISO 27001"], vendor: "Cisco" },
-  { id: "net-2", name: "Azure Virtual Network", hostname: "vnet-prod-norway.azure", type: "network", os: "Azure VNET", status: "protected", lastSeen: "2 min ago", complianceScore: 94, frameworks: ["ISO 27001", "SOC 2"], vendor: "Microsoft" },
-  { id: "hw-1", name: "Dell PowerEdge R750", hostname: "srv-prod-01.company.no", type: "hardware", os: "Windows Server 2022", status: "protected", lastSeen: "1 min ago", complianceScore: 92, frameworks: ["ISO 27001"], vendor: "Dell" },
-  { id: "hw-2", name: "Fortinet FortiGate 600E", hostname: "fw-main.company.no", type: "hardware", os: "FortiOS 7.4.1", status: "protected", lastSeen: "30 sec ago", complianceScore: 97, frameworks: ["ISO 27001", "PCI DSS"], vendor: "Fortinet" },
-  { id: "ven-1", name: "TietoEvry", hostname: "tietoevry.com", type: "vendor", os: "IT operations and development", status: "protected", lastSeen: "1 day ago", complianceScore: 91, frameworks: ["ISO 27001", "SOC 2"] },
-  { id: "ven-2", name: "Atea", hostname: "atea.no", type: "vendor", os: "Hardware and infrastructure", status: "protected", lastSeen: "2 days ago", complianceScore: 88, frameworks: ["ISO 27001"] },
+  { id: "sys-1", name: "Productivity Suite", hostname: "suite.example.com", type: "system", os: "SaaS", status: "protected", lastSeen: "1 min ago", complianceScore: 92, frameworks: ["ISO 27001", "GDPR"], vendor: "Example Vendor A" },
+  { id: "sys-2", name: "ERP Platform", hostname: "erp.example.com", type: "system", os: "SaaS", status: "protected", lastSeen: "3 min ago", complianceScore: 88, frameworks: ["ISO 27001", "SOC 2"], vendor: "Example Vendor B" },
+  { id: "sys-3", name: "CRM Platform", hostname: "crm.example.com", type: "system", os: "SaaS", status: "protected", lastSeen: "2 min ago", complianceScore: 95, frameworks: ["ISO 27001", "GDPR", "SOC 2"], vendor: "Example Vendor C" },
+  { id: "sys-4", name: "ITSM Platform", hostname: "itsm.example.com", type: "system", os: "SaaS", status: "warning", lastSeen: "8 min ago", complianceScore: 78, frameworks: ["ISO 27001"], vendor: "Example Vendor D" },
+  { id: "sys-5", name: "Finance System", hostname: "finance.example.com", type: "system", os: "SaaS", status: "protected", lastSeen: "5 min ago", complianceScore: 85, frameworks: ["GDPR"], vendor: "Example Vendor E" },
+  { id: "loc-1", name: "Headquarters", hostname: "hq.example.com", type: "location", os: "Primary office", status: "protected", lastSeen: "1 min ago", complianceScore: 94, frameworks: ["ISO 27001"] },
+  { id: "loc-2", name: "Branch Office", hostname: "branch.example.com", type: "location", os: "Secondary office", status: "protected", lastSeen: "2 min ago", complianceScore: 89, frameworks: ["ISO 27001"] },
+  { id: "loc-3", name: "Data Center", hostname: "dc.example.com", type: "location", os: "Tier III facility", status: "protected", lastSeen: "30 sec ago", complianceScore: 98, frameworks: ["ISO 27001", "SOC 2"] },
+  { id: "net-1", name: "Office LAN", hostname: "lan.example.com", type: "network", os: "Managed switch", status: "protected", lastSeen: "1 min ago", complianceScore: 90, frameworks: ["ISO 27001"], vendor: "Example Vendor F" },
+  { id: "net-2", name: "Cloud Network", hostname: "cloud-net.example.com", type: "network", os: "Virtual network", status: "protected", lastSeen: "2 min ago", complianceScore: 94, frameworks: ["ISO 27001", "SOC 2"], vendor: "Example Vendor G" },
+  { id: "hw-1", name: "Application Server", hostname: "srv-01.example.com", type: "hardware", os: "Server OS", status: "protected", lastSeen: "1 min ago", complianceScore: 92, frameworks: ["ISO 27001"], vendor: "Example Vendor H" },
+  { id: "hw-2", name: "Network Firewall", hostname: "fw-01.example.com", type: "hardware", os: "Firewall OS", status: "protected", lastSeen: "30 sec ago", complianceScore: 97, frameworks: ["ISO 27001", "PCI DSS"], vendor: "Example Vendor I" },
+  { id: "ven-1", name: "Example IT Services", hostname: "services.example.com", type: "vendor", os: "IT operations and development", status: "protected", lastSeen: "1 day ago", complianceScore: 91, frameworks: ["ISO 27001", "SOC 2"] },
+  { id: "ven-2", name: "Example Infrastructure", hostname: "infra.example.com", type: "vendor", os: "Hardware and infrastructure", status: "protected", lastSeen: "2 days ago", complianceScore: 88, frameworks: ["ISO 27001"] },
 ];
 
 serve(async (req) => {
