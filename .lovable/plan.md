@@ -1,73 +1,73 @@
-## Restructure Trust Center editor as "Innholdsmatrise"
+## Mål
 
-### Mål
-Erstatte den nåværende `/trust-center/edit-profile`-visningen med en **strukturert innholdsmatrise** som speiler de fire opplastede skjermbildene. Matrisen viser alle felt i Trust Centeret i én tabell, gruppert per tema, med tre kolonner: **Felt** · **Vises i Trust Profile (one-pager)** · **Vises i Trust Center (full visning)**. Hver rad er redigerbar inline eller åpner et lite redigeringsark.
+Når brukeren redigerer kontaktpersoner på Trust Center (`/trust-center/edit` → `CompanyInfoForm`), skal Lara-agenten kunne foreslå og fylle ut feltene automatisk. Lara henter først fra eksisterende kilder (Core / leverandørmodulen / onboarding), og hvis ingen data finnes, foreslår hun navn/e-post basert på selskapets data og brukerens egen profil.
 
-Dette blir den nye "én sannhet" for hva brukeren har lagt inn — i stedet for dagens lange seksjonsbaserte skjema.
+## UX
 
-### Struktur (eksakt fra skjermbildene)
-9 grupper, ca. 35 felt:
+Tre kontaktblokker får en ny "Spør Lara"-knapp i headeren ved siden av tittelen (kun synlig i `isEditing`):
+- **Kontaktperson (Compliance)**
+- **Personvern/DPO-kontakt**
+- **Sikkerhetskontakt for hendelser (CISO)**
 
-1. **Identitet og organisasjon** — Selskapsnavn/logo, Kort beskrivelse, Org.nr/land/nettside/bransje, Kontaktinfo, Tilleggsnotater
-2. **Score og modenhet** — Trust Score, Modenhet per kontrollområde, Detaljerte kontroller
-3. **Regelverk og rammeverk** — Aktiverte regelverk, Sertifiseringer, DPA-status
-4. **Personvern og datahåndtering** — GDPR-status, Datatyper, Lagringslokasjoner, Overføringsmekanismer, Oppbevaringspolicy, GDPR-rettsgrunnlag, Personvernerklæring
-5. **Sikkerhet** — Sikkerhetsmodenhet, Kryptering, Tilgangskontroll, Pen-test/bug bounty, Sikkerhetsopplæring
-6. **Hendelser og kontinuitet** — Hendelseshåndtering, Forretningskontinuitet
-7. **AI og leverandørstyring** — Tredjepart-modenhet, AI-bruk, Leverandørrisikostyring, Underleverandører
-8. **Dokumenter og policyer** — Personvernerklæring, Sikkerhetsretningslinjer, DPA, Risikovurdering, Andre dokumenter
-9. **Signatur og verifikasjon** — Signatur-status, Verifikasjonsside, Manifest-hash, Aktivitetslogg
+Knappen er liten, sekundær (`Sparkles`-ikon + "Spør Lara"). Ved klikk:
 
-Hver rad har:
-- **Felt-kolonne**: tittel + kort hjelpetekst (fra skjermbildet)
-- **Profile-kolonne**: hva som vises på one-pager (badge/blå tekst, eller grå "Ikke synlig")
-- **Center-kolonne**: hva som vises i full visning (lilla tekst)
-- **Status-pille**: Utfylt / Mangler / Auto-generert
-- **Edit-knapp**: åpner inline editor eller lenker til riktig delside (f.eks. dokumenter → `/trust-center/evidence`, kontroller → eksisterende ekspanderbar liste)
+1. Lara analyserer eksisterende data og viser en kompakt forslags-banner rett under blokken med:
+   - Kilde-badge: `Hentet fra Leverandørmodulen` / `Hentet fra Core onboarding` / `Foreslått av Lara`
+   - Navn + e-post i lese-format
+   - To knapper: **Bruk forslag** (fyller inn feltene) og **Avvis**
+2. Hvis Lara ikke finner noen data, viser banneren:
+   - "Lara fant ingen registrert kontakt. Vil du at jeg foreslår en basert på selskapets profil?" + knapp **Generer forslag** (kaller edge function)
 
-Fargekoding/legend nederst (matchende skjermbildet):
-- Blå prikk = Vises på Trust Profile
-- Lilla prikk = Vises i Trust Center
-- Grå = Ikke synlig på flaten
+Empty-state hint under feltene (kun når begge er tomme og isEditing): liten lenke "✨ La Lara fylle ut" som trigger samme flyt.
 
-### Implementering
+## Datakilder (prioritert rekkefølge)
 
-**Ny komponent:** `src/components/trust-center/TrustContentMatrix.tsx`
-- Tar `asset`, `companyProfile`, `frameworks`, `evaluation` som props
-- Definerer matrisen som en konstant (gruppe → rader) — én plass å vedlikeholde struktur
-- Hver rad har `id`, `labelNb/En`, `helpNb/En`, `profileDisplayNb/En`, `centerDisplayNb/En`, `getValue(asset, companyProfile)`, `editAction` (inline | navigate)
-- Render: gruppert tabell med sticky-aktige headers, responsiv (stables til kort på mobil)
+For hver rolle leter Lara i:
 
-**Erstatte i `src/pages/TrustCenterEditProfile.tsx`:**
-- Behold: header, `PublishingReadiness`, Trust Center URL-kort, hjelp-drawer
-- Fjern: de lange separate seksjonene (Virksomhet, Hva leverer, GDPR-rolle, Modenhet-akkordion, Regelverk, Dokumentasjon-knapper)
-- Erstatt med `<TrustContentMatrix … />` som ny hovedseksjon
-- Behold quick-nav-tabs men pek til matrisens ankere (`#identitet`, `#score`, `#regelverk`, …)
+1. **company_profile** — eksisterende `dpo_name/email`, `ciso_name/email`, `compliance_officer/email`
+2. **Core onboarding / key personnel** — `KeyPersonnelSection`-data (samme tabell, brukes som fallback hvis felt mangler i edit-form state)
+3. **Leverandørmodulen** — for "self"-asset eller relaterte assets: `assets.contact_person/email/phone` (typisk satt for organisasjonen via `ContactPersonField`)
+4. **profiles** — innlogget bruker (navn + e-post) som siste fallback for compliance officer
+5. **AI-forslag** — hvis ingenting finnes, ny edge function `suggest-key-contacts` kaller Lovable AI (google/gemini-3-flash-preview) med selskapsnavn, bransje, antall ansatte, domene og foreslår plausible plasshold-roller (f.eks. "DPO – ikke utnevnt, kontakt: dpo@<domene>"). Returnerer alltid med `source: "ai_suggestion"` og forklarende tekst.
 
-**Inline edit-mønster:**
-- Enkle felt (tekst/badges): klikk på verdi → popover/sheet med samme inputs som i dag
-- Komplekse felt (kontroller, dokumenter): "Rediger" lenker til eksisterende sider/dialoger — gjenbruker `CompanyInfoForm`, `AddEvidenceDialog`, kontroll-akkordion-koden flyttet til en dialog
+## Teknisk implementering
 
-**Datakilder (allerede i bruk):**
-- `assets` (selv-asset, metadata)
-- `company_profile`
-- `selected_frameworks`
-- `vendor_documents` (for dokumenter/policies/sertifiseringer-status)
-- `useTrustControlEvaluation` (modenhetsscore per område)
+### Ny komponent
+`src/components/company/LaraContactAssist.tsx`
+- Props: `role: "compliance" | "dpo" | "ciso"`, `currentName`, `currentEmail`, `companyProfile`, `onApply(name, email)`, `isNb`
+- Intern state: `suggestion | null`, `loading`, `dismissed`
+- Funksjon `findSuggestion()`: kjører kildene 1–4 synkront (data allerede i React Query cache via eksisterende queries)
+- Funksjon `requestAISuggestion()`: invoke `suggest-key-contacts` edge function
+- Renderer en `Card` med kilde-badge, navn/epost, og to CTA-knapper
 
-**Feltstatus-logikk:** ny helper `getFieldStatus(rowId, data) → "filled" | "missing" | "auto"` for å drive status-pillen og readiness-tallet.
+### Endringer i `src/components/company/CompanyInfoForm.tsx`
+- Importer `LaraContactAssist`
+- I hver av de tre kontaktblokkene (linje ~362, ~389, ~420), legg til:
+  - "Spør Lara"-knapp i blokk-headeren (kun `isEditing`)
+  - `<LaraContactAssist>` rett under `grid` med `onApply` som setter form-feltene via `update()`
+- Henter også `assets`-data (self-asset finnes allerede i `selfAsset`-query) og innlogget bruker (`useAuth`) for å gi til komponenten
 
-### Hva som IKKE endres
-- `TrustCenterProfile.tsx` (forhåndsvisning) — uendret
-- `PublicTrustCenterLayout.tsx` — uendret
-- Underliggende datamodell — ingen migrering trengs
-- Andre Trust Center-undersider (`/evidence`, `/regulations`, `/products`) — uendret, fortsatt linkbare fra matrisen
+### Ny edge function
+`supabase/functions/suggest-key-contacts/index.ts`
+- Input: `{ role, companyName, industry, employees, domain }`
+- Bruker Lovable AI Gateway (`google/gemini-3-flash-preview`) med structured output (tool calling) for `{ name, email, rationale }`
+- Returnerer forslag + kort begrunnelse på norsk
+- Standard CORS, ingen auth nødvendig, registreres i `supabase/config.toml` med `verify_jwt = false`
 
-### Filer
-- **Ny:** `src/components/trust-center/TrustContentMatrix.tsx`
-- **Ny:** `src/components/trust-center/TrustContentMatrixRow.tsx` (rad + edit-popover)
-- **Ny:** `src/lib/trustContentMatrixDefinitions.ts` (gruppene/radene)
-- **Endret:** `src/pages/TrustCenterEditProfile.tsx` (slanker, plugger inn matrisen)
+### Tekster (NB primær, EN sekundær)
+- "Spør Lara" / "Ask Lara"
+- "Hentet fra Leverandørmodulen" / "Found in Vendor module"
+- "Hentet fra Core onboarding" / "Found in Core onboarding"
+- "Foreslått av Lara" / "Suggested by Lara"
+- "Bruk forslag" / "Use suggestion"
+- "Avvis" / "Dismiss"
+- "Lara fant ingen registrert kontakt — generer forslag basert på selskapsprofilen?" / "Lara found no contact on file — generate one from the company profile?"
 
-### Åpent spørsmål
-Skal matrisen **erstatte** dagens skjema fullstendig (alt redigeres via popovers fra matrisen), eller leve **side om side** øverst som et oversiktskart, med dagens detaljerte seksjoner under? Anbefaler full erstatning — det matcher intensjonen i skjermbildene og fjerner duplisering. Si fra hvis du vil ha hybrid.
+## Filer som endres / opprettes
+
+- **NY** `src/components/company/LaraContactAssist.tsx`
+- **NY** `supabase/functions/suggest-key-contacts/index.ts`
+- **EDIT** `src/components/company/CompanyInfoForm.tsx` (3 blokker + import + bruker-/asset-data prop)
+- **EDIT** `supabase/config.toml` (registrer ny function)
+
+Ingen DB-migrasjoner. Ingen nye secrets — `LOVABLE_API_KEY` finnes allerede.

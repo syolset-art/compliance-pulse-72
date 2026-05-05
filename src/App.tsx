@@ -83,7 +83,6 @@ import ComplianceOverview from "./pages/ComplianceOverview";
 import TrustCenterProfile from "./pages/TrustCenterProfile";
 import TrustCenterServiceProfile from "./pages/TrustCenterServiceProfile";
 import TrustCenterEditProfile from "./pages/TrustCenterEditProfile";
-import TrustCenterPublicProfile from "./pages/TrustCenterPublicProfile";
 import TrustEngine from "./pages/TrustEngine";
 import PublicTrustProfile from "./pages/PublicTrustProfile";
 
@@ -161,8 +160,7 @@ const App = () => (
                   <Route path="/resources/controls" element={<MynderControls />} />
                   <Route path="/trust-center/profile" element={<TrustCenterProfile />} />
                   <Route path="/trust-center/profile/:id" element={<TrustCenterServiceProfile />} />
-                 <Route path="/trust-center/edit" element={<TrustCenterEditProfile />} />
-                 <Route path="/trust-center/public-profile" element={<TrustCenterPublicProfile />} />
+                  <Route path="/trust-center/edit" element={<TrustCenterEditProfile />} />
                   <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
                   <Route path="/trust-center/shared" element={<TrustCenterShared />} />
                   <Route path="/trust-center/products" element={<TrustCenterProducts />} />

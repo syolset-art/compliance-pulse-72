@@ -26,7 +26,6 @@ import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 import { PublishingReadiness } from "@/components/trust-center/PublishingReadiness";
-import { TrustContentMatrix } from "@/components/trust-center/TrustContentMatrix";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
@@ -269,7 +268,9 @@ const TrustCenterEditProfile = () => {
             {/* Quick nav tabs */}
             <div className="flex flex-wrap gap-2">
               {[
+                { icon: Eye, label: isNb ? "Offentlig profil" : "Public profile", anchor: "#public" },
                 { icon: Building2, label: isNb ? "Virksomhet" : "Company", anchor: "#company" },
+                
                 { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
                 { icon: Scale, label: isNb ? "Regelverk" : "Regulations", anchor: "#regulations" },
               ].map(tab => (
@@ -283,13 +284,6 @@ const TrustCenterEditProfile = () => {
                 </button>
               ))}
               <button
-                onClick={() => navigate("/trust-center/public-profile")}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
-              >
-                <Globe className="h-3 w-3" />
-                {isNb ? "Offentlig profil" : "Public profile"}
-              </button>
-              <button
                 onClick={() => navigate(`/assets/${asset.id}`)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
               >
@@ -299,68 +293,45 @@ const TrustCenterEditProfile = () => {
             </div>
 
             {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Innholdsmatrise (oversikt) */}
+            {/* SECTION: Offentlig profil */}
             {/* ═══════════════════════════════════════════ */}
-            <TrustContentMatrix />
-
-            {/* Divider before edit surfaces */}
-            <div className="pt-4 border-t border-border">
-              <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-                {isNb ? "Rediger felt" : "Edit fields"}
-              </h2>
-              <p className="text-xs text-muted-foreground mt-1">
+            <section id="public" className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-semibold text-foreground">
+                  {isNb ? "Offentlig profil" : "Public Profile"}
+                </h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
                 {isNb
-                  ? "Seksjonene under er der du fyller inn data som vises i matrisen over."
-                  : "The sections below are where you fill in the data shown in the matrix above."}
+                  ? "Din offentlige Trust Center-lenke som du kan dele med kunder og partnere."
+                  : "Your public Trust Center link that you can share with customers and partners."}
               </p>
-            </div>
 
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Offentlig profil — link til egen side */}
-            {/* ═══════════════════════════════════════════ */}
-            <section id="public" className="space-y-3">
-              <Card className="p-4 border-primary/20 bg-primary/5">
-                <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Globe className="h-4 w-4 text-primary" />
+              {/* Trust Center URL */}
+              <Card className="p-4 space-y-3 border-primary/20 bg-primary/5">
+                <div className="flex items-center gap-2 text-sm">
+                  <Link2 className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {isNb
+                    ? "Dette er din offentlige lenke til din Trust Center-profil."
+                    : "This is your public link to your Trust Center profile."}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5">
+                    <code className="text-sm font-mono text-foreground">{publicUrl}</code>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-semibold text-foreground">
-                        {isNb ? "Offentlig profil" : "Public profile"}
-                      </h3>
-                      <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
-                        {isNb ? "Egen side" : "Dedicated page"}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {isNb
-                        ? "Administrer din offentlige Trust Center-lenke, synlighet og deling på en egen side."
-                        : "Manage your public Trust Center link, visibility and sharing on a dedicated page."}
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => navigate("/trust-center/public-profile")}
-                      >
-                        <Globe className="h-3.5 w-3.5 mr-1.5" />
-                        {isNb ? "Åpne offentlig profil" : "Open public profile"}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={handleCopyUrl}
-                      >
-                        {copiedUrl ? (
-                          <Check className="h-3.5 w-3.5 mr-1.5 text-success" />
-                        ) : (
-                          <Copy className="h-3.5 w-3.5 mr-1.5" />
-                        )}
-                        {isNb ? "Kopier lenke" : "Copy link"}
-                      </Button>
-                    </div>
-                  </div>
+                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate("/trust-center/profile")}>
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={handleCopyUrl}>
+                    {copiedUrl ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+                  </Button>
                 </div>
               </Card>
             </section>
@@ -386,6 +357,134 @@ const TrustCenterEditProfile = () => {
 
               <CompanyInfoForm defaultEditing showEditControls />
 
+              {/* Hva leverer din virksomhet? — merged section */}
+              <Card className="p-5 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Package className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {isNb ? "Hva leverer din virksomhet?" : "What does your company deliver?"}
+                  </h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {isNb
+                    ? "Dette hjelper kunder og partnere forstå hva dere gjør. Informasjonen vises i din offentlige Trust Profile og brukes til å tilpasse kontrollspørsmål."
+                    : "This helps customers and partners understand what you do. The information is shown in your public Trust Profile and used to tailor control questions."}
+                </p>
+
+                {/* Service categories */}
+                <div className="space-y-2">
+                  <label className="text-xs font-medium text-foreground">
+                    {isNb ? "Type tjenester" : "Service type"}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {SERVICE_CATEGORIES.map(cat => {
+                      const isSelected = selectedServiceCats.includes(cat.key);
+                      return (
+                        <Badge
+                          key={cat.key}
+                          variant={isSelected ? "default" : "outline"}
+                          className={`cursor-pointer text-xs transition-all ${isSelected ? "bg-primary text-primary-foreground ring-2 ring-primary/20" : "hover:bg-muted"}`}
+                          onClick={async () => {
+                            const newCats = isSelected
+                              ? selectedServiceCats.filter((k: string) => k !== cat.key)
+                              : [...selectedServiceCats, cat.key];
+                            const newMeta = { ...meta, service_categories: newCats };
+                            await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
+                            queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                            const label = isNb ? cat.labelNb : cat.labelEn;
+                            toast.success(isSelected
+                              ? (isNb ? `${label} fjernet` : `${label} removed`)
+                              : (isNb ? `${label} lagt til` : `${label} added`));
+                          }}
+                        >
+                          {isSelected && <Check className="h-3 w-3 mr-1" />}
+                          {isNb ? cat.labelNb : cat.labelEn}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                  </div>
+
+                  {/* Custom service type */}
+                  <div className="pt-2 space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">
+                      {isNb ? "Annen type? Skriv inn her" : "Other type? Enter here"}
+                    </label>
+                    <Input
+                      placeholder={isNb ? "F.eks. Managed Security Services" : "E.g. Managed Security Services"}
+                      defaultValue={customServiceType}
+                      className="text-sm"
+                      maxLength={100}
+                      onBlur={async (e) => {
+                        const val = e.target.value.trim();
+                        if (val !== customServiceType) {
+                          const newMeta = { ...meta, custom_service_type: val };
+                          await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
+                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                          if (val) toast.success(isNb ? "Egendefinert tjenestetype lagret" : "Custom service type saved");
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Service description */}
+                  <div className="pt-2 space-y-1.5">
+                    <label className="text-xs font-medium text-muted-foreground">
+                      {isNb ? "Tilleggsinfo om tjenestene" : "Additional service info"}
+                    </label>
+                    <Textarea
+                      placeholder={isNb ? "Beskriv kort hva dere leverer og til hvem..." : "Briefly describe what you deliver and to whom..."}
+                      defaultValue={serviceDescription}
+                      className="text-sm min-h-[60px]"
+                      maxLength={500}
+                      onBlur={async (e) => {
+                        const val = e.target.value.trim();
+                        if (val !== serviceDescription) {
+                          const newMeta = { ...meta, service_description: val };
+                          await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
+                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                          if (val) toast.success(isNb ? "Tilleggsinfo lagret" : "Additional info saved");
+                        }
+                      }}
+                    />
+                  </div>
+
+                {/* Business areas */}
+                <div className="space-y-2 pt-2 border-t border-border">
+                  <label className="text-xs font-medium text-foreground">
+                    {isNb ? "Hvilke fagområder dekker dere?" : "Which domains do you cover?"}
+                  </label>
+                  <p className="text-[13px] text-muted-foreground">
+                    {isNb ? "Brukes til å vise relevante kontroller og regelverk." : "Used to show relevant controls and regulations."}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {BUSINESS_AREAS.map(area => {
+                      const isSelected = selectedAreas.includes(area);
+                      return (
+                        <Badge
+                          key={area}
+                          variant={isSelected ? "default" : "outline"}
+                          className={`cursor-pointer text-xs transition-all ${isSelected ? "bg-primary text-primary-foreground ring-2 ring-primary/20" : "hover:bg-muted"}`}
+                          onClick={async () => {
+                            const newAreas = isSelected
+                              ? selectedAreas.filter((a: string) => a !== area)
+                              : [...selectedAreas, area];
+                            const newMeta = { ...meta, business_areas: newAreas };
+                            await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
+                            queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                            toast.success(isSelected
+                              ? (isNb ? `${area} fjernet` : `${area} removed`)
+                              : (isNb ? `${area} lagt til` : `${area} added`));
+                          }}
+                        >
+                          {isSelected && <Check className="h-3 w-3 mr-1" />}
+                          {area}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </div>
+              </Card>
 
               {/* Din rolle i datahåndtering */}
               <Card className="p-5 space-y-3">
