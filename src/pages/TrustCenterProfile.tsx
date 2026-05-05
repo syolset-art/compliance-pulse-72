@@ -1668,20 +1668,48 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   : "You'll receive profile view statistics directly in your dashboard."}
               </p>
 
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" className="flex-1 gap-2" onClick={() => {
-                  navigator.clipboard.writeText(`https://${publicUrl}`);
-                  toast.success(isNb ? "Lenke kopiert!" : "Link copied!");
-                }}>
-                  <Copy className="h-4 w-4" />
-                  {isNb ? "Kopier lenke" : "Copy link"}
-                </Button>
-                <Button className="flex-1 gap-2 bg-primary hover:bg-primary/90" onClick={() => {
+              <div className="flex flex-col gap-3 pt-2">
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-left">
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
+                      <Shield className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground">
+                        {isNb ? "Profilen din ligger nå i Mynder Trust Engine" : "Your profile is now in the Mynder Trust Engine"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {isNb
+                          ? "Mynders åpne register over verifiserte Trust Profiler. Mynder eier og drifter denne siden."
+                          : "Mynder's open register of verified Trust Profiles. Hosted and operated by Mynder."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" className="flex-1 gap-2" onClick={() => {
+                    navigator.clipboard.writeText(`https://${publicUrl}`);
+                    toast.success(isNb ? "Lenke kopiert!" : "Link copied!");
+                  }}>
+                    <Copy className="h-4 w-4" />
+                    {isNb ? "Kopier lenke" : "Copy link"}
+                  </Button>
+                  <Button variant="outline" className="flex-1 gap-2" onClick={() => {
+                    setPublishDialogOpen(false);
+                    setPublishStep("confirm");
+                    navigate("/trust-engine");
+                  }}>
+                    <Globe className="h-4 w-4" />
+                    {isNb ? "Åpne Trust Engine" : "Open Trust Engine"}
+                  </Button>
+                </div>
+                <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => {
                   setPublishDialogOpen(false);
                   setPublishStep("confirm");
+                  if (asset?.id) navigate(`/trust-engine/profile/${asset.id}`);
                 }}>
-                  <CheckCircle2 className="h-4 w-4" />
-                  {isNb ? "Ferdig" : "Done"}
+                  <ExternalLink className="h-4 w-4" />
+                  {isNb ? "Se profilen i Trust Engine" : "View profile in Trust Engine"}
                 </Button>
               </div>
             </div>
