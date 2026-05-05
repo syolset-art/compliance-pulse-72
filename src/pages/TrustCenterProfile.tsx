@@ -16,6 +16,7 @@ import {
   ChevronDown, ChevronUp, ChevronRight, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
+  Linkedin, Facebook, Mail,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
