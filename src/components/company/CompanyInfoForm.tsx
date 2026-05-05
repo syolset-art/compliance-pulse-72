@@ -385,6 +385,15 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             )}
           </FieldBlock>
         </div>
+        {isEditing && (
+          <LaraContactAssist
+            role="compliance"
+            currentName={form.compliance_officer}
+            currentEmail={form.compliance_officer_email}
+            companyProfile={companyProfile}
+            onApply={(n, e) => { update("compliance_officer", n); update("compliance_officer_email", e); }}
+          />
+        )}
       </div>
 
       {/* Personvern/DPO-kontakt */}
