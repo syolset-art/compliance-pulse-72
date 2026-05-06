@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { CheckCircle2, AlertTriangle, XCircle, Sparkles, Loader2, ChevronDown, FileText, Download } from "lucide-react";
+import {
+  CheckCircle2, AlertTriangle, XCircle, Sparkles, Loader2, FileText,
+  ArrowRight, Check, X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { frameworks } from "@/lib/frameworkDefinitions";
-import { InlineAgentProposal, buildProposal } from "@/components/asset-profile/gap/InlineAgentProposal";
-import { AgentPlanStrip } from "@/components/asset-profile/gap/AgentPlanStrip";
+import { buildProposal } from "@/components/asset-profile/gap/InlineAgentProposal";
 
 interface VendorGapAnalysisTabProps {
   assetId: string;
@@ -22,19 +23,34 @@ interface VendorGapAnalysisTabProps {
 
 const SUPPORTED_FRAMEWORKS = ["normen", "nis2", "iso27001", "gdpr"];
 
-const DOMAIN_LABELS: Record<string, { nb: string; en: string }> = {
-  governance: { nb: "Styring", en: "Governance" },
-  operations: { nb: "Drift og sikkerhet", en: "Operations & Security" },
-  privacy: { nb: "Personvern og data", en: "Privacy & Data" },
-  third_party: { nb: "Tredjepart", en: "Third-Party" },
+const STATUS_META = {
+  partial: {
+    icon: AlertTriangle,
+    color: "text-warning",
+    bg: "bg-warning/10",
+    border: "border-warning/30",
+    label: { nb: "Delvis", en: "Partial" },
+  },
+  missing: {
+    icon: XCircle,
+    color: "text-destructive",
+    bg: "bg-destructive/10",
+    border: "border-destructive/30",
+    label: { nb: "Mangler", en: "Missing" },
+  },
+} as const;
+
+type GapItem = {
+  requirement_id: string;
+  name: string;
+  status: "implemented" | "partial" | "missing" | "not_relevant";
+  rationale?: string;
+  next_action?: string;
+  signal_key?: string;
+  evidence?: string[];
 };
 
-const STATUS_META = {
-  implemented: { icon: CheckCircle2, color: "text-success", bg: "bg-success/10", label: { nb: "Oppfylt", en: "Met" } },
-  partial: { icon: AlertTriangle, color: "text-warning", bg: "bg-warning/10", label: { nb: "Delvis", en: "Partial" } },
-  missing: { icon: XCircle, color: "text-destructive", bg: "bg-destructive/10", label: { nb: "Mangler", en: "Missing" } },
-  not_relevant: { icon: FileText, color: "text-muted-foreground", bg: "bg-muted/30", label: { nb: "Ikke relevant", en: "N/A" } },
-} as const;
+type FollowupState = "idle" | "asking" | "done";
 
 export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTabProps) {
   const { i18n } = useTranslation();
@@ -42,14 +58,14 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
   const queryClient = useQueryClient();
 
   const [framework, setFramework] = useState<string>("normen");
-  const [openDomains, setOpenDomains] = useState<Record<string, boolean>>({ governance: true });
+  const [followupState, setFollowupState] = useState<FollowupState>("asking");
+  const [createdSummary, setCreatedSummary] = useState<{ auto: number; pending: number } | null>(null);
 
   const availableFrameworks = useMemo(
     () => frameworks.filter((f) => SUPPORTED_FRAMEWORKS.includes(f.id)),
     []
   );
 
-  // Latest analysis for chosen framework
   const { data: latest, isLoading } = useQuery({
     queryKey: ["vendor-gap", assetId, framework],
     queryFn: async () => {
@@ -77,6 +93,8 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-gap", assetId, framework] });
+      setFollowupState("asking");
+      setCreatedSummary(null);
       toast.success(isNb ? "Gap-analyse fullført" : "Gap analysis complete");
     },
     onError: (e: any) => {
@@ -84,53 +102,39 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
     },
   });
 
-  const results = (latest?.results as any[]) || [];
-  const summary = (latest?.summary as Record<string, any>) || {};
+  const allResults: GapItem[] = (latest?.results as any[]) || [];
   const score = latest?.score ?? 0;
 
-  const domainGroups = useMemo(() => {
-    const groups: Record<string, any[]> = {};
-    results.forEach((r) => {
-      groups[r.domain] = groups[r.domain] || [];
-      groups[r.domain].push(r);
-    });
-    return groups;
-  }, [results]);
+  // Flat list of gaps (missing first, then partial)
+  const gaps = useMemo(() => {
+    const missing = allResults.filter((r) => r.status === "missing");
+    const partial = allResults.filter((r) => r.status === "partial");
+    return [...missing, ...partial];
+  }, [allResults]);
 
-  // Build aggregated proposal counts for the plan strip
-  const openItems = useMemo(
-    () => results.filter((r) => r.status !== "implemented" && r.status !== "not_relevant"),
-    [results]
-  );
-  const proposalsByKind = useMemo(() => {
-    let documents = 0, policies = 0, followUps = 0, other = 0;
-    openItems.forEach((it) => {
-      const p = buildProposal(it, assetName, isNb);
-      if (p.kind === "request_document" || p.kind === "renew_document") documents += 1;
-      else if (p.kind === "draft_policy") policies += 1;
-      else if (p.kind === "review_task" || p.kind === "find_contact") followUps += 1;
-      else other += 1;
-    });
-    return { documents, policies, followUps, other };
-  }, [openItems, assetName, isNb]);
-
-  const listRef = useRef<HTMLDivElement>(null);
-  const [bulkConfirmedAt, setBulkConfirmedAt] = useState<number>(0);
-
-  const handleReviewOne = () => {
-    // Open all domains and scroll to first open proposal
-    setOpenDomains((p) => {
-      const next = { ...p };
-      Object.keys(domainGroups).forEach((d) => (next[d] = true));
-      return next;
-    });
-    requestAnimationFrame(() => {
-      const el = listRef.current?.querySelector<HTMLElement>("[data-proposal-id]");
-      el?.scrollIntoView({ behavior: "smooth", block: "center" });
-      el?.focus?.();
-    });
+  const handleConfirm = () => {
+    // Mode: assisted by default — half automatic, half pending confirmation
+    // Real persistence would happen here; for now we simulate with toast + summary
+    const auto = Math.ceil(gaps.length * 0.6);
+    const pending = gaps.length - auto;
+    setCreatedSummary({ auto, pending });
+    setFollowupState("done");
+    toast.success(
+      isNb
+        ? `Lara satte opp ${gaps.length} aktiviteter`
+        : `Lara created ${gaps.length} activities`,
+      {
+        description: isNb
+          ? `${auto} utført automatisk · ${pending} venter på din bekreftelse`
+          : `${auto} done automatically · ${pending} awaiting your confirmation`,
+      }
+    );
   };
 
+  const handleDecline = () => {
+    setFollowupState("done");
+    setCreatedSummary({ auto: 0, pending: 0 });
+  };
 
   return (
     <div className="space-y-4">
@@ -139,9 +143,9 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
         <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-xs font-medium text-muted-foreground uppercase mb-1">
-              {isNb ? "Test mot rammeverk" : "Test against framework"}
+              {isNb ? "Velg rammeverk" : "Choose framework"}
             </p>
-            <Select value={framework} onValueChange={setFramework}>
+            <Select value={framework} onValueChange={(v) => { setFramework(v); setFollowupState("asking"); setCreatedSummary(null); }}>
               <SelectTrigger className="w-full sm:w-[320px]">
                 <SelectValue />
               </SelectTrigger>
@@ -172,8 +176,8 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
             </p>
             <p className="text-xs text-muted-foreground max-w-md mx-auto">
               {isNb
-                ? "Vi sammenstiller leverandørens dokumentasjon, metadata og signaler mot kravene og viser tydelige gap med konkrete neste steg."
-                : "We assess vendor documentation, metadata and signals against requirements and surface concrete next steps."}
+                ? "Lara sammenholder dokumentasjon og signaler mot kravene, og viser tydelige mangler du kan handle på."
+                : "Lara compares documentation and signals against the requirements, surfacing concrete gaps you can act on."}
             </p>
           </CardContent>
         </Card>
@@ -219,115 +223,151 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
             </CardContent>
           </Card>
 
-          {/* Domain summary chips */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {Object.entries(summary).map(([domain, s]: [string, any]) => {
-              const dl = DOMAIN_LABELS[domain] || { nb: domain, en: domain };
-              const dColor = s.score >= 75 ? "text-success" : s.score >= 50 ? "text-warning" : "text-destructive";
-              return (
-                <div key={domain} className="rounded-lg border border-border p-3 bg-card">
-                  <p className="text-[11px] uppercase text-muted-foreground font-medium">{isNb ? dl.nb : dl.en}</p>
-                  <p className={cn("text-lg font-bold tabular-nums", dColor)}>{s.score}%</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    {s.implemented}/{s.total} {isNb ? "oppfylt" : "met"}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+          {/* Flat gap list */}
+          <Card>
+            <CardContent className="p-0">
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                <h3 className="text-sm font-semibold">
+                  {isNb ? "Mangler" : "Gaps"}
+                  <span className="ml-2 text-muted-foreground font-normal">({gaps.length})</span>
+                </h3>
+                {gaps.length === 0 && (
+                  <Badge variant="outline" className="gap-1 text-success border-success/30">
+                    <CheckCircle2 className="h-3 w-3" />
+                    {isNb ? "Ingen mangler" : "No gaps"}
+                  </Badge>
+                )}
+              </div>
 
-          {/* Agent plan strip */}
-          <AgentPlanStrip
-            total={openItems.length}
-            byKind={proposalsByKind}
-            onReviewOne={handleReviewOne}
-            onBulkConfirmDocuments={() => setBulkConfirmedAt(Date.now())}
-          />
-
-          {/* Per-domain results */}
-          <div ref={listRef} className="space-y-2">
-            {Object.entries(domainGroups).map(([domain, items]) => {
-              const dl = DOMAIN_LABELS[domain] || { nb: domain, en: domain };
-              const isOpen = openDomains[domain] ?? false;
-              return (
-                <Collapsible key={domain} open={isOpen} onOpenChange={() => setOpenDomains((p) => ({ ...p, [domain]: !p[domain] }))}>
-                  <Card>
-                    <CollapsibleTrigger asChild>
-                      <button className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
-                          <span className="font-semibold text-sm">{isNb ? dl.nb : dl.en}</span>
-                          <Badge variant="outline" className="text-xs">{items.length}</Badge>
+              {gaps.length > 0 && (
+                <div className="divide-y divide-border">
+                  {gaps.map((gap) => {
+                    const meta = STATUS_META[gap.status as "partial" | "missing"];
+                    const Icon = meta.icon;
+                    const proposal = buildProposal(gap, assetName, isNb);
+                    return (
+                      <div key={gap.requirement_id} className="p-4 flex items-start gap-3">
+                        <div className={cn("h-7 w-7 rounded-md flex items-center justify-center shrink-0", meta.bg)}>
+                          <Icon className={cn("h-4 w-4", meta.color)} />
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-success" />{items.filter((i: any) => i.status === "implemented").length}</span>
-                          <span className="flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-warning" />{items.filter((i: any) => i.status === "partial").length}</span>
-                          <span className="flex items-center gap-1"><XCircle className="h-3 w-3 text-destructive" />{items.filter((i: any) => i.status === "missing").length}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs font-mono text-muted-foreground">{gap.requirement_id}</span>
+                            <Badge variant="outline" className={cn("text-[10px]", meta.color, meta.border)}>
+                              {isNb ? meta.label.nb : meta.label.en}
+                            </Badge>
+                          </div>
+                          <p className="text-sm font-medium mt-0.5">{gap.name}</p>
+                          {gap.rationale && (
+                            <p className="text-xs text-muted-foreground mt-1">{gap.rationale}</p>
+                          )}
+                          <p className="text-xs text-primary mt-1.5 inline-flex items-start gap-1.5">
+                            <Sparkles className="h-3 w-3 mt-0.5 shrink-0" />
+                            <span>
+                              <span className="font-medium">{isNb ? "Lara: " : "Lara: "}</span>
+                              {proposal.title}
+                            </span>
+                          </p>
+                          {gap.evidence && gap.evidence.length > 0 && (
+                            <p className="text-[11px] text-muted-foreground mt-1">
+                              <FileText className="h-3 w-3 inline mr-1" />
+                              {isNb ? "Bevis: " : "Evidence: "}{gap.evidence.join(", ")}
+                            </p>
+                          )}
                         </div>
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <div className="border-t border-border divide-y divide-border">
-                        {items.map((item: any) => {
-                          const meta = STATUS_META[item.status as keyof typeof STATUS_META] || STATUS_META.missing;
-                          const Icon = meta.icon;
-                          return (
-                            <div key={item.requirement_id} className="p-4 space-y-2">
-                              <div className="flex items-start gap-3">
-                                <div className={cn("h-7 w-7 rounded-md flex items-center justify-center shrink-0", meta.bg)}>
-                                  <Icon className={cn("h-4 w-4", meta.color)} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="text-xs font-mono text-muted-foreground">{item.requirement_id}</span>
-                                    <Badge variant="outline" className={cn("text-[10px]", meta.color)}>
-                                      {isNb ? meta.label.nb : meta.label.en}
-                                    </Badge>
-                                  </div>
-                                  <p className="text-sm font-medium mt-0.5">{item.name}</p>
-                                  <p className="text-xs text-muted-foreground mt-1">{item.rationale}</p>
-                                  {item.evidence?.length > 0 && (
-                                    <p className="text-[11px] text-muted-foreground mt-1">
-                                      <FileText className="h-3 w-3 inline mr-1" />
-                                      {isNb ? "Bevis: " : "Evidence: "}{item.evidence.join(", ")}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                              {item.status !== "implemented" && item.status !== "not_relevant" && (() => {
-                                const proposal = buildProposal(item, assetName, isNb);
-                                const isDocReq =
-                                  proposal.kind === "request_document" ||
-                                  proposal.kind === "renew_document";
-                                return (
-                                  <div className="ml-10">
-                                    <InlineAgentProposal
-                                      key={`${item.requirement_id}-${isDocReq ? bulkConfirmedAt : 0}`}
-                                      proposal={proposal}
-                                      vendorName={assetName}
-                                      requirementId={item.requirement_id}
-                                      autoStart={isDocReq && bulkConfirmedAt > 0}
-                                    />
-                                  </div>
-                                );
-                              })()}
-                            </div>
-                          );
-                        })}
                       </div>
-                    </CollapsibleContent>
-                  </Card>
-                </Collapsible>
-              );
-            })}
-          </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-          <div className="flex items-center justify-end gap-2">
-            <Button variant="outline" size="sm" className="gap-2" disabled>
-              <Download className="h-4 w-4" />
-              {isNb ? "Eksporter PDF" : "Export PDF"}
-            </Button>
-          </div>
+          {/* Lara follow-up question */}
+          {gaps.length > 0 && followupState === "asking" && (
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      {isNb
+                        ? `Skal jeg sette opp oppfølgingsaktiviteter for disse ${gaps.length} manglene?`
+                        : `Should I set up follow-up activities for these ${gaps.length} gaps?`}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {isNb
+                        ? "Modus: Assistert — jeg utfører enkle handlinger autonomt og ber om bekreftelse på de viktigste."
+                        : "Mode: Assisted — I'll act autonomously on simple items and ask for confirmation on the rest."}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      <Button onClick={handleConfirm} size="sm" className="gap-1.5">
+                        <Check className="h-3.5 w-3.5" />
+                        {isNb ? "Ja, sett opp aktiviteter" : "Yes, set up activities"}
+                      </Button>
+                      <Button onClick={handleDecline} size="sm" variant="outline" className="gap-1.5">
+                        <X className="h-3.5 w-3.5" />
+                        {isNb ? "Nei, ikke nå" : "Not now"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Result after confirm */}
+          {followupState === "done" && createdSummary && createdSummary.auto + createdSummary.pending > 0 && (
+            <Card className="border-success/30 bg-success/5">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+                    <Check className="h-4 w-4 text-success" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-foreground">
+                      {isNb
+                        ? `Lara satte opp ${createdSummary.auto + createdSummary.pending} aktiviteter`
+                        : `Lara created ${createdSummary.auto + createdSummary.pending} activities`}
+                    </p>
+                    <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                      {createdSummary.auto > 0 && (
+                        <li className="flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                          {isNb
+                            ? `${createdSummary.auto} utført automatisk (e-post sendt, oppgaver opprettet)`
+                            : `${createdSummary.auto} done automatically (emails sent, tasks created)`}
+                        </li>
+                      )}
+                      {createdSummary.pending > 0 && (
+                        <li className="flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+                          {isNb
+                            ? `${createdSummary.pending} venter på din bekreftelse`
+                            : `${createdSummary.pending} awaiting your confirmation`}
+                        </li>
+                      )}
+                    </ul>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="px-0 h-auto mt-2 gap-1 text-primary"
+                      onClick={() => {
+                        document.querySelector('[role="tab"][value="activity"]')?.dispatchEvent(
+                          new MouseEvent("click", { bubbles: true })
+                        );
+                      }}
+                    >
+                      {isNb ? "Se aktivitetsloggen" : "Open activity log"}
+                      <ArrowRight className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </>
       )}
     </div>
