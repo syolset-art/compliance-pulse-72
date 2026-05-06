@@ -7,6 +7,7 @@ import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBa
 import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
 import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
 import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
+import { SystemMetrics } from "@/components/system-profile/SystemMetrics";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { useToast } from "@/hooks/use-toast";
 import { generateGuidanceForVendor, type SuggestedActivity } from "@/utils/vendorGuidanceData";
@@ -89,8 +90,10 @@ export const ValidationTab = ({ systemId, systemAsAsset }: ValidationTabProps) =
         />
       )}
 
-      {/* 2. Modenhet per kontrollområde */}
-      <AssetMaturityByDomainCard assetId={systemId} />
+      {/* 2. Modenhetsvurdering — full kontrollpanel */}
+      {systemAsAsset && (
+        <SystemMetrics systemAsAsset={systemAsAsset as any} tasksCount={0} />
+      )}
 
       {/* 3. Modenhet per regelverk — knyttet til systemleverandøren */}
       {frameworks.length > 0 && (
