@@ -214,9 +214,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
   const handlePublish = async () => {
     setIsPublishing(true);
-    setPublishStep("publishing");
-    // Simulate a brief processing delay
-    await new Promise(r => setTimeout(r, 2000));
     const { error } = await supabase
       .from("assets")
       .update({ publish_mode: "all" } as any)
@@ -227,7 +224,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
       setPublishDialogOpen(false);
       setPublishStep("confirm");
     } else {
-      setPublishStep("success");
+      setPublishDialogOpen(false);
+      setPublishStep("confirm");
+      toast.success(
+        isNb ? "Trust Center publisert" : "Trust Center published",
+        {
+          description: isNb
+            ? "Profilen din er nå tilgjengelig på din unike URL."
+            : "Your profile is now live at your unique URL.",
+        }
+      );
     }
   };
 
