@@ -6,6 +6,7 @@ import { Building2, Info } from "lucide-react";
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
 import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
 import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
+import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { useToast } from "@/hooks/use-toast";
 import { generateGuidanceForVendor, type SuggestedActivity } from "@/utils/vendorGuidanceData";
@@ -113,6 +114,9 @@ export const ValidationTab = ({ systemId, systemAsAsset }: ValidationTabProps) =
           <FrameworkMaturityGrid frameworks={frameworks} />
         </section>
       )}
+
+      {/* 4. Personvern og datasikkerhet — Lara-vurdering */}
+      <VendorPrivacyAssessment vendorName={vendorName} />
 
       {/* Aktivitetsdialog — åpnes fra Lara-banneret */}
       <RegisterActivityDialog
