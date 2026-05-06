@@ -572,7 +572,7 @@ const AssetTrustProfile = () => {
                   <VendorEvidenceTab assetId={asset.id} assetName={asset.name} vendorName={asset.vendor || undefined} />
                 </TabsContent>
                 <TabsContent value="gap-analysis" className="mt-6">
-                  <VendorGapAnalysisTab assetId={asset.id} assetName={asset.name} />
+                  <VendorGapAnalysisTab assetId={asset.id} assetName={asset.name} onOpenActivityLog={() => setActiveTab('overview')} />
                 </TabsContent>
                 <TabsContent value="requests" className="mt-6">
                   <CustomerRequestsTab />
