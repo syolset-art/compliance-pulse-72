@@ -147,7 +147,7 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
             <p className="text-xs font-medium text-muted-foreground uppercase mb-1">
               {isNb ? "Velg rammeverk" : "Choose framework"}
             </p>
-            <Select value={framework} onValueChange={(v) => { setFramework(v); setFollowupState("asking"); setCreatedSummary(null); }}>
+            <Select value={framework} onValueChange={(v) => { setFramework(v); setFollowupState("asking"); setCreatedSummary(null); setShowGapList(false); }}>
               <SelectTrigger className="w-full sm:w-[320px]">
                 <SelectValue />
               </SelectTrigger>
