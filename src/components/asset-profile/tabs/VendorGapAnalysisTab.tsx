@@ -60,6 +60,7 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
   const [framework, setFramework] = useState<string>("normen");
   const [followupState, setFollowupState] = useState<FollowupState>("asking");
   const [createdSummary, setCreatedSummary] = useState<{ auto: number; pending: number } | null>(null);
+  const [showGapList, setShowGapList] = useState(false);
 
   const availableFrameworks = useMemo(
     () => frameworks.filter((f) => SUPPORTED_FRAMEWORKS.includes(f.id)),
