@@ -53,7 +53,7 @@ type GapItem = {
 
 type FollowupState = "idle" | "asking" | "done";
 
-export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTabProps) {
+export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: VendorGapAnalysisTabProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
