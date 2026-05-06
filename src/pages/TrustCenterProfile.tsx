@@ -16,8 +16,55 @@ import {
   ChevronDown, ChevronUp, ChevronRight, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
-  Linkedin, Facebook, Mail,
+  Linkedin, Facebook, Mail, Star,
 } from "lucide-react";
+
+// EU-style 12-star wreath used in the compliance badge
+const StarWreath = ({ count = 12, radius = 30, starSize = 7, color = "hsl(45, 90%, 55%)" }: { count?: number; radius?: number; starSize?: number; color?: string }) => (
+  <div className="absolute inset-0 pointer-events-none" aria-hidden>
+    {Array.from({ length: count }).map((_, i) => (
+      <Star
+        key={i}
+        className="absolute left-1/2 top-1/2"
+        style={{
+          width: starSize,
+          height: starSize,
+          color,
+          fill: color,
+          transform: `translate(-50%, -50%) rotate(${i * (360 / count)}deg) translateY(-${radius}px)`,
+        }}
+        strokeWidth={0}
+      />
+    ))}
+  </div>
+);
+
+// Mynder butterfly mark (matches LaraAvatar silhouette)
+const ButterflyMark = ({ size = 22, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" aria-hidden>
+    <path
+      d="M12 12c-1.6-3.2-4.2-5-6.4-5-1.6 0-2.6 1.1-2.6 2.7 0 2.4 2.4 5.3 5.4 6.5C6.8 17.5 6 18.7 6 20c0 .9.7 1.5 1.6 1.5 1.5 0 3.3-1.4 4.4-3.5 1.1 2.1 2.9 3.5 4.4 3.5.9 0 1.6-.6 1.6-1.5 0-1.3-.8-2.5-2.4-3.8 3-1.2 5.4-4.1 5.4-6.5 0-1.6-1-2.7-2.6-2.7-2.2 0-4.8 1.8-6.4 5z"
+      fill={color}
+    />
+    <circle cx="12" cy="6" r="1.4" fill={color} />
+  </svg>
+);
+
+// Small circular Trust Score ring
+const TrustScoreRing = ({ score, size = 36, stroke = 3, color = "hsl(45, 90%, 55%)", trackColor = "rgba(255,255,255,0.18)" }: { score: number; size?: number; stroke?: number; color?: string; trackColor?: string }) => {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const dash = (Math.max(0, Math.min(100, score)) / 100) * c;
+  return (
+    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={trackColor} strokeWidth={stroke} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none" strokeLinecap="round" strokeDasharray={`${dash} ${c}`} />
+      </svg>
+      <span className="absolute text-[10px] font-bold tabular-nums" style={{ color }}>{score}</span>
+    </div>
+  );
+};
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -859,10 +906,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           <Badge variant="outline" className="text-[13px] border-primary/40 text-primary">Current</Badge>
                         </div>
                         <div className="flex justify-center py-5">
-                          <span className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-[hsl(280,50%,75%)] text-white text-sm font-semibold shadow-lg shadow-primary/25 ring-1 ring-primary/20">
-                            <Shield className="h-4.5 w-4.5 drop-shadow-sm" />
-                            Mynder Verified
-                            <CheckCircle2 className="h-3.5 w-3.5 opacity-80" />
+                          <span
+                            className="relative inline-flex items-center gap-3 pl-3 pr-4 py-2 rounded-full text-white text-sm font-semibold shadow-lg ring-1"
+                            style={{
+                              background: "linear-gradient(135deg, hsl(220, 45%, 18%) 0%, hsl(220, 50%, 26%) 100%)",
+                              borderColor: "hsl(45, 90%, 55%)",
+                              boxShadow: "0 4px 18px hsl(220 45% 18% / 0.35), 0 0 0 1px hsl(45 90% 55% / 0.4) inset",
+                            }}
+                          >
+                            <span className="relative inline-flex items-center justify-center" style={{ width: 36, height: 36 }}>
+                              <StarWreath count={12} radius={16} starSize={5} />
+                              <ButterflyMark size={16} color="hsl(45, 90%, 55%)" />
+                            </span>
+                            <span className="flex flex-col leading-tight">
+                              <span className="text-[10px] uppercase tracking-[0.14em]" style={{ color: "hsl(45, 90%, 70%)" }}>Mynder Verified</span>
+                              <span className="text-[12px] font-semibold text-white/90">Trust Score</span>
+                            </span>
+                            <TrustScoreRing score={trustScore} size={32} stroke={2.5} />
                           </span>
                         </div>
                         <div className="space-y-2 text-sm text-muted-foreground">
@@ -892,23 +952,41 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </Badge>
                         </div>
                         <div className="flex justify-center py-4">
-                          <div className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/5 to-[hsl(280,50%,75%)]/5 p-4 space-y-2.5 min-w-[220px] shadow-md shadow-primary/10">
-                            <div className="flex items-center gap-2">
-                              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-[hsl(280,50%,75%)] flex items-center justify-center shadow-sm">
-                                <Shield className="h-3.5 w-3.5 text-white" />
+                          <div
+                            className="relative rounded-2xl p-5 min-w-[260px] text-white"
+                            style={{
+                              background: "linear-gradient(160deg, hsl(220, 50%, 14%) 0%, hsl(220, 45%, 22%) 100%)",
+                              border: "1px solid hsl(45, 90%, 55%)",
+                              boxShadow: "0 10px 30px hsl(220 45% 12% / 0.4), 0 0 0 1px hsl(45 90% 55% / 0.25) inset",
+                            }}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="relative inline-flex items-center justify-center" style={{ width: 64, height: 64 }}>
+                                <StarWreath count={12} radius={28} starSize={7} />
+                                <ButterflyMark size={26} color="hsl(45, 90%, 55%)" />
                               </div>
-                              <div>
-                                <span className="text-sm font-bold text-foreground">Trust Profile</span>
-                                <p className="text-[13px] text-primary font-medium">Verified by Mynder</p>
+                              <div className="flex-1">
+                                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "hsl(45, 90%, 70%)" }}>Mynder Verified</div>
+                                <div className="text-base font-semibold leading-tight">Trust Profile</div>
+                                <div className="text-[11px] text-white/60">Compliance · Security</div>
+                              </div>
+                              <div className="flex flex-col items-center gap-0.5">
+                                <TrustScoreRing score={trustScore} size={42} stroke={3} />
+                                <span className="text-[9px] uppercase tracking-wider text-white/60">Trust Score</span>
                               </div>
                             </div>
                             {recognizedFrameworks.length > 0 && (
-                              <div className="flex flex-wrap gap-1 pt-1 border-t border-primary/10">
+                              <div className="flex flex-wrap gap-1 pt-3 mt-3 border-t" style={{ borderColor: "hsl(45 90% 55% / 0.25)" }}>
                                 {recognizedFrameworks.slice(0, 3).map((fw: any, i: number) => (
-                                  <Badge key={i} variant="secondary" className="text-[13px] bg-primary/10 text-primary border-0">{fw.framework_name}</Badge>
+                                  <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "hsl(45 90% 55% / 0.15)", color: "hsl(45, 90%, 75%)", border: "1px solid hsl(45 90% 55% / 0.35)" }}>
+                                    {fw.framework_name}
+                                  </span>
                                 ))}
                               </div>
                             )}
+                            <div className="mt-2 pt-2 border-t text-center text-[9px] uppercase tracking-[0.22em]" style={{ borderColor: "hsl(45 90% 55% / 0.15)", color: "hsl(45, 90%, 70%)" }}>
+                              Trust · Compliance · Verified
+                            </div>
                           </div>
                         </div>
                         <div className="space-y-2 text-sm text-muted-foreground">
