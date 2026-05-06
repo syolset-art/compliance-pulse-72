@@ -895,6 +895,54 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 {/* Website Badge sub-tab */}
                 {publishSubTab === "badge" && (
                   <div className="space-y-6">
+                    {/* Theme toggle */}
+                    {(() => {
+                      const isDark = badgeTheme === "dark";
+                      const t = {
+                        bgFree: isDark
+                          ? "linear-gradient(135deg, hsl(220, 45%, 18%) 0%, hsl(220, 50%, 26%) 100%)"
+                          : "linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(220, 30%, 97%) 100%)",
+                        bgPro: isDark
+                          ? "linear-gradient(160deg, hsl(220, 50%, 14%) 0%, hsl(220, 45%, 22%) 100%)"
+                          : "linear-gradient(160deg, hsl(0, 0%, 100%) 0%, hsl(220, 30%, 97%) 100%)",
+                        gold: isDark ? "hsl(45, 90%, 55%)" : "hsl(220, 50%, 22%)",
+                        goldSoft: isDark ? "hsl(45, 90%, 70%)" : "hsl(220, 40%, 35%)",
+                        textMain: isDark ? "white" : "hsl(220, 50%, 14%)",
+                        textSub: isDark ? "rgba(255,255,255,0.6)" : "hsl(220, 20%, 45%)",
+                        ringTrack: isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.08)",
+                        chipBg: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(220 50% 22% / 0.06)",
+                        chipBorder: isDark ? "hsl(45 90% 55% / 0.35)" : "hsl(220 50% 22% / 0.2)",
+                        chipText: isDark ? "hsl(45, 90%, 75%)" : "hsl(220, 50%, 22%)",
+                        divider: isDark ? "hsl(45 90% 55% / 0.25)" : "hsl(220 30% 80%)",
+                        dividerSoft: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(220 30% 88%)",
+                        boxShadowFree: isDark
+                          ? "0 4px 18px hsl(220 45% 18% / 0.35), 0 0 0 1px hsl(45 90% 55% / 0.4) inset"
+                          : "0 4px 18px hsl(220 30% 70% / 0.25), 0 0 0 1px hsl(220 50% 22% / 0.15) inset",
+                        boxShadowPro: isDark
+                          ? "0 10px 30px hsl(220 45% 12% / 0.4), 0 0 0 1px hsl(45 90% 55% / 0.25) inset"
+                          : "0 10px 30px hsl(220 30% 70% / 0.25), 0 0 0 1px hsl(220 50% 22% / 0.12) inset",
+                      };
+                      return (
+                        <>
+                          <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {isNb ? "Bakgrunn for forhåndsvisning" : "Preview background"}
+                            </span>
+                            <div className="inline-flex rounded-md border border-border bg-background p-0.5">
+                              <button
+                                onClick={() => setBadgeTheme("dark")}
+                                className={`px-3 py-1 text-xs font-medium rounded ${isDark ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+                              >
+                                {isNb ? "Mørk" : "Dark"}
+                              </button>
+                              <button
+                                onClick={() => setBadgeTheme("light")}
+                                className={`px-3 py-1 text-xs font-medium rounded ${!isDark ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+                              >
+                                {isNb ? "Lys" : "Light"}
+                              </button>
+                            </div>
+                          </div>
                     {/* Badge tiers */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Free Badge */}
