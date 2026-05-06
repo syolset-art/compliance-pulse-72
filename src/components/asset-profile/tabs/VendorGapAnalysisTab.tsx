@@ -19,6 +19,7 @@ import { buildProposal } from "@/components/asset-profile/gap/InlineAgentProposa
 interface VendorGapAnalysisTabProps {
   assetId: string;
   assetName: string;
+  onOpenActivityLog?: () => void;
 }
 
 const SUPPORTED_FRAMEWORKS = ["normen", "nis2", "iso27001", "gdpr"];
@@ -52,7 +53,7 @@ type GapItem = {
 
 type FollowupState = "idle" | "asking" | "done";
 
-export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTabProps) {
+export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: VendorGapAnalysisTabProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
@@ -115,20 +116,18 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
   }, [allResults]);
 
   const handleConfirm = () => {
-    // Mode: assisted by default — half automatic, half pending confirmation
-    // Real persistence would happen here; for now we simulate with toast + summary
-    const auto = Math.ceil(gaps.length * 0.6);
-    const pending = gaps.length - auto;
-    setCreatedSummary({ auto, pending });
+    // Lara registrerer aktiviteter som UTKAST — ingenting sendes uten brukerens godkjenning.
+    // Hver aktivitet venter på brukerens bekreftelse i aktivitetsloggen.
+    setCreatedSummary({ auto: 0, pending: gaps.length });
     setFollowupState("done");
     toast.success(
       isNb
-        ? `Lara satte opp ${gaps.length} aktiviteter`
-        : `Lara created ${gaps.length} activities`,
+        ? `Lara la ${gaps.length} aktiviteter i loggen`
+        : `Lara added ${gaps.length} activities to the log`,
       {
         description: isNb
-          ? `${auto} utført automatisk · ${pending} venter på din bekreftelse`
-          : `${auto} done automatically · ${pending} awaiting your confirmation`,
+          ? "Alle venter på din godkjenning før noe sendes."
+          : "All await your approval before anything is sent.",
       }
     );
   };
@@ -246,8 +245,8 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
                     </p>
                     <p className="text-xs text-muted-foreground mt-1.5">
                       {isNb
-                        ? "Modus: Assistert — jeg utfører enkle handlinger autonomt og ber om bekreftelse på de viktigste."
-                        : "Mode: Assisted — I'll act autonomously on simple items and ask for confirmation on the rest."}
+                        ? "Jeg legger dem som utkast i aktivitetsloggen — du må godkjenne hver enkelt før noe sendes eller utføres."
+                        : "I'll add them as drafts in the activity log — you approve each one before anything is sent or executed."}
                     </p>
                     <div className="flex flex-wrap gap-2 mt-4">
                       <Button onClick={handleConfirm} size="sm" className="gap-1.5">
@@ -342,7 +341,7 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
           )}
 
           {/* Result after confirm */}
-          {followupState === "done" && createdSummary && createdSummary.auto + createdSummary.pending > 0 && (
+          {followupState === "done" && createdSummary && createdSummary.pending > 0 && (
             <Card className="border-success/30 bg-success/5">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
@@ -352,38 +351,28 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-foreground">
                       {isNb
-                        ? `Lara satte opp ${createdSummary.auto + createdSummary.pending} aktiviteter`
-                        : `Lara created ${createdSummary.auto + createdSummary.pending} activities`}
+                        ? `Lara la ${createdSummary.pending} aktiviteter i loggen`
+                        : `Lara added ${createdSummary.pending} activities to the log`}
                     </p>
-                    <ul className="text-xs text-muted-foreground mt-2 space-y-1">
-                      {createdSummary.auto > 0 && (
-                        <li className="flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                          {isNb
-                            ? `${createdSummary.auto} utført automatisk (e-post sendt, oppgaver opprettet)`
-                            : `${createdSummary.auto} done automatically (emails sent, tasks created)`}
-                        </li>
-                      )}
-                      {createdSummary.pending > 0 && (
-                        <li className="flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-warning" />
-                          {isNb
-                            ? `${createdSummary.pending} venter på din bekreftelse`
-                            : `${createdSummary.pending} awaiting your confirmation`}
-                        </li>
-                      )}
-                    </ul>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      {isNb
+                        ? "Alle ligger som utkast og venter på din godkjenning. Ingen e-post sendes og ingen handling utføres før du bekrefter."
+                        : "All are drafts awaiting your approval. No emails will be sent and no action taken until you confirm."}
+                    </p>
                     <Button
                       variant="link"
                       size="sm"
                       className="px-0 h-auto mt-2 gap-1 text-primary"
                       onClick={() => {
-                        document.querySelector('[role="tab"][value="activity"]')?.dispatchEvent(
-                          new MouseEvent("click", { bubbles: true })
-                        );
+                        if (onOpenActivityLog) {
+                          onOpenActivityLog();
+                        } else {
+                          // Fallback: åpne Veiledning-fanen som inneholder aktivitetsloggen
+                          (document.querySelector('[role="tab"][data-state="inactive"][value="overview"]') as HTMLElement | null)?.click();
+                        }
                       }}
                     >
-                      {isNb ? "Se aktivitetsloggen" : "Open activity log"}
+                      {isNb ? "Gå til aktivitetsloggen for å godkjenne" : "Go to activity log to approve"}
                       <ArrowRight className="h-3 w-3" />
                     </Button>
                   </div>
