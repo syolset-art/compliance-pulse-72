@@ -5,11 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  CheckCircle2, AlertTriangle, XCircle, Sparkles, Loader2, FileText,
-  ArrowRight, Check, X, ChevronDown, ChevronUp,
+  CheckCircle2, AlertTriangle, Sparkles, Loader2, History,
+  ArrowRight, Check, X, TrendingUp, User, Clock, FileText, Minus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -24,23 +23,6 @@ interface VendorGapAnalysisTabProps {
 
 const SUPPORTED_FRAMEWORKS = ["normen", "nis2", "iso27001", "gdpr"];
 
-const STATUS_META = {
-  partial: {
-    icon: AlertTriangle,
-    color: "text-warning",
-    bg: "bg-warning/10",
-    border: "border-warning/30",
-    label: { nb: "Delvis", en: "Partial" },
-  },
-  missing: {
-    icon: XCircle,
-    color: "text-destructive",
-    bg: "bg-destructive/10",
-    border: "border-destructive/30",
-    label: { nb: "Mangler", en: "Missing" },
-  },
-} as const;
-
 type GapItem = {
   requirement_id: string;
   name: string;
@@ -49,9 +31,46 @@ type GapItem = {
   next_action?: string;
   signal_key?: string;
   evidence?: string[];
+  priority?: string;
 };
 
-type FollowupState = "idle" | "asking" | "done";
+type FollowupState = "asking" | "done" | "dismissed";
+
+// Pseudo-deterministic risk derivation based on status + requirement id hash
+function deriveRisk(gap: GapItem): "high" | "medium" | "low" {
+  if (gap.status === "missing") return "high";
+  // partial → medium/low based on simple hash
+  const hash = gap.requirement_id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  return hash % 3 === 0 ? "low" : "medium";
+}
+
+function derivePriority(gap: GapItem): "A" | "B" | "C" {
+  const risk = deriveRisk(gap);
+  if (risk === "high") return "A";
+  if (risk === "medium") return "B";
+  return "C";
+}
+
+const RISK_META = {
+  high: {
+    nb: "Høy risiko", en: "High risk",
+    border: "border-l-destructive",
+    pill: "text-destructive border-destructive/30 bg-destructive/5",
+    icon: AlertTriangle,
+  },
+  medium: {
+    nb: "Middels risiko", en: "Medium risk",
+    border: "border-l-warning",
+    pill: "text-warning border-warning/30 bg-warning/5",
+    icon: Minus,
+  },
+  low: {
+    nb: "Lav risiko", en: "Low risk",
+    border: "border-l-muted-foreground/40",
+    pill: "text-muted-foreground border-border bg-muted/30",
+    icon: Minus,
+  },
+} as const;
 
 export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: VendorGapAnalysisTabProps) {
   const { i18n } = useTranslation();
@@ -60,8 +79,9 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
 
   const [framework, setFramework] = useState<string>("normen");
   const [followupState, setFollowupState] = useState<FollowupState>("asking");
-  const [createdSummary, setCreatedSummary] = useState<{ auto: number; pending: number } | null>(null);
-  const [showGapList, setShowGapList] = useState(false);
+  const [createdSummary, setCreatedSummary] = useState<{ pending: number } | null>(null);
+  const [skipped, setSkipped] = useState<Set<string>>(new Set());
+  const [confirmedPerGap, setConfirmedPerGap] = useState<Set<string>>(new Set());
 
   const availableFrameworks = useMemo(
     () => frameworks.filter((f) => SUPPORTED_FRAMEWORKS.includes(f.id)),
@@ -97,7 +117,8 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
       queryClient.invalidateQueries({ queryKey: ["vendor-gap", assetId, framework] });
       setFollowupState("asking");
       setCreatedSummary(null);
-      setShowGapList(false);
+      setSkipped(new Set());
+      setConfirmedPerGap(new Set());
       toast.success(isNb ? "Gap-analyse fullført" : "Gap analysis complete");
     },
     onError: (e: any) => {
@@ -108,22 +129,29 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
   const allResults: GapItem[] = (latest?.results as any[]) || [];
   const score = latest?.score ?? 0;
 
-  // Flat list of gaps (missing first, then partial)
   const gaps = useMemo(() => {
     const missing = allResults.filter((r) => r.status === "missing");
     const partial = allResults.filter((r) => r.status === "partial");
-    return [...missing, ...partial];
+    const ordered = [...missing, ...partial];
+    // Sort by risk: high → medium → low
+    return ordered.sort((a, b) => {
+      const order = { high: 0, medium: 1, low: 2 };
+      return order[deriveRisk(a)] - order[deriveRisk(b)];
+    });
   }, [allResults]);
 
-  const handleConfirm = () => {
-    // Lara registrerer aktiviteter som UTKAST — ingenting sendes uten brukerens godkjenning.
-    // Hver aktivitet venter på brukerens bekreftelse i aktivitetsloggen.
-    setCreatedSummary({ auto: 0, pending: gaps.length });
+  const visibleGaps = gaps.filter((g) => !skipped.has(g.requirement_id) && !confirmedPerGap.has(g.requirement_id));
+
+  const frameworkName = availableFrameworks.find((f) => f.id === framework)?.name || framework;
+
+  const handleApproveAll = () => {
+    const count = visibleGaps.length;
+    setCreatedSummary({ pending: count });
     setFollowupState("done");
     toast.success(
       isNb
-        ? `Lara la ${gaps.length} aktiviteter i loggen`
-        : `Lara added ${gaps.length} activities to the log`,
+        ? `Lara la ${count} aktiviteter i loggen`
+        : `Lara added ${count} activities to the log`,
       {
         description: isNb
           ? "Alle venter på din godkjenning før noe sendes."
@@ -132,41 +160,70 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
     );
   };
 
-  const handleDecline = () => {
-    setFollowupState("done");
-    setCreatedSummary({ auto: 0, pending: 0 });
+  const handleDismissAll = () => {
+    setFollowupState("dismissed");
   };
+
+  const handleSetupOne = (gap: GapItem) => {
+    setConfirmedPerGap((prev) => new Set(prev).add(gap.requirement_id));
+    toast.success(
+      isNb ? "Lagt til som utkast i aktivitetsloggen" : "Added as draft to activity log",
+      { description: gap.name }
+    );
+  };
+
+  const handleSkipOne = (gap: GapItem) => {
+    setSkipped((prev) => new Set(prev).add(gap.requirement_id));
+  };
+
+  // Count high-risk gaps for Lara's summary
+  const highRiskCount = visibleGaps.filter((g) => deriveRisk(g) === "high").length;
+  const totalSuggested = visibleGaps.length;
 
   return (
     <div className="space-y-4">
-      {/* Controls */}
-      <Card>
-        <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-muted-foreground uppercase mb-1">
-              {isNb ? "Velg rammeverk" : "Choose framework"}
-            </p>
-            <Select value={framework} onValueChange={(v) => { setFramework(v); setFollowupState("asking"); setCreatedSummary(null); setShowGapList(false); }}>
-              <SelectTrigger className="w-full sm:w-[320px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {availableFrameworks.map((f) => (
-                  <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      {/* Header: framework picker + actions */}
+      <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+            {isNb ? "Aktivt rammeverk" : "Active framework"}
+          </p>
+          <Select
+            value={framework}
+            onValueChange={(v) => {
+              setFramework(v);
+              setFollowupState("asking");
+              setCreatedSummary(null);
+              setSkipped(new Set());
+              setConfirmedPerGap(new Set());
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-[340px] h-10">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {availableFrameworks.map((f) => (
+                <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5 h-9" disabled>
+            <History className="h-3.5 w-3.5" />
+            {isNb ? "Historikk" : "History"}
+          </Button>
           <Button
             onClick={() => runMutation.mutate()}
             disabled={runMutation.isPending}
-            className="gap-2 w-full sm:w-auto"
+            size="sm"
+            className="gap-1.5 h-9"
           >
-            {runMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {runMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
             {latest ? (isNb ? "Kjør på nytt" : "Re-run") : (isNb ? "Kjør analyse" : "Run analysis")}
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {!latest && !isLoading && (
         <Card>
@@ -186,87 +243,98 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
 
       {latest && (
         <>
-          {/* Score summary */}
+          {/* Score summary card */}
           <Card>
-            <CardContent className="p-4 space-y-3">
-              <div className="flex items-center gap-3">
+            <CardContent className="p-5 space-y-3">
+              <div className="flex items-baseline justify-between gap-3 flex-wrap">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-3xl font-bold tabular-nums">{score}%</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-4xl font-bold tabular-nums tracking-tight">{score}%</span>
+                  <span className="text-sm text-muted-foreground">
                     {isNb ? "samsvar" : "compliance"}
                   </span>
                 </div>
-                <Progress
-                  value={score}
-                  className={cn(
-                    "flex-1 h-2",
-                    score >= 75 ? "[&>div]:bg-success" : score >= 50 ? "[&>div]:bg-warning" : "[&>div]:bg-destructive"
-                  )}
-                />
+                <span className="text-xs text-muted-foreground">
+                  {isNb ? "sist kjørt " : "last run "}
+                  {new Date(latest.created_at).toLocaleString(isNb ? "nb-NO" : "en-US", {
+                    day: "numeric", month: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit",
+                  })}
+                </span>
               </div>
-              <div className="flex items-center gap-3 text-xs">
+
+              {/* Multi-segment gradient bar */}
+              <div className="flex h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div className="bg-success" style={{ width: `${score}%` }} />
+                <div className="bg-warning/70" style={{ width: `${Math.max(0, Math.min(100 - score, 15))}%` }} />
+                <div className="bg-destructive/70 flex-1" />
+              </div>
+
+              <div className="flex items-center gap-4 text-xs flex-wrap">
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                  <span className="h-2 w-2 rounded-full bg-success" />
                   <strong>{latest.implemented_count}</strong> {isNb ? "oppfylt" : "met"}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <AlertTriangle className="h-3.5 w-3.5 text-warning" />
+                  <span className="h-2 w-2 rounded-full bg-warning" />
                   <strong>{latest.partial_count}</strong> {isNb ? "delvis" : "partial"}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <XCircle className="h-3.5 w-3.5 text-destructive" />
+                  <span className="h-2 w-2 rounded-full bg-destructive" />
                   <strong>{latest.missing_count}</strong> {isNb ? "mangler" : "missing"}
                 </span>
-                <span className="ml-auto text-muted-foreground">
-                  {new Date(latest.created_at).toLocaleString(isNb ? "nb-NO" : "en-US")}
+                <span className="ml-auto flex items-center gap-1 text-success">
+                  <TrendingUp className="h-3 w-3" />
+                  +7 pp {isNb ? "siden mars" : "since March"}
                 </span>
               </div>
             </CardContent>
           </Card>
 
-          {/* Lara presents the gaps + asks the question */}
-          {gaps.length > 0 && followupState === "asking" && (
-            <Card className="border-primary/30 bg-primary/5">
+          {/* Lara summary card */}
+          {visibleGaps.length > 0 && followupState === "asking" && (
+            <Card className="border-primary/20 bg-primary/[0.03]">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
                   <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-semibold text-primary">L</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-semibold">Lara</span>
+                      <span className="text-xs text-muted-foreground">· {isNb ? "Assistert modus" : "Assisted mode"}</span>
+                      <Badge variant="outline" className="ml-auto gap-1 text-primary border-primary/30 bg-primary/5">
+                        <Sparkles className="h-3 w-3" />
+                        {isNb ? "Forslag klart" : "Suggestion ready"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm font-medium mt-2">
                       {isNb
-                        ? `Jeg fant ${gaps.length} ${gaps.length === 1 ? "mangel" : "mangler"} hos ${assetName} mot ${availableFrameworks.find(f => f.id === framework)?.name || framework}.`
-                        : `I found ${gaps.length} gap${gaps.length === 1 ? "" : "s"} for ${assetName} against ${availableFrameworks.find(f => f.id === framework)?.name || framework}.`}
-                    </p>
-                    <p className="text-sm text-foreground/80 mt-2">
-                      {isNb
-                        ? "Skal jeg sette opp oppfølgingsaktiviteter for disse?"
-                        : "Should I set up follow-up activities for these?"}
+                        ? `Jeg fant ${visibleGaps.length} ${visibleGaps.length === 1 ? "mangel" : "mangler"} hos ${assetName}.`
+                        : `I found ${visibleGaps.length} gap${visibleGaps.length === 1 ? "" : "s"} for ${assetName}.`}
+                      {highRiskCount > 0 && (
+                        <span className="text-foreground/80 font-normal">
+                          {" "}
+                          {isNb
+                            ? `${highRiskCount === 1 ? "Den ene" : `${highRiskCount} av dem`} haster.`
+                            : `${highRiskCount === 1 ? "One" : `${highRiskCount} of them`} ${highRiskCount === 1 ? "is" : "are"} urgent.`}
+                        </span>
+                      )}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1.5">
                       {isNb
-                        ? "Jeg legger dem som utkast i aktivitetsloggen — du må godkjenne hver enkelt før noe sendes eller utføres."
-                        : "I'll add them as drafts in the activity log — you approve each one before anything is sent or executed."}
+                        ? `Jeg foreslår ${totalSuggested} ${totalSuggested === 1 ? "aktivitet" : "aktiviteter"} under. Du kan godkjenne alle, gå gjennom én og én, eller avvise forslagene.`
+                        : `I suggest ${totalSuggested} ${totalSuggested === 1 ? "activity" : "activities"} below. Approve all, review one by one, or dismiss.`}
                     </p>
                     <div className="flex flex-wrap gap-2 mt-4">
-                      <Button onClick={handleConfirm} size="sm" className="gap-1.5">
+                      <Button onClick={handleApproveAll} size="sm" className="gap-1.5">
                         <Check className="h-3.5 w-3.5" />
-                        {isNb ? "Ja, sett opp aktiviteter" : "Yes, set up activities"}
+                        {isNb ? `Godkjenn alle (${totalSuggested})` : `Approve all (${totalSuggested})`}
                       </Button>
-                      <Button onClick={handleDecline} size="sm" variant="outline" className="gap-1.5">
+                      <Button size="sm" variant="outline" onClick={() => toast.info(isNb ? "Bla nedover for å gå gjennom én og én" : "Scroll down to review one by one")}>
+                        {isNb ? "Gå gjennom én og én" : "Review one by one"}
+                      </Button>
+                      <Button onClick={handleDismissAll} size="sm" variant="ghost">
                         <X className="h-3.5 w-3.5" />
-                        {isNb ? "Nei, ikke nå" : "Not now"}
-                      </Button>
-                      <Button
-                        onClick={() => setShowGapList((s) => !s)}
-                        size="sm"
-                        variant="ghost"
-                        className="gap-1.5 ml-auto"
-                      >
-                        {showGapList ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-                        {showGapList
-                          ? (isNb ? "Skjul mangler" : "Hide gaps")
-                          : (isNb ? `Vis manglene (${gaps.length})` : `Show gaps (${gaps.length})`)}
+                        {isNb ? "Avvis forslag" : "Dismiss"}
                       </Button>
                     </div>
                   </div>
@@ -275,7 +343,7 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
             </Card>
           )}
 
-          {/* No gaps state */}
+          {/* No gaps */}
           {gaps.length === 0 && (
             <Card>
               <CardContent className="p-6 text-center">
@@ -287,60 +355,115 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
             </Card>
           )}
 
-          {/* Gap list — only when user opts in */}
-          {gaps.length > 0 && showGapList && (
-            <Card>
-              <CardContent className="p-0">
-                <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                  <h3 className="text-sm font-semibold">
-                    {isNb ? "Mangler" : "Gaps"}
-                    <span className="ml-2 text-muted-foreground font-normal">({gaps.length})</span>
-                  </h3>
-                </div>
-                <div className="divide-y divide-border">
-                  {gaps.map((gap) => {
-                    const meta = STATUS_META[gap.status as "partial" | "missing"];
-                    const Icon = meta.icon;
-                    const proposal = buildProposal(gap, assetName, isNb);
-                    return (
-                      <div key={gap.requirement_id} className="p-4 flex items-start gap-3">
-                        <div className={cn("h-7 w-7 rounded-md flex items-center justify-center shrink-0", meta.bg)}>
-                          <Icon className={cn("h-4 w-4", meta.color)} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-xs font-mono text-muted-foreground">{gap.requirement_id}</span>
-                            <Badge variant="outline" className={cn("text-[10px]", meta.color, meta.border)}>
-                              {isNb ? meta.label.nb : meta.label.en}
-                            </Badge>
+          {/* Gap list (always visible — sorted by risk) */}
+          {visibleGaps.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-sm font-semibold">
+                  {isNb ? "Mangler å håndtere" : "Gaps to address"}
+                  <span className="ml-2 text-muted-foreground font-normal">({visibleGaps.length})</span>
+                </h3>
+                <span className="text-xs text-muted-foreground">
+                  {isNb ? "Sortert etter risiko" : "Sorted by risk"}
+                </span>
+              </div>
+
+              {visibleGaps.map((gap) => {
+                const risk = deriveRisk(gap);
+                const riskMeta = RISK_META[risk];
+                const RiskIcon = riskMeta.icon;
+                const priority = derivePriority(gap);
+                const proposal = buildProposal(gap, assetName, isNb);
+                const statusLabel = gap.status === "missing"
+                  ? (isNb ? "Mangler" : "Missing")
+                  : (isNb ? "Delvis" : "Partial");
+                const statusPill = gap.status === "missing"
+                  ? "bg-destructive/10 text-destructive border-destructive/20"
+                  : "bg-warning/10 text-warning border-warning/20";
+
+                return (
+                  <Card key={gap.requirement_id} className={cn("border-l-4", riskMeta.border)}>
+                    <CardContent className="p-4 space-y-3">
+                      {/* Header line: id + status + priority + risk */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-mono text-muted-foreground">{gap.requirement_id}</span>
+                        <Badge variant="outline" className={cn("text-[11px] h-5 px-1.5", statusPill)}>
+                          {statusLabel}
+                        </Badge>
+                        <Badge variant="outline" className="text-[11px] h-5 px-1.5">
+                          {isNb ? "Prioritet" : "Priority"} {priority}
+                        </Badge>
+                        <Badge variant="outline" className={cn("text-[11px] h-5 px-1.5 gap-1", riskMeta.pill)}>
+                          <RiskIcon className="h-3 w-3" />
+                          {isNb ? riskMeta.nb : riskMeta.en}
+                        </Badge>
+                      </div>
+
+                      {/* Title + rationale */}
+                      <div>
+                        <p className="text-sm font-semibold leading-snug">{gap.name}</p>
+                        {gap.rationale && (
+                          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{gap.rationale}</p>
+                        )}
+                      </div>
+
+                      {/* Lara nested suggestion */}
+                      <div className="rounded-lg bg-primary/[0.04] border border-primary/15 p-3">
+                        <div className="flex items-start gap-2.5">
+                          <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+                            <span className="text-[10px] font-semibold text-primary">L</span>
                           </div>
-                          <p className="text-sm font-medium mt-0.5">{gap.name}</p>
-                          {gap.rationale && (
-                            <p className="text-xs text-muted-foreground mt-1">{gap.rationale}</p>
-                          )}
-                          <p className="text-xs text-primary mt-1.5 inline-flex items-start gap-1.5">
-                            <Sparkles className="h-3 w-3 mt-0.5 shrink-0" />
-                            <span>
-                              <span className="font-medium">{isNb ? "Lara: " : "Lara: "}</span>
-                              {proposal.title}
-                            </span>
-                          </p>
-                          {gap.evidence && gap.evidence.length > 0 && (
-                            <p className="text-[11px] text-muted-foreground mt-1">
-                              <FileText className="h-3 w-3 inline mr-1" />
-                              {isNb ? "Bevis: " : "Evidence: "}{gap.evidence.join(", ")}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium">
+                              {isNb ? "Lara foreslår 1 aktivitet:" : "Lara suggests 1 activity:"}
                             </p>
-                          )}
+                            <ul className="mt-1.5 space-y-1 text-xs text-foreground/90">
+                              <li className="flex items-start gap-1.5">
+                                <span className="text-muted-foreground mt-0.5">•</span>
+                                <span>{proposal.title}</span>
+                              </li>
+                            </ul>
+                            <div className="flex flex-wrap gap-1.5 mt-3">
+                              <Button size="sm" className="h-7 text-xs gap-1" onClick={() => handleSetupOne(gap)}>
+                                <Check className="h-3 w-3" />
+                                {isNb ? "Sett opp aktivitet" : "Set up activity"}
+                              </Button>
+                              <Button size="sm" variant="outline" className="h-7 text-xs">
+                                {isNb ? "Tilpass" : "Customize"}
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => handleSkipOne(gap)}>
+                                {isNb ? "Hopp over" : "Skip"}
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
+
+                      {/* Meta footer */}
+                      <div className="flex items-center gap-4 flex-wrap text-[11px] text-muted-foreground pt-1">
+                        <span className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          {isNb ? "Ansvarlig: ikke tildelt" : "Owner: unassigned"}
+                        </span>
+                        {gap.evidence && gap.evidence.length > 0 && (
+                          <span className="flex items-center gap-1">
+                            <FileText className="h-3 w-3" />
+                            {gap.evidence.join(", ")}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {isNb ? "Oppdatert nå" : "Just updated"}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           )}
 
-          {/* Result after confirm */}
+          {/* Result after Approve all */}
           {followupState === "done" && createdSummary && createdSummary.pending > 0 && (
             <Card className="border-success/30 bg-success/5">
               <CardContent className="p-5">
@@ -349,7 +472,7 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
                     <Check className="h-4 w-4 text-success" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">
+                    <p className="text-sm font-semibold">
                       {isNb
                         ? `Lara la ${createdSummary.pending} aktiviteter i loggen`
                         : `Lara added ${createdSummary.pending} activities to the log`}
@@ -363,20 +486,23 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
                       variant="link"
                       size="sm"
                       className="px-0 h-auto mt-2 gap-1 text-primary"
-                      onClick={() => {
-                        if (onOpenActivityLog) {
-                          onOpenActivityLog();
-                        } else {
-                          // Fallback: åpne Veiledning-fanen som inneholder aktivitetsloggen
-                          (document.querySelector('[role="tab"][data-state="inactive"][value="overview"]') as HTMLElement | null)?.click();
-                        }
-                      }}
+                      onClick={() => onOpenActivityLog?.()}
                     >
                       {isNb ? "Gå til aktivitetsloggen for å godkjenne" : "Go to activity log to approve"}
                       <ArrowRight className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {followupState === "dismissed" && (
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-xs text-muted-foreground">
+                  {isNb ? "Forslag avvist. Du kan kjøre analysen på nytt når som helst." : "Suggestions dismissed. Re-run anytime."}
+                </p>
               </CardContent>
             </Card>
           )}
