@@ -426,37 +426,47 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
                         )}
                       </div>
 
-                      {/* Lara nested suggestion */}
-                      <div className="rounded-lg bg-primary/[0.04] border border-primary/15 p-3">
-                        <div className="flex items-start gap-2.5">
-                          <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
-                            <span className="text-[10px] font-semibold text-primary">L</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium">
-                              {isNb ? "Lara foreslår 1 aktivitet:" : "Lara suggests 1 activity:"}
-                            </p>
-                            <ul className="mt-1.5 space-y-1 text-xs text-foreground/90">
-                              <li className="flex items-start gap-1.5">
-                                <span className="text-muted-foreground mt-0.5">•</span>
-                                <span>{proposal.title}</span>
-                              </li>
-                            </ul>
-                            <div className="flex flex-wrap gap-1.5 mt-3">
-                              <Button size="sm" className="h-7 text-xs gap-1" onClick={() => handleSetupOne(gap)}>
-                                <Check className="h-3 w-3" />
-                                {isNb ? "Sett opp aktivitet" : "Set up activity"}
-                              </Button>
-                              <Button size="sm" variant="outline" className="h-7 text-xs">
-                                {isNb ? "Tilpass" : "Customize"}
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => handleSkipOne(gap)}>
-                                {isNb ? "Hopp over" : "Skip"}
-                              </Button>
+                      {/* Lara nested suggestion OR confirm preview */}
+                      {previewOpen.has(gap.requirement_id) ? (
+                        <ActivityConfirmPreview
+                          vendorName={assetName}
+                          requirementId={gap.requirement_id}
+                          activities={buildPlannedActivities(gap, assetName, isNb)}
+                          onConfirm={() => handleConfirmPreview(gap)}
+                          onCancel={() => handleCancelPreview(gap)}
+                        />
+                      ) : (
+                        <div className="rounded-lg bg-primary/[0.04] border border-primary/15 p-3">
+                          <div className="flex items-start gap-2.5">
+                            <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+                              <span className="text-[10px] font-semibold text-primary">L</span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium">
+                                {isNb ? "Lara foreslår 1 aktivitet:" : "Lara suggests 1 activity:"}
+                              </p>
+                              <ul className="mt-1.5 space-y-1 text-xs text-foreground/90">
+                                <li className="flex items-start gap-1.5">
+                                  <span className="text-muted-foreground mt-0.5">•</span>
+                                  <span>{proposal.title}</span>
+                                </li>
+                              </ul>
+                              <div className="flex flex-wrap gap-1.5 mt-3">
+                                <Button size="sm" className="h-7 text-xs gap-1" onClick={() => handleSetupOne(gap)}>
+                                  <Check className="h-3 w-3" />
+                                  {isNb ? "Sett opp aktivitet" : "Set up activity"}
+                                </Button>
+                                <Button size="sm" variant="outline" className="h-7 text-xs">
+                                  {isNb ? "Tilpass" : "Customize"}
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => handleSkipOne(gap)}>
+                                  {isNb ? "Hopp over" : "Skip"}
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Meta footer */}
                       <div className="flex items-center gap-4 flex-wrap text-[11px] text-muted-foreground pt-1">
