@@ -1002,38 +1002,38 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                         <div className="flex justify-center py-4">
                           <div
-                            className="relative rounded-2xl p-5 min-w-[260px] text-white"
+                            className="relative rounded-2xl p-5 min-w-[260px]"
                             style={{
-                              background: "linear-gradient(160deg, hsl(220, 50%, 14%) 0%, hsl(220, 45%, 22%) 100%)",
-                              border: "1px solid hsl(45, 90%, 55%)",
-                              boxShadow: "0 10px 30px hsl(220 45% 12% / 0.4), 0 0 0 1px hsl(45 90% 55% / 0.25) inset",
+                              background: t.bgPro,
+                              border: `1px solid ${t.gold}`,
+                              color: t.textMain,
+                              boxShadow: t.boxShadowPro,
                             }}
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative inline-flex items-center justify-center" style={{ width: 64, height: 64 }}>
-                                
-                                <ButterflyMark size={26} color="hsl(45, 90%, 55%)" />
+                                <ButterflyMark size={26} color={t.gold} />
                               </div>
                               <div className="flex-1">
-                                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "hsl(45, 90%, 70%)" }}>Mynder Verified</div>
-                                <div className="text-base font-semibold leading-tight">Trust Profile</div>
-                                <div className="text-[11px] text-white/60">Compliance · Security</div>
+                                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: t.goldSoft }}>Mynder Verified</div>
+                                <div className="text-base font-semibold leading-tight" style={{ color: t.textMain }}>Trust Profile</div>
+                                <div className="text-[11px]" style={{ color: t.textSub }}>Compliance · Security</div>
                               </div>
                               <div className="flex flex-col items-center gap-0.5">
-                                <TrustScoreRing score={trustScore} size={42} stroke={3} />
-                                <span className="text-[9px] uppercase tracking-wider text-white/60">Trust Score</span>
+                                <TrustScoreRing score={trustScore} size={42} stroke={3} color={t.gold} trackColor={t.ringTrack} />
+                                <span className="text-[9px] uppercase tracking-wider" style={{ color: t.textSub }}>Trust Score</span>
                               </div>
                             </div>
                             {recognizedFrameworks.length > 0 && (
-                              <div className="flex flex-wrap gap-1 pt-3 mt-3 border-t" style={{ borderColor: "hsl(45 90% 55% / 0.25)" }}>
+                              <div className="flex flex-wrap gap-1 pt-3 mt-3 border-t" style={{ borderColor: t.divider }}>
                                 {recognizedFrameworks.slice(0, 3).map((fw: any, i: number) => (
-                                  <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "hsl(45 90% 55% / 0.15)", color: "hsl(45, 90%, 75%)", border: "1px solid hsl(45 90% 55% / 0.35)" }}>
+                                  <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: t.chipBg, color: t.chipText, border: `1px solid ${t.chipBorder}` }}>
                                     {fw.framework_name}
                                   </span>
                                 ))}
                               </div>
                             )}
-                            <div className="mt-2 pt-2 border-t text-center text-[9px] uppercase tracking-[0.22em]" style={{ borderColor: "hsl(45 90% 55% / 0.15)", color: "hsl(45, 90%, 70%)" }}>
+                            <div className="mt-2 pt-2 border-t text-center text-[9px] uppercase tracking-[0.22em]" style={{ borderColor: t.dividerSoft, color: t.goldSoft }}>
                               Trust · Compliance · Verified
                             </div>
                           </div>
