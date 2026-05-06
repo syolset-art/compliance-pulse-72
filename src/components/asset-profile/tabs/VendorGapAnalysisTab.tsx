@@ -167,11 +167,28 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
   };
 
   const handleSetupOne = (gap: GapItem) => {
+    setPreviewOpen((prev) => new Set(prev).add(gap.requirement_id));
+  };
+
+  const handleConfirmPreview = (gap: GapItem) => {
+    setPreviewOpen((prev) => {
+      const n = new Set(prev);
+      n.delete(gap.requirement_id);
+      return n;
+    });
     setConfirmedPerGap((prev) => new Set(prev).add(gap.requirement_id));
     toast.success(
-      isNb ? "Lagt til som utkast i aktivitetsloggen" : "Added as draft to activity log",
+      isNb ? "Aktiviteter lagt i loggen som utkast" : "Activities added as drafts",
       { description: gap.name }
     );
+  };
+
+  const handleCancelPreview = (gap: GapItem) => {
+    setPreviewOpen((prev) => {
+      const n = new Set(prev);
+      n.delete(gap.requirement_id);
+      return n;
+    });
   };
 
   const handleSkipOne = (gap: GapItem) => {
