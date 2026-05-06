@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutGrid, ShieldCheck, Sparkles, Send, Archive, Users, Shield } from "lucide-react";
+import { LayoutGrid, ShieldCheck, Sparkles, Send, Archive } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 
@@ -19,6 +19,8 @@ interface MSPCustomer {
   subscription_plan: string;
   last_activity_at: string | null;
   onboarding_completed?: boolean;
+  org_number?: string | null;
+  contact_email?: string | null;
 }
 
 interface MSPCustomerCardProps {
@@ -195,18 +197,10 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
                   )}>
                     {customer.customer_name}
                   </h3>
-                  <Badge variant="outline" className="text-[12px] px-2 py-0.5 border-primary/40 text-primary font-medium">
-                    {customer.subscription_plan || "Gratis"}
-                  </Badge>
-                  {customer.active_frameworks?.length > 0 && (
-                    <Badge variant="outline" className="text-[12px] px-2 py-0.5 gap-1">
-                      <Shield className="h-3 w-3" />
-                      {customer.active_frameworks.length} regelverk
-                    </Badge>
-                  )}
                 </div>
                 <p className="text-[13px] text-muted-foreground mt-1 truncate">
                   {[
+                    customer.org_number ? `Org.nr ${customer.org_number}` : null,
                     customer.industry,
                     customer.employees ? `${customer.employees} ansatte` : null,
                   ].filter(Boolean).join("  ·  ")}
