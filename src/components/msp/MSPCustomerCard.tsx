@@ -3,11 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
-import { AlertTriangle } from "lucide-react";
 import { nb } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
-import { Shield, ShieldCheck, UserCheck, UserX } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Building2, Shield, ShieldCheck, UserCheck, UserX, Users } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 
 interface MSPCustomer {
   id: string;
@@ -27,23 +26,22 @@ interface MSPCustomerCardProps {
   customer: MSPCustomer;
 }
 
-function getTrustLevel(score: number | null | undefined) {
-  if (!score || score === 0) return { label: "Ikke vurdert", color: "text-muted-foreground", bg: "bg-muted", badgeCls: "border-muted-foreground/30 text-muted-foreground bg-muted/50", isNull: true };
-  if (score >= 75) return { label: "High Trust", color: "text-success", bg: "bg-success", badgeCls: "border-success/30 text-success bg-success/10", isNull: false };
-  if (score >= 50) return { label: "Medium Trust", color: "text-warning", bg: "bg-warning", badgeCls: "border-warning/30 text-warning bg-warning/10", isNull: false };
-  return { label: "Low Trust", color: "text-destructive", bg: "bg-destructive", badgeCls: "border-destructive/30 text-destructive bg-destructive/10", isNull: false };
+function scoreToLabel(score: number) {
+  if (score >= 75) return "High Trust";
+  if (score >= 50) return "Medium Trust";
+  return "Low Trust";
 }
 
 function getStatusBadge(status: string) {
   switch (status) {
     case "active":
-      return <Badge variant="default" className="bg-success text-success-foreground text-[13px]">Aktiv</Badge>;
+      return <Badge variant="outline" className="text-[13px] px-1.5 py-0 bg-success/10 text-success border-success/20">Aktiv</Badge>;
     case "onboarding":
-      return <Badge variant="secondary" className="text-[13px]">Under onboarding</Badge>;
+      return <Badge variant="outline" className="text-[13px] px-1.5 py-0 bg-primary/10 text-primary border-primary/20">Onboarding</Badge>;
     case "inactive":
-      return <Badge variant="outline" className="text-[13px]">Inaktiv</Badge>;
+      return <Badge variant="outline" className="text-[13px] px-1.5 py-0">Inaktiv</Badge>;
     default:
-      return <Badge variant="outline" className="text-[13px]">{status}</Badge>;
+      return <Badge variant="outline" className="text-[13px] px-1.5 py-0">{status}</Badge>;
   }
 }
 
@@ -54,7 +52,15 @@ function isTrustProfileClaimed(customer: MSPCustomer): boolean {
 export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
   const navigate = useNavigate();
   const claimed = isTrustProfileClaimed(customer);
-  const trust = getTrustLevel(customer.compliance_score);
+  const score = customer.compliance_score || 0;
+  const hasScore = score > 0;
+
+  const ringTone = !hasScore ? "muted" : score >= 75 ? "success" : score >= 50 ? "warning" : "destructive";
+  const ringStroke = !hasScore ? "hsl(var(--muted-foreground) / 0.3)" : `hsl(var(--${ringTone}))`;
+  const ringText = !hasScore ? "text-muted-foreground" : `text-${ringTone}`;
+  const radius = 16;
+  const circ = 2 * Math.PI * radius;
+  const dash = hasScore ? (score / 100) * circ : 0;
 
   const initials = customer.customer_name
     .split(" ")
@@ -63,149 +69,142 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
     .substring(0, 2)
     .toUpperCase();
 
-  // Mini SVG gauge
-  const score = customer.compliance_score || 0;
-  const radius = 28;
-  const circ = 2 * Math.PI * radius;
-  const dash = trust.isNull ? 0 : (score / 100) * circ;
-  const strokeColor = trust.isNull
-    ? "hsl(var(--muted-foreground) / 0.3)"
-    : score >= 75
-      ? "hsl(var(--success))"
-      : score >= 50
-        ? "hsl(var(--warning))"
-        : "hsl(var(--destructive))";
-
   return (
     <Card
-      className="p-5 cursor-pointer hover:shadow-lg transition-all hover:border-primary/30"
+      variant="flat"
+      className="px-4 py-4 cursor-pointer hover:shadow-md transition-all hover:border-primary/30"
       onClick={() => navigate(`/msp-dashboard/${customer.id}`)}
     >
-      <div className="flex items-start gap-4">
-        {/* Logo / Avatar */}
-        {customer.logo_url ? (
-          <img
-            src={customer.logo_url}
-            alt={customer.customer_name}
-            className="h-12 w-12 rounded-lg object-contain bg-muted p-1"
-          />
-        ) : (
-          <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <span className="text-sm font-bold text-primary">{initials}</span>
-          </div>
-        )}
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <h3 className="font-semibold text-foreground truncate">{customer.customer_name}</h3>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="flex-shrink-0">
-                    {claimed ? (
-                      <UserCheck className="h-4 w-4 text-success" />
-                    ) : (
-                      <UserX className="h-4 w-4 text-muted-foreground/60" />
-                    )}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {claimed ? "Trust Profile overtatt av leverandøren" : "Trust Profile ikke overtatt"}
-                </TooltipContent>
-              </Tooltip>
-              {getStatusBadge(customer.status)}
+      {/* Row 1: Logo + name + score */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          {customer.logo_url ? (
+            <img
+              src={customer.logo_url}
+              alt={customer.customer_name}
+              className="h-8 w-8 rounded-md object-contain bg-muted p-0.5 shrink-0"
+            />
+          ) : (
+            <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+              {initials ? (
+                <span className="text-[11px] font-bold text-primary">{initials}</span>
+              ) : (
+                <Building2 className="h-3.5 w-3.5 text-primary" />
+              )}
             </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-            {customer.industry && (
-              <Badge variant="outline" className="text-[13px]">{customer.industry}</Badge>
-            )}
-            {customer.employees && (
-              <Badge variant="outline" className="text-[13px]">{customer.employees} ansatte</Badge>
-            )}
-            <Badge variant="outline" className="text-[13px] border-primary/40 text-primary">
-              {customer.subscription_plan || "Gratis"}
-            </Badge>
-          </div>
-
-        </div>
-
-        {/* Trust Score Gauge */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex flex-col items-center gap-1 shrink-0">
-              <div className="relative flex items-center justify-center">
-                <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
-                  <circle cx="32" cy="32" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
-                  <circle
-                    cx="32" cy="32" r={radius} fill="none"
-                    stroke={strokeColor} strokeWidth="4" strokeLinecap="round"
-                    strokeDasharray={`${dash} ${circ}`}
-                    style={{ transition: "stroke-dasharray 0.6s ease" }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  {trust.isNull ? (
-                    <span className="text-sm font-bold text-muted-foreground">–</span>
-                  ) : (
-                    <>
-                      <span className={cn("text-lg font-bold tabular-nums leading-none", trust.color)}>
-                        {score}
-                      </span>
-                      <span className="text-[7px] font-semibold text-muted-foreground">/100</span>
-                    </>
-                  )}
-                </div>
-              </div>
-              <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
-              <Badge variant="outline" className={cn("text-[13px] px-1.5 py-0", trust.badgeCls)}>
-                {trust.label}
-              </Badge>
-            </div>
-          </TooltipTrigger>
-          {trust.isNull && (
-            <TooltipContent className="max-w-[200px] text-center">
-              <p className="text-xs">Ingen data er hentet for denne kunden ennå. Kjør en manuell vurdering for å beregne Trust Score.</p>
-            </TooltipContent>
           )}
-        </Tooltip>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-medium text-foreground truncate">{customer.customer_name}</p>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex-shrink-0">
+                      {claimed ? (
+                        <UserCheck className="h-3.5 w-3.5 text-success" />
+                      ) : (
+                        <UserX className="h-3.5 w-3.5 text-muted-foreground/60" />
+                      )}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {claimed ? "Trust Profile overtatt av leverandøren" : "Trust Profile ikke overtatt"}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              {customer.industry && (
+                <span className="text-[13px] text-muted-foreground truncate">{customer.industry}</span>
+              )}
+              {customer.employees && (
+                <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
+                  <Users className="h-2.5 w-2.5" />
+                  {customer.employees}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0 pr-1">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="relative flex items-center justify-center" style={{ width: 40, height: 40 }}>
+                  <svg width="40" height="40" viewBox="0 0 40 40" className="-rotate-90">
+                    <circle cx="20" cy="20" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+                    {hasScore && (
+                      <circle
+                        cx="20" cy="20" r={radius} fill="none"
+                        stroke={ringStroke} strokeWidth="3" strokeLinecap="round"
+                        strokeDasharray={`${dash} ${circ}`}
+                        style={{ transition: "stroke-dasharray 0.5s ease" }}
+                      />
+                    )}
+                  </svg>
+                  <div className={cn("absolute inset-0 flex items-center justify-center", ringText)}>
+                    {hasScore ? (
+                      <span className="text-[11px] font-bold tabular-nums leading-none">{score}</span>
+                    ) : (
+                      <span className="text-[11px] font-medium leading-none">–</span>
+                    )}
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <span className="text-xs">{hasScore ? `${score}% — ${scoreToLabel(score)}` : "Ikke vurdert"}</span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+
+      {/* Row 2: Badges */}
+      <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pl-[42px]">
+        {getStatusBadge(customer.status)}
+        <Badge variant="outline" className="text-[13px] px-1.5 py-0 border-primary/40 text-primary">
+          {customer.subscription_plan || "Gratis"}
+        </Badge>
+        {customer.active_frameworks?.length > 0 && (
+          <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1">
+            <Shield className="h-2.5 w-2.5" />
+            {customer.active_frameworks.length} regelverk
+          </Badge>
+        )}
+        {customer.last_activity_at && (
+          <span className="text-[11px] text-muted-foreground ml-auto">
+            {formatDistanceToNow(new Date(customer.last_activity_at), { addSuffix: true, locale: nb })}
+          </span>
+        )}
       </div>
 
       {/* Quick actions */}
-      <div className="flex gap-2 mt-3 pt-3 border-t">
+      <div className="flex gap-2 mt-3 pt-3 border-t border-border/60">
         <Button
           variant="outline"
           size="sm"
-          className="flex-1 gap-1.5 text-xs"
+          className="flex-1 gap-1.5 text-xs h-7"
           onClick={(e) => {
             e.stopPropagation();
             navigate(`/msp-dashboard/${customer.id}/trust-profile`);
           }}
         >
-          <ShieldCheck className="h-3.5 w-3.5" />
-          Se Trust Profile
+          <ShieldCheck className="h-3 w-3" />
+          Trust Profile
         </Button>
         <Button
           variant="outline"
           size="sm"
-          className="flex-1 gap-1.5 text-xs"
+          className="flex-1 gap-1.5 text-xs h-7"
           onClick={(e) => {
             e.stopPropagation();
             navigate(`/msp-dashboard/${customer.id}/nis2`);
           }}
         >
-          <Shield className="h-3.5 w-3.5" />
-          NIS2-vurdering
+          <Shield className="h-3 w-3" />
+          NIS2
         </Button>
       </div>
-
-      {/* Footer */}
-      {customer.last_activity_at && (
-        <p className="text-xs text-muted-foreground mt-2 pt-2 border-t">
-          Siste aktivitet: {formatDistanceToNow(new Date(customer.last_activity_at), { addSuffix: true, locale: nb })}
-        </p>
-      )}
     </Card>
   );
 }
