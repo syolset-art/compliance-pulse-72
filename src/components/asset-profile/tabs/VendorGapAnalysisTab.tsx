@@ -96,6 +96,7 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
       queryClient.invalidateQueries({ queryKey: ["vendor-gap", assetId, framework] });
       setFollowupState("asking");
       setCreatedSummary(null);
+      setShowGapList(false);
       toast.success(isNb ? "Gap-analyse fullført" : "Gap analysis complete");
     },
     onError: (e: any) => {
