@@ -214,27 +214,34 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
   const handlePublish = async () => {
     setIsPublishing(true);
+    setPublishStep("publishing");
     const { error } = await supabase
       .from("assets")
       .update({ publish_mode: "all" } as any)
       .eq("id", asset!.id);
-    setIsPublishing(false);
+
     if (error) {
-      toast.error(isNb ? "Kunne ikke publisere" : "Could not publish");
-      setPublishDialogOpen(false);
+      setIsPublishing(false);
       setPublishStep("confirm");
-    } else {
+      toast.error(isNb ? "Kunne ikke publisere" : "Could not publish");
+      return;
+    }
+
+    // Brief spinner so user sees what's happening, then land on the public profile
+    setTimeout(() => {
+      setIsPublishing(false);
       setPublishDialogOpen(false);
       setPublishStep("confirm");
       toast.success(
         isNb ? "Trust Center publisert" : "Trust Center published",
         {
           description: isNb
-            ? "Profilen din er nå tilgjengelig på din unike URL."
-            : "Your profile is now live at your unique URL.",
+            ? "Slik ser profilen din ut på Mynder Trust Engine."
+            : "Here's how your profile looks on the Mynder Trust Engine.",
         }
       );
-    }
+      if (asset?.id) navigate(`/trust-engine/profile/${asset.id}`);
+    }, 1400);
   };
 
   const openPublishDialog = () => {
