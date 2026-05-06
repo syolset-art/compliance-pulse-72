@@ -1051,7 +1051,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           {[
                             isNb ? "Standard og detaljerte stiler" : "Standard and detailed styles",
                             isNb ? "Tilpasset tema (lys / mørk / auto)" : "Custom theme (light / dark / auto)",
-                            isNb ? "Vis regelverk og compliance-info" : "Show regulations & compliance info",
                             isNb ? "Firmanavn på badge" : "Company name on badge",
                           ].map(item => (
                             <div key={item} className="flex items-center gap-2">
