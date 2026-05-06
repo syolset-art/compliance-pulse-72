@@ -208,7 +208,7 @@ const SidebarContent = () => {
   const { activeOrg } = useActiveOrganization();
   // Fallback to demo company name so the sidebar never shows "Ikke registrert"
   // in demo/preview when company_profile is empty.
-  const companyName = activeOrg?.name || "Dintero AS";
+  const companyName = activeOrg?.name || "Mynder AS";
 
   const isManagementActive = managementNav.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
