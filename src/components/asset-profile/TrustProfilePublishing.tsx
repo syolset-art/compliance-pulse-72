@@ -144,16 +144,16 @@ export const TrustProfilePublishing = ({
       {isPublished && (
         <div className="mt-2 rounded-xl border border-border bg-card/30 overflow-hidden">
           <Tabs defaultValue="link" className="w-full">
-            <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-9 px-2">
-              <TabsTrigger value="link" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
+            <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-9 px-2 overflow-x-auto flex-nowrap">
+              <TabsTrigger value="link" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 sm:px-3 pb-2 shrink-0">
                 <Link2 className="h-3 w-3" />
                 {isNb ? "Del lenke" : "Share Link"}
               </TabsTrigger>
-              <TabsTrigger value="badge" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
+              <TabsTrigger value="badge" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 sm:px-3 pb-2 shrink-0">
                 <Code2 className="h-3 w-3" />
                 {isNb ? "Nettside-badge" : "Website Badge"}
               </TabsTrigger>
-              <TabsTrigger value="audience" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
+              <TabsTrigger value="audience" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 sm:px-3 pb-2 shrink-0">
                 <Share2 className="h-3 w-3" />
                 {isNb ? "Målgruppe" : "Audience"}
               </TabsTrigger>
