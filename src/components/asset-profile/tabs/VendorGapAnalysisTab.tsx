@@ -19,6 +19,7 @@ import { buildProposal } from "@/components/asset-profile/gap/InlineAgentProposa
 interface VendorGapAnalysisTabProps {
   assetId: string;
   assetName: string;
+  onOpenActivityLog?: () => void;
 }
 
 const SUPPORTED_FRAMEWORKS = ["normen", "nis2", "iso27001", "gdpr"];
