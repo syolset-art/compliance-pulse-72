@@ -197,18 +197,10 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
                   )}>
                     {customer.customer_name}
                   </h3>
-                  <Badge variant="outline" className="text-[12px] px-2 py-0.5 border-primary/40 text-primary font-medium">
-                    {customer.subscription_plan || "Gratis"}
-                  </Badge>
-                  {customer.active_frameworks?.length > 0 && (
-                    <Badge variant="outline" className="text-[12px] px-2 py-0.5 gap-1">
-                      <Shield className="h-3 w-3" />
-                      {customer.active_frameworks.length} regelverk
-                    </Badge>
-                  )}
                 </div>
                 <p className="text-[13px] text-muted-foreground mt-1 truncate">
                   {[
+                    customer.org_number ? `Org.nr ${customer.org_number}` : null,
                     customer.industry,
                     customer.employees ? `${customer.employees} ansatte` : null,
                   ].filter(Boolean).join("  ·  ")}
