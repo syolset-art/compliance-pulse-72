@@ -119,7 +119,7 @@ export const TrustProfilePublishing = ({
   return (
     <>
       {/* Top bar: status + actions */}
-      <div className="rounded-xl border border-border bg-card/50 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
+      <div className="rounded-xl border border-border bg-card/50 backdrop-blur-sm px-3 sm:px-4 py-3 flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full shrink-0 ${isPublished ? "bg-status-closed" : "bg-muted-foreground/40"}`} />
           <span className="text-xs font-medium text-foreground">
@@ -127,31 +127,33 @@ export const TrustProfilePublishing = ({
           </span>
         </div>
         <Switch checked={isPublished} onCheckedChange={setIsPublished} className="scale-[0.8]" />
-        <div className="h-4 w-px bg-border" />
-        <button onClick={() => setPreviewOpen(true)} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors" title={isNb ? "Forhåndsvisning" : "Preview"}>
-          <Eye className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{isNb ? "Forhåndsvis" : "Preview"}</span>
-        </button>
-        <button onClick={handleSave} disabled={isSaving} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50" title={isNb ? "Lagre endringer" : "Save changes"}>
-          <Save className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{isSaving ? (isNb ? "Lagrer…" : "Saving…") : (isNb ? "Lagre" : "Save")}</span>
-        </button>
+        <div className="hidden sm:block h-4 w-px bg-border" />
+        <div className="flex items-center gap-3 ml-auto sm:ml-0">
+          <button onClick={() => setPreviewOpen(true)} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors" title={isNb ? "Forhåndsvisning" : "Preview"}>
+            <Eye className="h-3.5 w-3.5" />
+            <span>{isNb ? "Forhåndsvis" : "Preview"}</span>
+          </button>
+          <button onClick={handleSave} disabled={isSaving} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50" title={isNb ? "Lagre endringer" : "Save changes"}>
+            <Save className="h-3.5 w-3.5" />
+            <span>{isSaving ? (isNb ? "Lagrer…" : "Saving…") : (isNb ? "Lagre" : "Save")}</span>
+          </button>
+        </div>
       </div>
 
       {/* Share & Publish panel — only when published */}
       {isPublished && (
         <div className="mt-2 rounded-xl border border-border bg-card/30 overflow-hidden">
           <Tabs defaultValue="link" className="w-full">
-            <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-9 px-2">
-              <TabsTrigger value="link" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
+            <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-9 px-2 overflow-x-auto flex-nowrap">
+              <TabsTrigger value="link" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 sm:px-3 pb-2 shrink-0">
                 <Link2 className="h-3 w-3" />
                 {isNb ? "Del lenke" : "Share Link"}
               </TabsTrigger>
-              <TabsTrigger value="badge" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
+              <TabsTrigger value="badge" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 sm:px-3 pb-2 shrink-0">
                 <Code2 className="h-3 w-3" />
                 {isNb ? "Nettside-badge" : "Website Badge"}
               </TabsTrigger>
-              <TabsTrigger value="audience" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-3 pb-2">
+              <TabsTrigger value="audience" className="text-[13px] gap-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 sm:px-3 pb-2 shrink-0">
                 <Share2 className="h-3 w-3" />
                 {isNb ? "Målgruppe" : "Audience"}
               </TabsTrigger>
@@ -170,11 +172,11 @@ export const TrustProfilePublishing = ({
                     : "Your unique address — like a LinkedIn profile for your organization's security."}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 rounded-lg border border-border bg-muted/30 px-3 py-2">
-                  <code className="text-xs text-foreground font-mono">{publicUrl}</code>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex-1 min-w-0 rounded-lg border border-border bg-muted/30 px-3 py-2 overflow-x-auto">
+                  <code className="text-xs text-foreground font-mono whitespace-nowrap">{publicUrl}</code>
                 </div>
-                <Button variant="outline" size="sm" className="h-8 px-3 gap-1.5 text-xs shrink-0" onClick={handleCopyLink}>
+                <Button variant="outline" size="sm" className="h-8 px-3 gap-1.5 text-xs shrink-0 w-full sm:w-auto" onClick={handleCopyLink}>
                   {copiedLink ? <Check className="h-3.5 w-3.5 text-status-closed" /> : <Copy className="h-3.5 w-3.5" />}
                   {copiedLink ? (isNb ? "Kopiert" : "Copied") : (isNb ? "Kopier" : "Copy")}
                 </Button>
