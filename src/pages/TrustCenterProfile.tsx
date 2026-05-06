@@ -901,26 +901,26 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       const t = {
                         bgFree: isDark
                           ? "linear-gradient(135deg, hsl(220, 45%, 18%) 0%, hsl(220, 50%, 26%) 100%)"
-                          : "linear-gradient(135deg, hsl(247, 71%, 96%) 0%, hsl(0, 0%, 100%) 55%, hsl(247, 60%, 92%) 100%)",
+                          : "linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(30, 40%, 98%) 100%)",
                         bgPro: isDark
                           ? "linear-gradient(160deg, hsl(220, 50%, 14%) 0%, hsl(220, 45%, 22%) 100%)"
-                          : "linear-gradient(160deg, hsl(247, 71%, 96%) 0%, hsl(0, 0%, 100%) 50%, hsl(247, 60%, 90%) 100%)",
-                        gold: isDark ? "hsl(45, 90%, 55%)" : "hsl(239, 41%, 51%)",
-                        goldSoft: isDark ? "hsl(45, 90%, 70%)" : "hsl(247, 60%, 67%)",
-                        textMain: isDark ? "white" : "hsl(240, 53%, 23%)",
-                        textSub: isDark ? "rgba(255,255,255,0.6)" : "hsl(240, 30%, 40%)",
-                        ringTrack: isDark ? "rgba(255,255,255,0.18)" : "hsl(247, 71%, 90%)",
-                        chipBg: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(247, 71%, 94%)",
-                        chipBorder: isDark ? "hsl(45 90% 55% / 0.35)" : "hsl(239 41% 51% / 0.25)",
-                        chipText: isDark ? "hsl(45, 90%, 75%)" : "hsl(239, 41%, 51%)",
-                        divider: isDark ? "hsl(45 90% 55% / 0.25)" : "hsl(247, 50%, 88%)",
-                        dividerSoft: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(247, 50%, 92%)",
+                          : "linear-gradient(160deg, hsl(0, 0%, 100%) 0%, hsl(30, 50%, 97%) 100%)",
+                        gold: isDark ? "hsl(45, 90%, 55%)" : "hsl(24, 85%, 50%)", // warm orange accent
+                        goldSoft: isDark ? "hsl(45, 90%, 70%)" : "hsl(24, 70%, 45%)",
+                        textMain: isDark ? "white" : "hsl(220, 25%, 18%)",
+                        textSub: isDark ? "rgba(255,255,255,0.6)" : "hsl(220, 12%, 45%)",
+                        ringTrack: isDark ? "rgba(255,255,255,0.18)" : "hsl(30, 30%, 90%)",
+                        chipBg: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(24 85% 50% / 0.08)",
+                        chipBorder: isDark ? "hsl(45 90% 55% / 0.35)" : "hsl(24 85% 50% / 0.3)",
+                        chipText: isDark ? "hsl(45, 90%, 75%)" : "hsl(24, 80%, 40%)",
+                        divider: isDark ? "hsl(45 90% 55% / 0.25)" : "hsl(30, 25%, 88%)",
+                        dividerSoft: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(30, 25%, 92%)",
                         boxShadowFree: isDark
                           ? "0 4px 18px hsl(220 45% 18% / 0.35), 0 0 0 1px hsl(45 90% 55% / 0.4) inset"
-                          : "0 6px 20px hsl(239 41% 51% / 0.18), 0 0 0 1px hsl(239 41% 51% / 0.18) inset",
+                          : "0 4px 16px hsl(220 15% 50% / 0.12), 0 0 0 1px hsl(24 85% 50% / 0.25) inset",
                         boxShadowPro: isDark
                           ? "0 10px 30px hsl(220 45% 12% / 0.4), 0 0 0 1px hsl(45 90% 55% / 0.25) inset"
-                          : "0 12px 32px hsl(239 41% 51% / 0.18), 0 0 0 1px hsl(239 41% 51% / 0.18) inset",
+                          : "0 10px 26px hsl(220 15% 50% / 0.12), 0 0 0 1px hsl(24 85% 50% / 0.22) inset",
                       };
                       return (
                         <>
