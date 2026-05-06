@@ -115,6 +115,9 @@ export const ValidationTab = ({ systemId, systemAsAsset }: ValidationTabProps) =
         </section>
       )}
 
+      {/* 4. Personvern og datasikkerhet — Lara-vurdering */}
+      <VendorPrivacyAssessment vendorName={vendorName} />
+
       {/* Aktivitetsdialog — åpnes fra Lara-banneret */}
       <RegisterActivityDialog
         open={!!activePrefill}
