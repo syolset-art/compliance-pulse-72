@@ -29,6 +29,19 @@ export interface LaraSuggestionItem {
   message: string;
 }
 
+export interface ColorLegendItem {
+  /** Tailwind bg-class for the swatch, e.g. "bg-success" */
+  swatch: string;
+  label: string;
+  description: string;
+}
+
+export interface ColorLegend {
+  heading: string;
+  description?: string;
+  items: ColorLegendItem[];
+}
+
 export interface ContextualHelpPanelProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -43,6 +56,8 @@ export interface ContextualHelpPanelProps {
   whyDescription?: string;
   steps?: HelpStep[];
   stepsHeading?: string;
+  /** Optional color legend explaining colored signals on this page (e.g. vendor cards) */
+  colorLegend?: ColorLegend;
 
   // Gjør tab
   actions?: ActionItem[];
@@ -65,6 +80,7 @@ export function ContextualHelpPanel({
   whyDescription,
   steps,
   stepsHeading,
+  colorLegend,
   actions,
   laraSuggestions,
   laraSuggestion,
@@ -159,6 +175,26 @@ export function ContextualHelpPanel({
                         {i + 1}
                       </span>
                       <p className="text-sm text-muted-foreground">{step.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {colorLegend && colorLegend.items.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-foreground">{colorLegend.heading}</h3>
+                {colorLegend.description && (
+                  <p className="text-xs text-muted-foreground leading-relaxed">{colorLegend.description}</p>
+                )}
+                <div className="space-y-2">
+                  {colorLegend.items.map((item, i) => (
+                    <div key={i} className="flex items-start gap-3 rounded-lg border bg-card p-3">
+                      <span className={`mt-1 h-3 w-3 shrink-0 rounded-full ${item.swatch}`} aria-hidden />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{item.label}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
+                      </div>
                     </div>
                   ))}
                 </div>
