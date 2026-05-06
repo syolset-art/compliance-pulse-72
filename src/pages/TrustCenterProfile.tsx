@@ -16,8 +16,55 @@ import {
   ChevronDown, ChevronUp, ChevronRight, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
-  Linkedin, Facebook, Mail,
+  Linkedin, Facebook, Mail, Star,
 } from "lucide-react";
+
+// EU-style 12-star wreath used in the compliance badge
+const StarWreath = ({ count = 12, radius = 30, starSize = 7, color = "hsl(45, 90%, 55%)" }: { count?: number; radius?: number; starSize?: number; color?: string }) => (
+  <div className="absolute inset-0 pointer-events-none" aria-hidden>
+    {Array.from({ length: count }).map((_, i) => (
+      <Star
+        key={i}
+        className="absolute left-1/2 top-1/2"
+        style={{
+          width: starSize,
+          height: starSize,
+          color,
+          fill: color,
+          transform: `translate(-50%, -50%) rotate(${i * (360 / count)}deg) translateY(-${radius}px)`,
+        }}
+        strokeWidth={0}
+      />
+    ))}
+  </div>
+);
+
+// Mynder butterfly mark (matches LaraAvatar silhouette)
+const ButterflyMark = ({ size = 22, color = "currentColor" }: { size?: number; color?: string }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" aria-hidden>
+    <path
+      d="M12 12c-1.6-3.2-4.2-5-6.4-5-1.6 0-2.6 1.1-2.6 2.7 0 2.4 2.4 5.3 5.4 6.5C6.8 17.5 6 18.7 6 20c0 .9.7 1.5 1.6 1.5 1.5 0 3.3-1.4 4.4-3.5 1.1 2.1 2.9 3.5 4.4 3.5.9 0 1.6-.6 1.6-1.5 0-1.3-.8-2.5-2.4-3.8 3-1.2 5.4-4.1 5.4-6.5 0-1.6-1-2.7-2.6-2.7-2.2 0-4.8 1.8-6.4 5z"
+      fill={color}
+    />
+    <circle cx="12" cy="6" r="1.4" fill={color} />
+  </svg>
+);
+
+// Small circular Trust Score ring
+const TrustScoreRing = ({ score, size = 36, stroke = 3, color = "hsl(45, 90%, 55%)", trackColor = "rgba(255,255,255,0.18)" }: { score: number; size?: number; stroke?: number; color?: string; trackColor?: string }) => {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const dash = (Math.max(0, Math.min(100, score)) / 100) * c;
+  return (
+    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={trackColor} strokeWidth={stroke} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none" strokeLinecap="round" strokeDasharray={`${dash} ${c}`} />
+      </svg>
+      <span className="absolute text-[10px] font-bold tabular-nums" style={{ color }}>{score}</span>
+    </div>
+  );
+};
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
