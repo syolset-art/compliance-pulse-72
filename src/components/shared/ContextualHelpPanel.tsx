@@ -56,6 +56,8 @@ export interface ContextualHelpPanelProps {
   whyDescription?: string;
   steps?: HelpStep[];
   stepsHeading?: string;
+  /** Optional color legend explaining colored signals on this page (e.g. vendor cards) */
+  colorLegend?: ColorLegend;
 
   // Gjør tab
   actions?: ActionItem[];
