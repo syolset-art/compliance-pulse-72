@@ -119,7 +119,7 @@ export const TrustProfilePublishing = ({
   return (
     <>
       {/* Top bar: status + actions */}
-      <div className="rounded-xl border border-border bg-card/50 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
+      <div className="rounded-xl border border-border bg-card/50 backdrop-blur-sm px-3 sm:px-4 py-3 flex flex-wrap items-center gap-x-3 gap-y-2">
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full shrink-0 ${isPublished ? "bg-status-closed" : "bg-muted-foreground/40"}`} />
           <span className="text-xs font-medium text-foreground">
@@ -127,15 +127,17 @@ export const TrustProfilePublishing = ({
           </span>
         </div>
         <Switch checked={isPublished} onCheckedChange={setIsPublished} className="scale-[0.8]" />
-        <div className="h-4 w-px bg-border" />
-        <button onClick={() => setPreviewOpen(true)} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors" title={isNb ? "Forhåndsvisning" : "Preview"}>
-          <Eye className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{isNb ? "Forhåndsvis" : "Preview"}</span>
-        </button>
-        <button onClick={handleSave} disabled={isSaving} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50" title={isNb ? "Lagre endringer" : "Save changes"}>
-          <Save className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{isSaving ? (isNb ? "Lagrer…" : "Saving…") : (isNb ? "Lagre" : "Save")}</span>
-        </button>
+        <div className="hidden sm:block h-4 w-px bg-border" />
+        <div className="flex items-center gap-3 ml-auto sm:ml-0">
+          <button onClick={() => setPreviewOpen(true)} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors" title={isNb ? "Forhåndsvisning" : "Preview"}>
+            <Eye className="h-3.5 w-3.5" />
+            <span>{isNb ? "Forhåndsvis" : "Preview"}</span>
+          </button>
+          <button onClick={handleSave} disabled={isSaving} className="inline-flex items-center gap-1 text-[13px] text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50" title={isNb ? "Lagre endringer" : "Save changes"}>
+            <Save className="h-3.5 w-3.5" />
+            <span>{isSaving ? (isNb ? "Lagrer…" : "Saving…") : (isNb ? "Lagre" : "Save")}</span>
+          </button>
+        </div>
       </div>
 
       {/* Share & Publish panel — only when published */}
