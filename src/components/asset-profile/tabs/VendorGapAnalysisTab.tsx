@@ -341,7 +341,7 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
           )}
 
           {/* Result after confirm */}
-          {followupState === "done" && createdSummary && createdSummary.auto + createdSummary.pending > 0 && (
+          {followupState === "done" && createdSummary && createdSummary.pending > 0 && (
             <Card className="border-success/30 bg-success/5">
               <CardContent className="p-5">
                 <div className="flex items-start gap-3">
@@ -351,38 +351,28 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-foreground">
                       {isNb
-                        ? `Lara satte opp ${createdSummary.auto + createdSummary.pending} aktiviteter`
-                        : `Lara created ${createdSummary.auto + createdSummary.pending} activities`}
+                        ? `Lara la ${createdSummary.pending} aktiviteter i loggen`
+                        : `Lara added ${createdSummary.pending} activities to the log`}
                     </p>
-                    <ul className="text-xs text-muted-foreground mt-2 space-y-1">
-                      {createdSummary.auto > 0 && (
-                        <li className="flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                          {isNb
-                            ? `${createdSummary.auto} utført automatisk (e-post sendt, oppgaver opprettet)`
-                            : `${createdSummary.auto} done automatically (emails sent, tasks created)`}
-                        </li>
-                      )}
-                      {createdSummary.pending > 0 && (
-                        <li className="flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-warning" />
-                          {isNb
-                            ? `${createdSummary.pending} venter på din bekreftelse`
-                            : `${createdSummary.pending} awaiting your confirmation`}
-                        </li>
-                      )}
-                    </ul>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      {isNb
+                        ? "Alle ligger som utkast og venter på din godkjenning. Ingen e-post sendes og ingen handling utføres før du bekrefter."
+                        : "All are drafts awaiting your approval. No emails will be sent and no action taken until you confirm."}
+                    </p>
                     <Button
                       variant="link"
                       size="sm"
                       className="px-0 h-auto mt-2 gap-1 text-primary"
                       onClick={() => {
-                        document.querySelector('[role="tab"][value="activity"]')?.dispatchEvent(
-                          new MouseEvent("click", { bubbles: true })
-                        );
+                        if (onOpenActivityLog) {
+                          onOpenActivityLog();
+                        } else {
+                          // Fallback: åpne Veiledning-fanen som inneholder aktivitetsloggen
+                          (document.querySelector('[role="tab"][data-state="inactive"][value="overview"]') as HTMLElement | null)?.click();
+                        }
                       }}
                     >
-                      {isNb ? "Se aktivitetsloggen" : "Open activity log"}
+                      {isNb ? "Gå til aktivitetsloggen for å godkjenne" : "Go to activity log to approve"}
                       <ArrowRight className="h-3 w-3" />
                     </Button>
                   </div>
