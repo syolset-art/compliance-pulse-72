@@ -952,23 +952,41 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </Badge>
                         </div>
                         <div className="flex justify-center py-4">
-                          <div className="rounded-xl border border-primary/15 bg-gradient-to-br from-primary/5 to-[hsl(280,50%,75%)]/5 p-4 space-y-2.5 min-w-[220px] shadow-md shadow-primary/10">
-                            <div className="flex items-center gap-2">
-                              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-primary to-[hsl(280,50%,75%)] flex items-center justify-center shadow-sm">
-                                <Shield className="h-3.5 w-3.5 text-white" />
+                          <div
+                            className="relative rounded-2xl p-5 min-w-[260px] text-white"
+                            style={{
+                              background: "linear-gradient(160deg, hsl(220, 50%, 14%) 0%, hsl(220, 45%, 22%) 100%)",
+                              border: "1px solid hsl(45, 90%, 55%)",
+                              boxShadow: "0 10px 30px hsl(220 45% 12% / 0.4), 0 0 0 1px hsl(45 90% 55% / 0.25) inset",
+                            }}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="relative inline-flex items-center justify-center" style={{ width: 64, height: 64 }}>
+                                <StarWreath count={12} radius={28} starSize={7} />
+                                <ButterflyMark size={26} color="hsl(45, 90%, 55%)" />
                               </div>
-                              <div>
-                                <span className="text-sm font-bold text-foreground">Trust Profile</span>
-                                <p className="text-[13px] text-primary font-medium">Verified by Mynder</p>
+                              <div className="flex-1">
+                                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "hsl(45, 90%, 70%)" }}>Mynder Verified</div>
+                                <div className="text-base font-semibold leading-tight">Trust Profile</div>
+                                <div className="text-[11px] text-white/60">Compliance · Security</div>
+                              </div>
+                              <div className="flex flex-col items-center gap-0.5">
+                                <TrustScoreRing score={trustScore} size={42} stroke={3} />
+                                <span className="text-[9px] uppercase tracking-wider text-white/60">Trust Score</span>
                               </div>
                             </div>
                             {recognizedFrameworks.length > 0 && (
-                              <div className="flex flex-wrap gap-1 pt-1 border-t border-primary/10">
+                              <div className="flex flex-wrap gap-1 pt-3 mt-3 border-t" style={{ borderColor: "hsl(45 90% 55% / 0.25)" }}>
                                 {recognizedFrameworks.slice(0, 3).map((fw: any, i: number) => (
-                                  <Badge key={i} variant="secondary" className="text-[13px] bg-primary/10 text-primary border-0">{fw.framework_name}</Badge>
+                                  <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "hsl(45 90% 55% / 0.15)", color: "hsl(45, 90%, 75%)", border: "1px solid hsl(45 90% 55% / 0.35)" }}>
+                                    {fw.framework_name}
+                                  </span>
                                 ))}
                               </div>
                             )}
+                            <div className="mt-2 pt-2 border-t text-center text-[9px] uppercase tracking-[0.22em]" style={{ borderColor: "hsl(45 90% 55% / 0.15)", color: "hsl(45, 90%, 70%)" }}>
+                              Trust · Compliance · Verified
+                            </div>
                           </div>
                         </div>
                         <div className="space-y-2 text-sm text-muted-foreground">
