@@ -1,77 +1,103 @@
+# Agentisk "Registrer aktivitet"
 
-# Plan: Restrukturere Rediger Trust Profile
+Erstatt dagens skjemabaserte dialog (`RegisterActivityDialog.tsx`) med en Lara-først flyt der brukeren primært velger blant proaktive forslag, og kun fyller ut detaljer hvis hun vil avvike.
 
-Jeg implementerer alle 14 endringene i prompten i én sammenhengende refaktorering av `TrustCenterEditProfile.tsx` + `CompanyInfoForm.tsx`, og oppretter nye komponenter for AI-godkjenningsflyt og nye seksjoner.
+## Mål
 
-## Filer som endres
+- Brukeren slipper å tenke på type, nivå, tema, kritikalitet og status — Lara foreslår.
+- Færre klikk: typisk registrering = 2 klikk (velg forslag → bekreft).
+- Manuell registrering finnes fortsatt, men er sekundær.
+- Ingen kobling til gap/Trust Score-impact (holder dialogen ren).
 
-- `src/pages/TrustCenterEditProfile.tsx` — full omstrukturering av seksjonsrekkefølge og navigasjon
-- `src/components/company/CompanyInfoForm.tsx` — fjerne kontaktperson-felter (flyttes til ny seksjon), legge til AI-godkjent/foreslått visning
+## Ny flyt (3 steg, samme dialog)
 
-## Nye komponenter
-
-- `src/components/trust-center/edit/AISuggestionField.tsx` — gjenbrukbar wrapper for Lara-foreslått / Bekreftet / Tomt-tilstand med Bekreft/Endre/Avvis-handlinger. Bruker `metadata.confirmed_fields[]` på asset for persistens.
-- `src/components/trust-center/edit/ContactsSection.tsx` — rolleadresser (generell, personvern, sikkerhet, hendelse, postadresse). Lagrer i `assets.metadata.contacts`.
-- `src/components/trust-center/edit/DataStorageSection.tsx` — region (multi), oppbevaringsperiode, GDPR-rettsgrunnlag (multi), rolle i behandling. Lagrer i `assets.metadata.data_storage`.
-- `src/components/trust-center/edit/PrivacySection.tsx` — GDPR-status, datatyper, oppbevaringspolicy, overføringsmekanismer, lagringslokasjoner, sertifiseringer. `assets.metadata.privacy`.
-- `src/components/trust-center/edit/SecurityDetailsCard.tsx` — strukturerte felter (kryptering, tilgangskontroll, pentest, opplæring) som vises over de eksisterende 17 kontrollene. `assets.metadata.security_details`.
-- `src/components/trust-center/edit/IncidentsSection.tsx` — hendelseshåndtering + forretningskontinuitet. `assets.metadata.incidents`.
-- `src/components/trust-center/edit/AIVendorsSection.tsx` — AI-bruk, leverandørrisikostyring, underleverandører-liste. `assets.metadata.ai_vendors`.
-- `src/components/trust-center/edit/DocumentationSection.tsx` — opplastingsflyt mot eksisterende `framework_documents` / vendor_documents-tabell, med "Les"-knapp (åpner i `<iframe>` dialog), public-toggle, slett.
-- `src/components/trust-center/edit/PublishStickyBar.tsx` — sticky bottom bar når readiness ≥ 80%.
-
-## Edge function
-
-- `supabase/functions/suggest-trust-profile/index.ts` (ny) — Lara-forslag for de nye strukturerte feltene. Mottar domene/bransje/teknologi-hint, returnerer JSON med forslag per seksjon. Bruker `google/gemini-2.5-flash` via Lovable AI gateway. Forslag caches i `assets.metadata.lara_suggestions`.
-
-## Datamodell
-
-Ingen migrasjoner nødvendig for nye seksjoner — alt lagres som JSON i eksisterende `assets.metadata`-felt under nøklene over. `confirmed_fields: string[]` driver "bekreftet"-state per felt-id.
-
-For dokumentasjon brukes eksisterende `vendor_documents`-tabell (filtrert på self-asset).
-
-## Endringer i `TrustCenterEditProfile.tsx`
-
-Ny rekkefølge i `<main>`:
-
-```text
-1. Page header (tilbake-link + tittel + ny subtittel)
-2. Trust Center URL-card (flyttet fra #public til toppen)
-3. Lara-intro card (Sparkles-ikon, ny tekst)
-4. PublishingReadiness
-5. Quick nav tabs (9 ankere + Detaljinnstillinger-knapp)
-6. <section id="company"> — CompanyInfoForm (uten kontaktpersoner) + Hva leverer
-7. <section id="contacts"> — ContactsSection
-8. <section id="data-storage"> — DataStorageSection
-9. <section id="privacy"> — PrivacySection
-10. <section id="security"> — SecurityDetailsCard + eksisterende 17 kontroller (Info-card fjernes)
-11. <section id="incidents"> — IncidentsSection
-12. <section id="ai-vendors"> — AIVendorsSection
-13. <section id="regulations"> — uendret
-14. <section id="documentation"> — DocumentationSection (erstatter "Dokumentasjon og bevis")
-15. PublishStickyBar (når readiness ≥ 80%)
+```
+┌─────────────────────────────────────────────┐
+│ Steg 1 — Velg utgangspunkt                  │
+│                                             │
+│ ✦ Lara foreslår (3-5 kort, prioritert)     │
+│   ─ Kort viser: tittel, hvorfor, type-ikon, │
+│     kritikalitet, nivå, tema som chips      │
+│                                             │
+│ — eller —                                   │
+│                                             │
+│ ✎ Skriv egen aktivitet (link nederst)       │
+└─────────────────────────────────────────────┘
+            ↓ (velger forslag)
+┌─────────────────────────────────────────────┐
+│ Steg 2 — Bekreft og juster (kompakt)        │
+│                                             │
+│ Sammendrag som chips (alt redigerbart):     │
+│ [E-post] [Operasjonelt] [DPA] [Høy] [Åpen]  │
+│ [📅 06.05.2026]                             │
+│                                             │
+│ Tittel: ________________________            │
+│ Beskrivelse / e-post-utkast: __________     │
+│                                             │
+│ (Hvis e-post: knapp "Bytt mal ▾" + last opp)│
+└─────────────────────────────────────────────┘
+            ↓
+┌─────────────────────────────────────────────┐
+│ [Bekreft og registrer →]                    │
+└─────────────────────────────────────────────┘
 ```
 
-Den gamle `<section id="public">` (linje 298–337) fjernes (URL-en er flyttet opp).
+Klikk på en chip → liten popover med alternativer (samme som dagens pills, bare flyttet til popover for å spare plass).
 
-## Endringer i `CompanyInfoForm.tsx`
+## Lara-forslagene (steg 1)
 
-- Fjern alle kontaktperson-blokker (Kontaktperson / DPO / Sikkerhetskontakt + tilhørende `LaraContactAssist`).
-- Behold selskapsfelter (org.nr, navn, land, bransje, ansatte, beskrivelse, logo).
-- Pakk hvert felt i `<AISuggestionField>` slik at de viser "Foreslått av Lara"-state inntil bruker bekrefter.
+Forslagene genereres fra eksisterende kilder — ingen ny backend-logikk:
 
-## Språk og tilgjengelighet
+- `LARA_EMAIL_SUGGESTIONS` (allerede brukt i dagens dialog)
+- `vendorGuidanceData` → `SuggestedActivity` (allerede støttet via `prefillFromGuidance`)
+- Åpne aktiviteter med forfall (avledet status)
 
-- Alle nye komponenter implementerer både `nb` og `en` via `i18n.language` (følger eksisterende mønster).
-- Tailwind semantiske tokens (`bg-primary`, `text-success`, `border-border`) — ingen hardkodede farger.
-- Ikoner får eksplisitt `h-4 w-4` / `h-3 w-3`.
+Hvert forslag er forhåndsutfylt: type, nivå, tema, kritikalitet, status, tittel, beskrivelse. Brukeren kan bekrefte direkte eller justere i steg 2.
 
-## Akseptansekriterier
+Hvis ingen forslag finnes (tom state): vis kun "Skriv egen aktivitet" som primær CTA, så flyten degraderes pent.
 
-- URL-card vises øverst, ingen duplikat lengre nede.
-- 9 quick nav-tabs scroller til riktig anker.
-- CompanyInfoForm viser ikke lenger DPO/CISO/Compliance-navn.
-- Hver Lara-foreslått verdi har Bekreft/Endre/Avvis-knapper og oppdaterer `confirmed_fields`.
-- Dokumentasjon-seksjonen kan laste opp, toggle public, lese (in-app dialog) og slette.
-- Sticky publiseringsbar vises kun når readiness ≥ 80%.
-- Ingen jargong (PGP, security.txt, DSAR, ECDSA) i brukervendt tekst.
+## "Skriv egen aktivitet"-modus
+
+Samme steg 2-skjema, men chips starter tomme/nøytrale. Lara viser et lite hint over tittelfeltet: *"Skriv tittelen — Lara fyller resten basert på det du skriver"* (ingen ny LLM-kall i denne iterasjonen, bare heuristikk på nøkkelord til type/tema som vi allerede har).
+
+## Hva forsvinner
+
+- Stort 4-kolonners type-grid → flyttes til chip-popover
+- 3-kolonners nivå-pills → chip
+- Tema-row med 7 piller → chip
+- Eget Lara-panel + mal-select + opplastingsknapp som separate seksjoner → samles
+- Stor kalender-knapp → liten dato-chip
+- Stegteller "Steg 1 av 2 — Fyll ut" øverst → erstattes av ny flyt-indikator
+
+## Hva beholdes
+
+- `VendorActivity`-typen og `onSubmit`-kontrakten (ingen breaking change for `AssetTrustProfile`, `AssetMetrics`, `VendorOverviewTab`)
+- Mal-velger og opplasting (men inni e-post-chip-popoveren)
+- `prefillFromGuidance`-prop (blir bare ett av Lara-forslagene)
+- Validering: tittel + nivå + kritikalitet kreves
+
+## Tekniske detaljer
+
+**Filer som endres**
+- `src/components/asset-profile/RegisterActivityDialog.tsx` — full rewrite, samme eksport og props
+- Ingen endringer i kallesteder
+
+**Nye/utvidede helpers**
+- `src/utils/laraActivitySuggestions.ts` (ny) — slår sammen `LARA_EMAIL_SUGGESTIONS` + `SuggestedActivity` til en felles `LaraActivitySuggestion`-type med felles felter (icon, theme, level, criticality, title, body, reasonNb/En)
+- Heuristikk for "skriv egen": en liten `inferFromTitle(title): Partial<LaraActivitySuggestion>` som matcher på nøkkelord (DPA, SLA, hendelse, revisjon, e-post, telefon)
+
+**Komponentstruktur internt**
+- `<SuggestionCard>` — kort i steg 1
+- `<ChipPopover>` — gjenbrukbar for type/nivå/tema/kritikalitet/status/dato
+- `<EmailComposer>` — kun synlig når type=email; inneholder mal-select + opplasting
+
+**Ingen DB- eller edge-endringer.** Ingen nye tokens — bruker eksisterende `primary`, `muted`, status-farger og `bg-warning`/`bg-success`/`bg-destructive` per Core-regelen om kritikalitet/risiko.
+
+**i18n** — alle nye strenger lagt inn med eksisterende inline `isNb`-mønster (samme som dagens fil bruker), så vi ikke introduserer en ny pattern.
+
+## Out of scope
+
+- Ekte LLM-kall for å foreslå (bruker eksisterende kuraterte forslag i denne iterasjonen)
+- Trust Score / gap-impact preview
+- Naturlig språk-felt med live AI-parsing
+- Persistens av brukerens "siste valg" som default
