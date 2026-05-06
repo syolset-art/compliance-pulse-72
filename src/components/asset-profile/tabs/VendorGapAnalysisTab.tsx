@@ -83,6 +83,7 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
   const [createdSummary, setCreatedSummary] = useState<{ pending: number } | null>(null);
   const [skipped, setSkipped] = useState<Set<string>>(new Set());
   const [confirmedPerGap, setConfirmedPerGap] = useState<Set<string>>(new Set());
+  const [previewOpen, setPreviewOpen] = useState<Set<string>>(new Set());
 
   const availableFrameworks = useMemo(
     () => frameworks.filter((f) => SUPPORTED_FRAMEWORKS.includes(f.id)),
