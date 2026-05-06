@@ -212,6 +212,16 @@ export default function VendorDashboard() {
           { text: "Få automatisk analyse og oppdatert risikobilde" },
           { text: "Følg opp mangler, del innsikt og sett påminnelser" },
         ]}
+        colorLegend={{
+          heading: "Hva fargene betyr på leverandørkortet",
+          description: "Fargene viser risikonivå basert på Mynders analyse av dokumentasjon, signaler og status — ikke kritikalitet. Kritikalitet velger du selv og vises som nøytral pille.",
+          items: [
+            { swatch: "bg-success", label: "Grønn — lav risiko", description: "75 % eller høyere score. Dokumentasjon og signaler er på plass og oppdaterte." },
+            { swatch: "bg-warning", label: "Oransje — moderat risiko", description: "50–74 % score. Noe dokumentasjon mangler, er utdatert eller delvis oppfylt." },
+            { swatch: "bg-destructive", label: "Rød — høy risiko", description: "Under 50 % score. Vesentlige mangler eller utløpte avtaler — krever oppfølging." },
+            { swatch: "bg-muted-foreground", label: "Grå — ikke vurdert", description: "Mynder har ennå ikke nok grunnlag for å vurdere leverandøren. Last opp dokumenter eller kjør analyse." },
+          ],
+        }}
         actions={[
           { icon: Plus, title: "Legg til leverandør", description: "Registrer en ny leverandør eller databehandler.", onClick: () => { setHelpOpen(false); setIsVendorDialogOpen(true); } },
           { icon: Upload, title: "Last opp dokumentasjon", description: "Last opp DPA, SLA eller annen avtale for en leverandør.", onClick: () => { setHelpOpen(false); setIsVendorDialogOpen(true); } },
