@@ -245,8 +245,8 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
                     </p>
                     <p className="text-xs text-muted-foreground mt-1.5">
                       {isNb
-                        ? "Modus: Assistert — jeg utfører enkle handlinger autonomt og ber om bekreftelse på de viktigste."
-                        : "Mode: Assisted — I'll act autonomously on simple items and ask for confirmation on the rest."}
+                        ? "Jeg legger dem som utkast i aktivitetsloggen — du må godkjenne hver enkelt før noe sendes eller utføres."
+                        : "I'll add them as drafts in the activity log — you approve each one before anything is sent or executed."}
                     </p>
                     <div className="flex flex-wrap gap-2 mt-4">
                       <Button onClick={handleConfirm} size="sm" className="gap-1.5">
