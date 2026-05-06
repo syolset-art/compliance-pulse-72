@@ -172,11 +172,11 @@ export const TrustProfilePublishing = ({
                     : "Your unique address — like a LinkedIn profile for your organization's security."}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 rounded-lg border border-border bg-muted/30 px-3 py-2">
-                  <code className="text-xs text-foreground font-mono">{publicUrl}</code>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <div className="flex-1 min-w-0 rounded-lg border border-border bg-muted/30 px-3 py-2 overflow-x-auto">
+                  <code className="text-xs text-foreground font-mono whitespace-nowrap">{publicUrl}</code>
                 </div>
-                <Button variant="outline" size="sm" className="h-8 px-3 gap-1.5 text-xs shrink-0" onClick={handleCopyLink}>
+                <Button variant="outline" size="sm" className="h-8 px-3 gap-1.5 text-xs shrink-0 w-full sm:w-auto" onClick={handleCopyLink}>
                   {copiedLink ? <Check className="h-3.5 w-3.5 text-status-closed" /> : <Copy className="h-3.5 w-3.5" />}
                   {copiedLink ? (isNb ? "Kopiert" : "Copied") : (isNb ? "Kopier" : "Copy")}
                 </Button>
