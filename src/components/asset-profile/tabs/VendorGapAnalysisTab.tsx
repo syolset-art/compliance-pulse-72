@@ -116,20 +116,18 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
   }, [allResults]);
 
   const handleConfirm = () => {
-    // Mode: assisted by default — half automatic, half pending confirmation
-    // Real persistence would happen here; for now we simulate with toast + summary
-    const auto = Math.ceil(gaps.length * 0.6);
-    const pending = gaps.length - auto;
-    setCreatedSummary({ auto, pending });
+    // Lara registrerer aktiviteter som UTKAST — ingenting sendes uten brukerens godkjenning.
+    // Hver aktivitet venter på brukerens bekreftelse i aktivitetsloggen.
+    setCreatedSummary({ auto: 0, pending: gaps.length });
     setFollowupState("done");
     toast.success(
       isNb
-        ? `Lara satte opp ${gaps.length} aktiviteter`
-        : `Lara created ${gaps.length} activities`,
+        ? `Lara la ${gaps.length} aktiviteter i loggen`
+        : `Lara added ${gaps.length} activities to the log`,
       {
         description: isNb
-          ? `${auto} utført automatisk · ${pending} venter på din bekreftelse`
-          : `${auto} done automatically · ${pending} awaiting your confirmation`,
+          ? "Alle venter på din godkjenning før noe sendes."
+          : "All await your approval before anything is sent.",
       }
     );
   };
