@@ -96,6 +96,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [activeTab, setActiveTab] = useState<"preview" | "publish">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [publishSubTab, setPublishSubTab] = useState<"link" | "vendor" | "badge">("link");
+  const [badgeTheme, setBadgeTheme] = useState<"dark" | "light">("dark");
   const [isEditingSlug, setIsEditingSlug] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
@@ -894,6 +895,54 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 {/* Website Badge sub-tab */}
                 {publishSubTab === "badge" && (
                   <div className="space-y-6">
+                    {/* Theme toggle */}
+                    {(() => {
+                      const isDark = badgeTheme === "dark";
+                      const t = {
+                        bgFree: isDark
+                          ? "linear-gradient(135deg, hsl(220, 45%, 18%) 0%, hsl(220, 50%, 26%) 100%)"
+                          : "linear-gradient(135deg, hsl(0, 0%, 100%) 0%, hsl(220, 30%, 97%) 100%)",
+                        bgPro: isDark
+                          ? "linear-gradient(160deg, hsl(220, 50%, 14%) 0%, hsl(220, 45%, 22%) 100%)"
+                          : "linear-gradient(160deg, hsl(0, 0%, 100%) 0%, hsl(220, 30%, 97%) 100%)",
+                        gold: isDark ? "hsl(45, 90%, 55%)" : "hsl(220, 50%, 22%)",
+                        goldSoft: isDark ? "hsl(45, 90%, 70%)" : "hsl(220, 40%, 35%)",
+                        textMain: isDark ? "white" : "hsl(220, 50%, 14%)",
+                        textSub: isDark ? "rgba(255,255,255,0.6)" : "hsl(220, 20%, 45%)",
+                        ringTrack: isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.08)",
+                        chipBg: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(220 50% 22% / 0.06)",
+                        chipBorder: isDark ? "hsl(45 90% 55% / 0.35)" : "hsl(220 50% 22% / 0.2)",
+                        chipText: isDark ? "hsl(45, 90%, 75%)" : "hsl(220, 50%, 22%)",
+                        divider: isDark ? "hsl(45 90% 55% / 0.25)" : "hsl(220 30% 80%)",
+                        dividerSoft: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(220 30% 88%)",
+                        boxShadowFree: isDark
+                          ? "0 4px 18px hsl(220 45% 18% / 0.35), 0 0 0 1px hsl(45 90% 55% / 0.4) inset"
+                          : "0 4px 18px hsl(220 30% 70% / 0.25), 0 0 0 1px hsl(220 50% 22% / 0.15) inset",
+                        boxShadowPro: isDark
+                          ? "0 10px 30px hsl(220 45% 12% / 0.4), 0 0 0 1px hsl(45 90% 55% / 0.25) inset"
+                          : "0 10px 30px hsl(220 30% 70% / 0.25), 0 0 0 1px hsl(220 50% 22% / 0.12) inset",
+                      };
+                      return (
+                        <>
+                          <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {isNb ? "Bakgrunn for forhåndsvisning" : "Preview background"}
+                            </span>
+                            <div className="inline-flex rounded-md border border-border bg-background p-0.5">
+                              <button
+                                onClick={() => setBadgeTheme("dark")}
+                                className={`px-3 py-1 text-xs font-medium rounded ${isDark ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+                              >
+                                {isNb ? "Mørk" : "Dark"}
+                              </button>
+                              <button
+                                onClick={() => setBadgeTheme("light")}
+                                className={`px-3 py-1 text-xs font-medium rounded ${!isDark ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+                              >
+                                {isNb ? "Lys" : "Light"}
+                              </button>
+                            </div>
+                          </div>
                     {/* Badge tiers */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Free Badge */}
@@ -907,22 +956,22 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                         <div className="flex justify-center py-5">
                           <span
-                            className="relative inline-flex items-center gap-3 pl-3 pr-4 py-2 rounded-full text-white text-sm font-semibold shadow-lg ring-1"
+                            className="relative inline-flex items-center gap-3 pl-3 pr-4 py-2 rounded-full text-sm font-semibold shadow-lg ring-1"
                             style={{
-                              background: "linear-gradient(135deg, hsl(220, 45%, 18%) 0%, hsl(220, 50%, 26%) 100%)",
-                              borderColor: "hsl(45, 90%, 55%)",
-                              boxShadow: "0 4px 18px hsl(220 45% 18% / 0.35), 0 0 0 1px hsl(45 90% 55% / 0.4) inset",
+                              background: t.bgFree,
+                              borderColor: t.gold,
+                              color: t.textMain,
+                              boxShadow: t.boxShadowFree,
                             }}
                           >
                             <span className="relative inline-flex items-center justify-center" style={{ width: 36, height: 36 }}>
-                              
-                              <ButterflyMark size={16} color="hsl(45, 90%, 55%)" />
+                              <ButterflyMark size={16} color={t.gold} />
                             </span>
                             <span className="flex flex-col leading-tight">
-                              <span className="text-[10px] uppercase tracking-[0.14em]" style={{ color: "hsl(45, 90%, 70%)" }}>Mynder Verified</span>
-                              <span className="text-[12px] font-semibold text-white/90">Trust Score</span>
+                              <span className="text-[10px] uppercase tracking-[0.14em]" style={{ color: t.goldSoft }}>Mynder Verified</span>
+                              <span className="text-[12px] font-semibold" style={{ color: t.textMain, opacity: 0.9 }}>Trust Score</span>
                             </span>
-                            <TrustScoreRing score={trustScore} size={32} stroke={2.5} />
+                            <TrustScoreRing score={trustScore} size={32} stroke={2.5} color={t.gold} trackColor={t.ringTrack} />
                           </span>
                         </div>
                         <div className="space-y-2 text-sm text-muted-foreground">
@@ -953,38 +1002,38 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                         <div className="flex justify-center py-4">
                           <div
-                            className="relative rounded-2xl p-5 min-w-[260px] text-white"
+                            className="relative rounded-2xl p-5 min-w-[260px]"
                             style={{
-                              background: "linear-gradient(160deg, hsl(220, 50%, 14%) 0%, hsl(220, 45%, 22%) 100%)",
-                              border: "1px solid hsl(45, 90%, 55%)",
-                              boxShadow: "0 10px 30px hsl(220 45% 12% / 0.4), 0 0 0 1px hsl(45 90% 55% / 0.25) inset",
+                              background: t.bgPro,
+                              border: `1px solid ${t.gold}`,
+                              color: t.textMain,
+                              boxShadow: t.boxShadowPro,
                             }}
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative inline-flex items-center justify-center" style={{ width: 64, height: 64 }}>
-                                
-                                <ButterflyMark size={26} color="hsl(45, 90%, 55%)" />
+                                <ButterflyMark size={26} color={t.gold} />
                               </div>
                               <div className="flex-1">
-                                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: "hsl(45, 90%, 70%)" }}>Mynder Verified</div>
-                                <div className="text-base font-semibold leading-tight">Trust Profile</div>
-                                <div className="text-[11px] text-white/60">Compliance · Security</div>
+                                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: t.goldSoft }}>Mynder Verified</div>
+                                <div className="text-base font-semibold leading-tight" style={{ color: t.textMain }}>Trust Profile</div>
+                                <div className="text-[11px]" style={{ color: t.textSub }}>Compliance · Security</div>
                               </div>
                               <div className="flex flex-col items-center gap-0.5">
-                                <TrustScoreRing score={trustScore} size={42} stroke={3} />
-                                <span className="text-[9px] uppercase tracking-wider text-white/60">Trust Score</span>
+                                <TrustScoreRing score={trustScore} size={42} stroke={3} color={t.gold} trackColor={t.ringTrack} />
+                                <span className="text-[9px] uppercase tracking-wider" style={{ color: t.textSub }}>Trust Score</span>
                               </div>
                             </div>
                             {recognizedFrameworks.length > 0 && (
-                              <div className="flex flex-wrap gap-1 pt-3 mt-3 border-t" style={{ borderColor: "hsl(45 90% 55% / 0.25)" }}>
+                              <div className="flex flex-wrap gap-1 pt-3 mt-3 border-t" style={{ borderColor: t.divider }}>
                                 {recognizedFrameworks.slice(0, 3).map((fw: any, i: number) => (
-                                  <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: "hsl(45 90% 55% / 0.15)", color: "hsl(45, 90%, 75%)", border: "1px solid hsl(45 90% 55% / 0.35)" }}>
+                                  <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: t.chipBg, color: t.chipText, border: `1px solid ${t.chipBorder}` }}>
                                     {fw.framework_name}
                                   </span>
                                 ))}
                               </div>
                             )}
-                            <div className="mt-2 pt-2 border-t text-center text-[9px] uppercase tracking-[0.22em]" style={{ borderColor: "hsl(45 90% 55% / 0.15)", color: "hsl(45, 90%, 70%)" }}>
+                            <div className="mt-2 pt-2 border-t text-center text-[9px] uppercase tracking-[0.22em]" style={{ borderColor: t.dividerSoft, color: t.goldSoft }}>
                               Trust · Compliance · Verified
                             </div>
                           </div>
@@ -1072,6 +1121,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           : "Visitors can click the badge to view your complete Trust Profile with privacy policy, data processing agreement and security documentation."}
                       </p>
                     </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
