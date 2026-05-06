@@ -80,6 +80,7 @@ export function ContextualHelpPanel({
   whyDescription,
   steps,
   stepsHeading,
+  colorLegend,
   actions,
   laraSuggestions,
   laraSuggestion,
