@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Mail, Pencil, Check, Clock, FileText } from "lucide-react";
+import { Calendar, Mail, Pencil, Check, Clock, FileText, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 export interface PlannedActivity {
   kind: "meeting" | "email" | "task";
@@ -23,6 +22,8 @@ interface Props {
   onCancel: () => void;
 }
 
+type ItemState = "pending" | "confirmed" | "skipped";
+
 export function ActivityConfirmPreview({
   vendorName,
   requirementId,
@@ -33,6 +34,23 @@ export function ActivityConfirmPreview({
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [showFullEmail, setShowFullEmail] = useState<Record<number, boolean>>({});
+  const [states, setStates] = useState<ItemState[]>(() => activities.map(() => "pending"));
+
+  const pendingCount = states.filter((s) => s === "pending").length;
+  const confirmedCount = states.filter((s) => s === "confirmed").length;
+
+  // When everything is resolved (no pending) and at least one was confirmed, finalize
+  useEffect(() => {
+    if (pendingCount === 0) {
+      if (confirmedCount > 0) onConfirm("all");
+      else onCancel();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingCount, confirmedCount]);
+
+  const setOne = (idx: number, val: ItemState) => {
+    setStates((prev) => prev.map((s, i) => (i === idx ? val : s)));
+  };
 
   return (
     <div className="rounded-lg border border-primary/20 bg-card p-4 space-y-3 mt-2">
@@ -51,13 +69,15 @@ export function ActivityConfirmPreview({
             </span>
             <Badge variant="outline" className="ml-auto gap-1 text-warning border-warning/30 bg-warning/5">
               <Clock className="h-3 w-3" />
-              {isNb ? "Venter bekreftelse" : "Awaiting confirmation"}
+              {pendingCount > 0
+                ? (isNb ? `Venter bekreftelse (${pendingCount})` : `Awaiting confirmation (${pendingCount})`)
+                : (isNb ? "Ingen igjen" : "None left")}
             </Badge>
           </div>
           <p className="text-xs text-muted-foreground mt-1.5">
             {isNb
-              ? `Knyttet til ${requirementId}. Se gjennom og bekreft, eller juster detaljene før jeg oppretter dem.`
-              : `Linked to ${requirementId}. Review and confirm, or adjust details before I create them.`}
+              ? `Knyttet til ${requirementId}. Bekreft hver aktivitet enkeltvis — eller hopp over de du ikke vil opprette.`
+              : `Linked to ${requirementId}. Confirm each activity individually — or skip the ones you don't want.`}
           </p>
         </div>
       </div>
@@ -65,6 +85,7 @@ export function ActivityConfirmPreview({
       {/* Activities */}
       <div className="space-y-2">
         {activities.map((act, idx) => {
+          const state = states[idx];
           const Icon = act.kind === "meeting" ? Calendar : act.kind === "email" ? Mail : FileText;
           const subtitle = act.kind === "meeting"
             ? (isNb ? "Møteinvitasjon sendes via Outlook" : "Meeting invite via Outlook")
@@ -73,7 +94,10 @@ export function ActivityConfirmPreview({
             : (isNb ? "Oppgave opprettes i aktivitetsloggen" : "Task created in activity log");
 
           return (
-            <Card key={idx}>
+            <Card key={idx} className={cn(
+              state === "confirmed" && "border-success/40 bg-success/[0.03]",
+              state === "skipped" && "opacity-60",
+            )}>
               <CardContent className="p-0">
                 {/* Activity header */}
                 <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
@@ -87,9 +111,19 @@ export function ActivityConfirmPreview({
                     </p>
                     <p className="text-xs text-muted-foreground">{subtitle}</p>
                   </div>
-                  <Badge variant="secondary" className="text-[11px]">
-                    {idx + 1} {isNb ? "av" : "of"} {activities.length}
-                  </Badge>
+                  {state === "confirmed" ? (
+                    <Badge variant="outline" className="gap-1 text-success border-success/30 bg-success/5 text-[11px]">
+                      <Check className="h-3 w-3" /> {isNb ? "Bekreftet" : "Confirmed"}
+                    </Badge>
+                  ) : state === "skipped" ? (
+                    <Badge variant="outline" className="gap-1 text-muted-foreground text-[11px]">
+                      <X className="h-3 w-3" /> {isNb ? "Hoppet over" : "Skipped"}
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="text-[11px]">
+                      {idx + 1} {isNb ? "av" : "of"} {activities.length}
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Field rows */}
@@ -100,9 +134,11 @@ export function ActivityConfirmPreview({
                         {f.label}
                       </span>
                       <span className="text-sm flex-1 min-w-0 break-words">{f.value}</span>
-                      <Button variant="outline" size="icon" className="h-7 w-7 shrink-0">
-                        <Pencil className="h-3 w-3" />
-                      </Button>
+                      {state === "pending" && (
+                        <Button variant="outline" size="icon" className="h-7 w-7 shrink-0">
+                          <Pencil className="h-3 w-3" />
+                        </Button>
+                      )}
                     </div>
                   ))}
                   {act.linkedTo && (
@@ -141,41 +177,46 @@ export function ActivityConfirmPreview({
                     )}
                   </div>
                 )}
+
+                {/* Per-activity action bar */}
+                {state === "pending" && (
+                  <div className="flex flex-wrap items-center gap-2 px-4 py-3 border-t border-border bg-muted/20">
+                    <Button size="sm" className="gap-1.5" onClick={() => setOne(idx, "confirmed")}>
+                      <Check className="h-3.5 w-3.5" />
+                      {act.kind === "meeting"
+                        ? (isNb ? "Bekreft møtet" : "Confirm meeting")
+                        : act.kind === "email"
+                        ? (isNb ? "Bekreft og send" : "Confirm & send")
+                        : (isNb ? "Bekreft oppgaven" : "Confirm task")}
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      {isNb ? "Tilpass" : "Customize"}
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setOne(idx, "skipped")}>
+                      {isNb ? "Hopp over" : "Skip"}
+                    </Button>
+                    <span className="ml-auto text-[11px] text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {isNb ? "Ikke sendt enda" : "Not sent yet"}
+                    </span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      {/* Bottom action bar */}
-      <div className="flex flex-wrap items-center gap-2 pt-1">
-        <Button size="sm" className="gap-1.5" onClick={() => onConfirm("all")}>
-          <Check className="h-3.5 w-3.5" />
-          {activities.length === 1
-            ? (isNb ? "Bekreft" : "Confirm")
-            : (isNb ? "Bekreft begge" : `Confirm all (${activities.length})`)}
-        </Button>
-        {activities.length > 1 && activities.map((a, i) => (
-          <Button key={i} size="sm" variant="outline" onClick={() => onConfirm(i)}>
-            {isNb ? `Bare ${a.kind === "meeting" ? "møtet" : a.kind === "email" ? "e-posten" : "oppgaven"}` : `Only the ${a.kind}`}
-          </Button>
-        ))}
+      {/* Cancel-all link only */}
+      <div className="flex items-center justify-between pt-1">
         <Button size="sm" variant="ghost" onClick={onCancel}>
-          {isNb ? "Avbryt" : "Cancel"}
+          {isNb ? "Avbryt alt" : "Cancel all"}
         </Button>
-        <span className="ml-auto text-[11px] text-muted-foreground flex items-center gap-1">
-          <Clock className="h-3 w-3" />
-          {isNb ? "Ingen er sendt enda" : "Nothing sent yet"}
-        </span>
-      </div>
-
-      {/* Lara footnote */}
-      <div className="text-xs text-muted-foreground space-y-2 pt-1 border-t border-border/60">
-        <p className="pt-2">
+        <span className="text-[11px] text-muted-foreground">
           {isNb
-            ? "Jeg har klargjort aktivitetene, men ikke sendt noe enda. Du ser hva som faktisk vil skje før du bekrefter — det er kjernen i assistert modus."
-            : "I've prepared the activities but haven't sent anything yet. You see exactly what will happen before confirming — that's the core of assisted mode."}
-        </p>
+            ? `${confirmedCount} bekreftet · ${pendingCount} venter`
+            : `${confirmedCount} confirmed · ${pendingCount} pending`}
+        </span>
       </div>
     </div>
   );
