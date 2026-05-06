@@ -962,7 +962,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative inline-flex items-center justify-center" style={{ width: 64, height: 64 }}>
-                                <StarWreath count={12} radius={28} starSize={7} />
+                                
                                 <ButterflyMark size={26} color="hsl(45, 90%, 55%)" />
                               </div>
                               <div className="flex-1">
