@@ -329,9 +329,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </div>
                   <div className="min-w-0">
                     <h2 className="text-xl font-bold text-foreground">{(companyProfile as any)?.legal_name || companyProfile?.name || asset.name}</h2>
-                    {(companyProfile as any)?.legal_name && companyProfile?.name && (companyProfile as any).legal_name !== companyProfile.name && (
-                      <p className="text-[13px] text-muted-foreground">{isNb ? "Markedsnavn: " : "Trading as: "}{companyProfile.name}</p>
-                    )}
                     {asset?.description ? (
                       <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{asset.description}</p>
                     ) : (
@@ -1057,9 +1054,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                         <div className="min-w-0">
                           <h2 className="text-xl font-bold text-foreground">{(companyProfile as any)?.legal_name || companyProfile?.name || asset.name}</h2>
-                          {(companyProfile as any)?.legal_name && companyProfile?.name && (companyProfile as any).legal_name !== companyProfile.name && (
-                            <p className="text-[13px] text-muted-foreground">{isNb ? "Markedsnavn: " : "Trading as: "}{companyProfile.name}</p>
-                          )}
                           {asset?.description ? (
                             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{asset.description}</p>
                           ) : (
