@@ -956,22 +956,22 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                         <div className="flex justify-center py-5">
                           <span
-                            className="relative inline-flex items-center gap-3 pl-3 pr-4 py-2 rounded-full text-white text-sm font-semibold shadow-lg ring-1"
+                            className="relative inline-flex items-center gap-3 pl-3 pr-4 py-2 rounded-full text-sm font-semibold shadow-lg ring-1"
                             style={{
-                              background: "linear-gradient(135deg, hsl(220, 45%, 18%) 0%, hsl(220, 50%, 26%) 100%)",
-                              borderColor: "hsl(45, 90%, 55%)",
-                              boxShadow: "0 4px 18px hsl(220 45% 18% / 0.35), 0 0 0 1px hsl(45 90% 55% / 0.4) inset",
+                              background: t.bgFree,
+                              borderColor: t.gold,
+                              color: t.textMain,
+                              boxShadow: t.boxShadowFree,
                             }}
                           >
                             <span className="relative inline-flex items-center justify-center" style={{ width: 36, height: 36 }}>
-                              
-                              <ButterflyMark size={16} color="hsl(45, 90%, 55%)" />
+                              <ButterflyMark size={16} color={t.gold} />
                             </span>
                             <span className="flex flex-col leading-tight">
-                              <span className="text-[10px] uppercase tracking-[0.14em]" style={{ color: "hsl(45, 90%, 70%)" }}>Mynder Verified</span>
-                              <span className="text-[12px] font-semibold text-white/90">Trust Score</span>
+                              <span className="text-[10px] uppercase tracking-[0.14em]" style={{ color: t.goldSoft }}>Mynder Verified</span>
+                              <span className="text-[12px] font-semibold" style={{ color: t.textMain, opacity: 0.9 }}>Trust Score</span>
                             </span>
-                            <TrustScoreRing score={trustScore} size={32} stroke={2.5} />
+                            <TrustScoreRing score={trustScore} size={32} stroke={2.5} color={t.gold} trackColor={t.ringTrack} />
                           </span>
                         </div>
                         <div className="space-y-2 text-sm text-muted-foreground">
