@@ -96,6 +96,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [activeTab, setActiveTab] = useState<"preview" | "publish">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [publishSubTab, setPublishSubTab] = useState<"link" | "vendor" | "badge">("link");
+  const [badgeTheme, setBadgeTheme] = useState<"dark" | "light">("dark");
   const [isEditingSlug, setIsEditingSlug] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
