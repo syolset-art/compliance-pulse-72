@@ -1042,15 +1042,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 <span className="text-[9px] uppercase tracking-wider" style={{ color: t.textSub }}>Trust Score</span>
                               </div>
                             </div>
-                            {recognizedFrameworks.length > 0 && (
-                              <div className="flex flex-wrap gap-1 pt-3 mt-3 border-t" style={{ borderColor: t.divider }}>
-                                {recognizedFrameworks.slice(0, 3).map((fw: any, i: number) => (
-                                  <span key={i} className="text-[10px] font-medium px-2 py-0.5 rounded-full" style={{ background: t.chipBg, color: t.chipText, border: `1px solid ${t.chipBorder}` }}>
-                                    {fw.framework_name}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
                             <div className="mt-2 pt-2 border-t text-center text-[9px] uppercase tracking-[0.22em]" style={{ borderColor: t.dividerSoft, color: t.goldSoft }}>
                               Trust · Compliance · Verified
                             </div>
