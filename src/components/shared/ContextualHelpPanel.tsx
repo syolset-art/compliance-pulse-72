@@ -29,6 +29,19 @@ export interface LaraSuggestionItem {
   message: string;
 }
 
+export interface ColorLegendItem {
+  /** Tailwind bg-class for the swatch, e.g. "bg-success" */
+  swatch: string;
+  label: string;
+  description: string;
+}
+
+export interface ColorLegend {
+  heading: string;
+  description?: string;
+  items: ColorLegendItem[];
+}
+
 export interface ContextualHelpPanelProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
