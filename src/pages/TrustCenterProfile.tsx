@@ -1121,6 +1121,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           : "Visitors can click the badge to view your complete Trust Profile with privacy policy, data processing agreement and security documentation."}
                       </p>
                     </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
