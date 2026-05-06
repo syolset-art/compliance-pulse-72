@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutGrid, ShieldCheck, Sparkles, Send, Archive, Users, Shield } from "lucide-react";
+import { LayoutGrid, ShieldCheck, Sparkles, Send, Archive } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 
@@ -19,6 +19,8 @@ interface MSPCustomer {
   subscription_plan: string;
   last_activity_at: string | null;
   onboarding_completed?: boolean;
+  org_number?: string | null;
+  contact_email?: string | null;
 }
 
 interface MSPCustomerCardProps {
