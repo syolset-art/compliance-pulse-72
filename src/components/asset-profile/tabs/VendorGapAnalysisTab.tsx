@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { frameworks } from "@/lib/frameworkDefinitions";
 import { buildProposal } from "@/components/asset-profile/gap/InlineAgentProposal";
+import { ActivityConfirmPreview, buildPlannedActivities } from "@/components/asset-profile/gap/ActivityConfirmPreview";
 
 interface VendorGapAnalysisTabProps {
   assetId: string;
