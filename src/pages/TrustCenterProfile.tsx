@@ -905,22 +905,22 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         bgPro: isDark
                           ? "linear-gradient(160deg, hsl(220, 50%, 14%) 0%, hsl(220, 45%, 22%) 100%)"
                           : "linear-gradient(160deg, hsl(0, 0%, 100%) 0%, hsl(30, 50%, 97%) 100%)",
-                        gold: isDark ? "hsl(45, 90%, 55%)" : "hsl(24, 85%, 50%)", // warm orange accent
-                        goldSoft: isDark ? "hsl(45, 90%, 70%)" : "hsl(24, 70%, 45%)",
+                        gold: isDark ? "hsl(45, 90%, 55%)" : "#BA7517",
+                        goldSoft: isDark ? "hsl(45, 90%, 70%)" : "#A1670F",
                         textMain: isDark ? "white" : "hsl(220, 25%, 18%)",
                         textSub: isDark ? "rgba(255,255,255,0.6)" : "hsl(220, 12%, 45%)",
-                        ringTrack: isDark ? "rgba(255,255,255,0.18)" : "hsl(30, 30%, 90%)",
-                        chipBg: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(24 85% 50% / 0.08)",
-                        chipBorder: isDark ? "hsl(45 90% 55% / 0.35)" : "hsl(24 85% 50% / 0.3)",
-                        chipText: isDark ? "hsl(45, 90%, 75%)" : "hsl(24, 80%, 40%)",
-                        divider: isDark ? "hsl(45 90% 55% / 0.25)" : "hsl(30, 25%, 88%)",
-                        dividerSoft: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(30, 25%, 92%)",
+                        ringTrack: isDark ? "rgba(255,255,255,0.18)" : "hsl(33, 50%, 90%)",
+                        chipBg: isDark ? "hsl(45 90% 55% / 0.15)" : "rgba(186, 117, 23, 0.08)",
+                        chipBorder: isDark ? "hsl(45 90% 55% / 0.35)" : "rgba(186, 117, 23, 0.3)",
+                        chipText: isDark ? "hsl(45, 90%, 75%)" : "#8B5610",
+                        divider: isDark ? "hsl(45 90% 55% / 0.25)" : "hsl(33, 30%, 88%)",
+                        dividerSoft: isDark ? "hsl(45 90% 55% / 0.15)" : "hsl(33, 30%, 92%)",
                         boxShadowFree: isDark
                           ? "0 4px 18px hsl(220 45% 18% / 0.35), 0 0 0 1px hsl(45 90% 55% / 0.4) inset"
-                          : "0 4px 16px hsl(220 15% 50% / 0.12), 0 0 0 1px hsl(24 85% 50% / 0.25) inset",
+                          : "0 4px 16px rgba(186, 117, 23, 0.15), 0 0 0 1px rgba(186, 117, 23, 0.28) inset",
                         boxShadowPro: isDark
                           ? "0 10px 30px hsl(220 45% 12% / 0.4), 0 0 0 1px hsl(45 90% 55% / 0.25) inset"
-                          : "0 10px 26px hsl(220 15% 50% / 0.12), 0 0 0 1px hsl(24 85% 50% / 0.22) inset",
+                          : "0 10px 26px rgba(186, 117, 23, 0.15), 0 0 0 1px rgba(186, 117, 23, 0.25) inset",
                       };
                       return (
                         <>
