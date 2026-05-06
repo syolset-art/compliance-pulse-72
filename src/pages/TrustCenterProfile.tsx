@@ -906,10 +906,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           <Badge variant="outline" className="text-[13px] border-primary/40 text-primary">Current</Badge>
                         </div>
                         <div className="flex justify-center py-5">
-                          <span className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-[hsl(280,50%,75%)] text-white text-sm font-semibold shadow-lg shadow-primary/25 ring-1 ring-primary/20">
-                            <Shield className="h-4.5 w-4.5 drop-shadow-sm" />
-                            Mynder Verified
-                            <CheckCircle2 className="h-3.5 w-3.5 opacity-80" />
+                          <span
+                            className="relative inline-flex items-center gap-3 pl-3 pr-4 py-2 rounded-full text-white text-sm font-semibold shadow-lg ring-1"
+                            style={{
+                              background: "linear-gradient(135deg, hsl(220, 45%, 18%) 0%, hsl(220, 50%, 26%) 100%)",
+                              borderColor: "hsl(45, 90%, 55%)",
+                              boxShadow: "0 4px 18px hsl(220 45% 18% / 0.35), 0 0 0 1px hsl(45 90% 55% / 0.4) inset",
+                            }}
+                          >
+                            <span className="relative inline-flex items-center justify-center" style={{ width: 36, height: 36 }}>
+                              <StarWreath count={12} radius={16} starSize={5} />
+                              <ButterflyMark size={16} color="hsl(45, 90%, 55%)" />
+                            </span>
+                            <span className="flex flex-col leading-tight">
+                              <span className="text-[10px] uppercase tracking-[0.14em]" style={{ color: "hsl(45, 90%, 70%)" }}>Mynder Verified</span>
+                              <span className="text-[12px] font-semibold text-white/90">Trust Score</span>
+                            </span>
+                            <TrustScoreRing score={trustScore} size={32} stroke={2.5} />
                           </span>
                         </div>
                         <div className="space-y-2 text-sm text-muted-foreground">
