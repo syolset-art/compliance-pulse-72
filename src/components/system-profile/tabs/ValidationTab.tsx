@@ -6,6 +6,7 @@ import { Building2, Info } from "lucide-react";
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
 import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
 import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
+import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { useToast } from "@/hooks/use-toast";
 import { generateGuidanceForVendor, type SuggestedActivity } from "@/utils/vendorGuidanceData";
