@@ -1,103 +1,135 @@
-# Agentisk "Registrer aktivitet"
+# Forenkle Gap-analyse mot rammeverk + agentisk oppfølging
 
-Erstatt dagens skjemabaserte dialog (`RegisterActivityDialog.tsx`) med en Lara-først flyt der brukeren primært velger blant proaktive forslag, og kun fyller ut detaljer hvis hun vil avvike.
+Strip ned `VendorGapAnalysisTab` til kjernen: velg rammeverk → se mangler → la Lara opprette oppfølgingsaktiviteter agentisk.
 
 ## Mål
 
-- Brukeren slipper å tenke på type, nivå, tema, kritikalitet og status — Lara foreslår.
-- Færre klikk: typisk registrering = 2 klikk (velg forslag → bekreft).
-- Manuell registrering finnes fortsatt, men er sekundær.
-- Ingen kobling til gap/Trust Score-impact (holder dialogen ren).
+- Fjern alt domeneoppsett (Styring, Drift og sikkerhet, Personvern, Tredjepart) fra fanen — det hører ikke hjemme her.
+- Vis én flat, prioritert liste over mangler ("missing" + "partial").
+- Etter listen: ett tydelig Lara-spørsmål — *"Skal jeg sette opp oppfølgingsaktiviteter for disse N manglene?"* — Ja / Nei.
+- Ved Ja: aktiviteter registreres automatisk i aktivitetsloggen, med Laras vanlige autonomi-mønster (auto-utført eller venter på bekreftelse per aktivitet).
 
-## Ny flyt (3 steg, samme dialog)
+## Ny fane-layout
 
 ```
-┌─────────────────────────────────────────────┐
-│ Steg 1 — Velg utgangspunkt                  │
-│                                             │
-│ ✦ Lara foreslår (3-5 kort, prioritert)     │
-│   ─ Kort viser: tittel, hvorfor, type-ikon, │
-│     kritikalitet, nivå, tema som chips      │
-│                                             │
-│ — eller —                                   │
-│                                             │
-│ ✎ Skriv egen aktivitet (link nederst)       │
-└─────────────────────────────────────────────┘
-            ↓ (velger forslag)
-┌─────────────────────────────────────────────┐
-│ Steg 2 — Bekreft og juster (kompakt)        │
-│                                             │
-│ Sammendrag som chips (alt redigerbart):     │
-│ [E-post] [Operasjonelt] [DPA] [Høy] [Åpen]  │
-│ [📅 06.05.2026]                             │
-│                                             │
-│ Tittel: ________________________            │
-│ Beskrivelse / e-post-utkast: __________     │
-│                                             │
-│ (Hvis e-post: knapp "Bytt mal ▾" + last opp)│
-└─────────────────────────────────────────────┘
-            ↓
-┌─────────────────────────────────────────────┐
-│ [Bekreft og registrer →]                    │
-└─────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│  Velg rammeverk: [ Normen ▾ ]   [ Kjør analyse ]   │
+├────────────────────────────────────────────────────┤
+│  Score 64% ▓▓▓▓▓▓░░░  • 8 oppfylt • 3 delvis • 5 mangler │
+├────────────────────────────────────────────────────┤
+│  Mangler (8)                                       │
+│  ─────────────────────────────────────────────     │
+│  ⛔ NOR-3.2  DPA mangler                           │
+│      Lara: Be leverandør om signert DPA            │
+│  ⚠️ NOR-4.1  SOC 2-rapport utløpt                  │
+│      Lara: Etterspør oppdatert rapport             │
+│  ⛔ NOR-5.4  Hendelsesvarsling ikke dokumentert    │
+│      Lara: Be om varslingsrutine                   │
+│  ...                                               │
+├────────────────────────────────────────────────────┤
+│  ✦ Lara                                            │
+│  Skal jeg sette opp oppfølgingsaktiviteter for     │
+│  disse 8 manglene?                                 │
+│                                                    │
+│  [ Ja, sett opp aktiviteter ]   [ Nei, ikke nå ]   │
+└────────────────────────────────────────────────────┘
 ```
 
-Klikk på en chip → liten popover med alternativer (samme som dagens pills, bare flyttet til popover for å spare plass).
+Etter Ja:
+```
+┌────────────────────────────────────────────────────┐
+│  ✦ Lara satte opp 8 aktiviteter                    │
+│  • 5 utført automatisk (e-post sendt, oppgave...)  │
+│  • 3 venter på din bekreftelse  →  [Se aktivitet]  │
+└────────────────────────────────────────────────────┘
+```
 
-## Lara-forslagene (steg 1)
+Hver aktivitet får:
+- type (e-post / oppgave / møte) — utledet fra mangelen
+- nivå, tema, kritikalitet — utledet fra rammeverk + status
+- tittel + beskrivelse — fra `buildProposal()` (gjenbrukes)
+- `linkedGapId` peker til mangelen
+- `actorRole`: "Lara — autonom" eller "Lara — venter på bekreftelse"
 
-Forslagene genereres fra eksisterende kilder — ingen ny backend-logikk:
+## Hva fjernes
 
-- `LARA_EMAIL_SUGGESTIONS` (allerede brukt i dagens dialog)
-- `vendorGuidanceData` → `SuggestedActivity` (allerede støttet via `prefillFromGuidance`)
-- Åpne aktiviteter med forfall (avledet status)
-
-Hvert forslag er forhåndsutfylt: type, nivå, tema, kritikalitet, status, tittel, beskrivelse. Brukeren kan bekrefte direkte eller justere i steg 2.
-
-Hvis ingen forslag finnes (tom state): vis kun "Skriv egen aktivitet" som primær CTA, så flyten degraderes pent.
-
-## "Skriv egen aktivitet"-modus
-
-Samme steg 2-skjema, men chips starter tomme/nøytrale. Lara viser et lite hint over tittelfeltet: *"Skriv tittelen — Lara fyller resten basert på det du skriver"* (ingen ny LLM-kall i denne iterasjonen, bare heuristikk på nøkkelord til type/tema som vi allerede har).
-
-## Hva forsvinner
-
-- Stort 4-kolonners type-grid → flyttes til chip-popover
-- 3-kolonners nivå-pills → chip
-- Tema-row med 7 piller → chip
-- Eget Lara-panel + mal-select + opplastingsknapp som separate seksjoner → samles
-- Stor kalender-knapp → liten dato-chip
-- Stegteller "Steg 1 av 2 — Fyll ut" øverst → erstattes av ny flyt-indikator
+- `DOMAIN_LABELS` og hele domain-grouping
+- "Domain summary chips"-griden (4 farger per domene)
+- `Collapsible`-seksjoner per domene
+- `AgentPlanStrip` (erstattes av enkelt Lara-spørsmål)
+- `InlineAgentProposal` per rad (erstattes av samlet bulk-handling)
+- "Eksporter PDF" knappen (foreløpig — ikke aktuelt for forenklet visning)
 
 ## Hva beholdes
 
-- `VendorActivity`-typen og `onSubmit`-kontrakten (ingen breaking change for `AssetTrustProfile`, `AssetMetrics`, `VendorOverviewTab`)
-- Mal-velger og opplasting (men inni e-post-chip-popoveren)
-- `prefillFromGuidance`-prop (blir bare ett av Lara-forslagene)
-- Validering: tittel + nivå + kritikalitet kreves
+- Rammeverk-velger + "Kjør analyse"-knapp
+- Score-summary (samsvar % + tellere)
+- `buildProposal()`-helperen brukes til å generere aktivitetsforslag
+- Edge function `analyze-vendor-gap` — uendret (returnerer fortsatt med domain-felt, vi bare ignorerer det)
+
+## Lara-bekreftelsesdialog
+
+Bruker eksisterende mønster fra `mem://product/ai-native-trust-philosophy` (3 nivåer):
+
+- **Default per workspace-instilling** bestemmer om aktiviteter blir
+  - *Automatic* → utført uten bekreftelse, vises som logg
+  - *Assisted* → opprettet med status "Venter på bekreftelse" i aktivitetsloggen
+  - *Manual* → forslag — bruker må åpne hver enkelt og lagre
+
+I første iterasjon: les `aiAutonomy` fra brukers settings hvis tilgjengelig, fallback til *Assisted* (sikrere default). Vis liten chip i Lara-spørsmålet: *"Modus: Assistert — du bekrefter hver aktivitet"* med lenke til settings.
 
 ## Tekniske detaljer
 
 **Filer som endres**
-- `src/components/asset-profile/RegisterActivityDialog.tsx` — full rewrite, samme eksport og props
-- Ingen endringer i kallesteder
+- `src/components/asset-profile/tabs/VendorGapAnalysisTab.tsx` — refaktoreres (≈ halvering i linjer)
 
-**Nye/utvidede helpers**
-- `src/utils/laraActivitySuggestions.ts` (ny) — slår sammen `LARA_EMAIL_SUGGESTIONS` + `SuggestedActivity` til en felles `LaraActivitySuggestion`-type med felles felter (icon, theme, level, criticality, title, body, reasonNb/En)
-- Heuristikk for "skriv egen": en liten `inferFromTitle(title): Partial<LaraActivitySuggestion>` som matcher på nøkkelord (DPA, SLA, hendelse, revisjon, e-post, telefon)
+**Filer som potensielt slettes** (etter at vi har bekreftet ingen andre brukere)
+- `src/components/asset-profile/gap/AgentPlanStrip.tsx`
+- `src/components/asset-profile/gap/InlineAgentProposal.tsx` — *behold filen* hvis den brukes andre steder; vi importerer kun `buildProposal`
 
-**Komponentstruktur internt**
-- `<SuggestionCard>` — kort i steg 1
-- `<ChipPopover>` — gjenbrukbar for type/nivå/tema/kritikalitet/status/dato
-- `<EmailComposer>` — kun synlig når type=email; inneholder mal-select + opplasting
+**Ny komponent (lokal i fanen, eller egen fil hvis > 80 linjer)**
+- `<LaraGapFollowupCard>` — viser spørsmålet, håndterer Ja/Nei, kaller en `createActivitiesFromGaps(gaps, mode)`-funksjon
 
-**Ingen DB- eller edge-endringer.** Ingen nye tokens — bruker eksisterende `primary`, `muted`, status-farger og `bg-warning`/`bg-success`/`bg-destructive` per Core-regelen om kritikalitet/risiko.
+**Aktivitetsoppretting**
+- Reuses `VendorActivity`-typen
+- Skriver via samme datalag som `RegisterActivityDialog.onSubmit` — dvs. det callback-mønsteret som allerede finnes i `AssetTrustProfile.tsx` (følger samme path som dagens `onSubmit`).
+- Ny prop på `VendorGapAnalysisTab`: `onCreateActivities?: (activities: VendorActivity[]) => void` — kalleren (`AssetTrustProfile.tsx`) videresender til samme handler som registreringsdialogen.
 
-**i18n** — alle nye strenger lagt inn med eksisterende inline `isNb`-mønster (samme som dagens fil bruker), så vi ikke introduserer en ny pattern.
+**Mapping mangel → aktivitet**
+```ts
+function gapToActivity(gap, assetName, isNb): VendorActivity {
+  const proposal = buildProposal(gap, assetName, isNb);
+  const type = proposal.kind.includes("document") || proposal.kind === "find_contact"
+    ? "email"
+    : proposal.kind === "draft_policy" ? "manual" : "manual";
+  return {
+    id: `lara-gap-${gap.requirement_id}-${Date.now()}`,
+    type,
+    phase: "ongoing",
+    titleNb: proposal.titleNb, titleEn: proposal.titleEn,
+    descriptionNb: proposal.bodyNb, descriptionEn: proposal.bodyEn,
+    outcomeStatus: mode === "automatic" ? "in_progress" : "open",
+    outcome*: ...,
+    date: new Date(),
+    actor: "Lara",
+    actorRole: mode === "automatic" ? "Lara — autonom" : "Lara — venter på bekreftelse",
+    isManual: false,
+    linkedGapId: gap.requirement_id,
+    criticality: gap.status === "missing" ? "hoy" : "medium",
+    level: "operasjonelt",
+    theme: themeFromRequirement(gap),
+    createdAt: new Date(),
+  };
+}
+```
+
+**Toast etter opprettelse** — "Lara satte opp N aktiviteter" med link til Aktivitet-fanen.
+
+**i18n** — fortsetter med inline `isNb`-mønster (samme som dagens fil).
 
 ## Out of scope
 
-- Ekte LLM-kall for å foreslå (bruker eksisterende kuraterte forslag i denne iterasjonen)
-- Trust Score / gap-impact preview
-- Naturlig språk-felt med live AI-parsing
-- Persistens av brukerens "siste valg" som default
+- PDF-eksport (kommer tilbake senere)
+- Endre edge function eller datamodell
+- Endre andre Gap-komponenter (`GapAnalysisVendorRow`, `BulkGapAnalysisDialog`, `MSPGapAnalysisStep`)
+- Domeneinndeling andre steder i appen (kun fjernet i denne fanen)
