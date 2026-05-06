@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CheckCircle2, AlertTriangle, XCircle, Sparkles, Loader2, FileText,
-  ArrowRight, Check, X,
+  ArrowRight, Check, X, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -60,6 +60,7 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
   const [framework, setFramework] = useState<string>("normen");
   const [followupState, setFollowupState] = useState<FollowupState>("asking");
   const [createdSummary, setCreatedSummary] = useState<{ auto: number; pending: number } | null>(null);
+  const [showGapList, setShowGapList] = useState(false);
 
   const availableFrameworks = useMemo(
     () => frameworks.filter((f) => SUPPORTED_FRAMEWORKS.includes(f.id)),
@@ -95,6 +96,7 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
       queryClient.invalidateQueries({ queryKey: ["vendor-gap", assetId, framework] });
       setFollowupState("asking");
       setCreatedSummary(null);
+      setShowGapList(false);
       toast.success(isNb ? "Gap-analyse fullført" : "Gap analysis complete");
     },
     onError: (e: any) => {
@@ -145,7 +147,7 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
             <p className="text-xs font-medium text-muted-foreground uppercase mb-1">
               {isNb ? "Velg rammeverk" : "Choose framework"}
             </p>
-            <Select value={framework} onValueChange={(v) => { setFramework(v); setFollowupState("asking"); setCreatedSummary(null); }}>
+            <Select value={framework} onValueChange={(v) => { setFramework(v); setFollowupState("asking"); setCreatedSummary(null); setShowGapList(false); }}>
               <SelectTrigger className="w-full sm:w-[320px]">
                 <SelectValue />
               </SelectTrigger>
@@ -223,23 +225,79 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
             </CardContent>
           </Card>
 
-          {/* Flat gap list */}
-          <Card>
-            <CardContent className="p-0">
-              <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-                <h3 className="text-sm font-semibold">
-                  {isNb ? "Mangler" : "Gaps"}
-                  <span className="ml-2 text-muted-foreground font-normal">({gaps.length})</span>
-                </h3>
-                {gaps.length === 0 && (
-                  <Badge variant="outline" className="gap-1 text-success border-success/30">
-                    <CheckCircle2 className="h-3 w-3" />
-                    {isNb ? "Ingen mangler" : "No gaps"}
-                  </Badge>
-                )}
-              </div>
+          {/* Lara presents the gaps + asks the question */}
+          {gaps.length > 0 && followupState === "asking" && (
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">
+                      {isNb
+                        ? `Jeg fant ${gaps.length} ${gaps.length === 1 ? "mangel" : "mangler"} hos ${assetName} mot ${availableFrameworks.find(f => f.id === framework)?.name || framework}.`
+                        : `I found ${gaps.length} gap${gaps.length === 1 ? "" : "s"} for ${assetName} against ${availableFrameworks.find(f => f.id === framework)?.name || framework}.`}
+                    </p>
+                    <p className="text-sm text-foreground/80 mt-2">
+                      {isNb
+                        ? "Skal jeg sette opp oppfølgingsaktiviteter for disse?"
+                        : "Should I set up follow-up activities for these?"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      {isNb
+                        ? "Modus: Assistert — jeg utfører enkle handlinger autonomt og ber om bekreftelse på de viktigste."
+                        : "Mode: Assisted — I'll act autonomously on simple items and ask for confirmation on the rest."}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      <Button onClick={handleConfirm} size="sm" className="gap-1.5">
+                        <Check className="h-3.5 w-3.5" />
+                        {isNb ? "Ja, sett opp aktiviteter" : "Yes, set up activities"}
+                      </Button>
+                      <Button onClick={handleDecline} size="sm" variant="outline" className="gap-1.5">
+                        <X className="h-3.5 w-3.5" />
+                        {isNb ? "Nei, ikke nå" : "Not now"}
+                      </Button>
+                      <Button
+                        onClick={() => setShowGapList((s) => !s)}
+                        size="sm"
+                        variant="ghost"
+                        className="gap-1.5 ml-auto"
+                      >
+                        {showGapList ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                        {showGapList
+                          ? (isNb ? "Skjul mangler" : "Hide gaps")
+                          : (isNb ? `Vis manglene (${gaps.length})` : `Show gaps (${gaps.length})`)}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-              {gaps.length > 0 && (
+          {/* No gaps state */}
+          {gaps.length === 0 && (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Badge variant="outline" className="gap-1 text-success border-success/30">
+                  <CheckCircle2 className="h-3 w-3" />
+                  {isNb ? "Ingen mangler" : "No gaps"}
+                </Badge>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Gap list — only when user opts in */}
+          {gaps.length > 0 && showGapList && (
+            <Card>
+              <CardContent className="p-0">
+                <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">
+                    {isNb ? "Mangler" : "Gaps"}
+                    <span className="ml-2 text-muted-foreground font-normal">({gaps.length})</span>
+                  </h3>
+                </div>
                 <div className="divide-y divide-border">
                   {gaps.map((gap) => {
                     const meta = STATUS_META[gap.status as "partial" | "missing"];
@@ -278,41 +336,6 @@ export function VendorGapAnalysisTab({ assetId, assetName }: VendorGapAnalysisTa
                       </div>
                     );
                   })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Lara follow-up question */}
-          {gaps.length > 0 && followupState === "asking" && (
-            <Card className="border-primary/30 bg-primary/5">
-              <CardContent className="p-5">
-                <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">
-                      {isNb
-                        ? `Skal jeg sette opp oppfølgingsaktiviteter for disse ${gaps.length} manglene?`
-                        : `Should I set up follow-up activities for these ${gaps.length} gaps?`}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {isNb
-                        ? "Modus: Assistert — jeg utfører enkle handlinger autonomt og ber om bekreftelse på de viktigste."
-                        : "Mode: Assisted — I'll act autonomously on simple items and ask for confirmation on the rest."}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      <Button onClick={handleConfirm} size="sm" className="gap-1.5">
-                        <Check className="h-3.5 w-3.5" />
-                        {isNb ? "Ja, sett opp aktiviteter" : "Yes, set up activities"}
-                      </Button>
-                      <Button onClick={handleDecline} size="sm" variant="outline" className="gap-1.5">
-                        <X className="h-3.5 w-3.5" />
-                        {isNb ? "Nei, ikke nå" : "Not now"}
-                      </Button>
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
