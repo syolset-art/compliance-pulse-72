@@ -947,13 +947,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     {/* Badge tiers */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Free Badge */}
-                      <Card className="p-5 border-primary ring-1 ring-primary/20 space-y-4">
+                      <Card
+                        onClick={() => setSelectedBadgeTier("free")}
+                        className={`p-5 space-y-4 cursor-pointer transition-all ${selectedBadgeTier === "free" ? "border-primary ring-2 ring-primary/30 shadow-md" : "hover:border-primary/40"}`}
+                      >
                         <div className="flex items-center justify-between">
                           <div>
                             <h3 className="text-base font-semibold text-foreground">Free Badge</h3>
                             <p className="text-xs text-muted-foreground">{isNb ? "Inkludert i ditt abonnement" : "Included in your plan"}</p>
                           </div>
-                          <Badge variant="outline" className="text-[13px] border-primary/40 text-primary">Current</Badge>
+                          {selectedBadgeTier === "free" ? (
+                            <Badge variant="default" className="text-[13px] gap-1">
+                              <CheckCircle2 className="h-3 w-3" />
+                              {isNb ? "Valgt" : "Selected"}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[13px]">{isNb ? "Velg" : "Select"}</Badge>
+                          )}
                         </div>
                         <div className="flex justify-center py-5">
                           <span
