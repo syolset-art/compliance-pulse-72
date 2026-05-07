@@ -8,6 +8,7 @@ import {
   ChevronDown, ChevronUp, Sparkles, ShieldCheck, Loader2, Users,
 } from "lucide-react";
 import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
+import { TasksFilterBar } from "@/components/tasks/TasksFilterBar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -395,79 +396,22 @@ export default function Tasks() {
           })()}
 
           {/* Filters */}
-          <div className="flex items-center gap-2 flex-wrap mb-6">
-            {(["alle", "mine"] as ViewFilter[]).map((v) => (
-              <button
-                key={v}
-                onClick={() => setViewFilter(v)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  viewFilter === v
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {v === "alle" ? `Alle (${counts.alle})` : `Mine (${counts.mine})`}
-              </button>
-            ))}
-
-            <div className="w-px h-4 bg-border mx-1" />
-
-            {(["alle", "system", "leverandør", "behandling"] as CategoryFilter[]).map((c) => {
-              const catConf = c !== "alle" ? categoryConfig[c] : null;
-              const CatIcon = catConf?.icon;
-              const count = c === "alle" ? null : counts[c as keyof typeof counts];
-              return (
-                <button
-                  key={c}
-                  onClick={() => setCategoryFilter(c)}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors flex items-center gap-1.5 ${
-                    categoryFilter === c
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {CatIcon && <CatIcon className="h-3 w-3" />}
-                  {catConf?.label || "Alle typer"}
-                  {count !== null && ` (${count})`}
-                </button>
-              );
-            })}
-
-            <div className="w-px h-4 bg-border mx-1" />
-
-            {(["alle", "høy", "middels", "lav"] as (TaskPriority | "alle")[]).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPriorityFilter(p)}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  priorityFilter === p
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {p === "alle" ? "Alle prioriteter" : priorityConfig[p].label}
-              </button>
-            ))}
-
-            {(viewFilter !== "alle" || categoryFilter !== "alle" || priorityFilter !== "alle") && (
-              <button
-                onClick={() => {
-                  setViewFilter("alle");
-                  setCategoryFilter("alle");
-                  setPriorityFilter("alle");
-                }}
-                className="rounded-full px-2 py-1 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
-              >
-                <X className="w-3 h-3" />
-                Nullstill
-              </button>
-            )}
-          </div>
-
-          {/* Result count */}
-          <p className="text-xs text-muted-foreground mb-4">
-            Viser {filteredTasks.length} av {allTasks.length} oppgaver
-          </p>
+          <TasksFilterBar
+            viewFilter={viewFilter}
+            categoryFilter={categoryFilter}
+            priorityFilter={priorityFilter}
+            counts={counts}
+            resultCount={filteredTasks.length}
+            totalCount={allTasks.length}
+            onViewChange={setViewFilter}
+            onCategoryChange={setCategoryFilter}
+            onPriorityChange={setPriorityFilter}
+            onReset={() => {
+              setViewFilter("alle");
+              setCategoryFilter("alle");
+              setPriorityFilter("alle");
+            }}
+          />
 
           {/* Task list */}
           <div className="space-y-3">
