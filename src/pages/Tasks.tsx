@@ -8,6 +8,7 @@ import {
   ChevronDown, ChevronUp, Sparkles, ShieldCheck, Loader2, Users,
 } from "lucide-react";
 import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog";
+import { TasksFilterBar } from "@/components/tasks/TasksFilterBar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
