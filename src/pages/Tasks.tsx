@@ -413,8 +413,17 @@ export default function Tasks() {
             }}
           />
 
+          {/* Column header */}
+          <div className="hidden md:grid grid-cols-[140px_1fr_200px_160px_24px] gap-4 px-4 py-2 mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground border-b border-border">
+            <span>Status</span>
+            <span>Oppgave</span>
+            <span>Arbeidsområde / Eiendel</span>
+            <span>Ansvarlig</span>
+            <span />
+          </div>
+
           {/* Task list */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             {filteredTasks.map((task) => {
               const prio = priorityConfig[task.priority];
               const stat = statusConfig[task.status];
@@ -436,70 +445,83 @@ export default function Tasks() {
                     className="p-4 cursor-pointer"
                     onClick={() => setExpandedTask(isExpanded ? null : task.id)}
                   >
-                    <div className="flex items-start gap-4">
-                      {/* Category icon */}
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <CatIcon className="h-4 w-4 text-muted-foreground" />
+                    <div className="grid grid-cols-1 md:grid-cols-[140px_1fr_200px_160px_24px] gap-4 items-start">
+                      {/* Col 1: Status */}
+                      <div className="flex flex-col gap-1.5">
+                        <Badge variant="outline" className={`text-[11px] w-fit ${stat.className}`}>
+                          {stat.label}
+                        </Badge>
+                        <Badge variant="outline" className={`text-[11px] w-fit ${prio.className}`}>
+                          {prio.label}
+                        </Badge>
+                        {overdue && (
+                          <Badge variant="destructive" className="text-[11px] w-fit gap-1">
+                            <AlertTriangle className="h-2.5 w-2.5" />
+                            Forfalt
+                          </Badge>
+                        )}
                       </div>
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
+                      {/* Col 2: Oppgave */}
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <Badge variant="outline" className={`text-[13px] ${prio.className}`}>
-                            {prio.label}
-                          </Badge>
-                          <Badge variant="outline" className={`text-[13px] ${stat.className}`}>
-                            {stat.label}
-                          </Badge>
-                          {overdue && (
-                            <Badge variant="destructive" className="text-[13px] gap-1">
-                              <AlertTriangle className="h-2.5 w-2.5" />
-                              Forfalt
-                            </Badge>
-                          )}
                           <AgentCapabilityBadge capability={taskCapability(task)} size="sm" />
                           {draftsReady[task.id] && (
-                            <Badge variant="outline" className="text-[13px] gap-1 bg-status-closed/10 text-status-closed border-status-closed/30">
+                            <Badge variant="outline" className="text-[11px] gap-1 bg-status-closed/10 text-status-closed border-status-closed/30">
                               <CheckCircle2 className="h-2.5 w-2.5" />
                               Utkast klart
                             </Badge>
                           )}
                         </div>
-
                         <h3 className="text-sm font-semibold text-foreground mb-1">{task.title}</h3>
                         <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
                           {task.description}
                         </p>
-
-                        {/* Meta row */}
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-                          <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
-                            {task.assignee}
-                          </span>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                           <span className={`flex items-center gap-1 ${overdue ? "text-destructive" : ""}`}>
                             <Calendar className="h-3 w-3" />
                             {formatDate(task.dueDate)}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <CatIcon className="h-3 w-3" />
-                            {task.linkedEntity}
                           </span>
                           <span className="flex items-center gap-1 text-primary/70">
                             <Eye className="h-3 w-3" />
                             {task.source}
                           </span>
-                          {(task as any).collaborators?.length > 0 && (
-                            <span className="flex items-center gap-1">
-                              <Users className="h-3 w-3" />
-                              +{(task as any).collaborators.length} deltaker{(task as any).collaborators.length > 1 ? "e" : ""}
-                            </span>
-                          )}
                         </div>
                       </div>
 
-                      {/* Expand indicator */}
-                      <div className="shrink-0 text-muted-foreground">
+                      {/* Col 3: Arbeidsområde / Eiendel */}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted">
+                            <CatIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-foreground truncate">{task.linkedEntity}</p>
+                            <p className="text-[11px] text-muted-foreground">{cat.label}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Col 4: Ansvarlig */}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[11px] font-semibold">
+                            {task.assignee.split(" ").map((n) => n[0]).slice(0, 2).join("")}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm text-foreground truncate">{task.assignee}</p>
+                            {(task as any).collaborators?.length > 0 && (
+                              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                +{(task as any).collaborators.length}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Col 5: Expand */}
+                      <div className="shrink-0 text-muted-foreground flex justify-end pt-1">
                         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                       </div>
                     </div>
