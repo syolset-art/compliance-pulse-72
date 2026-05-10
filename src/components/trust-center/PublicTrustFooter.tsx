@@ -15,7 +15,7 @@ export default function PublicTrustFooter() {
                 href="https://mynder.no"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-semibold text-foreground hover:text-primary transition-colors"
+                className="text-sm font-semibold text-foreground hover:text-primary dark:hover:text-accent transition-colors"
               >
                 Mynder.no
               </a>
@@ -25,13 +25,13 @@ export default function PublicTrustFooter() {
             </div>
           </div>
           <nav className="flex items-center gap-5 text-xs text-muted-foreground">
-            <a href="https://mynder.no/personvern" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+            <a href="https://mynder.no/personvern" target="_blank" rel="noopener noreferrer" className="hover:text-primary dark:hover:text-accent transition-colors">
               Personvern
             </a>
-            <a href="https://mynder.no/vilkar" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+            <a href="https://mynder.no/vilkar" target="_blank" rel="noopener noreferrer" className="hover:text-primary dark:hover:text-accent transition-colors">
               Vilkår
             </a>
-            <a href="https://mynder.no/kontakt" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+            <a href="https://mynder.no/kontakt" target="_blank" rel="noopener noreferrer" className="hover:text-primary dark:hover:text-accent transition-colors">
               Kontakt
             </a>
           </nav>
@@ -44,7 +44,7 @@ export default function PublicTrustFooter() {
               Verifisert av Mynder
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Lock className="h-3.5 w-3.5 text-primary" />
+              <Lock className="h-3.5 w-3.5 text-primary dark:text-accent" />
               Kryptert og signert av eier
             </span>
           </div>
