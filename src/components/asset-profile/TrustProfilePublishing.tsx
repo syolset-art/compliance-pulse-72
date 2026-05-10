@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, Save, Lock, Globe, Link2, Code2, Copy, Check, Share2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { buildPublicTrustUrl } from "@/lib/publicTrustUrl";
+import { buildPublicTrustUrl, buildSlug } from "@/lib/publicTrustUrl";
 
 interface TrustProfilePublishingProps {
   assetId: string;
@@ -48,20 +48,14 @@ export const TrustProfilePublishing = ({
     setSelectedCustomers(initialCustomers || []);
   }, [initialMode, initialCustomers]);
 
-  // TODO prod: bytt til slug-basert ruting når public router støtter det.
-  // Slug-logikken beholdes som dokumentasjon på fremtidig URL-format.
-  const slug = useMemo(() => {
-    const base = assetName
-      .toLowerCase()
-      .replace(/[^a-z0-9æøå\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .slice(0, 40);
-    const suffix = orgNumber ? `-${orgNumber.replace(/\s/g, "").slice(-4)}` : "";
-    return `${base}${suffix}`;
-  }, [assetName, orgNumber]);
+  // Public URL: trust.mynder.no/{slug} — slug bygges fra navn + unik kode (siste 4 av org.nr,
+  // eller assetId-prefix som fallback) for å unngå kollisjon mellom like navn.
+  const slug = useMemo(
+    () => buildSlug(assetName, orgNumber || assetId.slice(0, 4)),
+    [assetName, orgNumber, assetId]
+  );
 
-  const publicFullUrl = buildPublicTrustUrl(assetId);
+  const publicFullUrl = buildPublicTrustUrl(slug);
   // Display-versjon uten protokoll for renere visning i UI
   const publicUrl = publicFullUrl.replace(/^https?:\/\//, "");
 
@@ -109,9 +103,9 @@ export const TrustProfilePublishing = ({
   };
 
   const badgeSnippets = {
-    shield: `<a href="${buildPublicTrustUrl(assetId, "badge-shield")}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid #e2e2e2;font-family:system-ui,sans-serif;font-size:13px;color:#333;text-decoration:none;background:#fff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5A3184" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified by Mynder</a>`,
-    minimal: `<a href="${buildPublicTrustUrl(assetId, "badge-minimal")}" target="_blank" rel="noopener" style="font-family:system-ui,sans-serif;font-size:12px;color:#666;text-decoration:none;">🛡️ Trust Profile on Mynder</a>`,
-    banner: `<a href="${buildPublicTrustUrl(assetId, "badge-banner")}" target="_blank" rel="noopener" style="display:block;padding:12px 20px;border-radius:10px;background:linear-gradient(135deg,#5A3184 0%,#7c4daa 100%);font-family:system-ui,sans-serif;font-size:14px;color:#fff;text-decoration:none;text-align:center;">🔒 View our Trust Profile on Mynder</a>`,
+    shield: `<a href="${buildPublicTrustUrl(slug, "badge-shield")}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid #e2e2e2;font-family:system-ui,sans-serif;font-size:13px;color:#333;text-decoration:none;background:#fff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5A3184" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified by Mynder</a>`,
+    minimal: `<a href="${buildPublicTrustUrl(slug, "badge-minimal")}" target="_blank" rel="noopener" style="font-family:system-ui,sans-serif;font-size:12px;color:#666;text-decoration:none;">🛡️ Trust Profile on Mynder</a>`,
+    banner: `<a href="${buildPublicTrustUrl(slug, "badge-banner")}" target="_blank" rel="noopener" style="display:block;padding:12px 20px;border-radius:10px;background:linear-gradient(135deg,#5A3184 0%,#7c4daa 100%);font-family:system-ui,sans-serif;font-size:14px;color:#fff;text-decoration:none;text-align:center;">🔒 View our Trust Profile on Mynder</a>`,
   };
 
   const handleCopyBadge = (type: string) => {
