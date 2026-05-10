@@ -1317,16 +1317,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           ) : (
                             <p className="text-sm text-muted-foreground italic mt-0.5">{isNb ? "Mangler kort beskrivelse" : "Missing short description"}</p>
                           )}
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted-foreground mt-2">
-                            <span className="inline-flex items-center gap-1 text-success font-medium">
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                              {isNb ? "Kryptografisk verifiserbar" : "Cryptographically verifiable"}
-                            </span>
-                            <span className="text-muted-foreground/50">·</span>
-                            <span>{isNb ? "sist signert 3. mai 2026" : "last signed May 3, 2026"}</span>
-                            <span className="text-muted-foreground/50">·</span>
-                            <button type="button" onClick={() => setProofDialogOpen(true)} className="text-primary hover:underline">{isNb ? "se bevis" : "view proof"}</button>
-                          </div>
                         </div>
                       </div>
 
