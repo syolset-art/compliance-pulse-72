@@ -254,7 +254,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     .slice(0, 40);
   const orgSuffix = companyProfile?.org_number ? `-${companyProfile.org_number.replace(/\s/g, "").slice(-4)}` : "";
   // TODO prod: bytt til slug-basert public ruting (`/t/${slug}${orgSuffix}`) når støttet
-  const publicFullUrl = buildPublicTrustUrl(assetId);
+  const publicFullUrl = buildPublicTrustUrl(asset.id);
   const publicUrl = publicFullUrl.replace(/^https?:\/\//, "");
 
   const isPublished = (asset as any).publish_mode && (asset as any).publish_mode !== "private";
