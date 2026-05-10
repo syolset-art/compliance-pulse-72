@@ -76,22 +76,6 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
               </div>
               <span className="text-sm font-semibold text-foreground">Mynder Trust Engine</span>
             </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="outline" className="text-xs gap-1.5 border-success/30 text-success bg-success/5 cursor-help">
-                    <ShieldCheck className="h-3 w-3" />
-                    <span className="hidden sm:inline">{isNb ? "Verifisert og kryptert av eier" : "Verified & encrypted by owner"}</span>
-                    <span className="sm:hidden">{isNb ? "Verifisert" : "Verified"}</span>
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-xs">
-                  {isNb
-                    ? "Innholdet er signert og bekreftet av profileieren via Mynder Trust Engine."
-                    : "Content is signed and confirmed by the profile owner via Mynder Trust Engine."}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
         </div>
       </header>
