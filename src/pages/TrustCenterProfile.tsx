@@ -79,6 +79,7 @@ import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
+import { buildPublicTrustUrl } from "@/lib/publicTrustUrl";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
@@ -252,12 +253,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     .replace(/-+/g, "-")
     .slice(0, 40);
   const orgSuffix = companyProfile?.org_number ? `-${companyProfile.org_number.replace(/\s/g, "").slice(-4)}` : "";
-  const publicUrl = `trust.mynder.com/${slug}${orgSuffix}`;
+  // TODO prod: bytt til slug-basert public ruting (`/t/${slug}${orgSuffix}`) når støttet
+  const publicFullUrl = buildPublicTrustUrl(assetId);
+  const publicUrl = publicFullUrl.replace(/^https?:\/\//, "");
 
   const isPublished = (asset as any).publish_mode && (asset as any).publish_mode !== "private";
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`https://${publicUrl}`);
+    navigator.clipboard.writeText(publicFullUrl);
     setCopiedLink(true);
     toast.success(isNb ? "Lenke kopiert" : "Link copied");
     setTimeout(() => setCopiedLink(false), 2000);
