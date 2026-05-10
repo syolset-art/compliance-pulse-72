@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowLeft, Shield, FileText, MessageSquare, BarChart3, Lock,
+  ArrowLeft, Shield, FileText, MessageSquare, BarChart3, Lock, ChevronDown, Info, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import TrustCenterProfile from "@/pages/TrustCenterProfile";
 import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
 
