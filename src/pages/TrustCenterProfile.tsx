@@ -1248,10 +1248,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 <div className="flex items-stretch">
                   <div className="flex-1 min-w-0">
                 {/* Powered by header */}
-                <div className="flex items-center justify-between px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Shield className="h-3.5 w-3.5 text-primary" />
-                    <span className="font-medium">Powered by Mynder Trust Center</span>
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Shield className="h-3.5 w-3.5 text-primary" />
+                      <span className="font-medium">Powered by Mynder Trust Center</span>
+                    </div>
+                    <span className="text-muted-foreground/40 hidden sm:inline">·</span>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 text-success font-medium">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        {isNb ? "Kryptografisk verifiserbar" : "Cryptographically verifiable"}
+                      </span>
+                      <span className="text-muted-foreground/50">·</span>
+                      <span>{isNb ? "sist signert 3. mai 2026" : "last signed May 3, 2026"}</span>
+                      <span className="text-muted-foreground/50">·</span>
+                      <button type="button" onClick={() => setProofDialogOpen(true)} className="text-primary hover:underline">{isNb ? "se bevis" : "view proof"}</button>
+                    </div>
                   </div>
                   {isPublished ? (
                     <a
