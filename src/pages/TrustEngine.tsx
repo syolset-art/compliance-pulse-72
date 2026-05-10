@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Shield, Globe, Building2, ArrowRight, Loader2, User } from "lucide-react";
+import { Search, Shield, ShieldCheck, Lock, CheckCircle2, Globe, Building2, ArrowRight, Loader2, User } from "lucide-react";
+import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
 
 export default function TrustEngine() {
   const navigate = useNavigate();
@@ -106,6 +107,22 @@ export default function TrustEngine() {
               Søk
             </Button>
           </form>
+
+          {/* Trust assurance row */}
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-8 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-success" />
+              Verifiserte profiler
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Lock className="h-4 w-4 text-primary" />
+              Kryptert og signert av eier
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <CheckCircle2 className="h-4 w-4 text-primary" />
+              Frivillig publisert av leverandøren
+            </span>
+          </div>
         </div>
       </section>
 
@@ -167,8 +184,12 @@ export default function TrustEngine() {
             </div>
           ) : results && results.length > 0 ? (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground mb-6">
+              <p className="text-sm text-muted-foreground mb-2">
                 {results.length} organisasjon{results.length !== 1 ? "er" : ""} funnet
+              </p>
+              <p className="text-xs text-muted-foreground/80 mb-6 inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-success" />
+                Alle organisasjoner her har selv valgt å publisere sin Trust Profile. Innholdet er kryptert og verifisert.
               </p>
               {results.map((asset) => (
                 <Card
@@ -183,15 +204,9 @@ export default function TrustEngine() {
                         <Building2 className="h-6 w-6 text-primary" />
                       </div>
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-semibold text-foreground truncate">
-                            {asset.name}
-                          </h3>
-                          <Badge variant="outline" className="text-[10px] gap-1 border-success/30 text-success bg-success/5">
-                            <Shield className="h-2.5 w-2.5" />
-                            Publisert
-                          </Badge>
-                        </div>
+                        <h3 className="text-lg font-semibold text-foreground truncate">
+                          {asset.name}
+                        </h3>
                         <p className="text-sm text-muted-foreground truncate">
                           {asset.description || asset.category || "Organisasjon"}
                         </p>
@@ -218,6 +233,8 @@ export default function TrustEngine() {
           ) : null}
         </div>
       </section>
+
+      <PublicTrustFooter />
     </div>
   );
 }
