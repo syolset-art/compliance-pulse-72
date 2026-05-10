@@ -47,6 +47,8 @@ export const TrustProfilePublishing = ({
     setSelectedCustomers(initialCustomers || []);
   }, [initialMode, initialCustomers]);
 
+  // TODO prod: bytt til slug-basert ruting når public router støtter det.
+  // Slug-logikken beholdes som dokumentasjon på fremtidig URL-format.
   const slug = useMemo(() => {
     const base = assetName
       .toLowerCase()
@@ -58,7 +60,9 @@ export const TrustProfilePublishing = ({
     return `${base}${suffix}`;
   }, [assetName, orgNumber]);
 
-  const publicUrl = `trust.mynder.com/${slug}`;
+  const publicFullUrl = buildPublicTrustUrl(assetId);
+  // Display-versjon uten protokoll for renere visning i UI
+  const publicUrl = publicFullUrl.replace(/^https?:\/\//, "");
 
   const { data: customers = [] } = useQuery({
     queryKey: ["publishing-customers"],
@@ -97,16 +101,16 @@ export const TrustProfilePublishing = ({
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`https://${publicUrl}`);
+    navigator.clipboard.writeText(publicFullUrl);
     setCopiedLink(true);
     toast.success(isNb ? "Lenke kopiert" : "Link copied");
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
   const badgeSnippets = {
-    shield: `<a href="https://${publicUrl}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid #e2e2e2;font-family:system-ui,sans-serif;font-size:13px;color:#333;text-decoration:none;background:#fff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5A3184" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified by Mynder</a>`,
-    minimal: `<a href="https://${publicUrl}" target="_blank" rel="noopener" style="font-family:system-ui,sans-serif;font-size:12px;color:#666;text-decoration:none;">🛡️ Trust Profile on Mynder</a>`,
-    banner: `<a href="https://${publicUrl}" target="_blank" rel="noopener" style="display:block;padding:12px 20px;border-radius:10px;background:linear-gradient(135deg,#5A3184 0%,#7c4daa 100%);font-family:system-ui,sans-serif;font-size:14px;color:#fff;text-decoration:none;text-align:center;">🔒 View our Trust Profile on Mynder</a>`,
+    shield: `<a href="${buildPublicTrustUrl(assetId, "badge-shield")}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid #e2e2e2;font-family:system-ui,sans-serif;font-size:13px;color:#333;text-decoration:none;background:#fff;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5A3184" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified by Mynder</a>`,
+    minimal: `<a href="${buildPublicTrustUrl(assetId, "badge-minimal")}" target="_blank" rel="noopener" style="font-family:system-ui,sans-serif;font-size:12px;color:#666;text-decoration:none;">🛡️ Trust Profile on Mynder</a>`,
+    banner: `<a href="${buildPublicTrustUrl(assetId, "badge-banner")}" target="_blank" rel="noopener" style="display:block;padding:12px 20px;border-radius:10px;background:linear-gradient(135deg,#5A3184 0%,#7c4daa 100%);font-family:system-ui,sans-serif;font-size:14px;color:#fff;text-decoration:none;text-align:center;">🔒 View our Trust Profile on Mynder</a>`,
   };
 
   const handleCopyBadge = (type: string) => {
