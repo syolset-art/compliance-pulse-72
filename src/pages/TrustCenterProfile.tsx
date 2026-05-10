@@ -1776,6 +1776,32 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
       </Dialog>
 
       {/* Publish Trust Center Dialog */}
+      {/* Unpublish confirmation */}
+      <Dialog open={unpublishConfirmOpen} onOpenChange={setUnpublishConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-destructive" />
+              {isNb ? "Fjern publisering?" : "Unpublish profile?"}
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              {isNb
+                ? "Trust Profilen blir privat og fjernes fra Mynder Trust Engine. Lenken slutter å virke for kunder og partnere. Du kan publisere på nytt når som helst."
+                : "Your Trust Profile will become private and disappear from Mynder Trust Engine. The link will stop working for customers and partners. You can republish at any time."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setUnpublishConfirmOpen(false)} disabled={isUnpublishing}>
+              {isNb ? "Avbryt" : "Cancel"}
+            </Button>
+            <Button variant="destructive" onClick={handleUnpublish} disabled={isUnpublishing} className="gap-2">
+              <Lock className="h-4 w-4" />
+              {isUnpublishing ? (isNb ? "Fjerner…" : "Unpublishing…") : (isNb ? "Fjern publisering" : "Unpublish")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={publishDialogOpen} onOpenChange={(open) => {
         if (!isPublishing) {
           setPublishDialogOpen(open);
