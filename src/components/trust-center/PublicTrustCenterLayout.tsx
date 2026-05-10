@@ -58,8 +58,8 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Public-view context banner */}
-      <div className="bg-primary/5 border-b border-primary/15">
-        <div className="container max-w-6xl mx-auto px-6 py-2 flex items-center gap-2 text-xs text-primary">
+      <div className="bg-primary/5 dark:bg-accent/10 border-b border-primary/15 dark:border-accent/30">
+        <div className="container max-w-6xl mx-auto px-6 py-2 flex items-center gap-2 text-xs text-primary dark:text-accent">
           <Eye className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate">
             {isNb
@@ -106,7 +106,7 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Badge variant="outline" className="hidden md:inline-flex text-xs gap-1.5 border-primary/30 text-primary">
+            <Badge variant="outline" className="hidden md:inline-flex text-xs gap-1.5 border-primary/30 text-primary dark:border-accent/40 dark:text-accent">
               <Globe className="h-3 w-3" />
               Open Database
             </Badge>
@@ -132,7 +132,7 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
                       onClick={() => handleSelect(item.key)}
                       className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-colors ${
                         isActive
-                          ? "bg-primary/10 text-primary font-medium"
+                          ? "bg-primary/10 text-primary font-medium dark:bg-accent/15 dark:text-accent"
                           : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                       }`}
                     >
@@ -145,7 +145,7 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
 
               <div className="mt-6 px-3 space-y-2">
                 <div className="flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed">
-                  <Lock className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                  <Lock className="h-3.5 w-3.5 text-primary dark:text-accent shrink-0 mt-0.5" />
                   <span>
                     {isNb
                       ? "Innhold er kryptert og verifisert av eier."
