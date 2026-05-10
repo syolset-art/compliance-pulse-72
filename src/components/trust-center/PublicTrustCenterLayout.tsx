@@ -57,18 +57,6 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Public-view context banner */}
-      <div className="bg-primary/5 dark:bg-accent/10 border-b border-primary/15 dark:border-accent/30">
-        <div className="container max-w-6xl mx-auto px-6 py-2 flex items-center gap-2 text-xs text-primary dark:text-accent">
-          <Eye className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">
-            {isNb
-              ? "Offentlig visning — slik kunder og partnere ser Trust Profilen på Mynder.no."
-              : "Public view — this is how customers and partners see the Trust Profile on Mynder.no."}
-          </span>
-        </div>
-      </div>
-
       {/* Trust Engine top bar */}
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container max-w-6xl mx-auto flex items-center justify-between px-6 py-3 gap-3">
