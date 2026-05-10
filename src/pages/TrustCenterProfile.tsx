@@ -104,6 +104,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
   const [publishStep, setPublishStep] = useState<"confirm" | "publishing" | "success">("confirm");
   const [isPublishing, setIsPublishing] = useState(false);
+  const [unpublishConfirmOpen, setUnpublishConfirmOpen] = useState(false);
+  const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null);
   const [docsSectionOpen, setDocsSectionOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -296,6 +298,26 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const openPublishDialog = () => {
     setPublishStep("confirm");
     setPublishDialogOpen(true);
+  };
+
+  const handleUnpublish = async () => {
+    if (!asset?.id) return;
+    setIsUnpublishing(true);
+    const { error } = await supabase
+      .from("assets")
+      .update({ publish_mode: "private" } as any)
+      .eq("id", asset.id);
+    setIsUnpublishing(false);
+    if (error) {
+      toast.error(isNb ? "Kunne ikke fjerne publisering" : "Could not unpublish");
+      return;
+    }
+    setUnpublishConfirmOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+    toast.success(
+      isNb ? "Publisering fjernet" : "Profile unpublished",
+      { description: isNb ? "Profilen er nå privat og ikke synlig på Mynder Trust Engine." : "Profile is now private and no longer visible on Mynder Trust Engine." }
+    );
   };
 
   const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
@@ -831,38 +853,126 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     </Card>
 
                     {/* Ready to publish / Published section */}
-                    <Card className="p-8 text-center space-y-4">
-                      <Globe className="h-10 w-10 mx-auto text-muted-foreground" />
-                      {isPublished ? (
-                        <>
-                          <div>
-                            <h3 className="text-lg font-semibold text-foreground">{isNb ? "Publisert" : "Published"}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {isNb ? "Din Trust Center er tilgjengelig på" : "Your Trust Center is available at"}{" "}
-                              <span className="font-medium text-foreground">{publicUrl}</span>
-                            </p>
+                    {isPublished ? (
+                      <Card className="overflow-hidden border-success/30">
+                        {/* Live status banner */}
+                        <div className="flex items-center justify-between gap-3 px-5 py-3 bg-success/10 border-b border-success/20">
+                          <div className="flex items-center gap-2">
+                            <span className="relative flex h-2.5 w-2.5">
+                              <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-70 animate-ping" />
+                              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-success" />
+                            </span>
+                            <span className="text-xs font-semibold uppercase tracking-wide text-success">
+                              {isNb ? "Live på Mynder Trust Engine" : "Live on Mynder Trust Engine"}
+                            </span>
                           </div>
-                          <Button variant="outline" onClick={openPublishDialog} className="gap-2">
-                            <Share2 className="h-4 w-4" />
-                            {isNb ? "Publiser" : "Publish"}
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <div>
-                            <h3 className="text-lg font-semibold text-foreground">{isNb ? "Klar til publisering" : "Ready to publish"}</h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {isNb ? "Publiser din Trust Center for å gjøre den tilgjengelig på" : "Publish your Trust Center to make it available at"}{" "}
-                              <span className="font-medium text-foreground">{publicUrl}</span>
-                            </p>
+                          <Badge variant="outline" className="border-success/40 text-success bg-success/5 gap-1">
+                            <ShieldCheck className="h-3 w-3" />
+                            {isNb ? "Verifisert" : "Verified"}
+                          </Badge>
+                        </div>
+
+                        <div className="p-6 space-y-5">
+                          {/* Hero */}
+                          <div className="flex items-start gap-4">
+                            <div className="h-12 w-12 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center shrink-0">
+                              <Globe className="h-6 w-6 text-success" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="text-lg font-semibold text-foreground">
+                                {isNb ? "Trust Profile er publisert" : "Trust Profile is published"}
+                              </h3>
+                              <p className="text-sm text-muted-foreground mt-0.5">
+                                {isNb
+                                  ? "Kunder, partnere og innkjøpere kan finne og verifisere profilen din."
+                                  : "Customers, partners and buyers can find and verify your profile."}
+                              </p>
+                            </div>
                           </div>
-                          <Button onClick={openPublishDialog} className="gap-2 bg-primary hover:bg-primary/90">
-                            <Share2 className="h-4 w-4" />
-                            {isNb ? "Publiser" : "Publish"}
-                          </Button>
-                        </>
-                      )}
-                    </Card>
+
+                          {/* Public URL row */}
+                          <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2">
+                            <Link2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <code className="flex-1 text-xs font-mono text-foreground truncate">{publicUrl}</code>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 shrink-0" onClick={handleCopyLink} title={isNb ? "Kopier" : "Copy"}>
+                              {copiedLink ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
+                            </Button>
+                          </div>
+
+                          {/* Stats grid */}
+                          <div className="grid grid-cols-3 gap-3">
+                            <div className="rounded-lg border border-border bg-card/50 p-3">
+                              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground uppercase tracking-wide">
+                                <Eye className="h-3 w-3" />
+                                {isNb ? "Visninger 30d" : "Views 30d"}
+                              </div>
+                              <div className="text-xl font-bold text-foreground mt-1">12</div>
+                            </div>
+                            <div className="rounded-lg border border-border bg-card/50 p-3">
+                              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground uppercase tracking-wide">
+                                <FileText className="h-3 w-3" />
+                                {isNb ? "Dokumenter" : "Documents"}
+                              </div>
+                              <div className="text-xl font-bold text-foreground mt-1">{docsCount + certsCount + otherDocsCount}</div>
+                            </div>
+                            <div className="rounded-lg border border-border bg-card/50 p-3">
+                              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground uppercase tracking-wide">
+                                <Clock className="h-3 w-3" />
+                                {isNb ? "Sist oppdatert" : "Last updated"}
+                              </div>
+                              <div className="text-sm font-semibold text-foreground mt-1 truncate">{lastUpdated}</div>
+                            </div>
+                          </div>
+
+                          {/* Audience */}
+                          <div className="flex items-center gap-2 rounded-lg bg-primary/5 border border-primary/10 px-3 py-2">
+                            <Users className="h-3.5 w-3.5 text-primary shrink-0" />
+                            <span className="text-xs text-muted-foreground">
+                              {isNb ? "Synlig for: " : "Visible to: "}
+                              <span className="font-medium text-foreground">
+                                {(asset as any).publish_mode === "all"
+                                  ? (isNb ? "Alle (offentlig)" : "Everyone (public)")
+                                  : (isNb ? "Utvalgte kunder" : "Selected customers")}
+                              </span>
+                            </span>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                            <Button
+                              className="flex-1 gap-2"
+                              onClick={() => asset?.id && navigate(`/trust-engine/profile/${asset.id}`)}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              {isNb ? "Åpne offentlig profil" : "Open public profile"}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              className="flex-1 gap-2 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              onClick={() => setUnpublishConfirmOpen(true)}
+                            >
+                              <Lock className="h-4 w-4" />
+                              {isNb ? "Fjern publisering" : "Unpublish"}
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ) : (
+                      <Card className="p-8 text-center space-y-4">
+                        <Globe className="h-10 w-10 mx-auto text-muted-foreground" />
+                        <div>
+                          <h3 className="text-lg font-semibold text-foreground">{isNb ? "Klar til publisering" : "Ready to publish"}</h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {isNb ? "Publiser din Trust Center for å gjøre den tilgjengelig på" : "Publish your Trust Center to make it available at"}{" "}
+                            <span className="font-medium text-foreground">{publicUrl}</span>
+                          </p>
+                        </div>
+                        <Button onClick={openPublishDialog} className="gap-2 bg-primary hover:bg-primary/90">
+                          <Share2 className="h-4 w-4" />
+                          {isNb ? "Publiser" : "Publish"}
+                        </Button>
+                      </Card>
+                    )}
 
                     {/* Info banner */}
                     <div className="flex items-start gap-3 rounded-lg bg-primary/5 border border-primary/10 px-4 py-3">
@@ -1666,6 +1776,32 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
       </Dialog>
 
       {/* Publish Trust Center Dialog */}
+      {/* Unpublish confirmation */}
+      <Dialog open={unpublishConfirmOpen} onOpenChange={setUnpublishConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-destructive" />
+              {isNb ? "Fjern publisering?" : "Unpublish profile?"}
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              {isNb
+                ? "Trust Profilen blir privat og fjernes fra Mynder Trust Engine. Lenken slutter å virke for kunder og partnere. Du kan publisere på nytt når som helst."
+                : "Your Trust Profile will become private and disappear from Mynder Trust Engine. The link will stop working for customers and partners. You can republish at any time."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setUnpublishConfirmOpen(false)} disabled={isUnpublishing}>
+              {isNb ? "Avbryt" : "Cancel"}
+            </Button>
+            <Button variant="destructive" onClick={handleUnpublish} disabled={isUnpublishing} className="gap-2">
+              <Lock className="h-4 w-4" />
+              {isUnpublishing ? (isNb ? "Fjerner…" : "Unpublishing…") : (isNb ? "Fjern publisering" : "Unpublish")}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={publishDialogOpen} onOpenChange={(open) => {
         if (!isPublishing) {
           setPublishDialogOpen(open);
