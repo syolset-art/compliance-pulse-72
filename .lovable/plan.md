@@ -1,38 +1,39 @@
-## Mål
-Siden `/trust-engine/profile/:assetId` skal føles som en åpen, verifisert og sikker visning av leverandørers Trust Profile — slik kunder/besøkende ser den fra Mynder.no.
+## Kontekst
+Dette er en prototype for utviklere. Dagens domene er `mynder.no`, fremtidig `mynder.io`. Badge-snippet i `TrustProfilePublishing.tsx` peker i dag på en oppdiktet URL (`trust.mynder.com/{slug}`) som ikke ruter noe sted. Vi trenger en løsning som:
+
+1. Faktisk fungerer i prototypen (lenken åpner riktig profil).
+2. Er enkel å bytte fra `.no` til `.io` senere uten å endre komponentkode.
+3. Gjør det tydelig for utviklere hvordan dette skal implementeres i prod.
 
 ## Endringer
 
-### 1. `src/components/trust-center/PublicTrustCenterLayout.tsx`
-- **Fjern "Del profilen"** fra sidemenyen (`navItems`) og fjern hele `share`-seksjonen i hovedinnholdet (inkl. lenkekopi, LinkedIn/Facebook/E-post-knapper og tilhørende imports: `Share2`, `Linkedin`, `Facebook`, `Mail`, `Copy`, `toast`).
-- **Legg til "Slik ser andre profilen din"-banner** øverst (kun synlig kontekst-banner over header eller rett under) som forklarer: «Dette er den offentlige visningen av Trust Profilen — slik kunder og partnere ser den på Mynder.no.»
-- **Verifiserings-badge** ved siden av organisasjonsnavnet/headeren: liten pille med `ShieldCheck` + tekst «Verifisert og kryptert av eier» (tooltip: «Innholdet er signert og bekreftet av profileieren via Mynder Trust Engine.»).
-- **Footer (ny komponent i samme fil eller egen `PublicTrustFooter.tsx`)**:
-  - Mynder-logo + lenke til `https://mynder.no`
-  - Tekst: «Trust Engine drives av Mynder — den europeiske standarden for digital tillit.»
-  - Sekundære lenker: Personvern, Vilkår, Kontakt (placeholder `https://mynder.no/...`)
-  - Liten `ShieldCheck`-rad: «Alle profiler er publisert frivillig av eieren og verifisert av Mynder.»
-  - Copyright © {år} Mynder.
+### 1. Sentralisert public base URL
+Ny fil `src/lib/publicTrustUrl.ts`:
+- Eksporterer `PUBLIC_TRUST_BASE` som leses fra `import.meta.env.VITE_PUBLIC_TRUST_BASE`, med fallback til `window.location.origin` (slik at prototypen "bare funker" i preview/lokalt).
+- Eksporterer hjelpefunksjon `buildPublicTrustUrl(assetId)` som returnerer `${PUBLIC_TRUST_BASE}/trust-engine/profile/${assetId}`.
+- Kort JSDoc-kommentar som forklarer at prod bytter `VITE_PUBLIC_TRUST_BASE` fra `https://mynder.no` til `https://mynder.io` når domenet migreres, og at en evt. fremtidig `trust.mynder.io`-subdomene bare endres her.
 
-### 2. `src/pages/TrustEngine.tsx` (søkesiden — "tilbake til søk")
-- **Fjern "Publisert"-pillen** på hvert resultatkort (Badge med `Shield` + "Publisert" inne i `results.map`).
-- **Legg til verifiserings-tillit i hero-seksjonen**: under undertittelen, en rad med 2–3 ikoner+tekst:
-  - `ShieldCheck` — «Verifiserte profiler»
-  - `Lock` — «Kryptert og signert av eier»
-  - `CheckCircle2` — «Frivillig publisert av leverandøren»
-- **Liten støttetekst** rett over resultatlisten: «Alle organisasjoner her har selv valgt å publisere sin Trust Profile. Innholdet er kryptert og verifisert.»
-- **Footer** — samme footer-komponent som over, gjenbrukes nederst på `/trust-engine`.
+### 2. Oppdater `src/components/asset-profile/TrustProfilePublishing.tsx`
+- Fjern hardkodet `trust.mynder.com/${slug}`.
+- Bruk `buildPublicTrustUrl(assetId)` for både visnings-URL, kopier-til-utklippstavle og badge-snippets (alle tre varianter: shield, minimal, banner).
+- Legg til `?ref=badge-{type}` query-parameter på badge-lenker for fremtidig click-tracking (rent kosmetisk i prototypen, men viser intensjonen).
+- Behold `slug`-logikken som dokumentasjon men ikke bruk den i URL ennå (prototypen ruter på assetId). Legg til en kort kommentar: "TODO prod: bytt til slug-basert ruting når public router støtter det."
 
-### 3. Ny delt footer-komponent
-`src/components/trust-center/PublicTrustFooter.tsx` — gjenbrukes på både `TrustEngine.tsx` og `PublicTrustCenterLayout.tsx` for konsistens.
+### 3. Oppdater `src/pages/TrustCenterProfile.tsx`
+- Samme: bruk `buildPublicTrustUrl(asset.id)` i den publiserte tilstanden (URL-raden + "Open public profile"-knappen).
 
-## Designprinsipper
-- Bruk eksisterende semantiske tokens (`text-primary`, `border-border`, `bg-muted/30`, `text-success` for verifiseringsmerker).
-- Subtile ikoner (`ShieldCheck`, `Lock`, `BadgeCheck`) i primary-fargen.
-- Footer: rolig, lys bakgrunn (`bg-card/50 border-t`), kompakt — ikke konkurrer med innholdet.
-- Ingen nye avhengigheter.
+### 4. Liten utviklernotat-banner
+I "Website Badge"-fanen, legg til en diskret `text-xs text-muted-foreground` linje under code-snippet:
+> "Prototype: lenke peker på `{base}/trust-engine/profile/{assetId}`. I prod byttes basis-URL til `mynder.io` via `VITE_PUBLIC_TRUST_BASE`."
 
-## Filer som endres
-- `src/components/trust-center/PublicTrustCenterLayout.tsx` (fjerne share, legge til banner + verifisert-badge + footer)
-- `src/pages/TrustEngine.tsx` (fjerne publisert-pille, tillit-rad i hero, footer)
-- `src/components/trust-center/PublicTrustFooter.tsx` (ny)
+Dette gjør det åpenbart for utviklere som leser koden hva som er prototype-oppførsel vs. prod-intensjon.
+
+## Filer
+- ny: `src/lib/publicTrustUrl.ts`
+- endre: `src/components/asset-profile/TrustProfilePublishing.tsx`
+- endre: `src/pages/TrustCenterProfile.tsx`
+
+## Ikke i scope
+- Faktisk routing av `mynder.no/...` eller `trust.mynder.io/...` til app (krever DNS/hosting-oppsett).
+- Click-tracking endpoint (kun query-param plasseholder).
+- Slug-basert public routing (krever ny route + asset-lookup på slug).

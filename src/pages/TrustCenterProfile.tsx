@@ -79,6 +79,7 @@ import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
+import { buildPublicTrustUrl } from "@/lib/publicTrustUrl";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
@@ -252,12 +253,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     .replace(/-+/g, "-")
     .slice(0, 40);
   const orgSuffix = companyProfile?.org_number ? `-${companyProfile.org_number.replace(/\s/g, "").slice(-4)}` : "";
-  const publicUrl = `trust.mynder.com/${slug}${orgSuffix}`;
+  // TODO prod: bytt til slug-basert public ruting (`/t/${slug}${orgSuffix}`) når støttet
+  const publicFullUrl = buildPublicTrustUrl(asset.id);
+  const publicUrl = publicFullUrl.replace(/^https?:\/\//, "");
 
   const isPublished = (asset as any).publish_mode && (asset as any).publish_mode !== "private";
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`https://${publicUrl}`);
+    navigator.clipboard.writeText(publicFullUrl);
     setCopiedLink(true);
     toast.success(isNb ? "Lenke kopiert" : "Link copied");
     setTimeout(() => setCopiedLink(false), 2000);
@@ -1969,7 +1972,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </div>
                 <div className="flex gap-3">
                   <Button variant="outline" className="flex-1 gap-2" onClick={() => {
-                    navigator.clipboard.writeText(`https://${publicUrl}`);
+                    navigator.clipboard.writeText(`${publicFullUrl}`);
                     toast.success(isNb ? "Lenke kopiert!" : "Link copied!");
                   }}>
                     <Copy className="h-4 w-4" />
@@ -1995,7 +1998,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       variant="outline"
                       size="sm"
                       className="flex-1 gap-2"
-                      onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://${publicUrl}`)}`, "_blank", "noopener,noreferrer")}
+                      onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${publicFullUrl}`)}`, "_blank", "noopener,noreferrer")}
                     >
                       <Linkedin className="h-4 w-4" />
                       LinkedIn
@@ -2004,7 +2007,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       variant="outline"
                       size="sm"
                       className="flex-1 gap-2"
-                      onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://${publicUrl}`)}`, "_blank", "noopener,noreferrer")}
+                      onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${publicFullUrl}`)}`, "_blank", "noopener,noreferrer")}
                     >
                       <Facebook className="h-4 w-4" />
                       Facebook
@@ -2016,8 +2019,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       onClick={() => {
                         const subject = isNb ? "Vår Trust Profile" : "Our Trust Profile";
                         const body = isNb
-                          ? `Hei,\n\nDu kan se vår Trust Profile her: https://${publicUrl}\n`
-                          : `Hi,\n\nYou can view our Trust Profile here: https://${publicUrl}\n`;
+                          ? `Hei,\n\nDu kan se vår Trust Profile her: ${publicFullUrl}\n`
+                          : `Hi,\n\nYou can view our Trust Profile here: ${publicFullUrl}\n`;
                         window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                       }}
                     >
