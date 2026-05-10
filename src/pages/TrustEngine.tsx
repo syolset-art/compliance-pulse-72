@@ -146,7 +146,7 @@ export default function TrustEngine() {
             <Button
               variant="outline"
               size="lg"
-              onClick={() => navigate("/trust-center/profile")}
+              onClick={() => setCreateOpen(true)}
               className="gap-2 rounded-xl"
             >
               <Sparkles className="h-4 w-4" />
@@ -265,6 +265,7 @@ export default function TrustEngine() {
       </section>
 
       <PublicTrustFooter />
+      <CreateTrustProfileModal open={createOpen} onOpenChange={handleCreateOpenChange} />
     </div>
   );
 }
