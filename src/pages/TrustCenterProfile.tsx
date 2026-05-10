@@ -298,9 +298,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     setPublishDialogOpen(true);
   };
 
-  const [unpublishConfirmOpen, setUnpublishConfirmOpen] = useState(false);
-  const [isUnpublishing, setIsUnpublishing] = useState(false);
-
   const handleUnpublish = async () => {
     if (!asset?.id) return;
     setIsUnpublishing(true);
