@@ -685,9 +685,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </>
                         );
                         const cls = "w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/40 transition-colors text-left";
-                        return doc.external_url ? (
-                          <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
-                        ) : (
+                        return (
                           <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
                         );
                       })}
@@ -1632,9 +1630,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 </>
                               );
                               const cls = "w-full flex items-center gap-3 px-5 py-3.5 hover:bg-muted/40 transition-colors text-left";
-                              return doc.external_url ? (
-                                <a key={doc.id} href={doc.external_url} target="_blank" rel="noreferrer" className={cls}>{content}</a>
-                              ) : (
+                              return (
                                 <button key={doc.id} onClick={() => setPreviewDoc(doc)} className={cls}>{content}</button>
                               );
                             })}
