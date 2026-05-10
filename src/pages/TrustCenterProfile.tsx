@@ -245,16 +245,12 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const risks = evaluation?.risks ?? [];
   const highRisks = risks.filter(r => r.severity === "high");
 
-  // Slug for public URL
-  const slug = (companyProfile?.name || asset?.name || "")
-    .toLowerCase()
-    .replace(/[^a-z0-9æøå\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 40);
-  const orgSuffix = companyProfile?.org_number ? `-${companyProfile.org_number.replace(/\s/g, "").slice(-4)}` : "";
-  // TODO prod: bytt til slug-basert public ruting (`/t/${slug}${orgSuffix}`) når støttet
-  const publicFullUrl = buildPublicTrustUrl(asset.id);
+  // Slug for public URL: trust.mynder.no/{slug}
+  // Bruk siste 4 siffer av org.nr som unik kode for å unngå kollisjon mellom like navn.
+  const slugUniqueCode = companyProfile?.org_number || asset?.id?.slice(0, 4);
+  const slug = buildSlug(companyProfile?.name || asset?.name || "", slugUniqueCode);
+  const orgSuffix = ""; // beholdt som no-op for å unngå større refactor nedover i fila
+  const publicFullUrl = buildPublicTrustUrl(slug);
   const publicUrl = publicFullUrl.replace(/^https?:\/\//, "");
 
   const isPublished = (asset as any).publish_mode && (asset as any).publish_mode !== "private";
