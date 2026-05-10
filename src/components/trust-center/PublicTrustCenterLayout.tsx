@@ -2,11 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowLeft, Shield, ShieldCheck, Globe, FileText, MessageSquare, BarChart3, Lock, Eye,
+  ArrowLeft, Shield, FileText, MessageSquare, BarChart3, Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import TrustCenterProfile from "@/pages/TrustCenterProfile";
 import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
 
