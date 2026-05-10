@@ -2,9 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowLeft, Shield, FileText, MessageSquare, BarChart3, Lock,
+  ArrowLeft, Shield, FileText, MessageSquare, BarChart3, Lock, ChevronDown, Info, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import TrustCenterProfile from "@/pages/TrustCenterProfile";
 import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
 
@@ -67,14 +73,29 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
             <ArrowLeft className="h-4 w-4" />
             {isNb ? "Tilbake til søk" : "Back to search"}
           </Button>
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-2">
-              <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
-                <Shield className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <span className="text-sm font-semibold text-foreground">Mynder Trust Engine</span>
-            </div>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-muted/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
+                    <Shield className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                  <span className="text-sm font-semibold text-foreground">Mynder Trust Engine</span>
+                </div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-60">
+              <DropdownMenuItem onClick={() => navigate("/trust-engine#om")} className="gap-2 cursor-pointer">
+                <Info className="h-4 w-4 text-primary" />
+                <span>{isNb ? "Om Trust Engine" : "About Trust Engine"}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/trust-center/profile")} className="gap-2 cursor-pointer">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span>{isNb ? "Opprett din egen Trust Profile" : "Create your own Trust Profile"}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
