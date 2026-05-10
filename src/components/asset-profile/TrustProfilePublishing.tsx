@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, Save, Lock, Globe, Link2, Code2, Copy, Check, Share2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { buildPublicTrustUrl } from "@/lib/publicTrustUrl";
 
 interface TrustProfilePublishingProps {
   assetId: string;
