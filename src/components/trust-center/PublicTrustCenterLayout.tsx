@@ -60,24 +60,22 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
       {/* Trust Engine top bar */}
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container max-w-6xl mx-auto flex items-center justify-between px-6 py-3 gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/trust-engine")}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {isNb ? "Tilbake til søk" : "Back to search"}
-            </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/trust-engine")}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {isNb ? "Tilbake til søk" : "Back to search"}
+          </Button>
+          <div className="flex items-center gap-2">
             <div className="hidden sm:flex items-center gap-2">
               <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
                 <Shield className="h-4 w-4 text-primary-foreground" />
               </div>
               <span className="text-sm font-semibold text-foreground">Mynder Trust Engine</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -94,10 +92,6 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <Badge variant="outline" className="hidden md:inline-flex text-xs gap-1.5 border-primary/30 text-primary dark:border-accent/40 dark:text-accent">
-              <Globe className="h-3 w-3" />
-              Open Database
-            </Badge>
           </div>
         </div>
       </header>
