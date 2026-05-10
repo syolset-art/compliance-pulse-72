@@ -362,15 +362,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     // Force preview tab for readOnly
     return (
       <div className="container max-w-4xl mx-auto p-4 md:p-6 space-y-5">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {asset?.name || "Trust Profile"}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Shareable compliance profile for due diligence
-          </p>
-        </div>
-
         {/* Render only preview content — the Card from line ~598 */}
         <Card className="overflow-hidden p-0">
           <div className="flex items-stretch">
