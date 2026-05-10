@@ -48,20 +48,14 @@ export const TrustProfilePublishing = ({
     setSelectedCustomers(initialCustomers || []);
   }, [initialMode, initialCustomers]);
 
-  // TODO prod: bytt til slug-basert ruting når public router støtter det.
-  // Slug-logikken beholdes som dokumentasjon på fremtidig URL-format.
-  const slug = useMemo(() => {
-    const base = assetName
-      .toLowerCase()
-      .replace(/[^a-z0-9æøå\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .slice(0, 40);
-    const suffix = orgNumber ? `-${orgNumber.replace(/\s/g, "").slice(-4)}` : "";
-    return `${base}${suffix}`;
-  }, [assetName, orgNumber]);
+  // Public URL: trust.mynder.no/{slug} — slug bygges fra navn + unik kode (siste 4 av org.nr,
+  // eller assetId-prefix som fallback) for å unngå kollisjon mellom like navn.
+  const slug = useMemo(
+    () => buildSlug(assetName, orgNumber || assetId.slice(0, 4)),
+    [assetName, orgNumber, assetId]
+  );
 
-  const publicFullUrl = buildPublicTrustUrl(assetId);
+  const publicFullUrl = buildPublicTrustUrl(slug);
   // Display-versjon uten protokoll for renere visning i UI
   const publicUrl = publicFullUrl.replace(/^https?:\/\//, "");
 
