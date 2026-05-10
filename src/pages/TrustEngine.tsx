@@ -233,6 +233,8 @@ export default function TrustEngine() {
           ) : null}
         </div>
       </section>
+
+      <PublicTrustFooter />
     </div>
   );
 }
