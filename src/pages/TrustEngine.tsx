@@ -184,8 +184,12 @@ export default function TrustEngine() {
             </div>
           ) : results && results.length > 0 ? (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground mb-6">
+              <p className="text-sm text-muted-foreground mb-2">
                 {results.length} organisasjon{results.length !== 1 ? "er" : ""} funnet
+              </p>
+              <p className="text-xs text-muted-foreground/80 mb-6 inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-success" />
+                Alle organisasjoner her har selv valgt å publisere sin Trust Profile. Innholdet er kryptert og verifisert.
               </p>
               {results.map((asset) => (
                 <Card
