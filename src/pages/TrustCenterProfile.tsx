@@ -2143,6 +2143,22 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             </DialogDescription>
           </DialogHeader>
 
+          {/* Friendly info banner — forklarer hvor dokumentet hører hjemme */}
+          <div className="mx-1 mt-1 mb-2 flex items-start gap-2.5 rounded-lg border border-primary/15 bg-primary/5 px-3.5 py-2.5">
+            <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" aria-hidden />
+            <p className="text-[13px] leading-relaxed text-foreground/90">
+              {isNb ? (
+                <>
+                  Dette dokumentet er en del av <span className="font-medium">{companyProfile?.name || asset?.name}</span> sitt Trust Center og åpnes trygt her — du blir ikke sendt videre til en ekstern nettside. Du finner alle delte dokumenter samlet under undermenyen <span className="font-medium">Dokumenter</span>.
+                </>
+              ) : (
+                <>
+                  This document is part of <span className="font-medium">{companyProfile?.name || asset?.name}</span>'s Trust Center and opens safely here — you won't be redirected to an external site. You can find all shared documents together under the <span className="font-medium">Documents</span> submenu.
+                </>
+              )}
+            </p>
+          </div>
+
           <div className="flex-1 overflow-y-auto rounded-lg border border-border bg-muted/20 p-8">
             {/* Demo paper-like document preview */}
             <div className="mx-auto max-w-2xl bg-background shadow-sm border border-border rounded-md p-10 space-y-5">
