@@ -86,11 +86,18 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-60">
-              <DropdownMenuItem onClick={() => navigate("/trust-engine#om")} className="gap-2 cursor-pointer">
-                <Info className="h-4 w-4 text-primary" />
-                <span>{isNb ? "Om Trust Engine" : "About Trust Engine"}</span>
+              <DropdownMenuItem asChild className="gap-2 cursor-pointer">
+                <a
+                  href="https://mynder.no/trust-engine"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 w-full"
+                >
+                  <Info className="h-4 w-4 text-primary" />
+                  <span>{isNb ? "Om Trust Engine" : "About Trust Engine"}</span>
+                </a>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/trust-center/profile")} className="gap-2 cursor-pointer">
+              <DropdownMenuItem onClick={() => navigate("/trust-engine?create=1")} className="gap-2 cursor-pointer">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <span>{isNb ? "Opprett din egen Trust Profile" : "Create your own Trust Profile"}</span>
               </DropdownMenuItem>

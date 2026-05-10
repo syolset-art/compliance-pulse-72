@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -8,11 +8,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Search, Shield, ShieldCheck, Lock, CheckCircle2, Globe, Building2, ArrowRight, Loader2, User, Sparkles } from "lucide-react";
 import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
+import CreateTrustProfileModal from "@/components/trust-center/CreateTrustProfileModal";
 
 export default function TrustEngine() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("create") === "1") {
+      setCreateOpen(true);
+    }
+  }, [searchParams]);
+
+  const handleCreateOpenChange = (open: boolean) => {
+    setCreateOpen(open);
+    if (!open && searchParams.get("create")) {
+      searchParams.delete("create");
+      setSearchParams(searchParams, { replace: true });
+    }
+  };
 
   const { data: results, isLoading } = useQuery({
     queryKey: ["trust-engine-search", query],
@@ -129,7 +146,7 @@ export default function TrustEngine() {
             <Button
               variant="outline"
               size="lg"
-              onClick={() => navigate("/trust-center/profile")}
+              onClick={() => setCreateOpen(true)}
               className="gap-2 rounded-xl"
             >
               <Sparkles className="h-4 w-4" />
@@ -248,6 +265,7 @@ export default function TrustEngine() {
       </section>
 
       <PublicTrustFooter />
+      <CreateTrustProfileModal open={createOpen} onOpenChange={handleCreateOpenChange} />
     </div>
   );
 }
