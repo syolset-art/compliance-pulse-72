@@ -298,6 +298,29 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     setPublishDialogOpen(true);
   };
 
+  const [unpublishConfirmOpen, setUnpublishConfirmOpen] = useState(false);
+  const [isUnpublishing, setIsUnpublishing] = useState(false);
+
+  const handleUnpublish = async () => {
+    if (!asset?.id) return;
+    setIsUnpublishing(true);
+    const { error } = await supabase
+      .from("assets")
+      .update({ publish_mode: "private" } as any)
+      .eq("id", asset.id);
+    setIsUnpublishing(false);
+    if (error) {
+      toast.error(isNb ? "Kunne ikke fjerne publisering" : "Could not unpublish");
+      return;
+    }
+    setUnpublishConfirmOpen(false);
+    queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+    toast.success(
+      isNb ? "Publisering fjernet" : "Profile unpublished",
+      { description: isNb ? "Profilen er nå privat og ikke synlig på Mynder Trust Engine." : "Profile is now private and no longer visible on Mynder Trust Engine." }
+    );
+  };
+
   const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
   const trustColor = trustScore >= 80 ? "text-success" : trustScore >= 50 ? "text-warning" : "text-destructive";
   const strokeColor = trustScore >= 80 ? "hsl(var(--success))" : trustScore >= 50 ? "hsl(142, 71%, 45%)" : "hsl(var(--destructive))";
