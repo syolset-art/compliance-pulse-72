@@ -266,6 +266,11 @@ export const TrustProfilePublishing = ({
                     )}
                   </Button>
                 </div>
+                <p className="text-[11px] text-muted-foreground/80 leading-relaxed">
+                  {isNb
+                    ? "Prototype: lenken peker på app-URL. I prod settes basis via VITE_PUBLIC_TRUST_BASE (mynder.no i dag, mynder.io på sikt)."
+                    : "Prototype: link points to the app URL. In prod the base is set via VITE_PUBLIC_TRUST_BASE (mynder.no today, mynder.io later)."}
+                </p>
               </div>
             </TabsContent>
 
