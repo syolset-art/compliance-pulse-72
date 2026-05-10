@@ -71,7 +71,7 @@ export default function TrustEngine() {
               <p className="text-xs text-muted-foreground">Portable Trust</p>
             </div>
           </div>
-          <Badge variant="outline" className="text-sm gap-1.5 border-primary/30 text-primary">
+          <Badge variant="outline" className="text-sm gap-1.5 border-primary/30 text-primary dark:border-accent/40 dark:text-accent">
             <Globe className="h-3.5 w-3.5" />
             Open Database
           </Badge>
@@ -81,7 +81,7 @@ export default function TrustEngine() {
       {/* Hero */}
       <section className="py-16 md:py-24 px-6">
         <div className="container max-w-3xl mx-auto text-center space-y-6">
-          <Badge className="bg-primary/10 text-primary border-primary/20 text-sm px-4 py-1.5">
+          <Badge className="bg-primary/10 text-primary border-primary/20 dark:bg-accent/15 dark:text-accent dark:border-accent/30 text-sm px-4 py-1.5">
             The New European Standard
           </Badge>
           <h2 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-tight">
@@ -115,11 +115,11 @@ export default function TrustEngine() {
               Verifiserte profiler
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Lock className="h-4 w-4 text-primary" />
+              <Lock className="h-4 w-4 text-primary dark:text-accent" />
               Kryptert og signert av eier
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
+              <CheckCircle2 className="h-4 w-4 text-primary dark:text-accent" />
               Frivillig publisert av leverandøren
             </span>
           </div>
@@ -130,14 +130,14 @@ export default function TrustEngine() {
       {myAsset && (
         <section className="px-6 -mt-6 mb-2">
           <div className="container max-w-4xl mx-auto">
-            <Card variant="luxury" className="p-5 border-primary/20 bg-primary/5">
+            <Card variant="luxury" className="p-5 border-primary/20 bg-primary/5 dark:border-accent/30 dark:bg-accent/10">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="h-11 w-11 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-                    <User className="h-5 w-5 text-primary" />
+                    <User className="h-5 w-5 text-primary dark:text-accent" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary dark:text-accent">
                       Min Trust Profile
                     </p>
                     <h3 className="text-base font-semibold text-foreground truncate">
@@ -201,7 +201,7 @@ export default function TrustEngine() {
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4 min-w-0">
                       <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Building2 className="h-6 w-6 text-primary" />
+                        <Building2 className="h-6 w-6 text-primary dark:text-accent" />
                       </div>
                       <div className="min-w-0">
                         <h3 className="text-lg font-semibold text-foreground truncate">
@@ -215,11 +215,11 @@ export default function TrustEngine() {
                     <div className="flex items-center gap-4 shrink-0">
                       {asset.compliance_score != null && asset.compliance_score > 0 && (
                         <div className="text-right">
-                          <p className="text-2xl font-bold text-primary">{asset.compliance_score}%</p>
+                          <p className="text-2xl font-bold text-primary dark:text-accent">{asset.compliance_score}%</p>
                           <p className="text-xs text-muted-foreground">Trust Score</p>
                         </div>
                       )}
-                      <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary dark:group-hover:text-accent transition-colors" />
                     </div>
                   </div>
                 </Card>
