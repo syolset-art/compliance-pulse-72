@@ -81,9 +81,9 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
       <div className="container max-w-6xl mx-auto px-4 md:px-6 py-6 flex-1">
         <div className="flex flex-col md:flex-row gap-6">
           {/* Sidebar */}
-          <aside className="md:w-56 shrink-0">
+          <aside className="md:w-56 shrink-0 md:pt-4">
             <div className="md:sticky md:top-20 space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2 mt-2">
                 {isNb ? "Trust Center" : "Trust Center"}
               </p>
               <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible">
