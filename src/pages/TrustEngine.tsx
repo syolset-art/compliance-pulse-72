@@ -123,6 +123,19 @@ export default function TrustEngine() {
               Frivillig publisert av leverandøren
             </span>
           </div>
+
+          {/* Create your own CTA */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate("/trust-center/profile")}
+              className="gap-2 rounded-xl"
+            >
+              <Sparkles className="h-4 w-4" />
+              Opprett din egen Trust Profile
+            </Button>
+          </div>
         </div>
       </section>
 
