@@ -752,11 +752,18 @@ export type Database = {
           initial_maturity: string | null
           is_msp_partner: boolean
           legal_name: string | null
+          managed_by_partner: boolean
           maturity: string | null
           maturity_calculated_at: string | null
           name: string
           org_number: string | null
+          partner_company_id: string | null
+          partner_name: string | null
+          partner_role_description: string | null
+          partner_since: string | null
+          partner_type: string | null
           sensitive_data: string | null
+          show_partner_on_trust_profile: boolean
           team_size: string | null
           updated_at: string | null
           use_cases: string[] | null
@@ -787,11 +794,18 @@ export type Database = {
           initial_maturity?: string | null
           is_msp_partner?: boolean
           legal_name?: string | null
+          managed_by_partner?: boolean
           maturity?: string | null
           maturity_calculated_at?: string | null
           name: string
           org_number?: string | null
+          partner_company_id?: string | null
+          partner_name?: string | null
+          partner_role_description?: string | null
+          partner_since?: string | null
+          partner_type?: string | null
           sensitive_data?: string | null
+          show_partner_on_trust_profile?: boolean
           team_size?: string | null
           updated_at?: string | null
           use_cases?: string[] | null
@@ -822,11 +836,18 @@ export type Database = {
           initial_maturity?: string | null
           is_msp_partner?: boolean
           legal_name?: string | null
+          managed_by_partner?: boolean
           maturity?: string | null
           maturity_calculated_at?: string | null
           name?: string
           org_number?: string | null
+          partner_company_id?: string | null
+          partner_name?: string | null
+          partner_role_description?: string | null
+          partner_since?: string | null
+          partner_type?: string | null
           sensitive_data?: string | null
+          show_partner_on_trust_profile?: boolean
           team_size?: string | null
           updated_at?: string | null
           use_cases?: string[] | null
