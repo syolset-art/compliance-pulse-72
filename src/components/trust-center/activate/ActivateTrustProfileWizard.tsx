@@ -69,17 +69,27 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
-        setStep(0);
-        setCompanyName("");
+        setStep(hasPrefill ? 1 : 0);
+        setCompanyName(initialCompanyName ?? "");
         setOrgNumber("");
         setWebsite("");
+        setWebsiteVerified(false);
         setVerified(false);
         setScan(null);
         setScanProgress(0);
         setRevealed(0);
+        autoSearchedRef.current = false;
       }, 200);
     }
-  }, [open]);
+  }, [open, hasPrefill, initialCompanyName]);
+
+  // Auto-search Brreg when we already know the customer's company name.
+  useEffect(() => {
+    if (!open || !hasPrefill || autoSearchedRef.current) return;
+    if (orgNumber) return;
+    autoSearchedRef.current = true;
+    searchByName(initialCompanyName!).catch(() => {});
+  }, [open, hasPrefill, initialCompanyName, orgNumber, searchByName]);
 
   // Run scan animation when entering step 2
   useEffect(() => {
