@@ -267,7 +267,7 @@ export function MSPMaturityServiceMatrix() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">Lara har en anbefaling til deg</p>
               <p className="text-[13px] text-muted-foreground mt-0.5">
-                Du har {RECOMMENDATIONS.length} tjenestemuligheter som matcher denne kundens behov
+                Du har {RECOMMENDATIONS.length} tjenester som matcher denne kundens behov
                 {urgentCount > 0 && <>, hvorav {urgentCount} er tidskritisk</>}.
               </p>
             </div>
@@ -301,7 +301,7 @@ export function MSPMaturityServiceMatrix() {
             <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{DELIVERIES.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="catalog" className="gap-2">
-            Tjenestekatalog
+            Tjenester
             <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{PARTNER_SERVICES.length}</Badge>
           </TabsTrigger>
         </TabsList>
