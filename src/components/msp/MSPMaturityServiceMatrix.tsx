@@ -255,6 +255,7 @@ export function MSPMaturityServiceMatrix() {
       <MSPGapAnalysisDialog
         open={gapOpen}
         onOpenChange={setGapOpen}
+        initialFrameworkId={gapFrameworkId}
       />
     </div>
   );
