@@ -366,37 +366,27 @@ function Step1({
   }, []);
 
   return (
-    <div className="space-y-4 py-2">
-      <Card className="p-3 border-primary/20 bg-primary/5">
-        <div className="flex items-start gap-2.5">
-          <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <p className="text-[13px] text-foreground">
-            <span className="font-semibold">Lara:</span> Velg ett eller flere segmenter under.
-            Vanligvis er det greit å bruke <em>«eller»</em> — da treffer du alle kunder som matcher
-            minst ett kriterium.
-          </p>
+    <div className="space-y-5 py-2">
+      {/* Sub-steg A: hjelpetekst */}
+      <Card className="p-4 border-primary/20 bg-primary/5">
+        <div className="flex items-start gap-3">
+          <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground">Steg 1 av 3 — Hvem skal motta?</p>
+            <p className="text-sm text-foreground/80 leading-relaxed">
+              Hak av ett eller flere kriterier under. Lara finner kundene som passer.
+            </p>
+          </div>
         </div>
       </Card>
 
-      <div className="flex items-center gap-2 text-[12px]">
-        <span className="text-muted-foreground">Kombiner segmenter med:</span>
-        <Select value={combine} onValueChange={(v) => setCombine(v as "and" | "or")}>
-          <SelectTrigger className="h-7 w-32 text-[12px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="or">eller (bredt)</SelectItem>
-            <SelectItem value="and">og (smalt)</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
+      {/* Segmenter */}
       {Object.entries(grouped).map(([cat, segs]) => {
         const Icon = CATEGORY_ICON[cat as CampaignSegment["category"]];
         return (
-          <div key={cat} className="space-y-1.5">
-            <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
-              <Icon className="h-3 w-3" />
+          <div key={cat} className="space-y-2">
+            <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+              <Icon className="h-3.5 w-3.5" />
               {SEGMENT_CATEGORY_LABEL[cat as CampaignSegment["category"]]}
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -408,17 +398,17 @@ function Step1({
                     type="button"
                     onClick={() => onToggle(s.id)}
                     className={cn(
-                      "text-left p-2.5 rounded-lg border transition-colors",
+                      "text-left p-3 rounded-lg border transition-colors",
                       isOn
                         ? "border-primary bg-primary/5"
                         : "border-border bg-background hover:border-primary/30",
                     )}
                   >
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-2.5">
                       <Checkbox checked={isOn} className="mt-0.5 pointer-events-none" />
                       <div className="min-w-0">
-                        <p className="text-[13px] font-medium text-foreground">{s.label}</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
+                        <p className="text-sm font-medium text-foreground">{s.label}</p>
+                        <p className="text-xs text-muted-foreground mt-1 leading-snug">
                           {s.description}
                         </p>
                       </div>
@@ -431,21 +421,58 @@ function Step1({
         );
       })}
 
+      {/* Match-valg — bare synlig når 2+ valg */}
+      {selected.length >= 2 && (
+        <Card className="p-3 bg-muted/30">
+          <p className="text-sm font-medium text-foreground mb-2">
+            Du har valgt {selected.length} kriterier. Hvem skal regnes med?
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setCombine("or")}
+              className={cn(
+                "text-left p-3 rounded-lg border transition-colors",
+                combine === "or"
+                  ? "border-primary bg-primary/5"
+                  : "border-border bg-background hover:border-primary/30",
+              )}
+            >
+              <p className="text-sm font-semibold text-foreground">Kunder med minst ett av valgene</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Bredere — flere kunder treffer</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCombine("and")}
+              className={cn(
+                "text-left p-3 rounded-lg border transition-colors",
+                combine === "and"
+                  ? "border-primary bg-primary/5"
+                  : "border-border bg-background hover:border-primary/30",
+              )}
+            >
+              <p className="text-sm font-semibold text-foreground">Kunder med alle valgene</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Smalere — bare de som matcher alt</p>
+            </button>
+          </div>
+        </Card>
+      )}
+
       {/* Live counter + manual list */}
-      <Card className="p-3">
+      <Card className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-[13px] font-semibold text-foreground">
-            {matches.length} av {DEMO_CAMPAIGN_CUSTOMERS.length} kunder treffer kriteriene
+          <p className="text-sm font-semibold text-foreground">
+            {matches.length} av {DEMO_CAMPAIGN_CUSTOMERS.length} kunder treffer
           </p>
           {matches.length > 0 && (
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               Hak av for å hoppe over enkelte
             </span>
           )}
         </div>
         {matches.length === 0 ? (
-          <p className="text-[12px] text-muted-foreground">
-            Ingen kunder matcher ennå — velg ett eller flere segmenter over.
+          <p className="text-sm text-muted-foreground">
+            Ingen kunder ennå — velg ett eller flere kriterier over.
           </p>
         ) : (
           <div className="space-y-1 max-h-48 overflow-y-auto">
@@ -454,15 +481,15 @@ function Step1({
               return (
                 <label
                   key={c.id}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted/50 cursor-pointer"
+                  className="flex items-center gap-2.5 px-2 py-2 rounded hover:bg-muted/50 cursor-pointer"
                 >
                   <Checkbox
                     checked={isIn}
                     onCheckedChange={(v) => setOverride(c.id, !!v)}
                   />
-                  <span className="text-[13px] text-foreground">{c.name}</span>
+                  <span className="text-sm text-foreground">{c.name}</span>
                   {c.contactName && (
-                    <span className="text-[11px] text-muted-foreground">· {c.contactName}</span>
+                    <span className="text-xs text-muted-foreground">· {c.contactName}</span>
                   )}
                   {c.criticality === "critical" && (
                     <Badge variant="outline" className="text-[10px] ml-auto">
