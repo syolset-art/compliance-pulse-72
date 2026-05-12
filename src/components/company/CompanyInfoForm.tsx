@@ -274,6 +274,26 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
   return (
     <Card className="p-5 space-y-4">
+      {partnerOnly && showEditControls && (
+        <div className="flex items-center justify-end">
+          {!isEditing ? (
+            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="gap-1.5 text-xs">
+              <Pencil className="h-3 w-3" /> Rediger
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={handleCancel} className="gap-1.5 text-xs">
+                <X className="h-3 w-3" /> Avbryt
+              </Button>
+              <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5 text-xs">
+                <Save className="h-3 w-3" /> {saving ? "Lagrer..." : "Lagre"}
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+      {!partnerOnly && (
+      <>
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-foreground">Selskapsinformasjon</h3>
