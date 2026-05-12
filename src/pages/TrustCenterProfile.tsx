@@ -468,7 +468,21 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
                   </div>
                 </div>
-                <span className={`text-sm font-semibold uppercase tracking-wider ${trustColor}`}>{trustLabel}</span>
+                <div className="flex items-center gap-1">
+                  <span className={`text-sm font-semibold uppercase tracking-wider ${trustColor}`}>{trustLabel}</span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" className="text-muted-foreground hover:text-foreground" aria-label={isNb ? "Om Trust Score" : "About Trust Score"}>
+                        <Info className="h-3.5 w-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed">
+                      {isNb
+                        ? "Trust Score er en sammenstilt vurdering av modenheten din mot bransjestandard. Den øker etter hvert som du svarer på kontrollpunkter i regelverkene du har aktivert under Regelverk i menyen. 80+ regnes som god dekning."
+                        : "Trust Score is an aggregated assessment of your maturity against industry standards. It increases as you answer control points in the frameworks you've activated under Regulations. 80+ is considered solid coverage."}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
                     <Clock className="h-3 w-3" />
