@@ -25,25 +25,35 @@ interface Props {
   inline?: boolean;
   /** Pre-known company name (e.g. from logged-in customer's company_profile). Skips Welcome and auto-searches Brreg. */
   initialCompanyName?: string;
+  /** Pre-known org number. When set, Brreg lookup is skipped and the org block is shown as confirmed. */
+  initialOrgNumber?: string;
+  /** Pre-known domain/website. Used as the website suggestion to verify. */
+  initialDomain?: string;
 }
 
 type Step = 0 | 1 | 2 | 3 | 4;
 
 const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Publiser"];
 
-export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompleted, inline, initialCompanyName }: Props) {
+export default function ActivateTrustProfileWizard({
+  open, onOpenChange, onCompleted, inline,
+  initialCompanyName, initialOrgNumber, initialDomain,
+}: Props) {
   const queryClient = useQueryClient();
   // When we already know the customer (logged-in), skip Welcome and start at Organisasjon.
   const hasPrefill = !!(initialCompanyName && initialCompanyName.trim());
+  // When org number is also known, the wizard becomes a single "verify website" step.
+  const hasOrgPrefill = hasPrefill && !!(initialOrgNumber && initialOrgNumber.trim());
   const [step, setStep] = useState<Step>(hasPrefill ? 1 : 0);
 
   // Step 1: org
   const [companyName, setCompanyName] = useState(initialCompanyName ?? "");
-  const [orgNumber, setOrgNumber] = useState("");
+  const [orgNumber, setOrgNumber] = useState(initialOrgNumber ?? "");
   const [country] = useState("Norge");
-  const [website, setWebsite] = useState("");
+  const normalizeUrl = (u: string) => (u && !/^https?:\/\//i.test(u) ? `https://${u}` : u);
+  const [website, setWebsite] = useState(initialDomain ? normalizeUrl(initialDomain) : "");
   const [websiteVerified, setWebsiteVerified] = useState(false);
-  const [verified, setVerified] = useState(false);
+  const [verified, setVerified] = useState(hasOrgPrefill);
   const { searchByName, lookupByOrgNumber, searchResults, isLoading } = useBrregLookup();
   const autoSearchedRef = useRef(false);
 
@@ -71,25 +81,36 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
       setTimeout(() => {
         setStep(hasPrefill ? 1 : 0);
         setCompanyName(initialCompanyName ?? "");
-        setOrgNumber("");
-        setWebsite("");
+        setOrgNumber(initialOrgNumber ?? "");
+        setWebsite(initialDomain ? normalizeUrl(initialDomain) : "");
         setWebsiteVerified(false);
-        setVerified(false);
+        setVerified(hasOrgPrefill);
         setScan(null);
         setScanProgress(0);
         setRevealed(0);
         autoSearchedRef.current = false;
       }, 200);
     }
-  }, [open, hasPrefill, initialCompanyName]);
+  }, [open, hasPrefill, hasOrgPrefill, initialCompanyName, initialOrgNumber, initialDomain]);
 
-  // Auto-search Brreg when we already know the customer's company name.
+  // Auto-search Brreg only when we know the name but NOT the org number.
   useEffect(() => {
-    if (!open || !hasPrefill || autoSearchedRef.current) return;
+    if (!open || !hasPrefill || hasOrgPrefill || autoSearchedRef.current) return;
     if (orgNumber) return;
     autoSearchedRef.current = true;
     searchByName(initialCompanyName!).catch(() => {});
-  }, [open, hasPrefill, initialCompanyName, orgNumber, searchByName]);
+  }, [open, hasPrefill, hasOrgPrefill, initialCompanyName, orgNumber, searchByName]);
+
+  // Auto-derive a website suggestion from company name when org is prefilled but no domain provided.
+  useEffect(() => {
+    if (!open || !hasOrgPrefill || website) return;
+    const slug = (initialCompanyName ?? "")
+      .toLowerCase()
+      .replace(/\s+(as|asa)\s*$/i, "")
+      .replace(/\s+/g, "")
+      .replace(/[^a-z0-9]/g, "");
+    if (slug) setWebsite(`https://${slug}.no`);
+  }, [open, hasOrgPrefill, initialCompanyName, website]);
 
   // Run scan animation when entering step 2
   useEffect(() => {
