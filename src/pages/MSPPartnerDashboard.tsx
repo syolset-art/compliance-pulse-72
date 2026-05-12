@@ -12,7 +12,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText } from "lucide-react";
+import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   ResponsiveContainer,
@@ -842,7 +842,118 @@ function LiveSignals() {
   );
 }
 
-// ---------- Page ----------
+// ---------- Campaigns widget ----------
+const CAMPAIGN_STATS = {
+  active: 3,
+  totalReached: 187,
+  opened: 142,
+  accepted: 24,
+  acceptedRevenue: 415000,
+};
+
+const CAMPAIGN_SUGGESTIONS: { id: string; title: string; reach: number; reason: string; icon: typeof Megaphone }[] = [
+  {
+    id: "nis2",
+    title: "NIS2-vurdering til 12 berørte kunder",
+    reach: 12,
+    reason: "Mangler vurdering · frist nærmer seg",
+    icon: Target,
+  },
+  {
+    id: "transparency",
+    title: "Åpenhetsloven — redegjørelse før 30. juni",
+    reach: 8,
+    reason: "Ikke startet aktsomhetsvurdering",
+    icon: FileText,
+  },
+  {
+    id: "dpia",
+    title: "DPIA for kunder med AI-systemer",
+    reach: 6,
+    reason: "AI-system registrert uten DPIA",
+    icon: Sparkles,
+  },
+];
+
+function CampaignsWidget() {
+  const navigate = useNavigate();
+  const acceptRate = Math.round((CAMPAIGN_STATS.accepted / CAMPAIGN_STATS.totalReached) * 100);
+  return (
+    <Card className="p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Megaphone className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold">Kampanjer</h3>
+          <Badge variant="outline" className="text-[10px]">{CAMPAIGN_STATS.active} aktive</Badge>
+        </div>
+        <Button variant="ghost" size="sm" onClick={() => navigate("/msp-messages")} className="gap-1 text-xs h-7">
+          Se alle <ChevronRight className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+
+      {/* Stat-rad */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="rounded-lg border p-3">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">
+            <Send className="h-3 w-3" /> Mottatt
+          </div>
+          <p className="text-2xl font-bold tabular-nums">{CAMPAIGN_STATS.totalReached}</p>
+          <p className="text-[11px] text-muted-foreground">{CAMPAIGN_STATS.opened} åpnet</p>
+        </div>
+        <div className="rounded-lg border p-3 bg-success/5 border-success/30">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-success font-semibold mb-1">
+            <ThumbsUp className="h-3 w-3" /> Godkjent
+          </div>
+          <p className="text-2xl font-bold tabular-nums text-success">{CAMPAIGN_STATS.accepted}</p>
+          <p className="text-[11px] text-muted-foreground">{acceptRate}% accept-rate</p>
+        </div>
+        <div className="rounded-lg border p-3">
+          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">
+            <TrendingUp className="h-3 w-3" /> Verdi
+          </div>
+          <p className="text-2xl font-bold tabular-nums">{(CAMPAIGN_STATS.acceptedRevenue / 1000).toFixed(0)}k</p>
+          <p className="text-[11px] text-muted-foreground">aksepterte tilbud</p>
+        </div>
+      </div>
+
+      {/* Lara-forslag */}
+      <div>
+        <div className="flex items-center gap-1.5 mb-2">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          <p className="text-xs font-semibold text-foreground">Lara foreslår nye kampanjer</p>
+        </div>
+        <div className="space-y-1.5">
+          {CAMPAIGN_SUGGESTIONS.map((s) => {
+            const Icon = s.icon;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => navigate("/msp-messages")}
+                className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border border-border bg-background hover:border-primary/40 hover:bg-primary/5 transition-colors"
+              >
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <Icon className="h-4 w-4 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground truncate">{s.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{s.reason}</p>
+                </div>
+                <Badge variant="secondary" className="shrink-0 text-[10px]">
+                  <Users className="h-3 w-3 mr-1" />
+                  {s.reach}
+                </Badge>
+                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+
 export default function MSPPartnerDashboard() {
   const navigate = useNavigate();
   const [activeSuggestion, setActiveSuggestion] = useState<LaraSuggestion | null>(null);
@@ -864,6 +975,8 @@ export default function MSPPartnerDashboard() {
             <PortfolioSegmentation />
             <LiveSignals />
           </div>
+
+          <CampaignsWidget />
 
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => navigate("/msp-dashboard")}>
