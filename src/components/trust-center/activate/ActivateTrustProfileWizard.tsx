@@ -253,6 +253,8 @@ export default function ActivateTrustProfileWizard({
       contactEmail,
       dpoEmail,
       securityEmail,
+      maturityAnswers,
+      documents,
       publishNow,
     };
     try {
