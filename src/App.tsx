@@ -150,6 +150,7 @@ const App = () => (
                   <Route path="/msp-dashboard/:customerId/portal" element={<MSPCustomerPortal />} />
                   <Route path="/msp-licenses" element={<MSPLicenses />} />
                   <Route path="/msp-invoices" element={<MSPInvoices />} />
+                  <Route path="/msp-messages" element={<MSPMessages />} />
                   <Route path="/msp-roi" element={<MSPROICalculator />} />
                   <Route path="/msp-sales-guide" element={<MSPSalesGuide />} />
                   <Route path="/bli-partner" element={<BliPartner />} />
