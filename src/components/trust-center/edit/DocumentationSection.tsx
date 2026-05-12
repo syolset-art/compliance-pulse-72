@@ -5,8 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FileText, Upload, X, Eye, Sparkles, Loader2, AlertTriangle, CheckCircle2, AlertCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { FileText, Upload, X, Eye } from "lucide-react";
 import { toast } from "sonner";
 
 const DOC_TYPES = [
@@ -23,41 +22,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
-  const [analyzing, setAnalyzing] = useState(false);
-  const gap = asset?.metadata?.doc_gap_analysis as
-    | { result: any; analyzed_at: string }
-    | undefined;
 
-  const { data: frameworkCount = 0 } = useQuery({
-    queryKey: ["selected-frameworks-count-doc-gap"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("selected_frameworks")
-        .select("*", { count: "exact", head: true })
-        .eq("is_selected", true);
-      return count || 0;
-    },
-  });
-
-  const runGapAnalysis = async () => {
-    if (!asset?.id) return;
-    setAnalyzing(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("analyze-doc-gap", {
-        body: { assetId: asset.id },
-      });
-      if (error) throw error;
-      if ((data as any)?.error) throw new Error((data as any).error);
-      qc.invalidateQueries({ queryKey: ["self-asset"] });
-      qc.invalidateQueries({ queryKey: ["asset", asset.id] });
-      toast.success("Lara har analysert dokumentasjonen");
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || "Analyse feilet");
-    } finally {
-      setAnalyzing(false);
-    }
-  };
 
   const { data: documents = [] } = useQuery({
     queryKey: ["self-trust-documents", asset?.id],
@@ -189,105 +154,6 @@ export function DocumentationSection({ asset }: { asset: any }) {
         )}
       </Card>
 
-      {documents.length > 0 && (
-        <Card className="p-4 bg-primary/5 border-primary/20 space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <Sparkles className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="text-sm font-semibold text-foreground">Lara-analyse av dokumentasjon</h3>
-                {gap?.analyzed_at && (
-                  <span className="text-[11px] text-muted-foreground">
-                    Sist analysert {new Date(gap.analyzed_at).toLocaleDateString("nb-NO")}
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Vurderer dine {documents.length} opplastede dokumenter mot {frameworkCount || "dine"} pålagte rammeverk og foreslår oppdateringer.
-              </p>
-              {!gap && (
-                <Button size="sm" className="mt-3 gap-2" onClick={runGapAnalysis} disabled={analyzing}>
-                  {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                  {analyzing ? "Analyserer…" : "Analyser dokumenter"}
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {gap && (
-            <div className="space-y-3 pt-2 border-t border-primary/10">
-              <div className="flex items-center gap-2">
-                {gap.result.overallStatus === "sufficient" && (
-                  <Badge className="bg-primary/15 text-primary border-primary/20 gap-1">
-                    <CheckCircle2 className="h-3 w-3" /> Tilstrekkelig
-                  </Badge>
-                )}
-                {gap.result.overallStatus === "needs_improvement" && (
-                  <Badge className="bg-warning/15 text-warning border-warning/20 gap-1">
-                    <AlertCircle className="h-3 w-3" /> Forbedringer anbefales
-                  </Badge>
-                )}
-                {gap.result.overallStatus === "significant_gaps" && (
-                  <Badge className="bg-destructive/15 text-destructive border-destructive/20 gap-1">
-                    <AlertTriangle className="h-3 w-3" /> Vesentlige mangler
-                  </Badge>
-                )}
-                <p className="text-xs text-foreground">{gap.result.summary}</p>
-              </div>
-
-              {gap.result.findings?.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Vurdering per dokument</p>
-                  {gap.result.findings.map((f: any, i: number) => (
-                    <div key={i} className="rounded border border-border bg-background p-3 text-xs space-y-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-medium text-foreground truncate">{f.documentName}</span>
-                        <Badge
-                          variant="outline"
-                          className={
-                            f.coverage === "full"
-                              ? "text-primary border-primary/30"
-                              : f.coverage === "partial"
-                              ? "text-warning border-warning/30"
-                              : "text-destructive border-destructive/30"
-                          }
-                        >
-                          {f.coverage === "full" ? "Full dekning" : f.coverage === "partial" ? "Delvis" : f.coverage === "outdated" ? "Utdatert" : "Mangelfull"}
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground">Dekker: {f.coversRequirement}</p>
-                      <p className="text-foreground">{f.recommendation}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {gap.result.missingDocuments?.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Manglende dokumentasjon</p>
-                  {gap.result.missingDocuments.map((m: any, i: number) => (
-                    <div key={i} className="rounded border border-warning/30 bg-warning/5 p-3 text-xs space-y-1">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-3 w-3 text-warning" />
-                        <span className="font-medium text-foreground">{m.requirement}</span>
-                        <Badge variant="outline" className="text-[10px]">{m.framework}</Badge>
-                      </div>
-                      <p className="text-foreground">{m.recommendation}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <Button size="sm" variant="outline" className="gap-2" onClick={runGapAnalysis} disabled={analyzing}>
-                {analyzing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                {analyzing ? "Analyserer…" : "Kjør på nytt"}
-              </Button>
-            </div>
-          )}
-        </Card>
-      )}
 
 
       <Dialog open={!!reading} onOpenChange={(o) => !o && setReading(null)}>
