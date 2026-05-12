@@ -31,6 +31,136 @@ export interface PartnerService {
  */
 export const PARTNER_SERVICES: PartnerService[] = [
   {
+    id: "nis2",
+    name: "NIS2-vurdering",
+    description:
+      "Vurdering av virkeområde, gap-analyse mot Art. 21 og tiltaksplan for NIS2-direktivet.",
+    defaultChecklist: [
+      "Virkeområde-vurdering",
+      "Gap-analyse mot Art. 21",
+      "Tiltaksplan",
+      "Hendelsesrapportering etablert",
+    ],
+    frameworkMappings: [
+      { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.20", "Art.21", "Art.23"] },
+    ],
+    tags: ["nis2", "security", "project", "critical"],
+    price: 45000,
+    priceModel: "fixed",
+    priceNote: "fra 45 000 kr",
+  },
+  {
+    id: "dpia",
+    name: "DPIA — personvernkonsekvensvurdering",
+    description:
+      "Personvernkonsekvensvurdering for høyrisiko-behandlinger og AI-systemer.",
+    defaultChecklist: [
+      "Identifisering av behandling",
+      "Konsekvensvurdering",
+      "Tiltaksplan",
+      "Dokumentasjon arkivert",
+    ],
+    frameworkMappings: [
+      { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.35"] },
+      { frameworkId: "aiact", frameworkLabel: "AI Act", controlIds: ["Art.9"] },
+    ],
+    tags: ["gdpr", "ai", "project"],
+    price: 25000,
+    priceModel: "fixed",
+  },
+  {
+    id: "transparency",
+    name: "Åpenhetsloven — aktsomhetsvurdering",
+    description:
+      "Kartlegging av leverandørkjede, aktsomhetsvurdering og publisering av redegjørelse iht. åpenhetsloven.",
+    defaultChecklist: [
+      "Kartlegging av leverandørkjede",
+      "Risikovurdering menneskerettigheter",
+      "Tiltaksplan",
+      "Redegjørelse publisert innen 30. juni",
+    ],
+    frameworkMappings: [
+      { frameworkId: "transparency", frameworkLabel: "Åpenhetsloven", controlIds: ["§4", "§5"] },
+    ],
+    tags: ["transparency", "project", "mid", "critical"],
+    price: 35000,
+    priceModel: "fixed",
+  },
+  {
+    id: "iso27001",
+    name: "ISO 27001 — implementering",
+    description:
+      "Etablering av styringssystem for informasjonssikkerhet med dokumentasjon, risikovurdering og sertifiseringsstøtte.",
+    defaultChecklist: [
+      "Gap-analyse",
+      "Risikovurdering",
+      "Policy-rammeverk",
+      "Internrevisjon",
+      "Sertifiseringsstøtte",
+    ],
+    frameworkMappings: [
+      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.1", "A.5.4", "A.6.1"] },
+    ],
+    tags: ["iso", "security", "project"],
+    priceNote: "fra 120 000 kr",
+    priceModel: "quote",
+  },
+  {
+    id: "dpo",
+    name: "DPO-as-a-Service",
+    description:
+      "Eksternt personvernombud med løpende rådgivning, behandlingsprotokoll og tilsynsdialog.",
+    defaultChecklist: [
+      "Behandlingsprotokoll vedlikeholdt",
+      "Rådgivning til virksomheten",
+      "Avvik og brudd håndtert",
+      "Årsrapport til ledelse",
+    ],
+    frameworkMappings: [
+      { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.37", "Art.39"] },
+    ],
+    tags: ["gdpr", "subscription"],
+    price: 7500,
+    priceModel: "monthly",
+    priceNote: "fra 7 500 kr/mnd",
+  },
+  {
+    id: "vciso",
+    name: "vCISO-tjeneste",
+    description:
+      "Strategisk sikkerhetsledelse på timebasis — rådgivning, rapportering og styringsstøtte.",
+    defaultChecklist: [
+      "Månedlig statusmøte",
+      "Sikkerhetsstrategi oppdatert",
+      "Rapport til styret",
+      "Risikoregister vedlikeholdt",
+    ],
+    frameworkMappings: [
+      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.1", "A.5.4"] },
+    ],
+    tags: ["security", "iso", "subscription"],
+    price: 12000,
+    priceModel: "monthly",
+  },
+  {
+    id: "ai-governance",
+    name: "AI Governance-rammeverk",
+    description:
+      "Etablering av styring, policyer og roller for ansvarlig bruk av AI iht. AI Act.",
+    defaultChecklist: [
+      "AI-policy etablert",
+      "Roller og ansvar avklart",
+      "Inventar av AI-systemer",
+      "Opplæring av nøkkelpersonell",
+    ],
+    frameworkMappings: [
+      { frameworkId: "aiact", frameworkLabel: "AI Act", controlIds: ["Art.4", "Art.9", "Art.26"] },
+    ],
+    tags: ["ai", "project"],
+    price: 55000,
+    priceModel: "fixed",
+  },
+  {
     id: "awareness",
     name: "Awareness-program",
     description:
@@ -47,6 +177,9 @@ export const PARTNER_SERVICES: PartnerService[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.20"] },
     ],
     tags: ["security", "subscription", "smb", "mid"],
+    price: 1500,
+    priceModel: "monthly",
+    priceNote: "fra 1 500 kr/mnd",
   },
   {
     id: "pentest",
@@ -65,6 +198,8 @@ export const PARTNER_SERVICES: PartnerService[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
     tags: ["security", "project", "mid", "critical"],
+    price: 65000,
+    priceModel: "fixed",
   },
 ];
 
