@@ -535,38 +535,41 @@ function Step2({
   recipientsCount: number;
 }) {
   return (
-    <div className="space-y-4 py-2">
-      <div className="grid grid-cols-3 gap-2">
-        {KIND_OPTIONS.map((opt) => {
-          const Icon = opt.icon;
-          const isOn = kind === opt.id;
-          return (
-            <button
-              key={opt.id}
-              type="button"
-              onClick={() => setKind(opt.id)}
-              className={cn(
-                "text-left p-3 rounded-lg border transition-colors",
-                isOn
-                  ? "border-primary bg-primary/5"
-                  : "border-border bg-background hover:border-primary/30",
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <Icon className={cn("h-4 w-4", isOn ? "text-primary" : "text-muted-foreground")} />
-                <span className="text-[13px] font-medium text-foreground">{opt.label}</span>
-              </div>
-              <p className="text-[11px] text-muted-foreground mt-1 leading-snug">{opt.hint}</p>
-            </button>
-          );
-        })}
+    <div className="space-y-5 py-2">
+      <div>
+        <p className="text-sm font-semibold text-foreground mb-2">Hva slags melding?</p>
+        <div className="grid grid-cols-3 gap-2">
+          {KIND_OPTIONS.map((opt) => {
+            const Icon = opt.icon;
+            const isOn = kind === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setKind(opt.id)}
+                className={cn(
+                  "text-left p-3 rounded-lg border transition-colors",
+                  isOn
+                    ? "border-primary bg-primary/5"
+                    : "border-border bg-background hover:border-primary/30",
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <Icon className={cn("h-4 w-4", isOn ? "text-primary" : "text-muted-foreground")} />
+                  <span className="text-sm font-medium text-foreground">{opt.label}</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1.5 leading-snug">{opt.hint}</p>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {kind === "offer" && (
         <div className="space-y-1.5">
-          <Label className="text-xs">Tjeneste fra katalogen</Label>
+          <Label className="text-sm">Tjeneste fra katalogen</Label>
           <Select value={serviceId} onValueChange={setServiceId}>
-            <SelectTrigger className="h-9 text-sm">
+            <SelectTrigger className="h-10 text-sm">
               <SelectValue placeholder="Velg tjeneste å tilby" />
             </SelectTrigger>
             <SelectContent>
@@ -578,7 +581,7 @@ function Step2({
             </SelectContent>
           </Select>
           {PARTNER_SERVICES.length === 0 && (
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Ingen tjenester i katalogen ennå — gå til Tjenestekatalog først.
             </p>
           )}
@@ -586,47 +589,47 @@ function Step2({
       )}
 
       <div className="space-y-1.5">
-        <Label className="text-xs">Kampanjenavn (intern)</Label>
+        <Label className="text-sm">Kampanjenavn (kun internt)</Label>
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="F.eks. NIS2-kampanje våren 2026"
-          className="h-9 text-sm"
+          className="h-10 text-sm"
         />
       </div>
 
-      <div className="flex items-center justify-between">
-        <p className="text-[12px] text-muted-foreground">
-          Lara kan skrive et utkast for {recipientsCount} mottaker
-          {recipientsCount === 1 ? "" : "e"} basert på valgene dine.
+      <Card className="p-3 bg-primary/5 border-primary/20 flex items-center justify-between gap-3">
+        <p className="text-sm text-foreground">
+          La Lara skrive et utkast for {recipientsCount} mottaker
+          {recipientsCount === 1 ? "" : "e"}.
         </p>
-        <Button size="sm" variant="outline" onClick={onGenerate} className="h-7 gap-1.5">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          {subject || body ? "Generer på nytt" : "La Lara skrive utkast"}
+        <Button size="sm" variant="outline" onClick={onGenerate} className="gap-1.5 shrink-0">
+          <Sparkles className="h-4 w-4 text-primary" />
+          {subject || body ? "Generer på nytt" : "Skriv utkast"}
         </Button>
-      </div>
+      </Card>
 
       <div className="space-y-1.5">
-        <Label className="text-xs">Emne (e-post)</Label>
+        <Label className="text-sm">Emne (e-post)</Label>
         <Input
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
           placeholder="F.eks. Tilbud: NIS2-klargjøring for {{kunde}}"
-          className="h-9 text-sm"
+          className="h-10 text-sm"
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-xs">Brødtekst</Label>
+        <Label className="text-sm">Brødtekst</Label>
         <Textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
           rows={10}
           placeholder="Bruk flettetags: {{kunde}}, {{kontaktperson}}, {{regelverk}}, {{partner}}"
-          className="text-[12px] font-mono"
+          className="text-sm"
         />
-        <p className="text-[11px] text-muted-foreground">
-          Tilgjengelige flettetags:{" "}
+        <p className="text-xs text-muted-foreground">
+          Flettetags som fylles ut automatisk per kunde:{" "}
           <code className="text-primary">{`{{kunde}}`}</code>{" "}
           <code className="text-primary">{`{{kontaktperson}}`}</code>{" "}
           <code className="text-primary">{`{{regelverk}}`}</code>{" "}
