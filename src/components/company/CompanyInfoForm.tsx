@@ -61,6 +61,13 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     dpo_email: "",
     ciso_name: "",
     ciso_email: "",
+    // Partner / leveransepartner
+    managed_by_partner: false,
+    partner_name: "",
+    partner_type: "msp",
+    partner_role_description: "",
+    partner_since: "",
+    show_partner_on_trust_profile: true,
   });
 
   useEffect(() => {
