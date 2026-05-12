@@ -5,8 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Check, Plus, Send, Trash2, Info } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Check, Plus, Send, Trash2, Info, FileText, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 
 export interface CreateOfferDialogProps {
   open: boolean;
