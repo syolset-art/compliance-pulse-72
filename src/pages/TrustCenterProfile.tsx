@@ -250,20 +250,25 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
           <Sidebar />
-          <main className="flex-1 p-6">
-            <div className="animate-pulse space-y-4">
-              <div className="h-8 w-48 bg-muted rounded" />
-              <div className="h-64 bg-muted rounded" />
-            </div>
+          <main className="flex-1 p-6 pt-16">
+            {showActivateWizard ? (
+              <ActivateTrustProfileWizard
+                inline
+                initialCompanyName={companyProfile?.name || undefined}
+                open={showActivateWizard}
+                onOpenChange={setShowActivateWizard}
+                onCompleted={() => {
+                  queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+                  queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+                }}
+              />
+            ) : (
+              <div className="animate-pulse space-y-4 max-w-3xl mx-auto">
+                <div className="h-8 w-48 bg-muted rounded" />
+                <div className="h-64 bg-muted rounded" />
+              </div>
+            )}
           </main>
-          <ActivateTrustProfileWizard
-            open={showActivateWizard}
-            onOpenChange={setShowActivateWizard}
-            onCompleted={() => {
-              queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
-              queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-            }}
-          />
         </div>
       </SidebarProvider>
     );
