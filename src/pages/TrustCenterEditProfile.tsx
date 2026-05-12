@@ -303,6 +303,34 @@ const TrustCenterEditProfile = () => {
                 <span className="text-xs text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
               </div>
 
+              <Card className="p-3 bg-primary/5 border-primary/20 flex items-start gap-3">
+                <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                  <Info className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0 text-xs text-foreground">
+                  {isNb ? (
+                    <>
+                      Kontrollområdene speiler rammeverkene du har aktivert under <strong>Regelverk</strong>
+                      {frameworks.length > 0 && (
+                        <> ({frameworks.slice(0, 3).map((f: any) => f.framework_name).join(", ")}{frameworks.length > 3 ? ` +${frameworks.length - 3} til` : ""})</>
+                      )}
+                      . Skoren beregnes ut fra disse. Trenger du flere eller andre rammeverk? Oppdater i Regelverk – så reflekteres det her.
+                    </>
+                  ) : (
+                    <>
+                      Control areas mirror the frameworks you've activated under <strong>Frameworks</strong>
+                      {frameworks.length > 0 && (
+                        <> ({frameworks.slice(0, 3).map((f: any) => f.framework_name).join(", ")}{frameworks.length > 3 ? ` +${frameworks.length - 3} more` : ""})</>
+                      )}
+                      . The score is calculated from these. Need more or different frameworks? Update them under Frameworks and it will reflect here.
+                    </>
+                  )}
+                </div>
+                <Button size="sm" variant="outline" className="text-xs gap-1.5 shrink-0" onClick={() => navigate("/regulations")}>
+                  {isNb ? "Gå til Regelverk" : "Go to Frameworks"}
+                </Button>
+              </Card>
+
               {/* Control areas */}
               <div className="space-y-2">
                 {AREA_CONFIG.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn }) => {
