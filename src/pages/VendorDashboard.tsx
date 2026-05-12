@@ -121,7 +121,12 @@ export default function VendorDashboard() {
             <div className="flex items-center justify-between">
               <TabsList className="h-9 p-0.5">
                 <TabsTrigger value="overview" className="text-xs px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
-                <TabsTrigger value="all" className="text-xs px-3">{t("vendorDashboard.tabs.all")}</TabsTrigger>
+                <TabsTrigger value="all" className="text-xs px-3 gap-1.5">
+                  {t("vendorDashboard.tabs.all")}
+                  <span className="inline-flex items-center justify-center min-w-5 h-4 px-1.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
+                    {vendors.length}
+                  </span>
+                </TabsTrigger>
                 <TabsTrigger value="map" className="text-xs px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
                 <TabsTrigger value="supplyChain" className="text-xs px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
                 <TabsTrigger value="compare" className="text-xs px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
