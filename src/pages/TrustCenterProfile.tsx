@@ -403,7 +403,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
               <span className="inline-flex items-center gap-1 text-success font-medium">
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                {isNb ? "Kryptografisk verifiserbar" : "Cryptographically verifiable"}
+                {isNb ? "Kryptografisk verifisert" : "Cryptographically verified"}
               </span>
               <span className="text-muted-foreground/50">·</span>
               <span>{isNb ? "sist signert 3. mai 2026" : "last signed May 3, 2026"}</span>
@@ -1302,7 +1302,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
                       <span className="inline-flex items-center gap-1 text-success font-medium">
                         <CheckCircle2 className="h-3.5 w-3.5" />
-                        {isNb ? "Kryptografisk verifiserbar" : "Cryptographically verifiable"}
+                        {isNb ? "Kryptografisk verifisert" : "Cryptographically verified"}
                       </span>
                       <span className="text-muted-foreground/50">·</span>
                       <span>{isNb ? "sist signert 3. mai 2026" : "last signed May 3, 2026"}</span>
