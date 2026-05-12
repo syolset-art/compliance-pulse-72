@@ -39,6 +39,7 @@ export function MSPCreateOfferDialog({
   defaultEffort = "120 timer",
   defaultPrice = "180 000 kr",
   defaultMessage,
+  attachGap: attachGapProp = true,
 }: CreateOfferDialogProps) {
   const [items, setItems] = useState<string[]>(defaultItems || [
     `Gap-analyse mot ${domainName}-kravene`,
