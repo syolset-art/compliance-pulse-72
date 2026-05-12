@@ -96,7 +96,7 @@ export default function ActivateTrustProfileWizard({
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
-        setStep(hasPrefill ? 1 : 0);
+        setStep(0);
         setCompanyName(initialCompanyName ?? "");
         setOrgNumber(initialOrgNumber ?? "");
         setWebsite(initialDomain ? normalizeUrl(initialDomain) : "");
