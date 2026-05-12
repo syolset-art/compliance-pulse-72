@@ -170,11 +170,11 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="assessment" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Tjenestemuligheter
                 </TabsTrigger>
-                <TabsTrigger value="trust-profile" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
-                  Trust Profile
-                </TabsTrigger>
                 <TabsTrigger value="messages" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Meldinger
+                </TabsTrigger>
+                <TabsTrigger value="trust-profile" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
+                  Trust Profile
                 </TabsTrigger>
               </TabsList>
             </nav>
