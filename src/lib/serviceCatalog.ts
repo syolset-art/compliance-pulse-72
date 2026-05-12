@@ -76,7 +76,7 @@ export function getService(id: string): PartnerService | undefined {
 
 export type WizardAnswers = {
   segments: string[]; // smb | mid | critical | public
-  domains: string[]; // security | gdpr | iso | ai | nis2 | quality | economy | accounting
+  domains: string[]; // security | gdpr | iso | ai | nis2 | transparency | dora
   model: string; // project | subscription | hybrid
   maturity: string; // low | mid | high
 };
