@@ -698,15 +698,30 @@ function ConfirmStep(props: any) {
             <div className="flex items-center justify-between"><Label>E-post</Label><LaraBadge /></div>
             <Input value={props.contactEmail} onChange={(e) => props.setContactEmail(e.target.value)} />
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 pt-1">
           <div className="space-y-1.5">
-            <Label>DPO / personvernkontakt</Label>
-            <Input value={props.dpoName} onChange={(e) => props.setDpoName(e.target.value)} />
+            <div className="flex items-center justify-between"><Label>Personvern / DPO e-post</Label><LaraBadge /></div>
+            <Input
+              type="email"
+              value={props.dpoEmail}
+              onChange={(e) => props.setDpoEmail(e.target.value)}
+              placeholder="personvern@firma.no"
+            />
           </div>
           <div className="space-y-1.5">
-            <Label>DPO e-post</Label>
-            <Input value={props.dpoEmail} onChange={(e) => props.setDpoEmail(e.target.value)} />
+            <div className="flex items-center justify-between"><Label>Sikkerhetskontakt for hendelser</Label><LaraBadge /></div>
+            <Input
+              type="email"
+              value={props.securityEmail}
+              onChange={(e) => props.setSecurityEmail(e.target.value)}
+              placeholder="sikkerhet@firma.no"
+            />
           </div>
         </div>
+        <p className="text-xs text-muted-foreground">
+          Brukes når kunder eller myndigheter trenger å melde fra om personvern- eller sikkerhetshendelser. Det kan være samme e-post for begge.
+        </p>
       </FieldGroup>
 
       <FieldGroup icon={Lock} title="Personvern">
