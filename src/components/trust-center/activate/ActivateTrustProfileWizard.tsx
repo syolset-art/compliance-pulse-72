@@ -362,6 +362,12 @@ export default function ActivateTrustProfileWizard({
         />
       )}
       {step === 4 && (
+        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
+      )}
+      {step === 5 && (
+        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+      )}
+      {step === 6 && (
         <PreviewStep
           name={companyName}
           orgNumber={orgNumber}
@@ -373,6 +379,8 @@ export default function ActivateTrustProfileWizard({
           encryption={encryption}
           certifications={scan?.security.certifications ?? []}
           subProcessors={subProcessors}
+          maturityAnswers={maturityAnswers}
+          documents={documents}
         />
       )}
     </div>
@@ -384,7 +392,7 @@ export default function ActivateTrustProfileWizard({
         {step === 0 || (hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
-      {step < 4 ? (
+      {step < 6 ? (
         <div className="flex gap-2">
           {step === 2 && (
             <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -395,7 +403,9 @@ export default function ActivateTrustProfileWizard({
             {step === 0 && (<><Sparkles className="h-4 w-4" /> La Lara starte</>)}
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
-            {step === 3 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
+            {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
+            {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
+            {step === 5 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
