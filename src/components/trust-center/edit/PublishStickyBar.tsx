@@ -18,7 +18,7 @@ export function PublishStickyBar({ readinessPercent, passedCount, totalCount, on
           <CheckCircle2 className="h-5 w-5 text-success" />
           <div>
             <p className="text-sm font-medium text-foreground">Klar for publisering</p>
-            <p className="text-xs text-muted-foreground">{passedCount}/{totalCount} områder fylt ut</p>
+            <p className="text-sm text-muted-foreground">{passedCount}/{totalCount} områder fylt ut</p>
           </div>
         </div>
         <div className="flex gap-2">

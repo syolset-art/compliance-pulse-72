@@ -33,7 +33,7 @@ export function PrivacySection({ asset }: { asset: any }) {
           <Badge
             key={o}
             variant={active ? "default" : "outline"}
-            className={`cursor-pointer text-xs ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            className={`cursor-pointer text-sm ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
             onClick={() => toggleArr(field, o)}
           >
             {active && <Check className="h-3 w-3 mr-1" />}
@@ -54,7 +54,7 @@ export function PrivacySection({ asset }: { asset: any }) {
       <LaraAutoFillBanner description="Lara analyserer behandlingsaktiviteter, datatyper og overføringsgrunnlag basert på dine systemer og dokumenter." />
       <Card className="p-5 space-y-5">
         <div className="space-y-2">
-          <label className="text-xs font-medium text-foreground">GDPR-status</label>
+          <label className="text-sm font-medium text-foreground">GDPR-status</label>
           <div className="flex flex-wrap gap-2">
             {STATUSES.map((s) => {
               const active = p.gdpr_status === s.code;
@@ -62,7 +62,7 @@ export function PrivacySection({ asset }: { asset: any }) {
                 <button
                   key={s.code}
                   onClick={() => updatePath(["privacy", "gdpr_status"], s.code, { silent: true })}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-colors ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${
                     active ? s.cls : "border-border text-muted-foreground hover:bg-muted/50"
                   }`}
                 >
@@ -74,12 +74,12 @@ export function PrivacySection({ asset }: { asset: any }) {
         </div>
 
         <div className="space-y-2 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Datatyper som behandles</label>
+          <label className="text-sm font-medium text-foreground">Datatyper som behandles</label>
           <Pills field="data_types" options={DATA_TYPES} />
         </div>
 
         <div className="space-y-1.5 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Dataoppbevaringspolicy</label>
+          <label className="text-sm font-medium text-foreground">Dataoppbevaringspolicy</label>
           <Textarea
             defaultValue={p.retention_policy || ""}
             placeholder="Beskriv hvor lenge ulike datatyper oppbevares og slettes..."
@@ -89,13 +89,13 @@ export function PrivacySection({ asset }: { asset: any }) {
         </div>
 
         <div className="space-y-2 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Overføringsmekanismer</label>
-          <p className="text-[13px] text-muted-foreground">For overføring av data utenfor EØS.</p>
+          <label className="text-sm font-medium text-foreground">Overføringsmekanismer</label>
+          <p className="text-sm text-muted-foreground">For overføring av data utenfor EØS.</p>
           <Pills field="transfer_mechanisms" options={TRANSFER} />
         </div>
 
         <div className="space-y-2 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Sertifiseringer og standarder</label>
+          <label className="text-sm font-medium text-foreground">Sertifiseringer og standarder</label>
           <Pills field="standards" options={STANDARDS} />
         </div>
       </Card>

@@ -191,7 +191,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
           <h2 className="text-base font-semibold text-foreground">Dokumenter</h2>
-          <p className="text-xs text-muted-foreground max-w-2xl">
+          <p className="text-sm text-muted-foreground max-w-2xl">
             Velg hvilke dokumenter som skal vises i din Trust Profile. Lara analyserer hvert dokument og gir en kvalitetsvurdering — kun synlig for deg.
           </p>
         </div>
@@ -202,13 +202,13 @@ export function DocumentationSection({ asset }: { asset: any }) {
         </Button>
       </div>
 
-      <p className="text-xs text-foreground">
+      <p className="text-sm text-foreground">
         <span className="font-medium">{documents.length}</span> dokument{documents.length === 1 ? "" : "er"} valgt til Trust Profile
       </p>
 
       {documents.length > 0 && (
         <div className="space-y-2">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Valgt</p>
+          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Valgt</p>
           <div className="space-y-2">
             {documents.slice(0, 3).map((doc: any) => {
               const meta = docMeta(doc);
@@ -222,32 +222,32 @@ export function DocumentationSection({ asset }: { asset: any }) {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-foreground truncate">{doc.file_name}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{meta.subtitle}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5">{meta.subtitle}</p>
                         </div>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
                               type="button"
-                              className={`text-xs ${qualityClass(meta.quality)} shrink-0 inline-flex items-center gap-1 underline decoration-dotted underline-offset-2 cursor-help`}
+                              className={`text-sm ${qualityClass(meta.quality)} shrink-0 inline-flex items-center gap-1 underline decoration-dotted underline-offset-2 cursor-help`}
                             >
                               <Sparkles className="h-3 w-3" />
                               {qualityLabel(meta.quality)}
                             </button>
                           </TooltipTrigger>
                           <TooltipContent side="left" className="max-w-xs">
-                            <p className="text-xs font-medium mb-1">Lara sin vurdering</p>
-                            <p className="text-xs text-muted-foreground">{meta.reason}</p>
+                            <p className="text-sm font-medium mb-1">Lara sin vurdering</p>
+                            <p className="text-sm text-muted-foreground">{meta.reason}</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
                       <div className="flex items-center gap-2 mt-3">
-                        <Button variant="outline" size="sm" className="gap-1.5 text-xs h-7" onClick={() => openDoc(doc)}>
+                        <Button variant="outline" size="sm" className="gap-1.5 text-sm h-7" onClick={() => openDoc(doc)}>
                           <Eye className="h-3.5 w-3.5" /> Se dokumentet
                         </Button>
-                        <Button variant="outline" size="sm" className="gap-1.5 text-xs h-7" onClick={() => fileRef.current?.click()}>
+                        <Button variant="outline" size="sm" className="gap-1.5 text-sm h-7" onClick={() => fileRef.current?.click()}>
                           <Replace className="h-3.5 w-3.5" /> Erstatt
                         </Button>
-                        <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => removeDoc(doc)}>
+                        <Button variant="outline" size="sm" className="text-sm h-7" onClick={() => removeDoc(doc)}>
                           Fjern
                         </Button>
                       </div>
@@ -269,7 +269,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
 
       {visibleSuggestions.length > 0 && (
         <div className="space-y-2 pt-2">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
             Foreslått fra dine andre moduler
           </p>
           <div className="space-y-2">
@@ -284,11 +284,11 @@ export function DocumentationSection({ asset }: { asset: any }) {
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{s.file_name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-sm text-muted-foreground mt-0.5">
                       {s.type_label} · {s.source}
                     </p>
                     <div className="mt-3">
-                      <Button variant="outline" size="sm" className="gap-1.5 text-xs h-7" disabled>
+                      <Button variant="outline" size="sm" className="gap-1.5 text-sm h-7" disabled>
                         <Eye className="h-3.5 w-3.5" /> Se dokumentet
                       </Button>
                     </div>

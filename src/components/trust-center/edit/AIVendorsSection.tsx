@@ -35,14 +35,14 @@ export function AIVendorsSection({ asset }: { asset: any }) {
         <Sparkles className="h-4 w-4 text-primary" />
         <h2 className="text-base font-semibold text-foreground">AI og leverandørstyring</h2>
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Hvordan dere bruker AI og hvordan dere vurderer underleverandører.
       </p>
 
       <Card className="p-5 space-y-5">
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-foreground">AI-bruk</label>
-          <p className="text-[13px] text-muted-foreground">Hvilke AI-systemer brukes, til hvilke formål.</p>
+          <label className="text-sm font-medium text-foreground">AI-bruk</label>
+          <p className="text-sm text-muted-foreground">Hvilke AI-systemer brukes, til hvilke formål.</p>
           <Textarea
             defaultValue={av.ai_usage || ""}
             placeholder="F.eks. OpenAI for kundestøtte, intern bruk av Lovable AI..."
@@ -52,8 +52,8 @@ export function AIVendorsSection({ asset }: { asset: any }) {
         </div>
 
         <div className="space-y-1.5 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Leverandørrisikostyring</label>
-          <p className="text-[13px] text-muted-foreground">Prosess og kriterier for å vurdere tredjeparter.</p>
+          <label className="text-sm font-medium text-foreground">Leverandørrisikostyring</label>
+          <p className="text-sm text-muted-foreground">Prosess og kriterier for å vurdere tredjeparter.</p>
           <Textarea
             defaultValue={av.vendor_risk || ""}
             placeholder="Beskriv hvordan dere vurderer og følger opp leverandører..."
@@ -63,8 +63,8 @@ export function AIVendorsSection({ asset }: { asset: any }) {
         </div>
 
         <div className="space-y-2 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Underleverandører (sub-prosessorer)</label>
-          <p className="text-[13px] text-muted-foreground">Tredjeparter som behandler data på vegne av dere.</p>
+          <label className="text-sm font-medium text-foreground">Underleverandører (sub-prosessorer)</label>
+          <p className="text-sm text-muted-foreground">Tredjeparter som behandler data på vegne av dere.</p>
 
           {subs.length > 0 && (
             <div className="space-y-1.5">
@@ -72,7 +72,7 @@ export function AIVendorsSection({ asset }: { asset: any }) {
                 <div key={i} className="flex items-center gap-2 rounded-md border border-border p-2.5 bg-muted/20">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">{s.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-sm text-muted-foreground truncate">
                       {[s.purpose, s.location].filter(Boolean).join(" · ")}
                     </p>
                   </div>
@@ -104,7 +104,7 @@ export function AIVendorsSection({ asset }: { asset: any }) {
               className="text-sm"
             />
           </div>
-          <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={addSub} disabled={!draft.name.trim()}>
+          <Button size="sm" variant="outline" className="gap-1.5 text-sm" onClick={addSub} disabled={!draft.name.trim()}>
             <Plus className="h-3 w-3" /> Legg til underleverandør
           </Button>
         </div>
