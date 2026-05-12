@@ -113,7 +113,7 @@ export function MSPMaturityServiceMatrix() {
             Detaljert oversikt per regelverk — bruk som grunnlag for tilbud eller legg ved som vedlegg.
           </p>
         </div>
-        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setGapOpen(true)}>
+        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openGap(undefined)}>
           <FileText className="h-3.5 w-3.5" /> Vis gap-analyse
         </Button>
       </Card>
