@@ -235,6 +235,7 @@ export function MSPMaturityServiceMatrix() {
         onOpenChange={(o) => setOfferCtx(s => ({ ...s, open: o }))}
         serviceTitle={offerCtx.serviceTitle}
         variant={offerCtx.variant}
+        attachGap={offerCtx.attachGap}
       />
 
       <MSPGapAnalysisDialog
