@@ -107,7 +107,7 @@ export function getService(id: string): PartnerService | undefined {
 
 export type WizardAnswers = {
   segments: string[]; // smb | mid | critical | public
-  domains: string[]; // security | gdpr | iso | ai | nis2 | quality
+  domains: string[]; // security | gdpr | iso | ai | nis2 | quality | economy | accounting
   model: string; // project | subscription | hybrid
   maturity: string; // low | mid | high
 };
@@ -151,6 +151,8 @@ export const WIZARD_QUESTIONS: WizardQuestion[] = [
       { id: "nis2", label: "NIS2 / DORA" },
       { id: "ai", label: "AI Governance / AI Act" },
       { id: "quality", label: "Kvalitet & HMS" },
+      { id: "economy", label: "Økonomi" },
+      { id: "accounting", label: "Regnskap & bokføring" },
     ],
   },
   {
