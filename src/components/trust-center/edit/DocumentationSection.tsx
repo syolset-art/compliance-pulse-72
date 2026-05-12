@@ -119,7 +119,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
             <p className="text-sm text-muted-foreground">Ingen dokumenter lastet opp ennå.</p>
           </div>
         ) : (
-          documents.map((doc: any) => (
+          documents.slice(0, 3).map((doc: any) => (
             <div key={doc.id} className="flex items-center gap-3 p-4">
               <FileText className="h-4 w-4 text-primary shrink-0" />
               <div className="flex-1 min-w-0">
