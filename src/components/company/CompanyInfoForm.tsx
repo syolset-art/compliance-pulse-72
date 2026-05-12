@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Shield, Save, Pencil, X, Sparkles, AlertCircle } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Upload, Shield, Save, Pencil, X, Sparkles, AlertCircle, Handshake } from "lucide-react";
 import { toast } from "sonner";
 
 interface CompanyInfoFormProps {
