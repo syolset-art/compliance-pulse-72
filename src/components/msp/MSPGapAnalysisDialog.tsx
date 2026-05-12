@@ -226,14 +226,9 @@ export function MSPGapAnalysisDialog({
                 {isOpen && (
                   <div className="px-3 pb-3 space-y-1">
                     {visibleGaps.map(g => (
-                      <div key={g.id} className="flex items-start gap-3 rounded-md px-3 py-2 bg-muted/30">
-                        <span className={cn("h-1.5 w-1.5 rounded-full shrink-0 mt-1.5", severityDot(g.severity))} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-medium text-foreground">{g.title}</p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {g.reference || g.domain} · {SEVERITY_LABEL[g.severity]}
-                          </p>
-                        </div>
+                      <div key={g.id} className="flex items-center gap-2.5 rounded-md px-3 py-1.5 bg-muted/30">
+                        <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", severityDot(g.severity))} />
+                        <p className="text-[13px] text-foreground truncate flex-1">{g.title}</p>
                       </div>
                     ))}
                     {f.gaps.length > INITIAL_VISIBLE && (
