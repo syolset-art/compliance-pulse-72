@@ -80,9 +80,6 @@ export default function VendorDemoActivation() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="outline" className="text-[10px] uppercase tracking-wide gap-1">
-                  <Eye className="h-3 w-3" /> Demo
-                </Badge>
                 <h1 className="text-xl md:text-2xl font-bold text-primary">
                   Aktivering av Leverandørstyring
                 </h1>
@@ -304,33 +301,6 @@ function PreviewStage({ onStart }: { onStart: () => void }) {
         </div>
       </div>
 
-      {/* Locked dashboard preview */}
-      <div className="relative">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-          Forhåndsvisning av dashbord
-        </p>
-        <div className="relative rounded-lg border border-dashed border-border overflow-hidden">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 pointer-events-none select-none opacity-50">
-            {[
-              { label: "Totalt leverandører", value: "—" },
-              { label: "Snitt compliance", value: "—%" },
-              { label: "Høy risiko", value: "—" },
-              { label: "Krever oppfølging", value: "—" },
-            ].map((m) => (
-              <Card key={m.label} className="p-4">
-                <p className="text-xs text-muted-foreground mb-1">{m.label}</p>
-                <p className="text-2xl font-bold text-muted-foreground/40">{m.value}</p>
-              </Card>
-            ))}
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[2px]">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background border border-border shadow-sm">
-              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-xs font-medium text-foreground">Aktiver for å se dataene dine</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
