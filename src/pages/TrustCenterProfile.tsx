@@ -234,6 +234,17 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
       .finally(() => setIsSeeding(false));
   }, [asset, isLoading, isSeeding, propAssetId]);
 
+  // Allow external trigger (e.g. from sidebar demo button) to re-open the wizard
+  useEffect(() => {
+    const open = () => setShowActivateWizard(true);
+    window.addEventListener("open-activate-trust-wizard", open);
+    // Also support ?activate=1 query param on initial load
+    if (typeof window !== "undefined" && window.location.search.includes("activate=1")) {
+      setShowActivateWizard(true);
+    }
+    return () => window.removeEventListener("open-activate-trust-wizard", open);
+  }, []);
+
   if (isLoading || !asset) {
     return (
       <SidebarProvider>
