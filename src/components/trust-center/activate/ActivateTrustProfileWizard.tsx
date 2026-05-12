@@ -239,23 +239,7 @@ export default function ActivateTrustProfileWizard({
     return true;
   }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => {
-    if (step === 4) {
-      // Lara "calculates" preliminary Trust Score before showing documents step
-      setIsCalculating(true);
-      setCalcStep(0);
-      const t1 = setTimeout(() => setCalcStep(1), 500);
-      const t2 = setTimeout(() => setCalcStep(2), 1100);
-      const t3 = setTimeout(() => setCalcStep(3), 1700);
-      const t4 = setTimeout(() => {
-        setIsCalculating(false);
-        setStep(5);
-      }, 2100);
-      // best-effort cleanup if user closes during calc
-      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
-    }
-    setStep((s) => (Math.min(5, s + 1) as Step));
-  };
+  const next = () => setStep((s) => (Math.min(5, s + 1) as Step));
   const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
@@ -281,6 +265,16 @@ export default function ActivateTrustProfileWizard({
 
   const handlePublish = async (publishNow: boolean) => {
     setIsPublishing(true);
+    // Run Lara "calculation" animation before actually publishing
+    setIsCalculating(true);
+    setCalcStep(0);
+    await new Promise((r) => setTimeout(r, 500));
+    setCalcStep(1);
+    await new Promise((r) => setTimeout(r, 600));
+    setCalcStep(2);
+    await new Promise((r) => setTimeout(r, 600));
+    setCalcStep(3);
+    await new Promise((r) => setTimeout(r, 500));
     const values: ActivationValues = {
       name: companyName,
       orgNumber,
@@ -310,6 +304,7 @@ export default function ActivateTrustProfileWizard({
       toast.error(e?.message ?? "Noe gikk galt");
     } finally {
       setIsPublishing(false);
+      setIsCalculating(false);
     }
   };
 
@@ -400,14 +395,14 @@ export default function ActivateTrustProfileWizard({
           subProcessors={subProcessors} setSubProcessors={setSubProcessors}
         />
       )}
-      {step === 4 && !isCalculating && (
+      {step === 4 && (
         <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
-      {step === 4 && isCalculating && (
-        <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
+      {step === 5 && !isCalculating && (
+        <DocumentsStep documents={documents} onUpload={uploadDocument} />
       )}
-      {step === 5 && (
-        <DocumentsStep documents={documents} onUpload={uploadDocument} trustScore={trustScore} />
+      {step === 5 && isCalculating && (
+        <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
       )}
     </div>
   );
@@ -425,19 +420,18 @@ export default function ActivateTrustProfileWizard({
               Lukk — kom tilbake senere
             </Button>
           )}
-          <Button onClick={next} disabled={!canNext || isCalculating} className="gap-2">
-            {isCalculating && step === 4 ? (<><Loader2 className="h-4 w-4 animate-spin" /> Lara beregner …</>) : (<></>)}
-            {!isCalculating && step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
-            {!isCalculating && step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
-            {!isCalculating && step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
-            {!isCalculating && step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
-            {!isCalculating && step === 4 && (<>Beregn Trust Score <ArrowRight className="h-4 w-4" /></>)}
+          <Button onClick={next} disabled={!canNext} className="gap-2">
+            {step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
+            {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
+            {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
+            {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
+            {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
         <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
-          {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-          Fullfør aktivering — gå til Trust Profile
+          {isPublishing || isCalculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          {isCalculating ? "Lara beregner Trust Score …" : "Fullfør aktivering — gå til Trust Profile"}
         </Button>
       )}
     </div>
@@ -992,35 +986,13 @@ function MaturityStep({ answers, sources, onChange }: {
 
 /* -------------------- Documents step -------------------- */
 
-function DocumentsStep({ documents, onUpload, trustScore }: {
+function DocumentsStep({ documents, onUpload }: {
   documents: ActivationDocument[];
   onUpload: (slotId: string, fileName: string) => void;
-  trustScore: number;
 }) {
   const getDoc = (slotId: string) => documents.find((d) => d.slot === slotId);
-  const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
-  const trustColorClass = trustScore >= 80 ? "text-success" : trustScore >= 50 ? "text-warning" : "text-destructive";
-  const trustStrokeClass = trustScore >= 80 ? "stroke-success" : trustScore >= 50 ? "stroke-warning" : "stroke-destructive";
   return (
     <div className="space-y-3">
-      <Card className="p-4 border-primary/20 bg-primary/5">
-        <div className="flex items-center gap-4">
-          <ScoreGauge score={trustScore} strokeClass={trustStrokeClass} />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className={`text-[10px] font-bold tracking-wider ${trustColorClass}`}>{trustLabel}</span>
-              <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
-                <Sparkles className="h-2.5 w-2.5" /> Foreløpig — beregnet av Lara
-              </Badge>
-            </div>
-            <p className="text-sm font-semibold mt-0.5">Trust Score: {trustScore} / 100</p>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Skåren er basert på modenhetssvarene dine. Den oppdateres når du laster opp dokumenter under,
-              og fortsetter å øke når du svarer på flere kontrollpunkter under <span className="font-medium text-foreground">Regelverk</span> i menyen.
-            </p>
-          </div>
-        </div>
-      </Card>
 
       <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
         <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
