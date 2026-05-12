@@ -64,11 +64,11 @@ const RECOMMENDATIONS: Recommendation[] = [
     openGaps: 7,
     hourlyRate: HOURLY_RATE,
     tasks: [
-      { label: "Gap-analyse mot NIS2-kravene", hours: 24 },
-      { label: "Risiko- og sårbarhetsvurdering", hours: 32 },
-      { label: "Policy- og dokumentpakke", hours: 28 },
-      { label: "Hendelsesrapporteringsrutiner", hours: 20 },
-      { label: "Ledelsesgjennomgang og opplæring", hours: 16 },
+      { label: "Gap-analyse mot NIS2", hours: 20, weeks: "Uke 1–2", owner: "Partner" },
+      { label: "Risiko- og sårbarhetsvurdering", hours: 25, weeks: "Uke 2–4", owner: "Felles" },
+      { label: "Policy- og dokumentpakke", hours: 30, weeks: "Uke 4–7", owner: "Partner" },
+      { label: "Hendelsesrapporteringsrutiner", hours: 15, weeks: "Uke 6–8", owner: "Partner" },
+      { label: "Ledelsesgjennomgang", hours: 10, weeks: "Uke 9–10", owner: "Kunde", note: "Truls leder" },
     ],
   },
   {
@@ -80,10 +80,10 @@ const RECOMMENDATIONS: Recommendation[] = [
     openGaps: 4,
     hourlyRate: HOURLY_RATE,
     tasks: [
-      { label: "Kartlegging av AI-bruk og systemregister", hours: 16 },
-      { label: "Risikoklassifisering av AI-systemer", hours: 20 },
-      { label: "AI-styring og policy-oppsett", hours: 24 },
-      { label: "Rutiner for menneskelig tilsyn", hours: 12 },
+      { label: "Kartlegging av AI-bruk og systemregister", hours: 16, weeks: "Uke 1–2", owner: "Felles" },
+      { label: "Risikoklassifisering av AI-systemer", hours: 20, weeks: "Uke 2–4", owner: "Partner" },
+      { label: "AI-styring og policy-oppsett", hours: 24, weeks: "Uke 4–6", owner: "Partner" },
+      { label: "Rutiner for menneskelig tilsyn", hours: 12, weeks: "Uke 6–7", owner: "Kunde" },
     ],
   },
   {
@@ -95,9 +95,9 @@ const RECOMMENDATIONS: Recommendation[] = [
     openGaps: 6,
     hourlyRate: HOURLY_RATE,
     tasks: [
-      { label: "Scoping og forberedelse", hours: 8 },
-      { label: "Ekstern penetrasjonstest", hours: 40 },
-      { label: "Rapport og gjennomgang med kunde", hours: 12 },
+      { label: "Scoping og forberedelse", hours: 8, weeks: "Uke 1", owner: "Felles" },
+      { label: "Ekstern penetrasjonstest", hours: 40, weeks: "Uke 2–4", owner: "Partner" },
+      { label: "Rapport og gjennomgang med kunde", hours: 12, weeks: "Uke 5", owner: "Partner" },
     ],
   },
 ];
