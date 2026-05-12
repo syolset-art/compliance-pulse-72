@@ -609,12 +609,20 @@ function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; 
       <div className="space-y-1.5">
         {scan.findings.map((f, idx) => {
           const visible = idx < revealed;
+          const status = f.status ?? "found";
+          const Icon = status === "missing" ? AlertCircle : status === "info" ? FileText : CheckCircle2;
+          const iconColor =
+            status === "missing" ? "text-warning" : status === "info" ? "text-primary" : "text-success";
+          const borderColor =
+            status === "missing" ? "border-warning/30 bg-warning/5"
+            : status === "info" ? "border-primary/20 bg-primary/5"
+            : "border-border bg-card";
           return (
             <div key={f.key}
               className={`flex items-start gap-2.5 p-2.5 rounded-md border transition-all duration-300 ${
-                visible ? "opacity-100 translate-y-0 border-border bg-card" : "opacity-0 -translate-y-1 border-transparent"
+                visible ? `opacity-100 translate-y-0 ${borderColor}` : "opacity-0 -translate-y-1 border-transparent"
               }`}>
-              <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" />
+              <Icon className={`h-4 w-4 ${iconColor} mt-0.5 shrink-0`} />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">{f.label}</p>
                 {f.detail && <p className="text-xs text-muted-foreground">{f.detail}{f.source ? ` · ${f.source}` : ""}</p>}
@@ -624,14 +632,26 @@ function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; 
         })}
       </div>
 
-      {done && (
-        <Card className="p-3 bg-success/5 border-success/30">
-          <div className="flex items-center gap-2 text-sm text-foreground">
-            <Sparkles className="h-4 w-4 text-success" />
-            <span><strong>Lara fant {scan.findings.length} områder</strong> som er forhåndsutfylt i neste steg.</span>
-          </div>
-        </Card>
-      )}
+      {done && (() => {
+        const found = scan.findings.filter((f) => (f.status ?? "found") === "found").length;
+        const missing = scan.findings.filter((f) => f.status === "missing").length;
+        return (
+          <Card className="p-3 bg-success/5 border-success/30 space-y-1.5">
+            <div className="flex items-center gap-2 text-sm text-foreground">
+              <Sparkles className="h-4 w-4 text-success" />
+              <span><strong>Lara fant {found} områder</strong> som er forhåndsutfylt i neste steg.</span>
+            </div>
+            {missing > 0 && (
+              <div className="flex items-start gap-2 text-xs text-muted-foreground pl-6">
+                <AlertCircle className="h-3.5 w-3.5 text-warning mt-0.5 shrink-0" />
+                <span>
+                  {missing} {missing === 1 ? "område mangler" : "områder mangler"} på nettsiden — du kan laste opp eller fylle inn dette manuelt etterpå.
+                </span>
+              </div>
+            )}
+          </Card>
+        );
+      })()}
     </div>
   );
 }

@@ -7,6 +7,7 @@ export interface LaraScanFinding {
   label: string;
   detail?: string;
   source?: string; // hvor på hjemmesiden vi fant det
+  status?: "found" | "missing" | "info"; // styrer ikon/farge i UI
 }
 
 export interface LaraScanResult {
@@ -90,12 +91,16 @@ const FRAMDRIFT: LaraScanResult = {
     { title: "Informasjonssikkerhetspolicy", type: "policy" },
   ],
   findings: [
-    { key: "desc", label: "Beskrivelse av virksomheten", detail: "Hentet fra «Om oss»-siden", source: "/om-oss" },
-    { key: "privacy", label: "Personvernerklæring funnet", source: "/personvern" },
-    { key: "contact", label: "Kontaktpersoner identifisert", detail: "Daglig leder og personvernkontakt" },
-    { key: "security", label: "Sikkerhetstiltak nevnt på nettsiden", detail: "MFA, kryptering, Microsoft 365" },
-    { key: "subproc", label: "Underleverandører oppdaget", detail: "10 stk identifisert i tjenestebeskrivelser og personvernerklæring" },
-    { key: "docs", label: "3 dokumenter foreslått til Trust Profile" },
+    { key: "desc", label: "Beskrivelse av virksomheten", detail: "Hentet fra «Om oss»-siden", source: "/om-oss", status: "found" },
+    { key: "contact", label: "Kontaktpersoner identifisert", detail: "Daglig leder og personvernkontakt", status: "found" },
+    { key: "privacy", label: "Personvernerklæring funnet", detail: "Lenket fra footer", source: "/personvern", status: "found" },
+    { key: "security", label: "Sikkerhetstiltak nevnt på nettsiden", detail: "MFA, kryptering, Microsoft 365", status: "found" },
+    { key: "subproc", label: "Underleverandører oppdaget", detail: "10 stk identifisert i tjenestebeskrivelser og personvernerklæring", status: "found" },
+    { key: "secpolicy", label: "Informasjonssikkerhetspolicy funnet", detail: "Hentet fra Trust Center på nettsiden", status: "found" },
+    { key: "dpa", label: "Databehandleravtale (mal) funnet", detail: "Tilgjengelig som PDF for kunder", status: "found" },
+    { key: "certs", label: "Sertifikater ikke funnet på nettsiden", detail: "Ingen ISO 27001, SOC 2 eller tilsvarende publisert. Du kan laste opp manuelt etterpå.", status: "missing" },
+    { key: "incident", label: "Hendelseshåndtering ikke beskrevet offentlig", detail: "Vi foreslår å dokumentere dette i Trust Profile", status: "missing" },
+    { key: "docs", label: "3 dokumenter klare til Trust Profile", detail: "Personvernerklæring, DPA-mal, Informasjonssikkerhetspolicy", status: "info" },
   ],
 };
 
@@ -123,11 +128,15 @@ const GENERIC: LaraScanResult = {
     { title: "Personvernerklæring", url: "https://example.no/personvern", type: "privacy_policy" },
   ],
   findings: [
-    { key: "desc", label: "Generell virksomhetsbeskrivelse" },
-    { key: "privacy", label: "Personvernerklæring funnet" },
-    { key: "contact", label: "Kontaktinformasjon hentet" },
-    { key: "security", label: "Standard sikkerhetstiltak identifisert" },
-    { key: "docs", label: "1 dokument foreslått" },
+    { key: "desc", label: "Generell virksomhetsbeskrivelse", status: "found" },
+    { key: "contact", label: "Kontaktinformasjon hentet", status: "found" },
+    { key: "privacy", label: "Personvernerklæring funnet", status: "found" },
+    { key: "security", label: "Standard sikkerhetstiltak identifisert", status: "found" },
+    { key: "subproc", label: "Underleverandører oppdaget", detail: "6 stk fra tjenestebeskrivelser", status: "found" },
+    { key: "dpa", label: "Databehandleravtale ikke funnet", detail: "Vi foreslår å laste opp en mal i Trust Profile", status: "missing" },
+    { key: "certs", label: "Sertifikater ikke funnet", detail: "Ingen ISO 27001/SOC 2 publisert på nettsiden", status: "missing" },
+    { key: "secpolicy", label: "Informasjonssikkerhetspolicy ikke funnet", detail: "Anbefales å publisere eller laste opp", status: "missing" },
+    { key: "docs", label: "1 dokument klart til Trust Profile", detail: "Personvernerklæring", status: "info" },
   ],
 };
 
