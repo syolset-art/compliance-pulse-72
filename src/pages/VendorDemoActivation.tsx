@@ -39,7 +39,7 @@ const FEATURES = [
   { icon: FileText, title: "DPA-sporing", desc: "Automatisk innhenting og status på databehandleravtaler." },
   { icon: Shield, title: "Risikoanalyse", desc: "AI-drevet vurdering av leverandørrisiko via Lara." },
   { icon: BarChart3, title: "Compliance-scoring", desc: "Løpende score per leverandør med varsler ved avvik." },
-  { icon: Building2, title: "Ubegrenset antall", desc: "Legg til så mange leverandører som du trenger." },
+  { icon: Building2, title: "Oppdater leverandøren med informasjon du har fra før", desc: "AI-agenten oppdaterer score basert på dokumentasjon du har." },
 ];
 
 // Pris settes senere — vises som tom inntil videre
