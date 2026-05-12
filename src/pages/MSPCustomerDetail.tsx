@@ -257,11 +257,7 @@ export default function MSPCustomerDetail() {
 
             {/* ── Vurdering ── */}
             <TabsContent value="assessment" className="mt-6 space-y-5">
-              <MSPAssessmentCard
-                customerId={customerId!}
-                assessmentScore={customer.initial_assessment_score}
-              />
-              <SecurityServiceGapCard assessmentResponses={customer.assessment_responses || null} />
+              <MSPMaturityServiceMatrix />
             </TabsContent>
 
             {/* ── Tjenester ── */}
