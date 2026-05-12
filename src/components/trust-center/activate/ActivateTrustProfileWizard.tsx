@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
-  CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle,
+  CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
