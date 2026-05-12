@@ -976,6 +976,8 @@ export default function MSPPartnerDashboard() {
             <LiveSignals />
           </div>
 
+          <CampaignsWidget />
+
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => navigate("/msp-dashboard")}>
               Gå til kundeoversikt
