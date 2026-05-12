@@ -313,8 +313,11 @@ const TrustCenterEditProfile = () => {
             <DataStorageSection asset={asset} />
             <PrivacySection asset={asset} />
 
+            {/* Sikkerhetstiltak i bruk — egen komponent */}
+            <SecurityDetailsCard asset={asset} />
+
             {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Sikkerhet og kontroller */}
+            {/* SECTION: Modenhet per kontrollområde */}
             {/* ═══════════════════════════════════════════ */}
             <section id="security" className="space-y-4">
               <div className="flex items-center justify-between">
@@ -326,9 +329,6 @@ const TrustCenterEditProfile = () => {
                 </div>
                 <span className="text-xs text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
               </div>
-
-              {/* Strukturerte sikkerhetstiltak */}
-              <SecurityDetailsCard asset={asset} />
 
               {/* Control areas */}
               <div className="space-y-2">
