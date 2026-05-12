@@ -688,10 +688,7 @@ function ConfirmStep(props: any) {
   return (
     <div className="space-y-3">
       <FieldGroup icon={Building2} title="Om virksomheten">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>Beskrivelse</Label><LaraBadge />
-          </div>
+          <Label>Beskrivelse</Label>
           <Textarea value={props.description} onChange={(e) => props.setDescription(e.target.value)} rows={3} />
         </div>
       </FieldGroup>
