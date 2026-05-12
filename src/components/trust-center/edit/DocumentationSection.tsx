@@ -23,7 +23,26 @@ export function DocumentationSection({ asset }: { asset: any }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
+  const [dismissed, setDismissed] = useState<string[]>([]);
+  const [adding, setAdding] = useState<string | null>(null);
 
+  // Lara-foreslåtte dokumenter (demo): hentet fra andre moduler i plattformen
+  const LARA_SUGGESTIONS = [
+    {
+      id: "sugg-dpa-2026",
+      file_name: "DPA-mal 2026.pdf",
+      document_type: "dpa",
+      type_label: "Databehandleravtale",
+      source: "fra Leverandørmodulen",
+    },
+    {
+      id: "sugg-iso-27001",
+      file_name: "ISO 27001-sertifikat.pdf",
+      document_type: "certificate",
+      type_label: "Sertifikat",
+      source: "fra Regelverk-modulen",
+    },
+  ];
 
   const { data: documents = [] } = useQuery({
     queryKey: ["self-trust-documents", asset?.id],
