@@ -114,8 +114,24 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         partner_since: (companyProfile as any).partner_since || "",
         show_partner_on_trust_profile: (companyProfile as any).show_partner_on_trust_profile ?? true,
       });
+    if (companyProfile) {
+      // Mark hydrated on next tick so the autosave effect doesn't fire on initial load
+      setTimeout(() => { hydratedRef.current = true; }, 0);
     }
   }, [companyProfile, selfAsset]);
+
+  // Autosave: debounce form changes and persist silently
+  useEffect(() => {
+    if (!hydratedRef.current || !companyProfile) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      handleSave({ silent: true });
+    }, 800);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
 
   const handleSave = async () => {
     if (!companyProfile) return;
