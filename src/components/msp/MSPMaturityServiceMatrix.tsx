@@ -311,12 +311,17 @@ export function MSPMaturityServiceMatrix() {
         initialFrameworkId={gapFrameworkId}
         onCreateOffer={(fwId) => {
           const rec = RECOMMENDATIONS.find(r => r.frameworkId === fwId);
+          const totalHours = rec ? rec.tasks.reduce((s, t) => s + t.hours, 0) : 0;
+          const totalPrice = rec ? totalHours * rec.hourlyRate : 0;
           setOfferCtx({
             open: true,
             serviceTitle: rec?.title,
             variant: "Full leveranse",
             attachGap: true,
             gapFrameworkId: fwId,
+            defaultItems: rec?.tasks.map(t => `${t.label} (${t.hours} t)`),
+            defaultEffort: rec ? `${totalHours} timer` : undefined,
+            defaultPrice: rec ? `${totalPrice.toLocaleString("nb-NO")} kr` : undefined,
           });
         }}
       />
