@@ -171,11 +171,8 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="assessment" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Vurdering og gap
                 </TabsTrigger>
-                <TabsTrigger value="services" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
-                  Tjenester og integrasjoner
-                </TabsTrigger>
                 <TabsTrigger value="trust-profile" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
-                  Trust Profile
+                  Kundens Trust Profile
                 </TabsTrigger>
                 <TabsTrigger value="nis2" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   NIS2
