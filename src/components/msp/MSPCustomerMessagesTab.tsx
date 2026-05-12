@@ -37,6 +37,14 @@ const items: Item[] = [
     status: "approved",
     amount: "kr 145 000",
     from: "partner",
+    approval: {
+      approvedBy: "Marte Solheim",
+      approverRole: "CISO, Nordvik AS",
+      approvedAt: "24. april 2026 kl. 14:32",
+      method: "E-signatur",
+      reference: "OFFER-2026-0042",
+      ipAddress: "85.166.x.x",
+    },
   },
   {
     id: "2",
