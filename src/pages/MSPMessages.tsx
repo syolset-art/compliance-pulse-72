@@ -3,6 +3,16 @@ import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   Sparkles,
@@ -12,8 +22,44 @@ import {
   XCircle,
   Clock,
   MessageSquare,
+  Mail,
+  Phone,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
+
+interface LaraProposal {
+  id: string;
+  customer: string;
+  title: string;
+  reason: string;
+  channel: "email" | "phone";
+  subject?: string;
+  body: string;
+}
+
+const LARA_PROPOSALS: LaraProposal[] = [
+  {
+    id: "p1",
+    customer: "Dintero AS",
+    title: "Vennlig påminnelse – NIS2-tilbud",
+    reason: "Truls åpnet tilbudet 7. mai, men har ikke svart på 8 dager.",
+    channel: "email",
+    subject: "Oppfølging: NIS2-klargjøring – tilbud sendt 4. mai",
+    body:
+      "Hei Truls,\n\nHåper alt vel. Jeg ville bare høre om du har hatt anledning til å se nærmere på tilbudet om NIS2-klargjøring jeg sendte 4. mai.\n\nSi gjerne fra om noe er uklart, eller om dere ønsker en kort gjennomgang før dere bestemmer dere.\n\nMvh\n[Ditt navn]",
+  },
+  {
+    id: "p2",
+    customer: "Catalystone Solutions",
+    title: "Følg opp ISO 27001-tilbud på telefon",
+    reason: "Tilbudet er over to uker gammelt. Påminnelse 7. mai uten respons.",
+    channel: "phone",
+    body:
+      "Forslag til samtale:\n• Bekreft at de mottok tilbudet (180 000 kr, sendt 28. april).\n• Spør om budsjett og tidsplan stemmer.\n• Avklar om vi skal justere omfang eller pris.\n• Foreslå konkret oppstartsdato.",
+  },
+];
 
 type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected";
 type ItemKind = "in" | "out";
