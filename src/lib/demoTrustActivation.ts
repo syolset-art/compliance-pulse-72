@@ -71,7 +71,18 @@ const FRAMDRIFT: LaraScanResult = {
   },
   dataStorage: {
     regions: ["EU/EØS (Norge, Irland)"],
-    subProcessors: ["Microsoft 365", "HubSpot", "Fiken (regnskap)"],
+    subProcessors: [
+      "Microsoft 365 (e-post, dokumenter, Teams)",
+      "Microsoft Azure (hosting, EU-region)",
+      "HubSpot (CRM og markedsføring)",
+      "Fiken (regnskap)",
+      "Tripletex (timeføring)",
+      "Slack (intern kommunikasjon)",
+      "Zoom (videomøter med kunder)",
+      "Google Workspace (analyse og samarbeid)",
+      "Mailchimp (nyhetsbrev)",
+      "Stripe (betaling)",
+    ],
   },
   documents: [
     { title: "Personvernerklæring", url: "https://framdrift.no/personvern", type: "privacy_policy" },
