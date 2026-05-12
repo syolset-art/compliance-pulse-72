@@ -379,6 +379,7 @@ function WelcomeStep() {
 
 function OrgStep({
   companyName, setCompanyName, orgNumber, setOrgNumber, website, setWebsite,
+  websiteVerified, onVerifyWebsite,
   verified, isLoading, searchResults, onSearch, onPick, companyNameLocked,
 }: any) {
   const showSearchHint = companyNameLocked && !orgNumber && (searchResults?.length ?? 0) === 0 && !isLoading;
