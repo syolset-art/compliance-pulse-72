@@ -213,8 +213,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     }
   };
 
-  const update = (key: keyof typeof form, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const update = (key: keyof typeof form, value: string | boolean) => {
+    setForm((prev) => ({ ...prev, [key]: value as never }));
   };
 
   if (loadingProfile) {
