@@ -304,7 +304,7 @@ export function MSPMaturityServiceMatrix() {
                           variant: "Full leveranse",
                         })}
                       >
-                        <Sparkles className="h-3 w-3" /> Åpne Laras utkast
+                        <Send className="h-3 w-3" /> Lag tilbud
                       </Button>
                     </div>
                   </div>
