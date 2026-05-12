@@ -13,6 +13,7 @@ import {
   ChevronRight,
   X,
   FileText,
+  Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
