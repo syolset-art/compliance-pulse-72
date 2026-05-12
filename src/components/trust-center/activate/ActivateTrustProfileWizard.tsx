@@ -365,22 +365,6 @@ export default function ActivateTrustProfileWizard({
       {step === 5 && (
         <DocumentsStep documents={documents} onUpload={uploadDocument} />
       )}
-      {step === 6 && (
-        <PreviewStep
-          name={companyName}
-          orgNumber={orgNumber}
-          description={description}
-          website={website}
-          contactName={contactName}
-          contactEmail={contactEmail}
-          privacyUrl={privacyUrl}
-          encryption={encryption}
-          certifications={scan?.security.certifications ?? []}
-          subProcessors={subProcessors}
-          maturityAnswers={maturityAnswers}
-          documents={documents}
-        />
-      )}
     </div>
   );
 
@@ -390,7 +374,7 @@ export default function ActivateTrustProfileWizard({
         {step === 0 || (hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
-      {step < 6 ? (
+      {step < 5 ? (
         <div className="flex gap-2">
           {step === 2 && (
             <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -403,19 +387,13 @@ export default function ActivateTrustProfileWizard({
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
             {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
             {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
-            {step === 5 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handlePublish(false)} disabled={isPublishing}>
-            Lagre som utkast
-          </Button>
-          <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
-            {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
-            Publiser profil
-          </Button>
-        </div>
+        <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
+          {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+          Fullfør aktivering — gå til Trust Profile
+        </Button>
       )}
     </div>
   );
