@@ -216,6 +216,21 @@ export function MSPCustomerTrustProfileCard({
           ))}
         </div>
       </Card>
+
+      <SendTrustHandoverEmailDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        recipientEmail={contactEmail}
+        recipientName={contactName}
+        customerName={customerName}
+        onSend={() => {
+          setInviteOpen(false);
+          setInvited(true);
+          toast.success("Invitasjon sendt", {
+            description: `${contactName} har fått en e-post med lenke for å claime Trust Profile.`,
+          });
+        }}
+      />
     </div>
   );
 }
