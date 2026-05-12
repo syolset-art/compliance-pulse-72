@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Database, Check } from "lucide-react";
 import { useAssetMetadata } from "./useAssetMetadata";
+import { LaraAutoFillBanner } from "./LaraAutoFillBanner";
 
 const REGIONS = ["Norge", "EU", "EØS", "Storbritannia", "USA", "Annet"];
 const LEGAL_BASES = [
@@ -58,9 +59,7 @@ export function DataStorageSection({ asset }: { asset: any }) {
         <Database className="h-4 w-4 text-primary" />
         <h2 className="text-base font-semibold text-foreground">Datalagring og oppbevaring</h2>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Hvor lagres dataene, hvor lenge, og på hvilket rettsgrunnlag.
-      </p>
+      <LaraAutoFillBanner description="Lara henter datalagringsregion, oppbevaringstid og rettsgrunnlag fra dokumenter, leverandørbetingelser og bransjedata." />
 
       <Card className="p-5 space-y-5">
         <div className="space-y-2">

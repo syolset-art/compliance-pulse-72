@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Check } from "lucide-react";
 import { useAssetMetadata } from "./useAssetMetadata";
+import { LaraAutoFillBanner } from "./LaraAutoFillBanner";
 
 const ENCRYPTION = ["AES-256", "TLS 1.2+", "HTTPS overalt", "Diskkryptering", "End-to-end-kryptering"];
 const ACCESS = ["Rollebasert tilgangskontroll (RBAC)", "Tofaktor (MFA)", "Minste privilegium", "Logging og overvåking", "Single Sign-On (SSO)"];
@@ -41,9 +42,10 @@ export function SecurityDetailsCard({ asset }: { asset: any }) {
     <Card className="p-5 space-y-5">
       <div>
         <h3 className="text-sm font-semibold text-foreground">Sikkerhetstiltak i bruk</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">Velg hvilke tekniske tiltak som er på plass.</p>
+        <p className="text-xs text-muted-foreground mt-0.5">Tekniske tiltak Lara har identifisert.</p>
       </div>
 
+      <LaraAutoFillBanner description="Lara identifiserer kryptering, tilgangskontroll og andre tekniske tiltak fra integrasjoner og dokumentasjon." />
       <div className="space-y-2">
         <label className="text-xs font-medium text-foreground">Kryptering</label>
         <Pills field="encryption" options={ENCRYPTION} />

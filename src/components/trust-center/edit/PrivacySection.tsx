@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Globe, Check } from "lucide-react";
 import { useAssetMetadata } from "./useAssetMetadata";
+import { LaraAutoFillBanner } from "./LaraAutoFillBanner";
 
 const DATA_TYPES = ["Navn", "E-post", "Telefonnummer", "IP-adresse", "Lokasjonsdata", "Betalingsinformasjon", "Jobbsøkerdata", "Helsedata", "Atferdsdata"];
 const TRANSFER = ["EU adequacy decision", "Standard kontraktsklausuler (SCC)", "Bindende konsernregler (BCR)", "Samtykke fra registrerte"];
@@ -50,6 +51,7 @@ export function PrivacySection({ asset }: { asset: any }) {
         <h2 className="text-base font-semibold text-foreground">Personvern</h2>
       </div>
 
+      <LaraAutoFillBanner description="Lara analyserer behandlingsaktiviteter, datatyper og overføringsgrunnlag basert på dine systemer og dokumenter." />
       <Card className="p-5 space-y-5">
         <div className="space-y-2">
           <label className="text-xs font-medium text-foreground">GDPR-status</label>
