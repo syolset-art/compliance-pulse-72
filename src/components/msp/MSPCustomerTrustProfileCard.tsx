@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ExternalLink,
   UserPlus,
@@ -9,6 +10,7 @@ import {
   FileText,
   Check,
   AlertCircle,
+  Lock,
 } from "lucide-react";
 
 interface Props {
