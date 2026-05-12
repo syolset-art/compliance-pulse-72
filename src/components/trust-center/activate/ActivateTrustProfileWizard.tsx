@@ -425,14 +425,6 @@ export default function ActivateTrustProfileWizard({
 /* -------------------- Steps -------------------- */
 
 function WelcomeStep() {
-  const steps = [
-    { icon: Building2, title: "Organisasjon", desc: "Vi henter selskapsdata fra Brønnøysund og bekrefter hjemmesiden din." },
-    { icon: Search, title: "Lara skanner", desc: "Lara går gjennom hjemmesiden og finner personvern, sikkerhet og kontakter." },
-    { icon: CheckCircle2, title: "Bekreft", desc: "Du justerer det Lara fant — beskrivelse, kontaktpersoner og nøkkelinfo." },
-    { icon: ShieldCheck, title: "Modenhet", desc: "Svar Ja / Nei / Senere på 19 spørsmål om styring, drift, personvern og tredjeparter." },
-    { icon: FileText, title: "Dokumenter", desc: "Last opp policyer og DPA. Lara oppdaterer modenhetssvarene automatisk." },
-    { icon: Globe, title: "Publiser", desc: "Forhåndsvis og publiser ditt eget Trust Center på trust.mynder.no." },
-  ];
   return (
     <div className="space-y-4">
       <Card className="p-4 bg-primary/5 border-primary/20">
@@ -440,28 +432,14 @@ function WelcomeStep() {
           <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
           <div className="text-sm text-foreground/80 space-y-1.5">
             <p><strong>Velkommen!</strong> Du er i ferd med å lage ditt eget <strong>Trust Center</strong> i Mynder — en publiserbar profil som viser kunder og partnere at du tar sikkerhet og personvern på alvor.</p>
-            <p>Lara gjør det meste av jobben automatisk. Du bekrefter, justerer og publiserer. Det tar typisk <strong>5–10 minutter</strong>, og du kan lukke vinduet og fortsette senere.</p>
           </div>
         </div>
       </Card>
       <div>
         <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2">Slik fungerer det</p>
-        <ol className="space-y-2">
-          {steps.map(({ icon: Icon, title, desc }, idx) => (
-            <li key={title} className="flex items-start gap-3 p-3 rounded-md border border-border bg-card">
-              <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 text-xs font-semibold">
-                {idx + 1}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  <Icon className="h-3.5 w-3.5 text-primary" />
-                  <p className="text-sm font-medium text-foreground">{title}</p>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+        <p className="text-sm text-foreground/80">
+          Lara kartlegger informasjon du har lagret i Mynder samt offentlige kilder — så slipper du å fylle alt ut fra skratsj.
+        </p>
       </div>
     </div>
   );
