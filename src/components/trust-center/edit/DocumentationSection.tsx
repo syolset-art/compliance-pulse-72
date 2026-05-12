@@ -67,7 +67,8 @@ export function DocumentationSection({ asset }: { asset: any }) {
         .from("vendor_documents")
         .select("*")
         .eq("asset_id", asset.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(3);
       return data || [];
     },
     enabled: !!asset?.id,

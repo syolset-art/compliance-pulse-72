@@ -35,7 +35,9 @@ serve(async (req) => {
       supabase
         .from("vendor_documents")
         .select("file_name, document_type, valid_to, created_at")
-        .eq("asset_id", assetId),
+        .eq("asset_id", assetId)
+        .order("created_at", { ascending: false })
+        .limit(3),
       supabase
         .from("selected_frameworks")
         .select("framework_name")
