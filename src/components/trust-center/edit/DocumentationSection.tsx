@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FileText, Upload, X, Eye, Sparkles, Plus } from "lucide-react";
+import { FileText, Upload, X, Eye, Sparkles, Check, Replace } from "lucide-react";
 import { toast } from "sonner";
 
 const DOC_TYPES = [
