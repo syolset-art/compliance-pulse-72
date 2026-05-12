@@ -7,6 +7,7 @@ export interface LaraScanFinding {
   label: string;
   detail?: string;
   source?: string; // hvor på hjemmesiden vi fant det
+  status?: "found" | "missing" | "info"; // styrer ikon/farge i UI
 }
 
 export interface LaraScanResult {
