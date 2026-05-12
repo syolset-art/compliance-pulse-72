@@ -190,108 +190,139 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
     onOpenChange(false);
   };
 
+  const header = (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <ShieldCheck className="h-4 w-4 text-primary" />
+        </div>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+          Aktiver Trust Profile · Steg {step + 1} av 5
+        </span>
+        {hasPrefill && step === 1 && (
+          <Badge variant="outline" className="ml-auto text-[10px] gap-1 border-primary/30 text-primary">
+            <CheckCircle2 className="h-3 w-3" /> Innlogget som {companyName}
+          </Badge>
+        )}
+      </div>
+      <h2 className="text-xl font-semibold">
+        {step === 0 && "Lag din egen Trust Profile"}
+        {step === 1 && (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din")}
+        {step === 2 && "Lara henter informasjon fra hjemmesiden"}
+        {step === 3 && "Bekreft og juster informasjonen"}
+        {step === 4 && "Forhåndsvis og publiser"}
+      </h2>
+      <p className="text-sm text-muted-foreground">
+        {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
+        {step === 1 && (hasPrefill
+          ? "Vi vet allerede hvem du er. For å gjøre resten automatisk trenger Lara organisasjonsnummeret og hjemmesiden din."
+          : "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start.")}
+        {step === 2 && "Lara analyserer hjemmesiden din for å forhåndsutfylle profilen — beskrivelse, kontakter, personvern og sikkerhet."}
+        {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
+        {step === 4 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
+      </p>
+      <Progress value={(step / 4) * 100} className="h-1" />
+    </div>
+  );
+
+  const body = (
+    <div className="flex-1 overflow-y-auto py-2 pr-1">
+      {step === 0 && <WelcomeStep />}
+      {step === 1 && (
+        <OrgStep
+          companyName={companyName}
+          setCompanyName={setCompanyName}
+          orgNumber={orgNumber}
+          setOrgNumber={setOrgNumber}
+          website={website}
+          setWebsite={setWebsite}
+          verified={verified}
+          isLoading={isLoading}
+          searchResults={searchResults}
+          onSearch={handleSearchName}
+          onPick={pickRegistry}
+          companyNameLocked={hasPrefill}
+        />
+      )}
+      {step === 2 && scan && (
+        <ScanStep scan={scan} revealed={revealed} progress={scanProgress} domain={website || companyName} />
+      )}
+      {step === 3 && (
+        <ConfirmStep
+          description={description} setDescription={setDescription}
+          contactName={contactName} setContactName={setContactName}
+          contactEmail={contactEmail} setContactEmail={setContactEmail}
+          dpoName={dpoName} setDpoName={setDpoName}
+          dpoEmail={dpoEmail} setDpoEmail={setDpoEmail}
+          privacyUrl={privacyUrl} setPrivacyUrl={setPrivacyUrl}
+          encryption={encryption} setEncryption={setEncryption}
+          mfa={mfa} setMfa={setMfa}
+          subProcessors={subProcessors} setSubProcessors={setSubProcessors}
+        />
+      )}
+      {step === 4 && (
+        <PreviewStep
+          name={companyName}
+          orgNumber={orgNumber}
+          description={description}
+          website={website}
+          contactName={contactName}
+          contactEmail={contactEmail}
+          privacyUrl={privacyUrl}
+          encryption={encryption}
+          certifications={scan?.security.certifications ?? []}
+          subProcessors={subProcessors}
+        />
+      )}
+    </div>
+  );
+
+  const footer = (
+    <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+      <Button variant="ghost" onClick={step === 0 || (hasPrefill && step === 1) ? handleSkip : back} disabled={isPublishing}>
+        {step === 0 || (hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
+      </Button>
+
+      {step < 4 ? (
+        <Button onClick={next} disabled={!canNext} className="gap-2">
+          {step === 0 && (<><Sparkles className="h-4 w-4" /> La Lara starte</>)}
+          {step === 1 && (<><Sparkles className="h-4 w-4" /> Start Lara-skann</>)}
+          {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
+          {step === 3 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
+        </Button>
+      ) : (
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => handlePublish(false)} disabled={isPublishing}>
+            Lagre som utkast
+          </Button>
+          <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
+            {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+            Publiser profil
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+
+  if (inline) {
+    if (!open) return null;
+    return (
+      <Card className="max-w-3xl mx-auto p-6 space-y-4">
+        {header}
+        {body}
+        {footer}
+      </Card>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <ShieldCheck className="h-4 w-4 text-primary" />
-            </div>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-              Aktiver Trust Profile · Steg {step + 1} av 5
-            </span>
-          </div>
-          <DialogTitle className="text-xl">
-            {step === 0 && "Lag din egen Trust Profile"}
-            {step === 1 && "Bekreft organisasjonen din"}
-            {step === 2 && "Lara henter informasjon fra hjemmesiden"}
-            {step === 3 && "Bekreft og juster informasjonen"}
-            {step === 4 && "Forhåndsvis og publiser"}
-          </DialogTitle>
-          <DialogDescription>
-            {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
-            {step === 1 && "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start."}
-            {step === 2 && "Lara analyserer hjemmesiden din for å forhåndsutfylle profilen — beskrivelse, kontakter, personvern og sikkerhet."}
-            {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
-            {step === 4 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
-          </DialogDescription>
-          <Progress value={(step / 4) * 100} className="h-1" />
+          {header}
         </DialogHeader>
-
-        <div className="flex-1 overflow-y-auto py-2 pr-1">
-          {step === 0 && <WelcomeStep />}
-          {step === 1 && (
-            <OrgStep
-              companyName={companyName}
-              setCompanyName={setCompanyName}
-              orgNumber={orgNumber}
-              setOrgNumber={setOrgNumber}
-              website={website}
-              setWebsite={setWebsite}
-              verified={verified}
-              isLoading={isLoading}
-              searchResults={searchResults}
-              onSearch={handleSearchName}
-              onPick={pickRegistry}
-            />
-          )}
-          {step === 2 && scan && (
-            <ScanStep scan={scan} revealed={revealed} progress={scanProgress} domain={website || companyName} />
-          )}
-          {step === 3 && (
-            <ConfirmStep
-              description={description} setDescription={setDescription}
-              contactName={contactName} setContactName={setContactName}
-              contactEmail={contactEmail} setContactEmail={setContactEmail}
-              dpoName={dpoName} setDpoName={setDpoName}
-              dpoEmail={dpoEmail} setDpoEmail={setDpoEmail}
-              privacyUrl={privacyUrl} setPrivacyUrl={setPrivacyUrl}
-              encryption={encryption} setEncryption={setEncryption}
-              mfa={mfa} setMfa={setMfa}
-              subProcessors={subProcessors} setSubProcessors={setSubProcessors}
-            />
-          )}
-          {step === 4 && (
-            <PreviewStep
-              name={companyName}
-              orgNumber={orgNumber}
-              description={description}
-              website={website}
-              contactName={contactName}
-              contactEmail={contactEmail}
-              privacyUrl={privacyUrl}
-              encryption={encryption}
-              certifications={scan?.security.certifications ?? []}
-              subProcessors={subProcessors}
-            />
-          )}
-        </div>
-
-        <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
-          <Button variant="ghost" onClick={step === 0 ? handleSkip : back} disabled={isPublishing}>
-            {step === 0 ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
-          </Button>
-
-          {step < 4 ? (
-            <Button onClick={next} disabled={!canNext} className="gap-2">
-              {step === 0 && (<><Sparkles className="h-4 w-4" /> La Lara starte</>)}
-              {step === 1 && (<>Neste <ArrowRight className="h-4 w-4" /></>)}
-              {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
-              {step === 3 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
-            </Button>
-          ) : (
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => handlePublish(false)} disabled={isPublishing}>
-                Lagre som utkast
-              </Button>
-              <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
-                {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
-                Publiser profil
-              </Button>
-            </div>
-          )}
-        </div>
+        {body}
+        {footer}
       </DialogContent>
     </Dialog>
   );
