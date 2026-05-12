@@ -211,6 +211,8 @@ export function MSPMaturityServiceMatrix() {
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
+  const [expandedOngoing, setExpandedOngoing] = useState<string | null>("aware");
+  const [controlFilter, setControlFilter] = useState<"all" | "missing" | "partial" | "fulfilled">("all");
 
   const openGap = (frameworkId?: string) => {
     setGapFrameworkId(frameworkId);
