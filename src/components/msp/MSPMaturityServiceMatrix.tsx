@@ -108,6 +108,30 @@ const ONGOING: OngoingItem[] = [
   { id: "aware", title: "Awareness-program", status: "accepted", meta: "Akseptert 12. april · Oppstart 15. mai" },
 ];
 
+interface DeliveryItem {
+  id: string;
+  title: string;
+  meta: string;
+  status: "active" | "completed";
+  progress?: number;
+}
+
+const DELIVERIES: DeliveryItem[] = [
+  {
+    id: "d1",
+    title: "Awareness-program 2025",
+    meta: "Løpende leveranse · Neste kampanje 20. mai",
+    status: "active",
+    progress: 45,
+  },
+  {
+    id: "d2",
+    title: "Penetrasjonstest – Q1 2025",
+    meta: "Levert 14. mars · Rapport sendt til Truls",
+    status: "completed",
+  },
+];
+
 export function MSPMaturityServiceMatrix() {
   const [dismissedBanner, setDismissedBanner] = useState(false);
   const [offerCtx, setOfferCtx] = useState<{
