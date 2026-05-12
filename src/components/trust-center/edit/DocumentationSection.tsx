@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FileText, Upload, X, Eye, Sparkles, Plus } from "lucide-react";
+import { FileText, Upload, X, Eye, Sparkles, Check, Replace } from "lucide-react";
 import { toast } from "sonner";
 
 const DOC_TYPES = [
@@ -143,112 +143,138 @@ export function DocumentationSection({ asset }: { asset: any }) {
     (s) => !dismissed.includes(s.id) && !documents.some((d: any) => d.file_name === s.file_name),
   );
 
+  const docMeta = (doc: any): { subtitle: string; quality: "good" | "partial" | "weak" } => {
+    const name = (doc.file_name || "").toLowerCase();
+    if (name.includes("slett")) {
+      return { subtitle: "Sletterutine · mangler RTO/RPO og slettelogg", quality: "partial" };
+    }
+    if (name.includes("iso")) {
+      return { subtitle: "Sertifikat · gyldig til april 2027", quality: "good" };
+    }
+    if (name.includes("policy") || name.includes("sikker")) {
+      return { subtitle: "Sikkerhetspolicy · fra Regelverk-modulen", quality: "good" };
+    }
+    if (doc.document_type === "dpa") {
+      return { subtitle: "Databehandleravtale · gyldig", quality: "good" };
+    }
+    return { subtitle: `Oppdatert ${formatDate(doc.created_at)}`, quality: "good" };
+  };
+
+  const qualityLabel = (q: "good" | "partial" | "weak") =>
+    q === "good" ? "God kvalitet" : q === "partial" ? "Delvis kvalitet" : "Svak kvalitet";
+  const qualityClass = (q: "good" | "partial" | "weak") =>
+    q === "good" ? "text-success" : q === "partial" ? "text-warning" : "text-destructive";
+
   return (
     <section id="documentation" className="space-y-4 scroll-mt-24">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-primary" />
-          <h2 className="text-base font-semibold text-foreground">Dokumentasjon</h2>
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <h2 className="text-base font-semibold text-foreground">
+            Velg hvilke dokumenter som skal være i din Trust Profile
+          </h2>
+          <p className="text-xs text-muted-foreground max-w-2xl">
+            Lara analyserer hvert dokument før det legges inn. Kvalitetsvurderingen er en intern hjelp for deg — den vises ikke offentlig.
+          </p>
         </div>
         <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} />
-        <Button size="sm" variant="outline" className="gap-2" onClick={() => fileRef.current?.click()} disabled={uploading}>
+        <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={() => fileRef.current?.click()} disabled={uploading}>
           <Upload className="h-4 w-4" />
           {uploading ? "Laster opp..." : "Last opp dokument"}
         </Button>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Last opp dokumenter som støtter din Trust Profile — DPA-er, sertifikater og policyer.
-        Dette er den eneste delen av profilen som krever manuell input — alt annet genereres av Lara.
+
+      <p className="text-xs text-foreground">
+        <span className="font-medium">{documents.length}</span> dokument{documents.length === 1 ? "" : "er"} valgt til Trust Profile
       </p>
 
-      <Card className="divide-y divide-border">
-        {documents.length === 0 ? (
-          <div className="p-8 text-center">
-            <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">Ingen dokumenter lastet opp ennå.</p>
+      {documents.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Valgt</p>
+          <div className="space-y-2">
+            {documents.slice(0, 3).map((doc: any) => {
+              const meta = docMeta(doc);
+              return (
+                <Card key={doc.id} className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Check className="h-3 w-3 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate">{doc.file_name}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{meta.subtitle}</p>
+                        </div>
+                        <span className={`text-xs ${qualityClass(meta.quality)} shrink-0`}>
+                          {qualityLabel(meta.quality)}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <Button variant="outline" size="sm" className="gap-1.5 text-xs h-7" onClick={() => openDoc(doc)}>
+                          <Eye className="h-3.5 w-3.5" /> Se dokumentet
+                        </Button>
+                        <Button variant="outline" size="sm" className="gap-1.5 text-xs h-7" onClick={() => fileRef.current?.click()}>
+                          <Replace className="h-3.5 w-3.5" /> Erstatt
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-xs h-7" onClick={() => removeDoc(doc)}>
+                          Fjern
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
-        ) : (
-          documents.slice(0, 3).map((doc: any) => (
-            <div key={doc.id} className="flex items-center gap-3 p-4">
-              <FileText className="h-4 w-4 text-primary shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">{doc.file_name}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <select
-                    value={doc.document_type}
-                    onChange={(e) => updateType(doc.id, e.target.value)}
-                    className="text-[11px] px-2 py-0.5 rounded border border-border bg-background"
-                  >
-                    {DOC_TYPES.map((t) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
-                    ))}
-                  </select>
-                  <span className="text-[11px] text-muted-foreground">oppdatert {formatDate(doc.created_at)}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground">Vis på profil</span>
-                <Switch
-                  checked={doc.visibility === "visible"}
-                  onCheckedChange={() => togglePublic(doc)}
-                  className="data-[state=checked]:bg-primary"
-                />
-              </div>
-              <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => openDoc(doc)}>
-                <Eye className="h-3.5 w-3.5" /> Les
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => removeDoc(doc)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ))
-        )}
-      </Card>
+        </div>
+      )}
+
+      {documents.length === 0 && (
+        <Card className="p-8 text-center">
+          <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+          <p className="text-sm text-muted-foreground">Ingen dokumenter valgt ennå.</p>
+        </Card>
+      )}
 
       {visibleSuggestions.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-              Foreslått av Lara — ikke i bruk ennå
-            </p>
-          </div>
-          <Card className="divide-y divide-dashed divide-border border-dashed">
+        <div className="space-y-2 pt-2">
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Foreslått fra dine andre moduler
+          </p>
+          <div className="space-y-2">
             {visibleSuggestions.map((s) => (
-              <div key={s.id} className="flex items-center gap-3 p-4">
-                <Checkbox
-                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{s.file_name}</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <Sparkles className="h-3 w-3 text-primary" />
-                    <span className="text-[11px] text-muted-foreground">
+              <Card key={s.id} className="p-4 bg-muted/30">
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                    checked={adding === s.id}
+                    onCheckedChange={(v) => v && addSuggestion(s)}
+                    disabled={adding === s.id}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{s.file_name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {s.type_label} · {s.source}
-                    </span>
+                    </p>
+                    <div className="mt-3">
+                      <Button variant="outline" size="sm" className="gap-1.5 text-xs h-7" disabled>
+                        <Eye className="h-3.5 w-3.5" /> Se dokumentet
+                      </Button>
+                    </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 shrink-0"
+                    onClick={() => setDismissed((d) => [...d, s.id])}
+                    aria-label="Avvis forslag"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  className="gap-1.5"
-                  onClick={() => addSuggestion(s)}
-                  disabled={adding === s.id}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  {adding === s.id ? "Legger til..." : "Legg til"}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setDismissed((d) => [...d, s.id])}
-                  aria-label="Avvis forslag"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+              </Card>
             ))}
-          </Card>
+          </div>
         </div>
       )}
 
