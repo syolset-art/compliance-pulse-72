@@ -24,6 +24,7 @@ import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivit
 import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCard";
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
+import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
 import { toast } from "sonner";
 
 export default function MSPCustomerDetail() {
@@ -175,6 +176,9 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="trust-profile" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Kundens Trust Profile
                 </TabsTrigger>
+                <TabsTrigger value="messages" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
+                  Meldinger
+                </TabsTrigger>
               </TabsList>
             </nav>
 
@@ -262,6 +266,10 @@ export default function MSPCustomerDetail() {
             {/* ── Trust Profile ── */}
             <TabsContent value="trust-profile" className="mt-6">
               <MSPCustomerTrustProfileCard customerName={customer.name || "Kunden"} />
+            </TabsContent>
+
+            <TabsContent value="messages" className="mt-6">
+              <MSPCustomerMessagesTab />
             </TabsContent>
 
           </Tabs>
