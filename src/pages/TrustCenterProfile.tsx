@@ -1773,6 +1773,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </Button>
             </div>
           </div>
+          )}
         </main>
       </div>
 
