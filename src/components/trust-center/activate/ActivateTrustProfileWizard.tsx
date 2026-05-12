@@ -200,8 +200,8 @@ export default function ActivateTrustProfileWizard({
       url: website,
       contactPerson: contactName,
       contactEmail,
-      dpoName,
       dpoEmail,
+      securityEmail,
       publishNow,
     };
     try {
