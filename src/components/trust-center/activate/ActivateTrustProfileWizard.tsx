@@ -70,6 +70,7 @@ export default function ActivateTrustProfileWizard({
   const [dpoEmail, setDpoEmail] = useState("");
   const [securityName, setSecurityName] = useState("");
   const [securityEmail, setSecurityEmail] = useState("");
+  const [dpoType, setDpoType] = useState<"dpo" | "contact">("contact");
   const [privacyUrl, setPrivacyUrl] = useState("");
   const [encryption, setEncryption] = useState("");
   const [mfa, setMfa] = useState("");
