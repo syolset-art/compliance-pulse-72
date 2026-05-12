@@ -159,42 +159,41 @@ export function MSPCustomerMessagesTab() {
                 <span className="text-[12px] font-semibold text-foreground">{o.amount}</span>
               </div>
               {o.status === "approved" && o.approval && (
-                <div className="rounded-md border border-success/30 bg-success/5 p-2.5 space-y-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="h-3.5 w-3.5 text-success" />
-                    <span className="text-[11px] font-semibold text-success uppercase tracking-wide">
-                      Bevis på godkjenning
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
+                <details className="group">
+                  <summary className="flex items-center gap-1.5 cursor-pointer text-[11px] text-muted-foreground hover:text-foreground transition-colors list-none [&::-webkit-details-marker]:hidden">
+                    <ShieldCheck className="h-3 w-3 text-success" />
+                    <span>Bevis på godkjenning</span>
+                    <span className="text-muted-foreground/60">·</span>
+                    <span className="truncate">{o.approval.approvedBy}, {o.approval.approvedAt}</span>
+                  </summary>
+                  <div className="mt-2 pl-4 border-l-2 border-success/30 space-y-1 text-[11px]">
                     <div>
                       <span className="text-muted-foreground">Godkjent av: </span>
-                      <span className="text-foreground font-medium">{o.approval.approvedBy}</span>
-                      <span className="text-muted-foreground"> ({o.approval.approverRole})</span>
+                      <span className="text-foreground">{o.approval.approvedBy} ({o.approval.approverRole})</span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Tidspunkt: </span>
-                      <span className="text-foreground font-medium">{o.approval.approvedAt}</span>
+                      <span className="text-foreground">{o.approval.approvedAt}</span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Metode: </span>
-                      <span className="text-foreground font-medium">{o.approval.method}</span>
+                      <span className="text-foreground">{o.approval.method}</span>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Referanse: </span>
                       <span className="text-foreground font-mono">{o.approval.reference}</span>
                     </div>
                     {o.approval.ipAddress && (
-                      <div className="sm:col-span-2">
-                        <span className="text-muted-foreground">IP-adresse: </span>
+                      <div>
+                        <span className="text-muted-foreground">IP: </span>
                         <span className="text-foreground font-mono">{o.approval.ipAddress}</span>
                       </div>
                     )}
+                    <button type="button" className="inline-flex items-center gap-1 text-primary hover:underline pt-1">
+                      <Download className="h-3 w-3" /> Last ned signert tilbud
+                    </button>
                   </div>
-                  <Button size="sm" variant="outline" className="h-6 text-[11px] gap-1 mt-1">
-                    <Download className="h-3 w-3" /> Last ned signert tilbud
-                  </Button>
-                </div>
+                </details>
               )}
             </div>
           ))}
