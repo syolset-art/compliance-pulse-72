@@ -1316,17 +1316,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 {/* Vendor Hub sub-tab */}
                 {publishSubTab === "vendor" && (
                   <Card className="p-10 text-center space-y-4">
-                    <Users className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                    <h3 className="text-lg font-semibold text-foreground">Vendor Network Visibility</h3>
+                    <Clock className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                    <Badge variant="outline" className="mx-auto">
+                      {isNb ? "Kommer senere" : "Coming soon"}
+                    </Badge>
+                    <h3 className="text-lg font-semibold text-foreground">Vendor Hub</h3>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto">
                       {isNb
-                        ? "Leverandørnettverkets synlighet hjelper organisasjoner med å finne pålitelige leverandører. Tilgjengelig i Trust Profile Pro."
-                        : "Vendor network visibility helps organizations discover trusted suppliers. Available in Trust Profile Pro."}
+                        ? "Vendor Hub gjør Trust Profilen din synlig i Mynder sitt leverandørnettverk, slik at kunder og partnere kan finne dere når de gjør due diligence. Denne funksjonen kommer i en senere oppdatering."
+                        : "Vendor Hub makes your Trust Profile discoverable in Mynder's vendor network so customers and partners can find you during due diligence. This feature is coming in a later update."}
                     </p>
-                    <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => setUpgradeDialogOpen(true)}>
-                      <Zap className="h-4 w-4" />
-                      {isNb ? "Oppgrader til Pro" : "Upgrade to Pro"}
-                    </Button>
                   </Card>
                 )}
 
