@@ -42,7 +42,8 @@ const FEATURES = [
   { icon: Building2, title: "Ubegrenset antall", desc: "Legg til så mange leverandører som du trenger." },
 ];
 
-const PRICE_MONTHLY = 990;
+// Pris settes senere — vises som tom inntil videre
+const PRICE_LABEL: string | null = null;
 
 export default function VendorDemoActivation() {
   const navigate = useNavigate();
@@ -115,22 +116,9 @@ export default function VendorDemoActivation() {
                   Bekreft aktivering
                 </DialogTitle>
                 <DialogDescription>
-                  Bekreft pris og betingelser for å aktivere Leverandørstyring.
+                  Bekreft betingelsene for å aktivere Leverandørstyring.
                 </DialogDescription>
               </DialogHeader>
-
-              {/* Price card */}
-              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-                <div className="flex items-baseline justify-between">
-                  <p className="text-sm font-medium text-foreground">Leverandørstyring</p>
-                  <p className="text-2xl font-bold text-primary">
-                    {PRICE_MONTHLY} kr<span className="text-sm font-normal text-muted-foreground">/mnd</span>
-                  </p>
-                </div>
-                <p className="text-[13px] text-muted-foreground mt-1">
-                  Faktureres månedlig. Kan kanselleres når som helst — full tilgang ut inneværende periode.
-                </p>
-              </div>
 
               {/* Inclusions */}
               <div className="space-y-2">
@@ -144,16 +132,6 @@ export default function VendorDemoActivation() {
 
               {/* Confirmations */}
               <div className="space-y-3 pt-1">
-                <label className="flex items-start gap-2.5 cursor-pointer">
-                  <Checkbox
-                    checked={acceptedPrice}
-                    onCheckedChange={(c) => setAcceptedPrice(c === true)}
-                    className="mt-0.5"
-                  />
-                  <span className="text-[13px] text-foreground leading-snug">
-                    Jeg bekrefter prisen på <strong>{PRICE_MONTHLY} kr/mnd</strong> og at den vil legges til neste faktura.
-                  </span>
-                </label>
                 <label className="flex items-start gap-2.5 cursor-pointer">
                   <Checkbox
                     checked={acceptedTerms}
@@ -180,11 +158,11 @@ export default function VendorDemoActivation() {
                 </Button>
                 <Button
                   onClick={confirmActivation}
-                  disabled={!acceptedPrice || !acceptedTerms}
+                  disabled={!acceptedTerms}
                   className="gap-2"
                 >
                   <Sparkles className="h-4 w-4" />
-                  Aktiver nå
+                  Aktiver
                 </Button>
               </DialogFooter>
             </DialogContent>
