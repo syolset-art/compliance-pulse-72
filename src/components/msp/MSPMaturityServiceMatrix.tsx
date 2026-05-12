@@ -18,9 +18,14 @@ import { cn } from "@/lib/utils";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 
-interface TaskEstimate {
+export type TaskOwner = "Partner" | "Felles" | "Kunde";
+
+export interface TaskEstimate {
   label: string;
   hours: number;
+  weeks?: string;
+  owner?: TaskOwner;
+  note?: string;
 }
 
 interface Recommendation {
