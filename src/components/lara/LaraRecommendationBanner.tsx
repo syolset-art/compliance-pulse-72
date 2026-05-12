@@ -110,12 +110,24 @@ export function LaraRecommendationBanner({
             {isNb ? "Vis plan" : "Show plan"}
           </Button>
           {!hideDismiss && (
-            <button
-              onClick={() => setDismissed(true)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
-            >
-              {isNb ? "Ikke nå" : "Not now"}
-            </button>
+            <>
+              <button
+                onClick={handleSnooze}
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+                title={isNb ? "Utsett 7 dager" : "Snooze 7 days"}
+              >
+                <Clock className="h-3.5 w-3.5" />
+                {isNb ? "Utsett" : "Snooze"}
+              </button>
+              <button
+                onClick={handleDismiss}
+                className="inline-flex items-center justify-center h-9 w-9 rounded-full text-muted-foreground hover:text-destructive transition-colors"
+                title={isNb ? "Avvis" : "Dismiss"}
+                aria-label={isNb ? "Avvis" : "Dismiss"}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </>
           )}
         </div>
       </div>
