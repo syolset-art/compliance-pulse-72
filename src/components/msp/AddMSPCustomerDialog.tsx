@@ -500,7 +500,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
             {bulkRows.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Badge variant="success" className="text-[10px]">{bulkRows.filter(r => r.status === "ok").length} klar</Badge>
+                  <Badge variant="action" className="text-[10px]">{bulkRows.filter(r => r.status === "ok").length} klar</Badge>
                   {bulkRows.some(r => r.status === "duplicate") && (
                     <Badge variant="warning" className="text-[10px]">{bulkRows.filter(r => r.status === "duplicate").length} duplikat</Badge>
                   )}
