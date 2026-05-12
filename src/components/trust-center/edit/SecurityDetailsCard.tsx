@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Check } from "lucide-react";
 import { useAssetMetadata } from "./useAssetMetadata";
+import { LaraAutoFillBanner } from "./LaraAutoFillBanner";
 
 const ENCRYPTION = ["AES-256", "TLS 1.2+", "HTTPS overalt", "Diskkryptering", "End-to-end-kryptering"];
 const ACCESS = ["Rollebasert tilgangskontroll (RBAC)", "Tofaktor (MFA)", "Minste privilegium", "Logging og overvåking", "Single Sign-On (SSO)"];
