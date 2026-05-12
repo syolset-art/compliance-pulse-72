@@ -221,23 +221,6 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
     tags: ["security", "nis2", "hybrid", "critical"],
   },
   {
-    id: "tpl-gdpr",
-    name: "GDPR-grunnpakke",
-    description:
-      "Behandlingsoversikt, personvernerklæring, databehandleravtaler og rutiner.",
-    defaultChecklist: [
-      "Kartlegging av behandlinger",
-      "Personvernerklæring",
-      "DPA-oversikt",
-      "Avviksrutine",
-      "Opplæring",
-    ],
-    frameworkMappings: [
-      { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.30", "Art.32", "Art.33"] },
-    ],
-    tags: ["gdpr", "project", "smb", "mid", "low"],
-  },
-  {
     id: "tpl-dpia",
     name: "DPIA-tjeneste",
     description:
