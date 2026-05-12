@@ -19,6 +19,7 @@ import {
   Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 
 type Filter = "all" | "potential" | "low";
 
