@@ -204,40 +204,6 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
     tags: ["security", "subscription", "critical", "mid"],
   },
   {
-    id: "tpl-iso",
-    name: "ISO 27001-klargjøring",
-    description:
-      "Strukturert prosjekt for å gjøre kunden klar for ISO 27001-sertifisering.",
-    defaultChecklist: [
-      "Gap-analyse",
-      "Policy- og dokumentpakke",
-      "Risikovurdering",
-      "Internrevisjon",
-      "Ledelsesgjennomgang",
-    ],
-    frameworkMappings: [
-      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.1", "A.5.9", "A.6.3", "A.8.8"] },
-    ],
-    tags: ["iso", "project", "mid", "low"],
-  },
-  {
-    id: "tpl-nis2",
-    name: "NIS2-klargjøring",
-    description:
-      "Gap-analyse mot NIS2 med policyer, risikovurdering og rapporteringsrutiner.",
-    defaultChecklist: [
-      "Gap-analyse mot NIS2",
-      "Risiko- og sårbarhetsvurdering",
-      "Policy- og dokumentpakke",
-      "Hendelsesrapporteringsrutiner",
-      "Ledelsesgjennomgang",
-    ],
-    frameworkMappings: [
-      { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.20", "Art.21", "Art.23"] },
-    ],
-    tags: ["nis2", "project", "critical", "public", "mid"],
-  },
-  {
     id: "tpl-incident",
     name: "Hendelseshåndtering",
     description:
