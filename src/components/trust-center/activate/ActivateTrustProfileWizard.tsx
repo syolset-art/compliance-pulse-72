@@ -695,31 +695,53 @@ function ConfirmStep(props: any) {
       </FieldGroup>
 
       <FieldGroup icon={Users} title="Kontakter">
-        <div className="space-y-3">
+        <div className="space-y-4">
           {[
-            { label: "Hovedkontakt", name: props.contactName, setName: props.setContactName, email: props.contactEmail, setEmail: props.setContactEmail, namePh: "Navn", emailPh: "navn@firma.no" },
-            { label: "Personvern / DPO", name: props.dpoName, setName: props.setDpoName, email: props.dpoEmail, setEmail: props.setDpoEmail, namePh: "Navn", emailPh: "personvern@firma.no" },
-            { label: "Sikkerhetskontakt", name: props.securityName, setName: props.setSecurityName, email: props.securityEmail, setEmail: props.setSecurityEmail, namePh: "Navn", emailPh: "sikkerhet@firma.no" },
+            { key: "main", label: "Hovedkontakt", sub: "Mottar avtaler og DPA-er", name: props.contactName, setName: props.setContactName, email: props.contactEmail, setEmail: props.setContactEmail, emailPh: "kontakt@firma.no", extra: null as React.ReactNode },
+            {
+              key: "privacy", label: "Personvern", sub: null,
+              name: props.dpoName, setName: props.setDpoName, email: props.dpoEmail, setEmail: props.setDpoEmail, emailPh: "personvern@firma.no",
+              extra: (
+                <div className="space-y-1.5">
+                  <div className="inline-flex rounded-full border border-border bg-muted/40 p-0.5 text-[11px]">
+                    <button type="button" onClick={() => props.setDpoType("dpo")} className={`px-2.5 py-0.5 rounded-full transition ${props.dpoType === "dpo" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}>DPO</button>
+                    <button type="button" onClick={() => props.setDpoType("contact")} className={`px-2.5 py-0.5 rounded-full transition ${props.dpoType === "contact" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}>Kontakt</button>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-tight">DPO = formelt utnevnt og uavhengig</p>
+                </div>
+              ),
+            },
+            { key: "security", label: "Sikkerhetskontakt", sub: "For sårbarheter og hendelser", name: props.securityName, setName: props.setSecurityName, email: props.securityEmail, setEmail: props.setSecurityEmail, emailPh: "sikkerhet@firma.no", extra: null as React.ReactNode },
           ].map((row) => (
-            <div key={row.label} className="grid grid-cols-[140px_1fr_1fr] items-center gap-3">
-              <Label className="text-sm">{row.label}</Label>
-              <Input
-                value={row.name}
-                onChange={(e) => row.setName(e.target.value)}
-                placeholder={row.namePh}
-              />
-              <Input
-                type="email"
-                value={row.email}
-                onChange={(e) => row.setEmail(e.target.value)}
-                placeholder={row.emailPh}
-              />
+            <div key={row.key} className="grid grid-cols-[180px_1fr_1fr] items-start gap-3">
+              <div className="pt-2">
+                <div className="text-sm font-semibold text-foreground">{row.label}</div>
+                {row.sub && <div className="text-xs text-muted-foreground mt-0.5">{row.sub}</div>}
+                {row.extra}
+              </div>
+              <Input value={row.name} onChange={(e) => row.setName(e.target.value)} placeholder="Navn" />
+              <Input type="email" value={row.email} onChange={(e) => row.setEmail(e.target.value)} placeholder={row.emailPh} />
             </div>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">
-          Sikkerhetskontakten kan være den samme som personvernkontakten — bruk gjerne samme e-post hvis det er én person som håndterer begge deler.
-        </p>
+
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
+          <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <p className="text-xs text-foreground/80 leading-relaxed">
+            <span className="font-semibold">For mindre selskaper</span> er det helt vanlig at samme person dekker både personvern og sikkerhet — bruk gjerne samme e-post. <span className="font-semibold">DPO-pliktige virksomheter</span> må ha personvernombud som er uavhengig av daglig ledelse.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between pt-3 border-t border-border">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Lock className="h-3.5 w-3.5" />
+            Kontaktinformasjon vises kun til godkjente kjøpere
+          </div>
+          <Button type="button" variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+            Usikker? Spør Lara
+            <ArrowRight className="h-3 w-3" />
+          </Button>
+        </div>
       </FieldGroup>
 
       <FieldGroup icon={Lock} title="Personvern">
