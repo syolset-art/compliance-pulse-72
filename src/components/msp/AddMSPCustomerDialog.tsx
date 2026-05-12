@@ -446,6 +446,129 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           </>
         )}
 
+        {/* Step: Bulk import */}
+        {step === "bulk" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-lg">Importer flere kunder</DialogTitle>
+              <DialogDescription className="text-sm">
+                Last opp en CSV-fil eller lim inn rader. Format: <code className="text-xs">org.nr;navn;kontaktperson;e-post</code>
+              </DialogDescription>
+            </DialogHeader>
+
+            {bulkRows.length === 0 && (
+              <div className="space-y-3">
+                <div className="rounded-lg border-2 border-dashed border-border p-6 text-center">
+                  <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                  <Label htmlFor="bulk-file" className="cursor-pointer text-sm font-medium text-primary hover:underline">
+                    Velg CSV-fil
+                  </Label>
+                  <input
+                    id="bulk-file"
+                    type="file"
+                    accept=".csv,.txt,text/csv"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleBulkFile(f);
+                    }}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">eller dra og slipp her</p>
+                </div>
+
+                <div className="text-center text-xs text-muted-foreground">— eller lim inn —</div>
+
+                <Textarea
+                  placeholder={`936431127;Framdrift Innovasjon AS;Marte Solberg;marte@framdrift.no\n998877665;Eksempel AS;Ola Nordmann;ola@eksempel.no`}
+                  value={bulkText}
+                  onChange={(e) => setBulkText(e.target.value)}
+                  rows={6}
+                  className="font-mono text-xs"
+                />
+
+                <div className="flex justify-between">
+                  <Button variant="ghost" size="sm" onClick={() => setStep("method")} className="gap-1">
+                    <ArrowLeft className="h-4 w-4" /> Tilbake
+                  </Button>
+                  <Button size="sm" onClick={handleBulkParse} disabled={!bulkText.trim()}>
+                    Forhåndsvis
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {bulkRows.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Badge variant="success" className="text-[10px]">{bulkRows.filter(r => r.status === "ok").length} klar</Badge>
+                  {bulkRows.some(r => r.status === "duplicate") && (
+                    <Badge variant="warning" className="text-[10px]">{bulkRows.filter(r => r.status === "duplicate").length} duplikat</Badge>
+                  )}
+                  {bulkRows.some(r => r.status === "invalid") && (
+                    <Badge variant="destructive" className="text-[10px]">{bulkRows.filter(r => r.status === "invalid").length} feil</Badge>
+                  )}
+                </div>
+
+                <div className="max-h-72 overflow-y-auto rounded-lg border border-border divide-y divide-border">
+                  {bulkRows.map((r, i) => (
+                    <div key={i} className="flex items-start gap-2 px-3 py-2 text-xs">
+                      <div className="mt-0.5">
+                        {r.status === "ok" && <CheckCircle2 className="h-3.5 w-3.5 text-success" />}
+                        {r.status === "duplicate" && <AlertCircle className="h-3.5 w-3.5 text-warning" />}
+                        {r.status === "invalid" && <AlertCircle className="h-3.5 w-3.5 text-destructive" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">{r.customer_name || "(uten navn)"}</p>
+                        <p className="text-muted-foreground tabular-nums">
+                          {r.org_number || "—"} {r.contact_email && `· ${r.contact_email}`}
+                        </p>
+                        {r.reason && <p className="text-[11px] text-muted-foreground italic">{r.reason}</p>}
+                      </div>
+                      <button
+                        onClick={() => setBulkRows(bulkRows.filter((_, idx) => idx !== i))}
+                        className="text-muted-foreground hover:text-destructive p-0.5"
+                        aria-label="Fjern"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-between gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setBulkRows([]); setBulkText(""); }}
+                    className="gap-1"
+                  >
+                    <ArrowLeft className="h-4 w-4" /> Start på nytt
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleBulkSave}
+                    disabled={saving || bulkRows.filter(r => r.status === "ok").length === 0}
+                  >
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                    Importer {bulkRows.filter(r => r.status === "ok").length} kunder
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Step: Bulk success */}
+        {step === "bulk-success" && (
+          <div className="py-10 text-center space-y-3">
+            <div className="mx-auto h-12 w-12 rounded-full bg-success/10 flex items-center justify-center">
+              <CheckCircle2 className="h-6 w-6 text-success" />
+            </div>
+            <p className="text-base font-medium text-foreground">{bulkSavedCount} kunder importert</p>
+            <p className="text-sm text-muted-foreground">Trust Profile opprettet for hver kunde.</p>
+          </div>
+        )}
+
         {/* Step: Search */}
         {step === "search" && (
           <>
