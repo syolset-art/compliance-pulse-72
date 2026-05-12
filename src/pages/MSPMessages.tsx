@@ -212,13 +212,13 @@ export default function MSPMessages() {
     unread: ITEMS.filter(i => i.unread).length,
   };
 
-  const filters: { value: Filter; label: string; icon?: any }[] = [
-    { value: "all", label: "Alle" },
-    { value: "in", label: "Innkommende", icon: ArrowDownLeft },
-    { value: "out", label: "Utgående", icon: ArrowUpRight },
-    { value: "pending", label: "Tilbud venter" },
-    { value: "accepted", label: "Akseptert" },
-    { value: "rejected", label: "Avvist" },
+  const filters: { value: Filter; label: string; icon?: any; count: number }[] = [
+    { value: "all", label: "Alle", count: ITEMS.length },
+    { value: "in", label: "Innkommende", icon: ArrowDownLeft, count: ITEMS.filter(i => i.kind === "in").length },
+    { value: "out", label: "Utgående", icon: ArrowUpRight, count: ITEMS.filter(i => i.kind === "out").length },
+    { value: "pending", label: "Tilbud venter", count: stats.pending },
+    { value: "accepted", label: "Akseptert", count: stats.accepted },
+    { value: "rejected", label: "Avvist", count: stats.rejected },
   ];
 
   return (
