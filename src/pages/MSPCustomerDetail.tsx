@@ -25,6 +25,7 @@ import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCar
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
+import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
 import { toast } from "sonner";
 
 export default function MSPCustomerDetail() {
@@ -33,6 +34,7 @@ export default function MSPCustomerDetail() {
   const [acronisOpen, setAcronisOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("guidance");
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
+  const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
