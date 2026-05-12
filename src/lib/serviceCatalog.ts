@@ -287,22 +287,6 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
     tags: ["ai", "project", "mid", "critical"],
   },
   {
-    id: "tpl-quality",
-    name: "Kvalitets- og HMS-pakke",
-    description:
-      "Styringssystem for kvalitet og HMS med årshjul og avvikshåndtering.",
-    defaultChecklist: [
-      "Årshjul satt opp",
-      "Avvikssystem etablert",
-      "Internrevisjon",
-      "Ledelsesgjennomgang",
-    ],
-    frameworkMappings: [
-      { frameworkId: "iso9001", frameworkLabel: "ISO 9001", controlIds: ["8.1", "9.2"] },
-    ],
-    tags: ["quality", "subscription", "smb", "mid"],
-  },
-  {
     id: "tpl-vciso",
     name: "vCISO-tjeneste",
     description:
