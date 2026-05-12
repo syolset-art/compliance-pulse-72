@@ -132,13 +132,16 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
     setOrgNumber(orgnr);
     setCompanyName(navn);
     setVerified(true);
+    setWebsiteVerified(false);
     const result = await lookupByOrgNumber(orgnr);
-    // best-effort: try to derive website from name
-    if (!website) {
-      const guess = navn.toLowerCase().replace(/\s+as\s*$/i, "").replace(/[^a-z0-9]/g, "");
-      if (guess === "framdriftinnovasjon" || guess.includes("framdrift")) {
-        setWebsite("https://framdrift.no");
-      }
+    // Always auto-derive a website guess so user can verify
+    const slug = navn.toLowerCase()
+      .replace(/\s+as\s*$/i, "")
+      .replace(/\s+asa\s*$/i, "")
+      .replace(/\s+/g, "")
+      .replace(/[^a-z0-9]/g, "");
+    if (slug) {
+      setWebsite(`https://${slug}.no`);
     }
   };
 
