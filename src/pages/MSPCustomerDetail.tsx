@@ -170,7 +170,7 @@ export default function MSPCustomerDetail() {
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="assessment" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
-                  Vurdering og gap
+                  Tjenestemuligheter
                 </TabsTrigger>
                 <TabsTrigger value="trust-profile" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Kundens Trust Profile
