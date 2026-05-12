@@ -289,15 +289,15 @@ export function MSPMaturityServiceMatrix() {
       <Tabs defaultValue="recommended" className="space-y-3">
         <TabsList>
           <TabsTrigger value="recommended" className="gap-2">
-            Anbefalt
+            Anbefalte tjenester
             <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{RECOMMENDATIONS.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="ongoing" className="gap-2">
-            Pågående
+            Tilbud levert
             <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{ONGOING.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="deliveries" className="gap-2">
-            Leveranser
+            Pågående oppdrag
             <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{DELIVERIES.length}</Badge>
           </TabsTrigger>
         </TabsList>
