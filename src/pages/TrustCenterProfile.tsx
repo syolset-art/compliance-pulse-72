@@ -577,12 +577,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             {(() => {
               const a: any = asset || {};
               const cp: any = companyProfile || {};
-              const generalEmail = a.contact_email;
-              const privacyEmail = a.privacy_contact_email || cp.dpo_email;
-              const securityEmail = a.security_contact_email || cp.ciso_email;
+              const mc: any = (a.metadata && a.metadata.contacts) || {};
+              const generalEmail = a.contact_email || mc.general;
+              const privacyEmail = a.privacy_contact_email || cp.dpo_email || mc.privacy;
+              const securityEmail = a.security_contact_email || cp.ciso_email || mc.security;
               const privacyUrl = a.privacy_policy_url;
               const incidentUrl = a.incident_report_url;
-              const privacyAddress = a.privacy_contact_address;
+              const incidentEmail = mc.incident_email;
+              const incidentPhone = mc.incident_phone;
+              const privacyAddress = a.privacy_contact_address || mc.postal_address;
 
               const generalName = a.contact_name || cp.ceo_name;
               const generalRole = a.contact_role || (cp.ceo_name ? (isNb ? "Daglig leder" : "CEO") : null);
@@ -603,6 +606,12 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   label: isNb ? "Sikkerhetskontakt" : "Security contact",
                   sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues",
                   primary: { text: securityEmail, href: `mailto:${securityEmail}` },
+                },
+                (incidentEmail || incidentPhone) && {
+                  label: isNb ? "Hendelseskontakt" : "Incident contact",
+                  sub: isNb ? "Døgnbemannet kontakt for aktive hendelser" : "24/7 contact for active incidents",
+                  primary: incidentEmail ? { text: incidentEmail, href: `mailto:${incidentEmail}` } : undefined,
+                  secondary: incidentPhone ? { text: incidentPhone, href: `tel:${incidentPhone}` } : undefined,
                 },
                 privacyAddress && {
                   label: isNb ? "Postadresse" : "Postal address",
