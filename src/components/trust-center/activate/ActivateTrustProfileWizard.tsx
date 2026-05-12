@@ -36,6 +36,8 @@ interface Props {
   initialOrgNumber?: string;
   /** Pre-known domain/website. Used as the website suggestion to verify. */
   initialDomain?: string;
+  /** Existing maturity answers from prior work in Regelverk module. Merged over Lara defaults. */
+  initialMaturity?: MaturityAnswers;
 }
 
 type Step = 0 | 1 | 2 | 3 | 4 | 5;
@@ -44,7 +46,7 @@ const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Mo
 
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline,
-  initialCompanyName, initialOrgNumber, initialDomain,
+  initialCompanyName, initialOrgNumber, initialDomain, initialMaturity,
 }: Props) {
   const queryClient = useQueryClient();
   // When we already know the customer (logged-in), skip Welcome and start at Organisasjon.
@@ -170,8 +172,19 @@ export default function ActivateTrustProfileWizard({
     setEncryption(scan.security.encryption || "");
     setMfa(scan.security.mfa || "");
     setSubProcessors(scan.dataStorage.subProcessors.join(", "));
-    setMaturityAnswers(deriveDefaultAnswers(scan));
-    setLaraSources(deriveLaraSources(scan));
+    const defaults = deriveDefaultAnswers(scan);
+    const sources = deriveLaraSources(scan);
+    // Merge in any existing answers from the Regelverk module — these win over Lara defaults
+    if (initialMaturity) {
+      for (const [k, v] of Object.entries(initialMaturity)) {
+        if (v) {
+          defaults[k] = v as MaturityAnswer;
+          sources[k] = "Hentet fra ditt arbeid i Regelverk";
+        }
+      }
+    }
+    setMaturityAnswers(defaults);
+    setLaraSources(sources);
     // Pre-populate documents found by scan
     setDocuments(
       DOCUMENT_SLOTS.map((slot) => {
@@ -842,14 +855,20 @@ function MaturityStep({ answers, sources, onChange }: {
   sources: Record<string, string>;
   onChange: (id: string, answer: MaturityAnswer) => void;
 }) {
+  const fromRegelverkCount = Object.values(sources).filter((s) => s?.includes("Regelverk")).length;
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-3">
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
           <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <p className="text-xs text-foreground/80 leading-relaxed">
-            Lara har forhåndsutfylt det hun fant i kartleggingen. Bekreft, overstyr eller marker «Senere» — alt er valgfritt nå.
-          </p>
+          <div className="space-y-1.5">
+            <p className="text-xs text-foreground/80 leading-relaxed">
+              Lara har forhåndsutfylt det hun fant i kartleggingen{fromRegelverkCount > 0 ? `, og ${fromRegelverkCount} svar er hentet fra arbeidet du allerede har gjort i Regelverk` : ""}. Bekreft, overstyr eller marker «Senere» — alt er valgfritt nå.
+            </p>
+            <p className="text-xs text-foreground/70 leading-relaxed">
+              <span className="font-medium">Tips:</span> Du kan fortsette å heve modenheten din når som helst under <span className="font-medium">Regelverk</span> i menyen — der jobber du systematisk med kontroller per rammeverk, og endringene speiles automatisk her på Trust Profile.
+            </p>
+          </div>
         </div>
 
         {MATURITY_AREAS.map((area) => {
@@ -886,8 +905,10 @@ function MaturityStep({ answers, sources, onChange }: {
                         {laraSrc && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary cursor-help">
-                                <Sparkles className="h-2.5 w-2.5" /> Foreslått av Lara
+                              <span className={`inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium cursor-help ${laraSrc.includes("Regelverk") ? "bg-success/10 text-success" : "bg-primary/10 text-primary"}`}>
+                                {laraSrc.includes("Regelverk")
+                                  ? (<><Check className="h-2.5 w-2.5" /> Fra Regelverk</>)
+                                  : (<><Sparkles className="h-2.5 w-2.5" /> Foreslått av Lara</>)}
                               </span>
                             </TooltipTrigger>
                             <TooltipContent side="bottom" className="max-w-xs text-xs">
