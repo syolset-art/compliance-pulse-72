@@ -420,19 +420,18 @@ export default function ActivateTrustProfileWizard({
               Lukk — kom tilbake senere
             </Button>
           )}
-          <Button onClick={next} disabled={!canNext || isCalculating} className="gap-2">
-            {isCalculating && step === 4 ? (<><Loader2 className="h-4 w-4 animate-spin" /> Lara beregner …</>) : (<></>)}
-            {!isCalculating && step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
-            {!isCalculating && step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
-            {!isCalculating && step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
-            {!isCalculating && step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
-            {!isCalculating && step === 4 && (<>Beregn Trust Score <ArrowRight className="h-4 w-4" /></>)}
+          <Button onClick={next} disabled={!canNext} className="gap-2">
+            {step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
+            {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
+            {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
+            {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
+            {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
         <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
-          {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-          Fullfør aktivering — gå til Trust Profile
+          {isPublishing || isCalculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          {isCalculating ? "Lara beregner Trust Score …" : "Fullfør aktivering — gå til Trust Profile"}
         </Button>
       )}
     </div>
