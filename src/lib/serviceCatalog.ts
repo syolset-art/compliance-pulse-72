@@ -269,61 +269,117 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
     tags: ["security", "iso", "subscription", "mid", "high"],
   },
   {
-    id: "tpl-bookkeeping",
-    name: "Løpende bokføring",
+    id: "tpl-dpo",
+    name: "DPO-as-a-Service",
     description:
-      "Månedlig bokføring, avstemming og leveranse av regnskap med digital tilgang til data.",
+      "Eksternt personvernombud med løpende rådgivning, behandlingsprotokoll og tilsynsdialog.",
     defaultChecklist: [
-      "Bokføring månedlig",
-      "Avstemming bank/kontoer",
-      "MVA-melding",
-      "Årsoppgjør",
-      "Digital tilgang for kunde",
+      "Behandlingsprotokoll vedlikeholdt",
+      "Rådgivning til virksomheten",
+      "Avvik og brudd håndtert",
+      "Årsrapport til ledelse",
     ],
-    frameworkMappings: [],
-    tags: ["accounting", "subscription", "smb", "mid"],
+    frameworkMappings: [
+      { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.37", "Art.39"] },
+    ],
+    tags: ["gdpr", "subscription", "mid", "critical", "public"],
   },
   {
-    id: "tpl-payroll",
-    name: "Lønnskjøring",
+    id: "tpl-dpa-review",
+    name: "Databehandleravtaler — gjennomgang",
     description:
-      "Utbetaling av lønn, A-melding, feriepenger og årsoppgjør for ansatte.",
+      "Gjennomgang og forhandling av databehandleravtaler (DPA) med leverandører.",
     defaultChecklist: [
-      "Månedlig lønnskjøring",
-      "A-melding til Skatteetaten",
-      "Feriepenger og sykepenger",
-      "Årsoppgjør lønn",
+      "Kartlegging av leverandører",
+      "Gjennomgang av DPA-er",
+      "Forhandling og signering",
+      "Register oppdatert",
     ],
-    frameworkMappings: [],
-    tags: ["accounting", "subscription", "smb", "mid"],
+    frameworkMappings: [
+      { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.28"] },
+    ],
+    tags: ["gdpr", "project", "smb", "mid"],
   },
   {
-    id: "tpl-cfo",
-    name: "Eksternt økonomi-styre (vCFO)",
+    id: "tpl-transparency",
+    name: "Åpenhetsloven — aktsomhetsvurdering",
     description:
-      "Strategisk økonomirådgivning, budsjettering, likviditetsstyring og styrrapportering.",
+      "Kartlegging av leverandørkjede, aktsomhetsvurdering og publisering av redegjørelse iht. åpenhetsloven.",
     defaultChecklist: [
-      "Månedlig økonomirapport",
-      "Budsjett og prognoser",
-      "Likviditetsanalyse",
-      "Styremøte og presentasjon",
+      "Kartlegging av leverandørkjede",
+      "Risikovurdering menneskerettigheter",
+      "Tiltaksplan",
+      "Redegjørelse publisert innen 30. juni",
     ],
-    frameworkMappings: [],
-    tags: ["economy", "subscription", "mid", "high"],
+    frameworkMappings: [
+      { frameworkId: "transparency", frameworkLabel: "Åpenhetsloven", controlIds: ["§4", "§5"] },
+    ],
+    tags: ["transparency", "project", "mid", "critical"],
   },
   {
-    id: "tpl-audit-support",
-    name: "Revisjonsstøtte",
+    id: "tpl-iso27001",
+    name: "ISO 27001 — implementering",
     description:
-      "Forberedelse og gjennomføring av revisjonsprosess med dokumentasjon og avvikshåndtering.",
+      "Etablering av styringssystem for informasjonssikkerhet med dokumentasjon, risikovurdering og sertifiseringsstøtte.",
     defaultChecklist: [
-      "Forberedelse av dokumentasjon",
-      "Avstemming og kontroller",
-      "Revisjonsmøte",
-      "Avvikshåndtering og oppfølging",
+      "Gap-analyse",
+      "Risikovurdering",
+      "Policy-rammeverk",
+      "Internrevisjon",
+      "Sertifiseringsstøtte",
     ],
-    frameworkMappings: [],
-    tags: ["accounting", "project", "mid", "high"],
+    frameworkMappings: [
+      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.1", "A.5.4", "A.6.1"] },
+    ],
+    tags: ["iso", "security", "project", "mid", "high"],
+  },
+  {
+    id: "tpl-nis2",
+    name: "NIS2-compliance",
+    description:
+      "Vurdering av virkeområde, gap-analyse og tiltaksplan for NIS2-direktivet.",
+    defaultChecklist: [
+      "Virkeområde-vurdering",
+      "Gap-analyse mot Art. 21",
+      "Tiltaksplan",
+      "Hendelsesrapportering etablert",
+    ],
+    frameworkMappings: [
+      { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.20", "Art.21", "Art.23"] },
+    ],
+    tags: ["nis2", "security", "project", "critical"],
+  },
+  {
+    id: "tpl-dora",
+    name: "DORA-compliance (finans)",
+    description:
+      "Operasjonell motstandsdyktighet for finansforetak — IKT-risiko, hendelser og leverandørstyring.",
+    defaultChecklist: [
+      "ICT-risikorammeverk",
+      "Hendelseshåndtering og rapportering",
+      "TLPT-test",
+      "Tredjepartsregister",
+    ],
+    frameworkMappings: [
+      { frameworkId: "dora", frameworkLabel: "DORA", controlIds: ["Art.5", "Art.17", "Art.28"] },
+    ],
+    tags: ["dora", "security", "project", "critical"],
+  },
+  {
+    id: "tpl-ai-governance",
+    name: "AI Governance-rammeverk",
+    description:
+      "Etablering av styring, policyer og roller for ansvarlig bruk av AI iht. AI Act.",
+    defaultChecklist: [
+      "AI-policy etablert",
+      "Roller og ansvar avklart",
+      "Inventar av AI-systemer",
+      "Opplæring av nøkkelpersonell",
+    ],
+    frameworkMappings: [
+      { frameworkId: "aiact", frameworkLabel: "AI Act", controlIds: ["Art.4", "Art.9", "Art.26"] },
+    ],
+    tags: ["ai", "subscription", "mid", "critical"],
   },
 ];
 
