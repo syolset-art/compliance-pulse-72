@@ -171,6 +171,12 @@ export function MSPServiceCatalogTab() {
                       <CheckSquare className="h-3 w-3" />
                       {s.defaultChecklist.length} sjekkpunkter
                     </Badge>
+                    {(s.price != null || s.priceNote) && (
+                      <Badge variant="outline" className="text-[10px] gap-1 bg-success/5 text-success border-success/30">
+                        <Tag className="h-3 w-3" />
+                        {formatPrice(s)}
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
 
