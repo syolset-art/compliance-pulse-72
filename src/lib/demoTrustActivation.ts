@@ -24,6 +24,7 @@ export interface LaraScanResult {
     cisoName?: string;
     cisoEmail?: string;
     supportEmail?: string;
+    securityEmail?: string;
   };
   privacy: {
     policyUrl?: string;
@@ -57,6 +58,7 @@ const FRAMDRIFT: LaraScanResult = {
     dpoName: "Marte Solberg",
     dpoEmail: "personvern@framdrift.no",
     supportEmail: "hei@framdrift.no",
+    securityEmail: "sikkerhet@framdrift.no",
   },
   privacy: {
     policyUrl: "https://framdrift.no/personvern",

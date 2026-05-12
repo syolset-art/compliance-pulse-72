@@ -127,6 +127,7 @@ export interface ActivationValues {
   contactEmail?: string;
   dpoName?: string;
   dpoEmail?: string;
+  securityEmail?: string;
   publishNow: boolean;
 }
 

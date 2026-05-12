@@ -66,8 +66,8 @@ export default function ActivateTrustProfileWizard({
   const [description, setDescription] = useState("");
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
-  const [dpoName, setDpoName] = useState("");
   const [dpoEmail, setDpoEmail] = useState("");
+  const [securityEmail, setSecurityEmail] = useState("");
   const [privacyUrl, setPrivacyUrl] = useState("");
   const [encryption, setEncryption] = useState("");
   const [mfa, setMfa] = useState("");
@@ -145,8 +145,8 @@ export default function ActivateTrustProfileWizard({
     setDescription(scan.description);
     setContactName(scan.contacts.primaryName || "");
     setContactEmail(scan.contacts.primaryEmail || "");
-    setDpoName(scan.contacts.dpoName || "");
     setDpoEmail(scan.contacts.dpoEmail || "");
+    setSecurityEmail((scan.contacts as any).securityEmail || scan.contacts.dpoEmail || "");
     setPrivacyUrl(scan.privacy.policyUrl || "");
     setEncryption(scan.security.encryption || "");
     setMfa(scan.security.mfa || "");
@@ -200,8 +200,8 @@ export default function ActivateTrustProfileWizard({
       url: website,
       contactPerson: contactName,
       contactEmail,
-      dpoName,
       dpoEmail,
+      securityEmail,
       publishNow,
     };
     try {
@@ -293,8 +293,8 @@ export default function ActivateTrustProfileWizard({
           description={description} setDescription={setDescription}
           contactName={contactName} setContactName={setContactName}
           contactEmail={contactEmail} setContactEmail={setContactEmail}
-          dpoName={dpoName} setDpoName={setDpoName}
           dpoEmail={dpoEmail} setDpoEmail={setDpoEmail}
+          securityEmail={securityEmail} setSecurityEmail={setSecurityEmail}
           privacyUrl={privacyUrl} setPrivacyUrl={setPrivacyUrl}
           encryption={encryption} setEncryption={setEncryption}
           mfa={mfa} setMfa={setMfa}
@@ -698,15 +698,30 @@ function ConfirmStep(props: any) {
             <div className="flex items-center justify-between"><Label>E-post</Label><LaraBadge /></div>
             <Input value={props.contactEmail} onChange={(e) => props.setContactEmail(e.target.value)} />
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 pt-1">
           <div className="space-y-1.5">
-            <Label>DPO / personvernkontakt</Label>
-            <Input value={props.dpoName} onChange={(e) => props.setDpoName(e.target.value)} />
+            <div className="flex items-center justify-between"><Label>Personvern / DPO e-post</Label><LaraBadge /></div>
+            <Input
+              type="email"
+              value={props.dpoEmail}
+              onChange={(e) => props.setDpoEmail(e.target.value)}
+              placeholder="personvern@firma.no"
+            />
           </div>
           <div className="space-y-1.5">
-            <Label>DPO e-post</Label>
-            <Input value={props.dpoEmail} onChange={(e) => props.setDpoEmail(e.target.value)} />
+            <div className="flex items-center justify-between"><Label>Sikkerhetskontakt for hendelser</Label><LaraBadge /></div>
+            <Input
+              type="email"
+              value={props.securityEmail}
+              onChange={(e) => props.setSecurityEmail(e.target.value)}
+              placeholder="sikkerhet@firma.no"
+            />
           </div>
         </div>
+        <p className="text-xs text-muted-foreground">
+          Brukes når kunder eller myndigheter trenger å melde fra om personvern- eller sikkerhetshendelser. Det kan være samme e-post for begge.
+        </p>
       </FieldGroup>
 
       <FieldGroup icon={Lock} title="Personvern">
