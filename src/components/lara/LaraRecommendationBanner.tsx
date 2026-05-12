@@ -40,15 +40,40 @@ export function LaraRecommendationBanner({
   hideDismiss = false,
 }: Props) {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const isNb = i18n.language === "nb" || i18n.language === "no";
-  const [dismissed, setDismissed] = useState(false);
   const [showPlan, setShowPlan] = useState(false);
   const [step, setStep] = useState(0);
+  const { hiddenKeys, snooze, dismiss } = useLaraSuggestionStates();
 
-  if (dismissed || tasks.length === 0) return null;
+  const visibleTasks = useMemo(
+    () => tasks.filter(t => !hiddenKeys.has(t.id)),
+    [tasks, hiddenKeys]
+  );
 
-  const total = tasks.length;
-  const current = tasks[Math.min(step, total - 1)];
+  if (visibleTasks.length === 0) return null;
+
+  const total = visibleTasks.length;
+  const current = visibleTasks[Math.min(step, total - 1)];
+
+  const snapshotFor = (task: LaraPlanTask): LaraSuggestionContext => ({
+    title: task.title,
+    severity: (task.severity as any) || "medium",
+    insight: task.insight,
+    category: task.category || null,
+    source: "lara_recommendation_banner",
+  });
+
+  const handleSnooze = () => {
+    snooze({ key: current.id, snapshot: snapshotFor(current) });
+    toast.success(isNb ? "Utsatt 7 dager — finn det igjen i Lara-innboksen." : "Snoozed 7 days — find it in the Lara inbox.");
+  };
+
+  const handleDismiss = () => {
+    dismiss({ key: current.id, snapshot: snapshotFor(current) });
+    toast.success(isNb ? "Avvist — kan hentes tilbake fra Lara-innboksen." : "Dismissed — can be restored from the Lara inbox.");
+  };
+
 
   const severityChip = (sev: LaraPlanTask["severity"]) => {
     if (sev === "critical")
