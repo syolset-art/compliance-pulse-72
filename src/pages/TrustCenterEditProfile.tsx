@@ -230,23 +230,6 @@ const TrustCenterEditProfile = () => {
               </div>
             </Card>
 
-            {/* Lara intro */}
-            <Card className="p-4 border-primary/20 bg-primary/5">
-              <div className="flex gap-3">
-                <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-foreground">
-                    {isNb ? "Lara har gjort startjobben for deg" : "Lara has done the initial work for you"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {isNb
-                      ? "Profilen er forhåndsutfylt basert på Brønnøysund, nettstedet ditt og bransjedata. Du trenger bare å bekrefte at det stemmer, og laste opp dokumentasjon der det trengs."
-                      : "The profile is pre-filled from public registries, your website and industry data. You only need to confirm it's correct, and upload documentation where needed."}
-                  </p>
-                </div>
-              </div>
-            </Card>
-
             {/* Lara recommendation banner */}
             {showLaraRec && (
               <Card className="p-4 border-primary/20 bg-primary/5">
