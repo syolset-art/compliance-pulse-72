@@ -14,6 +14,8 @@ import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWid
 import { MSPAssessmentCard } from "@/components/msp/MSPAssessmentCard";
 import { AcronisConnectDialog } from "@/components/msp/AcronisConnectDialog";
 import { SecurityServiceGapCard } from "@/components/msp/SecurityServiceGapCard";
+import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
+import type { LaraPlanTask } from "@/components/lara/types";
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
