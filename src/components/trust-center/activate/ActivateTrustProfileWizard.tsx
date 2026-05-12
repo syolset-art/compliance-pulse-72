@@ -214,7 +214,7 @@ export default function ActivateTrustProfileWizard({
     return true;
   }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => setStep((s) => (Math.min(6, s + 1) as Step));
+  const next = () => setStep((s) => (Math.min(5, s + 1) as Step));
   const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
