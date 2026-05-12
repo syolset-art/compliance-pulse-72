@@ -117,8 +117,56 @@ const RECOMMENDATIONS: Recommendation[] = [
 ];
 
 const ONGOING: OngoingItem[] = [
-  { id: "iso", title: "ISO 27001-klargjøring", status: "pending", meta: "Tilbud sendt 28. april · Avventer svar" },
-  { id: "aware", title: "Awareness-program", status: "accepted", meta: "Akseptert 12. april · Oppstart 15. mai" },
+  {
+    id: "iso",
+    title: "ISO 27001-klargjøring",
+    status: "pending",
+    meta: "Tilbud sendt 28. april · Avventer svar",
+  },
+  {
+    id: "aware",
+    title: "Awareness-program",
+    status: "accepted",
+    meta: "Akseptert 12. april · Oppstart 15. mai",
+    frameworkId: "iso27001",
+    frameworkLabel: "ISO 27001",
+    controls: [
+      {
+        id: "A.6.3",
+        name: "Sikkerhetsbevissthet, opplæring og trening",
+        desc: "Ansatte skal motta jevnlig opplæring i informasjonssikkerhet og oppdaterte trusler.",
+        status: "partial",
+        capability: "assisted",
+        progress: 60,
+        source: "Awareness-plattform",
+      },
+      {
+        id: "A.5.10",
+        name: "Akseptabel bruk av informasjonsmidler",
+        desc: "Etabler regler for akseptabel bruk og kommuniser dette til alle ansatte.",
+        status: "missing",
+        capability: "manual",
+        progress: 0,
+      },
+      {
+        id: "A.5.24",
+        name: "Planlegging og forberedelse av hendelseshåndtering",
+        desc: "Definer og kommuniser ansvar og rutiner for håndtering av sikkerhetshendelser.",
+        status: "missing",
+        capability: "assisted",
+        progress: 0,
+      },
+      {
+        id: "A.7.7",
+        name: "Tomt skrivebord og tom skjerm",
+        desc: "Etabler praksis for låsing av skjerm og rydding av sensitive papirer.",
+        status: "fulfilled",
+        capability: "auto",
+        progress: 100,
+        source: "Endpoint-policy",
+      },
+    ],
+  },
 ];
 
 interface DeliveryItem {
