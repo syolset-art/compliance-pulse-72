@@ -518,3 +518,87 @@ export function MSPMaturityServiceMatrix() {
     </div>
   );
 }
+
+function ControlRow({ c, frameworkLabel }: { c: ControlPoint; frameworkLabel?: string }) {
+  const [open, setOpen] = useState(false);
+
+  const statusMap = {
+    missing: { Icon: Circle, cls: "text-destructive", label: "Ikke oppfylt" },
+    partial: { Icon: AlertCircle, cls: "text-warning", label: "Delvis oppfylt" },
+    fulfilled: { Icon: CheckCircle2, cls: "text-success", label: "Oppfylt" },
+  } as const;
+  const capMap = {
+    auto: { Icon: Bot, label: "Auto", cls: "bg-success/10 text-success border-success/30" },
+    assisted: { Icon: Sparkles, label: "Assistert", cls: "bg-primary/10 text-primary border-primary/30" },
+    manual: { Icon: UserIcon, label: "Manuell", cls: "bg-muted text-muted-foreground border-border" },
+  } as const;
+  const s = statusMap[c.status];
+  const cap = capMap[c.capability];
+  const StatusIcon = s.Icon;
+  const CapIcon = cap.Icon;
+
+  return (
+    <Card className="p-3">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-start gap-3 text-left"
+      >
+        <StatusIcon className={cn("h-4 w-4 mt-0.5 shrink-0", s.cls)} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-mono text-muted-foreground">{c.id}</span>
+            <span className="text-sm font-semibold text-foreground">{c.name}</span>
+          </div>
+          <p className="text-[12px] text-muted-foreground line-clamp-2 mt-0.5">{c.desc}</p>
+        </div>
+        <Badge variant="outline" className={cn("text-[10px] gap-1 shrink-0", cap.cls)}>
+          <CapIcon className="h-3 w-3" />
+          {cap.label}
+        </Badge>
+        <span className="text-[11px] text-muted-foreground tabular-nums shrink-0 w-9 text-right">
+          {c.progress ?? 0}%
+        </span>
+        <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", open && "rotate-180")} />
+      </button>
+
+      {open && (
+        <div className="mt-3 pt-3 border-t border-border space-y-3">
+          <p className={cn("text-[12px] font-medium", s.cls)}>Status: {s.label}</p>
+
+          {c.status !== "fulfilled" && (
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 space-y-2">
+              <div className="flex items-start gap-2">
+                <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                <div className="flex-1">
+                  <p className="text-[12px] font-semibold text-foreground">
+                    {c.status === "partial" ? "Lara har delvis data — dette gjenstår" : "Lara kan hjelpe deg å fylle inn dette"}
+                  </p>
+                  {c.source && (
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Lara henter dette fra: {c.source}</p>
+                  )}
+                  <p className="text-[12px] text-muted-foreground mt-1">
+                    Lara kan forberede et utkast basert på dataene, men trenger din godkjenning før det regnes som oppfylt.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <Button size="sm" className="h-7 text-xs gap-1.5">
+                  Fyll ut for kunde <ChevronRight className="h-3 w-3" />
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5">
+                  <UserIcon className="h-3 w-3" />
+                  Dokumenter manuelt
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {frameworkLabel && (
+            <p className="text-[11px] text-muted-foreground">Referanse: {frameworkLabel} · {c.id}</p>
+          )}
+        </div>
+      )}
+    </Card>
+  );
+}
