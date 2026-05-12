@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Database, Check } from "lucide-react";
 import { useAssetMetadata } from "./useAssetMetadata";
+import { LaraAutoFillBanner } from "./LaraAutoFillBanner";
 
 const REGIONS = ["Norge", "EU", "EØS", "Storbritannia", "USA", "Annet"];
 const LEGAL_BASES = [
