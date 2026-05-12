@@ -49,6 +49,7 @@ import MSPCustomerPortal from "./pages/MSPCustomerPortal";
 import MSPBillingSettings from "./pages/MSPBillingSettings";
 import MSPLicenses from "./pages/MSPLicenses";
 import MSPInvoices from "./pages/MSPInvoices";
+import MSPMessages from "./pages/MSPMessages";
 import MSPROICalculator from "./pages/MSPROICalculator";
 import MSPSalesGuide from "./pages/MSPSalesGuide";
 import BliPartner from "./pages/BliPartner";
