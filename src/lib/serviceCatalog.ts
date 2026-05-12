@@ -64,43 +64,6 @@ export const PARTNER_SERVICES: PartnerService[] = [
     ],
     tags: ["security", "project", "mid", "critical"],
   },
-  {
-    id: "iso-readiness",
-    name: "ISO 27001-klargjøring",
-    description:
-      "Strukturert leveranse for å gjøre kunden klar til ISO 27001-sertifisering.",
-    defaultChecklist: [
-      "Gap-analyse",
-      "Policy- og dokumentpakke",
-      "Risikovurdering",
-      "Internrevisjon",
-      "Ledelsesgjennomgang",
-    ],
-    frameworkMappings: [
-      {
-        frameworkId: "iso27001",
-        frameworkLabel: "ISO 27001",
-        controlIds: ["A.5.1", "A.5.9", "A.6.3", "A.8.8"],
-      },
-    ],
-    tags: ["iso", "project", "mid", "critical"],
-  },
-  {
-    id: "ai-governance",
-    name: "AI Governance-rammeverk",
-    description:
-      "Kartlegging av AI-bruk, klassifisering og policy-oppsett mot AI Act.",
-    defaultChecklist: [
-      "Kartlegging av AI-bruk",
-      "Risikoklassifisering",
-      "Policy-oppsett",
-      "Rutiner for menneskelig tilsyn",
-    ],
-    frameworkMappings: [
-      { frameworkId: "aiact", frameworkLabel: "AI Act", controlIds: ["Art.9", "Art.14"] },
-    ],
-    tags: ["ai", "project", "mid"],
-  },
 ];
 
 export function getService(id: string): PartnerService | undefined {
@@ -241,40 +204,6 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
     tags: ["security", "subscription", "critical", "mid"],
   },
   {
-    id: "tpl-iso",
-    name: "ISO 27001-klargjøring",
-    description:
-      "Strukturert prosjekt for å gjøre kunden klar for ISO 27001-sertifisering.",
-    defaultChecklist: [
-      "Gap-analyse",
-      "Policy- og dokumentpakke",
-      "Risikovurdering",
-      "Internrevisjon",
-      "Ledelsesgjennomgang",
-    ],
-    frameworkMappings: [
-      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.1", "A.5.9", "A.6.3", "A.8.8"] },
-    ],
-    tags: ["iso", "project", "mid", "low"],
-  },
-  {
-    id: "tpl-nis2",
-    name: "NIS2-klargjøring",
-    description:
-      "Gap-analyse mot NIS2 med policyer, risikovurdering og rapporteringsrutiner.",
-    defaultChecklist: [
-      "Gap-analyse mot NIS2",
-      "Risiko- og sårbarhetsvurdering",
-      "Policy- og dokumentpakke",
-      "Hendelsesrapporteringsrutiner",
-      "Ledelsesgjennomgang",
-    ],
-    frameworkMappings: [
-      { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.20", "Art.21", "Art.23"] },
-    ],
-    tags: ["nis2", "project", "critical", "public", "mid"],
-  },
-  {
     id: "tpl-incident",
     name: "Hendelseshåndtering",
     description:
@@ -290,23 +219,6 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21", "Art.23"] },
     ],
     tags: ["security", "nis2", "hybrid", "critical"],
-  },
-  {
-    id: "tpl-gdpr",
-    name: "GDPR-grunnpakke",
-    description:
-      "Behandlingsoversikt, personvernerklæring, databehandleravtaler og rutiner.",
-    defaultChecklist: [
-      "Kartlegging av behandlinger",
-      "Personvernerklæring",
-      "DPA-oversikt",
-      "Avviksrutine",
-      "Opplæring",
-    ],
-    frameworkMappings: [
-      { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.30", "Art.32", "Art.33"] },
-    ],
-    tags: ["gdpr", "project", "smb", "mid", "low"],
   },
   {
     id: "tpl-dpia",
@@ -326,22 +238,6 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
     tags: ["gdpr", "ai", "project", "mid", "critical"],
   },
   {
-    id: "tpl-ai-governance",
-    name: "AI Governance-rammeverk",
-    description:
-      "Kartlegging av AI-bruk, risikoklassifisering og policy-oppsett mot AI Act.",
-    defaultChecklist: [
-      "Kartlegging av AI-bruk",
-      "Risikoklassifisering",
-      "Policy-oppsett",
-      "Rutiner for menneskelig tilsyn",
-    ],
-    frameworkMappings: [
-      { frameworkId: "aiact", frameworkLabel: "AI Act", controlIds: ["Art.9", "Art.14"] },
-    ],
-    tags: ["ai", "project", "mid", "high"],
-  },
-  {
     id: "tpl-ai-risk",
     name: "AI-risikovurdering",
     description:
@@ -356,22 +252,6 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
       { frameworkId: "aiact", frameworkLabel: "AI Act", controlIds: ["Art.9", "Art.10"] },
     ],
     tags: ["ai", "project", "mid", "critical"],
-  },
-  {
-    id: "tpl-quality",
-    name: "Kvalitets- og HMS-pakke",
-    description:
-      "Styringssystem for kvalitet og HMS med årshjul og avvikshåndtering.",
-    defaultChecklist: [
-      "Årshjul satt opp",
-      "Avvikssystem etablert",
-      "Internrevisjon",
-      "Ledelsesgjennomgang",
-    ],
-    frameworkMappings: [
-      { frameworkId: "iso9001", frameworkLabel: "ISO 9001", controlIds: ["8.1", "9.2"] },
-    ],
-    tags: ["quality", "subscription", "smb", "mid"],
   },
   {
     id: "tpl-vciso",
