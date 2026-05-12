@@ -89,6 +89,18 @@ export default function MSPCustomerDetail() {
 
   // Works to be done — fra assessment / acronis / dokumenter
   const tasks = [
+    !trustHandoverSent && {
+      severity: "critical" as const,
+      title: "Kunden har ikke overtatt sin Trust Profile",
+      desc: "Lara kan sende en e-post til kunden og be dem overta og signere Trust Profile selv.",
+      cta: "Send e-post via Lara",
+      onClick: () => {
+        setTrustHandoverSent(true);
+        toast.success("E-post sendt", {
+          description: `Lara har sendt en invitasjon til ${customer.contact_email || customer.name} om å overta Trust Profile.`,
+        });
+      },
+    },
     !customer.has_acronis_integration && {
       severity: "high",
       title: "Koble til Acronis",
