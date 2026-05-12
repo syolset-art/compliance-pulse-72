@@ -96,7 +96,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const isServiceProfile = !!propAssetId;
-  const [activeTab, setActiveTab] = useState<"preview" | "publish">("preview");
+  const [activeTab, setActiveTab] = useState<"preview" | "publish" | "benchmark">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [publishSubTab, setPublishSubTab] = useState<"link" | "vendor" | "badge">("link");
   const [badgeTheme, setBadgeTheme] = useState<"dark" | "light">("dark");
