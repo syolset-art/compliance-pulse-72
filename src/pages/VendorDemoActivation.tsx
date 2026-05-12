@@ -250,7 +250,7 @@ function PreviewStage({ onStart }: { onStart: () => void }) {
           <Card className="p-4 border-primary/20 bg-primary/5 min-w-[220px] text-center">
             <p className="text-xs font-medium text-muted-foreground mb-1">Pris</p>
             <p className="text-2xl font-bold text-primary">
-              {PRICE_MONTHLY} kr<span className="text-sm font-normal text-muted-foreground">/mnd</span>
+              {PRICE_LABEL ?? <span className="text-muted-foreground/60">—</span>}
             </p>
             <p className="text-[13px] text-muted-foreground mt-1">Kanselleres når som helst</p>
           </Card>
@@ -381,7 +381,7 @@ function ActivatedStage({ onGoToVendors }: { onGoToVendors: () => void }) {
               Leverandørstyring er aktivert
             </h3>
             <p className="text-sm text-muted-foreground">
-              Du har nå full tilgang. Faktureres {PRICE_MONTHLY} kr/mnd fra og med neste faktureringsperiode.
+              Du har nå full tilgang.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {FEATURES.map((f) => (
