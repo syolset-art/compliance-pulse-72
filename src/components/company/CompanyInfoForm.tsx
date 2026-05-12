@@ -420,6 +420,113 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           </div>
         )}
       </div>
+
+      {/* Partner / leveransepartner */}
+      <div className="space-y-3 pt-4 border-t border-border">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-2">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Handshake className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-foreground">Partner og leveranse</h4>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                Hvem leverer IT- og sikkerhetstjenester til virksomheten? Synlig i sidemenyen og kan vises på Trust-profilen.
+              </p>
+            </div>
+          </div>
+          {isEditing && (
+            <div className="flex items-center gap-2 pt-1">
+              <span className="text-[13px] text-muted-foreground">Har partner</span>
+              <Switch
+                checked={form.managed_by_partner}
+                onCheckedChange={(v) => update("managed_by_partner", v as any)}
+              />
+            </div>
+          )}
+        </div>
+
+        {form.managed_by_partner ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FieldBlock label="Partnernavn" hint="Navnet kunder, revisorer og partnere ser">
+              {isEditing ? (
+                <Input
+                  value={form.partner_name}
+                  onChange={(e) => update("partner_name", e.target.value)}
+                  placeholder="F.eks. Acme IT AS"
+                  className="text-sm"
+                />
+              ) : (
+                <Input value={form.partner_name || "—"} readOnly className="bg-muted/30 text-sm" />
+              )}
+            </FieldBlock>
+
+            <FieldBlock label="Type partner" hint="Hvilken rolle partneren har">
+              {isEditing ? (
+                <select
+                  value={form.partner_type}
+                  onChange={(e) => update("partner_type", e.target.value as any)}
+                  className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
+                >
+                  <option value="msp">MSP — Managed Service Provider</option>
+                  <option value="mssp">MSSP — Managed Security Service Provider</option>
+                  <option value="it_partner">IT-partner</option>
+                  <option value="consultant">Konsulent / rådgiver</option>
+                  <option value="other">Annet</option>
+                </select>
+              ) : (
+                <Input value={form.partner_type || "—"} readOnly className="bg-muted/30 text-sm" />
+              )}
+            </FieldBlock>
+
+            <FieldBlock label="Leveranseområde" hint="Kort beskrivelse av hva partneren leverer">
+              {isEditing ? (
+                <Input
+                  value={form.partner_role_description}
+                  onChange={(e) => update("partner_role_description", e.target.value)}
+                  placeholder="F.eks. Drift, sikkerhetsovervåking, brukerstøtte"
+                  className="text-sm"
+                />
+              ) : (
+                <Input value={form.partner_role_description || "—"} readOnly className="bg-muted/30 text-sm" />
+              )}
+            </FieldBlock>
+
+            <FieldBlock label="Partner siden" hint="Når startet samarbeidet?">
+              {isEditing ? (
+                <Input
+                  type="date"
+                  value={form.partner_since}
+                  onChange={(e) => update("partner_since", e.target.value)}
+                  className="text-sm"
+                />
+              ) : (
+                <Input value={form.partner_since || "—"} readOnly className="bg-muted/30 text-sm" />
+              )}
+            </FieldBlock>
+
+            <div className="md:col-span-2 flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
+              <div>
+                <p className="text-xs font-medium text-foreground">Vis partner på Trust-profilen</p>
+                <p className="text-[12px] text-muted-foreground">Anbefales — bygger tillit i due diligence.</p>
+              </div>
+              <Switch
+                checked={form.show_partner_on_trust_profile}
+                onCheckedChange={(v) => update("show_partner_on_trust_profile", v as any)}
+                disabled={!isEditing}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-md border border-dashed border-border bg-muted/20 p-3">
+            <p className="text-[13px] text-muted-foreground">
+              {isEditing
+                ? "Slå på «Har partner» over for å registrere en MSP, MSSP eller IT-partner."
+                : "Ingen partner registrert. Klikk «Rediger» for å legge til."}
+            </p>
+          </div>
+        )}
+      </div>
     </Card>
   );
 }
