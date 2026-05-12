@@ -51,7 +51,7 @@ export default function ActivateTrustProfileWizard({
   const hasPrefill = !!(initialCompanyName && initialCompanyName.trim());
   // When org number is also known, the wizard becomes a single "verify website" step.
   const hasOrgPrefill = hasPrefill && !!(initialOrgNumber && initialOrgNumber.trim());
-  const [step, setStep] = useState<Step>(hasPrefill ? 1 : 0);
+  const [step, setStep] = useState<Step>(0);
 
   // Step 1: org
   const [companyName, setCompanyName] = useState(initialCompanyName ?? "");
@@ -96,7 +96,7 @@ export default function ActivateTrustProfileWizard({
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
-        setStep(hasPrefill ? 1 : 0);
+        setStep(0);
         setCompanyName(initialCompanyName ?? "");
         setOrgNumber(initialOrgNumber ?? "");
         setWebsite(initialDomain ? normalizeUrl(initialDomain) : "");
