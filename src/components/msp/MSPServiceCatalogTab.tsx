@@ -261,6 +261,13 @@ function ServiceForm({
       .map((m) => `${m.frameworkLabel}: ${m.controlIds.join(", ")}`)
       .join("\n"),
   );
+  const [priceModel, setPriceModel] = useState<NonNullable<PartnerService["priceModel"]>>(
+    initial?.priceModel ?? "fixed",
+  );
+  const [price, setPrice] = useState<string>(
+    initial?.price != null ? String(initial.price) : "",
+  );
+  const [priceNote, setPriceNote] = useState(initial?.priceNote ?? "");
 
   const handleSave = () => {
     if (!name.trim()) return;
