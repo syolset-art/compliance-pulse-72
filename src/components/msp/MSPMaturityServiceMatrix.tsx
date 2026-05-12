@@ -283,6 +283,10 @@ export function MSPMaturityServiceMatrix() {
             Leveranser
             <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{DELIVERIES.length}</Badge>
           </TabsTrigger>
+          <TabsTrigger value="catalog" className="gap-2">
+            Tjenestekatalog
+            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{PARTNER_SERVICES.length}</Badge>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="recommended" className="space-y-2 mt-0">
