@@ -230,6 +230,23 @@ export function MSPMaturityServiceMatrix() {
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
   const [expandedOngoing, setExpandedOngoing] = useState<string | null>("aware");
   const [controlFilter, setControlFilter] = useState<"all" | "missing" | "partial" | "fulfilled">("all");
+  const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
+  const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
+
+  const toggleChecklistItem = (deliveryId: string, itemId: string) => {
+    setDeliveries(prev =>
+      prev.map(d =>
+        d.id === deliveryId
+          ? {
+              ...d,
+              checklist: d.checklist.map(c =>
+                c.id === itemId ? { ...c, done: !c.done } : c,
+              ),
+            }
+          : d,
+      ),
+    );
+  };
 
   const openGap = (frameworkId?: string) => {
     setGapFrameworkId(frameworkId);
