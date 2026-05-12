@@ -191,7 +191,13 @@ export default function MSPCustomerDetail() {
                 </Card>
               )}
 
-              <DomainComplianceWidget />
+              <DomainComplianceWidget hideHeader />
+
+              {frameworks.length > 0 && (
+                <FrameworkMaturityGrid frameworks={frameworks} />
+              )}
+
+              <VendorPrivacyAssessment vendorName={customer.name || "kunden"} />
             </TabsContent>
 
             {/* ── Vurdering ── */}
