@@ -92,12 +92,13 @@ export function deriveDefaultAnswers(scan: {
   if (!scan) return answers;
 
   if (scan.privacy?.policyUrl) answers["gov.privacy_policy"] = "yes";
-  if (scan.security?.encryption) answers["ops.encryption"] = "yes";
-  if (scan.security?.mfa) answers["ops.mfa"] = "yes";
+  // Drift og sikkerhet: Lara skal ikke gjette basert på generelle nettside-omtaler.
+  // ops.encryption / ops.mfa forblir "later" og settes kun via faktiske bevis
+  // (Regelverk-data eller offentlig verifiserbare kilder som ISO-sertifikat).
   if ((scan.dataStorage?.subProcessors?.length ?? 0) > 0) answers["tp.inventory"] = "yes";
 
   const hasDpa = (scan.documents ?? []).some((d) => d.type === "dpa");
-  answers["tp.dpa"] = hasDpa ? "yes" : "no";
+  if (hasDpa) answers["tp.dpa"] = "yes";
 
   const hasSecPolicy = (scan.documents ?? []).some((d) => d.type === "policy");
   if (hasSecPolicy) answers["gov.internal_policy"] = "yes";
@@ -115,11 +116,10 @@ export function deriveLaraSources(scan: {
   const sources: Record<string, string> = {};
   if (!scan) return sources;
   if (scan.privacy?.policyUrl) sources["gov.privacy_policy"] = "Personvernerklæring funnet på hjemmesiden";
-  if (scan.security?.encryption) sources["ops.encryption"] = "Kryptering nevnt i sikkerhetsbeskrivelse";
-  if (scan.security?.mfa) sources["ops.mfa"] = "MFA nevnt i sikkerhetsbeskrivelse";
+  // ops.encryption / ops.mfa: ingen forslag fra generell nettside-omtale.
   if ((scan.dataStorage?.subProcessors?.length ?? 0) > 0) sources["tp.inventory"] = `${scan.dataStorage!.subProcessors.length} underleverandører identifisert`;
   const dpa = (scan.documents ?? []).find((d) => d.type === "dpa");
-  sources["tp.dpa"] = dpa ? `Funnet i: ${dpa.title}` : "Ingen DPA funnet på hjemmesiden";
+  if (dpa) sources["tp.dpa"] = `Funnet i: ${dpa.title}`;
   const sec = (scan.documents ?? []).find((d) => d.type === "policy");
   if (sec) sources["gov.internal_policy"] = `Funnet i: ${sec.title}`;
   return sources;
