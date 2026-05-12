@@ -2381,17 +2381,7 @@ MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d
           </div>
         </DialogContent>
       </Dialog>
-      <ActivateTrustProfileWizard
-        open={showActivateWizard}
-        onOpenChange={setShowActivateWizard}
-        initialCompanyName={companyProfile?.name || undefined}
-        initialOrgNumber={companyProfile?.org_number || undefined}
-        initialDomain={(companyProfile as any)?.domain || undefined}
-        onCompleted={() => {
-          queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
-          queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-        }}
-      />
+{/* Activation now renders inline at top of main */}
     </SidebarProvider>
   );
 };
