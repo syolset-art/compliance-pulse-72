@@ -117,7 +117,7 @@ const GENERIC: LaraScanResult = {
   },
   dataStorage: {
     regions: ["EU/EØS"],
-    subProcessors: ["Microsoft 365"],
+    subProcessors: ["Microsoft 365", "Microsoft Azure", "Google Workspace", "HubSpot", "Slack", "Zoom"],
   },
   documents: [
     { title: "Personvernerklæring", url: "https://example.no/personvern", type: "privacy_policy" },
