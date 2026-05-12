@@ -64,43 +64,6 @@ export const PARTNER_SERVICES: PartnerService[] = [
     ],
     tags: ["security", "project", "mid", "critical"],
   },
-  {
-    id: "iso-readiness",
-    name: "ISO 27001-klargjøring",
-    description:
-      "Strukturert leveranse for å gjøre kunden klar til ISO 27001-sertifisering.",
-    defaultChecklist: [
-      "Gap-analyse",
-      "Policy- og dokumentpakke",
-      "Risikovurdering",
-      "Internrevisjon",
-      "Ledelsesgjennomgang",
-    ],
-    frameworkMappings: [
-      {
-        frameworkId: "iso27001",
-        frameworkLabel: "ISO 27001",
-        controlIds: ["A.5.1", "A.5.9", "A.6.3", "A.8.8"],
-      },
-    ],
-    tags: ["iso", "project", "mid", "critical"],
-  },
-  {
-    id: "ai-governance",
-    name: "AI Governance-rammeverk",
-    description:
-      "Kartlegging av AI-bruk, klassifisering og policy-oppsett mot AI Act.",
-    defaultChecklist: [
-      "Kartlegging av AI-bruk",
-      "Risikoklassifisering",
-      "Policy-oppsett",
-      "Rutiner for menneskelig tilsyn",
-    ],
-    frameworkMappings: [
-      { frameworkId: "aiact", frameworkLabel: "AI Act", controlIds: ["Art.9", "Art.14"] },
-    ],
-    tags: ["ai", "project", "mid"],
-  },
 ];
 
 export function getService(id: string): PartnerService | undefined {
