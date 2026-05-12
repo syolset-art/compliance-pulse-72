@@ -210,7 +210,34 @@ export function LaraRecommendationBanner({
                 : (current.secondaryCtaLabelEn ?? "Open vendor")}
             </Button>
           )}
+          <div className="hidden sm:block sm:flex-1" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full text-muted-foreground"
+            onClick={handleSnooze}
+            title={isNb ? "Utsett 7 dager" : "Snooze 7 days"}
+          >
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            {isNb ? "Utsett" : "Snooze"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full text-muted-foreground hover:text-destructive h-9 w-9 p-0"
+            onClick={handleDismiss}
+            title={isNb ? "Avvis" : "Dismiss"}
+            aria-label={isNb ? "Avvis" : "Dismiss"}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
+        <p className="text-[11px] text-muted-foreground">
+          {isNb ? "Utsatte og avviste forslag finner du i " : "Snoozed and dismissed suggestions live in the "}
+          <button className="text-primary hover:underline" onClick={() => navigate("/lara-inbox")}>
+            {isNb ? "Lara-innboksen" : "Lara inbox"}
+          </button>.
+        </p>
       </div>
 
       {/* Footer */}
