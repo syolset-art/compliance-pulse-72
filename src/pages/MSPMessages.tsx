@@ -212,13 +212,13 @@ export default function MSPMessages() {
     unread: ITEMS.filter(i => i.unread).length,
   };
 
-  const filters: { value: Filter; label: string; icon?: any }[] = [
-    { value: "all", label: "Alle" },
-    { value: "in", label: "Innkommende", icon: ArrowDownLeft },
-    { value: "out", label: "Utgående", icon: ArrowUpRight },
-    { value: "pending", label: "Tilbud venter" },
-    { value: "accepted", label: "Akseptert" },
-    { value: "rejected", label: "Avvist" },
+  const filters: { value: Filter; label: string; icon?: any; count: number }[] = [
+    { value: "all", label: "Alle", count: ITEMS.length },
+    { value: "in", label: "Innkommende", icon: ArrowDownLeft, count: ITEMS.filter(i => i.kind === "in").length },
+    { value: "out", label: "Utgående", icon: ArrowUpRight, count: ITEMS.filter(i => i.kind === "out").length },
+    { value: "pending", label: "Tilbud venter", count: stats.pending },
+    { value: "accepted", label: "Akseptert", count: stats.accepted },
+    { value: "rejected", label: "Avvist", count: stats.rejected },
   ];
 
   return (
@@ -262,14 +262,6 @@ export default function MSPMessages() {
             </Card>
           )}
 
-          {/* Stats */}
-          <div className="grid grid-cols-4 gap-3">
-            <StatCard dot="bg-warning" label="Tilbud venter" value={stats.pending} />
-            <StatCard dot="bg-success" label="Akseptert siste 30d" value={stats.accepted} />
-            <StatCard dot="bg-muted-foreground/40" label="Avvist siste 30d" value={stats.rejected} />
-            <StatCard dot="bg-primary" label="Uleste meldinger" value={stats.unread} />
-          </div>
-
           {/* Filters */}
           <div className="flex flex-wrap items-center gap-2">
             {filters.map(f => {
@@ -280,7 +272,7 @@ export default function MSPMessages() {
                   key={f.value}
                   onClick={() => setFilter(f.value)}
                   className={cn(
-                    "h-8 px-3 rounded-full border text-[12px] flex items-center gap-1.5 transition-colors",
+                    "h-8 pl-3 pr-2 rounded-full border text-[12px] flex items-center gap-1.5 transition-colors",
                     active
                       ? "bg-primary/10 text-primary border-primary/40"
                       : "bg-background text-muted-foreground border-border hover:text-foreground"
@@ -288,6 +280,14 @@ export default function MSPMessages() {
                 >
                   {Icon && <Icon className="h-3 w-3" />}
                   {f.label}
+                  <span
+                    className={cn(
+                      "ml-0.5 min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-medium tabular-nums flex items-center justify-center",
+                      active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {f.count}
+                  </span>
                 </button>
               );
             })}
