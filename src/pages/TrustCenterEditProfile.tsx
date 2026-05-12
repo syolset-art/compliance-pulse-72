@@ -25,7 +25,7 @@ import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
-import { PublishingReadiness } from "@/components/trust-center/PublishingReadiness";
+
 import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
 import { DataStorageSection } from "@/components/trust-center/edit/DataStorageSection";
 import { PrivacySection } from "@/components/trust-center/edit/PrivacySection";
