@@ -852,9 +852,192 @@ function PreviewStep({ name, orgNumber, description, website, contactName, conta
         </div>
       </Card>
 
+      {(maturityAnswers || documents) && (
+        <Card className="p-3 space-y-1.5 text-xs">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+            <span><span className="font-medium text-foreground">Modenhet:</span> {answered} av {ALL_MATURITY_QUESTIONS.length} besvart{later > 0 ? ` · ${later} markert «Senere»` : ""}</span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <FileText className="h-3.5 w-3.5 text-primary" />
+            <span><span className="font-medium text-foreground">Dokumenter:</span> {docCount} klart for profilen</span>
+          </div>
+        </Card>
+      )}
+
       <div className="flex items-start gap-2 text-xs text-muted-foreground p-3 rounded-md bg-muted/40">
         <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
         <span>Når du publiserer blir profilen tilgjengelig på <code className="px-1 bg-background rounded">trust.mynder.no</code> og kan deles med kunder og partnere.</span>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------- Maturity step -------------------- */
+
+function MaturityStep({ answers, sources, onChange }: {
+  answers: MaturityAnswers;
+  sources: Record<string, string>;
+  onChange: (id: string, answer: MaturityAnswer) => void;
+}) {
+  return (
+    <TooltipProvider delayDuration={150}>
+      <div className="space-y-3">
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
+          <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <p className="text-xs text-foreground/80 leading-relaxed">
+            Lara har forhåndsutfylt det hun fant i kartleggingen. Bekreft, overstyr eller marker «Senere» — alt er valgfritt nå.
+          </p>
+        </div>
+
+        {MATURITY_AREAS.map((area) => {
+          const Icon = area.icon;
+          return (
+            <Card key={area.id} className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Icon className="h-4 w-4 text-primary" />
+                <div>
+                  <h4 className="text-sm font-semibold leading-tight">{area.title}</h4>
+                  <p className="text-[11px] text-muted-foreground">{area.subtitle}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {area.questions.map((q) => {
+                  const val = answers[q.id] ?? "later";
+                  const laraSrc = sources[q.id];
+                  return (
+                    <div key={q.id} className="flex items-start gap-3 py-1.5 border-t border-border first:border-t-0 first:pt-0">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start gap-1.5">
+                          <p className="text-sm text-foreground leading-snug">{q.text}</p>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button type="button" className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0">
+                                <Info className="h-3.5 w-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs text-xs">
+                              GDPR {q.article}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        {laraSrc && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary cursor-help">
+                                <Sparkles className="h-2.5 w-2.5" /> Foreslått av Lara
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-xs text-xs">
+                              {laraSrc}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
+                      <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 shrink-0">
+                        {[
+                          { v: "yes" as const, label: "Ja", icon: Check },
+                          { v: "no" as const, label: "Nei", icon: X },
+                          { v: "later" as const, label: "Senere", icon: Clock },
+                        ].map((opt) => {
+                          const OptIcon = opt.icon;
+                          const active = val === opt.v;
+                          return (
+                            <button
+                              key={opt.v}
+                              type="button"
+                              onClick={() => onChange(q.id, opt.v)}
+                              className={`px-2.5 py-1 rounded text-xs font-medium transition inline-flex items-center gap-1 ${
+                                active
+                                  ? opt.v === "yes" ? "bg-success text-success-foreground"
+                                  : opt.v === "no" ? "bg-destructive text-destructive-foreground"
+                                  : "bg-background text-foreground shadow-sm"
+                                  : "text-muted-foreground hover:text-foreground"
+                              }`}
+                            >
+                              <OptIcon className="h-3 w-3" />
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </TooltipProvider>
+  );
+}
+
+/* -------------------- Documents step -------------------- */
+
+function DocumentsStep({ documents, onUpload }: {
+  documents: ActivationDocument[];
+  onUpload: (slotId: string, fileName: string) => void;
+}) {
+  const getDoc = (slotId: string) => documents.find((d) => d.slot === slotId);
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
+        <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <p className="text-xs text-foreground/80 leading-relaxed">
+          Last opp policyer som dekker hullene. Når du laster opp en <span className="font-semibold">DPA</span>, oppdaterer Lara automatisk svaret i Modenhet-steget. Alt er valgfritt — du kan komme tilbake senere.
+        </p>
+      </div>
+
+      {DOCUMENT_SLOTS.map((slot) => {
+        const doc = getDoc(slot.id);
+        const status = doc?.status ?? "skipped";
+        return (
+          <Card key={slot.id} className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <h4 className="text-sm font-semibold">{slot.title}</h4>
+                  {status === "found" && (
+                    <Badge variant="secondary" className="bg-success/15 text-success border-success/30 gap-1 text-[10px]">
+                      <Check className="h-2.5 w-2.5" /> Funnet av Lara
+                    </Badge>
+                  )}
+                  {status === "uploaded" && (
+                    <Badge variant="secondary" className="bg-primary/15 text-primary border-primary/30 gap-1 text-[10px]">
+                      <Check className="h-2.5 w-2.5" /> Lastet opp
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">{slot.description}</p>
+                {doc?.fileName && (
+                  <p className="text-[11px] text-muted-foreground mt-1.5 italic truncate">{doc.fileName}</p>
+                )}
+              </div>
+              <div className="shrink-0">
+                <label className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-border bg-background hover:bg-muted/50 cursor-pointer transition">
+                  <Upload className="h-3.5 w-3.5" />
+                  {status === "uploaded" || status === "found" ? "Bytt ut" : "Last opp"}
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) onUpload(slot.id, f.name);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
+
+      <div className="flex items-start gap-2 text-xs text-muted-foreground p-3 rounded-md bg-muted/40">
+        <HelpCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+        <span>Mangler du dokumenter? Hopp over — du kan laste opp senere fra Trust Profile under «Dokumenter».</span>
       </div>
     </div>
   );
