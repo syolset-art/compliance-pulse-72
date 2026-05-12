@@ -343,6 +343,46 @@ function ServiceForm({
           placeholder={"ISO 27001: A.6.3, A.5.10\nNIS2: Art.20"}
         />
       </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-2">
+          <Label className="text-xs">Prismodell</Label>
+          <Select
+            value={priceModel}
+            onValueChange={(v) => setPriceModel(v as NonNullable<PartnerService["priceModel"]>)}
+          >
+            <SelectTrigger className="h-9 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fixed">Fastpris (kr)</SelectItem>
+              <SelectItem value="monthly">Per måned (kr/mnd)</SelectItem>
+              <SelectItem value="hourly">Timepris (kr/time)</SelectItem>
+              <SelectItem value="per-user">Per bruker (kr/bruker/mnd)</SelectItem>
+              <SelectItem value="quote">Etter avtale</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs">Pris (NOK)</Label>
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder={priceModel === "quote" ? "—" : "F.eks. 25 000"}
+            disabled={priceModel === "quote"}
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-xs">Prisnotat (valgfritt)</Label>
+        <Input
+          value={priceNote}
+          onChange={(e) => setPriceNote(e.target.value)}
+          placeholder="F.eks. «fra 25 000 kr» eller «ekskl. mva»"
+        />
+      </div>
       <div className="flex items-center gap-2 pt-1">
         <Button size="sm" className="h-8 text-xs" onClick={handleSave}>
           Lagre
