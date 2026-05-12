@@ -702,10 +702,7 @@ function ConfirmStep(props: any) {
             { label: "Sikkerhetskontakt", name: props.securityName, setName: props.setSecurityName, email: props.securityEmail, setEmail: props.setSecurityEmail, namePh: "Navn", emailPh: "sikkerhet@firma.no" },
           ].map((row) => (
             <div key={row.label} className="grid grid-cols-[140px_1fr_1fr] items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <Label className="text-sm">{row.label}</Label>
-                <LaraBadge />
-              </div>
+              <Label className="text-sm">{row.label}</Label>
               <Input
                 value={row.name}
                 onChange={(e) => row.setName(e.target.value)}
