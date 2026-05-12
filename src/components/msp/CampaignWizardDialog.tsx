@@ -367,18 +367,41 @@ function Step1({
 
   return (
     <div className="space-y-5 py-2">
-      {/* Sub-steg A: hjelpetekst */}
-      <Card className="p-4 border-primary/20 bg-primary/5">
-        <div className="flex items-start gap-3">
-          <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-foreground">Steg 1 av 3 — Hvem skal motta?</p>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              Hak av ett eller flere kriterier under. Lara finner kundene som passer.
-            </p>
+      {/* Stor, sticky treff-teller */}
+      <div className="sticky top-0 z-10 -mx-1 px-1 pb-2 bg-background">
+        <Card
+          className={cn(
+            "p-4 border-2 transition-colors",
+            matches.length > 0
+              ? "border-primary bg-primary/10"
+              : "border-border bg-muted/30",
+          )}
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className={cn(
+                "h-14 w-14 rounded-full flex items-center justify-center shrink-0",
+                matches.length > 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+              )}
+            >
+              <span className="text-2xl font-bold tabular-nums">{matches.length}</span>
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-semibold text-foreground">
+                {matches.length === 0
+                  ? "Ingen kunder valgt ennå"
+                  : `${matches.length} kunde${matches.length === 1 ? "" : "r"} treffer kampanjen`}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {selected.length === 0
+                  ? "Hak av ett eller flere kriterier under."
+                  : `Av totalt ${DEMO_CAMPAIGN_CUSTOMERS.length} kunder · ${selected.length} kriteri${selected.length === 1 ? "um" : "er"} valgt`}
+              </p>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
+
 
       {/* Segmenter */}
       {Object.entries(grouped).map(([cat, segs]) => {
