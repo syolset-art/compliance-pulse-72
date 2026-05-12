@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FileText, Upload, X, Eye } from "lucide-react";
+import { FileText, Upload, X, Eye, Sparkles, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 const DOC_TYPES = [
@@ -22,7 +23,26 @@ export function DocumentationSection({ asset }: { asset: any }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
+  const [dismissed, setDismissed] = useState<string[]>([]);
+  const [adding, setAdding] = useState<string | null>(null);
 
+  // Lara-foreslåtte dokumenter (demo): hentet fra andre moduler i plattformen
+  const LARA_SUGGESTIONS = [
+    {
+      id: "sugg-dpa-2026",
+      file_name: "DPA-mal 2026.pdf",
+      document_type: "dpa",
+      type_label: "Databehandleravtale",
+      source: "fra Leverandørmodulen",
+    },
+    {
+      id: "sugg-iso-27001",
+      file_name: "ISO 27001-sertifikat.pdf",
+      document_type: "certificate",
+      type_label: "Sertifikat",
+      source: "fra Regelverk-modulen",
+    },
+  ];
 
   const { data: documents = [] } = useQuery({
     queryKey: ["self-trust-documents", asset?.id],
@@ -96,6 +116,33 @@ export function DocumentationSection({ asset }: { asset: any }) {
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString("nb-NO");
 
+  const addSuggestion = async (s: typeof LARA_SUGGESTIONS[number]) => {
+    if (!asset?.id) return;
+    setAdding(s.id);
+    try {
+      const { error } = await supabase.from("vendor_documents").insert({
+        asset_id: asset.id,
+        file_name: s.file_name,
+        file_path: null,
+        document_type: s.document_type,
+        visibility: "visible",
+      } as any);
+      if (error) throw error;
+      qc.invalidateQueries({ queryKey: ["self-trust-documents", asset.id] });
+      setDismissed((d) => [...d, s.id]);
+      toast.success("Lagt til fra Lara");
+    } catch (err) {
+      console.error(err);
+      toast.error("Kunne ikke legge til");
+    } finally {
+      setAdding(null);
+    }
+  };
+
+  const visibleSuggestions = LARA_SUGGESTIONS.filter(
+    (s) => !dismissed.includes(s.id) && !documents.some((d: any) => d.file_name === s.file_name),
+  );
+
   return (
     <section id="documentation" className="space-y-4 scroll-mt-24">
       <div className="flex items-center justify-between">
@@ -140,8 +187,12 @@ export function DocumentationSection({ asset }: { asset: any }) {
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground">Offentlig</span>
-                <Switch checked={doc.visibility === "visible"} onCheckedChange={() => togglePublic(doc)} />
+                <span className="text-xs text-muted-foreground">Vis på profil</span>
+                <Switch
+                  checked={doc.visibility === "visible"}
+                  onCheckedChange={() => togglePublic(doc)}
+                  className="data-[state=checked]:bg-primary"
+                />
               </div>
               <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => openDoc(doc)}>
                 <Eye className="h-3.5 w-3.5" /> Les
@@ -153,6 +204,53 @@ export function DocumentationSection({ asset }: { asset: any }) {
           ))
         )}
       </Card>
+
+      {visibleSuggestions.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              Foreslått av Lara — ikke i bruk ennå
+            </p>
+          </div>
+          <Card className="divide-y divide-dashed divide-border border-dashed">
+            {visibleSuggestions.map((s) => (
+              <div key={s.id} className="flex items-center gap-3 p-4">
+                <Checkbox
+                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{s.file_name}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    <span className="text-[11px] text-muted-foreground">
+                      {s.type_label} · {s.source}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => addSuggestion(s)}
+                  disabled={adding === s.id}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {adding === s.id ? "Legger til..." : "Legg til"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setDismissed((d) => [...d, s.id])}
+                  aria-label="Avvis forslag"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </Card>
+        </div>
+      )}
 
 
 
