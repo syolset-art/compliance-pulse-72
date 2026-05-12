@@ -156,7 +156,7 @@ export default function ActivateTrustProfileWizard({
     return () => clearInterval(interval);
   }, [step, website, companyName]);
 
-  // When scan finishes, prefill confirm step
+  // When scan finishes, prefill confirm step + maturity defaults
   useEffect(() => {
     if (!scan) return;
     setDescription(scan.description);
@@ -170,6 +170,17 @@ export default function ActivateTrustProfileWizard({
     setEncryption(scan.security.encryption || "");
     setMfa(scan.security.mfa || "");
     setSubProcessors(scan.dataStorage.subProcessors.join(", "));
+    setMaturityAnswers(deriveDefaultAnswers(scan));
+    setLaraSources(deriveLaraSources(scan));
+    // Pre-populate documents found by scan
+    setDocuments(
+      DOCUMENT_SLOTS.map((slot) => {
+        const found = scan.documents.find((d) => d.type === slot.scanType);
+        return found
+          ? { slot: slot.id, title: slot.title, status: "found" as const, fileName: found.title }
+          : { slot: slot.id, title: slot.title, status: "skipped" as const };
+      }),
+    );
   }, [scan]);
 
   const handleSearchName = async () => {
