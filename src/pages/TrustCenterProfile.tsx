@@ -831,6 +831,32 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </p>
             </div>
 
+            {/* Lara activation prompt — vises kun når profilen ikke er aktivert (org.nr OG beskrivelse mangler) */}
+            {(!companyProfile?.org_number && !asset?.description) && (
+              <Card className="p-4 border-primary/20 bg-primary/5">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">
+                      {isNb ? "Lara anbefaler å aktivere Trust Profile" : "Lara recommends activating Trust Profile"}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {isNb
+                        ? "Trust Profilen din er ikke aktivert ennå. La Lara hente offentlig informasjon og sette opp profilen for deg."
+                        : "Your Trust Profile is not activated yet. Let Lara fetch public information and set up the profile for you."}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button size="sm" onClick={() => setShowActivateWizard(true)}>
+                      {isNb ? "Aktiver profilen" : "Activate profile"}
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             {/* Tab bar */}
             <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-muted border border-border">
               <button
