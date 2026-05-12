@@ -14,6 +14,8 @@ import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWid
 import { MSPAssessmentCard } from "@/components/msp/MSPAssessmentCard";
 import { AcronisConnectDialog } from "@/components/msp/AcronisConnectDialog";
 import { SecurityServiceGapCard } from "@/components/msp/SecurityServiceGapCard";
+import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
+import type { LaraPlanTask } from "@/components/lara/types";
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
@@ -92,13 +94,17 @@ export default function MSPCustomerDetail() {
       cta: "Inviter kunde",
       onClick: () => {},
     },
-  ].filter(Boolean) as Array<{ severity: string; title: string; desc: string; cta: string; onClick: () => void }>;
+  ].filter(Boolean) as Array<{ severity: "critical" | "high" | "medium"; title: string; desc: string; cta: string; onClick: () => void }>;
 
-  const sevColor: Record<string, string> = {
-    critical: "bg-destructive/10 text-destructive border-destructive/30",
-    high: "bg-warning/10 text-warning border-warning/30",
-    medium: "bg-primary/10 text-primary border-primary/30",
-  };
+  const planTasks: LaraPlanTask[] = tasks.map((t, i) => ({
+    id: `msp-task-${i}-${t.title}`,
+    severity: t.severity,
+    title: t.title,
+    insight: t.desc,
+    primaryCtaLabelNb: t.cta,
+    primaryCtaLabelEn: t.cta,
+  }));
+  const criticalCount = planTasks.filter(t => t.severity === "critical").length;
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -141,61 +147,32 @@ export default function MSPCustomerDetail() {
               </TabsList>
             </nav>
 
-            {/* ── Veiledning: Works to be done ── */}
+            {/* ── Veiledning fra Mynder ── */}
             <TabsContent value="guidance" className="mt-6 space-y-5">
-              <Card className="p-5 border-primary/20 bg-primary/5">
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                    <Sparkles className="h-5 w-5 text-primary" />
+              {planTasks.length > 0 ? (
+                <LaraRecommendationBanner
+                  totalCount={planTasks.length}
+                  criticalCount={criticalCount}
+                  tasks={planTasks}
+                  hideDismiss
+                  onPrimaryAction={(t) => {
+                    const idx = planTasks.findIndex(p => p.id === t.id);
+                    tasks[idx]?.onClick();
+                  }}
+                />
+              ) : (
+                <Card className="p-5 border-primary/20 bg-primary/5">
+                  <div className="flex items-start gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="h-5 w-5 text-success" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-base font-semibold text-foreground">Ingen åpne oppgaver</h2>
+                      <p className="text-sm text-muted-foreground mt-0.5">Kunden er i god rute — Lara overvåker situasjonen.</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-base font-semibold text-foreground">Lara har en anbefaling til deg</h2>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      {tasks.length === 0
-                        ? "Ingen åpne oppgaver — kunden er i god rute."
-                        : `Du har ${tasks.length} oppgave${tasks.length === 1 ? "" : "r"} som krever oppmerksomhet${
-                            tasks.filter(t => t.severity === "critical").length > 0
-                              ? `, hvorav ${tasks.filter(t => t.severity === "critical").length} er kritisk`
-                              : ""
-                          }.`}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-5 space-y-3">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-warning" />
-                  <h3 className="text-sm font-semibold text-foreground">Works to be done</h3>
-                </div>
-
-                {tasks.length === 0 ? (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                    Ingen åpne oppgaver for denne kunden.
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {tasks.map((task, i) => (
-                      <div
-                        key={i}
-                        className="flex items-start gap-3 rounded-lg border border-border bg-card p-3 hover:border-primary/30 transition-colors"
-                      >
-                        <span className={`mt-0.5 inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${sevColor[task.severity]}`}>
-                          {task.severity === "critical" ? "Kritisk" : task.severity === "high" ? "Høy" : "Medium"}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground">{task.title}</p>
-                          <p className="text-[13px] text-muted-foreground mt-0.5">{task.desc}</p>
-                        </div>
-                        <Button size="sm" variant="outline" onClick={task.onClick} className="shrink-0">
-                          {task.cta}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </Card>
+                </Card>
+              )}
 
               <DomainComplianceWidget />
             </TabsContent>
