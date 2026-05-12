@@ -1656,6 +1656,54 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   })()}
 
 
+                  {/* ── Partner ── (prototype: alltid synlig med fallback-data) */}
+                  {(() => {
+                    const hasRealPartner = partnerInfo?.hasPartner && partnerInfo.showOnTrustProfile;
+                    const partnerName = hasRealPartner ? partnerInfo!.partnerName : "Mynder MSP-partner AS";
+                    const partnerTypeLabel = hasRealPartner && partnerInfo!.partnerType
+                      ? PARTNER_TYPE_LABEL[partnerInfo!.partnerType]
+                      : "MSP";
+                    const partnerDesc = hasRealPartner && partnerInfo!.partnerRoleDescription
+                      ? partnerInfo!.partnerRoleDescription
+                      : isNb
+                        ? "Bistår med drift, sikkerhet og compliance — rapporterer modenhet og hendelser inn i Mynder."
+                        : "Assists with operations, security and compliance — reports maturity and incidents into Mynder.";
+                    const partnerSince = hasRealPartner ? partnerInfo!.partnerSince : null;
+                    return (
+                      <section className="rounded-xl border border-border bg-card overflow-hidden">
+                        <div className="flex items-center gap-2 px-5 py-3.5">
+                          <Users className="h-4 w-4 text-primary" />
+                          <h3 className="text-sm font-semibold text-foreground">
+                            {isNb ? "Partner" : "Partner"}
+                          </h3>
+                        </div>
+                        <div className="border-t border-border px-5 py-4 flex items-start gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <Building2 className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm font-semibold text-foreground truncate">
+                                {partnerName}
+                              </p>
+                              <Badge variant="outline" className="text-[10px]">
+                                {partnerTypeLabel}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {partnerDesc}
+                            </p>
+                            {partnerSince && (
+                              <p className="text-[11px] text-muted-foreground/70 mt-1">
+                                {isNb ? "Partner siden" : "Partner since"} {partnerSince}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </section>
+                    );
+                  })()}
+
                   {/* ── Dokumentasjon ── */}
                   {(() => {
                     const allDocs = [...policies, ...certs, ...otherDocs];
@@ -1708,54 +1756,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             })}
                           </div>
                         )}
-                      </section>
-                    );
-                  })()}
-
-                  {/* ── Partner ── (prototype: alltid synlig med fallback-data) */}
-                  {(() => {
-                    const hasRealPartner = partnerInfo?.hasPartner && partnerInfo.showOnTrustProfile;
-                    const partnerName = hasRealPartner ? partnerInfo!.partnerName : "Mynder MSP-partner AS";
-                    const partnerTypeLabel = hasRealPartner && partnerInfo!.partnerType
-                      ? PARTNER_TYPE_LABEL[partnerInfo!.partnerType]
-                      : "MSP";
-                    const partnerDesc = hasRealPartner && partnerInfo!.partnerRoleDescription
-                      ? partnerInfo!.partnerRoleDescription
-                      : isNb
-                        ? "Bistår med drift, sikkerhet og compliance — rapporterer modenhet og hendelser inn i Mynder."
-                        : "Assists with operations, security and compliance — reports maturity and incidents into Mynder.";
-                    const partnerSince = hasRealPartner ? partnerInfo!.partnerSince : null;
-                    return (
-                      <section className="rounded-xl border border-border bg-card overflow-hidden">
-                        <div className="flex items-center gap-2 px-5 py-3.5">
-                          <Users className="h-4 w-4 text-primary" />
-                          <h3 className="text-sm font-semibold text-foreground">
-                            {isNb ? "Partner" : "Partner"}
-                          </h3>
-                        </div>
-                        <div className="border-t border-border px-5 py-4 flex items-start gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <Building2 className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-sm font-semibold text-foreground truncate">
-                                {partnerName}
-                              </p>
-                              <Badge variant="outline" className="text-[10px]">
-                                {partnerTypeLabel}
-                              </Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {partnerDesc}
-                            </p>
-                            {partnerSince && (
-                              <p className="text-[11px] text-muted-foreground/70 mt-1">
-                                {isNb ? "Partner siden" : "Partner since"} {partnerSince}
-                              </p>
-                            )}
-                          </div>
-                        </div>
                       </section>
                     );
                   })()}
