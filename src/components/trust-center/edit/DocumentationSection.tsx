@@ -223,9 +223,21 @@ export function DocumentationSection({ asset }: { asset: any }) {
                           <p className="text-sm font-semibold text-foreground truncate">{doc.file_name}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{meta.subtitle}</p>
                         </div>
-                        <span className={`text-xs ${qualityClass(meta.quality)} shrink-0`}>
-                          {qualityLabel(meta.quality)}
-                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              className={`text-xs ${qualityClass(meta.quality)} shrink-0 inline-flex items-center gap-1 underline decoration-dotted underline-offset-2 cursor-help`}
+                            >
+                              <Sparkles className="h-3 w-3" />
+                              {qualityLabel(meta.quality)}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="max-w-xs">
+                            <p className="text-xs font-medium mb-1">Lara sin vurdering</p>
+                            <p className="text-xs text-muted-foreground">{meta.reason}</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                       <div className="flex items-center gap-2 mt-3">
                         <Button variant="outline" size="sm" className="gap-1.5 text-xs h-7" onClick={() => openDoc(doc)}>
