@@ -175,9 +175,6 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="trust-profile" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Kundens Trust Profile
                 </TabsTrigger>
-                <TabsTrigger value="nis2" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
-                  NIS2
-                </TabsTrigger>
               </TabsList>
             </nav>
 
