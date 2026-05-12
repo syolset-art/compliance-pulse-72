@@ -23,6 +23,7 @@ export interface CreateOfferDialogProps {
   defaultEffort?: string;
   defaultPrice?: string;
   defaultMessage?: string;
+  attachGap?: boolean;
 }
 
 export function MSPCreateOfferDialog({
@@ -38,6 +39,7 @@ export function MSPCreateOfferDialog({
   defaultEffort = "120 timer",
   defaultPrice = "180 000 kr",
   defaultMessage,
+  attachGap: attachGapProp = true,
 }: CreateOfferDialogProps) {
   const [items, setItems] = useState<string[]>(defaultItems || [
     `Gap-analyse mot ${domainName}-kravene`,
@@ -54,13 +56,14 @@ export function MSPCreateOfferDialog({
     defaultMessage ||
       `Hei ${customerContactName}, basert på modenhetsbildet ditt på 18 % og at kunden faller inn under ${domainName}, foreslår jeg et strukturert klargjøringsløp. Vi har gjort dette for flere lignende selskaper og kan starte i mai.`,
   );
-  const [attachGap, setAttachGap] = useState(true);
+  const [attachGap, setAttachGap] = useState(attachGapProp);
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
 
   // Reset when reopened with new context
   useEffect(() => {
     if (open && defaultItems) setItems(defaultItems);
     if (open && defaultMessage) setMessage(defaultMessage);
+    if (open) setAttachGap(attachGapProp);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addItem = () => {

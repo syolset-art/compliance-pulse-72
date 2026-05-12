@@ -235,12 +235,22 @@ export function MSPMaturityServiceMatrix() {
         onOpenChange={(o) => setOfferCtx(s => ({ ...s, open: o }))}
         serviceTitle={offerCtx.serviceTitle}
         variant={offerCtx.variant}
+        attachGap={offerCtx.attachGap}
       />
 
       <MSPGapAnalysisDialog
         open={gapOpen}
         onOpenChange={setGapOpen}
         initialFrameworkId={gapFrameworkId}
+        onCreateOffer={(fwId) => {
+          const rec = RECOMMENDATIONS.find(r => r.frameworkId === fwId);
+          setOfferCtx({
+            open: true,
+            serviceTitle: rec?.title,
+            variant: "Full leveranse",
+            attachGap: true,
+          });
+        }}
       />
     </div>
   );

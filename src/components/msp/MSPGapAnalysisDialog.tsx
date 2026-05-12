@@ -1,14 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   Shield, Lock, Brain, Server, FileCheck, Scale,
-  AlertTriangle, AlertCircle, Search, Download, FileText, CheckCircle2,
+  Download, FileText, ChevronDown, ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -26,8 +21,8 @@ export interface GapItem {
   id: string;
   title: string;
   domain: string;
+  reference?: string;
   severity: "critical" | "high" | "medium" | "low";
-  recommendation?: string;
 }
 
 const FRAMEWORK_ICONS: Record<string, React.ReactNode> = {
@@ -40,7 +35,6 @@ const FRAMEWORK_ICONS: Record<string, React.ReactNode> = {
   popplyl: <Scale className="h-4 w-4 text-primary" />,
 };
 
-// Demo data — i produksjon kommer dette fra gap-analyse-engine
 const DEMO_GAPS: FrameworkGap[] = [
   {
     framework_id: "nis2",
@@ -49,13 +43,15 @@ const DEMO_GAPS: FrameworkGap[] = [
     total: 24,
     fulfilled: 4,
     gaps: [
-      { id: "n1", title: "Hendelsesrapportering til myndighet innen 24 timer", domain: "Hendelseshåndtering", severity: "critical", recommendation: "Etabler rapporteringsrutine og kontaktpunkt mot myndighet." },
-      { id: "n2", title: "Risikohåndteringspolicy for cybersikkerhet", domain: "Styring", severity: "critical", recommendation: "Lara kan generere et utkast basert på bransje." },
-      { id: "n3", title: "Leverandørkjede-risikovurdering", domain: "Tredjepart", severity: "high" },
-      { id: "n4", title: "Kontinuitetsplan og backup-strategi", domain: "Drift", severity: "high" },
-      { id: "n5", title: "Ledelsens godkjenning av sikkerhetstiltak", domain: "Styring", severity: "medium" },
-      { id: "n6", title: "Sårbarhetshåndteringsprosess", domain: "Drift", severity: "high" },
-      { id: "n7", title: "Multifaktorautentisering for kritiske systemer", domain: "Tilgang", severity: "critical" },
+      { id: "n1", title: "Mangler dokumentert hendelsesrapporteringsrutine til myndigheter", domain: "Hendelseshåndtering", reference: "Artikkel 23", severity: "critical" },
+      { id: "n2", title: "Ingen formell risikoanalyse av nettverk og informasjonssystemer", domain: "Risiko", reference: "Artikkel 21(2)(a)", severity: "critical" },
+      { id: "n3", title: "Ledelsen ikke involvert i cybersikkerhetsbeslutninger", domain: "Styring", reference: "Artikkel 20", severity: "critical" },
+      { id: "n4", title: "Leverandørstyring ikke dokumentert", domain: "Tredjepart", reference: "Artikkel 21(2)(d)", severity: "high" },
+      { id: "n5", title: "Tilgangskontroll og autentisering uten MFA-policy", domain: "Tilgang", reference: "Artikkel 21(2)(j)", severity: "high" },
+      { id: "n6", title: "Kontinuitetsplan og backup-strategi mangler", domain: "Drift", reference: "Artikkel 21(2)(c)", severity: "high" },
+      { id: "n7", title: "Sårbarhetshåndteringsprosess ikke etablert", domain: "Drift", reference: "Artikkel 21(2)(e)", severity: "high" },
+      { id: "n8", title: "Kryptering av data ikke implementert systematisk", domain: "Drift", reference: "Artikkel 21(2)(h)", severity: "medium" },
+      { id: "n9", title: "Awareness-trening ikke gjennomført", domain: "HR", reference: "Artikkel 21(2)(g)", severity: "medium" },
     ],
   },
   {
@@ -65,11 +61,11 @@ const DEMO_GAPS: FrameworkGap[] = [
     total: 18,
     fulfilled: 8,
     gaps: [
-      { id: "g1", title: "Behandlingsprotokoll (Art. 30) ikke ferdigstilt", domain: "Dokumentasjon", severity: "critical" },
-      { id: "g2", title: "Databehandleravtaler mangler for 3 leverandører", domain: "Tredjepart", severity: "high" },
-      { id: "g3", title: "Rutine for innsynsbegjæringer", domain: "Rettigheter", severity: "medium" },
-      { id: "g4", title: "DPIA mangler for HR-system", domain: "Risiko", severity: "high" },
-      { id: "g5", title: "Slettingsrutiner ikke implementert", domain: "Drift", severity: "medium" },
+      { id: "g1", title: "Behandlingsprotokoll ikke ferdigstilt", domain: "Dokumentasjon", reference: "Artikkel 30", severity: "critical" },
+      { id: "g2", title: "Databehandleravtaler mangler for 3 leverandører", domain: "Tredjepart", reference: "Artikkel 28", severity: "high" },
+      { id: "g3", title: "Rutine for innsynsbegjæringer", domain: "Rettigheter", reference: "Artikkel 15", severity: "medium" },
+      { id: "g4", title: "DPIA mangler for HR-system", domain: "Risiko", reference: "Artikkel 35", severity: "high" },
+      { id: "g5", title: "Slettingsrutiner ikke implementert", domain: "Drift", reference: "Artikkel 17", severity: "medium" },
     ],
   },
   {
@@ -79,12 +75,12 @@ const DEMO_GAPS: FrameworkGap[] = [
     total: 93,
     fulfilled: 49,
     gaps: [
-      { id: "i1", title: "Ledelsens gjennomgang ikke utført siste 12 mnd", domain: "Styring", severity: "high" },
-      { id: "i2", title: "Risikobehandlingsplan mangler", domain: "Risiko", severity: "high" },
-      { id: "i3", title: "Awareness-trening ikke dokumentert", domain: "HR", severity: "medium" },
-      { id: "i4", title: "Penetrasjonstest mangler", domain: "Drift", severity: "high" },
-      { id: "i5", title: "Klassifisering av informasjon", domain: "Eiendeler", severity: "medium" },
-      { id: "i6", title: "Beredskapsøvelse ikke gjennomført", domain: "Kontinuitet", severity: "medium" },
+      { id: "i1", title: "Ledelsens gjennomgang ikke utført siste 12 mnd", domain: "Styring", reference: "Krav 9.3", severity: "high" },
+      { id: "i2", title: "Risikobehandlingsplan mangler", domain: "Risiko", reference: "Krav 6.1.3", severity: "high" },
+      { id: "i3", title: "Awareness-trening ikke dokumentert", domain: "HR", reference: "Vedlegg A.7.2", severity: "medium" },
+      { id: "i4", title: "Penetrasjonstest mangler", domain: "Drift", reference: "Vedlegg A.8.8", severity: "high" },
+      { id: "i5", title: "Klassifisering av informasjon", domain: "Eiendeler", reference: "Vedlegg A.5.12", severity: "medium" },
+      { id: "i6", title: "Beredskapsøvelse ikke gjennomført", domain: "Kontinuitet", reference: "Vedlegg A.5.30", severity: "medium" },
     ],
   },
   {
@@ -94,36 +90,36 @@ const DEMO_GAPS: FrameworkGap[] = [
     total: 12,
     fulfilled: 0,
     gaps: [
-      { id: "a1", title: "AI-systemregister ikke etablert", domain: "Styring", severity: "critical" },
-      { id: "a2", title: "Risikoklassifisering av AI-systemer mangler", domain: "Risiko", severity: "critical" },
-      { id: "a3", title: "Menneskelig tilsyn ikke definert", domain: "Drift", severity: "high" },
-      { id: "a4", title: "Transparens overfor brukere", domain: "Dokumentasjon", severity: "high" },
+      { id: "a1", title: "AI-systemregister ikke etablert", domain: "Styring", reference: "Artikkel 49", severity: "critical" },
+      { id: "a2", title: "Risikoklassifisering av AI-systemer mangler", domain: "Risiko", reference: "Artikkel 6", severity: "critical" },
+      { id: "a3", title: "Menneskelig tilsyn ikke definert", domain: "Drift", reference: "Artikkel 14", severity: "high" },
+      { id: "a4", title: "Transparens overfor brukere", domain: "Dokumentasjon", reference: "Artikkel 13", severity: "high" },
     ],
   },
 ];
 
-const SEVERITY_STYLES: Record<GapItem["severity"], { bg: string; text: string; label: string; icon: React.ReactNode }> = {
-  critical: { bg: "bg-destructive/10 border-destructive/30", text: "text-destructive", label: "Kritisk", icon: <AlertTriangle className="h-3 w-3" /> },
-  high: { bg: "bg-warning/10 border-warning/30", text: "text-warning", label: "Høy", icon: <AlertCircle className="h-3 w-3" /> },
-  medium: { bg: "bg-muted border-border", text: "text-muted-foreground", label: "Medium", icon: <AlertCircle className="h-3 w-3" /> },
-  low: { bg: "bg-muted border-border", text: "text-muted-foreground", label: "Lav", icon: <AlertCircle className="h-3 w-3" /> },
+const SEVERITY_LABEL: Record<GapItem["severity"], string> = {
+  critical: "Kritisk",
+  high: "Vesentlig",
+  medium: "Mindre",
+  low: "Mindre",
 };
 
-function scoreColor(s: number) {
-  if (s >= 75) return "bg-success";
-  if (s >= 50) return "bg-warning";
-  return "bg-destructive";
+function severityDot(s: GapItem["severity"]) {
+  if (s === "critical") return "bg-destructive";
+  if (s === "high") return "bg-warning";
+  return "bg-muted-foreground/40";
 }
+
+const INITIAL_VISIBLE = 5;
 
 export interface MSPGapAnalysisDialogProps {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   customerName?: string;
-  /** Optional: prefilter to a single framework */
   initialFrameworkId?: string;
-  /** Show "Bruk i tilbud" CTA instead of just download */
-  attachMode?: boolean;
-  onAttach?: (frameworkId: string | "all") => void;
+  /** Called when user clicks "Opprett tilbud →". Receives framework id (or undefined for all). */
+  onCreateOffer?: (frameworkId?: string) => void;
 }
 
 export function MSPGapAnalysisDialog({
@@ -131,130 +127,130 @@ export function MSPGapAnalysisDialog({
   onOpenChange,
   customerName = "Kunden",
   initialFrameworkId,
-  attachMode = false,
-  onAttach,
+  onCreateOffer,
 }: MSPGapAnalysisDialogProps) {
   const singleMode = !!initialFrameworkId;
-  const [active, setActive] = useState<string>(initialFrameworkId || "all");
-  const [search, setSearch] = useState("");
 
-  // Re-sync når dialogen åpnes med ny framework-kontekst
+  // Bestem hvilke regelverk som vises
+  const visibleFrameworks = singleMode
+    ? DEMO_GAPS.filter(f => f.framework_id === initialFrameworkId)
+    : DEMO_GAPS;
+
+  // Open/closed state per framework — første åpen, resten lukket (multi-mode)
+  const [openIds, setOpenIds] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
-    if (open) setActive(initialFrameworkId || "all");
-  }, [open, initialFrameworkId]);
+    if (!open) return;
+    const init: Record<string, boolean> = {};
+    visibleFrameworks.forEach((f, i) => { init[f.framework_id] = singleMode || i === 0; });
+    setOpenIds(init);
+    setExpandedIds({});
+  }, [open, initialFrameworkId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const activeFramework = DEMO_GAPS.find(f => f.framework_id === active);
+  // Per-framework "Vis flere" expansion
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
 
-  const filteredFrameworks = useMemo(() => {
-    return DEMO_GAPS.map(f => ({
-      ...f,
-      gaps: f.gaps.filter(g =>
-        !search.trim() ||
-        g.title.toLowerCase().includes(search.toLowerCase()) ||
-        g.domain.toLowerCase().includes(search.toLowerCase())
-      ),
-    })).filter(f => active === "all" || f.framework_id === active);
-  }, [search, active]);
-
-  // Stats — i single-mode viser vi bare aktivt regelverk
-  const statsSource = singleMode && activeFramework ? [activeFramework] : DEMO_GAPS;
-  const totalGaps = statsSource.reduce((a, f) => a + f.gaps.length, 0);
-  const criticalGaps = statsSource.reduce((a, f) => a + f.gaps.filter(g => g.severity === "critical").length, 0);
-  const avgScore = Math.round(statsSource.reduce((a, f) => a + f.score, 0) / statsSource.length);
+  // Stats
+  const allGaps = visibleFrameworks.flatMap(f => f.gaps);
+  const total = allGaps.length;
+  const critical = allGaps.filter(g => g.severity === "critical").length;
+  const major = allGaps.filter(g => g.severity === "high").length;
+  const minor = allGaps.filter(g => g.severity === "medium" || g.severity === "low").length;
 
   const handleDownload = () => {
     toast.success("Gap-analyse lastes ned", {
-      description: singleMode && activeFramework
-        ? `${activeFramework.framework_name}-rapport for ${customerName} (PDF) genereres.`
-        : `Rapport for ${customerName} (PDF) genereres.`,
+      description: `Rapport for ${customerName} (PDF) genereres.`,
     });
   };
 
-  const handleAttach = () => {
-    onAttach?.(active);
-    toast.success("Gap-analyse lagt ved", {
-      description: active === "all"
-        ? "Hele rapporten legges ved tilbudet som PDF."
-        : `${DEMO_GAPS.find(f => f.framework_id === active)?.framework_name}-utdraget legges ved tilbudet.`,
-    });
+  const handleCreateOffer = () => {
     onOpenChange(false);
+    onCreateOffer?.(initialFrameworkId);
   };
-
-  const titleText = singleMode && activeFramework
-    ? `Gap — ${activeFramework.framework_name}`
-    : "Manglende kontroller per regelverk";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl p-0 gap-0 max-h-[88vh] overflow-hidden flex flex-col">
-        <DialogHeader className="px-5 pt-4 pb-3 border-b border-border space-y-1">
+      <DialogContent className="max-w-2xl p-0 gap-0 max-h-[88vh] overflow-hidden flex flex-col">
+        <DialogHeader className="px-6 pt-5 pb-4 border-b border-border space-y-1">
           <p className="text-[11px] text-muted-foreground">{customerName} · Gap-analyse</p>
-          <DialogTitle className="text-base font-semibold flex items-center gap-2">
-            {singleMode && activeFramework ? FRAMEWORK_ICONS[activeFramework.framework_id] : <FileText className="h-4 w-4 text-primary" />}
-            {titleText}
+          <DialogTitle className="text-lg font-semibold">
+            Manglende kontroller per regelverk
           </DialogTitle>
-          <DialogDescription className="sr-only">
-            Oversikt over manglende kontroller {singleMode && activeFramework ? `for ${activeFramework.framework_name}` : "per regelverk"}.
+          <DialogDescription className="text-[13px] text-muted-foreground">
+            Basert på kundens vurderinger. Kan legges ved tilbud som dokumentasjon.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Stats — kompakt */}
-        <div className="grid grid-cols-3 gap-2 px-4 py-3 border-b border-border bg-muted/20">
-          <div className="rounded-md border border-border bg-background px-3 py-2">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{singleMode ? "Modenhet" : "Snitt"}</p>
-            <p className="text-lg font-semibold text-foreground tabular-nums">{avgScore}%</p>
-          </div>
-          <div className="rounded-md border border-border bg-background px-3 py-2">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Åpne gap</p>
-            <p className="text-lg font-semibold text-foreground tabular-nums">{totalGaps}</p>
-          </div>
-          <div className="rounded-md border border-border bg-background px-3 py-2">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Kritiske</p>
-            <p className="text-lg font-semibold text-destructive tabular-nums">{criticalGaps}</p>
-          </div>
+        {/* 4 stat-kort */}
+        <div className="grid grid-cols-4 gap-2 px-6 py-4 border-b border-border">
+          <StatCard label="Totalt" value={total} />
+          <StatCard label="Kritiske" value={critical} valueClass="text-destructive" />
+          <StatCard label="Vesentlige" value={major} valueClass="text-warning" />
+          <StatCard label="Mindre" value={minor} />
         </div>
 
-        <div className="px-4 py-2 border-b border-border">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <Input
-              placeholder="Søk…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-8 h-8 text-[13px]"
-            />
-          </div>
+        {/* Per-regelverk blokker */}
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2.5">
+          {visibleFrameworks.map(f => {
+            const isOpen = openIds[f.framework_id];
+            const expanded = expandedIds[f.framework_id];
+            const criticalCount = f.gaps.filter(g => g.severity === "critical").length;
+            const visibleGaps = expanded ? f.gaps : f.gaps.slice(0, INITIAL_VISIBLE);
+            const hidden = f.gaps.length - visibleGaps.length;
+
+            return (
+              <div key={f.framework_id} className="rounded-lg border border-border overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => !singleMode && setOpenIds(p => ({ ...p, [f.framework_id]: !p[f.framework_id] }))}
+                  disabled={singleMode}
+                  className={cn(
+                    "w-full flex items-center gap-3 px-4 py-3 text-left",
+                    !singleMode && "hover:bg-muted/40 transition-colors",
+                  )}
+                >
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    {FRAMEWORK_ICONS[f.framework_id]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">{f.framework_name}</p>
+                    <p className="text-[12px] text-muted-foreground">
+                      {f.gaps.length} gap{criticalCount > 0 && <> · {criticalCount} kritiske</>}
+                    </p>
+                  </div>
+                  {!singleMode && (
+                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
+                  )}
+                </button>
+
+                {isOpen && (
+                  <div className="px-3 pb-3 space-y-1">
+                    {visibleGaps.map(g => (
+                      <div key={g.id} className="flex items-start gap-3 rounded-md px-3 py-2 bg-muted/30">
+                        <span className={cn("h-1.5 w-1.5 rounded-full shrink-0 mt-1.5", severityDot(g.severity))} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium text-foreground">{g.title}</p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {g.reference || g.domain} · {SEVERITY_LABEL[g.severity]}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {f.gaps.length > INITIAL_VISIBLE && (
+                      <button
+                        type="button"
+                        onClick={() => setExpandedIds(p => ({ ...p, [f.framework_id]: !expanded }))}
+                        className="w-full text-center text-[12px] text-primary hover:underline py-2"
+                      >
+                        {expanded ? "Vis færre ↑" : `Vis ${hidden} til ↓`}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
-
-        {singleMode ? (
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {filteredFrameworks.map(f => (
-              <FrameworkBlock key={f.framework_id} f={f} />
-            ))}
-          </div>
-        ) : (
-          <Tabs value={active} onValueChange={setActive} className="flex-1 overflow-hidden flex flex-col">
-            <TabsList className="mx-4 mt-3 inline-flex h-auto w-fit flex-wrap gap-1 bg-muted/40 p-1">
-              <TabsTrigger value="all" className="text-xs gap-1.5">
-                Alle
-                <Badge variant="secondary" className="h-4 px-1 text-[10px]">{DEMO_GAPS.reduce((a, f) => a + f.gaps.length, 0)}</Badge>
-              </TabsTrigger>
-              {DEMO_GAPS.map(f => (
-                <TabsTrigger key={f.framework_id} value={f.framework_id} className="text-xs gap-1.5">
-                  {FRAMEWORK_ICONS[f.framework_id]}
-                  {f.framework_name}
-                  <Badge variant="secondary" className="h-4 px-1 text-[10px]">{f.gaps.length}</Badge>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            <TabsContent value={active} className="flex-1 overflow-y-auto p-4 space-y-4 mt-3">
-              {filteredFrameworks.map(f => (
-                <FrameworkBlock key={f.framework_id} f={f} />
-              ))}
-            </TabsContent>
-          </Tabs>
-        )}
 
         <DialogFooter className="p-4 border-t border-border bg-muted/20 sm:justify-between gap-2">
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
@@ -264,11 +260,9 @@ export function MSPGapAnalysisDialog({
             <Button variant="outline" size="sm" onClick={handleDownload} className="gap-1.5">
               <Download className="h-3.5 w-3.5" /> Last ned PDF
             </Button>
-            {attachMode && (
-              <Button size="sm" onClick={handleAttach} className="gap-1.5">
-                <FileText className="h-3.5 w-3.5" /> Legg ved i tilbud
-              </Button>
-            )}
+            <Button size="sm" onClick={handleCreateOffer} className="gap-1.5">
+              Opprett tilbud <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>
@@ -276,51 +270,11 @@ export function MSPGapAnalysisDialog({
   );
 }
 
-function FrameworkBlock({ f }: { f: FrameworkGap }) {
+function StatCard({ label, value, valueClass }: { label: string; value: number; valueClass?: string }) {
   return (
-    <Card className="p-4 space-y-3">
-      <div className="flex items-center gap-3">
-        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-          {FRAMEWORK_ICONS[f.framework_id]}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold text-foreground">{f.framework_name}</h4>
-            <span className="text-[12px] text-muted-foreground">
-              {f.fulfilled}/{f.total} krav oppfylt
-            </span>
-          </div>
-          <div className="flex items-center gap-2 mt-1">
-            <Progress value={f.score} className="h-1.5 flex-1" />
-            <span className={cn("text-xs font-semibold tabular-nums", f.score >= 75 ? "text-success" : f.score >= 50 ? "text-warning" : "text-destructive")}>
-              {f.score}%
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {f.gaps.length === 0 ? (
-        <div className="flex items-center gap-2 text-[13px] text-muted-foreground py-3 px-3 rounded-md bg-muted/30">
-          <CheckCircle2 className="h-4 w-4 text-success" />
-          Ingen gap matcher søket
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {f.gaps.map(g => {
-            const sev = SEVERITY_STYLES[g.severity];
-            const dotColor = g.severity === "critical" ? "bg-destructive" : g.severity === "high" ? "bg-warning" : "bg-muted-foreground/50";
-            return (
-              <div key={g.id} className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 hover:bg-muted/40">
-                <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", dotColor)} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] text-foreground truncate">{g.title}</p>
-                  <p className="text-[11px] text-muted-foreground truncate">{g.domain} · {sev.label}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </Card>
+    <div className="rounded-md border border-border bg-background px-3 py-2.5">
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+      <p className={cn("text-xl font-semibold tabular-nums text-foreground", valueClass)}>{value}</p>
+    </div>
   );
 }
