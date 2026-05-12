@@ -259,60 +259,11 @@ export default function MSPCustomerDetail() {
             </TabsContent>
 
             {/* ── Tjenester ── */}
-            <TabsContent value="services" className="mt-6 space-y-5">
-              <Card className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Server className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-foreground">Acronis-status</h3>
-                </div>
-                {customer.has_acronis_integration ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Wifi className="h-4 w-4 text-success" />
-                      <span className="text-sm text-foreground">Tilkoblet</span>
-                    </div>
-                    <p className="text-2xl font-bold text-foreground">
-                      {customer.acronis_device_count || 0}
-                      <span className="text-sm font-normal text-muted-foreground ml-1">enheter beskyttet</span>
-                    </p>
-                    <Button variant="outline" size="sm" className="gap-2" onClick={() => setAcronisOpen(true)}>
-                      <RefreshCw className="h-3 w-3" />
-                      Synkroniser på nytt
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <Wifi className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
-                    <p className="text-sm text-muted-foreground">Acronis ikke tilkoblet</p>
-                    <p className="text-xs text-muted-foreground mt-1">Koble til for å importere enheter og backup-status</p>
-                    <Button size="sm" className="mt-3 gap-2" onClick={() => setAcronisOpen(true)}>
-                      <Server className="h-4 w-4" />
-                      Koble til Acronis
-                    </Button>
-                  </div>
-                )}
-              </Card>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <StatusOverviewWidget />
-                <CriticalTasksWidget />
-              </div>
-            </TabsContent>
+            {/* Removed */}
 
             {/* ── Trust Profile ── */}
             <TabsContent value="trust-profile" className="mt-6">
-              <Card className="p-6 space-y-3">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-foreground">Trust Profile</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Se kundens compliance-status, dokumenter og sertifikater samlet i Trust Profile.
-                </p>
-                <Button size="sm" className="gap-2" onClick={() => navigate(`/msp-dashboard/${customerId}/trust-profile`)}>
-                  <ShieldCheck className="h-4 w-4" />
-                  Se full Trust Profile
-                </Button>
-              </Card>
+              <MSPCustomerTrustProfileCard customerName={customer.name || "Kunden"} />
             </TabsContent>
 
             {/* ── NIS2 ── */}
