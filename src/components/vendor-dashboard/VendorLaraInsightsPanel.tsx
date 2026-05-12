@@ -285,7 +285,24 @@ export function VendorLaraInsightsPanel({
           <Button size="sm" variant="outline" onClick={() => navigate(`/assets/${current.vendor.id}`)}>
             Åpne leverandøren
           </Button>
+          <div className="flex-1" />
+          <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={handleSnooze} title="Utsett 7 dager">
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            Utsett
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+            onClick={handleDismiss}
+            title="Avvis"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
+        <p className="text-[11px] text-muted-foreground mt-2">
+          Utsatte og avviste forslag finner du i <button className="text-primary hover:underline" onClick={() => navigate("/lara-inbox")}>Lara-innboksen</button>.
+        </p>
       </div>
 
       {/* Footer: pagination + view all */}
