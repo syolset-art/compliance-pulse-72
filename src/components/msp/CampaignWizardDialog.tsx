@@ -587,35 +587,6 @@ function Step2({
         </div>
       </div>
 
-      {kind === "offer" && (
-        <div className="space-y-1.5">
-          <Label className="text-sm">Tjeneste fra din katalog</Label>
-          <Select value={serviceId} onValueChange={setServiceId}>
-            <SelectTrigger className="h-10 text-sm">
-              <SelectValue placeholder="Velg tjeneste å tilby" />
-            </SelectTrigger>
-            <SelectContent>
-              {PARTNER_SERVICES.map((s) => {
-                const priceLabel = s.priceNote
-                  ? s.priceNote
-                  : s.price
-                    ? `${s.price.toLocaleString("nb-NO")} kr${s.priceModel === "monthly" ? "/mnd" : s.priceModel === "hourly" ? "/t" : ""}`
-                    : "etter avtale";
-                return (
-                  <SelectItem key={s.id} value={s.id}>
-                    <span className="font-medium">{s.name}</span>
-                    <span className="text-muted-foreground ml-2 text-xs">· {priceLabel}</span>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            Standardtjenester (NIS2, DPIA, ISO 27001 m.fl.) er forhåndslagt. Du kan legge til egne i Tjenestekatalogen.
-          </p>
-        </div>
-      )}
-
       <div className="space-y-1.5">
         <Label className="text-sm">Kampanjenavn (kun internt)</Label>
         <Input
