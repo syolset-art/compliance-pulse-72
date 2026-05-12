@@ -107,7 +107,7 @@ export function getService(id: string): PartnerService | undefined {
 
 export type WizardAnswers = {
   segments: string[]; // smb | mid | critical | public
-  domains: string[]; // security | gdpr | iso | ai | nis2 | quality
+  domains: string[]; // security | gdpr | iso | ai | nis2 | quality | economy | accounting
   model: string; // project | subscription | hybrid
   maturity: string; // low | mid | high
 };
@@ -151,6 +151,8 @@ export const WIZARD_QUESTIONS: WizardQuestion[] = [
       { id: "nis2", label: "NIS2 / DORA" },
       { id: "ai", label: "AI Governance / AI Act" },
       { id: "quality", label: "Kvalitet & HMS" },
+      { id: "economy", label: "Økonomi" },
+      { id: "accounting", label: "Regnskap & bokføring" },
     ],
   },
   {
@@ -380,6 +382,63 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.1", "A.5.4"] },
     ],
     tags: ["security", "iso", "subscription", "mid", "high"],
+  },
+  {
+    id: "tpl-bookkeeping",
+    name: "Løpende bokføring",
+    description:
+      "Månedlig bokføring, avstemming og leveranse av regnskap med digital tilgang til data.",
+    defaultChecklist: [
+      "Bokføring månedlig",
+      "Avstemming bank/kontoer",
+      "MVA-melding",
+      "Årsoppgjør",
+      "Digital tilgang for kunde",
+    ],
+    frameworkMappings: [],
+    tags: ["accounting", "subscription", "smb", "mid"],
+  },
+  {
+    id: "tpl-payroll",
+    name: "Lønnskjøring",
+    description:
+      "Utbetaling av lønn, A-melding, feriepenger og årsoppgjør for ansatte.",
+    defaultChecklist: [
+      "Månedlig lønnskjøring",
+      "A-melding til Skatteetaten",
+      "Feriepenger og sykepenger",
+      "Årsoppgjør lønn",
+    ],
+    frameworkMappings: [],
+    tags: ["accounting", "subscription", "smb", "mid"],
+  },
+  {
+    id: "tpl-cfo",
+    name: "Eksternt økonomi-styre (vCFO)",
+    description:
+      "Strategisk økonomirådgivning, budsjettering, likviditetsstyring og styrrapportering.",
+    defaultChecklist: [
+      "Månedlig økonomirapport",
+      "Budsjett og prognoser",
+      "Likviditetsanalyse",
+      "Styremøte og presentasjon",
+    ],
+    frameworkMappings: [],
+    tags: ["economy", "subscription", "mid", "high"],
+  },
+  {
+    id: "tpl-audit-support",
+    name: "Revisjonsstøtte",
+    description:
+      "Forberedelse og gjennomføring av revisjonsprosess med dokumentasjon og avvikshåndtering.",
+    defaultChecklist: [
+      "Forberedelse av dokumentasjon",
+      "Avstemming og kontroller",
+      "Revisjonsmøte",
+      "Avvikshåndtering og oppfølging",
+    ],
+    frameworkMappings: [],
+    tags: ["accounting", "project", "mid", "high"],
   },
 ];
 
