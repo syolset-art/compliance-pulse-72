@@ -1,10 +1,12 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send, ShieldCheck, Download } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send, ShieldCheck, Download, Inbox, Archive } from "lucide-react";
 
 type OfferStatus = "approved" | "pending" | "declined";
-type MessageType = "offer" | "message";
+type ItemType = "offer" | "message";
 
 interface Approval {
   approvedBy: string;
@@ -17,13 +19,14 @@ interface Approval {
 
 interface Item {
   id: string;
-  type: MessageType;
+  type: ItemType;
   title: string;
   desc: string;
   date: string;
   status?: OfferStatus;
   amount?: string;
   from: "partner" | "customer";
+  archived?: boolean;
   approval?: Approval;
 }
 
@@ -73,6 +76,7 @@ const items: Item[] = [
     status: "declined",
     amount: "kr 38 000 / år",
     from: "partner",
+    archived: true,
   },
   {
     id: "5",
@@ -81,6 +85,7 @@ const items: Item[] = [
     desc: "Kunden bekrefter at de har utnevnt internt personvernombud — trenger ikke ekstern DPO-tjeneste.",
     date: "5. april 2026",
     from: "customer",
+    archived: true,
   },
 ];
 
@@ -109,11 +114,91 @@ function statusBadge(s?: OfferStatus) {
   return null;
 }
 
+function OfferCard({ o }: { o: Item }) {
+  return (
+    <div className="rounded-lg border border-border/60 p-3 space-y-2">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[13px] font-semibold text-foreground">{o.title}</p>
+          <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">{o.desc}</p>
+        </div>
+        {statusBadge(o.status)}
+      </div>
+      <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/40">
+        <span className="text-[11px] text-muted-foreground">Sendt {o.date}</span>
+        <span className="text-[12px] font-semibold text-foreground">{o.amount}</span>
+      </div>
+      {o.status === "approved" && o.approval && (
+        <details className="group">
+          <summary className="flex items-center gap-1.5 cursor-pointer text-[11px] text-muted-foreground hover:text-foreground transition-colors list-none [&::-webkit-details-marker]:hidden">
+            <ShieldCheck className="h-3 w-3 text-success" />
+            <span>Bevis på godkjenning</span>
+            <span className="text-muted-foreground/60">·</span>
+            <span className="truncate">{o.approval.approvedBy}, {o.approval.approvedAt}</span>
+          </summary>
+          <div className="mt-2 pl-4 border-l-2 border-success/30 space-y-1 text-[11px]">
+            <div>
+              <span className="text-muted-foreground">Godkjent av: </span>
+              <span className="text-foreground">{o.approval.approvedBy} ({o.approval.approverRole})</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Tidspunkt: </span>
+              <span className="text-foreground">{o.approval.approvedAt}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Metode: </span>
+              <span className="text-foreground">{o.approval.method}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Referanse: </span>
+              <span className="text-foreground font-mono">{o.approval.reference}</span>
+            </div>
+            {o.approval.ipAddress && (
+              <div>
+                <span className="text-muted-foreground">IP: </span>
+                <span className="text-foreground font-mono">{o.approval.ipAddress}</span>
+              </div>
+            )}
+            <button type="button" className="inline-flex items-center gap-1 text-primary hover:underline pt-1">
+              <Download className="h-3 w-3" /> Last ned signert tilbud
+            </button>
+          </div>
+        </details>
+      )}
+    </div>
+  );
+}
+
+function MessageCard({ m }: { m: Item }) {
+  return (
+    <div className="rounded-lg border border-border/60 p-3 space-y-1">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[13px] font-semibold text-foreground">{m.title}</p>
+        <span className="text-[11px] text-muted-foreground whitespace-nowrap">{m.date}</span>
+      </div>
+      <p className="text-[12px] text-muted-foreground leading-snug">{m.desc}</p>
+    </div>
+  );
+}
+
+function EmptyState({ icon: Icon, label }: { icon: any; label: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
+      <Icon className="h-6 w-6 mb-2 opacity-60" />
+      <p className="text-[13px]">{label}</p>
+    </div>
+  );
+}
+
 export function MSPCustomerMessagesTab() {
-  const offers = items.filter(i => i.type === "offer");
-  const messages = items.filter(i => i.type === "message");
-  const approved = offers.filter(o => o.status === "approved").length;
-  const pending = offers.filter(o => o.status === "pending").length;
+  const [tab, setTab] = useState("sent");
+
+  const sent = items.filter(i => i.type === "offer" && !i.archived);
+  const received = items.filter(i => i.type === "message" && !i.archived);
+  const archived = items.filter(i => i.archived);
+
+  const approved = items.filter(i => i.type === "offer" && i.status === "approved").length;
+  const pending = sent.filter(o => o.status === "pending").length;
 
   return (
     <div className="space-y-5">
@@ -121,7 +206,7 @@ export function MSPCustomerMessagesTab() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-3 bg-muted/30 border-border/60">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Sendte tilbud</p>
-          <p className="text-2xl font-bold text-foreground mt-1">{offers.length}</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{items.filter(i => i.type === "offer").length}</p>
         </Card>
         <Card className="p-3 bg-muted/30 border-border/60">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Godkjent</p>
@@ -133,93 +218,80 @@ export function MSPCustomerMessagesTab() {
         </Card>
       </div>
 
-      {/* Offers */}
-      <Card className="p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-foreground">Tilbud sendt til kunde</h3>
-          </div>
-          <Button size="sm" variant="outline" className="h-7 text-xs gap-1">
-            <Send className="h-3 w-3" /> Nytt tilbud
-          </Button>
+      <Tabs value={tab} onValueChange={setTab}>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <TabsList className="bg-muted/50">
+            <TabsTrigger value="sent" className="text-xs gap-1.5 data-[state=active]:bg-background">
+              <Send className="h-3 w-3" /> Sendt
+              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{sent.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="received" className="text-xs gap-1.5 data-[state=active]:bg-background">
+              <Inbox className="h-3 w-3" /> Mottatt
+              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{received.length}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="archived" className="text-xs gap-1.5 data-[state=active]:bg-background">
+              <Archive className="h-3 w-3" /> Arkivert
+              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{archived.length}</Badge>
+            </TabsTrigger>
+          </TabsList>
+          {tab === "sent" && (
+            <Button size="sm" variant="outline" className="h-7 text-xs gap-1">
+              <Send className="h-3 w-3" /> Nytt tilbud
+            </Button>
+          )}
         </div>
-        <div className="space-y-2">
-          {offers.map(o => (
-            <div key={o.id} className="rounded-lg border border-border/60 p-3 space-y-2">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold text-foreground">{o.title}</p>
-                  <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">{o.desc}</p>
-                </div>
-                {statusBadge(o.status)}
-              </div>
-              <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/40">
-                <span className="text-[11px] text-muted-foreground">Sendt {o.date}</span>
-                <span className="text-[12px] font-semibold text-foreground">{o.amount}</span>
-              </div>
-              {o.status === "approved" && o.approval && (
-                <details className="group">
-                  <summary className="flex items-center gap-1.5 cursor-pointer text-[11px] text-muted-foreground hover:text-foreground transition-colors list-none [&::-webkit-details-marker]:hidden">
-                    <ShieldCheck className="h-3 w-3 text-success" />
-                    <span>Bevis på godkjenning</span>
-                    <span className="text-muted-foreground/60">·</span>
-                    <span className="truncate">{o.approval.approvedBy}, {o.approval.approvedAt}</span>
-                  </summary>
-                  <div className="mt-2 pl-4 border-l-2 border-success/30 space-y-1 text-[11px]">
-                    <div>
-                      <span className="text-muted-foreground">Godkjent av: </span>
-                      <span className="text-foreground">{o.approval.approvedBy} ({o.approval.approverRole})</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Tidspunkt: </span>
-                      <span className="text-foreground">{o.approval.approvedAt}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Metode: </span>
-                      <span className="text-foreground">{o.approval.method}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Referanse: </span>
-                      <span className="text-foreground font-mono">{o.approval.reference}</span>
-                    </div>
-                    {o.approval.ipAddress && (
-                      <div>
-                        <span className="text-muted-foreground">IP: </span>
-                        <span className="text-foreground font-mono">{o.approval.ipAddress}</span>
-                      </div>
-                    )}
-                    <button type="button" className="inline-flex items-center gap-1 text-primary hover:underline pt-1">
-                      <Download className="h-3 w-3" /> Last ned signert tilbud
-                    </button>
-                  </div>
-                </details>
-              )}
-            </div>
-          ))}
-        </div>
-      </Card>
 
-      {/* Messages */}
-      <Card className="p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-foreground">Meldinger fra kunde</h3>
-          </div>
-        </div>
-        <div className="space-y-2">
-          {messages.map(m => (
-            <div key={m.id} className="rounded-lg border border-border/60 p-3 space-y-1">
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-[13px] font-semibold text-foreground">{m.title}</p>
-                <span className="text-[11px] text-muted-foreground whitespace-nowrap">{m.date}</span>
-              </div>
-              <p className="text-[12px] text-muted-foreground leading-snug">{m.desc}</p>
+        <TabsContent value="sent" className="mt-4">
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Tilbud sendt til kunde</h3>
             </div>
-          ))}
-        </div>
-      </Card>
+            {sent.length === 0 ? (
+              <EmptyState icon={Send} label="Ingen aktive tilbud sendt." />
+            ) : (
+              <div className="space-y-2">
+                {sent.map(o => <OfferCard key={o.id} o={o} />)}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="received" className="mt-4">
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Meldinger fra kunde</h3>
+            </div>
+            {received.length === 0 ? (
+              <EmptyState icon={Inbox} label="Ingen nye meldinger fra kunden." />
+            ) : (
+              <div className="space-y-2">
+                {received.map(m => <MessageCard key={m.id} m={m} />)}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="archived" className="mt-4">
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Archive className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Arkivert</h3>
+              <span className="text-[11px] text-muted-foreground">Avsluttede tilbud og besvarte meldinger</span>
+            </div>
+            {archived.length === 0 ? (
+              <EmptyState icon={Archive} label="Ingen arkiverte elementer." />
+            ) : (
+              <div className="space-y-2">
+                {archived.map(i =>
+                  i.type === "offer" ? <OfferCard key={i.id} o={i} /> : <MessageCard key={i.id} m={i} />,
+                )}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
