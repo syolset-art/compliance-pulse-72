@@ -470,6 +470,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         )}
       </div>
 
+      {!hidePartner && (
+      <>
       {/* Partner / leveransepartner */}
       <div className="space-y-3 pt-4 border-t border-border">
         <div className="flex items-start justify-between gap-3">
