@@ -18,6 +18,11 @@ import { cn } from "@/lib/utils";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 
+interface TaskEstimate {
+  label: string;
+  hours: number;
+}
+
 interface Recommendation {
   id: string;
   icon: any;
@@ -28,7 +33,10 @@ interface Recommendation {
   frameworkId?: string;
   /** Antall åpne gap (vises på "Vis gap"-knapp). */
   openGaps?: number;
-  ctas: { label: string; variant: "default" | "outline"; deliveryVariant: "Full leveranse" | "Co-delivery" | "Tjeneste" }[];
+  /** Forslag til tiltak med estimerte timer. */
+  tasks: TaskEstimate[];
+  /** Timepris i NOK brukt til total-beregning. */
+  hourlyRate: number;
 }
 
 interface OngoingItem {
@@ -37,6 +45,8 @@ interface OngoingItem {
   status: "pending" | "accepted";
   meta: string;
 }
+
+const HOURLY_RATE = 1500;
 
 const RECOMMENDATIONS: Recommendation[] = [
   {
@@ -47,9 +57,13 @@ const RECOMMENDATIONS: Recommendation[] = [
     urgent: true,
     frameworkId: "nis2",
     openGaps: 7,
-    ctas: [
-      { label: "Tilby full leveranse", variant: "default", deliveryVariant: "Full leveranse" },
-      { label: "Tilby co-delivery", variant: "outline", deliveryVariant: "Co-delivery" },
+    hourlyRate: HOURLY_RATE,
+    tasks: [
+      { label: "Gap-analyse mot NIS2-kravene", hours: 24 },
+      { label: "Risiko- og sårbarhetsvurdering", hours: 32 },
+      { label: "Policy- og dokumentpakke", hours: 28 },
+      { label: "Hendelsesrapporteringsrutiner", hours: 20 },
+      { label: "Ledelsesgjennomgang og opplæring", hours: 16 },
     ],
   },
   {
@@ -59,9 +73,12 @@ const RECOMMENDATIONS: Recommendation[] = [
     desc: "Kunden har ikke startet på AI-styring. Kartlegging av AI-bruk, klassifisering og policy-oppsett.",
     frameworkId: "aiact",
     openGaps: 4,
-    ctas: [
-      { label: "Tilby full leveranse", variant: "default", deliveryVariant: "Full leveranse" },
-      { label: "Tilby co-delivery", variant: "outline", deliveryVariant: "Co-delivery" },
+    hourlyRate: HOURLY_RATE,
+    tasks: [
+      { label: "Kartlegging av AI-bruk og systemregister", hours: 16 },
+      { label: "Risikoklassifisering av AI-systemer", hours: 20 },
+      { label: "AI-styring og policy-oppsett", hours: 24 },
+      { label: "Rutiner for menneskelig tilsyn", hours: 12 },
     ],
   },
   {
@@ -71,8 +88,11 @@ const RECOMMENDATIONS: Recommendation[] = [
     desc: "Årlig ekstern test av applikasjoner og infrastruktur. Underbygger ISO- og NIS2-arbeidet.",
     frameworkId: "iso27001",
     openGaps: 6,
-    ctas: [
-      { label: "Tilby leveranse", variant: "default", deliveryVariant: "Tjeneste" },
+    hourlyRate: HOURLY_RATE,
+    tasks: [
+      { label: "Scoping og forberedelse", hours: 8 },
+      { label: "Ekstern penetrasjonstest", hours: 40 },
+      { label: "Rapport og gjennomgang med kunde", hours: 12 },
     ],
   },
 ];
@@ -90,6 +110,9 @@ export function MSPMaturityServiceMatrix() {
     variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
     attachGap?: boolean;
     gapFrameworkId?: string;
+    defaultItems?: string[];
+    defaultEffort?: string;
+    defaultPrice?: string;
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
@@ -163,18 +186,57 @@ export function MSPMaturityServiceMatrix() {
                       )}
                     </div>
                     <p className="text-[13px] text-muted-foreground leading-snug">{r.desc}</p>
+
+                    {/* Forslag til tiltak med timeestimat */}
+                    {(() => {
+                      const totalHours = r.tasks.reduce((s, t) => s + t.hours, 0);
+                      const totalPrice = totalHours * r.hourlyRate;
+                      return (
+                        <div className="rounded-md border border-border bg-muted/20 p-3 space-y-1.5">
+                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                            Foreslåtte tiltak
+                          </p>
+                          <ul className="space-y-1">
+                            {r.tasks.map((t, i) => (
+                              <li key={i} className="flex items-baseline justify-between gap-2 text-[13px]">
+                                <span className="text-foreground truncate">{t.label}</span>
+                                <span className="text-muted-foreground tabular-nums shrink-0">{t.hours} t</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <div className="flex items-baseline justify-between gap-2 pt-2 border-t border-border">
+                            <span className="text-[12px] font-semibold text-foreground">
+                              Totalt {totalHours} timer
+                            </span>
+                            <span className="text-[13px] font-semibold text-foreground tabular-nums">
+                              {totalPrice.toLocaleString("nb-NO")} kr
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     <div className="flex flex-wrap items-center gap-2 pt-1">
-                      {r.ctas.map(cta => (
-                        <Button
-                          key={cta.label}
-                          size="sm"
-                          variant={cta.variant}
-                          className="h-8 text-xs"
-                          onClick={() => setOfferCtx({ open: true, serviceTitle: r.title, variant: cta.deliveryVariant, attachGap: !!r.frameworkId, gapFrameworkId: r.frameworkId })}
-                        >
-                          {cta.label}
-                        </Button>
-                      ))}
+                      <Button
+                        size="sm"
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          const totalHours = r.tasks.reduce((s, t) => s + t.hours, 0);
+                          const totalPrice = totalHours * r.hourlyRate;
+                          setOfferCtx({
+                            open: true,
+                            serviceTitle: r.title,
+                            variant: "Full leveranse",
+                            attachGap: !!r.frameworkId,
+                            gapFrameworkId: r.frameworkId,
+                            defaultItems: r.tasks.map(t => `${t.label} (${t.hours} t)`),
+                            defaultEffort: `${totalHours} timer`,
+                            defaultPrice: `${totalPrice.toLocaleString("nb-NO")} kr`,
+                          });
+                        }}
+                      >
+                        Tilby leveranse
+                      </Button>
                       {r.frameworkId && (
                         <Button
                           size="sm"
@@ -238,6 +300,9 @@ export function MSPMaturityServiceMatrix() {
         variant={offerCtx.variant}
         attachGap={offerCtx.attachGap}
         gapFrameworkId={offerCtx.gapFrameworkId}
+        defaultItems={offerCtx.defaultItems}
+        defaultEffort={offerCtx.defaultEffort}
+        defaultPrice={offerCtx.defaultPrice}
       />
 
       <MSPGapAnalysisDialog
@@ -246,12 +311,17 @@ export function MSPMaturityServiceMatrix() {
         initialFrameworkId={gapFrameworkId}
         onCreateOffer={(fwId) => {
           const rec = RECOMMENDATIONS.find(r => r.frameworkId === fwId);
+          const totalHours = rec ? rec.tasks.reduce((s, t) => s + t.hours, 0) : 0;
+          const totalPrice = rec ? totalHours * rec.hourlyRate : 0;
           setOfferCtx({
             open: true,
             serviceTitle: rec?.title,
             variant: "Full leveranse",
             attachGap: true,
             gapFrameworkId: fwId,
+            defaultItems: rec?.tasks.map(t => `${t.label} (${t.hours} t)`),
+            defaultEffort: rec ? `${totalHours} timer` : undefined,
+            defaultPrice: rec ? `${totalPrice.toLocaleString("nb-NO")} kr` : undefined,
           });
         }}
       />
