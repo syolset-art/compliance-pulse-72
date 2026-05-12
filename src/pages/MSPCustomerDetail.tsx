@@ -267,6 +267,10 @@ export default function MSPCustomerDetail() {
               <MSPCustomerTrustProfileCard customerName={customer.name || "Kunden"} />
             </TabsContent>
 
+            <TabsContent value="messages" className="mt-6">
+              <MSPCustomerMessagesTab />
+            </TabsContent>
+
           </Tabs>
         </div>
 
