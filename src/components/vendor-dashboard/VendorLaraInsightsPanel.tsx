@@ -187,12 +187,28 @@ export function VendorLaraInsightsPanel({
               Du har {total} oppgaver som krever oppmerksomhet, hvorav {criticalCount} er kritiske. Vil du starte en gjennomgang?
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             <Button size="sm" onClick={() => setExpanded(true)}>
               Vis plan
             </Button>
-            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => setDismissed(true)}>
-              Ikke nå
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-muted-foreground"
+              onClick={handleSnooze}
+              title="Utsett 7 dager"
+            >
+              <Clock className="h-3.5 w-3.5 mr-1" />
+              Utsett
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+              onClick={handleDismiss}
+              title="Avvis"
+            >
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
