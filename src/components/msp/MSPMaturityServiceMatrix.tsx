@@ -170,7 +170,7 @@ export function MSPMaturityServiceMatrix() {
                           size="sm"
                           variant={cta.variant}
                           className="h-8 text-xs"
-                          onClick={() => setOfferCtx({ open: true, serviceTitle: r.title, variant: cta.deliveryVariant })}
+                          onClick={() => setOfferCtx({ open: true, serviceTitle: r.title, variant: cta.deliveryVariant, attachGap: !!r.frameworkId, gapFrameworkId: r.frameworkId })}
                         >
                           {cta.label}
                         </Button>
