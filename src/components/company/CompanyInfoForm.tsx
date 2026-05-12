@@ -174,11 +174,11 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
       queryClient.invalidateQueries({ queryKey: ["partner-info"] });
 
-      setIsEditing(false);
-      toast.success("Selskapsinformasjon lagret");
+      setSavedAt(new Date());
+      if (!opts?.silent) toast.success("Selskapsinformasjon lagret");
       onSaved?.();
     } catch {
-      toast.error("Kunne ikke lagre endringer");
+      if (!opts?.silent) toast.error("Kunne ikke lagre endringer");
     } finally {
       setSaving(false);
     }
