@@ -75,6 +75,7 @@ import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { EvidenceStatusBadge, deriveWorstStatus } from "@/components/trust-controls/EvidenceStatusBadge";
 import type { EvidenceStatus } from "@/components/trust-controls/EvidenceStatusBadge";
 import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
+import ActivateTrustProfileWizard from "@/components/trust-center/activate/ActivateTrustProfileWizard";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
@@ -111,6 +112,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [docsSectionOpen, setDocsSectionOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [showActivateWizard, setShowActivateWizard] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<any>(null);
   const [proofDialogOpen, setProofDialogOpen] = useState(false);
   const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
@@ -208,22 +210,29 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
   const evaluation = useTrustControlEvaluation(asset?.id || "");
 
-  // Auto-seed demo profile if none exists
+  // First-time activation: show wizard instead of auto-seeding silently.
+  // If user skipped previously, fall back to auto-seed so the page is never empty.
   useEffect(() => {
-    if (!asset && !isLoading && !isSeeding) {
-      setIsSeeding(true);
-      seedDemoTrustProfile()
-        .then(() => {
-          queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
-          queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-        })
-        .catch((e) => {
-          console.error("Auto-seed failed:", e);
-          toast.error(isNb ? "Kunne ikke opprette profil" : "Could not create profile");
-        })
-        .finally(() => setIsSeeding(false));
+    if (asset || isLoading || isSeeding || propAssetId) return;
+    let activatedFlag: string | null = null;
+    try { activatedFlag = localStorage.getItem("mynder.trustprofile.activated"); } catch {}
+    if (!activatedFlag) {
+      setShowActivateWizard(true);
+      return;
     }
-  }, [asset, isLoading, isSeeding]);
+    // Skipped previously → keep legacy auto-seed behaviour
+    setIsSeeding(true);
+    seedDemoTrustProfile()
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+        queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+      })
+      .catch((e) => {
+        console.error("Auto-seed failed:", e);
+        toast.error(isNb ? "Kunne ikke opprette profil" : "Could not create profile");
+      })
+      .finally(() => setIsSeeding(false));
+  }, [asset, isLoading, isSeeding, propAssetId]);
 
   if (isLoading || !asset) {
     return (
