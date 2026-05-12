@@ -193,12 +193,11 @@ function EmptyState({ icon: Icon, label }: { icon: any; label: string }) {
 export function MSPCustomerMessagesTab() {
   const [tab, setTab] = useState("sent");
 
-  const sent = items.filter(i => i.type === "offer" && !i.archived);
+  const allOffers = items.filter(i => i.type === "offer");
+  const sent = allOffers.filter(o => o.status === "pending");
+  const approvedOffers = allOffers.filter(o => o.status === "approved");
+  const closedOffers = allOffers.filter(o => o.status === "declined");
   const received = items.filter(i => i.type === "message" && !i.archived);
-  const archived = items.filter(i => i.archived);
-
-  const approved = items.filter(i => i.type === "offer" && i.status === "approved").length;
-  const pending = sent.filter(o => o.status === "pending").length;
 
   return (
     <div className="space-y-5">
@@ -206,15 +205,15 @@ export function MSPCustomerMessagesTab() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-3 bg-muted/30 border-border/60">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Sendte tilbud</p>
-          <p className="text-2xl font-bold text-foreground mt-1">{items.filter(i => i.type === "offer").length}</p>
+          <p className="text-2xl font-bold text-foreground mt-1">{allOffers.length}</p>
         </Card>
         <Card className="p-3 bg-muted/30 border-border/60">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Godkjent</p>
-          <p className="text-2xl font-bold text-success mt-1">{approved}</p>
+          <p className="text-2xl font-bold text-success mt-1">{approvedOffers.length}</p>
         </Card>
         <Card className="p-3 bg-muted/30 border-border/60">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Avventer svar</p>
-          <p className="text-2xl font-bold text-warning mt-1">{pending}</p>
+          <p className="text-2xl font-bold text-warning mt-1">{sent.length}</p>
         </Card>
       </div>
 
@@ -225,13 +224,17 @@ export function MSPCustomerMessagesTab() {
               <Send className="h-3 w-3" /> Sendt
               <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{sent.length}</Badge>
             </TabsTrigger>
+            <TabsTrigger value="approved" className="text-xs gap-1.5 data-[state=active]:bg-background">
+              <CheckCircle2 className="h-3 w-3" /> Godkjent
+              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{approvedOffers.length}</Badge>
+            </TabsTrigger>
             <TabsTrigger value="received" className="text-xs gap-1.5 data-[state=active]:bg-background">
               <Inbox className="h-3 w-3" /> Mottatt
               <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{received.length}</Badge>
             </TabsTrigger>
-            <TabsTrigger value="archived" className="text-xs gap-1.5 data-[state=active]:bg-background">
-              <Archive className="h-3 w-3" /> Arkivert
-              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{archived.length}</Badge>
+            <TabsTrigger value="closed" className="text-xs gap-1.5 data-[state=active]:bg-background">
+              <Archive className="h-3 w-3" /> Avsluttet
+              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{closedOffers.length}</Badge>
             </TabsTrigger>
           </TabsList>
           {tab === "sent" && (
@@ -245,13 +248,30 @@ export function MSPCustomerMessagesTab() {
           <Card className="p-4 space-y-3">
             <div className="flex items-center gap-2">
               <FileText className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold text-foreground">Tilbud sendt til kunde</h3>
+              <h3 className="text-sm font-semibold text-foreground">Tilbud som avventer svar</h3>
             </div>
             {sent.length === 0 ? (
-              <EmptyState icon={Send} label="Ingen aktive tilbud sendt." />
+              <EmptyState icon={Send} label="Ingen tilbud som avventer svar." />
             ) : (
               <div className="space-y-2">
                 {sent.map(o => <OfferCard key={o.id} o={o} />)}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="approved" className="mt-4">
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              <h3 className="text-sm font-semibold text-foreground">Godkjente tilbud</h3>
+              <span className="text-[11px] text-muted-foreground">Med signert bevis</span>
+            </div>
+            {approvedOffers.length === 0 ? (
+              <EmptyState icon={CheckCircle2} label="Ingen godkjente tilbud ennå." />
+            ) : (
+              <div className="space-y-2">
+                {approvedOffers.map(o => <OfferCard key={o.id} o={o} />)}
               </div>
             )}
           </Card>
@@ -273,20 +293,18 @@ export function MSPCustomerMessagesTab() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="archived" className="mt-4">
+        <TabsContent value="closed" className="mt-4">
           <Card className="p-4 space-y-3">
             <div className="flex items-center gap-2">
               <Archive className="h-4 w-4 text-muted-foreground" />
-              <h3 className="text-sm font-semibold text-foreground">Arkivert</h3>
-              <span className="text-[11px] text-muted-foreground">Avsluttede tilbud og besvarte meldinger</span>
+              <h3 className="text-sm font-semibold text-foreground">Avsluttede tilbud</h3>
+              <span className="text-[11px] text-muted-foreground">Avslåtte eller trukne tilbud</span>
             </div>
-            {archived.length === 0 ? (
-              <EmptyState icon={Archive} label="Ingen arkiverte elementer." />
+            {closedOffers.length === 0 ? (
+              <EmptyState icon={Archive} label="Ingen avsluttede tilbud." />
             ) : (
               <div className="space-y-2">
-                {archived.map(i =>
-                  i.type === "offer" ? <OfferCard key={i.id} o={i} /> : <MessageCard key={i.id} m={i} />,
-                )}
+                {closedOffers.map(o => <OfferCard key={o.id} o={o} />)}
               </div>
             )}
           </Card>
