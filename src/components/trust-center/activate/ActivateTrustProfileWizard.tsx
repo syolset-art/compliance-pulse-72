@@ -147,7 +147,7 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
 
   const canNext = useMemo(() => {
     if (step === 0) return true;
-    if (step === 1) return companyName.trim().length > 1 && orgNumber.trim().length > 0 && website.trim().length > 3;
+    if (step === 1) return companyName.trim().length > 1 && orgNumber.trim().length > 0 && website.trim().length > 3 && websiteVerified;
     if (step === 2) return revealed >= (scan?.findings.length ?? 0) && scan != null;
     if (step === 3) return description.trim().length > 0;
     return true;
