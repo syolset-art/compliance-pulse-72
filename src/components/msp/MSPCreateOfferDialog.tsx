@@ -101,7 +101,9 @@ export function MSPCreateOfferDialog({
       onOpenChange(false);
       toast.success("Tilbud sendt", {
         id: toastId,
-        description: `«${offerName}» er sendt til ${customerContactName}. Du finner det under Meldinger.`,
+        description: attachGap
+          ? `«${offerName}» er sendt til ${customerContactName} med gap-analyse vedlagt.`
+          : `«${offerName}» er sendt til ${customerContactName}. Du finner det under Meldinger.`,
         duration: 6000,
       });
     }, 700);
