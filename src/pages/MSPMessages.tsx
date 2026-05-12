@@ -1,0 +1,315 @@
+import { useState } from "react";
+import { Sidebar } from "@/components/Sidebar";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import {
+  Sparkles,
+  ArrowDownLeft,
+  ArrowUpRight,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  MessageSquare,
+} from "lucide-react";
+import { toast } from "sonner";
+
+type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected";
+type ItemKind = "in" | "out";
+type ItemStatus = "accepted" | "rejected" | "pending" | "message";
+
+interface InboxItem {
+  id: string;
+  kind: ItemKind;
+  status: ItemStatus;
+  customer: string;
+  title: string;
+  meta: string;
+  group: "today" | "earlier";
+  unread?: boolean;
+  laraSuggestion?: { text: string; cta: string; secondary?: string };
+}
+
+const ITEMS: InboxItem[] = [
+  {
+    id: "1",
+    kind: "in",
+    status: "accepted",
+    customer: "Visma Software AS",
+    title: "Tilbud akseptert",
+    meta: "Penetrasjonstest · 85 000 kr · Oppstart 18. mai",
+    group: "today",
+    unread: true,
+  },
+  {
+    id: "2",
+    kind: "in",
+    status: "message",
+    customer: "Dintero AS",
+    title: "Truls Andersen",
+    meta: "Hei, har et spørsmål om NIS2-tilbudet du sendte i går…",
+    group: "today",
+    unread: true,
+  },
+  {
+    id: "3",
+    kind: "out",
+    status: "pending",
+    customer: "Dintero AS",
+    title: "Tilbud sendt",
+    meta: "NIS2-klargjøring · 112 500 kr · Sendt 4. mai (8 dager siden)",
+    group: "earlier",
+    laraSuggestion: {
+      text: "Truls åpnet tilbudet 7. mai men har ikke svart. Vil du sende en vennlig påminnelse?",
+      cta: "Send påminnelse",
+      secondary: "Ikke nå",
+    },
+  },
+  {
+    id: "4",
+    kind: "in",
+    status: "rejected",
+    customer: "Sparebank 1 Utvikling",
+    title: "Tilbud avvist",
+    meta: 'SOC 2-forberedelse · "Vi tar dette internt"',
+    group: "earlier",
+  },
+  {
+    id: "5",
+    kind: "out",
+    status: "pending",
+    customer: "Catalystone Solutions",
+    title: "Tilbud sendt",
+    meta: "ISO 27001-klargjøring · 180 000 kr · Sendt 28. april (14 dager siden)",
+    group: "earlier",
+    laraSuggestion: {
+      text: "Tilbudet er over to uker gammelt. Sendt påminnelse 7. mai uten respons.",
+      cta: "Følg opp på telefon",
+      secondary: "Avslutt",
+    },
+  },
+];
+
+function statusBadge(s: ItemStatus) {
+  const map: Record<ItemStatus, { label: string; cls: string }> = {
+    accepted: { label: "Akseptert", cls: "bg-success/10 text-success border-success/30" },
+    rejected: { label: "Avvist", cls: "bg-muted text-muted-foreground border-border" },
+    pending: { label: "Venter", cls: "bg-warning/10 text-warning border-warning/30" },
+    message: { label: "Melding", cls: "bg-primary/10 text-primary border-primary/30" },
+  };
+  const m = map[s];
+  return (
+    <Badge variant="outline" className={cn("text-[10px]", m.cls)}>
+      {m.label}
+    </Badge>
+  );
+}
+
+function KindIcon({ kind, status, customer }: { kind: ItemKind; status: ItemStatus; customer: string }) {
+  if (status === "message") {
+    return (
+      <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-semibold shrink-0">
+        {customer.charAt(0)}
+      </div>
+    );
+  }
+  let Icon = Clock;
+  let cls = "bg-warning/10 text-warning";
+  if (status === "accepted") { Icon = CheckCircle2; cls = "bg-success/10 text-success"; }
+  else if (status === "rejected") { Icon = XCircle; cls = "bg-muted text-muted-foreground"; }
+  return (
+    <div className={cn("h-7 w-7 rounded-full flex items-center justify-center shrink-0", cls)}>
+      <Icon className="h-3.5 w-3.5" />
+    </div>
+  );
+}
+
+export default function MSPMessages() {
+  const [filter, setFilter] = useState<Filter>("all");
+  const [dismissedBanner, setDismissedBanner] = useState(false);
+
+  const filtered = ITEMS.filter(i => {
+    if (filter === "all") return true;
+    if (filter === "in") return i.kind === "in";
+    if (filter === "out") return i.kind === "out";
+    if (filter === "pending") return i.status === "pending";
+    if (filter === "accepted") return i.status === "accepted";
+    if (filter === "rejected") return i.status === "rejected";
+    return true;
+  });
+
+  const today = filtered.filter(i => i.group === "today");
+  const earlier = filtered.filter(i => i.group === "earlier");
+
+  const stats = {
+    pending: ITEMS.filter(i => i.status === "pending").length,
+    accepted: ITEMS.filter(i => i.status === "accepted").length,
+    rejected: ITEMS.filter(i => i.status === "rejected").length,
+    unread: ITEMS.filter(i => i.unread).length,
+  };
+
+  const filters: { value: Filter; label: string; icon?: any }[] = [
+    { value: "all", label: "Alle" },
+    { value: "in", label: "Innkommende", icon: ArrowDownLeft },
+    { value: "out", label: "Utgående", icon: ArrowUpRight },
+    { value: "pending", label: "Tilbud venter" },
+    { value: "accepted", label: "Akseptert" },
+    { value: "rejected", label: "Avvist" },
+  ];
+
+  return (
+    <div className="flex min-h-screen w-full bg-background">
+      <Sidebar />
+      <main className="flex-1 pt-16">
+        <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">Innboks på tvers av kunder</h1>
+            <p className="text-[13px] text-muted-foreground mt-1">
+              Tilbud, svar og meldinger fra alle dine kunder samlet på ett sted.
+            </p>
+          </div>
+
+          {/* Lara banner */}
+          {!dismissedBanner && (
+            <Card className="p-4 border-primary/30 bg-primary/5">
+              <div className="flex items-start gap-3">
+                <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground">Lara har en anbefaling til deg</p>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">
+                    Du har 2 tilbud som har ventet over en uke. Vil du sende påminnelser?
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button size="sm" className="h-8" onClick={() => toast.success("Påminnelser sendt", { description: "2 påminnelser er sendt." })}>
+                    Vis forslag
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => setDismissedBanner(true)}
+                    className="text-xs text-muted-foreground hover:text-foreground px-2"
+                  >
+                    Ikke nå
+                  </button>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-3">
+            <StatCard dot="bg-warning" label="Tilbud venter" value={stats.pending} />
+            <StatCard dot="bg-success" label="Akseptert siste 30d" value={stats.accepted} />
+            <StatCard dot="bg-muted-foreground/40" label="Avvist siste 30d" value={stats.rejected} />
+            <StatCard dot="bg-primary" label="Uleste meldinger" value={stats.unread} />
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-2">
+            {filters.map(f => {
+              const active = filter === f.value;
+              const Icon = f.icon;
+              return (
+                <button
+                  key={f.value}
+                  onClick={() => setFilter(f.value)}
+                  className={cn(
+                    "h-8 px-3 rounded-full border text-[12px] flex items-center gap-1.5 transition-colors",
+                    active
+                      ? "bg-primary/10 text-primary border-primary/40"
+                      : "bg-background text-muted-foreground border-border hover:text-foreground"
+                  )}
+                >
+                  {Icon && <Icon className="h-3 w-3" />}
+                  {f.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* List */}
+          <Card className="overflow-hidden">
+            {today.length > 0 && <GroupHeader label="I dag" />}
+            {today.map(item => <Row key={item.id} item={item} />)}
+            {earlier.length > 0 && <GroupHeader label="Tidligere" />}
+            {earlier.map(item => <Row key={item.id} item={item} />)}
+            {filtered.length === 0 && (
+              <div className="py-12 text-center text-sm text-muted-foreground">
+                Ingen meldinger i denne visningen.
+              </div>
+            )}
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function StatCard({ dot, label, value }: { dot: string; label: string; value: number }) {
+  return (
+    <Card className="p-3">
+      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+        <span className={cn("h-2 w-2 rounded-full", dot)} />
+        {label}
+      </div>
+      <p className="text-2xl font-semibold text-foreground mt-1 tabular-nums">{value}</p>
+    </Card>
+  );
+}
+
+function GroupHeader({ label }: { label: string }) {
+  return (
+    <div className="px-4 py-2 bg-muted/40 border-b border-border text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+      {label}
+    </div>
+  );
+}
+
+function Row({ item }: { item: InboxItem }) {
+  return (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        type="button"
+        onClick={() => toast.info(item.title, { description: item.customer })}
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors text-left"
+      >
+        <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", item.unread ? "bg-primary" : "bg-transparent")} />
+        {item.kind === "in"
+          ? <ArrowDownLeft className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          : <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />}
+        <KindIcon kind={item.kind} status={item.status} customer={item.customer} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-foreground">
+            <span className="font-semibold">{item.title}</span>
+            <span className="text-muted-foreground"> · {item.customer}</span>
+          </p>
+          <p className="text-[12px] text-muted-foreground truncate">{item.meta}</p>
+        </div>
+        {statusBadge(item.status)}
+      </button>
+      {item.laraSuggestion && (
+        <div className="flex items-start gap-2.5 px-4 py-2.5 bg-primary/5 border-t border-primary/20">
+          <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+          <p className="text-[12px] text-foreground flex-1">
+            <span className="font-medium">Lara foreslår:</span> {item.laraSuggestion.text}
+          </p>
+          <Button
+            size="sm"
+            className="h-7 text-xs shrink-0"
+            onClick={() => toast.success(item.laraSuggestion!.cta, { description: item.customer })}
+          >
+            {item.laraSuggestion.cta}
+          </Button>
+          {item.laraSuggestion.secondary && (
+            <button className="text-[12px] text-muted-foreground hover:text-foreground px-1 shrink-0">
+              {item.laraSuggestion.secondary}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
