@@ -65,8 +65,18 @@ export function VendorLaraInsightsPanel({
 }: Props) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
   const [index, setIndex] = useState(0);
+  const { hiddenKeys, snooze, dismiss } = useLaraSuggestionStates();
+
+  const snapshotFor = (task: Task): LaraSuggestionContext => ({
+    title: task.vendor.name,
+    severity: task.severity,
+    insight: task.laraSees,
+    vendorName: task.vendor.name,
+    vendorId: task.vendor.id,
+    category: task.meta || null,
+    source: "vendor_dashboard",
+  });
 
   const tasks = useMemo<Task[]>(() => {
     const list: Task[] = [];
