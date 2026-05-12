@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { FileText, Upload, X, Eye, Sparkles, Check, Replace } from "lucide-react";
 import { toast } from "sonner";
 
@@ -143,21 +144,41 @@ export function DocumentationSection({ asset }: { asset: any }) {
     (s) => !dismissed.includes(s.id) && !documents.some((d: any) => d.file_name === s.file_name),
   );
 
-  const docMeta = (doc: any): { subtitle: string; quality: "good" | "partial" | "weak" } => {
+  const docMeta = (doc: any): { subtitle: string; quality: "good" | "partial" | "weak"; reason: string } => {
     const name = (doc.file_name || "").toLowerCase();
     if (name.includes("slett")) {
-      return { subtitle: "Sletterutine · mangler RTO/RPO og slettelogg", quality: "partial" };
+      return {
+        subtitle: "Sletterutine · mangler RTO/RPO og slettelogg",
+        quality: "partial",
+        reason: "Lara fant rutinen, men mangler konkret RTO/RPO og henvisning til slettelogg. Oppdater for å heve til god kvalitet.",
+      };
     }
     if (name.includes("iso")) {
-      return { subtitle: "Sertifikat · gyldig til april 2027", quality: "good" };
+      return {
+        subtitle: "Sertifikat · gyldig til april 2027",
+        quality: "good",
+        reason: "Gyldig ISO 27001-sertifikat med tydelig utløpsdato og akkreditert utsteder. Dekker krav i flere rammeverk.",
+      };
     }
     if (name.includes("policy") || name.includes("sikker")) {
-      return { subtitle: "Sikkerhetspolicy · fra Regelverk-modulen", quality: "good" };
+      return {
+        subtitle: "Sikkerhetspolicy · fra Regelverk-modulen",
+        quality: "good",
+        reason: "Policyen er signert, oppdatert siste 12 mnd og dekker tilgangsstyring, hendelseshåndtering og leverandørkrav.",
+      };
     }
     if (doc.document_type === "dpa") {
-      return { subtitle: "Databehandleravtale · gyldig", quality: "good" };
+      return {
+        subtitle: "Databehandleravtale · gyldig",
+        quality: "good",
+        reason: "DPA inneholder alle GDPR Art. 28-elementer: instrukser, taushetsplikt, underleverandører, sikkerhetstiltak og slettefrist.",
+      };
     }
-    return { subtitle: `Oppdatert ${formatDate(doc.created_at)}`, quality: "good" };
+    return {
+      subtitle: `Oppdatert ${formatDate(doc.created_at)}`,
+      quality: "good",
+      reason: "Dokumentet er lesbart, oppdatert og uten åpenbare mangler.",
+    };
   };
 
   const qualityLabel = (q: "good" | "partial" | "weak") =>
@@ -203,9 +224,21 @@ export function DocumentationSection({ asset }: { asset: any }) {
                           <p className="text-sm font-semibold text-foreground truncate">{doc.file_name}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{meta.subtitle}</p>
                         </div>
-                        <span className={`text-xs ${qualityClass(meta.quality)} shrink-0`}>
-                          {qualityLabel(meta.quality)}
-                        </span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              className={`text-xs ${qualityClass(meta.quality)} shrink-0 inline-flex items-center gap-1 underline decoration-dotted underline-offset-2 cursor-help`}
+                            >
+                              <Sparkles className="h-3 w-3" />
+                              {qualityLabel(meta.quality)}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="left" className="max-w-xs">
+                            <p className="text-xs font-medium mb-1">Lara sin vurdering</p>
+                            <p className="text-xs text-muted-foreground">{meta.reason}</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                       <div className="flex items-center gap-2 mt-3">
                         <Button variant="outline" size="sm" className="gap-1.5 text-xs h-7" onClick={() => openDoc(doc)}>
