@@ -307,6 +307,93 @@ export default function MSPMessages() {
           </Card>
         </div>
       </main>
+
+      <Dialog open={proposalsOpen} onOpenChange={setProposalsOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <DialogTitle className="text-base">Laras forslag til oppfølging</DialogTitle>
+            </div>
+            <DialogDescription className="text-[13px]">
+              Lara har laget utkast for {LARA_PROPOSALS.length} oppfølginger. Velg hvilke du vil sende, juster teksten, og send samlet.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto space-y-3 -mx-1 px-1">
+            {LARA_PROPOSALS.map(p => {
+              const isOpen = expanded[p.id];
+              const isChecked = !!selected[p.id];
+              const ChannelIcon = p.channel === "email" ? Mail : Phone;
+              return (
+                <Card key={p.id} className={cn("p-3 transition-colors", isChecked ? "border-primary/30" : "opacity-70")}>
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      checked={isChecked}
+                      onCheckedChange={(v) => setSelected(s => ({ ...s, [p.id]: !!v }))}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <ChannelIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                        <p className="text-sm font-semibold text-foreground">{p.title}</p>
+                        <Badge variant="outline" className="text-[10px]">{p.customer}</Badge>
+                      </div>
+                      <div className="flex items-start gap-1.5 mt-1.5">
+                        <Sparkles className="h-3 w-3 text-primary mt-0.5 shrink-0" />
+                        <p className="text-[12px] text-muted-foreground">
+                          <span className="font-medium text-foreground">Hvorfor:</span> {p.reason}
+                        </p>
+                      </div>
+
+                      {isOpen && (
+                        <div className="mt-3 space-y-2">
+                          {p.subject && (
+                            <div className="text-[12px]">
+                              <span className="text-muted-foreground">Emne: </span>
+                              <span className="font-medium text-foreground">{p.subject}</span>
+                            </div>
+                          )}
+                          <Textarea
+                            value={drafts[p.id]}
+                            onChange={(e) => setDrafts(d => ({ ...d, [p.id]: e.target.value }))}
+                            className="text-[12px] min-h-[140px] font-mono"
+                          />
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setExpanded(e => ({ ...e, [p.id]: !isOpen }))}
+                        className="mt-2 text-[12px] text-primary hover:underline flex items-center gap-1"
+                      >
+                        {isOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                        {isOpen ? "Skjul utkast" : "Vis og rediger utkast"}
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          <DialogFooter className="flex-row sm:justify-between items-center gap-2 border-t pt-3">
+            <p className="text-[12px] text-muted-foreground">
+              {selectedCount} av {LARA_PROPOSALS.length} valgt
+            </p>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setProposalsOpen(false)}>
+                Avbryt
+              </Button>
+              <Button size="sm" disabled={selectedCount === 0} onClick={handleSendAll}>
+                Send {selectedCount > 0 ? `(${selectedCount})` : ""}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
