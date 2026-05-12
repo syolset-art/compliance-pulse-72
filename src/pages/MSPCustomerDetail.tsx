@@ -168,7 +168,7 @@ export default function MSPCustomerDetail() {
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="assessment" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
-                  Tjenestemuligheter
+                  Tjenester
                 </TabsTrigger>
                 <TabsTrigger value="messages" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Meldinger
