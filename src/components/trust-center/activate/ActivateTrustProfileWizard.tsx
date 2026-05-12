@@ -695,38 +695,33 @@ function ConfirmStep(props: any) {
       </FieldGroup>
 
       <FieldGroup icon={Users} title="Kontakter">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between"><Label>Hovedkontakt</Label><LaraBadge /></div>
-            <Input value={props.contactName} onChange={(e) => props.setContactName(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between"><Label>E-post</Label><LaraBadge /></div>
-            <Input value={props.contactEmail} onChange={(e) => props.setContactEmail(e.target.value)} />
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3 pt-1">
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between"><Label>Personvern / DPO e-post</Label><LaraBadge /></div>
-            <Input
-              type="email"
-              value={props.dpoEmail}
-              onChange={(e) => props.setDpoEmail(e.target.value)}
-              placeholder="personvern@firma.no"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between"><Label>Sikkerhetskontakt for hendelser</Label><LaraBadge /></div>
-            <Input
-              type="email"
-              value={props.securityEmail}
-              onChange={(e) => props.setSecurityEmail(e.target.value)}
-              placeholder="sikkerhet@firma.no"
-            />
-          </div>
+        <div className="space-y-3">
+          {[
+            { label: "Hovedkontakt", name: props.contactName, setName: props.setContactName, email: props.contactEmail, setEmail: props.setContactEmail, namePh: "Navn", emailPh: "navn@firma.no" },
+            { label: "Personvern / DPO", name: props.dpoName, setName: props.setDpoName, email: props.dpoEmail, setEmail: props.setDpoEmail, namePh: "Navn", emailPh: "personvern@firma.no" },
+            { label: "Sikkerhetskontakt", name: props.securityName, setName: props.setSecurityName, email: props.securityEmail, setEmail: props.setSecurityEmail, namePh: "Navn", emailPh: "sikkerhet@firma.no" },
+          ].map((row) => (
+            <div key={row.label} className="grid grid-cols-[140px_1fr_1fr] items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <Label className="text-sm">{row.label}</Label>
+                <LaraBadge />
+              </div>
+              <Input
+                value={row.name}
+                onChange={(e) => row.setName(e.target.value)}
+                placeholder={row.namePh}
+              />
+              <Input
+                type="email"
+                value={row.email}
+                onChange={(e) => row.setEmail(e.target.value)}
+                placeholder={row.emailPh}
+              />
+            </div>
+          ))}
         </div>
         <p className="text-xs text-muted-foreground">
-          Brukes når kunder eller myndigheter trenger å melde fra om personvern- eller sikkerhetshendelser. Det kan være samme e-post for begge.
+          Sikkerhetskontakten kan være den samme som personvernkontakten — bruk gjerne samme e-post hvis det er én person som håndterer begge deler.
         </p>
       </FieldGroup>
 
