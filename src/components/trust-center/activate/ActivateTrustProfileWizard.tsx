@@ -238,7 +238,9 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
           orgNumber={orgNumber}
           setOrgNumber={setOrgNumber}
           website={website}
-          setWebsite={setWebsite}
+          setWebsite={(v: string) => { setWebsite(v); setWebsiteVerified(false); }}
+          websiteVerified={websiteVerified}
+          onVerifyWebsite={() => setWebsiteVerified(true)}
           verified={verified}
           isLoading={isLoading}
           searchResults={searchResults}
