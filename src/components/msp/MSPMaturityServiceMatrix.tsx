@@ -78,12 +78,29 @@ export function MSPMaturityServiceMatrix() {
     open: boolean;
     serviceTitle?: string;
     variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
+    attachGap?: boolean;
   }>({ open: false });
+  const [gapOpen, setGapOpen] = useState(false);
 
   const urgentCount = RECOMMENDATIONS.filter(r => r.urgent).length;
 
   return (
     <div className="space-y-5">
+      {/* Gap analysis entry — alltid synlig så partner kan se hele bildet */}
+      <Card className="p-4 flex items-center gap-3">
+        <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <FileText className="h-4 w-4 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-foreground">Se alle gap mot regelverk</p>
+          <p className="text-[13px] text-muted-foreground">
+            Detaljert oversikt per regelverk — bruk som grunnlag for tilbud eller legg ved som vedlegg.
+          </p>
+        </div>
+        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setGapOpen(true)}>
+          <FileText className="h-3.5 w-3.5" /> Vis gap-analyse
+        </Button>
+      </Card>
       {/* Lara recommendation banner */}
       {!dismissedBanner && (
         <Card className="p-4 border-primary/30 bg-primary/5">
