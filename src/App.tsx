@@ -23,6 +23,7 @@ import Transparency from "./pages/Transparency";
 import WorkAreas from "./pages/WorkAreas";
 import Assets from "./pages/Assets";
 import VendorDashboard from "./pages/VendorDashboard";
+import VendorDemoActivation from "./pages/VendorDemoActivation";
 import AssetTrustProfile from "./pages/AssetTrustProfile";
 import ProcessingRecords from "./pages/ProcessingRecords";
 import CompanySettings from "./pages/CompanySettings";
@@ -109,6 +110,7 @@ const App = () => (
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/onboarding" element={<Onboarding />} />
                   <Route path="/vendors" element={<VendorDashboard />} />
+                  <Route path="/demo/vendor-activation" element={<VendorDemoActivation />} />
                   <Route path="/sustainability" element={<Sustainability />} />
                   <Route path="/transparency" element={<Transparency />} />
                   <Route path="/services" element={<WorkAreas />} />
