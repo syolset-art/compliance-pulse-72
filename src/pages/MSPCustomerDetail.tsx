@@ -23,6 +23,7 @@ import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistor
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCard";
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
+import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { toast } from "sonner";
 
 export default function MSPCustomerDetail() {
