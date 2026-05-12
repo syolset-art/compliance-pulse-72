@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   ExternalLink,
   UserPlus,
@@ -9,6 +10,7 @@ import {
   FileText,
   Check,
   AlertCircle,
+  Lock,
 } from "lucide-react";
 
 interface Props {
@@ -34,6 +36,9 @@ const accessRequests = [
 ];
 
 export function MSPCustomerTrustProfileCard({ customerName = "Kunden" }: Props) {
+  // MVP: profilen er ikke claimet/publisert ennå
+  const isPublished = false;
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -42,10 +47,32 @@ export function MSPCustomerTrustProfileCard({ customerName = "Kunden" }: Props) 
           <p className="text-xs text-muted-foreground">{customerName} · Trust Profile</p>
           <h2 className="text-lg font-semibold text-foreground">Kundens visningskort utad</h2>
         </div>
-        <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs">
-          <ExternalLink className="h-3.5 w-3.5" />
-          Se offentlig visning
-        </Button>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={0}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!isPublished}
+                  className="gap-1.5 h-8 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isPublished ? (
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  ) : (
+                    <Lock className="h-3.5 w-3.5" />
+                  )}
+                  {isPublished ? "Se offentlig visning" : "Ikke publisert ennå"}
+                </Button>
+              </span>
+            </TooltipTrigger>
+            {!isPublished && (
+              <TooltipContent side="bottom" className="max-w-[240px] text-xs">
+                Profilen blir offentlig først når kunden har overtatt (claimet) profilen og publisert den selv.
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Claim banner */}
