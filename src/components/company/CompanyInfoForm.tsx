@@ -25,10 +25,13 @@ interface CompanyInfoFormProps {
 
 export function CompanyInfoForm({ defaultEditing = false, showEditControls = true, onSaved, hidePartner = false, partnerOnly = false }: CompanyInfoFormProps) {
   const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(defaultEditing);
+  const [isEditing] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const hydratedRef = useRef(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Partner-lookup (prototype): simulerer søk i Mynder Trust-katalog
   const [partnerLookup, setPartnerLookup] = useState<{
@@ -111,10 +114,25 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         partner_since: (companyProfile as any).partner_since || "",
         show_partner_on_trust_profile: (companyProfile as any).show_partner_on_trust_profile ?? true,
       });
+      // Mark hydrated on next tick so the autosave effect doesn't fire on initial load
+      setTimeout(() => { hydratedRef.current = true; }, 0);
     }
   }, [companyProfile, selfAsset]);
 
-  const handleSave = async () => {
+  // Autosave: debounce form changes and persist silently
+  useEffect(() => {
+    if (!hydratedRef.current || !companyProfile) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      handleSave({ silent: true });
+    }, 800);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
+
+  const handleSave = async (opts?: { silent?: boolean }) => {
     if (!companyProfile) return;
     setSaving(true);
     try {
@@ -156,11 +174,11 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
       queryClient.invalidateQueries({ queryKey: ["partner-info"] });
 
-      setIsEditing(false);
-      toast.success("Selskapsinformasjon lagret");
+      setSavedAt(new Date());
+      if (!opts?.silent) toast.success("Selskapsinformasjon lagret");
       onSaved?.();
     } catch {
-      toast.error("Kunne ikke lagre endringer");
+      if (!opts?.silent) toast.error("Kunne ikke lagre endringer");
     } finally {
       setSaving(false);
     }
@@ -192,7 +210,6 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         show_partner_on_trust_profile: (companyProfile as any).show_partner_on_trust_profile ?? true,
       });
     }
-    setIsEditing(false);
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -276,20 +293,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     <Card className="p-5 space-y-4">
       {partnerOnly && showEditControls && (
         <div className="flex items-center justify-end">
-          {!isEditing ? (
-            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="gap-1.5 text-xs">
-              <Pencil className="h-3 w-3" /> Rediger
-            </Button>
-          ) : (
-            <div className="flex gap-2">
-              <Button variant="ghost" size="sm" onClick={handleCancel} className="gap-1.5 text-xs">
-                <X className="h-3 w-3" /> Avbryt
-              </Button>
-              <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5 text-xs">
-                <Save className="h-3 w-3" /> {saving ? "Lagrer..." : "Lagre"}
-              </Button>
-            </div>
-          )}
+          <span className="text-[11px] text-muted-foreground">
+            {saving ? "Lagrer..." : savedAt ? `Lagret ${savedAt.toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit" })}` : "Endringer lagres automatisk"}
+          </span>
         </div>
       )}
       {!partnerOnly && (
@@ -302,25 +308,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           </p>
         </div>
         {showEditControls && (
-          <div>
-            {!isEditing ? (
-              <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="gap-1.5 text-xs">
-                <Pencil className="h-3 w-3" />
-                Rediger
-              </Button>
-            ) : (
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={handleCancel} className="gap-1.5 text-xs">
-                  <X className="h-3 w-3" />
-                  Avbryt
-                </Button>
-                <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5 text-xs">
-                  <Save className="h-3 w-3" />
-                  {saving ? "Lagrer..." : "Lagre"}
-                </Button>
-              </div>
-            )}
-          </div>
+          <span className="text-[11px] text-muted-foreground">
+            {saving ? "Lagrer..." : savedAt ? `Lagret ${savedAt.toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit" })}` : "Endringer lagres automatisk"}
+          </span>
         )}
       </div>
 
