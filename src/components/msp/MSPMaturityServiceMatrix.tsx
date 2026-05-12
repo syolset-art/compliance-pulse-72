@@ -345,9 +345,27 @@ export function MSPMaturityServiceMatrix() {
         <TabsContent value="ongoing" className="space-y-2 mt-0">
           {ONGOING.map(o => {
             const isPending = o.status === "pending";
+            const isOpen = expandedOngoing === o.id;
+            const hasControls = !!o.controls && o.controls.length > 0;
+            const counts = {
+              all: o.controls?.length ?? 0,
+              missing: o.controls?.filter(c => c.status === "missing").length ?? 0,
+              partial: o.controls?.filter(c => c.status === "partial").length ?? 0,
+              fulfilled: o.controls?.filter(c => c.status === "fulfilled").length ?? 0,
+            };
+            const filtered = (o.controls ?? []).filter(c =>
+              controlFilter === "all" ? true : c.status === controlFilter
+            );
             return (
-              <Card key={o.id} className="p-3 hover:border-primary/30 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
+              <Card key={o.id} className="overflow-hidden hover:border-primary/30 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => hasControls && setExpandedOngoing(isOpen ? null : o.id)}
+                  className={cn(
+                    "w-full flex items-center gap-3 p-3 text-left",
+                    hasControls && "hover:bg-muted/30 cursor-pointer"
+                  )}
+                >
                   <div className={cn(
                     "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
                     isPending ? "bg-warning/10" : "bg-success/10"
@@ -357,8 +375,22 @@ export function MSPMaturityServiceMatrix() {
                       : <CheckCircle2 className="h-4 w-4 text-success" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{o.title}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold text-foreground truncate">{o.title}</p>
+                      {o.frameworkLabel && (
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          <FileText className="h-3 w-3" />
+                          {o.frameworkLabel}
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-[12px] text-muted-foreground">{o.meta}</p>
+                    {hasControls && (
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        {counts.all} kontrollpunkt · <span className="text-destructive font-medium">{counts.missing} mangler</span>
+                        {counts.partial > 0 && <> · <span className="text-warning font-medium">{counts.partial} delvis</span></>}
+                      </p>
+                    )}
                   </div>
                   <Badge variant="outline" className={cn(
                     "text-[10px]",
@@ -366,8 +398,53 @@ export function MSPMaturityServiceMatrix() {
                   )}>
                     {isPending ? "Venter" : "Akseptert"}
                   </Badge>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                </div>
+                  {hasControls ? (
+                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", isOpen && "rotate-180")} />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  )}
+                </button>
+
+                {isOpen && hasControls && (
+                  <div className="border-t border-border bg-muted/20 p-3 space-y-3">
+                    {/* Filter pills */}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {([
+                        { v: "all", label: "Alle", n: counts.all },
+                        { v: "missing", label: "Ikke oppfylt", n: counts.missing },
+                        { v: "partial", label: "Delvis", n: counts.partial },
+                        { v: "fulfilled", label: "Oppfylt", n: counts.fulfilled },
+                      ] as const).map(f => {
+                        const active = controlFilter === f.v;
+                        return (
+                          <button
+                            key={f.v}
+                            type="button"
+                            onClick={() => setControlFilter(f.v)}
+                            className={cn(
+                              "h-7 px-2.5 rounded-full text-[11px] border transition-colors",
+                              active
+                                ? "bg-primary/10 text-primary border-primary/40"
+                                : "bg-background text-muted-foreground border-border hover:text-foreground"
+                            )}
+                          >
+                            {f.label} <span className="tabular-nums">({f.n})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Controls list */}
+                    <div className="space-y-2">
+                      {filtered.map(c => <ControlRow key={c.id} c={c} frameworkLabel={o.frameworkLabel} />)}
+                      {filtered.length === 0 && (
+                        <p className="text-[12px] text-muted-foreground text-center py-4">
+                          Ingen kontrollpunkter i denne visningen.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </Card>
             );
           })}
