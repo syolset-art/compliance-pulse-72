@@ -169,11 +169,9 @@ export function DocumentationSection({ asset }: { asset: any }) {
     <section id="documentation" className="space-y-4 scroll-mt-24">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <h2 className="text-base font-semibold text-foreground">
-            Velg hvilke dokumenter som skal være i din Trust Profile
-          </h2>
+          <h2 className="text-base font-semibold text-foreground">Dokumenter</h2>
           <p className="text-xs text-muted-foreground max-w-2xl">
-            Lara analyserer hvert dokument før det legges inn. Kvalitetsvurderingen er en intern hjelp for deg — den vises ikke offentlig.
+            Velg hvilke dokumenter som skal vises i din Trust Profile. Lara analyserer hvert dokument og gir en kvalitetsvurdering — kun synlig for deg.
           </p>
         </div>
         <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} />
