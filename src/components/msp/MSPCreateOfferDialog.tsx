@@ -69,15 +69,43 @@ export function MSPCreateOfferDialog({
   const removeItem = (i: number) => setItems(p => p.filter((_, idx) => idx !== i));
 
   const handleSend = () => {
-    onOpenChange(false);
-    toast.success("Tilbud sendt", {
-      description: `Tilbudet «${serviceTitle || domainName}» er sendt til ${customerContactName}. Du finner det under Meldinger.`,
+    const offerName = serviceTitle || domainName;
+    const toastId = toast.loading("Sender tilbud…", {
+      description: `Sender «${offerName}» til ${customerContactName}.`,
     });
+
+    // Simulert sending — i produksjon: kall edge-funksjon her
+    setTimeout(() => {
+      // Enkle valideringer som kan utløse "feilet"
+      if (!message.trim()) {
+        toast.error("Kunne ikke sende tilbud", {
+          id: toastId,
+          description: "Meldingen til kunden er tom. Skriv noen ord før du sender.",
+          duration: 7000,
+        });
+        return;
+      }
+      if (items.length === 0) {
+        toast.error("Kunne ikke sende tilbud", {
+          id: toastId,
+          description: "Tilbudet mangler innhold. Legg til minst ett element under «Hva inngår».",
+          duration: 7000,
+        });
+        return;
+      }
+
+      onOpenChange(false);
+      toast.success("Tilbud sendt", {
+        id: toastId,
+        description: `«${offerName}» er sendt til ${customerContactName}. Du finner det under Meldinger.`,
+        duration: 6000,
+      });
+    }, 700);
   };
 
   const handleDraft = () => {
     onOpenChange(false);
-    toast("Lagret som utkast", {
+    toast.success("Lagret som utkast", {
       description: "Du finner utkastet under Meldinger.",
     });
   };
