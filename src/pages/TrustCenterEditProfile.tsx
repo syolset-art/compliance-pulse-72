@@ -286,6 +286,17 @@ const TrustCenterEditProfile = () => {
 
             {/* Partner og leveranse (flyttet hit fra selskapsinformasjon) */}
             <section id="partner" className="space-y-4 scroll-mt-24">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-semibold text-foreground">
+                  {isNb ? "Partner og leveranse" : "Partner & delivery"}
+                </h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {isNb
+                  ? "Hvem leverer IT- og sikkerhetstjenester til virksomheten? Synlig i sidemenyen og kan vises på Trust-profilen."
+                  : "Who delivers IT and security services? Visible in the sidebar and can appear on the Trust profile."}
+              </p>
               <CompanyInfoForm defaultEditing showEditControls partnerOnly />
             </section>
 

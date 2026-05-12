@@ -485,19 +485,21 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       {!hidePartner && (
       <>
       {/* Partner / leveransepartner */}
-      <div className="space-y-3 pt-4 border-t border-border">
+      <div className={partnerOnly ? "space-y-3" : "space-y-3 pt-4 border-t border-border"}>
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Handshake className="h-4 w-4 text-primary" />
+          {!partnerOnly && (
+            <div className="flex items-start gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Handshake className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">Partner og leveranse</h4>
+                <p className="text-[13px] text-muted-foreground mt-0.5">
+                  Hvem leverer IT- og sikkerhetstjenester til virksomheten? Synlig i sidemenyen og kan vises på Trust-profilen.
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold text-foreground">Partner og leveranse</h4>
-              <p className="text-[13px] text-muted-foreground mt-0.5">
-                Hvem leverer IT- og sikkerhetstjenester til virksomheten? Synlig i sidemenyen og kan vises på Trust-profilen.
-              </p>
-            </div>
-          </div>
+          )}
           {isEditing && (
             <div className="flex items-center gap-2 pt-1">
               <span className="text-[13px] text-muted-foreground">Har partner</span>
