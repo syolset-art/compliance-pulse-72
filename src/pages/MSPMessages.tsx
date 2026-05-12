@@ -26,8 +26,12 @@ import {
   Phone,
   ChevronDown,
   ChevronUp,
+  Megaphone,
+  Users,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
+import { CampaignWizardDialog, type CampaignDraft } from "@/components/msp/CampaignWizardDialog";
 
 interface LaraProposal {
   id: string;
