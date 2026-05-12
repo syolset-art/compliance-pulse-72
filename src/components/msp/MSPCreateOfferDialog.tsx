@@ -23,6 +23,7 @@ export interface CreateOfferDialogProps {
   defaultEffort?: string;
   defaultPrice?: string;
   defaultMessage?: string;
+  attachGap?: boolean;
 }
 
 export function MSPCreateOfferDialog({
