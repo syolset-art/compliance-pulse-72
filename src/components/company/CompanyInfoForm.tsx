@@ -17,9 +17,13 @@ interface CompanyInfoFormProps {
   showEditControls?: boolean;
   /** Callback after save completes */
   onSaved?: () => void;
+  /** Hide the Partner & delivery section (render it elsewhere) */
+  hidePartner?: boolean;
+  /** Render ONLY the Partner & delivery section */
+  partnerOnly?: boolean;
 }
 
-export function CompanyInfoForm({ defaultEditing = false, showEditControls = true, onSaved }: CompanyInfoFormProps) {
+export function CompanyInfoForm({ defaultEditing = false, showEditControls = true, onSaved, hidePartner = false, partnerOnly = false }: CompanyInfoFormProps) {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(defaultEditing);
   const [saving, setSaving] = useState(false);
@@ -270,6 +274,26 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
   return (
     <Card className="p-5 space-y-4">
+      {partnerOnly && showEditControls && (
+        <div className="flex items-center justify-end">
+          {!isEditing ? (
+            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)} className="gap-1.5 text-xs">
+              <Pencil className="h-3 w-3" /> Rediger
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={handleCancel} className="gap-1.5 text-xs">
+                <X className="h-3 w-3" /> Avbryt
+              </Button>
+              <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1.5 text-xs">
+                <Save className="h-3 w-3" /> {saving ? "Lagrer..." : "Lagre"}
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+      {!partnerOnly && (
+      <>
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-foreground">Selskapsinformasjon</h3>
@@ -466,6 +490,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         )}
       </div>
 
+      </>
+      )}
+      {!hidePartner && (
+      <>
       {/* Partner / leveransepartner */}
       <div className="space-y-3 pt-4 border-t border-border">
         <div className="flex items-start justify-between gap-3">
@@ -609,6 +637,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           </div>
         )}
       </div>
+      </>
+      )}
     </Card>
   );
 }
