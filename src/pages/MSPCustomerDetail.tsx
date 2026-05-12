@@ -18,6 +18,9 @@ import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBa
 import type { LaraPlanTask } from "@/components/lara/types";
 import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
 import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
+import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
+import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
+import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
