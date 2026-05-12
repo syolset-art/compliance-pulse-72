@@ -91,12 +91,16 @@ const FRAMDRIFT: LaraScanResult = {
     { title: "Informasjonssikkerhetspolicy", type: "policy" },
   ],
   findings: [
-    { key: "desc", label: "Beskrivelse av virksomheten", detail: "Hentet fra «Om oss»-siden", source: "/om-oss" },
-    { key: "privacy", label: "Personvernerklæring funnet", source: "/personvern" },
-    { key: "contact", label: "Kontaktpersoner identifisert", detail: "Daglig leder og personvernkontakt" },
-    { key: "security", label: "Sikkerhetstiltak nevnt på nettsiden", detail: "MFA, kryptering, Microsoft 365" },
-    { key: "subproc", label: "Underleverandører oppdaget", detail: "10 stk identifisert i tjenestebeskrivelser og personvernerklæring" },
-    { key: "docs", label: "3 dokumenter foreslått til Trust Profile" },
+    { key: "desc", label: "Beskrivelse av virksomheten", detail: "Hentet fra «Om oss»-siden", source: "/om-oss", status: "found" },
+    { key: "contact", label: "Kontaktpersoner identifisert", detail: "Daglig leder og personvernkontakt", status: "found" },
+    { key: "privacy", label: "Personvernerklæring funnet", detail: "Lenket fra footer", source: "/personvern", status: "found" },
+    { key: "security", label: "Sikkerhetstiltak nevnt på nettsiden", detail: "MFA, kryptering, Microsoft 365", status: "found" },
+    { key: "subproc", label: "Underleverandører oppdaget", detail: "10 stk identifisert i tjenestebeskrivelser og personvernerklæring", status: "found" },
+    { key: "secpolicy", label: "Informasjonssikkerhetspolicy funnet", detail: "Hentet fra Trust Center på nettsiden", status: "found" },
+    { key: "dpa", label: "Databehandleravtale (mal) funnet", detail: "Tilgjengelig som PDF for kunder", status: "found" },
+    { key: "certs", label: "Sertifikater ikke funnet på nettsiden", detail: "Ingen ISO 27001, SOC 2 eller tilsvarende publisert. Du kan laste opp manuelt etterpå.", status: "missing" },
+    { key: "incident", label: "Hendelseshåndtering ikke beskrevet offentlig", detail: "Vi foreslår å dokumentere dette i Trust Profile", status: "missing" },
+    { key: "docs", label: "3 dokumenter klare til Trust Profile", detail: "Personvernerklæring, DPA-mal, Informasjonssikkerhetspolicy", status: "info" },
   ],
 };
 
