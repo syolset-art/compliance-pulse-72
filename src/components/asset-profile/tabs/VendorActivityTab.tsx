@@ -25,6 +25,12 @@ interface VendorActivityTabProps {
   enrichmentPercent?: number;
   externalActivities?: VendorActivity[];
   onActivityAdded?: (activity: VendorActivity) => void;
+  /**
+   * MSP partner view: anonymizes customer-side actors so the partner sees
+   * only their own actions named, while customer actions appear as a generic
+   * "Kunde" with role preserved.
+   */
+  mspPartnerView?: boolean;
 }
 
 const ACTIVITY_ICONS = {
@@ -36,7 +42,7 @@ const ACTIVITY_ICONS = {
 
 type StatusFilter = "all" | ActivityStatus;
 
-export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, enrichmentPercent = 19, externalActivities = [], onActivityAdded }: VendorActivityTabProps) {
+export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, enrichmentPercent = 19, externalActivities = [], onActivityAdded, mspPartnerView = false }: VendorActivityTabProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const [phaseFilter, setPhaseFilter] = useState<Phase | "all">("all");
@@ -46,7 +52,15 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
   const [statusEditorId, setStatusEditorId] = useState<string | null>(null);
   const [activityOverrides, setActivityOverrides] = useState<Record<string, Partial<VendorActivity>>>({});
 
-  const demoActivities = useMemo(() => generateDemoActivities(assetId), [assetId]);
+  const demoActivities = useMemo(() => {
+    const base = generateDemoActivities(assetId);
+    if (!mspPartnerView) return base;
+    // Anonymize customer-side actors for partner view
+    return base.map(a => ({
+      ...a,
+      actor: isNb ? "Kunde" : "Customer",
+    }));
+  }, [assetId, mspPartnerView, isNb]);
   const activities = useMemo(
     () => [...demoActivities, ...manualActivities, ...externalActivities]
       .map(a => activityOverrides[a.id] ? { ...a, ...activityOverrides[a.id] } : a)
