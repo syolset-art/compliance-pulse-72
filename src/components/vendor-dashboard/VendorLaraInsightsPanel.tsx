@@ -2,8 +2,10 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Diamond, ChevronLeft, ChevronRight, AlertTriangle, FileWarning, Inbox, ShieldCheck } from "lucide-react";
+import { Diamond, ChevronLeft, ChevronRight, AlertTriangle, FileWarning, Inbox, ShieldCheck, Clock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLaraSuggestionStates, type LaraSuggestionContext } from "@/hooks/useLaraSuggestionStates";
+import { toast } from "sonner";
 
 interface Asset {
   id: string;
