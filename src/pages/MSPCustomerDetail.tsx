@@ -22,6 +22,7 @@ import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMatur
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCard";
+import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { toast } from "sonner";
 
 export default function MSPCustomerDetail() {
@@ -257,11 +258,7 @@ export default function MSPCustomerDetail() {
 
             {/* ── Vurdering ── */}
             <TabsContent value="assessment" className="mt-6 space-y-5">
-              <MSPAssessmentCard
-                customerId={customerId!}
-                assessmentScore={customer.initial_assessment_score}
-              />
-              <SecurityServiceGapCard assessmentResponses={customer.assessment_responses || null} />
+              <MSPMaturityServiceMatrix />
             </TabsContent>
 
             {/* ── Tjenester ── */}
