@@ -26,8 +26,12 @@ import {
   Phone,
   ChevronDown,
   ChevronUp,
+  Megaphone,
+  Users,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
+import { CampaignWizardDialog, type CampaignDraft } from "@/components/msp/CampaignWizardDialog";
 
 interface LaraProposal {
   id: string;
@@ -61,7 +65,22 @@ const LARA_PROPOSALS: LaraProposal[] = [
   },
 ];
 
-type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected";
+type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected" | "campaigns";
+
+interface SentCampaign {
+  id: string;
+  name: string;
+  kind: "message" | "offer" | "reminder";
+  subject: string;
+  body: string;
+  sentAt: Date;
+  recipients: {
+    customerId: string;
+    customerName: string;
+    contactEmail?: string;
+    status: "sent" | "opened" | "accepted" | "rejected";
+  }[];
+}
 type ItemKind = "in" | "out";
 type ItemStatus = "accepted" | "rejected" | "pending" | "message";
 
@@ -182,6 +201,9 @@ export default function MSPMessages() {
   const [drafts, setDrafts] = useState<Record<string, string>>(
     Object.fromEntries(LARA_PROPOSALS.map(p => [p.id, p.body]))
   );
+  const [campaigns, setCampaigns] = useState<SentCampaign[]>([]);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [expandedCampaign, setExpandedCampaign] = useState<Record<string, boolean>>({});
 
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
@@ -192,6 +214,28 @@ export default function MSPMessages() {
     });
   };
 
+  const handleCampaignSend = (draft: CampaignDraft) => {
+    const campaign: SentCampaign = {
+      id: `camp-${Date.now()}`,
+      name: draft.name,
+      kind: draft.kind,
+      subject: draft.subject,
+      body: draft.body,
+      sentAt: new Date(),
+      recipients: draft.recipients.map((c) => ({
+        customerId: c.id,
+        customerName: c.name,
+        contactEmail: c.contactEmail,
+        status: "sent" as const,
+      })),
+    };
+    setCampaigns((prev) => [campaign, ...prev]);
+    setExpandedCampaign((prev) => ({ ...prev, [campaign.id]: false }));
+    toast.success(`Kampanje sendt til ${draft.recipients.length} kunder`, {
+      description: draft.name,
+    });
+  };
+
   const filtered = ITEMS.filter(i => {
     if (filter === "all") return true;
     if (filter === "in") return i.kind === "in";
@@ -199,11 +243,12 @@ export default function MSPMessages() {
     if (filter === "pending") return i.status === "pending";
     if (filter === "accepted") return i.status === "accepted";
     if (filter === "rejected") return i.status === "rejected";
+    if (filter === "campaigns") return false; // kampanjer rendres separat
     return true;
   });
 
-  const today = filtered.filter(i => i.group === "today");
-  const earlier = filtered.filter(i => i.group === "earlier");
+  const today = filter === "campaigns" ? [] : filtered.filter(i => i.group === "today");
+  const earlier = filter === "campaigns" ? [] : filtered.filter(i => i.group === "earlier");
 
   const stats = {
     pending: ITEMS.filter(i => i.status === "pending").length,
@@ -219,6 +264,7 @@ export default function MSPMessages() {
     { value: "pending", label: "Tilbud venter", count: stats.pending },
     { value: "accepted", label: "Akseptert", count: stats.accepted },
     { value: "rejected", label: "Avvist", count: stats.rejected },
+    { value: "campaigns", label: "Kampanjer", icon: Megaphone, count: campaigns.length },
   ];
 
   return (
@@ -226,11 +272,17 @@ export default function MSPMessages() {
       <Sidebar />
       <main className="flex-1 pt-16">
         <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground">Innboks på tvers av kunder</h1>
-            <p className="text-[13px] text-muted-foreground mt-1">
-              Tilbud, svar og meldinger fra alle dine kunder samlet på ett sted.
-            </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-foreground">Innboks på tvers av kunder</h1>
+              <p className="text-[13px] text-muted-foreground mt-1">
+                Tilbud, svar og meldinger fra alle dine kunder samlet på ett sted.
+              </p>
+            </div>
+            <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setWizardOpen(true)}>
+              <Megaphone className="h-3.5 w-3.5" />
+              Ny kampanje
+            </Button>
           </div>
 
           {/* Lara banner */}
@@ -295,11 +347,31 @@ export default function MSPMessages() {
 
           {/* List */}
           <Card className="overflow-hidden">
+            {campaigns.length > 0 && (filter === "all" || filter === "campaigns" || filter === "out") && (
+              <>
+                <GroupHeader label="Kampanjer" />
+                {campaigns.map((c) => (
+                  <CampaignRow
+                    key={c.id}
+                    campaign={c}
+                    expanded={!!expandedCampaign[c.id]}
+                    onToggle={() =>
+                      setExpandedCampaign((prev) => ({ ...prev, [c.id]: !prev[c.id] }))
+                    }
+                  />
+                ))}
+              </>
+            )}
             {today.length > 0 && <GroupHeader label="I dag" />}
             {today.map(item => <Row key={item.id} item={item} />)}
             {earlier.length > 0 && <GroupHeader label="Tidligere" />}
             {earlier.map(item => <Row key={item.id} item={item} />)}
-            {filtered.length === 0 && (
+            {filter === "campaigns" && campaigns.length === 0 && (
+              <div className="py-12 text-center text-sm text-muted-foreground">
+                Ingen kampanjer sendt ennå. Klikk «Ny kampanje» for å starte.
+              </div>
+            )}
+            {filter !== "campaigns" && filtered.length === 0 && (
               <div className="py-12 text-center text-sm text-muted-foreground">
                 Ingen meldinger i denne visningen.
               </div>
@@ -307,6 +379,12 @@ export default function MSPMessages() {
           </Card>
         </div>
       </main>
+
+      <CampaignWizardDialog
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onSend={handleCampaignSend}
+      />
 
       <Dialog open={proposalsOpen} onOpenChange={setProposalsOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
@@ -458,6 +536,98 @@ function Row({ item }: { item: InboxItem }) {
               {item.laraSuggestion.secondary}
             </button>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CampaignRow({
+  campaign,
+  expanded,
+  onToggle,
+}: {
+  campaign: SentCampaign;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const kindLabel =
+    campaign.kind === "offer" ? "Tilbud" : campaign.kind === "reminder" ? "Påminnelse" : "Melding";
+  const sentLabel = campaign.sentAt.toLocaleString("nb-NO", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const respondedCount = campaign.recipients.filter(
+    (r) => r.status === "accepted" || r.status === "rejected",
+  ).length;
+  return (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors text-left"
+      >
+        <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <Megaphone className="h-3.5 w-3.5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-foreground">
+            <span className="font-semibold">{campaign.name}</span>
+            <span className="text-muted-foreground"> · {kindLabel} · sendt {sentLabel}</span>
+          </p>
+          <p className="text-[12px] text-muted-foreground truncate flex items-center gap-1.5">
+            <Users className="h-3 w-3" />
+            {campaign.recipients.length} mottaker{campaign.recipients.length === 1 ? "" : "e"}
+            {" · "}
+            {respondedCount} svar
+          </p>
+        </div>
+        <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30">
+          Kampanje
+        </Badge>
+        {expanded ? (
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        )}
+      </button>
+      {expanded && (
+        <div className="bg-muted/20 border-t border-border px-4 py-2 space-y-1">
+          {campaign.recipients.map((r) => (
+            <div
+              key={r.customerId}
+              className="flex items-center gap-2 text-[12px] text-foreground py-1"
+            >
+              <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
+              <span className="font-medium">{r.customerName}</span>
+              {r.contactEmail && (
+                <span className="text-muted-foreground">· {r.contactEmail}</span>
+              )}
+              <Badge
+                variant="outline"
+                className={cn(
+                  "ml-auto text-[10px]",
+                  r.status === "accepted"
+                    ? "bg-success/10 text-success border-success/30"
+                    : r.status === "rejected"
+                      ? "bg-muted text-muted-foreground"
+                      : r.status === "opened"
+                        ? "bg-primary/10 text-primary border-primary/30"
+                        : "bg-warning/10 text-warning border-warning/30",
+                )}
+              >
+                {r.status === "sent"
+                  ? "Sendt"
+                  : r.status === "opened"
+                    ? "Åpnet"
+                    : r.status === "accepted"
+                      ? "Akseptert"
+                      : "Avvist"}
+              </Badge>
+            </div>
+          ))}
         </div>
       )}
     </div>
