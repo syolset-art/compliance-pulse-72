@@ -42,9 +42,17 @@ export function OrganizationSwitcher() {
             <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
               <Building2 className="h-3.5 w-3.5 text-primary" />
             </div>
-            <span className="text-sm font-medium text-sidebar-foreground truncate">
-              {activeOrg.name}
-            </span>
+            <div className="min-w-0 flex-1 text-left">
+              <div className="text-sm font-medium text-sidebar-foreground truncate">
+                {activeOrg.name}
+              </div>
+              {partner?.hasPartner && partner.partnerName && (
+                <div className="flex items-center gap-1 mt-0.5 text-[11px] text-sidebar-foreground/60 truncate">
+                  <Handshake className="h-2.5 w-2.5 flex-shrink-0" />
+                  <span className="truncate">Adm. av {partner.partnerName}</span>
+                </div>
+              )}
+            </div>
           </div>
           <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/50 transition-transform flex-shrink-0", listOpen && "rotate-180")} />
         </button>
