@@ -490,6 +490,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         )}
       </div>
 
+      </>
+      )}
       {!hidePartner && (
       <>
       {/* Partner / leveransepartner */}
