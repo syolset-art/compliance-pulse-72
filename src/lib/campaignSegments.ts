@@ -110,6 +110,13 @@ export const CAMPAIGN_SEGMENTS: CampaignSegment[] = [
 
   // Aktivitet
   {
+    id: "trust-profile-not-claimed",
+    label: "Har ikke overtatt Trust-profil",
+    description: "Kunder hvor dere administrerer profilen, men kunden ikke har claimet den selv ennå.",
+    category: "activity",
+    predicate: (c) => c.trustProfileStatus !== "complete",
+  },
+  {
     id: "trust-profile-incomplete",
     label: "Aktiverte Trust-profil men ikke fullført",
     description: "Kunder som har startet, men ikke fullført, sin Trust-profil.",

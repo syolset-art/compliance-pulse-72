@@ -70,7 +70,7 @@ type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected" | "camp
 interface SentCampaign {
   id: string;
   name: string;
-  kind: "message" | "offer" | "reminder";
+  kind: "message" | "offer" | "reminder" | "claim";
   subject: string;
   body: string;
   sentAt: Date;
