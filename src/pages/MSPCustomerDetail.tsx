@@ -94,13 +94,17 @@ export default function MSPCustomerDetail() {
       cta: "Inviter kunde",
       onClick: () => {},
     },
-  ].filter(Boolean) as Array<{ severity: string; title: string; desc: string; cta: string; onClick: () => void }>;
+  ].filter(Boolean) as Array<{ severity: "critical" | "high" | "medium"; title: string; desc: string; cta: string; onClick: () => void }>;
 
-  const sevColor: Record<string, string> = {
-    critical: "bg-destructive/10 text-destructive border-destructive/30",
-    high: "bg-warning/10 text-warning border-warning/30",
-    medium: "bg-primary/10 text-primary border-primary/30",
-  };
+  const planTasks: LaraPlanTask[] = tasks.map((t, i) => ({
+    id: `msp-task-${i}-${t.title}`,
+    severity: t.severity,
+    title: t.title,
+    insight: t.desc,
+    primaryCtaLabelNb: t.cta,
+    primaryCtaLabelEn: t.cta,
+  }));
+  const criticalCount = planTasks.filter(t => t.severity === "critical").length;
 
   return (
     <div className="flex min-h-screen w-full bg-background">
