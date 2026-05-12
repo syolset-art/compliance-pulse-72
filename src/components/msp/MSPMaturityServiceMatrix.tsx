@@ -292,9 +292,28 @@ export function MSPMaturityServiceMatrix() {
                     </div>
                     <p className="text-[12px] text-muted-foreground leading-snug">{d.highlightOffer.desc}</p>
                     <div className="flex flex-wrap gap-2 pt-1">
-                      <Button size="sm" className="h-7 text-xs">{d.highlightOffer.primaryCta}</Button>
+                      <Button
+                        size="sm"
+                        className="h-7 text-xs gap-1"
+                        onClick={() => openOffer({
+                          domainName: d.name,
+                          serviceTitle: d.highlightOffer!.title,
+                          variant: d.highlightOffer!.primaryCta.toLowerCase().includes("co-delivery") ? "Co-delivery" : "Full leveranse",
+                        })}
+                      >
+                        <Send className="h-3 w-3" /> Lag tilbud — {d.highlightOffer.primaryCta.replace(/^Tilby\s*/i, "")}
+                      </Button>
                       {d.highlightOffer.secondaryCta && (
-                        <Button size="sm" variant="outline" className="h-7 text-xs gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs gap-1"
+                          onClick={() => openOffer({
+                            domainName: d.name,
+                            serviceTitle: d.highlightOffer!.title,
+                            variant: d.highlightOffer!.secondaryCta!.toLowerCase().includes("co-delivery") ? "Co-delivery" : "Tjeneste",
+                          })}
+                        >
                           {d.highlightOffer.secondaryCta.includes("Send") && <Send className="h-3 w-3" />}
                           {d.highlightOffer.secondaryCta}
                         </Button>
