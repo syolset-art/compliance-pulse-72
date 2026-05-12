@@ -71,7 +71,18 @@ const FRAMDRIFT: LaraScanResult = {
   },
   dataStorage: {
     regions: ["EU/EØS (Norge, Irland)"],
-    subProcessors: ["Microsoft 365", "HubSpot", "Fiken (regnskap)"],
+    subProcessors: [
+      "Microsoft 365 (e-post, dokumenter, Teams)",
+      "Microsoft Azure (hosting, EU-region)",
+      "HubSpot (CRM og markedsføring)",
+      "Fiken (regnskap)",
+      "Tripletex (timeføring)",
+      "Slack (intern kommunikasjon)",
+      "Zoom (videomøter med kunder)",
+      "Google Workspace (analyse og samarbeid)",
+      "Mailchimp (nyhetsbrev)",
+      "Stripe (betaling)",
+    ],
   },
   documents: [
     { title: "Personvernerklæring", url: "https://framdrift.no/personvern", type: "privacy_policy" },
@@ -83,7 +94,7 @@ const FRAMDRIFT: LaraScanResult = {
     { key: "privacy", label: "Personvernerklæring funnet", source: "/personvern" },
     { key: "contact", label: "Kontaktpersoner identifisert", detail: "Daglig leder og personvernkontakt" },
     { key: "security", label: "Sikkerhetstiltak nevnt på nettsiden", detail: "MFA, kryptering, Microsoft 365" },
-    { key: "subproc", label: "Underleverandører oppdaget", detail: "3 stk i tjenestebeskrivelser" },
+    { key: "subproc", label: "Underleverandører oppdaget", detail: "10 stk identifisert i tjenestebeskrivelser og personvernerklæring" },
     { key: "docs", label: "3 dokumenter foreslått til Trust Profile" },
   ],
 };
@@ -106,7 +117,7 @@ const GENERIC: LaraScanResult = {
   },
   dataStorage: {
     regions: ["EU/EØS"],
-    subProcessors: ["Microsoft 365"],
+    subProcessors: ["Microsoft 365", "Microsoft Azure", "Google Workspace", "HubSpot", "Slack", "Zoom"],
   },
   documents: [
     { title: "Personvernerklæring", url: "https://example.no/personvern", type: "privacy_policy" },

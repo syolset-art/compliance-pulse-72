@@ -711,6 +711,9 @@ function ConfirmStep(props: any) {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between"><Label>Sub-processors (kommaseparert)</Label><LaraBadge /></div>
           <Input value={props.subProcessors} onChange={(e) => props.setSubProcessors(e.target.value)} />
+          <p className="text-xs text-muted-foreground">
+            Lara har funnet disse fra hjemmesiden og personvernerklæringen din. Mangler noen? Du kan legge til flere senere fra Trust Profile under «Underleverandører».
+          </p>
         </div>
       </FieldGroup>
     </div>
