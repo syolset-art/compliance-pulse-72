@@ -268,8 +268,13 @@ export function MSPMaturityServiceMatrix() {
                             <span className="text-[13px] font-medium text-foreground">{s.title}</span>
                           </div>
                           <p className="text-[12px] text-muted-foreground leading-snug">{s.desc}</p>
-                          <Button size="sm" variant="outline" className="h-7 text-xs">
-                            Tilby kunde
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs gap-1"
+                            onClick={() => openOffer({ domainName: d.name, serviceTitle: s.title, variant: "Tjeneste" })}
+                          >
+                            <Send className="h-3 w-3" /> Lag tilbud
                           </Button>
                         </div>
                       );
