@@ -128,11 +128,15 @@ const GENERIC: LaraScanResult = {
     { title: "Personvernerklæring", url: "https://example.no/personvern", type: "privacy_policy" },
   ],
   findings: [
-    { key: "desc", label: "Generell virksomhetsbeskrivelse" },
-    { key: "privacy", label: "Personvernerklæring funnet" },
-    { key: "contact", label: "Kontaktinformasjon hentet" },
-    { key: "security", label: "Standard sikkerhetstiltak identifisert" },
-    { key: "docs", label: "1 dokument foreslått" },
+    { key: "desc", label: "Generell virksomhetsbeskrivelse", status: "found" },
+    { key: "contact", label: "Kontaktinformasjon hentet", status: "found" },
+    { key: "privacy", label: "Personvernerklæring funnet", status: "found" },
+    { key: "security", label: "Standard sikkerhetstiltak identifisert", status: "found" },
+    { key: "subproc", label: "Underleverandører oppdaget", detail: "6 stk fra tjenestebeskrivelser", status: "found" },
+    { key: "dpa", label: "Databehandleravtale ikke funnet", detail: "Vi foreslår å laste opp en mal i Trust Profile", status: "missing" },
+    { key: "certs", label: "Sertifikater ikke funnet", detail: "Ingen ISO 27001/SOC 2 publisert på nettsiden", status: "missing" },
+    { key: "secpolicy", label: "Informasjonssikkerhetspolicy ikke funnet", detail: "Anbefales å publisere eller laste opp", status: "missing" },
+    { key: "docs", label: "1 dokument klart til Trust Profile", detail: "Personvernerklæring", status: "info" },
   ],
 };
 
