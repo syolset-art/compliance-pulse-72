@@ -177,27 +177,41 @@ const ONGOING: OngoingItem[] = [
   },
 ];
 
+interface ChecklistItem {
+  id: string;
+  label: string;
+  done: boolean;
+}
+
 interface DeliveryItem {
   id: string;
   title: string;
   meta: string;
-  status: "active" | "completed";
-  progress?: number;
+  serviceId?: string;
+  checklist: ChecklistItem[];
 }
+
+const buildChecklist = (items: string[], doneCount = 0): ChecklistItem[] =>
+  items.map((label, i) => ({
+    id: `c${i}`,
+    label,
+    done: i < doneCount,
+  }));
 
 const DELIVERIES: DeliveryItem[] = [
   {
     id: "d1",
     title: "Awareness-program 2025",
     meta: "Løpende leveranse · Neste kampanje 20. mai",
-    status: "active",
-    progress: 45,
+    serviceId: "awareness",
+    checklist: buildChecklist(getService("awareness")!.defaultChecklist, 2),
   },
   {
     id: "d2",
     title: "Penetrasjonstest – Q1 2025",
     meta: "Levert 14. mars · Rapport sendt til Truls",
-    status: "completed",
+    serviceId: "pentest",
+    checklist: buildChecklist(getService("pentest")!.defaultChecklist, 5),
   },
 ];
 
