@@ -24,6 +24,7 @@ export interface LaraScanResult {
     cisoName?: string;
     cisoEmail?: string;
     supportEmail?: string;
+    securityEmail?: string;
   };
   privacy: {
     policyUrl?: string;
