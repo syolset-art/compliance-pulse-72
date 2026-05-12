@@ -724,7 +724,7 @@ function ConfirmStep(props: any) {
             <span className="font-semibold">For mindre selskaper</span> er det helt vanlig at samme person dekker både personvern og sikkerhet — bruk gjerne samme e-post. <span className="font-semibold">DPO-pliktige virksomheter</span> må ha personvernombud som er uavhengig av daglig ledelse.
           </p>
         </div>
-
+      </FieldGroup>
     </div>
   );
 }
