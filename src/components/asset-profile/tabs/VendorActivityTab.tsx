@@ -25,6 +25,12 @@ interface VendorActivityTabProps {
   enrichmentPercent?: number;
   externalActivities?: VendorActivity[];
   onActivityAdded?: (activity: VendorActivity) => void;
+  /**
+   * MSP partner view: anonymizes customer-side actors so the partner sees
+   * only their own actions named, while customer actions appear as a generic
+   * "Kunde" with role preserved.
+   */
+  mspPartnerView?: boolean;
 }
 
 const ACTIVITY_ICONS = {
