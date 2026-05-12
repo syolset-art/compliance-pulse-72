@@ -148,12 +148,30 @@ export function VendorLaraInsightsPanel({
     return list.sort((a, b) => order.indexOf(a.severity) - order.indexOf(b.severity));
   }, [vendors, expiredDocVendorIds, pendingInboxVendorIds]);
 
-  if (dismissed || tasks.length === 0) return null;
+  // Filter out tasks that are snoozed or dismissed by the user
+  const visibleTasks = useMemo(
+    () => tasks.filter(t => !hiddenKeys.has(t.id)),
+    [tasks, hiddenKeys]
+  );
 
-  const criticalCount = tasks.filter((t) => t.severity === "critical").length;
-  const total = tasks.length;
+  if (visibleTasks.length === 0) return null;
+
+  const criticalCount = visibleTasks.filter((t) => t.severity === "critical").length;
+  const total = visibleTasks.length;
   const topCount = Math.min(3, total);
-  const current = tasks[Math.min(index, topCount - 1)];
+  const safeIndex = Math.min(index, topCount - 1);
+  const current = visibleTasks[safeIndex];
+
+  const handleSnooze = () => {
+    snooze({ key: current.id, snapshot: snapshotFor(current) });
+    toast.success("Utsatt 7 dager — du finner det igjen i Lara-innboksen.");
+  };
+
+  const handleDismiss = () => {
+    dismiss({ key: current.id, snapshot: snapshotFor(current) });
+    toast.success("Avvist — du kan hente det tilbake i Lara-innboksen.");
+  };
+
 
   // Compact banner
   if (!expanded) {
