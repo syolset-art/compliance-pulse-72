@@ -45,9 +45,18 @@ interface BrregResult {
   forretningsadresse?: { kommune: string; poststed: string };
 }
 
-type Step = "method" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success";
+type Step = "method" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success";
 
 const STEP_LABELS = ["method", "search", "contact", "assessment", "gap", "confirm"];
+
+interface BulkRow {
+  org_number: string;
+  customer_name: string;
+  contact_person?: string;
+  contact_email?: string;
+  status: "ok" | "duplicate" | "invalid";
+  reason?: string;
+}
 
 export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCustomerDialogProps) {
   const { user } = useAuth();
