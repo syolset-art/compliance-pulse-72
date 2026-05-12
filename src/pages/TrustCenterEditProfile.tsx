@@ -239,12 +239,12 @@ const TrustCenterEditProfile = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground">
-                      {isNb ? "Lara har en anbefaling til deg" : "Lara has a recommendation for you"}
+                      {isNb ? "Lara anbefaler å fylle ut mer informasjon" : "Lara recommends adding more information"}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {isNb
-                        ? "Du har 13 oppgaver som krever oppmerksomhet, hvorav 8 er kritiske. Vil du starte en gjennomgang?"
-                        : "You have 13 tasks that need attention, 8 of them critical. Want to start a review?"}
+                        ? "Noen områder mangler innhold som styrker Trust-profilen før publisering."
+                        : "Some areas are missing content that will strengthen the Trust profile before publishing."}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -252,7 +252,7 @@ const TrustCenterEditProfile = () => {
                       size="sm"
                       onClick={() => document.querySelector("#company")?.scrollIntoView({ behavior: "smooth" })}
                     >
-                      {isNb ? "Vis plan" : "Show plan"}
+                      {isNb ? "Vis hvilke" : "Show which"}
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => setShowLaraRec(false)}>
                       {isNb ? "Ikke nå" : "Not now"}
