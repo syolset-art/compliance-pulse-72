@@ -175,6 +175,9 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="trust-profile" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Kundens Trust Profile
                 </TabsTrigger>
+                <TabsTrigger value="messages" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
+                  Meldinger
+                </TabsTrigger>
               </TabsList>
             </nav>
 
