@@ -18,6 +18,11 @@ import { cn } from "@/lib/utils";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 
+interface TaskEstimate {
+  label: string;
+  hours: number;
+}
+
 interface Recommendation {
   id: string;
   icon: any;
@@ -28,7 +33,10 @@ interface Recommendation {
   frameworkId?: string;
   /** Antall åpne gap (vises på "Vis gap"-knapp). */
   openGaps?: number;
-  ctas: { label: string; variant: "default" | "outline"; deliveryVariant: "Full leveranse" | "Co-delivery" | "Tjeneste" }[];
+  /** Forslag til tiltak med estimerte timer. */
+  tasks: TaskEstimate[];
+  /** Timepris i NOK brukt til total-beregning. */
+  hourlyRate: number;
 }
 
 interface OngoingItem {
@@ -37,6 +45,8 @@ interface OngoingItem {
   status: "pending" | "accepted";
   meta: string;
 }
+
+const HOURLY_RATE = 1500;
 
 const RECOMMENDATIONS: Recommendation[] = [
   {
@@ -47,9 +57,13 @@ const RECOMMENDATIONS: Recommendation[] = [
     urgent: true,
     frameworkId: "nis2",
     openGaps: 7,
-    ctas: [
-      { label: "Tilby full leveranse", variant: "default", deliveryVariant: "Full leveranse" },
-      { label: "Tilby co-delivery", variant: "outline", deliveryVariant: "Co-delivery" },
+    hourlyRate: HOURLY_RATE,
+    tasks: [
+      { label: "Gap-analyse mot NIS2-kravene", hours: 24 },
+      { label: "Risiko- og sårbarhetsvurdering", hours: 32 },
+      { label: "Policy- og dokumentpakke", hours: 28 },
+      { label: "Hendelsesrapporteringsrutiner", hours: 20 },
+      { label: "Ledelsesgjennomgang og opplæring", hours: 16 },
     ],
   },
   {
@@ -59,9 +73,12 @@ const RECOMMENDATIONS: Recommendation[] = [
     desc: "Kunden har ikke startet på AI-styring. Kartlegging av AI-bruk, klassifisering og policy-oppsett.",
     frameworkId: "aiact",
     openGaps: 4,
-    ctas: [
-      { label: "Tilby full leveranse", variant: "default", deliveryVariant: "Full leveranse" },
-      { label: "Tilby co-delivery", variant: "outline", deliveryVariant: "Co-delivery" },
+    hourlyRate: HOURLY_RATE,
+    tasks: [
+      { label: "Kartlegging av AI-bruk og systemregister", hours: 16 },
+      { label: "Risikoklassifisering av AI-systemer", hours: 20 },
+      { label: "AI-styring og policy-oppsett", hours: 24 },
+      { label: "Rutiner for menneskelig tilsyn", hours: 12 },
     ],
   },
   {
@@ -71,8 +88,11 @@ const RECOMMENDATIONS: Recommendation[] = [
     desc: "Årlig ekstern test av applikasjoner og infrastruktur. Underbygger ISO- og NIS2-arbeidet.",
     frameworkId: "iso27001",
     openGaps: 6,
-    ctas: [
-      { label: "Tilby leveranse", variant: "default", deliveryVariant: "Tjeneste" },
+    hourlyRate: HOURLY_RATE,
+    tasks: [
+      { label: "Scoping og forberedelse", hours: 8 },
+      { label: "Ekstern penetrasjonstest", hours: 40 },
+      { label: "Rapport og gjennomgang med kunde", hours: 12 },
     ],
   },
 ];
