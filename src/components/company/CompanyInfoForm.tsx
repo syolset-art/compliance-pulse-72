@@ -504,6 +504,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
               <Switch
                 checked={form.managed_by_partner}
                 onCheckedChange={(v) => update("managed_by_partner", v as any)}
+                className="data-[state=checked]:bg-primary"
               />
             </div>
           )}
