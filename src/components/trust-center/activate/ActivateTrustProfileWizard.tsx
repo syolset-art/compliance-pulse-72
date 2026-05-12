@@ -162,7 +162,6 @@ export default function ActivateTrustProfileWizard({
     setOrgNumber(orgnr);
     setCompanyName(navn);
     setVerified(true);
-    setWebsiteVerified(false);
     const result = await lookupByOrgNumber(orgnr);
     // Always auto-derive a website guess so user can verify
     const slug = navn.toLowerCase()
@@ -173,6 +172,8 @@ export default function ActivateTrustProfileWizard({
     if (slug) {
       setWebsite(`https://${slug}.no`);
     }
+    // Pre-mark Lara's suggestion as verified so user can click Fortsett right away.
+    setWebsiteVerified(true);
   };
 
   const canNext = useMemo(() => {
