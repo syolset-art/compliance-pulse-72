@@ -305,26 +305,17 @@ function FrameworkBlock({ f }: { f: FrameworkGap }) {
           Ingen gap matcher søket
         </div>
       ) : (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {f.gaps.map(g => {
             const sev = SEVERITY_STYLES[g.severity];
+            const dotColor = g.severity === "critical" ? "bg-destructive" : g.severity === "high" ? "bg-warning" : "bg-muted-foreground/50";
             return (
-              <div key={g.id} className={cn("rounded-md border p-3 space-y-1", sev.bg)}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-foreground">{g.title}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{g.domain}</p>
-                  </div>
-                  <Badge variant="outline" className={cn("text-[10px] gap-1 shrink-0", sev.text, sev.bg)}>
-                    {sev.icon}
-                    {sev.label}
-                  </Badge>
+              <div key={g.id} className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 hover:bg-muted/40">
+                <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", dotColor)} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] text-foreground truncate">{g.title}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{g.domain} · {sev.label}</p>
                 </div>
-                {g.recommendation && (
-                  <p className="text-[12px] text-muted-foreground leading-snug pt-1 border-t border-border/40">
-                    💡 {g.recommendation}
-                  </p>
-                )}
               </div>
             );
           })}
