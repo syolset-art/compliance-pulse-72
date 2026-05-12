@@ -92,12 +92,13 @@ export function deriveDefaultAnswers(scan: {
   if (!scan) return answers;
 
   if (scan.privacy?.policyUrl) answers["gov.privacy_policy"] = "yes";
-  if (scan.security?.encryption) answers["ops.encryption"] = "yes";
-  if (scan.security?.mfa) answers["ops.mfa"] = "yes";
+  // Drift og sikkerhet: Lara skal ikke gjette basert på generelle nettside-omtaler.
+  // ops.encryption / ops.mfa forblir "later" og settes kun via faktiske bevis
+  // (Regelverk-data eller offentlig verifiserbare kilder som ISO-sertifikat).
   if ((scan.dataStorage?.subProcessors?.length ?? 0) > 0) answers["tp.inventory"] = "yes";
 
   const hasDpa = (scan.documents ?? []).some((d) => d.type === "dpa");
-  answers["tp.dpa"] = hasDpa ? "yes" : "no";
+  if (hasDpa) answers["tp.dpa"] = "yes";
 
   const hasSecPolicy = (scan.documents ?? []).some((d) => d.type === "policy");
   if (hasSecPolicy) answers["gov.internal_policy"] = "yes";
