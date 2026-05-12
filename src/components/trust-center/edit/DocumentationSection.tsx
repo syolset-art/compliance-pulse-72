@@ -141,8 +141,12 @@ export function DocumentationSection({ asset }: { asset: any }) {
                 </div>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-muted-foreground">Offentlig</span>
-                <Switch checked={doc.visibility === "visible"} onCheckedChange={() => togglePublic(doc)} />
+                <span className="text-xs text-muted-foreground">Vis på profil</span>
+                <Switch
+                  checked={doc.visibility === "visible"}
+                  onCheckedChange={() => togglePublic(doc)}
+                  className="data-[state=checked]:bg-primary"
+                />
               </div>
               <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => openDoc(doc)}>
                 <Eye className="h-3.5 w-3.5" /> Les
