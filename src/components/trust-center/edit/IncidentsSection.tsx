@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle } from "lucide-react";
 import { useAssetMetadata } from "./useAssetMetadata";
+import { LaraAutoFillBanner } from "./LaraAutoFillBanner";
 
 export function IncidentsSection({ asset }: { asset: any }) {
   const meta = (asset?.metadata || {}) as Record<string, any>;
@@ -14,9 +15,8 @@ export function IncidentsSection({ asset }: { asset: any }) {
         <AlertTriangle className="h-4 w-4 text-primary" />
         <h2 className="text-base font-semibold text-foreground">Hendelser og kontinuitet</h2>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Hva skjer når noe går galt — varsling, gjenoppretting og kontinuitet.
-      </p>
+
+      <LaraAutoFillBanner description="Lara henter hendelseshåndtering, varslingsrutiner og kontinuitetsplaner fra personvernerklæring, databehandleravtale og sikkerhetsdokumentasjon." />
 
       <Card className="p-5 space-y-4">
         <div className="space-y-1.5">
