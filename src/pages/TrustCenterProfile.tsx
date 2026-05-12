@@ -255,6 +255,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <ActivateTrustProfileWizard
                 inline
                 initialCompanyName={companyProfile?.name || undefined}
+                initialOrgNumber={companyProfile?.org_number || undefined}
+                initialDomain={(companyProfile as any)?.domain || undefined}
                 open={showActivateWizard}
                 onOpenChange={setShowActivateWizard}
                 onCompleted={() => {
