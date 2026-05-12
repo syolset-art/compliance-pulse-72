@@ -541,3 +541,95 @@ function Row({ item }: { item: InboxItem }) {
     </div>
   );
 }
+
+function CampaignRow({
+  campaign,
+  expanded,
+  onToggle,
+}: {
+  campaign: SentCampaign;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  const kindLabel =
+    campaign.kind === "offer" ? "Tilbud" : campaign.kind === "reminder" ? "Påminnelse" : "Melding";
+  const sentLabel = campaign.sentAt.toLocaleString("nb-NO", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const respondedCount = campaign.recipients.filter(
+    (r) => r.status === "accepted" || r.status === "rejected",
+  ).length;
+  return (
+    <div className="border-b border-border last:border-b-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors text-left"
+      >
+        <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <Megaphone className="h-3.5 w-3.5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm text-foreground">
+            <span className="font-semibold">{campaign.name}</span>
+            <span className="text-muted-foreground"> · {kindLabel} · sendt {sentLabel}</span>
+          </p>
+          <p className="text-[12px] text-muted-foreground truncate flex items-center gap-1.5">
+            <Users className="h-3 w-3" />
+            {campaign.recipients.length} mottaker{campaign.recipients.length === 1 ? "" : "e"}
+            {" · "}
+            {respondedCount} svar
+          </p>
+        </div>
+        <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30">
+          Kampanje
+        </Badge>
+        {expanded ? (
+          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        )}
+      </button>
+      {expanded && (
+        <div className="bg-muted/20 border-t border-border px-4 py-2 space-y-1">
+          {campaign.recipients.map((r) => (
+            <div
+              key={r.customerId}
+              className="flex items-center gap-2 text-[12px] text-foreground py-1"
+            >
+              <ArrowUpRight className="h-3 w-3 text-muted-foreground" />
+              <span className="font-medium">{r.customerName}</span>
+              {r.contactEmail && (
+                <span className="text-muted-foreground">· {r.contactEmail}</span>
+              )}
+              <Badge
+                variant="outline"
+                className={cn(
+                  "ml-auto text-[10px]",
+                  r.status === "accepted"
+                    ? "bg-success/10 text-success border-success/30"
+                    : r.status === "rejected"
+                      ? "bg-muted text-muted-foreground"
+                      : r.status === "opened"
+                        ? "bg-primary/10 text-primary border-primary/30"
+                        : "bg-warning/10 text-warning border-warning/30",
+                )}
+              >
+                {r.status === "sent"
+                  ? "Sendt"
+                  : r.status === "opened"
+                    ? "Åpnet"
+                    : r.status === "accepted"
+                      ? "Akseptert"
+                      : "Avvist"}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
