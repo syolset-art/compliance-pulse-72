@@ -76,6 +76,7 @@ import { EvidenceStatusBadge, deriveWorstStatus } from "@/components/trust-contr
 import type { EvidenceStatus } from "@/components/trust-controls/EvidenceStatusBadge";
 import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
 import ActivateTrustProfileWizard from "@/components/trust-center/activate/ActivateTrustProfileWizard";
+import { usePartnerInfo, PARTNER_TYPE_LABEL } from "@/hooks/usePartnerInfo";
 
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
