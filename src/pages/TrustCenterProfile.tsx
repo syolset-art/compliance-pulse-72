@@ -662,6 +662,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               )}
                             </div>
                           )}
+                          {r.missing && (
+                            <span className="text-xs text-muted-foreground italic shrink-0">
+                              {isNb ? "Ikke lagt til" : "Not added"}
+                            </span>
+                          )}
                         </div>
                       ))}
                     </div>
