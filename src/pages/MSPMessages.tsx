@@ -3,6 +3,16 @@ import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
   Sparkles,
@@ -12,8 +22,44 @@ import {
   XCircle,
   Clock,
   MessageSquare,
+  Mail,
+  Phone,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
+
+interface LaraProposal {
+  id: string;
+  customer: string;
+  title: string;
+  reason: string;
+  channel: "email" | "phone";
+  subject?: string;
+  body: string;
+}
+
+const LARA_PROPOSALS: LaraProposal[] = [
+  {
+    id: "p1",
+    customer: "Dintero AS",
+    title: "Vennlig påminnelse – NIS2-tilbud",
+    reason: "Truls åpnet tilbudet 7. mai, men har ikke svart på 8 dager.",
+    channel: "email",
+    subject: "Oppfølging: NIS2-klargjøring – tilbud sendt 4. mai",
+    body:
+      "Hei Truls,\n\nHåper alt vel. Jeg ville bare høre om du har hatt anledning til å se nærmere på tilbudet om NIS2-klargjøring jeg sendte 4. mai.\n\nSi gjerne fra om noe er uklart, eller om dere ønsker en kort gjennomgang før dere bestemmer dere.\n\nMvh\n[Ditt navn]",
+  },
+  {
+    id: "p2",
+    customer: "Catalystone Solutions",
+    title: "Følg opp ISO 27001-tilbud på telefon",
+    reason: "Tilbudet er over to uker gammelt. Påminnelse 7. mai uten respons.",
+    channel: "phone",
+    body:
+      "Forslag til samtale:\n• Bekreft at de mottok tilbudet (180 000 kr, sendt 28. april).\n• Spør om budsjett og tidsplan stemmer.\n• Avklar om vi skal justere omfang eller pris.\n• Foreslå konkret oppstartsdato.",
+  },
+];
 
 type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected";
 type ItemKind = "in" | "out";
@@ -128,6 +174,23 @@ function KindIcon({ kind, status, customer }: { kind: ItemKind; status: ItemStat
 export default function MSPMessages() {
   const [filter, setFilter] = useState<Filter>("all");
   const [dismissedBanner, setDismissedBanner] = useState(false);
+  const [proposalsOpen, setProposalsOpen] = useState(false);
+  const [selected, setSelected] = useState<Record<string, boolean>>(
+    Object.fromEntries(LARA_PROPOSALS.map(p => [p.id, true]))
+  );
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({ p1: true });
+  const [drafts, setDrafts] = useState<Record<string, string>>(
+    Object.fromEntries(LARA_PROPOSALS.map(p => [p.id, p.body]))
+  );
+
+  const selectedCount = Object.values(selected).filter(Boolean).length;
+
+  const handleSendAll = () => {
+    setProposalsOpen(false);
+    toast.success(`${selectedCount} påminnelse${selectedCount === 1 ? "" : "r"} sendt`, {
+      description: "Lara har lagt oppfølgingen i loggen.",
+    });
+  };
 
   const filtered = ITEMS.filter(i => {
     if (filter === "all") return true;
@@ -184,7 +247,7 @@ export default function MSPMessages() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Button size="sm" className="h-8" onClick={() => toast.success("Påminnelser sendt", { description: "2 påminnelser er sendt." })}>
+                  <Button size="sm" className="h-8" onClick={() => setProposalsOpen(true)}>
                     Vis forslag
                   </Button>
                   <button
@@ -244,6 +307,93 @@ export default function MSPMessages() {
           </Card>
         </div>
       </main>
+
+      <Dialog open={proposalsOpen} onOpenChange={setProposalsOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <DialogTitle className="text-base">Laras forslag til oppfølging</DialogTitle>
+            </div>
+            <DialogDescription className="text-[13px]">
+              Lara har laget utkast for {LARA_PROPOSALS.length} oppfølginger. Velg hvilke du vil sende, juster teksten, og send samlet.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto space-y-3 -mx-1 px-1">
+            {LARA_PROPOSALS.map(p => {
+              const isOpen = expanded[p.id];
+              const isChecked = !!selected[p.id];
+              const ChannelIcon = p.channel === "email" ? Mail : Phone;
+              return (
+                <Card key={p.id} className={cn("p-3 transition-colors", isChecked ? "border-primary/30" : "opacity-70")}>
+                  <div className="flex items-start gap-3">
+                    <Checkbox
+                      checked={isChecked}
+                      onCheckedChange={(v) => setSelected(s => ({ ...s, [p.id]: !!v }))}
+                      className="mt-0.5"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <ChannelIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                        <p className="text-sm font-semibold text-foreground">{p.title}</p>
+                        <Badge variant="outline" className="text-[10px]">{p.customer}</Badge>
+                      </div>
+                      <div className="flex items-start gap-1.5 mt-1.5">
+                        <Sparkles className="h-3 w-3 text-primary mt-0.5 shrink-0" />
+                        <p className="text-[12px] text-muted-foreground">
+                          <span className="font-medium text-foreground">Hvorfor:</span> {p.reason}
+                        </p>
+                      </div>
+
+                      {isOpen && (
+                        <div className="mt-3 space-y-2">
+                          {p.subject && (
+                            <div className="text-[12px]">
+                              <span className="text-muted-foreground">Emne: </span>
+                              <span className="font-medium text-foreground">{p.subject}</span>
+                            </div>
+                          )}
+                          <Textarea
+                            value={drafts[p.id]}
+                            onChange={(e) => setDrafts(d => ({ ...d, [p.id]: e.target.value }))}
+                            className="text-[12px] min-h-[140px] font-mono"
+                          />
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setExpanded(e => ({ ...e, [p.id]: !isOpen }))}
+                        className="mt-2 text-[12px] text-primary hover:underline flex items-center gap-1"
+                      >
+                        {isOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                        {isOpen ? "Skjul utkast" : "Vis og rediger utkast"}
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          <DialogFooter className="flex-row sm:justify-between items-center gap-2 border-t pt-3">
+            <p className="text-[12px] text-muted-foreground">
+              {selectedCount} av {LARA_PROPOSALS.length} valgt
+            </p>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={() => setProposalsOpen(false)}>
+                Avbryt
+              </Button>
+              <Button size="sm" disabled={selectedCount === 0} onClick={handleSendAll}>
+                Send {selectedCount > 0 ? `(${selectedCount})` : ""}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
