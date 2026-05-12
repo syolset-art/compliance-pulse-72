@@ -62,6 +62,7 @@ const TrustCenterEditProfile = () => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [showLaraRec, setShowLaraRec] = useState(true);
   const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
   usePageHelpListener(setHelpOpenCb);
 
