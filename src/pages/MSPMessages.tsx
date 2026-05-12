@@ -247,7 +247,7 @@ export default function MSPMessages() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Button size="sm" className="h-8" onClick={() => toast.success("Påminnelser sendt", { description: "2 påminnelser er sendt." })}>
+                  <Button size="sm" className="h-8" onClick={() => setProposalsOpen(true)}>
                     Vis forslag
                   </Button>
                   <button
