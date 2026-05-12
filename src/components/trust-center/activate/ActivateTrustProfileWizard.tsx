@@ -212,10 +212,31 @@ export default function ActivateTrustProfileWizard({
     if (step === 2) return revealed >= (scan?.findings.length ?? 0) && scan != null;
     if (step === 3) return description.trim().length > 0;
     return true;
-  }, [step, companyName, orgNumber, website, revealed, scan, description]);
+  }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => setStep((s) => (Math.min(4, s + 1) as Step));
+  const next = () => setStep((s) => (Math.min(6, s + 1) as Step));
   const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
+
+  const updateMaturity = (id: string, answer: MaturityAnswer) => {
+    setMaturityAnswers((prev) => ({ ...prev, [id]: answer }));
+  };
+
+  const uploadDocument = (slotId: string, fileName: string) => {
+    setDocuments((prev) => {
+      const slot = DOCUMENT_SLOTS.find((s) => s.id === slotId);
+      const next = prev.filter((d) => d.slot !== slotId);
+      next.push({ slot: slotId, title: slot?.title || slotId, status: "uploaded", fileName });
+      return next;
+    });
+    const slot = DOCUMENT_SLOTS.find((s) => s.id === slotId);
+    if (slot?.resolvesQuestion) {
+      const current = maturityAnswers[slot.resolvesQuestion];
+      if (current !== "yes") {
+        setMaturityAnswers((prev) => ({ ...prev, [slot.resolvesQuestion!]: "yes" }));
+        toast.success("Lara oppdaterte svaret i Modenhet-steget");
+      }
+    }
+  };
 
   const handlePublish = async (publishNow: boolean) => {
     setIsPublishing(true);
