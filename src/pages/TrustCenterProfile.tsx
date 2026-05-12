@@ -844,8 +844,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     </p>
                     <p className="text-sm text-muted-foreground mt-0.5">
                       {isNb
-                        ? "Trust Profilen din er ikke aktivert ennå. La Lara hente offentlig informasjon og sette opp profilen for deg."
-                        : "Your Trust Profile is not activated yet. Let Lara fetch public information and set up the profile for you."}
+                        ? "Trust Profilen din er ikke aktivert ennå. La Lara kombinere offentlig informasjon med det du allerede har lagt inn i Mynder, og sette opp profilen for deg."
+                        : "Your Trust Profile is not activated yet. Let Lara combine public information with what you already have in Mynder to set up the profile for you."}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
