@@ -36,6 +36,8 @@ interface Props {
   initialOrgNumber?: string;
   /** Pre-known domain/website. Used as the website suggestion to verify. */
   initialDomain?: string;
+  /** Existing maturity answers from prior work in Regelverk module. Merged over Lara defaults. */
+  initialMaturity?: MaturityAnswers;
 }
 
 type Step = 0 | 1 | 2 | 3 | 4 | 5;
