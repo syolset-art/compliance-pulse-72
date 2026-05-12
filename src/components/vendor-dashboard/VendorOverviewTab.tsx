@@ -30,7 +30,7 @@ import {
   Tooltip,
 } from "recharts";
 import { VendorActionCards } from "./VendorActionCards";
-import { DashboardLaraRecommendation } from "@/components/dashboard/DashboardLaraRecommendation";
+import { VendorLaraInsightsPanel } from "./VendorLaraInsightsPanel";
 import { BulkSendConfirmDialog } from "./BulkSendConfirmDialog";
 import { toast } from "sonner";
 
@@ -218,8 +218,18 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
   return (
     <div className="space-y-6">
 
-      {/* Lara recommendation — same component as main dashboard */}
-      <DashboardLaraRecommendation />
+      {/* Lara dashboard insights — prioritized recommendations */}
+      <VendorLaraInsightsPanel
+        vendors={vendors}
+        expiredDocVendorIds={Object.keys(expiredCounts).filter((id) => vendors.some((v) => v.id === id))}
+        pendingInboxVendorIds={Object.keys(inboxCounts).filter((id) => vendors.some((v) => v.id === id))}
+        onSendRequest={(vendorIds, requestType, categoryKey) => {
+          setPreselectedVendorIds(vendorIds);
+          setPreselectedRequestType(requestType);
+          setPreselectedCategoryKey(categoryKey);
+          setRequestWizardOpen(true);
+        }}
+      />
 
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
