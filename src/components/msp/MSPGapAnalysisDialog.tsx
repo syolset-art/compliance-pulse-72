@@ -137,6 +137,11 @@ export function MSPGapAnalysisDialog({
   const [active, setActive] = useState<string>(initialFrameworkId || "all");
   const [search, setSearch] = useState("");
 
+  // Re-sync når dialogen åpnes med ny framework-kontekst
+  useEffect(() => {
+    if (open) setActive(initialFrameworkId || "all");
+  }, [open, initialFrameworkId]);
+
   const totalGaps = DEMO_GAPS.reduce((a, f) => a + f.gaps.length, 0);
   const criticalGaps = DEMO_GAPS.reduce((a, f) => a + f.gaps.filter(g => g.severity === "critical").length, 0);
   const avgScore = Math.round(DEMO_GAPS.reduce((a, f) => a + f.score, 0) / DEMO_GAPS.length);
