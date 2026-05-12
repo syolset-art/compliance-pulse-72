@@ -265,8 +265,6 @@ const TrustCenterEditProfile = () => {
                 { icon: Globe, label: isNb ? "Personvern" : "Privacy", anchor: "#privacy" },
                 { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
                 { icon: AlertTriangle, label: isNb ? "Hendelser" : "Incidents", anchor: "#incidents" },
-                { icon: Sparkles, label: isNb ? "AI og leverandører" : "AI & vendors", anchor: "#ai-vendors" },
-                { icon: Scale, label: isNb ? "Regelverk" : "Regulations", anchor: "#regulations" },
                 { icon: FileText, label: isNb ? "Dokumentasjon" : "Documentation", anchor: "#documentation" },
               ].map(tab => (
                 <button
@@ -308,163 +306,18 @@ const TrustCenterEditProfile = () => {
 
               <CompanyInfoForm defaultEditing showEditControls />
 
-              {/* Hva leverer din virksomhet? — merged section */}
-              <Card className="p-5 space-y-4">
-                <div className="flex items-center gap-2">
-                  <Package className="h-4 w-4 text-primary" />
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {isNb ? "Hva leverer din virksomhet?" : "What does your company deliver?"}
-                  </h3>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {isNb
-                    ? "Dette hjelper kunder og partnere forstå hva dere gjør. Informasjonen vises i din offentlige Trust Profile og brukes til å tilpasse kontrollspørsmål."
-                    : "This helps customers and partners understand what you do. The information is shown in your public Trust Profile and used to tailor control questions."}
-                </p>
-
-                {/* Service categories */}
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-foreground">
-                    {isNb ? "Type tjenester" : "Service type"}
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {SERVICE_CATEGORIES.map(cat => {
-                      const isSelected = selectedServiceCats.includes(cat.key);
-                      return (
-                        <Badge
-                          key={cat.key}
-                          variant={isSelected ? "default" : "outline"}
-                          className={`cursor-pointer text-xs transition-all ${isSelected ? "bg-primary text-primary-foreground ring-2 ring-primary/20" : "hover:bg-muted"}`}
-                          onClick={async () => {
-                            const newCats = isSelected
-                              ? selectedServiceCats.filter((k: string) => k !== cat.key)
-                              : [...selectedServiceCats, cat.key];
-                            const newMeta = { ...meta, service_categories: newCats };
-                            await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
-                            queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
-                            const label = isNb ? cat.labelNb : cat.labelEn;
-                            toast.success(isSelected
-                              ? (isNb ? `${label} fjernet` : `${label} removed`)
-                              : (isNb ? `${label} lagt til` : `${label} added`));
-                          }}
-                        >
-                          {isSelected && <Check className="h-3 w-3 mr-1" />}
-                          {isNb ? cat.labelNb : cat.labelEn}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                  </div>
-
-                  {/* Custom service type */}
-                  <div className="pt-2 space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      {isNb ? "Annen type? Skriv inn her" : "Other type? Enter here"}
-                    </label>
-                    <Input
-                      placeholder={isNb ? "F.eks. Managed Security Services" : "E.g. Managed Security Services"}
-                      defaultValue={customServiceType}
-                      className="text-sm"
-                      maxLength={100}
-                      onBlur={async (e) => {
-                        const val = e.target.value.trim();
-                        if (val !== customServiceType) {
-                          const newMeta = { ...meta, custom_service_type: val };
-                          await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
-                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
-                          if (val) toast.success(isNb ? "Egendefinert tjenestetype lagret" : "Custom service type saved");
-                        }
-                      }}
-                    />
-                  </div>
-
-                  {/* Service description */}
-                  <div className="pt-2 space-y-1.5">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      {isNb ? "Tilleggsinfo om tjenestene" : "Additional service info"}
-                    </label>
-                    <Textarea
-                      placeholder={isNb ? "Beskriv kort hva dere leverer og til hvem..." : "Briefly describe what you deliver and to whom..."}
-                      defaultValue={serviceDescription}
-                      className="text-sm min-h-[60px]"
-                      maxLength={500}
-                      onBlur={async (e) => {
-                        const val = e.target.value.trim();
-                        if (val !== serviceDescription) {
-                          const newMeta = { ...meta, service_description: val };
-                          await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
-                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
-                          if (val) toast.success(isNb ? "Tilleggsinfo lagret" : "Additional info saved");
-                        }
-                      }}
-                    />
-                  </div>
-
-                {/* Business areas */}
-                <div className="space-y-2 pt-2 border-t border-border">
-                  <label className="text-xs font-medium text-foreground">
-                    {isNb ? "Hvilke fagområder dekker dere?" : "Which domains do you cover?"}
-                  </label>
-                  <p className="text-[13px] text-muted-foreground">
-                    {isNb ? "Brukes til å vise relevante kontroller og regelverk." : "Used to show relevant controls and regulations."}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {BUSINESS_AREAS.map(area => {
-                      const isSelected = selectedAreas.includes(area);
-                      return (
-                        <Badge
-                          key={area}
-                          variant={isSelected ? "default" : "outline"}
-                          className={`cursor-pointer text-xs transition-all ${isSelected ? "bg-primary text-primary-foreground ring-2 ring-primary/20" : "hover:bg-muted"}`}
-                          onClick={async () => {
-                            const newAreas = isSelected
-                              ? selectedAreas.filter((a: string) => a !== area)
-                              : [...selectedAreas, area];
-                            const newMeta = { ...meta, business_areas: newAreas };
-                            await supabase.from("assets").update({ metadata: newMeta }).eq("id", asset.id);
-                            queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
-                            toast.success(isSelected
-                              ? (isNb ? `${area} fjernet` : `${area} removed`)
-                              : (isNb ? `${area} lagt til` : `${area} added`));
-                          }}
-                        >
-                          {isSelected && <Check className="h-3 w-3 mr-1" />}
-                          {area}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                </div>
-              </Card>
-
             </section>
-
-            {/* Compact link to Products & Services */}
-            <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-4">
-              <div className="flex items-center gap-3">
-                <Package className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-foreground">
-                    {isNb ? "Har du flere produkter eller tjenester?" : "Do you have additional products or services?"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {isNb ? "Du kan opprette egne Trust Profiler for disse — helt valgfritt." : "You can create separate Trust Profiles for these — completely optional."}
-                  </p>
-                </div>
-              </div>
-              <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={() => navigate("/trust-center/products")}>
-                {isNb ? "Se produkter og tjenester" : "Products & services"}
-                <ChevronDown className="h-3 w-3 -rotate-90" />
-              </Button>
-            </div>
 
             {/* NYE SEKSJONER */}
             <ContactsSection asset={asset} />
             <DataStorageSection asset={asset} />
             <PrivacySection asset={asset} />
 
+            {/* Sikkerhetstiltak i bruk — egen komponent */}
+            <SecurityDetailsCard asset={asset} />
+
             {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Sikkerhet og kontroller */}
+            {/* SECTION: Modenhet per kontrollområde */}
             {/* ═══════════════════════════════════════════ */}
             <section id="security" className="space-y-4">
               <div className="flex items-center justify-between">
@@ -476,9 +329,6 @@ const TrustCenterEditProfile = () => {
                 </div>
                 <span className="text-xs text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
               </div>
-
-              {/* Strukturerte sikkerhetstiltak */}
-              <SecurityDetailsCard asset={asset} />
 
               {/* Control areas */}
               <div className="space-y-2">
@@ -574,44 +424,6 @@ const TrustCenterEditProfile = () => {
 
             {/* Hendelser og kontinuitet */}
             <IncidentsSection asset={asset} />
-
-            {/* AI og leverandørstyring */}
-            <AIVendorsSection asset={asset} />
-
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Regelverk */}
-            {/* ═══════════════════════════════════════════ */}
-            <section id="regulations" className="space-y-4 scroll-mt-24">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Scale className="h-4 w-4 text-primary" />
-                  <h2 className="text-base font-semibold text-foreground">
-                    {isNb ? "Regelverk" : "Regulations"}
-                  </h2>
-                  <Badge variant={sectionCompleteness.regulations.done > 0 ? "action" : "secondary"} className="text-[13px]">
-                    {sectionCompleteness.regulations.done}/{sectionCompleteness.regulations.total}
-                  </Badge>
-                </div>
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/trust-center/regulations")}>
-                  <Settings2 className="h-4 w-4" />
-                  {isNb ? "Endre regelverk" : "Change regulations"}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {isNb
-                  ? "Regelverk og standarder virksomheten etterlever."
-                  : "Regulations and standards the organization complies with."}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {frameworks.length > 0 ? frameworks.map((fw: any) => (
-                  <Badge key={fw.framework_id} variant="outline" className={`text-xs font-medium ${frameworkBadgeClass(fw.framework_name)}`}>
-                    {fw.framework_name}
-                  </Badge>
-                )) : (
-                  <p className="text-xs text-muted-foreground">{isNb ? "Ingen regelverk valgt ennå." : "No regulations selected yet."}</p>
-                )}
-              </div>
-            </section>
 
             {/* Dokumentasjon (opplastingsflyt) */}
             <DocumentationSection asset={asset} />
