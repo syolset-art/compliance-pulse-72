@@ -300,6 +300,9 @@ export function MSPMaturityServiceMatrix() {
         variant={offerCtx.variant}
         attachGap={offerCtx.attachGap}
         gapFrameworkId={offerCtx.gapFrameworkId}
+        defaultItems={offerCtx.defaultItems}
+        defaultEffort={offerCtx.defaultEffort}
+        defaultPrice={offerCtx.defaultPrice}
       />
 
       <MSPGapAnalysisDialog
