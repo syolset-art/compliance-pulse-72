@@ -181,6 +181,12 @@ export function MSPServiceCatalogTab() {
                         {formatPrice(s)}
                       </Badge>
                     )}
+                    {s.publishedToCustomers && (
+                      <Badge variant="outline" className="text-[10px] gap-1 bg-primary/5 text-primary border-primary/30">
+                        <ShoppingCart className="h-3 w-3" />
+                        Bestillbar for kunder
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
 
@@ -201,15 +207,44 @@ export function MSPServiceCatalogTab() {
                     )}
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 text-xs gap-1.5 shrink-0"
-                  onClick={() => setEditing(s.id)}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Rediger
-                </Button>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <label
+                    className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-2 py-1.5 cursor-pointer hover:bg-muted/60 transition-colors"
+                    title={
+                      s.publishedToCustomers
+                        ? "Synlig og bestillbar i kundens portal"
+                        : "Skjult — kun synlig for deg"
+                    }
+                  >
+                    {s.publishedToCustomers ? (
+                      <Eye className="h-3.5 w-3.5 text-primary" />
+                    ) : (
+                      <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                    <span className="text-[11px] font-medium text-foreground">
+                      {s.publishedToCustomers ? "Synlig for kunder" : "Skjult"}
+                    </span>
+                    <Switch
+                      checked={!!s.publishedToCustomers}
+                      onCheckedChange={(checked) =>
+                        setServices((prev) =>
+                          prev.map((x) =>
+                            x.id === s.id ? { ...x, publishedToCustomers: checked } : x,
+                          ),
+                        )
+                      }
+                    />
+                  </label>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 text-xs gap-1.5"
+                    onClick={() => setEditing(s.id)}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    Rediger
+                  </Button>
+                </div>
               </div>
             )}
           </Card>
