@@ -725,45 +725,6 @@ function ConfirmStep(props: any) {
           </p>
         </div>
 
-        <div className="flex items-center justify-between pt-3 border-t border-border">
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Info className="h-3.5 w-3.5" />
-            Fyll ut kontaktene dersom Lara ikke fant informasjonen automatisk
-          </div>
-          <Button type="button" variant="outline" size="sm" className="gap-1.5 text-xs h-8">
-            Usikker? Spør Lara
-            <ArrowRight className="h-3 w-3" />
-          </Button>
-        </div>
-      </FieldGroup>
-
-      <FieldGroup icon={Lock} title="Personvern">
-        <div className="space-y-1.5">
-          <Label>Lenke til personvernerklæring</Label>
-          <Input value={props.privacyUrl} onChange={(e) => props.setPrivacyUrl(e.target.value)} placeholder="https://…/personvern" />
-        </div>
-      </FieldGroup>
-
-      <FieldGroup icon={ShieldCheck} title="Sikkerhet">
-        <div className="space-y-1.5">
-          <Label>Kryptering</Label>
-          <Input value={props.encryption} onChange={(e) => props.setEncryption(e.target.value)} />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Multifaktor (MFA)</Label>
-          <Input value={props.mfa} onChange={(e) => props.setMfa(e.target.value)} />
-        </div>
-      </FieldGroup>
-
-      <FieldGroup icon={Globe} title="Underleverandører">
-        <div className="space-y-1.5">
-          <Label>Sub-processors (kommaseparert)</Label>
-          <Input value={props.subProcessors} onChange={(e) => props.setSubProcessors(e.target.value)} />
-          <p className="text-xs text-muted-foreground">
-            Lara har funnet disse fra hjemmesiden og personvernerklæringen din. Mangler noen? Du kan legge til flere senere fra Trust Profile under «Underleverandører».
-          </p>
-        </div>
-      </FieldGroup>
     </div>
   );
 }
