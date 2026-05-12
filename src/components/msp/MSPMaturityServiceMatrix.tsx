@@ -11,9 +11,14 @@ import {
   Clock,
   CheckCircle2,
   ChevronRight,
+  ChevronDown,
   X,
   FileText,
   Package,
+  Circle,
+  AlertCircle,
+  Bot,
+  User as UserIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
