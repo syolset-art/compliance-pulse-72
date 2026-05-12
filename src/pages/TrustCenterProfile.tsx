@@ -16,7 +16,7 @@ import {
   ChevronDown, ChevronUp, ChevronRight, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
-  Linkedin, Facebook, Mail, Star,
+  Linkedin, Facebook, Mail, Star, TrendingUp, BarChart3,
 } from "lucide-react";
 
 // EU-style 12-star wreath used in the compliance badge
