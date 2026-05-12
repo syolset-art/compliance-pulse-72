@@ -472,39 +472,101 @@ export function MSPMaturityServiceMatrix() {
         </TabsContent>
 
         <TabsContent value="deliveries" className="space-y-2 mt-0">
-          {DELIVERIES.map(d => {
-            const isActive = d.status === "active";
+          {deliveries.map(d => {
+            const total = d.checklist.length;
+            const doneCount = d.checklist.filter(c => c.done).length;
+            const progress = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+            const isCompleted = doneCount === total && total > 0;
+            const isOpen = expandedDelivery === d.id;
+            const service = d.serviceId ? getService(d.serviceId) : undefined;
             return (
-              <Card key={d.id} className="p-3 hover:border-primary/30 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
+              <Card key={d.id} className="overflow-hidden hover:border-primary/30 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setExpandedDelivery(isOpen ? null : d.id)}
+                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-muted/30"
+                >
                   <div className={cn(
                     "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
-                    isActive ? "bg-primary/10" : "bg-success/10"
+                    isCompleted ? "bg-success/10" : "bg-primary/10"
                   )}>
-                    {isActive
-                      ? <Package className="h-4 w-4 text-primary" />
-                      : <CheckCircle2 className="h-4 w-4 text-success" />}
+                    {isCompleted
+                      ? <CheckCircle2 className="h-4 w-4 text-success" />
+                      : <Package className="h-4 w-4 text-primary" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{d.title}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold text-foreground truncate">{d.title}</p>
+                      {service?.frameworkMappings.map(m => (
+                        <Badge key={m.frameworkId} variant="outline" className="text-[10px] gap-1">
+                          <FileText className="h-3 w-3" />
+                          {m.frameworkLabel}
+                        </Badge>
+                      ))}
+                    </div>
                     <p className="text-[12px] text-muted-foreground">{d.meta}</p>
-                    {isActive && typeof d.progress === "number" && (
-                      <div className="mt-1.5 h-1 w-full rounded-full bg-muted overflow-hidden">
-                        <div className="h-full bg-primary" style={{ width: `${d.progress}%` }} />
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <div className="h-1 flex-1 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={cn("h-full transition-all", isCompleted ? "bg-success" : "bg-primary")}
+                          style={{ width: `${progress}%` }}
+                        />
                       </div>
-                    )}
+                      <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                        {doneCount}/{total}
+                      </span>
+                    </div>
                   </div>
                   <Badge variant="outline" className={cn(
                     "text-[10px]",
-                    isActive ? "bg-primary/10 text-primary border-primary/30" : "bg-success/10 text-success border-success/30"
+                    isCompleted
+                      ? "bg-success/10 text-success border-success/30"
+                      : "bg-primary/10 text-primary border-primary/30"
                   )}>
-                    {isActive ? "Aktiv" : "Levert"}
+                    {isCompleted ? "Levert" : "Aktiv"}
                   </Badge>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                </div>
+                  <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", isOpen && "rotate-180")} />
+                </button>
+
+                {isOpen && (
+                  <div className="border-t border-border bg-muted/20 p-3 space-y-2">
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                      Sjekkliste
+                    </p>
+                    {d.checklist.map(item => (
+                      <label
+                        key={item.id}
+                        className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-background cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={item.done}
+                          onCheckedChange={() => toggleChecklistItem(d.id, item.id)}
+                          className="mt-0.5"
+                        />
+                        <span
+                          className={cn(
+                            "text-[13px] flex-1",
+                            item.done ? "text-muted-foreground line-through" : "text-foreground"
+                          )}
+                        >
+                          {item.label}
+                        </span>
+                      </label>
+                    ))}
+                    {service && (
+                      <p className="text-[11px] text-muted-foreground pt-1 border-t border-border mt-2">
+                        Mal hentet fra tjenestekatalogen — endringer her påvirker bare denne leveransen.
+                      </p>
+                    )}
+                  </div>
+                )}
               </Card>
             );
           })}
+        </TabsContent>
+
+        <TabsContent value="catalog" className="mt-0">
+          <MSPServiceCatalogTab />
         </TabsContent>
       </Tabs>
 
