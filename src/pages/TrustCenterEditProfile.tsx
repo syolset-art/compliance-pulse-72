@@ -285,13 +285,8 @@ const TrustCenterEditProfile = () => {
 
             </section>
 
-            {/* NYE SEKSJONER */}
+            {/* Kontaktinformasjon */}
             <ContactsSection asset={asset} />
-            <DataStorageSection asset={asset} />
-            <PrivacySection asset={asset} />
-
-            {/* Sikkerhetstiltak i bruk — egen komponent */}
-            <SecurityDetailsCard asset={asset} />
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Modenhet per kontrollområde */}
