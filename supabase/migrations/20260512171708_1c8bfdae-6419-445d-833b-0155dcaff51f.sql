@@ -1,0 +1,1 @@
+UPDATE public.company_profile SET name = 'Mynder AS' WHERE name ILIKE 'min bedrift' OR name ILIKE 'min %';
