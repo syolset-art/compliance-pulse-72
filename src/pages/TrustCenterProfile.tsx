@@ -984,7 +984,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               {companyProfile?.name || asset?.name || (isNb ? "Din virksomhet" : "Your organization")}
                             </h2>
                             <p className="text-sm text-muted-foreground mt-1">
-                              {companyProfile?.description ||
+                              {(companyProfile as any)?.description ||
+                                asset?.description ||
                                 (isNb
                                   ? "Slik står din Trust Score sammenlignet med bransjestandard."
                                   : "How your Trust Score compares to industry standards.")}
