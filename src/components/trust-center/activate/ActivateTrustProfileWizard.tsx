@@ -83,6 +83,13 @@ export default function ActivateTrustProfileWizard({
   const [mfa, setMfa] = useState("");
   const [subProcessors, setSubProcessors] = useState("");
 
+  // Step 4: maturity answers
+  const [maturityAnswers, setMaturityAnswers] = useState<MaturityAnswers>({});
+  const [laraSources, setLaraSources] = useState<Record<string, string>>({});
+
+  // Step 5: documents
+  const [documents, setDocuments] = useState<ActivationDocument[]>([]);
+
   // Publishing
   const [isPublishing, setIsPublishing] = useState(false);
 
