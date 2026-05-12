@@ -272,11 +272,17 @@ export default function MSPMessages() {
       <Sidebar />
       <main className="flex-1 pt-16">
         <div className="max-w-5xl mx-auto px-6 py-6 space-y-5">
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground">Innboks på tvers av kunder</h1>
-            <p className="text-[13px] text-muted-foreground mt-1">
-              Tilbud, svar og meldinger fra alle dine kunder samlet på ett sted.
-            </p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-foreground">Innboks på tvers av kunder</h1>
+              <p className="text-[13px] text-muted-foreground mt-1">
+                Tilbud, svar og meldinger fra alle dine kunder samlet på ett sted.
+              </p>
+            </div>
+            <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setWizardOpen(true)}>
+              <Megaphone className="h-3.5 w-3.5" />
+              Ny kampanje
+            </Button>
           </div>
 
           {/* Lara banner */}
