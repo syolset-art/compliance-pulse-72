@@ -24,6 +24,10 @@ interface Recommendation {
   title: string;
   desc: string;
   urgent?: boolean;
+  /** Knytt anbefalingen til ett regelverk så partner kan se relevante gap. */
+  frameworkId?: string;
+  /** Antall åpne gap (vises på "Vis gap"-knapp). */
+  openGaps?: number;
   ctas: { label: string; variant: "default" | "outline"; deliveryVariant: "Full leveranse" | "Co-delivery" | "Tjeneste" }[];
 }
 
@@ -41,6 +45,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     title: "NIS2-klargjøring",
     desc: "Kunden er omfattet av NIS2 og lite forberedt. Strukturert leveranse med gap-analyse, policyer og rapporteringsrutiner.",
     urgent: true,
+    frameworkId: "nis2",
+    openGaps: 7,
     ctas: [
       { label: "Tilby full leveranse", variant: "default", deliveryVariant: "Full leveranse" },
       { label: "Tilby co-delivery", variant: "outline", deliveryVariant: "Co-delivery" },
@@ -51,6 +57,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     icon: Brain,
     title: "AI Governance-rammeverk",
     desc: "Kunden har ikke startet på AI-styring. Kartlegging av AI-bruk, klassifisering og policy-oppsett.",
+    frameworkId: "aiact",
+    openGaps: 4,
     ctas: [
       { label: "Tilby full leveranse", variant: "default", deliveryVariant: "Full leveranse" },
       { label: "Tilby co-delivery", variant: "outline", deliveryVariant: "Co-delivery" },
@@ -61,6 +69,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     icon: Bug,
     title: "Penetrasjonstest",
     desc: "Årlig ekstern test av applikasjoner og infrastruktur. Underbygger ISO- og NIS2-arbeidet.",
+    frameworkId: "iso27001",
+    openGaps: 6,
     ctas: [
       { label: "Tilby leveranse", variant: "default", deliveryVariant: "Tjeneste" },
     ],
@@ -81,6 +91,12 @@ export function MSPMaturityServiceMatrix() {
     attachGap?: boolean;
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
+  const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
+
+  const openGap = (frameworkId?: string) => {
+    setGapFrameworkId(frameworkId);
+    setGapOpen(true);
+  };
 
   const urgentCount = RECOMMENDATIONS.filter(r => r.urgent).length;
 
@@ -97,7 +113,7 @@ export function MSPMaturityServiceMatrix() {
             Detaljert oversikt per regelverk — bruk som grunnlag for tilbud eller legg ved som vedlegg.
           </p>
         </div>
-        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setGapOpen(true)}>
+        <Button size="sm" variant="outline" className="gap-1.5" onClick={() => openGap(undefined)}>
           <FileText className="h-3.5 w-3.5" /> Vis gap-analyse
         </Button>
       </Card>
@@ -161,7 +177,7 @@ export function MSPMaturityServiceMatrix() {
                       )}
                     </div>
                     <p className="text-[13px] text-muted-foreground leading-snug">{r.desc}</p>
-                    <div className="flex flex-wrap gap-2 pt-1">
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
                       {r.ctas.map(cta => (
                         <Button
                           key={cta.label}
@@ -173,6 +189,22 @@ export function MSPMaturityServiceMatrix() {
                           {cta.label}
                         </Button>
                       ))}
+                      {r.frameworkId && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                          onClick={() => openGap(r.frameworkId)}
+                        >
+                          <FileText className="h-3.5 w-3.5" />
+                          Vis gap
+                          {typeof r.openGaps === "number" && (
+                            <Badge variant="secondary" className="h-4 px-1 text-[10px] ml-0.5">
+                              {r.openGaps}
+                            </Badge>
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -223,6 +255,7 @@ export function MSPMaturityServiceMatrix() {
       <MSPGapAnalysisDialog
         open={gapOpen}
         onOpenChange={setGapOpen}
+        initialFrameworkId={gapFrameworkId}
       />
     </div>
   );

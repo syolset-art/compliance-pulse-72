@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -136,6 +136,11 @@ export function MSPGapAnalysisDialog({
 }: MSPGapAnalysisDialogProps) {
   const [active, setActive] = useState<string>(initialFrameworkId || "all");
   const [search, setSearch] = useState("");
+
+  // Re-sync når dialogen åpnes med ny framework-kontekst
+  useEffect(() => {
+    if (open) setActive(initialFrameworkId || "all");
+  }, [open, initialFrameworkId]);
 
   const totalGaps = DEMO_GAPS.reduce((a, f) => a + f.gaps.length, 0);
   const criticalGaps = DEMO_GAPS.reduce((a, f) => a + f.gaps.filter(g => g.severity === "critical").length, 0);
