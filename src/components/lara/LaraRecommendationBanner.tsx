@@ -65,13 +65,27 @@ export function LaraRecommendationBanner({
   });
 
   const handleSnooze = () => {
+    const until = new Date(Date.now() + 7 * 86400000);
+    const untilLabel = until.toLocaleDateString(isNb ? "nb-NO" : "en-US", { day: "numeric", month: "long" });
     snooze({ key: current.id, snapshot: snapshotFor(current) });
-    toast.success(isNb ? "Utsatt 7 dager — finn det igjen i Lara-innboksen." : "Snoozed 7 days — find it in the Lara inbox.");
+    toast.success(isNb ? "Forslaget er utsatt" : "Suggestion snoozed", {
+      description: isNb
+        ? `Lara minner deg på «${current.title}» igjen ${untilLabel}. Du finner det i Lara-innboksen til da.`
+        : `Lara will remind you about "${current.title}" on ${untilLabel}. You can find it in the Lara inbox until then.`,
+      icon: <Clock className="h-4 w-4" />,
+      duration: 5000,
+    });
   };
 
   const handleDismiss = () => {
     dismiss({ key: current.id, snapshot: snapshotFor(current) });
-    toast.success(isNb ? "Avvist — kan hentes tilbake fra Lara-innboksen." : "Dismissed — can be restored from the Lara inbox.");
+    toast.success(isNb ? "Forslaget er avvist" : "Suggestion dismissed", {
+      description: isNb
+        ? `«${current.title}» er flyttet til arkivet i Lara-innboksen og kan hentes tilbake derfra.`
+        : `"${current.title}" has been moved to the archive in the Lara inbox and can be restored from there.`,
+      icon: <X className="h-4 w-4" />,
+      duration: 5000,
+    });
   };
 
 
