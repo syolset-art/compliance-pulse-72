@@ -11,8 +11,16 @@ import {
   Pencil,
   CheckSquare,
   Shield,
+  Tag,
   X,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
@@ -163,6 +171,12 @@ export function MSPServiceCatalogTab() {
                       <CheckSquare className="h-3 w-3" />
                       {s.defaultChecklist.length} sjekkpunkter
                     </Badge>
+                    {(s.price != null || s.priceNote) && (
+                      <Badge variant="outline" className="text-[10px] gap-1 bg-success/5 text-success border-success/30">
+                        <Tag className="h-3 w-3" />
+                        {formatPrice(s)}
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
 
@@ -208,6 +222,28 @@ export function MSPServiceCatalogTab() {
   );
 }
 
+const PRICE_MODEL_LABEL: Record<NonNullable<PartnerService["priceModel"]>, string> = {
+  fixed: "fastpris",
+  monthly: "kr/mnd",
+  hourly: "kr/time",
+  "per-user": "kr/bruker/mnd",
+  quote: "etter avtale",
+};
+
+function formatPrice(s: PartnerService): string {
+  const model = s.priceModel ?? "fixed";
+  if (model === "quote") return s.priceNote || "Etter avtale";
+  if (s.price == null && !s.priceNote) return "";
+  const amount =
+    s.price != null ? new Intl.NumberFormat("nb-NO").format(s.price) : "";
+  const label = PRICE_MODEL_LABEL[model];
+  const base =
+    model === "fixed"
+      ? amount ? `${amount} kr` : ""
+      : amount ? `${amount} ${label}` : label;
+  return [base, s.priceNote].filter(Boolean).join(" · ");
+}
+
 function ServiceForm({
   initial,
   onCancel,
@@ -225,6 +261,13 @@ function ServiceForm({
       .map((m) => `${m.frameworkLabel}: ${m.controlIds.join(", ")}`)
       .join("\n"),
   );
+  const [priceModel, setPriceModel] = useState<NonNullable<PartnerService["priceModel"]>>(
+    initial?.priceModel ?? "fixed",
+  );
+  const [price, setPrice] = useState<string>(
+    initial?.price != null ? String(initial.price) : "",
+  );
+  const [priceNote, setPriceNote] = useState(initial?.priceNote ?? "");
 
   const handleSave = () => {
     if (!name.trim()) return;
@@ -243,6 +286,7 @@ function ServiceForm({
             .filter(Boolean),
         };
       });
+    const parsedPrice = price.trim() ? Number(price.replace(/\s/g, "").replace(",", ".")) : undefined;
     onSave({
       id: initial?.id ?? `svc-${Date.now()}`,
       name: name.trim(),
@@ -252,6 +296,9 @@ function ServiceForm({
         .map((l) => l.trim())
         .filter(Boolean),
       frameworkMappings: parsedFrameworks,
+      priceModel,
+      price: Number.isFinite(parsedPrice) ? parsedPrice : undefined,
+      priceNote: priceNote.trim() || undefined,
     });
   };
 
@@ -294,6 +341,46 @@ function ServiceForm({
           onChange={(e) => setFrameworks(e.target.value)}
           rows={3}
           placeholder={"ISO 27001: A.6.3, A.5.10\nNIS2: Art.20"}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-2">
+          <Label className="text-xs">Prismodell</Label>
+          <Select
+            value={priceModel}
+            onValueChange={(v) => setPriceModel(v as NonNullable<PartnerService["priceModel"]>)}
+          >
+            <SelectTrigger className="h-9 text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fixed">Fastpris (kr)</SelectItem>
+              <SelectItem value="monthly">Per måned (kr/mnd)</SelectItem>
+              <SelectItem value="hourly">Timepris (kr/time)</SelectItem>
+              <SelectItem value="per-user">Per bruker (kr/bruker/mnd)</SelectItem>
+              <SelectItem value="quote">Etter avtale</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs">Pris (NOK)</Label>
+          <Input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder={priceModel === "quote" ? "—" : "F.eks. 25 000"}
+            disabled={priceModel === "quote"}
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label className="text-xs">Prisnotat (valgfritt)</Label>
+        <Input
+          value={priceNote}
+          onChange={(e) => setPriceNote(e.target.value)}
+          placeholder="F.eks. «fra 25 000 kr» eller «ekskl. mva»"
         />
       </div>
       <div className="flex items-center gap-2 pt-1">

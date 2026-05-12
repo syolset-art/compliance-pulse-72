@@ -14,6 +14,12 @@ export interface PartnerService {
   frameworkMappings: ServiceFrameworkMapping[];
   /** Tagger brukt av Lara til å matche mot wizard-svar. */
   tags?: string[];
+  /** Pris (NOK). Tolkes ut fra priceModel. */
+  price?: number;
+  /** Prismodell for tjenesten. */
+  priceModel?: "fixed" | "monthly" | "hourly" | "per-user" | "quote";
+  /** Fritekst for prisnotat (f.eks. "fra 25 000 kr" eller "ekskl. mva"). */
+  priceNote?: string;
 }
 
 /**
