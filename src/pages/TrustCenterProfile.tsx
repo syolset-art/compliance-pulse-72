@@ -176,7 +176,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         .select("id, document_type, file_name, display_name, status, created_at, valid_to, visibility, external_url, available_on_request, file_path, category")
         .eq("asset_id", asset!.id)
         .eq("visibility", "published");
-      return data || [];
+      // Dedupe by file_name (demo seeds may produce duplicates) and cap at 5 in preview
+      const seen = new Set<string>();
+      const deduped = (data || []).filter((d: any) => {
+        const key = d.file_name || d.display_name || d.id;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      return deduped.slice(0, 5);
     },
     enabled: !!asset?.id,
   });
