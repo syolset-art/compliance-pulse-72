@@ -304,6 +304,42 @@ export function MSPMaturityServiceMatrix() {
             );
           })}
         </TabsContent>
+
+        <TabsContent value="deliveries" className="space-y-2 mt-0">
+          {DELIVERIES.map(d => {
+            const isActive = d.status === "active";
+            return (
+              <Card key={d.id} className="p-3 hover:border-primary/30 transition-colors cursor-pointer">
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
+                    isActive ? "bg-primary/10" : "bg-success/10"
+                  )}>
+                    {isActive
+                      ? <Package className="h-4 w-4 text-primary" />
+                      : <CheckCircle2 className="h-4 w-4 text-success" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{d.title}</p>
+                    <p className="text-[12px] text-muted-foreground">{d.meta}</p>
+                    {isActive && typeof d.progress === "number" && (
+                      <div className="mt-1.5 h-1 w-full rounded-full bg-muted overflow-hidden">
+                        <div className="h-full bg-primary" style={{ width: `${d.progress}%` }} />
+                      </div>
+                    )}
+                  </div>
+                  <Badge variant="outline" className={cn(
+                    "text-[10px]",
+                    isActive ? "bg-primary/10 text-primary border-primary/30" : "bg-success/10 text-success border-success/30"
+                  )}>
+                    {isActive ? "Aktiv" : "Levert"}
+                  </Badge>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                </div>
+              </Card>
+            );
+          })}
+        </TabsContent>
       </Tabs>
 
       <MSPCreateOfferDialog
