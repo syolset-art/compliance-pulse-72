@@ -296,8 +296,8 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
         </ScrollArea>
 
         <DialogFooter className="flex-row sm:justify-between items-center gap-2 border-t pt-3">
-          <p className="text-[12px] text-muted-foreground">
-            <Users className="inline h-3.5 w-3.5 align-[-2px] mr-1" />
+          <p className="text-sm text-muted-foreground">
+            <Users className="inline h-4 w-4 align-[-3px] mr-1" />
             {recipients.length} mottaker{recipients.length === 1 ? "" : "e"} valgt
           </p>
           <div className="flex items-center gap-2">
