@@ -342,6 +342,9 @@ const LaraInbox = () => {
                 )}
               </section>
             )}
+
+            {/* Snoozed / Dismissed Lara suggestions */}
+            <LaraSuggestionsArchiveSection />
           </div>
         </main>
         <ApprovalSuccessDialog data={approvedItem} onClose={() => setApprovedItem(null)} />
