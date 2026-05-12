@@ -23,6 +23,41 @@ export function DocumentationSection({ asset }: { asset: any }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const gap = asset?.metadata?.doc_gap_analysis as
+    | { result: any; analyzed_at: string }
+    | undefined;
+
+  const { data: frameworkCount = 0 } = useQuery({
+    queryKey: ["selected-frameworks-count-doc-gap"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("selected_frameworks")
+        .select("*", { count: "exact", head: true })
+        .eq("is_selected", true);
+      return count || 0;
+    },
+  });
+
+  const runGapAnalysis = async () => {
+    if (!asset?.id) return;
+    setAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-doc-gap", {
+        body: { assetId: asset.id },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      qc.invalidateQueries({ queryKey: ["self-asset"] });
+      qc.invalidateQueries({ queryKey: ["asset", asset.id] });
+      toast.success("Lara har analysert dokumentasjonen");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Analyse feilet");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   const { data: documents = [] } = useQuery({
     queryKey: ["self-trust-documents", asset?.id],
