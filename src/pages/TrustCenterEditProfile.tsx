@@ -27,10 +27,6 @@ import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 
 import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
-import { DataStorageSection } from "@/components/trust-center/edit/DataStorageSection";
-import { PrivacySection } from "@/components/trust-center/edit/PrivacySection";
-import { SecurityDetailsCard } from "@/components/trust-center/edit/SecurityDetailsCard";
-import { IncidentsSection } from "@/components/trust-center/edit/IncidentsSection";
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
 import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
@@ -285,13 +281,8 @@ const TrustCenterEditProfile = () => {
 
             </section>
 
-            {/* NYE SEKSJONER */}
+            {/* Kontaktinformasjon */}
             <ContactsSection asset={asset} />
-            <DataStorageSection asset={asset} />
-            <PrivacySection asset={asset} />
-
-            {/* Sikkerhetstiltak i bruk — egen komponent */}
-            <SecurityDetailsCard asset={asset} />
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Modenhet per kontrollområde */}
@@ -398,9 +389,6 @@ const TrustCenterEditProfile = () => {
                 })}
               </div>
             </section>
-
-            {/* Hendelser og kontinuitet */}
-            <IncidentsSection asset={asset} />
 
             {/* Dokumentasjon (opplastingsflyt) */}
             <DocumentationSection asset={asset} />
