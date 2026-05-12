@@ -923,18 +923,17 @@ function MaturityStep({ answers, sources, onChange }: {
                       </div>
                       <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 shrink-0">
                         {[
-                          { v: "yes" as const, label: "Ja", icon: Check },
-                          { v: "no" as const, label: "Nei", icon: X },
-                          { v: "later" as const, label: "Senere", icon: Clock },
+                          { v: "yes" as const, label: "Ja" },
+                          { v: "no" as const, label: "Nei" },
+                          { v: "later" as const, label: "Senere" },
                         ].map((opt) => {
-                          const OptIcon = opt.icon;
                           const active = val === opt.v;
                           return (
                             <button
                               key={opt.v}
                               type="button"
                               onClick={() => onChange(q.id, opt.v)}
-                              className={`px-2.5 py-1 rounded text-xs font-medium transition inline-flex items-center gap-1 ${
+                              className={`px-2.5 py-1 rounded text-xs font-medium transition ${
                                 active
                                   ? opt.v === "yes" ? "bg-success text-success-foreground"
                                   : opt.v === "no" ? "bg-destructive text-destructive-foreground"
@@ -942,7 +941,6 @@ function MaturityStep({ answers, sources, onChange }: {
                                   : "text-muted-foreground hover:text-foreground"
                               }`}
                             >
-                              <OptIcon className="h-3 w-3" />
                               {opt.label}
                             </button>
                           );
