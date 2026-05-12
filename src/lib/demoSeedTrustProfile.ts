@@ -114,6 +114,13 @@ export async function seedDemoTrustProfile() {
   return { selfAssetId };
 }
 
+export interface ActivationDocument {
+  slot: string;
+  title: string;
+  status: "found" | "uploaded" | "skipped";
+  fileName?: string;
+}
+
 export interface ActivationValues {
   name: string;
   orgNumber: string;
@@ -128,6 +135,8 @@ export interface ActivationValues {
   dpoName?: string;
   dpoEmail?: string;
   securityEmail?: string;
+  maturityAnswers?: Record<string, "yes" | "no" | "later">;
+  documents?: ActivationDocument[];
   publishNow: boolean;
 }
 
