@@ -219,6 +219,11 @@ export function MSPMaturityServiceMatrix() {
         serviceTitle={offerCtx.serviceTitle}
         variant={offerCtx.variant}
       />
+
+      <MSPGapAnalysisDialog
+        open={gapOpen}
+        onOpenChange={setGapOpen}
+      />
     </div>
   );
 }
