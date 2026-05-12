@@ -205,10 +205,41 @@ export function MSPCreateOfferDialog({
             />
           </div>
 
+          {/* Vedlegg */}
+          <div className="space-y-2">
+            <Label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+              Vedlegg
+            </Label>
+            <div className={`rounded-md border p-3 transition-colors ${attachGap ? "border-primary/40 bg-primary/5" : "border-border"}`}>
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <FileText className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-medium text-foreground">Gap-analyse (PDF)</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Detaljert oversikt over kundens åpne krav per regelverk.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 text-xs gap-1 text-primary"
+                  onClick={() => setGapPreviewOpen(true)}
+                >
+                  <Eye className="h-3 w-3" /> Forhåndsvis
+                </Button>
+                <Switch checked={attachGap} onCheckedChange={setAttachGap} />
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-start gap-2 rounded-md border border-primary/30 bg-primary/5 p-3">
             <Send className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
             <p className="text-[12px] text-foreground">
-              Tilbudet sendes til {customerContactName} (kontakt hos kunden). Kunden kan godta, avvise eller be om endringer.
+              Tilbudet sendes til {customerContactName} (kontakt hos kunden){attachGap ? " med gap-analyse vedlagt" : ""}.
+              Kunden kan godta, avvise eller be om endringer.
             </p>
           </div>
         </div>
@@ -227,6 +258,12 @@ export function MSPCreateOfferDialog({
           </div>
         </DialogFooter>
       </DialogContent>
+
+      <MSPGapAnalysisDialog
+        open={gapPreviewOpen}
+        onOpenChange={setGapPreviewOpen}
+        customerName={customerContactName}
+      />
     </Dialog>
   );
 }
