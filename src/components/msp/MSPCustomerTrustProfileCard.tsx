@@ -13,8 +13,14 @@ import {
   Lock,
 } from "lucide-react";
 
+import { useState } from "react";
+import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
+import { toast } from "sonner";
+
 interface Props {
   customerName?: string;
+  contactName?: string;
+  contactEmail?: string;
 }
 
 const certifications = [
