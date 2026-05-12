@@ -38,9 +38,9 @@ interface Props {
   initialDomain?: string;
 }
 
-type Step = 0 | 1 | 2 | 3 | 4;
-
-const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Publiser"];
+type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+const TOTAL_STEPS = 7;
+const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter", "Publiser"];
 
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline,
