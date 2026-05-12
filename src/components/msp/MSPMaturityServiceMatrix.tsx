@@ -91,6 +91,12 @@ export function MSPMaturityServiceMatrix() {
     attachGap?: boolean;
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
+  const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
+
+  const openGap = (frameworkId?: string) => {
+    setGapFrameworkId(frameworkId);
+    setGapOpen(true);
+  };
 
   const urgentCount = RECOMMENDATIONS.filter(r => r.urgent).length;
 
