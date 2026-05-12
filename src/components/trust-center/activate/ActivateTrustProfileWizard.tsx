@@ -791,7 +791,10 @@ function ConfirmStep(props: any) {
   );
 }
 
-function PreviewStep({ name, orgNumber, description, website, contactName, contactEmail, privacyUrl, encryption, certifications, subProcessors }: any) {
+function PreviewStep({ name, orgNumber, description, website, contactName, contactEmail, privacyUrl, encryption, certifications, subProcessors, maturityAnswers, documents }: any) {
+  const answered = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "yes" || v === "no").length : 0;
+  const later = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "later").length : 0;
+  const docCount = documents ? documents.filter((d: ActivationDocument) => d.status === "uploaded" || d.status === "found").length : 0;
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
