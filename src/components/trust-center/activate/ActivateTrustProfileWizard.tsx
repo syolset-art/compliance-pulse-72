@@ -284,7 +284,7 @@ export default function ActivateTrustProfileWizard({
           <ShieldCheck className="h-4 w-4 text-primary" />
         </div>
         <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-          Aktiver Trust Profile · Steg {step + 1} av 5
+          Aktiver Trust Profile · Steg {step + 1} av {TOTAL_STEPS}
         </span>
         {hasPrefill && step === 1 && (
           <Badge variant="outline" className="ml-auto text-[10px] gap-1 border-primary/30 text-primary">
@@ -299,7 +299,9 @@ export default function ActivateTrustProfileWizard({
           : (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din"))}
         {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
         {step === 3 && "Bekreft og juster informasjonen"}
-        {step === 4 && "Forhåndsvis og publiser"}
+        {step === 4 && "Modenhet — bekreft det Lara fant"}
+        {step === 5 && "Last opp dokumenter"}
+        {step === 6 && "Forhåndsvis og publiser"}
       </h2>
       <p className="text-sm text-muted-foreground">
         {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
@@ -310,9 +312,11 @@ export default function ActivateTrustProfileWizard({
             : "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start."))}
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
-        {step === 4 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
+        {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
+        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
+        {step === 6 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
       </p>
-      <Progress value={(step / 4) * 100} className="h-1" />
+      <Progress value={(step / (TOTAL_STEPS - 1)) * 100} className="h-1" />
     </div>
   );
 
