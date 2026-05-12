@@ -21,23 +21,31 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCompleted?: () => void;
+  /** Render inline (no modal). Use when embedded directly on the Trust Profile page. */
+  inline?: boolean;
+  /** Pre-known company name (e.g. from logged-in customer's company_profile). Skips Welcome and auto-searches Brreg. */
+  initialCompanyName?: string;
 }
 
 type Step = 0 | 1 | 2 | 3 | 4;
 
 const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Publiser"];
 
-export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompleted }: Props) {
+export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompleted, inline, initialCompanyName }: Props) {
   const queryClient = useQueryClient();
-  const [step, setStep] = useState<Step>(0);
+  // When we already know the customer (logged-in), skip Welcome and start at Organisasjon.
+  const hasPrefill = !!(initialCompanyName && initialCompanyName.trim());
+  const [step, setStep] = useState<Step>(hasPrefill ? 1 : 0);
 
   // Step 1: org
-  const [companyName, setCompanyName] = useState("");
+  const [companyName, setCompanyName] = useState(initialCompanyName ?? "");
   const [orgNumber, setOrgNumber] = useState("");
   const [country] = useState("Norge");
   const [website, setWebsite] = useState("");
+  const [websiteVerified, setWebsiteVerified] = useState(false);
   const [verified, setVerified] = useState(false);
   const { searchByName, lookupByOrgNumber, searchResults, isLoading } = useBrregLookup();
+  const autoSearchedRef = useRef(false);
 
   // Step 2: scan
   const [scanProgress, setScanProgress] = useState(0);
