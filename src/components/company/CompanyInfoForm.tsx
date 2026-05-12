@@ -117,6 +117,12 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           dpo_email: form.dpo_email,
           ciso_name: form.ciso_name,
           ciso_email: form.ciso_email,
+          managed_by_partner: form.managed_by_partner,
+          partner_name: form.managed_by_partner ? form.partner_name || null : null,
+          partner_type: form.managed_by_partner ? form.partner_type : null,
+          partner_role_description: form.managed_by_partner ? form.partner_role_description || null : null,
+          partner_since: form.managed_by_partner && form.partner_since ? form.partner_since : null,
+          show_partner_on_trust_profile: form.show_partner_on_trust_profile,
         } as any)
         .eq("id", companyProfile.id);
       if (profileErr) throw profileErr;
