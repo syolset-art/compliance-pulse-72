@@ -147,7 +147,9 @@ export default function ActivateTrustProfileWizard({
     setDescription(scan.description);
     setContactName(scan.contacts.primaryName || "");
     setContactEmail(scan.contacts.primaryEmail || "");
+    setDpoName(scan.contacts.dpoName || "");
     setDpoEmail(scan.contacts.dpoEmail || "");
+    setSecurityName(scan.contacts.dpoName || scan.contacts.primaryName || "");
     setSecurityEmail((scan.contacts as any).securityEmail || scan.contacts.dpoEmail || "");
     setPrivacyUrl(scan.privacy.policyUrl || "");
     setEncryption(scan.security.encryption || "");
