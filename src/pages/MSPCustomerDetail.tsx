@@ -16,6 +16,8 @@ import { AcronisConnectDialog } from "@/components/msp/AcronisConnectDialog";
 import { SecurityServiceGapCard } from "@/components/msp/SecurityServiceGapCard";
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
 import type { LaraPlanTask } from "@/components/lara/types";
+import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
+import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
@@ -35,6 +37,21 @@ export default function MSPCustomerDetail() {
       return data as any;
     },
     enabled: !!customerId,
+  });
+
+  const { data: frameworks = [] } = useQuery({
+    queryKey: ["selected-frameworks-active-msp"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name")
+        .eq("is_selected", true);
+      if (error) return [];
+      return (data || []).map((fw: any) => ({
+        framework_id: fw.framework_id,
+        framework_name: fw.framework_name,
+      }));
+    },
   });
 
   if (isLoading) {
@@ -174,7 +191,13 @@ export default function MSPCustomerDetail() {
                 </Card>
               )}
 
-              <DomainComplianceWidget />
+              <DomainComplianceWidget hideHeader />
+
+              {frameworks.length > 0 && (
+                <FrameworkMaturityGrid frameworks={frameworks} />
+              )}
+
+              <VendorPrivacyAssessment vendorName={customer.name || "kunden"} />
             </TabsContent>
 
             {/* ── Vurdering ── */}

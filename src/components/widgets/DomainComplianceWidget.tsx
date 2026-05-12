@@ -85,7 +85,11 @@ const frameworkTaskMapping: Record<string, string[]> = {
   "ai-ethics": ["ai-ethics", "AI ethics"],
 };
 
-export function DomainComplianceWidget() {
+interface DomainComplianceWidgetProps {
+  hideHeader?: boolean;
+}
+
+export function DomainComplianceWidget({ hideHeader = false }: DomainComplianceWidgetProps = {}) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
@@ -332,30 +336,32 @@ export function DomainComplianceWidget() {
 
   return (
     <Card className="bg-card border-border">
-      <CardHeader className="pb-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-base sm:text-lg font-semibold text-foreground">
-              {t("domainCompliance.title")}
-            </CardTitle>
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
-              <Info className="h-3 w-3 text-muted-foreground" />
+      {!hideHeader && (
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-base sm:text-lg font-semibold text-foreground">
+                {t("domainCompliance.title")}
+              </CardTitle>
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted">
+                <Info className="h-3 w-3 text-muted-foreground" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">{t("domainCompliance.total")}</span>
+              <span className={cn(
+                "text-sm font-semibold",
+                overallProgress >= 80 ? "text-success" : overallProgress >= 50 ? "text-warning" : "text-destructive"
+              )}>
+                {overallProgress}%
+              </span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{t("domainCompliance.total")}</span>
-            <span className={cn(
-              "text-sm font-semibold",
-              overallProgress >= 80 ? "text-success" : overallProgress >= 50 ? "text-warning" : "text-destructive"
-            )}>
-              {overallProgress}%
-            </span>
-          </div>
-        </div>
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          {t("domainCompliance.subtitle")}
-        </p>
-      </CardHeader>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            {t("domainCompliance.subtitle")}
+          </p>
+        </CardHeader>
+      )}
       <CardContent className="space-y-3">
         {domains.map((domain) => (
           <Collapsible
