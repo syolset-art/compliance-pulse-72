@@ -26,6 +26,18 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  // Partner-lookup (prototype): simulerer søk i Mynder Trust-katalog
+  const [partnerLookup, setPartnerLookup] = useState<{
+    status: "idle" | "searching" | "found" | "not_found";
+    match?: { name: string; type: string; roleDescription: string };
+  }>({ status: "idle" });
+  const PARTNER_DIRECTORY: Array<{ name: string; type: string; roleDescription: string }> = [
+    { name: "Mynder MSP-partner AS", type: "msp", roleDescription: "Drift, sikkerhetsovervåking og brukerstøtte" },
+    { name: "Acme IT AS", type: "it_partner", roleDescription: "IT-drift og support" },
+    { name: "NordSec AS", type: "mssp", roleDescription: "24/7 SOC, EDR og hendelseshåndtering" },
+    { name: "7 Security", type: "mssp", roleDescription: "Sikkerhetsovervåking og compliance-rådgivning" },
+  ];
+
   const { data: companyProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["company-profile-shared"],
     queryFn: async () => {
