@@ -12,6 +12,7 @@ export function OrganizationSwitcher() {
   const isNb = i18n.language === "nb";
   const navigate = useNavigate();
   const { activeOrg, setActiveOrg, organizations, loading, refetch } = useActiveOrganization();
+  const { data: partner } = usePartnerInfo(activeOrg?.id);
   const [listOpen, setListOpen] = useState(false);
   const [addOrgOpen, setAddOrgOpen] = useState(false);
 
