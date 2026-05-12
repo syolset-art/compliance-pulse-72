@@ -231,16 +231,20 @@ export default function ActivateTrustProfileWizard({
       </div>
       <h2 className="text-xl font-semibold">
         {step === 0 && "Lag din egen Trust Profile"}
-        {step === 1 && (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din")}
+        {step === 1 && (hasOrgPrefill
+          ? "Bekreft hjemmesiden din"
+          : (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din"))}
         {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
         {step === 3 && "Bekreft og juster informasjonen"}
         {step === 4 && "Forhåndsvis og publiser"}
       </h2>
       <p className="text-sm text-muted-foreground">
         {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
-        {step === 1 && (hasPrefill
-          ? "Vi vet allerede hvem du er. For å gjøre resten automatisk trenger Lara organisasjonsnummeret og hjemmesiden din."
-          : "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start.")}
+        {step === 1 && (hasOrgPrefill
+          ? "Vi har allerede selskapsnavn, organisasjonsnummer og land. For å fortsette trenger Lara hjemmesiden din."
+          : (hasPrefill
+            ? "Vi vet allerede hvem du er. For å gjøre resten automatisk trenger Lara organisasjonsnummeret og hjemmesiden din."
+            : "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start."))}
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
         {step === 4 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
