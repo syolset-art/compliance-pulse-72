@@ -664,13 +664,6 @@ function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; 
   );
 }
 
-function LaraBadge() {
-  return (
-    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary">
-      <Sparkles className="h-2.5 w-2.5" /> Lara
-    </span>
-  );
-}
 
 function FieldGroup({ icon: Icon, title, children }: any) {
   return (
@@ -689,9 +682,7 @@ function ConfirmStep(props: any) {
     <div className="space-y-3">
       <FieldGroup icon={Building2} title="Om virksomheten">
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>Beskrivelse</Label><LaraBadge />
-          </div>
+          <Label>Beskrivelse</Label>
           <Textarea value={props.description} onChange={(e) => props.setDescription(e.target.value)} rows={3} />
         </div>
       </FieldGroup>
@@ -748,25 +739,25 @@ function ConfirmStep(props: any) {
 
       <FieldGroup icon={Lock} title="Personvern">
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between"><Label>Lenke til personvernerklæring</Label><LaraBadge /></div>
+          <Label>Lenke til personvernerklæring</Label>
           <Input value={props.privacyUrl} onChange={(e) => props.setPrivacyUrl(e.target.value)} placeholder="https://…/personvern" />
         </div>
       </FieldGroup>
 
       <FieldGroup icon={ShieldCheck} title="Sikkerhet">
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between"><Label>Kryptering</Label><LaraBadge /></div>
+          <Label>Kryptering</Label>
           <Input value={props.encryption} onChange={(e) => props.setEncryption(e.target.value)} />
         </div>
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between"><Label>Multifaktor (MFA)</Label><LaraBadge /></div>
+          <Label>Multifaktor (MFA)</Label>
           <Input value={props.mfa} onChange={(e) => props.setMfa(e.target.value)} />
         </div>
       </FieldGroup>
 
       <FieldGroup icon={Globe} title="Underleverandører">
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between"><Label>Sub-processors (kommaseparert)</Label><LaraBadge /></div>
+          <Label>Sub-processors (kommaseparert)</Label>
           <Input value={props.subProcessors} onChange={(e) => props.setSubProcessors(e.target.value)} />
           <p className="text-xs text-muted-foreground">
             Lara har funnet disse fra hjemmesiden og personvernerklæringen din. Mangler noen? Du kan legge til flere senere fra Trust Profile under «Underleverandører».
