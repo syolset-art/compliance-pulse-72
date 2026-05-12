@@ -1,51 +1,14 @@
 ## Mål
-Når brukeren har lastet opp ett eller flere dokumenter i Trust Profile-redigering, kjører Lara en gap-analyse mot de regulatoriske rammeverkene virksomheten er pålagt (`selected_frameworks`) og vurderer om dokumentene er gode nok eller bør oppdateres.
+Informer brukeren på "Modenhet per kontrollområde" (på rediger-siden) om at kontrollområdene drives av rammeverkene som er aktivert under menypunktet **Regelverk**, og gi enkel snarvei dit.
 
-## UI-tillegg i `DocumentationSection`
-Like under dokumentlisten (kun synlig når `documents.length > 0`):
+## Endring i `src/pages/TrustCenterEditProfile.tsx`
+Like under section-headeren for "Modenhet per kontrollområde" (etter `</div>` på linje ~304, før kontrollområde-listen) legges et lite info-kort:
 
-- **Gap-analyse-kort** (lilla `bg-primary/5 border-primary/20`, samme stil som Lara-anbefalingen):
-  - Tittel: "Lara-analyse av dokumentasjon"
-  - Underline: "Vurderer dine opplastede dokumenter mot {N} pålagte rammeverk: GDPR, ISO 27001, NIS2…"
-  - CTA: **"Analyser dokumenter"** (primary). Ved klikk: spinner + "Analyserer X dokumenter mot rammeverk…"
+- Stil: `bg-primary/5 border-primary/20` (samme Lara-aktige stil som de andre infokortene), `Info`-ikon i lilla.
+- Tekst (NB):
+  > "Kontrollområdene speiler rammeverkene du har aktivert under **Regelverk** ({frameworkNames eller antall}). Skore beregnes ut fra disse. Trenger du flere eller andre rammeverk? Oppdater i Regelverk – så reflekteres det her."
+- Tekst (EN): tilsvarende oversettelse.
+- CTA: liten outline-knapp **"Gå til Regelverk"** / "Go to Frameworks" som navigerer til `/frameworks` (eller den eksisterende ruten – verifiseres i implementasjonen).
+- Henter aktive rammeverk fra eksisterende `frameworks`-query (linje 83-87) og viser opptil 3 navn + "+N flere".
 
-- **Resultat-visning** (etter analyse fullført, persisteres til `asset.metadata.doc_gap_analysis`):
-  - Samlet status-pill: "Tilstrekkelig" (primary) / "Forbedringer anbefales" (warning) / "Vesentlige mangler" (destructive)
-  - Sammendrag (én setning fra Lara)
-  - Liste med findings per dokument:
-    - Dokumentnavn + matchet rammeverkskrav (f.eks. "GDPR Art. 28 — DPA")
-    - Vurdering: dekningsgrad-pille + kort begrunnelse
-    - Anbefaling (én linje, f.eks. "Mangler underleverandør-liste — bør legges til")
-  - Liste med manglende dokumenter (krav i rammeverkene som ingen opplastet doc dekker)
-  - "Kjør på nytt"-knapp + "Sist analysert {dato}"
-
-## Backend
-Ny edge function `supabase/functions/analyze-doc-gap/index.ts`:
-
-- Input: `{ assetId }`
-- Henter `vendor_documents` for asset, `selected_frameworks`, og henter signed URLs / metadata (filnavn + document_type + valid_to). Vi trekker ikke ut full PDF-tekst i denne første versjonen — vi sender filnavn, type, dato og rammeverkene til Lara og lar modellen vurdere typisk dekning. (Notert som forenkling i prototypen; full content-OCR kan komme senere via eksisterende `analyze-document`.)
-- Lovable AI Gateway, modell `google/gemini-3-flash-preview`, structured output (zod-skjema):
-  ```ts
-  {
-    overallStatus: "sufficient" | "needs_improvement" | "significant_gaps",
-    summary: string,
-    findings: Array<{
-      documentName: string,
-      coversRequirement: string,  // f.eks. "GDPR Art. 28"
-      coverage: "full" | "partial" | "outdated" | "insufficient",
-      recommendation: string
-    }>,
-    missingDocuments: Array<{
-      requirement: string,        // f.eks. "ISO 27001 A.5.1 — Informasjonssikkerhetspolicy"
-      framework: string,
-      recommendation: string
-    }>
-  }
-  ```
-- Lagrer resultatet på `assets.metadata.doc_gap_analysis = { result, analyzed_at }` (ingen ny tabell — bruker eksisterende metadata-jsonb).
-
-## Filer som endres / opprettes
-- `supabase/functions/analyze-doc-gap/index.ts` (ny)
-- `src/components/trust-center/edit/DocumentationSection.tsx` — legge til gap-analyse-kort + resultatvisning, kall til `supabase.functions.invoke("analyze-doc-gap", ...)`, mutation som invalidates asset-cachen
-
-Ingen DB-migrering nødvendig (bruker `assets.metadata` jsonb). Ingen nye dependencies.
+Ingen andre endringer, ingen DB-endringer.
