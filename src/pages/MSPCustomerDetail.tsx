@@ -22,12 +22,14 @@ import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMatur
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCard";
+import { toast } from "sonner";
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
   const navigate = useNavigate();
   const [acronisOpen, setAcronisOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("guidance");
+  const [trustHandoverSent, setTrustHandoverSent] = useState(false);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
@@ -87,6 +89,18 @@ export default function MSPCustomerDetail() {
 
   // Works to be done — fra assessment / acronis / dokumenter
   const tasks = [
+    !trustHandoverSent && {
+      severity: "critical" as const,
+      title: "Kunden har ikke overtatt sin Trust Profile",
+      desc: "Lara kan sende en e-post til kunden og be dem overta og signere Trust Profile selv.",
+      cta: "Send e-post via Lara",
+      onClick: () => {
+        setTrustHandoverSent(true);
+        toast.success("E-post sendt", {
+          description: `Lara har sendt en invitasjon til ${customer.contact_email || customer.name} om å overta Trust Profile.`,
+        });
+      },
+    },
     !customer.has_acronis_integration && {
       severity: "high",
       title: "Koble til Acronis",
