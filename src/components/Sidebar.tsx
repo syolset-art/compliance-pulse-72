@@ -561,6 +561,19 @@ const SidebarContent = () => {
       {/* Demo menu */}
       <div className="mx-3 mb-2 space-y-1">
         <button
+          onClick={async () => {
+            try { localStorage.removeItem("mynder.trustprofile.activated"); } catch {}
+            const { deleteDemoTrustProfile } = await import("@/lib/demoSeedTrustProfile");
+            try { await deleteDemoTrustProfile(); } catch (e) { console.error(e); }
+            navigate("/trust-center/profile");
+          }}
+          title={isNb ? "Demonstrasjon: aktiver Trust Profile med Lara" : "Demo: activate Trust Profile with Lara"}
+          className="w-full px-2 py-1 flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary border border-dashed border-primary/20 hover:border-primary/40 rounded-md transition-colors"
+        >
+          <Sparkles className="h-3 w-3" />
+          {isNb ? "Demo: Aktiver Trust Profile" : "Demo: Activate Trust Profile"}
+        </button>
+        <button
           onClick={() => window.dispatchEvent(new CustomEvent("start-customer-request-demo"))}
           title={isNb ? "Spill av demonstrasjon: motta og besvar leverandøroppdatering" : "Play demo: receive and respond to vendor update"}
           className="w-full px-2 py-1 flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary border border-dashed border-primary/20 hover:border-primary/40 rounded-md transition-colors"
