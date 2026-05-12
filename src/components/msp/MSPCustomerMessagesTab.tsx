@@ -6,6 +6,15 @@ import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send, ShieldChec
 type OfferStatus = "approved" | "pending" | "declined";
 type MessageType = "offer" | "message";
 
+interface Approval {
+  approvedBy: string;
+  approverRole: string;
+  approvedAt: string;
+  method: "E-signatur" | "E-post" | "Portal";
+  reference: string;
+  ipAddress?: string;
+}
+
 interface Item {
   id: string;
   type: MessageType;
@@ -15,6 +24,7 @@ interface Item {
   status?: OfferStatus;
   amount?: string;
   from: "partner" | "customer";
+  approval?: Approval;
 }
 
 const items: Item[] = [
