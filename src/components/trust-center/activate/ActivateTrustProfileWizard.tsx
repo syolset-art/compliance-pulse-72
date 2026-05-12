@@ -95,6 +95,18 @@ export default function ActivateTrustProfileWizard({
   // Publishing
   const [isPublishing, setIsPublishing] = useState(false);
 
+  // Score calculation transition (between step 4 and 5)
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [calcStep, setCalcStep] = useState(0);
+
+  // Preliminary Trust Score derived from maturity answers (live updates as documents flip answers to "yes")
+  const trustScore = useMemo(() => {
+    const total = ALL_MATURITY_QUESTIONS.length;
+    if (!total) return 0;
+    const yes = ALL_MATURITY_QUESTIONS.filter((q) => maturityAnswers[q.id] === "yes").length;
+    return Math.round((yes / total) * 100);
+  }, [maturityAnswers]);
+
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
@@ -227,7 +239,23 @@ export default function ActivateTrustProfileWizard({
     return true;
   }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => setStep((s) => (Math.min(5, s + 1) as Step));
+  const next = () => {
+    if (step === 4) {
+      // Lara "calculates" preliminary Trust Score before showing documents step
+      setIsCalculating(true);
+      setCalcStep(0);
+      const t1 = setTimeout(() => setCalcStep(1), 500);
+      const t2 = setTimeout(() => setCalcStep(2), 1100);
+      const t3 = setTimeout(() => setCalcStep(3), 1700);
+      const t4 = setTimeout(() => {
+        setIsCalculating(false);
+        setStep(5);
+      }, 2100);
+      // best-effort cleanup if user closes during calc
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    }
+    setStep((s) => (Math.min(5, s + 1) as Step));
+  };
   const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
@@ -372,18 +400,21 @@ export default function ActivateTrustProfileWizard({
           subProcessors={subProcessors} setSubProcessors={setSubProcessors}
         />
       )}
-      {step === 4 && (
+      {step === 4 && !isCalculating && (
         <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
+      {step === 4 && isCalculating && (
+        <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
+      )}
       {step === 5 && (
-        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+        <DocumentsStep documents={documents} onUpload={uploadDocument} trustScore={trustScore} />
       )}
     </div>
   );
 
   const footer = (
     <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
-      <Button variant="ghost" onClick={step === 0 || (hasPrefill && step === 1) ? handleSkip : back} disabled={isPublishing}>
+      <Button variant="ghost" onClick={step === 0 || (hasPrefill && step === 1) ? handleSkip : back} disabled={isPublishing || isCalculating}>
         {step === 0 || (hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
@@ -394,12 +425,13 @@ export default function ActivateTrustProfileWizard({
               Lukk — kom tilbake senere
             </Button>
           )}
-          <Button onClick={next} disabled={!canNext} className="gap-2">
-            {step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
-            {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
-            {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
-            {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
-            {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
+          <Button onClick={next} disabled={!canNext || isCalculating} className="gap-2">
+            {isCalculating && step === 4 ? (<><Loader2 className="h-4 w-4 animate-spin" /> Lara beregner …</>) : (<></>)}
+            {!isCalculating && step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
+            {!isCalculating && step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
+            {!isCalculating && step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
+            {!isCalculating && step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
+            {!isCalculating && step === 4 && (<>Beregn Trust Score <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
@@ -960,13 +992,36 @@ function MaturityStep({ answers, sources, onChange }: {
 
 /* -------------------- Documents step -------------------- */
 
-function DocumentsStep({ documents, onUpload }: {
+function DocumentsStep({ documents, onUpload, trustScore }: {
   documents: ActivationDocument[];
   onUpload: (slotId: string, fileName: string) => void;
+  trustScore: number;
 }) {
   const getDoc = (slotId: string) => documents.find((d) => d.slot === slotId);
+  const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
+  const trustColorClass = trustScore >= 80 ? "text-success" : trustScore >= 50 ? "text-warning" : "text-destructive";
+  const trustStrokeClass = trustScore >= 80 ? "stroke-success" : trustScore >= 50 ? "stroke-warning" : "stroke-destructive";
   return (
     <div className="space-y-3">
+      <Card className="p-4 border-primary/20 bg-primary/5">
+        <div className="flex items-center gap-4">
+          <ScoreGauge score={trustScore} strokeClass={trustStrokeClass} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-bold tracking-wider ${trustColorClass}`}>{trustLabel}</span>
+              <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
+                <Sparkles className="h-2.5 w-2.5" /> Foreløpig — beregnet av Lara
+              </Badge>
+            </div>
+            <p className="text-sm font-semibold mt-0.5">Trust Score: {trustScore} / 100</p>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Skåren er basert på modenhetssvarene dine. Den oppdateres når du laster opp dokumenter under,
+              og fortsetter å øke når du svarer på flere kontrollpunkter under <span className="font-medium text-foreground">Regelverk</span> i menyen.
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
         <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
         <p className="text-xs text-foreground/80 leading-relaxed">
@@ -1024,6 +1079,76 @@ function DocumentsStep({ documents, onUpload }: {
         <HelpCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
         <span>Mangler du dokumenter? Hopp over — du kan laste opp senere fra Trust Profile under «Dokumenter».</span>
       </div>
+    </div>
+  );
+}
+
+/* -------------------- Score gauge + calculating step -------------------- */
+
+function ScoreGauge({ score, strokeClass }: { score: number; strokeClass: string }) {
+  const radius = 32;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (Math.max(0, Math.min(100, score)) / 100) * circumference;
+  return (
+    <div className="relative h-20 w-20 shrink-0">
+      <svg viewBox="0 0 80 80" className="h-20 w-20 -rotate-90">
+        <circle cx="40" cy="40" r={radius} className="stroke-muted fill-none" strokeWidth="6" />
+        <circle
+          cx="40" cy="40" r={radius}
+          className={`${strokeClass} fill-none transition-all duration-700`}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-lg font-bold tabular-nums">{score}</span>
+      </div>
+    </div>
+  );
+}
+
+function CalculatingScoreStep({ activeStep, score }: { activeStep: number; score: number }) {
+  const items = [
+    "Vekter modenhetssvar mot rammeverk",
+    "Sammenstiller dokumenter Lara har funnet",
+    "Sammenligner mot bransjestandard",
+  ];
+  return (
+    <div className="py-8 flex flex-col items-center text-center space-y-5">
+      <div className="relative">
+        <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+          <Sparkles className="h-7 w-7 text-primary animate-pulse" />
+        </div>
+        <Loader2 className="absolute -bottom-1 -right-1 h-5 w-5 text-primary animate-spin" />
+      </div>
+      <div>
+        <p className="text-sm font-semibold">Lara beregner foreløpig Trust Score …</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Skåren er en aggregert vurdering opp mot bransjestandard. Den vises på neste steg{score > 0 ? ` (≈ ${score} / 100)` : ""}.
+        </p>
+      </div>
+      <ul className="space-y-2 text-left w-full max-w-sm">
+        {items.map((label, i) => {
+          const done = activeStep > i;
+          const active = activeStep === i;
+          return (
+            <li key={label} className="flex items-center gap-2 text-xs">
+              {done ? (
+                <Check className="h-3.5 w-3.5 text-success" />
+              ) : active ? (
+                <Loader2 className="h-3.5 w-3.5 text-primary animate-spin" />
+              ) : (
+                <Clock className="h-3.5 w-3.5 text-muted-foreground/50" />
+              )}
+              <span className={done ? "text-foreground" : active ? "text-foreground" : "text-muted-foreground/70"}>
+                {label}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
