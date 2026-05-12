@@ -21,6 +21,7 @@ import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPriva
 import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
+import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCard";
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
