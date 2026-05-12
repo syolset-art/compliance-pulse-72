@@ -31,11 +31,10 @@ interface EditableTask extends TaskEstimate {
   owner: TaskOwner;
 }
 
-const OWNERS: TaskOwner[] = ["Partner", "Felles", "Kunde"];
+const OWNERS: TaskOwner[] = ["Partner", "Kunde"];
 
 const ownerRowClass: Record<TaskOwner, string> = {
   Partner: "bg-muted/30",
-  Felles: "bg-warning/5",
   Kunde: "bg-success/10",
 };
 
@@ -67,7 +66,7 @@ export function MSPCreateOfferDialog({
     setAttachGap(attachGapProp);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
+  const totalHours = tasks.reduce((s, t) => s + (t.owner === "Partner" ? Number(t.hours) || 0 : 0), 0);
   const totalPrice = totalHours * hourlyRate;
 
   const updateTask = (i: number, patch: Partial<EditableTask>) => {
@@ -175,12 +174,18 @@ export function MSPCreateOfferDialog({
                         ))}
                       </SelectContent>
                     </Select>
-                    <Input
-                      type="number"
-                      value={t.hours}
-                      onChange={e => updateTask(i, { hours: Number(e.target.value) })}
-                      className="h-7 text-[13px] text-right tabular-nums"
-                    />
+                    {t.owner === "Partner" ? (
+                      <Input
+                        type="number"
+                        value={t.hours}
+                        onChange={e => updateTask(i, { hours: Number(e.target.value) })}
+                        className="h-7 text-[13px] text-right tabular-nums"
+                      />
+                    ) : (
+                      <span className="text-[11px] text-muted-foreground text-right pr-2 italic">
+                        Kunden
+                      </span>
+                    )}
                     <button
                       type="button"
                       onClick={() => removeTask(i)}
