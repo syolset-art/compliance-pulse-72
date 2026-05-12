@@ -565,7 +565,10 @@ const SidebarContent = () => {
             try { localStorage.removeItem("mynder.trustprofile.activated"); } catch {}
             const { deleteDemoTrustProfile } = await import("@/lib/demoSeedTrustProfile");
             try { await deleteDemoTrustProfile(); } catch (e) { console.error(e); }
-            navigate("/trust-center/profile");
+            navigate("/trust-center/profile?activate=1");
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent("open-activate-trust-wizard"));
+            }, 100);
           }}
           title={isNb ? "Demonstrasjon: aktiver Trust Profile med Lara" : "Demo: activate Trust Profile with Lara"}
           className="w-full px-2 py-1 flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary border border-dashed border-primary/20 hover:border-primary/40 rounded-md transition-colors"
