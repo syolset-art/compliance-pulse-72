@@ -367,24 +367,44 @@ function WelcomeStep() {
 
 function OrgStep({
   companyName, setCompanyName, orgNumber, setOrgNumber, website, setWebsite,
-  verified, isLoading, searchResults, onSearch, onPick,
+  verified, isLoading, searchResults, onSearch, onPick, companyNameLocked,
 }: any) {
+  const showSearchHint = companyNameLocked && !orgNumber && (searchResults?.length ?? 0) === 0 && !isLoading;
   return (
     <div className="space-y-4">
       <div className="space-y-2">
         <Label>Selskapsnavn</Label>
         <div className="flex gap-2">
-          <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="F.eks. Framdrift Innovasjon AS" autoFocus />
-          <Button variant="outline" onClick={onSearch} disabled={isLoading || companyName.trim().length < 2} className="gap-1.5 shrink-0">
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            Søk i Brreg
-          </Button>
+          <Input
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            placeholder="F.eks. Framdrift Innovasjon AS"
+            autoFocus={!companyNameLocked}
+            disabled={companyNameLocked}
+          />
+          {!companyNameLocked && (
+            <Button variant="outline" onClick={onSearch} disabled={isLoading || companyName.trim().length < 2} className="gap-1.5 shrink-0">
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+              Søk i Brreg
+            </Button>
+          )}
         </div>
+        {companyNameLocked && (
+          <p className="text-xs text-muted-foreground">Hentet fra kontoen din. Skriv inn org.nr eller velg fra treffene under.</p>
+        )}
       </div>
+
+      {isLoading && companyNameLocked && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Slår opp i Brønnøysundregistrene…
+        </div>
+      )}
 
       {searchResults?.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Treff i registeret</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {companyNameLocked ? "Velg riktig organisasjon" : "Treff i registeret"}
+          </p>
           {searchResults.slice(0, 4).map((r: any) => (
             <Card key={r.organisasjonsnummer}
               className={`p-2.5 cursor-pointer transition-colors ${orgNumber === r.organisasjonsnummer ? "border-primary bg-primary/5" : "hover:border-primary/40"}`}
@@ -402,10 +422,16 @@ function OrgStep({
         </div>
       )}
 
+      {showSearchHint && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <AlertCircle className="h-3.5 w-3.5" /> Fant ingen automatiske treff — skriv inn org.nr manuelt.
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
           <Label>Organisasjonsnummer</Label>
-          <Input value={orgNumber} onChange={(e) => { setOrgNumber(e.target.value); }} placeholder="9 sifre" />
+          <Input value={orgNumber} onChange={(e) => { setOrgNumber(e.target.value); }} placeholder="9 sifre" autoFocus={companyNameLocked && !orgNumber} />
         </div>
         <div className="space-y-2">
           <Label>Land</Label>
@@ -416,7 +442,7 @@ function OrgStep({
       <div className="space-y-2">
         <Label>Hjemmeside</Label>
         <Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://example.no" />
-        <p className="text-xs text-muted-foreground">Lara bruker denne for å forhåndsutfylle profilen i neste steg.</p>
+        <p className="text-xs text-muted-foreground">Lara bruker denne for å hente bedriftsinfo, kontakter, personvern og sikkerhet i neste steg.</p>
       </div>
 
       {verified && (
