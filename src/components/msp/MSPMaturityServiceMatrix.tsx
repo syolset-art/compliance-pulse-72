@@ -92,9 +92,8 @@ const DOMAINS: DomainRow[] = [
     services: [],
     highlightOffer: {
       title: "AI Governance-rammeverk",
-      desc: "Kunden har ennå ikke etablert AI-styring. Tilby kartlegging av AI-bruk, klassifisering mot EU AI Act, og oppsett av policy og kontroller. Egnet som kombinert leveranse med personvern.",
+      desc: "Kunden har ennå ikke etablert AI-styring. Lara har laget et utkast til tilbud: kartlegging av AI-bruk, klassifisering mot EU AI Act, og oppsett av policy og kontroller. Du kan justere og sende til kunden.",
       primaryCta: "Tilby leveranse",
-      secondaryCta: "Send oversiktsmateriell",
     },
   },
   {
