@@ -277,12 +277,17 @@ const TrustCenterEditProfile = () => {
                   : "Basic information about your company."}
               </p>
 
-              <CompanyInfoForm defaultEditing showEditControls />
+              <CompanyInfoForm defaultEditing showEditControls hidePartner />
 
             </section>
 
             {/* Kontaktinformasjon */}
             <ContactsSection asset={asset} />
+
+            {/* Partner og leveranse (flyttet hit fra selskapsinformasjon) */}
+            <section id="partner" className="space-y-4 scroll-mt-24">
+              <CompanyInfoForm defaultEditing showEditControls partnerOnly />
+            </section>
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Modenhet per kontrollområde */}
