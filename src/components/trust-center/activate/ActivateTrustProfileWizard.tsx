@@ -406,9 +406,44 @@ function WelcomeStep() {
 function OrgStep({
   companyName, setCompanyName, orgNumber, setOrgNumber, website, setWebsite,
   websiteVerified, onVerifyWebsite,
-  verified, isLoading, searchResults, onSearch, onPick, companyNameLocked,
+  verified, isLoading, searchResults, onSearch, onPick, companyNameLocked, orgPrefilled,
 }: any) {
   const showSearchHint = companyNameLocked && !orgNumber && (searchResults?.length ?? 0) === 0 && !isLoading;
+
+  // Compact "confirmed organisation" summary when everything except website is known.
+  if (orgPrefilled) {
+    return (
+      <div className="space-y-4">
+        <Card className="p-4 bg-primary/5 border-primary/20">
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+              <Building2 className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold truncate">{companyName}</p>
+                <Badge variant="outline" className="text-[10px] gap-1 border-success/40 text-success">
+                  <CheckCircle2 className="h-2.5 w-2.5" /> Verifisert
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Org.nr {orgNumber} · Norge
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <WebsiteVerifyField
+          website={website}
+          setWebsite={setWebsite}
+          websiteVerified={websiteVerified}
+          onVerifyWebsite={onVerifyWebsite}
+          enabled={true}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
