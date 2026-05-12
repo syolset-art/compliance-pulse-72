@@ -5,8 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Check, Plus, Send, Trash2, Info } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Check, Plus, Send, Trash2, Info, FileText, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 
 export interface CreateOfferDialogProps {
   open: boolean;
@@ -52,6 +54,8 @@ export function MSPCreateOfferDialog({
     defaultMessage ||
       `Hei ${customerContactName}, basert på modenhetsbildet ditt på 18 % og at kunden faller inn under ${domainName}, foreslår jeg et strukturert klargjøringsløp. Vi har gjort dette for flere lignende selskaper og kan starte i mai.`,
   );
+  const [attachGap, setAttachGap] = useState(true);
+  const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
 
   // Reset when reopened with new context
   useEffect(() => {
@@ -97,7 +101,9 @@ export function MSPCreateOfferDialog({
       onOpenChange(false);
       toast.success("Tilbud sendt", {
         id: toastId,
-        description: `«${offerName}» er sendt til ${customerContactName}. Du finner det under Meldinger.`,
+        description: attachGap
+          ? `«${offerName}» er sendt til ${customerContactName} med gap-analyse vedlagt.`
+          : `«${offerName}» er sendt til ${customerContactName}. Du finner det under Meldinger.`,
         duration: 6000,
       });
     }, 700);
@@ -199,10 +205,41 @@ export function MSPCreateOfferDialog({
             />
           </div>
 
+          {/* Vedlegg */}
+          <div className="space-y-2">
+            <Label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+              Vedlegg
+            </Label>
+            <div className={`rounded-md border p-3 transition-colors ${attachGap ? "border-primary/40 bg-primary/5" : "border-border"}`}>
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <FileText className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-medium text-foreground">Gap-analyse (PDF)</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Detaljert oversikt over kundens åpne krav per regelverk.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 text-xs gap-1 text-primary"
+                  onClick={() => setGapPreviewOpen(true)}
+                >
+                  <Eye className="h-3 w-3" /> Forhåndsvis
+                </Button>
+                <Switch checked={attachGap} onCheckedChange={setAttachGap} />
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-start gap-2 rounded-md border border-primary/30 bg-primary/5 p-3">
             <Send className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
             <p className="text-[12px] text-foreground">
-              Tilbudet sendes til {customerContactName} (kontakt hos kunden). Kunden kan godta, avvise eller be om endringer.
+              Tilbudet sendes til {customerContactName} (kontakt hos kunden){attachGap ? " med gap-analyse vedlagt" : ""}.
+              Kunden kan godta, avvise eller be om endringer.
             </p>
           </div>
         </div>
@@ -221,6 +258,12 @@ export function MSPCreateOfferDialog({
           </div>
         </DialogFooter>
       </DialogContent>
+
+      <MSPGapAnalysisDialog
+        open={gapPreviewOpen}
+        onOpenChange={setGapPreviewOpen}
+        customerName={customerContactName}
+      />
     </Dialog>
   );
 }
