@@ -88,21 +88,42 @@ export function MSPCustomerTrustProfileCard({
       </div>
 
       {/* Claim banner */}
-      <Card className="p-4 border-primary/30 bg-primary/5 space-y-3">
+      <Card className={`p-4 space-y-3 ${invited ? "border-success/30 bg-success/5" : "border-primary/30 bg-primary/5"}`}>
         <div className="flex items-start gap-2.5">
-          <UserPlus className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-foreground">Profilen er ikke claimet av kunden</p>
+          {invited ? (
+            <Check className="h-4 w-4 text-success mt-0.5 shrink-0" />
+          ) : (
+            <UserPlus className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          )}
+          <div className="space-y-1 flex-1">
+            <p className="text-sm font-semibold text-foreground">
+              {invited ? `Invitasjon sendt til ${contactName}` : "Profilen er ikke claimet av kunden"}
+            </p>
             <p className="text-[13px] text-muted-foreground leading-snug">
-              Du administrerer profilen på vegne av {customerName}. Når kunden claimer profilen tar de over redigering — du
-              beholder innsynet, men kan ikke lenger endre innhold direkte.
+              {invited
+                ? `${contactName} har fått en e-post med en sikker lenke for å overta og signere profilen. Du får varsel når det er gjort. Inntil da kan du fortsatt redigere innholdet.`
+                : `Du administrerer profilen på vegne av ${customerName}. Når kunden claimer profilen tar de over redigering — du beholder innsynet, men kan ikke lenger endre innhold direkte.`}
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" className="h-8 text-xs">Inviter Truls til å claime</Button>
-          <Button variant="outline" size="sm" className="h-8 text-xs">Lær om claim-prosessen</Button>
-        </div>
+        {!invited && (
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setInviteOpen(true)}>
+              <UserPlus className="h-3.5 w-3.5" />
+              Inviter {contactName} til å claime
+            </Button>
+          </div>
+        )}
+        {invited && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs"
+            onClick={() => setInviteOpen(true)}
+          >
+            Send påminnelse
+          </Button>
+        )}
       </Card>
 
       {/* Visibility + views */}
