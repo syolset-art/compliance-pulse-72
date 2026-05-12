@@ -31,11 +31,10 @@ interface EditableTask extends TaskEstimate {
   owner: TaskOwner;
 }
 
-const OWNERS: TaskOwner[] = ["Partner", "Felles", "Kunde"];
+const OWNERS: TaskOwner[] = ["Partner", "Kunde"];
 
 const ownerRowClass: Record<TaskOwner, string> = {
   Partner: "bg-muted/30",
-  Felles: "bg-warning/5",
   Kunde: "bg-success/10",
 };
 
