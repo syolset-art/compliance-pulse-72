@@ -80,9 +80,6 @@ export default function VendorDemoActivation() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="outline" className="text-[10px] uppercase tracking-wide gap-1">
-                  <Eye className="h-3 w-3" /> Demo
-                </Badge>
                 <h1 className="text-xl md:text-2xl font-bold text-primary">
                   Aktivering av Leverandørstyring
                 </h1>
