@@ -211,13 +211,13 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
       <DialogContent className="max-w-3xl max-h-[88vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center">
+              <Sparkles className="h-4 w-4 text-primary" />
             </div>
-            <DialogTitle className="text-base">Ny kampanje med Lara</DialogTitle>
+            <DialogTitle className="text-lg">Ny kampanje med Lara</DialogTitle>
           </div>
-          <DialogDescription className="text-[13px]">
-            Send én melding eller ett tilbud til mange kunder samtidig — målrettet etter behov.
+          <DialogDescription className="text-sm">
+            Send én melding eller ett tilbud til mange kunder samtidig — i tre enkle steg.
           </DialogDescription>
         </DialogHeader>
 
@@ -227,21 +227,21 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
             <div key={n} className="flex items-center gap-2 flex-1">
               <div
                 className={cn(
-                  "h-6 w-6 rounded-full text-[11px] font-semibold flex items-center justify-center",
+                  "h-7 w-7 rounded-full text-xs font-semibold flex items-center justify-center shrink-0",
                   step >= n
                     ? "bg-primary text-primary-foreground"
                     : "bg-muted text-muted-foreground",
                 )}
               >
-                {step > n ? <CheckCircle2 className="h-3.5 w-3.5" /> : n}
+                {step > n ? <CheckCircle2 className="h-4 w-4" /> : n}
               </div>
               <span
                 className={cn(
-                  "text-[12px]",
+                  "text-sm",
                   step === n ? "font-semibold text-foreground" : "text-muted-foreground",
                 )}
               >
-                {n === 1 ? "Målgruppe" : n === 2 ? "Innhold" : "Forhåndsvis & send"}
+                {n === 1 ? "1. Velg kunder" : n === 2 ? "2. Skriv innhold" : "3. Send"}
               </span>
               {n < 3 && <div className="flex-1 h-px bg-border" />}
             </div>
