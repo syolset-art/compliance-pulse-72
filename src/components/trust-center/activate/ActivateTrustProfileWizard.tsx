@@ -95,6 +95,18 @@ export default function ActivateTrustProfileWizard({
   // Publishing
   const [isPublishing, setIsPublishing] = useState(false);
 
+  // Score calculation transition (between step 4 and 5)
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [calcStep, setCalcStep] = useState(0);
+
+  // Preliminary Trust Score derived from maturity answers (live updates as documents flip answers to "yes")
+  const trustScore = useMemo(() => {
+    const total = ALL_MATURITY_QUESTIONS.length;
+    if (!total) return 0;
+    const yes = ALL_MATURITY_QUESTIONS.filter((q) => maturityAnswers[q.id] === "yes").length;
+    return Math.round((yes / total) * 100);
+  }, [maturityAnswers]);
+
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
