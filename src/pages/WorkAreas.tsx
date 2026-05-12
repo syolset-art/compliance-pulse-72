@@ -921,7 +921,18 @@ export default function WorkAreas() {
                         >
                           <Icon className="h-3 w-3" />
                           {label}
-                          {enabled && <span className="text-[11px] opacity-70">{count}</span>}
+                          {enabled && (
+                            <span
+                              className={cn(
+                                "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[10px] font-semibold tabular-nums border",
+                                isSelected
+                                  ? "bg-primary text-primary-foreground border-primary/40"
+                                  : "bg-muted text-muted-foreground border-border"
+                              )}
+                            >
+                              {count}
+                            </span>
+                          )}
                         </button>
                       );
                     })}
