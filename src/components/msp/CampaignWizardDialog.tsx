@@ -36,6 +36,7 @@ import {
   AlertTriangle,
   Activity,
   Crown,
+  UserPlus,
 } from "lucide-react";
 import {
   CAMPAIGN_SEGMENTS,
