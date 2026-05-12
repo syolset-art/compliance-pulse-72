@@ -1,95 +1,69 @@
-# Kampanjer & felles utsendelser til kunder
 
-Partner skal kunne sende én melding eller ett tilbud til mange kunder samtidig — målrettet etter regelverksbehov, tjeneste-gap eller modenhet. Vi bygger dette inn i den eksisterende **Innboks**-siden (`/msp-messages`) som et naturlig sidestykke til 1:1-meldingene.
+# Partner-tagging av kunder
 
-## Brukerflyt
+## Mål
+90% av kundene kommer via en MSP/MSSP/IT-partner. Vi trenger ett tydelig sted hvor det fremkommer **hvem som er kundens partner**, og denne taggen må:
+- settes automatisk når en partner oppretter kunden,
+- kunne settes manuelt for direktekunder (10%) som ønsker å koble på en partner i ettertid,
+- være synlig på tvers av plattformen (intern bruk + Trust Profile utad).
 
-1. **Innboks** får en ny knapp: **«Ny kampanje»** ved siden av filterne.
-2. Klikk åpner en 3-stegs Lara-dialog:
-   - **Steg 1 — Målgruppe**: velg kunder via segmentering eller manuell plukking.
-   - **Steg 2 — Innhold**: velg type (kampanje-melding eller tilbud), knytt evt. en tjeneste fra katalogen, og la Lara skrive utkast.
-   - **Steg 3 — Forhåndsvis & send**: per-kunde preview med flettetags, mulig å hoppe over enkelte før utsendelse.
-3. Etter sending vises kampanjen som **én rad** i Innboks (gruppert), utvidbar til å se status per mottaker (sendt / åpnet / svart / akseptert).
+## Hvor lagres det
 
-## Steg 1 — Målgruppe (Lara-segmentering)
+Utvid `company_profile` (kundens egen organisasjon) med:
+- `partner_company_id` — referanse til partnerens organisasjon (nullable)
+- `partner_name` — denormalisert visningsnavn (nullable, fallback når relasjonen er ekstern)
+- `partner_type` — enum-tekst: `msp`, `mssp`, `it_partner`, `consultant`, `other`
+- `partner_role_description` — kort fritekst (f.eks. "Drift + sikkerhetsovervåking")
+- `partner_since` — dato
+- `managed_by_partner` — boolean (default false; settes true når partner_company_id finnes)
 
-Hurtigvalg som er typiske MSP-bruksmønstre:
+Dette holdes på `company_profile` (ikke `msp_customers`) fordi:
+- relasjonen tilhører kunden, ikke partneren,
+- direktekunder skal også kunne sette en partner uten at vi har en `msp_customers`-rad,
+- gjør det enkelt å vise "Managed by X" i kundens egen UI uten join mot MSP-tabeller.
 
-- **Regelverk-gap**: «Alle som trenger NIS2-vurdering», «Mangler ISO 27001-grunnlag», «Ikke startet GDPR-protokoll», «Berørt av åpenhetsloven uten redegjørelse», «AI-systemer uten DPIA».
-- **Modenhet**: «Lav modenhet i Privacy», «Risiko < 50 %».
-- **Tjeneste-gap**: «Har ikke kjøpt vCISO», «Ingen pågående leveranse».
-- **Aktivitet**: «Aktiverte Trust-profil siste 30 dager, ikke fullført», «Ingen kontakt på 60 dager».
-- **Kritikalitet**: «Kritisk infrastruktur», «Offentlig sektor».
+`msp_customers` beholdes som partnerens portefølje-view, men ved opprettelse skal den **auto-skrive partner-feltene over på kundens `company_profile`**.
 
-Brukeren kan også:
-- Krysse av kunder manuelt fra en søkbar liste.
-- Kombinere flere segmenter (AND/OR).
-- Se telleren oppdatere seg live: *«23 av 47 kunder treffer kriteriene»*.
+## Hvor det vises
 
-## Steg 2 — Innhold
+1. **Sidebar / Org-switcher (alle sider)**
+   Liten "Managed by [partner]"-chip under organisasjonsnavnet. Subtil, ikke fargesterk.
 
-Tre maler å velge mellom:
+2. **Top bar / dashboard-header**
+   Ett tynt grått ribbon øverst på dashbordet for kunder med partner: "Administrert av Acme IT — kontakt partner" med liten lenke til partnerinfo-drawer.
 
-1. **Kampanje-melding** (informativ, ingen pris) — f.eks. «Nytt om NIS2 — viktig for dere».
-2. **Tilbud** — knytt til en tjeneste fra katalogen (`PARTNER_SERVICES`); pris, sjekkliste og rammeverk-mapping arves automatisk.
-3. **Påminnelse / oppfølging** — gjenbruker mønsteret som finnes i Laras 1:1-forslag i dag.
+3. **Admin → Organisasjon** (`AdminOrganisation.tsx` / `CompanyInfoForm.tsx`)
+   Egen seksjon "Partner og leveranse" med alle feltene over. For partner-eide kunder vises feltet som lest med liten "Endre"-knapp som krever bekreftelse (forhindrer at sluttkunden ved et uhell kobler fra partneren).
 
-Lara genererer et utkast basert på valgt segment + mal, med flettetags:
-`{{kunde}}`, `{{kontaktperson}}`, `{{regelverk}}`, `{{frist}}`, `{{partner}}`.
+4. **Trust Profile (utad)**
+   Under "Om virksomheten" vises "Drift og sikkerhet leveres av: [partner]" — bygger tillit, og er ofte etterspurt i due diligence. Kan skjules av kunden hvis ønsket (toggle på partner-seksjonen).
 
-Felter:
-- Emne (for e-post)
-- Brødtekst (Textarea, redigerbar)
-- Vedlegg / lenker (valgfritt — lenke til ressurs eller tjenestesiden)
-- Kanal: e-post (default) — SMS/telefon kan komme senere
+5. **MSP Partner Dashboard**
+   Allerede viser kundeporteføljen. Nytt: når partner oppretter en kunde via wizard, vises bekreftelse "Kunden er nå tagget som administrert av [partner]".
 
-## Steg 3 — Forhåndsvis & send
+6. **Filter og rapporter**
+   Mulighet til å filtrere lister (vendors/systems/assets) på "Administrert av partner" vs "Direktekunde", og inkludere det i eksporterte rapporter.
 
-- Liste over alle mottakere med personalisert preview (flettetags er løst opp).
-- Per-kunde toggle for å hoppe over enkeltkunder.
-- Per-kunde override-felt for små justeringer (f.eks. annen frist).
-- «Send nå» eller «Planlegg sending» (dato/tid).
-- Confirm-toast: *«Kampanje sendt til 23 kunder»*.
+## Onboarding-effekt
 
-## Innboks-integrasjon
+- **Partner-opprettet kunde:** Når MSP fyller ut "Ny kunde"-wizard, settes partner-feltene automatisk på kundens `company_profile`. Kunden ser ved første innlogging et lite banner: "Profilen din administreres av [partner]. De har satt opp kontoen for deg."
+- **Direktekunde:** I onboarding-flyten legges et valgfritt steg "Har dere en IT- eller sikkerhetspartner?" med to valg: "Ja, koble til" (søk i partnerregister eller skriv inn manuelt) / "Nei, vi gjør dette selv". Kan hoppes over og legges til senere fra Admin → Organisasjon.
 
-Etter sending dukker kampanjen opp øverst i listen som én **gruppert rad**:
+## Tagger og navigering
 
-```text
-🟣  NIS2-kampanje — Tilbud sendt
-    23 mottakere · 0 svar · sendt nå
-    [▾ Vis alle 23 mottakere]
-```
+På alle steder hvor en kundeorganisasjon vises i lister (admin-vyer, søk, MSP-portefølje), legg til en liten **partner-chip** ved siden av navnet:
+- Med partner: `🤝 Acme IT` (nøytral grå pille)
+- Uten partner: ingen chip (ikke "Direkte" — unngår støy)
 
-Utvidet visning lister hver kunde som vanlige `out`-rader (gjenbruker `Row`-komponenten) med individuell status (sendt / åpnet / akseptert / avvist). Lara kan foreslå oppfølging på de som ikke har svart etter X dager — gjenbruker eksisterende `LARA_PROPOSALS`-mekanisme.
+## Tekniske notater
 
-## Filtertillegg
+- Ny migrasjon på `company_profile` med feltene over.
+- Trigger eller applikasjonslogikk: når `msp_customers` opprettes, skriv `partner_company_id`/`partner_name`/`partner_type='msp'`/`managed_by_partner=true` på matchende `company_profile`-rad.
+- Lite hook `usePartnerInfo(companyId)` som returnerer `{ hasPartner, partnerName, partnerType, partnerRoleDescription }` og brukes av sidebar-chip, dashboard-ribbon, Trust Profile-seksjonen og admin-skjemaet.
+- Trust Profile får ny visningsmodul `PartnerDeliverySection` styrt av en boolean `show_partner_on_trust_profile` (default true for partner-opprettede kunder, false ellers).
 
-Nytt filter-chip: **«Kampanjer»** som viser kun grupperte utsendelser. Eksisterende filtre (Akseptert/Avvist/Venter) fungerer da på tvers av både 1:1 og kampanje-mottakere.
+## Avgrensning (gjør IKKE nå)
 
-## Tekniske detaljer
-
-**Demo-først, persistens senere.** Vi starter med lokal state (samme mønster som dagens `ITEMS`/`LARA_PROPOSALS`) for raskt å validere UX. Når flyten er godkjent kan det persisteres mot Supabase.
-
-Filer som berøres:
-- `src/pages/MSPMessages.tsx` — ny «Ny kampanje»-knapp, ny gruppert rad-type, nytt filter.
-- `src/components/msp/CampaignWizardDialog.tsx` *(ny)* — 3-stegs dialog (steg 1/2/3).
-- `src/components/msp/CampaignSegmentBuilder.tsx` *(ny)* — Lara-hurtigvalg + manuell plukking.
-- `src/lib/campaignSegments.ts` *(ny)* — definisjon av segmenter (id, label, beskrivelse, predikat-funksjon mot kundeliste).
-- `src/lib/serviceCatalog.ts` — gjenbrukes for å koble tilbud til en katalog-tjeneste.
-
-Datakilder for segmentering (alle finnes allerede):
-- `msp_customers` — kundeliste (sektor, kritikalitet, modenhet).
-- `assets` (self) — Trust-profil status.
-- `vendor_documents` / framework-status — hvilke regelverk som er dekket.
-- Tjenestekatalogens `publishedToCustomers` — hvilke tjenester kunder allerede ser.
-
-Senere persistens (eget steg, ikke nå):
-- Tabell `msp_campaigns` (id, partner_id, name, segment_json, template_id, body, sent_at).
-- Tabell `msp_campaign_recipients` (campaign_id, customer_id, status, opened_at, responded_at).
-
-## Avgrensninger (gjøres ikke nå)
-
-- Ingen reell e-postutsendelse — vises som «sendt» i UI. E-postintegrasjon (Lovable Emails) tas som eget steg når flyten er godkjent.
-- Ingen A/B-testing eller avansert kampanje-statistikk.
-- Ingen SMS/telefon — kun e-post i første versjon.
+- Ingen multi-partner-støtte i v1 (én partner per kunde). Hvis behovet melder seg senere, lager vi en `company_partners`-tabell med rolle per partner.
+- Ingen automatisk fakturering eller revenue-share i denne PRen — kun relasjon og synlighet.
+- Ingen endringer i RBAC: partner ser fortsatt sin egen MSP-konsoll, kunden ser sin egen konsoll. Partner-chip er kun visuell informasjon.
