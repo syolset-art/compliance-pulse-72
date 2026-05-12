@@ -210,7 +210,6 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         show_partner_on_trust_profile: (companyProfile as any).show_partner_on_trust_profile ?? true,
       });
     }
-    setIsEditing(false);
   };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
