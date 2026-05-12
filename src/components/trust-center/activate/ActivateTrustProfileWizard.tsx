@@ -11,11 +11,18 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
   CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb, Info,
+  Upload, Check, X, Clock, HelpCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
 import { getLaraScanForDomain, SCAN_STEPS_MS, type LaraScanResult } from "@/lib/demoTrustActivation";
-import { seedFromActivation, type ActivationValues } from "@/lib/demoSeedTrustProfile";
+import { seedFromActivation, type ActivationValues, type ActivationDocument } from "@/lib/demoSeedTrustProfile";
+import {
+  MATURITY_AREAS, ALL_MATURITY_QUESTIONS, DOCUMENT_SLOTS,
+  deriveDefaultAnswers, deriveLaraSources,
+  type MaturityAnswers, type MaturityAnswer,
+} from "@/lib/trustMaturityQuestions";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
   open: boolean;
