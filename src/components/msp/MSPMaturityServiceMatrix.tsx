@@ -183,18 +183,57 @@ export function MSPMaturityServiceMatrix() {
                       )}
                     </div>
                     <p className="text-[13px] text-muted-foreground leading-snug">{r.desc}</p>
+
+                    {/* Forslag til tiltak med timeestimat */}
+                    {(() => {
+                      const totalHours = r.tasks.reduce((s, t) => s + t.hours, 0);
+                      const totalPrice = totalHours * r.hourlyRate;
+                      return (
+                        <div className="rounded-md border border-border bg-muted/20 p-3 space-y-1.5">
+                          <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                            Foreslåtte tiltak
+                          </p>
+                          <ul className="space-y-1">
+                            {r.tasks.map((t, i) => (
+                              <li key={i} className="flex items-baseline justify-between gap-2 text-[13px]">
+                                <span className="text-foreground truncate">{t.label}</span>
+                                <span className="text-muted-foreground tabular-nums shrink-0">{t.hours} t</span>
+                              </li>
+                            ))}
+                          </ul>
+                          <div className="flex items-baseline justify-between gap-2 pt-2 border-t border-border">
+                            <span className="text-[12px] font-semibold text-foreground">
+                              Totalt {totalHours} timer
+                            </span>
+                            <span className="text-[13px] font-semibold text-foreground tabular-nums">
+                              {totalPrice.toLocaleString("nb-NO")} kr
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     <div className="flex flex-wrap items-center gap-2 pt-1">
-                      {r.ctas.map(cta => (
-                        <Button
-                          key={cta.label}
-                          size="sm"
-                          variant={cta.variant}
-                          className="h-8 text-xs"
-                          onClick={() => setOfferCtx({ open: true, serviceTitle: r.title, variant: cta.deliveryVariant, attachGap: !!r.frameworkId, gapFrameworkId: r.frameworkId })}
-                        >
-                          {cta.label}
-                        </Button>
-                      ))}
+                      <Button
+                        size="sm"
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          const totalHours = r.tasks.reduce((s, t) => s + t.hours, 0);
+                          const totalPrice = totalHours * r.hourlyRate;
+                          setOfferCtx({
+                            open: true,
+                            serviceTitle: r.title,
+                            variant: "Full leveranse",
+                            attachGap: !!r.frameworkId,
+                            gapFrameworkId: r.frameworkId,
+                            defaultItems: r.tasks.map(t => `${t.label} (${t.hours} t)`),
+                            defaultEffort: `${totalHours} timer`,
+                            defaultPrice: `${totalPrice.toLocaleString("nb-NO")} kr`,
+                          });
+                        }}
+                      >
+                        Tilby leveranse
+                      </Button>
                       {r.frameworkId && (
                         <Button
                           size="sm"
