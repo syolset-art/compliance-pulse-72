@@ -35,15 +35,15 @@ export function ContactsSection({ asset }: ContactsSectionProps) {
         <Users className="h-4 w-4 text-primary" />
         <h2 className="text-base font-semibold text-foreground">Kontaktinformasjon</h2>
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Rollebaserte kontaktveier for ulike henvendelser. Bruk e-postadresser knyttet til funksjon — ikke personer.
       </p>
 
       <Card className="p-5 space-y-4">
         {FIELDS.map((f) => (
           <div key={f.key} className="space-y-1.5">
-            <label className="text-xs font-medium text-foreground">{f.label}</label>
-            <p className="text-[13px] text-muted-foreground">{f.helper}</p>
+            <label className="text-sm font-medium text-foreground">{f.label}</label>
+            <p className="text-sm text-muted-foreground">{f.helper}</p>
             <Input
               type="email"
               defaultValue={local[f.key] || ""}
@@ -55,10 +55,10 @@ export function ContactsSection({ asset }: ContactsSectionProps) {
         ))}
 
         <div className="space-y-1.5 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">
+          <label className="text-sm font-medium text-foreground">
             Hendelseskontakt <span className="text-muted-foreground font-normal">(valgfri)</span>
           </label>
-          <p className="text-[13px] text-muted-foreground">Døgnbemannet kontakt for aktive hendelser</p>
+          <p className="text-sm text-muted-foreground">Døgnbemannet kontakt for aktive hendelser</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <Input
               type="email"
@@ -78,8 +78,8 @@ export function ContactsSection({ asset }: ContactsSectionProps) {
         </div>
 
         <div className="space-y-1.5 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Postadresse</label>
-          <p className="text-[13px] text-muted-foreground">Juridisk postadresse for personvernhenvendelser</p>
+          <label className="text-sm font-medium text-foreground">Postadresse</label>
+          <p className="text-sm text-muted-foreground">Juridisk postadresse for personvernhenvendelser</p>
           <Textarea
             defaultValue={local.postal_address || ""}
             placeholder="Gateadresse, postnr, sted"

@@ -27,7 +27,7 @@ export function SecurityDetailsCard({ asset }: { asset: any }) {
           <Badge
             key={o}
             variant={active ? "default" : "outline"}
-            className={`cursor-pointer text-xs ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            className={`cursor-pointer text-sm ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
             onClick={() => toggleArr(field, o)}
           >
             {active && <Check className="h-3 w-3 mr-1" />}
@@ -42,22 +42,22 @@ export function SecurityDetailsCard({ asset }: { asset: any }) {
     <Card className="p-5 space-y-5">
       <div>
         <h3 className="text-sm font-semibold text-foreground">Sikkerhetstiltak i bruk</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">Tekniske tiltak Lara har identifisert.</p>
+        <p className="text-sm text-muted-foreground mt-0.5">Tekniske tiltak Lara har identifisert.</p>
       </div>
 
       <LaraAutoFillBanner description="Lara identifiserer kryptering, tilgangskontroll og andre tekniske tiltak fra integrasjoner og dokumentasjon." />
       <div className="space-y-2">
-        <label className="text-xs font-medium text-foreground">Kryptering</label>
+        <label className="text-sm font-medium text-foreground">Kryptering</label>
         <Pills field="encryption" options={ENCRYPTION} />
       </div>
 
       <div className="space-y-2 pt-2 border-t border-border">
-        <label className="text-xs font-medium text-foreground">Tilgangskontroll</label>
+        <label className="text-sm font-medium text-foreground">Tilgangskontroll</label>
         <Pills field="access_control" options={ACCESS} />
       </div>
 
       <div className="space-y-1.5 pt-2 border-t border-border">
-        <label className="text-xs font-medium text-foreground">Penetrasjonstesting og bug bounty</label>
+        <label className="text-sm font-medium text-foreground">Penetrasjonstesting og bug bounty</label>
         <Textarea
           defaultValue={sd.pentest || ""}
           placeholder="Frekvens, leverandør, omfang..."
@@ -67,7 +67,7 @@ export function SecurityDetailsCard({ asset }: { asset: any }) {
       </div>
 
       <div className="space-y-1.5 pt-2 border-t border-border">
-        <label className="text-xs font-medium text-foreground">Sikkerhetsopplæring av ansatte</label>
+        <label className="text-sm font-medium text-foreground">Sikkerhetsopplæring av ansatte</label>
         <Textarea
           defaultValue={sd.training || ""}
           placeholder="Program, frekvens, målgruppe..."

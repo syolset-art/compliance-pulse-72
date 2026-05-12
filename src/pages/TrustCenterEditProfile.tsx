@@ -208,7 +208,7 @@ const TrustCenterEditProfile = () => {
                 <Link2 className="h-4 w-4 text-primary" />
                 <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {isNb
                   ? "Dette er din offentlige lenke til din Trust Center-profil. Kopier og del med kunder og partnere."
                   : "This is your public link to your Trust Center profile. Copy and share with customers and partners."}
@@ -237,7 +237,7 @@ const TrustCenterEditProfile = () => {
                     <p className="text-sm font-semibold text-foreground">
                       {isNb ? "Lara anbefaler å fylle ut mer informasjon" : "Lara recommends adding more information"}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-sm text-muted-foreground mt-0.5">
                       {isNb
                         ? "Noen områder mangler innhold som styrker Trust-profilen før publisering."
                         : "Some areas are missing content that will strengthen the Trust profile before publishing."}
@@ -267,11 +267,11 @@ const TrustCenterEditProfile = () => {
                 <h2 className="text-base font-semibold text-foreground">
                   {isNb ? "Virksomhet" : "Company"}
                 </h2>
-                <Badge variant={sectionCompleteness.company.done === sectionCompleteness.company.total ? "action" : "secondary"} className="text-[13px] ml-auto">
+                <Badge variant={sectionCompleteness.company.done === sectionCompleteness.company.total ? "action" : "secondary"} className="text-sm ml-auto">
                   {sectionCompleteness.company.done}/{sectionCompleteness.company.total}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {isNb
                   ? "Grunnleggende informasjon om din virksomhet."
                   : "Basic information about your company."}
@@ -300,14 +300,14 @@ const TrustCenterEditProfile = () => {
                     {isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}
                   </h2>
                 </div>
-                <span className="text-xs text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
+                <span className="text-sm text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
               </div>
 
               <Card className="p-3 bg-primary/5 border-primary/20 flex items-start gap-3">
                 <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
                   <Info className="h-3.5 w-3.5 text-primary" />
                 </div>
-                <div className="flex-1 min-w-0 text-xs text-foreground">
+                <div className="flex-1 min-w-0 text-sm text-foreground">
                   {isNb ? (
                     <>
                       Kontrollområdene speiler rammeverkene du har aktivert under <strong>Regelverk</strong>
@@ -326,7 +326,7 @@ const TrustCenterEditProfile = () => {
                     </>
                   )}
                 </div>
-                <Button size="sm" variant="outline" className="text-xs gap-1.5 shrink-0" onClick={() => navigate("/regulations")}>
+                <Button size="sm" variant="outline" className="text-sm gap-1.5 shrink-0" onClick={() => navigate("/regulations")}>
                   {isNb ? "Gå til Regelverk" : "Go to Frameworks"}
                 </Button>
               </Card>
@@ -372,7 +372,7 @@ const TrustCenterEditProfile = () => {
                                   <div>
                                     <p className="text-sm font-semibold text-foreground">{isNb ? control.labelNb : control.labelEn}</p>
                                     {(control as any).descriptionNb && (
-                                      <p className="text-xs text-muted-foreground mt-0.5">
+                                      <p className="text-sm text-muted-foreground mt-0.5">
                                         {isNb ? (control as any).descriptionNb : (control as any).descriptionEn}
                                       </p>
                                     )}
@@ -397,7 +397,7 @@ const TrustCenterEditProfile = () => {
                                           queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
                                           queryClient.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
                                         }}
-                                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-colors ${
+                                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${
                                           isActive ? opt.activeClass : "border-border text-muted-foreground hover:bg-muted/50"
                                         }`}
                                       >
@@ -407,7 +407,7 @@ const TrustCenterEditProfile = () => {
                                     );
                                   })}
                                 </div>
-                                <button className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors">
+                                <button className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors">
                                   <Upload className="h-3 w-3" />
                                   {isNb ? "Legg ved dokumentasjon" : "Attach documentation"}
                                   <span className="text-muted-foreground">({isNb ? "valgfritt" : "optional"})</span>

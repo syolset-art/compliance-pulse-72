@@ -42,7 +42,7 @@ export function DataStorageSection({ asset }: { asset: any }) {
           <Badge
             key={code}
             variant={active ? "default" : "outline"}
-            className={`cursor-pointer text-xs ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            className={`cursor-pointer text-sm ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
             onClick={() => toggleArr(field, code)}
           >
             {active && <Check className="h-3 w-3 mr-1" />}
@@ -63,13 +63,13 @@ export function DataStorageSection({ asset }: { asset: any }) {
 
       <Card className="p-5 space-y-5">
         <div className="space-y-2">
-          <label className="text-xs font-medium text-foreground">Datalagringsregion</label>
-          <p className="text-[13px] text-muted-foreground">Hvor dataene fysisk lagres. Velg én eller flere.</p>
+          <label className="text-sm font-medium text-foreground">Datalagringsregion</label>
+          <p className="text-sm text-muted-foreground">Hvor dataene fysisk lagres. Velg én eller flere.</p>
           <Pills field="regions" options={REGIONS} />
         </div>
 
         <div className="space-y-2 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Oppbevaringsperiode</label>
+          <label className="text-sm font-medium text-foreground">Oppbevaringsperiode</label>
           <div className="flex gap-2">
             <Input
               type="number"
@@ -92,18 +92,18 @@ export function DataStorageSection({ asset }: { asset: any }) {
         </div>
 
         <div className="space-y-2 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">GDPR-rettsgrunnlag</label>
-          <p className="text-[13px] text-muted-foreground">På hvilket grunnlag behandler dere personopplysninger.</p>
+          <label className="text-sm font-medium text-foreground">GDPR-rettsgrunnlag</label>
+          <p className="text-sm text-muted-foreground">På hvilket grunnlag behandler dere personopplysninger.</p>
           <Pills field="legal_bases" options={LEGAL_BASES} />
         </div>
 
         <div className="space-y-2 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Rolle i behandlingen</label>
+          <label className="text-sm font-medium text-foreground">Rolle i behandlingen</label>
           <Pills field="roles" options={ROLES} />
         </div>
 
         <div className="space-y-1.5 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Tilleggsnotater (valgfri)</label>
+          <label className="text-sm font-medium text-foreground">Tilleggsnotater (valgfri)</label>
           <Textarea
             defaultValue={ds.notes || ""}
             placeholder="Eventuelle presiseringer om datalagring..."

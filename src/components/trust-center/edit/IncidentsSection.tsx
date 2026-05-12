@@ -20,8 +20,8 @@ export function IncidentsSection({ asset }: { asset: any }) {
 
       <Card className="p-5 space-y-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-medium text-foreground">Hendelseshåndtering</label>
-          <p className="text-[13px] text-muted-foreground">Hvordan oppdages, varsles og håndteres sikkerhetshendelser.</p>
+          <label className="text-sm font-medium text-foreground">Hendelseshåndtering</label>
+          <p className="text-sm text-muted-foreground">Hvordan oppdages, varsles og håndteres sikkerhetshendelser.</p>
           <Textarea
             defaultValue={inc.handling || ""}
             placeholder="Beskriv prosessen for å oppdage og håndtere hendelser..."
@@ -31,8 +31,8 @@ export function IncidentsSection({ asset }: { asset: any }) {
         </div>
 
         <div className="space-y-1.5 pt-2 border-t border-border">
-          <label className="text-xs font-medium text-foreground">Forretningskontinuitet</label>
-          <p className="text-[13px] text-muted-foreground">Backup, gjenoppretting, RTO/RPO og SLA-er.</p>
+          <label className="text-sm font-medium text-foreground">Forretningskontinuitet</label>
+          <p className="text-sm text-muted-foreground">Backup, gjenoppretting, RTO/RPO og SLA-er.</p>
           <Textarea
             defaultValue={inc.continuity || ""}
             placeholder="Beskriv backup-rutiner, gjenopprettingstider og kontinuitetsplaner..."
