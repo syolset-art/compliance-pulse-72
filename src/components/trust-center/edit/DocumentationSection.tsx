@@ -116,6 +116,33 @@ export function DocumentationSection({ asset }: { asset: any }) {
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString("nb-NO");
 
+  const addSuggestion = async (s: typeof LARA_SUGGESTIONS[number]) => {
+    if (!asset?.id) return;
+    setAdding(s.id);
+    try {
+      const { error } = await supabase.from("vendor_documents").insert({
+        asset_id: asset.id,
+        file_name: s.file_name,
+        file_path: null,
+        document_type: s.document_type,
+        visibility: "visible",
+      } as any);
+      if (error) throw error;
+      qc.invalidateQueries({ queryKey: ["self-trust-documents", asset.id] });
+      setDismissed((d) => [...d, s.id]);
+      toast.success("Lagt til fra Lara");
+    } catch (err) {
+      console.error(err);
+      toast.error("Kunne ikke legge til");
+    } finally {
+      setAdding(null);
+    }
+  };
+
+  const visibleSuggestions = LARA_SUGGESTIONS.filter(
+    (s) => !dismissed.includes(s.id) && !documents.some((d: any) => d.file_name === s.file_name),
+  );
+
   return (
     <section id="documentation" className="space-y-4 scroll-mt-24">
       <div className="flex items-center justify-between">
