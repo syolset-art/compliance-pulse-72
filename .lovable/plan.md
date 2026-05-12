@@ -1,60 +1,43 @@
-## Mål
+# Plan: Leveranse-sjekklister + Tjenestekatalog
 
-Strammere gap-dialog som matcher bildet — ingen søk, korte lister med "Vis flere", og en tydelig vei videre til tilbud der gap-analysen automatisk legges ved.
+## Bakgrunn
+På arkfanen "Leveranser" (i `MSPMaturityServiceMatrix`) er Awareness-program og Penetrasjonstest i dag bare statiske kort med fremdriftsbar. Partneren trenger å kunne huke av faktiske leveransepunkter. Tjenestene er partnerens egne (ikke Mynders regelverk), og bør derfor defineres ett sted — en ny **Tjenestekatalog** — der partner også ser hvilke regelverk-kontroller hver tjeneste treffer.
 
 ## Endringer
 
-### 1. `MSPGapAnalysisDialog.tsx`
-- **Fjern søkefeltet** (Input + Search-ikon + relatert state).
-- **Bytt stat-kortene** fra 3 til 4: `Totalt`, `Kritiske` (rød), `Vesentlige` (oransje), `Mindre` (nøytral) — basert på severity-tall.
-- **Bytt overskriftstekst** under tittel: "Basert på kundens vurderinger. Kan legges ved tilbud som dokumentasjon." (én linje).
-- **Per regelverk-blokk** (collapsible):
-  - Header: ikon + navn + meta `X gap · Y kritiske` + chevron som åpner/lukker.
-  - Vis kun **5 gap initielt**, deretter en sentrert lenke `Vis N til ↓` / `Vis færre ↑` som toggler resten.
-  - I single-mode (åpnet fra én anbefaling) er blokken alltid åpen.
-- **Gap-rad-format** beholder dagens en-linjes stil (farget prikk + tittel + meta), men metaen vises som `Artikkel/Krav · Severity` — legg til et valgfritt `reference` (f.eks. "Artikkel 23") på `GapItem` og fyll inn for demo-dataene.
-- **Footer-knapper** (matcher bilde 2):
-  - Venstre: `Lukk`
-  - Høyre: `Last ned PDF` (outline) + `Opprett tilbud →` (primær).
-- **"Opprett tilbud →"-flyten:** lukker gap-dialogen og åpner `MSPCreateOfferDialog` med `attachGap = true` (gap-analysen forhåndsvedlagt). Dialogen kaller en ny prop `onCreateOffer?(frameworkId)` som forelder kobler til.
+### 1. Sjekkliste på hvert leveranse-kort (Awareness, Pen-test, …)
+I `src/components/msp/MSPMaturityServiceMatrix.tsx`:
+- Utvid `DeliveryItem` med `serviceId` (peker til en tjeneste i katalogen) og `checklist: { id, label, done, doneAt? }[]`.
+- Awareness-program får punkter som: "Kick-off med kunde", "Phishing-simulering Q1", "E-læringsmodul utrullet", "Rapport sendt", "Oppfølgingsmøte".
+- Penetrasjonstest får: "Scoping", "Test gjennomført", "Rapport levert", "Re-test av funn", "Sluttmøte".
+- Klikk på et leveransekort utvider det (samme mønster som "Pågående") og viser sjekklisten med `Checkbox`. Fremdriftsprosent regnes ut fra avhukede punkter (erstatter dagens hardkodede `progress`).
+- Status-badge skifter automatisk fra "Aktiv" til "Levert" når alle punkter er huket av.
 
-### 2. `MSPMaturityServiceMatrix.tsx`
-- Når `MSPGapAnalysisDialog` lukkes via "Opprett tilbud", åpne `MSPCreateOfferDialog` med:
-  - `serviceTitle` = navnet på regelverket/anbefalingen (f.eks. "NIS2-klargjøring")
-  - `variant` = "Full leveranse" som default
-  - `attachGap` = true
-- Behold kobling fra hver anbefalings `Vis gap`-knapp (uendret).
+### 2. Ny arkfane "Tjenestekatalog"
+Legges til i samme `Tabs`-rad (ved siden av Anbefalt / Pågående / Leveranser):
+- Ny fil `src/lib/serviceCatalog.ts` med type `PartnerService { id, name, description, defaultChecklist: string[], frameworkMappings: { frameworkId, frameworkLabel, controlIds: string[] }[] }` og 3–4 demo-tjenester (Awareness-program, Penetrasjonstest, ISO-klargjøring, AI Governance).
+- Ny komponent `MSPServiceCatalogTab.tsx`:
+  - Liste over partnerens tjenester (kort).
+  - Hver tjeneste viser: navn, beskrivelse, antall sjekklistepunkter, og **pills** for regelverk den treffer (f.eks. "ISO 27001 · 4 kontroller", "NIS2 · 2 kontroller").
+  - Knapp "Legg til tjeneste" (åpner enkel inline-form: navn, beskrivelse, sjekklistepunkter, velg rammeverk-kontroller).
+  - Knapp "Rediger" på hver tjeneste.
+- Tekstforklaring øverst: "Mynder leverer regelverkene. Du legger inn dine egne tjenester her, og Lara viser hvordan de treffer kontrollpunkter på tvers av ISO 27001, NIS2, AI Act m.fl."
 
-### 3. `MSPCreateOfferDialog.tsx`
-- Sørg for at `attachGap`-prop pre-velger gap-analyse-vedlegget (toggle allerede på som default i dag — bekrefte at den honorerer prop). Ingen UI-endring utover dette.
+### 3. Kobling katalog ↔ leveranse
+- `DeliveryItem.serviceId` peker inn i katalogen, slik at sjekkliste-malen og rammeverk-kontrollene arves derfra.
+- I sjekklisten på leveransekortet vises en liten regelverks-pill ved siden av tittelen (samme som på "Pågående") som lenker til kontrollene.
 
-## Visuell mal (ASCII)
+## Tekniske detaljer
+- Frontend-only / demo-state (`useState`) — ingen DB-endringer i denne iterasjonen.
+- Følger eksisterende design-tokens: `Card`, `Badge`, `Checkbox`, `Tabs`, semantiske farger (`text-success`, `text-warning`, `text-destructive`).
+- Norsk tekst gjennomgående (memoryregel: i18next-nøkler er ok å droppe i ren demo-UI lik resten av filen).
 
-```text
-┌──────────────────────────────────────────────────────────┐
-│ Dintero AS · Gap-analyse                              ✕  │
-│ Manglende kontroller per regelverk                       │
-│ Basert på kundens vurderinger. Kan legges ved tilbud.    │
-├──────────────────────────────────────────────────────────┤
-│ [Totalt 23] [Kritiske 8] [Vesentlige 11] [Mindre 4]      │
-├──────────────────────────────────────────────────────────┤
-│ 🏛  NIS2                                              ⌄  │
-│     9 gap · 4 kritiske                                   │
-│     • Mangler hendelsesrapporteringsrutine               │
-│       Artikkel 23 · Kritisk                              │
-│     • Ingen formell risikoanalyse                        │
-│       Artikkel 21(2)(a) · Kritisk                        │
-│     ...                                                  │
-│            Vis 4 til ↓                                   │
-├──────────────────────────────────────────────────────────┤
-│ 🛡  GDPR        6 gap · 2 kritiske                    ›  │
-│ 🔒  ISO 27001   5 gap · 1 kritisk                     ›  │
-├──────────────────────────────────────────────────────────┤
-│ [Lukk]                  [⤓ Last ned PDF]  [Opprett tilbud →] │
-└──────────────────────────────────────────────────────────┘
-```
+## Filer
+- Endre: `src/components/msp/MSPMaturityServiceMatrix.tsx`
+- Ny: `src/components/msp/MSPServiceCatalogTab.tsx`
+- Ny: `src/lib/serviceCatalog.ts`
 
-## Filer som endres
-- `src/components/msp/MSPGapAnalysisDialog.tsx`
-- `src/components/msp/MSPMaturityServiceMatrix.tsx`
-- (evt. liten tilpasning i `src/components/msp/MSPCreateOfferDialog.tsx` hvis `attachGap`-prop ikke allerede styrer default)
+## Utenfor scope
+- Persistens i database
+- Faktisk Lara-evaluering av hvor godt en tjeneste dekker en kontroll (vises som statisk antall nå)
+- Endringer i `MSPCreateOfferDialog`
