@@ -156,6 +156,63 @@ export default function TrustEngine() {
         </div>
       </section>
 
+      {/* Preview / forhåndsvisning av aktivert side */}
+      <section className="px-6 pb-12">
+        <div className="container max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Forhåndsvisning — slik ser siden ut når den er aktivert
+            </p>
+            <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+              Kommer snart
+            </Badge>
+          </div>
+          <Card variant="luxury" className="p-6 border-dashed bg-muted/20 space-y-5 pointer-events-none select-none opacity-90">
+            {/* Filter row */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-muted-foreground mr-1">Filtre:</span>
+              <Badge className="bg-primary text-primary-foreground rounded-full px-3 py-1">Alle</Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1 gap-1">
+                <Globe className="h-3 w-3" /> Land: Alle
+              </Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1">SaaS</Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1">Konsulent</Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1">ISO 27001</Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1">GDPR</Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1 text-muted-foreground">+ Flere</Badge>
+            </div>
+
+            {/* Country picker mockup */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 text-primary dark:text-accent font-medium">
+                  <Globe className="h-3.5 w-3.5" /> Alle land
+                </div>
+                {[
+                  { c: "NO", n: "Norge", x: 3 },
+                  { c: "SE", n: "Sverige", x: 1 },
+                  { c: "DK", n: "Danmark", x: 1 },
+                  { c: "FI", n: "Finland", x: 0 },
+                  { c: "DE", n: "Tyskland", x: 0 },
+                  { c: "NL", n: "Nederland", x: 0 },
+                  { c: "ES", n: "Spania", x: 0 },
+                ].map((l) => (
+                  <div key={l.c} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/40 text-foreground">
+                    <span className="text-[10px] font-semibold text-muted-foreground">{l.c}</span>
+                    <span>{l.n}</span>
+                    <span className="text-muted-foreground">({l.x})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center">
+              Filtrering på land, bransje og rammeverk aktiveres når flere Trust Profiler publiseres.
+            </p>
+          </Card>
+        </div>
+      </section>
+
       {/* My Trust Profile shortcut */}
       {myAsset && (
         <section className="px-6 -mt-6 mb-2">
