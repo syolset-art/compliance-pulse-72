@@ -605,7 +605,7 @@ function Step2({
     <div className="space-y-5 py-2">
       <div>
         <p className="text-sm font-semibold text-foreground mb-2">Hva slags melding?</p>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {KIND_OPTIONS.map((opt) => {
             const Icon = opt.icon;
             const isOn = kind === opt.id;
