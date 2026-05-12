@@ -304,6 +304,7 @@ export default function ActivateTrustProfileWizard({
       toast.error(e?.message ?? "Noe gikk galt");
     } finally {
       setIsPublishing(false);
+      setIsCalculating(false);
     }
   };
 
