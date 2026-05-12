@@ -326,6 +326,14 @@ export function MSPMaturityServiceMatrix() {
           );
         })}
       </div>
+
+      <MSPCreateOfferDialog
+        open={offerCtx.open}
+        onOpenChange={(o) => setOfferCtx(s => ({ ...s, open: o }))}
+        domainName={offerCtx.domainName}
+        serviceTitle={offerCtx.serviceTitle}
+        variant={offerCtx.variant}
+      />
     </Card>
   );
 }
