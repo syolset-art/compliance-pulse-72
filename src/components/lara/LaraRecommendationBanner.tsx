@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Diamond, ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Diamond, ChevronLeft, ChevronRight, Clock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLaraSuggestionStates, type LaraSuggestionContext } from "@/hooks/useLaraSuggestionStates";
+import { toast } from "sonner";
 import type { LaraPlanTask } from "./types";
 
 interface Props {
@@ -37,15 +40,40 @@ export function LaraRecommendationBanner({
   hideDismiss = false,
 }: Props) {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const isNb = i18n.language === "nb" || i18n.language === "no";
-  const [dismissed, setDismissed] = useState(false);
   const [showPlan, setShowPlan] = useState(false);
   const [step, setStep] = useState(0);
+  const { hiddenKeys, snooze, dismiss } = useLaraSuggestionStates();
 
-  if (dismissed || tasks.length === 0) return null;
+  const visibleTasks = useMemo(
+    () => tasks.filter(t => !hiddenKeys.has(t.id)),
+    [tasks, hiddenKeys]
+  );
 
-  const total = tasks.length;
-  const current = tasks[Math.min(step, total - 1)];
+  if (visibleTasks.length === 0) return null;
+
+  const total = visibleTasks.length;
+  const current = visibleTasks[Math.min(step, total - 1)];
+
+  const snapshotFor = (task: LaraPlanTask): LaraSuggestionContext => ({
+    title: task.title,
+    severity: (task.severity as any) || "medium",
+    insight: task.insight,
+    category: task.category || null,
+    source: "lara_recommendation_banner",
+  });
+
+  const handleSnooze = () => {
+    snooze({ key: current.id, snapshot: snapshotFor(current) });
+    toast.success(isNb ? "Utsatt 7 dager — finn det igjen i Lara-innboksen." : "Snoozed 7 days — find it in the Lara inbox.");
+  };
+
+  const handleDismiss = () => {
+    dismiss({ key: current.id, snapshot: snapshotFor(current) });
+    toast.success(isNb ? "Avvist — kan hentes tilbake fra Lara-innboksen." : "Dismissed — can be restored from the Lara inbox.");
+  };
+
 
   const severityChip = (sev: LaraPlanTask["severity"]) => {
     if (sev === "critical")
@@ -82,12 +110,24 @@ export function LaraRecommendationBanner({
             {isNb ? "Vis plan" : "Show plan"}
           </Button>
           {!hideDismiss && (
-            <button
-              onClick={() => setDismissed(true)}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
-            >
-              {isNb ? "Ikke nå" : "Not now"}
-            </button>
+            <>
+              <button
+                onClick={handleSnooze}
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+                title={isNb ? "Utsett 7 dager" : "Snooze 7 days"}
+              >
+                <Clock className="h-3.5 w-3.5" />
+                {isNb ? "Utsett" : "Snooze"}
+              </button>
+              <button
+                onClick={handleDismiss}
+                className="inline-flex items-center justify-center h-9 w-9 rounded-full text-muted-foreground hover:text-destructive transition-colors"
+                title={isNb ? "Avvis" : "Dismiss"}
+                aria-label={isNb ? "Avvis" : "Dismiss"}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -124,7 +164,7 @@ export function LaraRecommendationBanner({
 
       {/* Step dots */}
       <div className="flex items-center justify-center gap-1.5">
-        {tasks.map((_, i) => (
+        {visibleTasks.map((_, i) => (
           <span
             key={i}
             className={cn("h-1 rounded-full transition-all", i === step ? "w-8 bg-primary" : "w-5 bg-muted")}
@@ -170,7 +210,34 @@ export function LaraRecommendationBanner({
                 : (current.secondaryCtaLabelEn ?? "Open vendor")}
             </Button>
           )}
+          <div className="hidden sm:block sm:flex-1" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full text-muted-foreground"
+            onClick={handleSnooze}
+            title={isNb ? "Utsett 7 dager" : "Snooze 7 days"}
+          >
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            {isNb ? "Utsett" : "Snooze"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full text-muted-foreground hover:text-destructive h-9 w-9 p-0"
+            onClick={handleDismiss}
+            title={isNb ? "Avvis" : "Dismiss"}
+            aria-label={isNb ? "Avvis" : "Dismiss"}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
+        <p className="text-[11px] text-muted-foreground">
+          {isNb ? "Utsatte og avviste forslag finner du i " : "Snoozed and dismissed suggestions live in the "}
+          <button className="text-primary hover:underline" onClick={() => navigate("/lara-inbox")}>
+            {isNb ? "Lara-innboksen" : "Lara inbox"}
+          </button>.
+        </p>
       </div>
 
       {/* Footer */}

@@ -11,6 +11,7 @@ import { CheckCircle2, X, Mail, FileText, ShieldAlert, Database, Loader2, Trash2
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ApprovalSuccessDialog, type ApprovedItemData } from "@/components/ApprovalSuccessDialog";
+import { LaraSuggestionsArchiveSection } from "@/components/lara-inbox/LaraSuggestionsArchiveSection";
 
 const DOC_TYPE_LABELS: Record<string, string> = {
   penetration_test: "Penetrasjonstest",
@@ -341,6 +342,9 @@ const LaraInbox = () => {
                 )}
               </section>
             )}
+
+            {/* Snoozed / Dismissed Lara suggestions */}
+            <LaraSuggestionsArchiveSection />
           </div>
         </main>
         <ApprovalSuccessDialog data={approvedItem} onClose={() => setApprovedItem(null)} />

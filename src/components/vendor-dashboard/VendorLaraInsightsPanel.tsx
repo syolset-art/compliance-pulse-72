@@ -2,8 +2,10 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Diamond, ChevronLeft, ChevronRight, AlertTriangle, FileWarning, Inbox, ShieldCheck } from "lucide-react";
+import { Diamond, ChevronLeft, ChevronRight, AlertTriangle, FileWarning, Inbox, ShieldCheck, Clock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLaraSuggestionStates, type LaraSuggestionContext } from "@/hooks/useLaraSuggestionStates";
+import { toast } from "sonner";
 
 interface Asset {
   id: string;
@@ -63,8 +65,18 @@ export function VendorLaraInsightsPanel({
 }: Props) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
   const [index, setIndex] = useState(0);
+  const { hiddenKeys, snooze, dismiss } = useLaraSuggestionStates();
+
+  const snapshotFor = (task: Task): LaraSuggestionContext => ({
+    title: task.vendor.name,
+    severity: task.severity,
+    insight: task.laraSees,
+    vendorName: task.vendor.name,
+    vendorId: task.vendor.id,
+    category: task.meta || null,
+    source: "vendor_dashboard",
+  });
 
   const tasks = useMemo<Task[]>(() => {
     const list: Task[] = [];
@@ -136,12 +148,30 @@ export function VendorLaraInsightsPanel({
     return list.sort((a, b) => order.indexOf(a.severity) - order.indexOf(b.severity));
   }, [vendors, expiredDocVendorIds, pendingInboxVendorIds]);
 
-  if (dismissed || tasks.length === 0) return null;
+  // Filter out tasks that are snoozed or dismissed by the user
+  const visibleTasks = useMemo(
+    () => tasks.filter(t => !hiddenKeys.has(t.id)),
+    [tasks, hiddenKeys]
+  );
 
-  const criticalCount = tasks.filter((t) => t.severity === "critical").length;
-  const total = tasks.length;
+  if (visibleTasks.length === 0) return null;
+
+  const criticalCount = visibleTasks.filter((t) => t.severity === "critical").length;
+  const total = visibleTasks.length;
   const topCount = Math.min(3, total);
-  const current = tasks[Math.min(index, topCount - 1)];
+  const safeIndex = Math.min(index, topCount - 1);
+  const current = visibleTasks[safeIndex];
+
+  const handleSnooze = () => {
+    snooze({ key: current.id, snapshot: snapshotFor(current) });
+    toast.success("Utsatt 7 dager — du finner det igjen i Lara-innboksen.");
+  };
+
+  const handleDismiss = () => {
+    dismiss({ key: current.id, snapshot: snapshotFor(current) });
+    toast.success("Avvist — du kan hente det tilbake i Lara-innboksen.");
+  };
+
 
   // Compact banner
   if (!expanded) {
@@ -157,12 +187,28 @@ export function VendorLaraInsightsPanel({
               Du har {total} oppgaver som krever oppmerksomhet, hvorav {criticalCount} er kritiske. Vil du starte en gjennomgang?
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
             <Button size="sm" onClick={() => setExpanded(true)}>
               Vis plan
             </Button>
-            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => setDismissed(true)}>
-              Ikke nå
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-muted-foreground"
+              onClick={handleSnooze}
+              title="Utsett 7 dager"
+            >
+              <Clock className="h-3.5 w-3.5 mr-1" />
+              Utsett
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+              onClick={handleDismiss}
+              title="Avvis"
+            >
+              <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -239,7 +285,24 @@ export function VendorLaraInsightsPanel({
           <Button size="sm" variant="outline" onClick={() => navigate(`/assets/${current.vendor.id}`)}>
             Åpne leverandøren
           </Button>
+          <div className="flex-1" />
+          <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={handleSnooze} title="Utsett 7 dager">
+            <Clock className="h-3.5 w-3.5 mr-1" />
+            Utsett
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+            onClick={handleDismiss}
+            title="Avvis"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </div>
+        <p className="text-[11px] text-muted-foreground mt-2">
+          Utsatte og avviste forslag finner du i <button className="text-primary hover:underline" onClick={() => navigate("/lara-inbox")}>Lara-innboksen</button>.
+        </p>
       </div>
 
       {/* Footer: pagination + view all */}
