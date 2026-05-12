@@ -347,11 +347,31 @@ export default function MSPMessages() {
 
           {/* List */}
           <Card className="overflow-hidden">
+            {campaigns.length > 0 && (filter === "all" || filter === "campaigns" || filter === "out") && (
+              <>
+                <GroupHeader label="Kampanjer" />
+                {campaigns.map((c) => (
+                  <CampaignRow
+                    key={c.id}
+                    campaign={c}
+                    expanded={!!expandedCampaign[c.id]}
+                    onToggle={() =>
+                      setExpandedCampaign((prev) => ({ ...prev, [c.id]: !prev[c.id] }))
+                    }
+                  />
+                ))}
+              </>
+            )}
             {today.length > 0 && <GroupHeader label="I dag" />}
             {today.map(item => <Row key={item.id} item={item} />)}
             {earlier.length > 0 && <GroupHeader label="Tidligere" />}
             {earlier.map(item => <Row key={item.id} item={item} />)}
-            {filtered.length === 0 && (
+            {filter === "campaigns" && campaigns.length === 0 && (
+              <div className="py-12 text-center text-sm text-muted-foreground">
+                Ingen kampanjer sendt ennå. Klikk «Ny kampanje» for å starte.
+              </div>
+            )}
+            {filter !== "campaigns" && filtered.length === 0 && (
               <div className="py-12 text-center text-sm text-muted-foreground">
                 Ingen meldinger i denne visningen.
               </div>
@@ -359,6 +379,12 @@ export default function MSPMessages() {
           </Card>
         </div>
       </main>
+
+      <CampaignWizardDialog
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onSend={handleCampaignSend}
+      />
 
       <Dialog open={proposalsOpen} onOpenChange={setProposalsOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
