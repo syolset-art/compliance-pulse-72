@@ -6,6 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -15,7 +16,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import {
   UserPlus, FileSpreadsheet, Server, ArrowLeft, Search, Building2,
-  MapPin, Loader2, CheckCircle2, User, Mail, Briefcase,
+  MapPin, Loader2, CheckCircle2, User, Mail, Briefcase, Upload, AlertCircle, Trash2,
 } from "lucide-react";
 import { COMPANY_ROLES, MSP_SUBSCRIPTION_TIERS } from "@/lib/mspCustomerConstants";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -45,9 +46,18 @@ interface BrregResult {
   forretningsadresse?: { kommune: string; poststed: string };
 }
 
-type Step = "method" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success";
+type Step = "method" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success";
 
 const STEP_LABELS = ["method", "search", "contact", "assessment", "gap", "confirm"];
+
+interface BulkRow {
+  org_number: string;
+  customer_name: string;
+  contact_person?: string;
+  contact_email?: string;
+  status: "ok" | "duplicate" | "invalid";
+  reason?: string;
+}
 
 export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCustomerDialogProps) {
   const { user } = useAuth();
@@ -88,6 +98,11 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     [assessmentResponses]
   );
 
+  // Bulk import state
+  const [bulkText, setBulkText] = useState("");
+  const [bulkRows, setBulkRows] = useState<BulkRow[]>([]);
+  const [bulkSavedCount, setBulkSavedCount] = useState(0);
+
   const reset = useCallback(() => {
     setStep("method");
     setSearchQuery("");
@@ -96,6 +111,9 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setDuplicateFound(false);
     setAssessmentResponses([]);
     setSelectedFrameworks([]);
+    setBulkText("");
+    setBulkRows([]);
+    setBulkSavedCount(0);
     setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis" });
   }, []);
 
@@ -249,6 +267,116 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     }
   };
 
+  // ---- Bulk import helpers ----
+  const parseBulk = useCallback(async (text: string) => {
+    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    if (lines.length === 0) return [];
+    // Detect header
+    const first = lines[0].toLowerCase();
+    const hasHeader = /org\s*nr|organisasjon|navn|name|epost|email/.test(first);
+    const dataLines = hasHeader ? lines.slice(1) : lines;
+    // Detect separator
+    const sep = lines[0].includes(";") ? ";" : ",";
+
+    // Get existing org numbers to flag duplicates
+    const { data: existing } = await supabase
+      .from("msp_customers")
+      .select("org_number")
+      .eq("msp_user_id", user!.id);
+    const existingOrgs = new Set((existing || []).map((c: any) => String(c.org_number)));
+
+    const seenInBatch = new Set<string>();
+    const rows: BulkRow[] = dataLines.map((line) => {
+      const cols = line.split(sep).map((c) => c.trim().replace(/^"|"$/g, ""));
+      const [orgRaw, nameRaw, person, email] = cols;
+      const org = (orgRaw || "").replace(/\s/g, "");
+      const name = nameRaw || "";
+      let status: BulkRow["status"] = "ok";
+      let reason: string | undefined;
+      if (!/^\d{9}$/.test(org)) {
+        status = "invalid";
+        reason = "Ugyldig org.nr (må være 9 siffer)";
+      } else if (!name) {
+        status = "invalid";
+        reason = "Mangler navn";
+      } else if (existingOrgs.has(org) || seenInBatch.has(org)) {
+        status = "duplicate";
+        reason = "Allerede registrert";
+      }
+      seenInBatch.add(org);
+      return { org_number: org, customer_name: name, contact_person: person, contact_email: email, status, reason };
+    });
+    return rows;
+  }, [user?.id]);
+
+  const handleBulkFile = async (file: File) => {
+    const text = await file.text();
+    setBulkText(text);
+    const rows = await parseBulk(text);
+    setBulkRows(rows);
+  };
+
+  const handleBulkParse = async () => {
+    const rows = await parseBulk(bulkText);
+    setBulkRows(rows);
+    if (rows.length === 0) toast.error("Fant ingen rader å importere");
+  };
+
+  const handleBulkSave = async () => {
+    if (!user?.id) return;
+    const valid = bulkRows.filter((r) => r.status === "ok");
+    if (valid.length === 0) {
+      toast.error("Ingen gyldige rader å importere");
+      return;
+    }
+    setSaving(true);
+    try {
+      const customerRows = valid.map((r) => ({
+        msp_user_id: user.id,
+        customer_name: r.customer_name,
+        org_number: r.org_number,
+        contact_person: r.contact_person || null,
+        contact_email: r.contact_email || null,
+        compliance_score: 0,
+        status: "active",
+        active_frameworks: [] as string[],
+        subscription_plan: "Gratis",
+        onboarding_completed: false,
+      }));
+      const { data: inserted, error } = await supabase
+        .from("msp_customers")
+        .insert(customerRows as any)
+        .select("id, customer_name, org_number");
+      if (error) throw error;
+
+      // Create matching self-asset for each
+      if (inserted && inserted.length > 0) {
+        const assets = inserted.map((c: any) => ({
+          name: c.customer_name,
+          asset_type: "self",
+          org_number: c.org_number,
+          description: `Trust Profile for ${c.customer_name}`,
+          compliance_score: 0,
+          lifecycle_status: "active",
+          metadata: { created_by_msp: true, msp_customer_id: c.id, bulk_import: true },
+        }));
+        await supabase.from("assets").insert(assets as any);
+      }
+
+      setBulkSavedCount(inserted?.length || 0);
+      setStep("bulk-success");
+      setTimeout(() => {
+        onOpenChange(false);
+        onSuccess();
+      }, 2500);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Kunne ikke importere kunder: " + (err?.message || ""));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const currentStepIndex = STEP_LABELS.indexOf(
     step === "results" || step === "verifying" ? "search" : step === "success" ? "confirm" : step
   );
@@ -292,15 +420,17 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   <p className="text-sm text-muted-foreground">Søk i Brønnøysundregistrene og registrer</p>
                 </div>
               </button>
-              <button disabled className="w-full flex items-center gap-4 rounded-lg border border-border p-4 text-left opacity-50 cursor-not-allowed">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <button
+                onClick={() => setStep("bulk")}
+                className="w-full flex items-center gap-4 rounded-lg border border-border p-4 text-left hover:border-primary hover:bg-primary/5 transition-colors"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <FileSpreadsheet className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-foreground">Importer fra CSV</p>
-                  <p className="text-sm text-muted-foreground">Last opp en fil med flere kunder</p>
+                  <p className="text-sm text-muted-foreground">Last opp fil eller lim inn flere kunder samtidig</p>
                 </div>
-                <Badge variant="outline" className="text-xs">Kommer snart</Badge>
               </button>
               <button disabled className="w-full flex items-center gap-4 rounded-lg border border-border p-4 text-left opacity-50 cursor-not-allowed">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
@@ -314,6 +444,129 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
               </button>
             </div>
           </>
+        )}
+
+        {/* Step: Bulk import */}
+        {step === "bulk" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-lg">Importer flere kunder</DialogTitle>
+              <DialogDescription className="text-sm">
+                Last opp en CSV-fil eller lim inn rader. Format: <code className="text-xs">org.nr;navn;kontaktperson;e-post</code>
+              </DialogDescription>
+            </DialogHeader>
+
+            {bulkRows.length === 0 && (
+              <div className="space-y-3">
+                <div className="rounded-lg border-2 border-dashed border-border p-6 text-center">
+                  <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                  <Label htmlFor="bulk-file" className="cursor-pointer text-sm font-medium text-primary hover:underline">
+                    Velg CSV-fil
+                  </Label>
+                  <input
+                    id="bulk-file"
+                    type="file"
+                    accept=".csv,.txt,text/csv"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleBulkFile(f);
+                    }}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">eller dra og slipp her</p>
+                </div>
+
+                <div className="text-center text-xs text-muted-foreground">— eller lim inn —</div>
+
+                <Textarea
+                  placeholder={`936431127;Framdrift Innovasjon AS;Marte Solberg;marte@framdrift.no\n998877665;Eksempel AS;Ola Nordmann;ola@eksempel.no`}
+                  value={bulkText}
+                  onChange={(e) => setBulkText(e.target.value)}
+                  rows={6}
+                  className="font-mono text-xs"
+                />
+
+                <div className="flex justify-between">
+                  <Button variant="ghost" size="sm" onClick={() => setStep("method")} className="gap-1">
+                    <ArrowLeft className="h-4 w-4" /> Tilbake
+                  </Button>
+                  <Button size="sm" onClick={handleBulkParse} disabled={!bulkText.trim()}>
+                    Forhåndsvis
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {bulkRows.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Badge variant="action" className="text-[10px]">{bulkRows.filter(r => r.status === "ok").length} klar</Badge>
+                  {bulkRows.some(r => r.status === "duplicate") && (
+                    <Badge variant="warning" className="text-[10px]">{bulkRows.filter(r => r.status === "duplicate").length} duplikat</Badge>
+                  )}
+                  {bulkRows.some(r => r.status === "invalid") && (
+                    <Badge variant="destructive" className="text-[10px]">{bulkRows.filter(r => r.status === "invalid").length} feil</Badge>
+                  )}
+                </div>
+
+                <div className="max-h-72 overflow-y-auto rounded-lg border border-border divide-y divide-border">
+                  {bulkRows.map((r, i) => (
+                    <div key={i} className="flex items-start gap-2 px-3 py-2 text-xs">
+                      <div className="mt-0.5">
+                        {r.status === "ok" && <CheckCircle2 className="h-3.5 w-3.5 text-success" />}
+                        {r.status === "duplicate" && <AlertCircle className="h-3.5 w-3.5 text-warning" />}
+                        {r.status === "invalid" && <AlertCircle className="h-3.5 w-3.5 text-destructive" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">{r.customer_name || "(uten navn)"}</p>
+                        <p className="text-muted-foreground tabular-nums">
+                          {r.org_number || "—"} {r.contact_email && `· ${r.contact_email}`}
+                        </p>
+                        {r.reason && <p className="text-[11px] text-muted-foreground italic">{r.reason}</p>}
+                      </div>
+                      <button
+                        onClick={() => setBulkRows(bulkRows.filter((_, idx) => idx !== i))}
+                        className="text-muted-foreground hover:text-destructive p-0.5"
+                        aria-label="Fjern"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-between gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setBulkRows([]); setBulkText(""); }}
+                    className="gap-1"
+                  >
+                    <ArrowLeft className="h-4 w-4" /> Start på nytt
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleBulkSave}
+                    disabled={saving || bulkRows.filter(r => r.status === "ok").length === 0}
+                  >
+                    {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                    Importer {bulkRows.filter(r => r.status === "ok").length} kunder
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Step: Bulk success */}
+        {step === "bulk-success" && (
+          <div className="py-10 text-center space-y-3">
+            <div className="mx-auto h-12 w-12 rounded-full bg-success/10 flex items-center justify-center">
+              <CheckCircle2 className="h-6 w-6 text-success" />
+            </div>
+            <p className="text-base font-medium text-foreground">{bulkSavedCount} kunder importert</p>
+            <p className="text-sm text-muted-foreground">Trust Profile opprettet for hver kunde.</p>
+          </div>
         )}
 
         {/* Step: Search */}
