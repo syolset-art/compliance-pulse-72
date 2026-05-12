@@ -550,29 +550,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </div>
             </section>
 
-            {/* Summary */}
-            <section className="space-y-5">
-              <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-primary" />
-                <h3 className="text-base font-semibold text-foreground">{isNb ? "Sammendrag" : "Summary"}</h3>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {[
-                  { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
-                  { value: String(policies.length), label: isNb ? "Retningslinjer" : "Policies", color: "" },
-                  { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
-                  { value: dpaOk ? "✓" : "–", label: "DPA", color: dpaOk ? "text-success" : "text-muted-foreground" },
-                ].map((item, i) => (
-                  <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
-                    <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
-                    <p className="text-[13px] text-muted-foreground mt-0.5">{item.label}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <div className="border-t border-border" />
-
             {/* Kontaktinformasjon — role-based, no personal names */}
             {(() => {
               const a: any = asset || {};
@@ -684,6 +661,27 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </>
               );
             })()}
+
+            {/* Summary */}
+            <section className="space-y-5">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-primary" />
+                <h3 className="text-base font-semibold text-foreground">{isNb ? "Sammendrag" : "Summary"}</h3>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
+                  { value: String(policies.length), label: isNb ? "Retningslinjer" : "Policies", color: "" },
+                  { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
+                  { value: dpaOk ? "✓" : "–", label: "DPA", color: dpaOk ? "text-success" : "text-muted-foreground" },
+                ].map((item, i) => (
+                  <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
+                    <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
+                    <p className="text-[13px] text-muted-foreground mt-0.5">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
 
             {/* Documentation */}
             {(() => {
