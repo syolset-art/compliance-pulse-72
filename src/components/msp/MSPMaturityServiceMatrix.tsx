@@ -11,9 +11,14 @@ import {
   Clock,
   CheckCircle2,
   ChevronRight,
+  ChevronDown,
   X,
   FileText,
   Package,
+  Circle,
+  AlertCircle,
+  Bot,
+  User as UserIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
@@ -45,11 +50,24 @@ interface Recommendation {
   hourlyRate: number;
 }
 
+interface ControlPoint {
+  id: string;
+  name: string;
+  desc: string;
+  status: "missing" | "partial" | "fulfilled";
+  capability: "auto" | "assisted" | "manual";
+  progress?: number;
+  source?: string;
+}
+
 interface OngoingItem {
   id: string;
   title: string;
   status: "pending" | "accepted";
   meta: string;
+  frameworkId?: string;
+  frameworkLabel?: string;
+  controls?: ControlPoint[];
 }
 
 const HOURLY_RATE = 1500;
@@ -104,8 +122,56 @@ const RECOMMENDATIONS: Recommendation[] = [
 ];
 
 const ONGOING: OngoingItem[] = [
-  { id: "iso", title: "ISO 27001-klargjøring", status: "pending", meta: "Tilbud sendt 28. april · Avventer svar" },
-  { id: "aware", title: "Awareness-program", status: "accepted", meta: "Akseptert 12. april · Oppstart 15. mai" },
+  {
+    id: "iso",
+    title: "ISO 27001-klargjøring",
+    status: "pending",
+    meta: "Tilbud sendt 28. april · Avventer svar",
+  },
+  {
+    id: "aware",
+    title: "Awareness-program",
+    status: "accepted",
+    meta: "Akseptert 12. april · Oppstart 15. mai",
+    frameworkId: "iso27001",
+    frameworkLabel: "ISO 27001",
+    controls: [
+      {
+        id: "A.6.3",
+        name: "Sikkerhetsbevissthet, opplæring og trening",
+        desc: "Ansatte skal motta jevnlig opplæring i informasjonssikkerhet og oppdaterte trusler.",
+        status: "partial",
+        capability: "assisted",
+        progress: 60,
+        source: "Awareness-plattform",
+      },
+      {
+        id: "A.5.10",
+        name: "Akseptabel bruk av informasjonsmidler",
+        desc: "Etabler regler for akseptabel bruk og kommuniser dette til alle ansatte.",
+        status: "missing",
+        capability: "manual",
+        progress: 0,
+      },
+      {
+        id: "A.5.24",
+        name: "Planlegging og forberedelse av hendelseshåndtering",
+        desc: "Definer og kommuniser ansvar og rutiner for håndtering av sikkerhetshendelser.",
+        status: "missing",
+        capability: "assisted",
+        progress: 0,
+      },
+      {
+        id: "A.7.7",
+        name: "Tomt skrivebord og tom skjerm",
+        desc: "Etabler praksis for låsing av skjerm og rydding av sensitive papirer.",
+        status: "fulfilled",
+        capability: "auto",
+        progress: 100,
+        source: "Endpoint-policy",
+      },
+    ],
+  },
 ];
 
 interface DeliveryItem {
@@ -145,6 +211,8 @@ export function MSPMaturityServiceMatrix() {
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
+  const [expandedOngoing, setExpandedOngoing] = useState<string | null>("aware");
+  const [controlFilter, setControlFilter] = useState<"all" | "missing" | "partial" | "fulfilled">("all");
 
   const openGap = (frameworkId?: string) => {
     setGapFrameworkId(frameworkId);
@@ -277,9 +345,27 @@ export function MSPMaturityServiceMatrix() {
         <TabsContent value="ongoing" className="space-y-2 mt-0">
           {ONGOING.map(o => {
             const isPending = o.status === "pending";
+            const isOpen = expandedOngoing === o.id;
+            const hasControls = !!o.controls && o.controls.length > 0;
+            const counts = {
+              all: o.controls?.length ?? 0,
+              missing: o.controls?.filter(c => c.status === "missing").length ?? 0,
+              partial: o.controls?.filter(c => c.status === "partial").length ?? 0,
+              fulfilled: o.controls?.filter(c => c.status === "fulfilled").length ?? 0,
+            };
+            const filtered = (o.controls ?? []).filter(c =>
+              controlFilter === "all" ? true : c.status === controlFilter
+            );
             return (
-              <Card key={o.id} className="p-3 hover:border-primary/30 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
+              <Card key={o.id} className="overflow-hidden hover:border-primary/30 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => hasControls && setExpandedOngoing(isOpen ? null : o.id)}
+                  className={cn(
+                    "w-full flex items-center gap-3 p-3 text-left",
+                    hasControls && "hover:bg-muted/30 cursor-pointer"
+                  )}
+                >
                   <div className={cn(
                     "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
                     isPending ? "bg-warning/10" : "bg-success/10"
@@ -289,8 +375,22 @@ export function MSPMaturityServiceMatrix() {
                       : <CheckCircle2 className="h-4 w-4 text-success" />}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{o.title}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold text-foreground truncate">{o.title}</p>
+                      {o.frameworkLabel && (
+                        <Badge variant="outline" className="text-[10px] gap-1">
+                          <FileText className="h-3 w-3" />
+                          {o.frameworkLabel}
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-[12px] text-muted-foreground">{o.meta}</p>
+                    {hasControls && (
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        {counts.all} kontrollpunkt · <span className="text-destructive font-medium">{counts.missing} mangler</span>
+                        {counts.partial > 0 && <> · <span className="text-warning font-medium">{counts.partial} delvis</span></>}
+                      </p>
+                    )}
                   </div>
                   <Badge variant="outline" className={cn(
                     "text-[10px]",
@@ -298,8 +398,53 @@ export function MSPMaturityServiceMatrix() {
                   )}>
                     {isPending ? "Venter" : "Akseptert"}
                   </Badge>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                </div>
+                  {hasControls ? (
+                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", isOpen && "rotate-180")} />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  )}
+                </button>
+
+                {isOpen && hasControls && (
+                  <div className="border-t border-border bg-muted/20 p-3 space-y-3">
+                    {/* Filter pills */}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {([
+                        { v: "all", label: "Alle", n: counts.all },
+                        { v: "missing", label: "Ikke oppfylt", n: counts.missing },
+                        { v: "partial", label: "Delvis", n: counts.partial },
+                        { v: "fulfilled", label: "Oppfylt", n: counts.fulfilled },
+                      ] as const).map(f => {
+                        const active = controlFilter === f.v;
+                        return (
+                          <button
+                            key={f.v}
+                            type="button"
+                            onClick={() => setControlFilter(f.v)}
+                            className={cn(
+                              "h-7 px-2.5 rounded-full text-[11px] border transition-colors",
+                              active
+                                ? "bg-primary/10 text-primary border-primary/40"
+                                : "bg-background text-muted-foreground border-border hover:text-foreground"
+                            )}
+                          >
+                            {f.label} <span className="tabular-nums">({f.n})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Controls list */}
+                    <div className="space-y-2">
+                      {filtered.map(c => <ControlRow key={c.id} c={c} frameworkLabel={o.frameworkLabel} />)}
+                      {filtered.length === 0 && (
+                        <p className="text-[12px] text-muted-foreground text-center py-4">
+                          Ingen kontrollpunkter i denne visningen.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
               </Card>
             );
           })}
@@ -371,5 +516,89 @@ export function MSPMaturityServiceMatrix() {
         }}
       />
     </div>
+  );
+}
+
+function ControlRow({ c, frameworkLabel }: { c: ControlPoint; frameworkLabel?: string }) {
+  const [open, setOpen] = useState(false);
+
+  const statusMap = {
+    missing: { Icon: Circle, cls: "text-destructive", label: "Ikke oppfylt" },
+    partial: { Icon: AlertCircle, cls: "text-warning", label: "Delvis oppfylt" },
+    fulfilled: { Icon: CheckCircle2, cls: "text-success", label: "Oppfylt" },
+  } as const;
+  const capMap = {
+    auto: { Icon: Bot, label: "Auto", cls: "bg-success/10 text-success border-success/30" },
+    assisted: { Icon: Sparkles, label: "Assistert", cls: "bg-primary/10 text-primary border-primary/30" },
+    manual: { Icon: UserIcon, label: "Manuell", cls: "bg-muted text-muted-foreground border-border" },
+  } as const;
+  const s = statusMap[c.status];
+  const cap = capMap[c.capability];
+  const StatusIcon = s.Icon;
+  const CapIcon = cap.Icon;
+
+  return (
+    <Card className="p-3">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-start gap-3 text-left"
+      >
+        <StatusIcon className={cn("h-4 w-4 mt-0.5 shrink-0", s.cls)} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-mono text-muted-foreground">{c.id}</span>
+            <span className="text-sm font-semibold text-foreground">{c.name}</span>
+          </div>
+          <p className="text-[12px] text-muted-foreground line-clamp-2 mt-0.5">{c.desc}</p>
+        </div>
+        <Badge variant="outline" className={cn("text-[10px] gap-1 shrink-0", cap.cls)}>
+          <CapIcon className="h-3 w-3" />
+          {cap.label}
+        </Badge>
+        <span className="text-[11px] text-muted-foreground tabular-nums shrink-0 w-9 text-right">
+          {c.progress ?? 0}%
+        </span>
+        <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", open && "rotate-180")} />
+      </button>
+
+      {open && (
+        <div className="mt-3 pt-3 border-t border-border space-y-3">
+          <p className={cn("text-[12px] font-medium", s.cls)}>Status: {s.label}</p>
+
+          {c.status !== "fulfilled" && (
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 space-y-2">
+              <div className="flex items-start gap-2">
+                <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                <div className="flex-1">
+                  <p className="text-[12px] font-semibold text-foreground">
+                    {c.status === "partial" ? "Lara har delvis data — dette gjenstår" : "Lara kan hjelpe deg å fylle inn dette"}
+                  </p>
+                  {c.source && (
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Lara henter dette fra: {c.source}</p>
+                  )}
+                  <p className="text-[12px] text-muted-foreground mt-1">
+                    Lara kan forberede et utkast basert på dataene, men trenger din godkjenning før det regnes som oppfylt.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <Button size="sm" className="h-7 text-xs gap-1.5">
+                  Fyll ut for kunde <ChevronRight className="h-3 w-3" />
+                </Button>
+                <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5">
+                  <UserIcon className="h-3 w-3" />
+                  Dokumenter manuelt
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {frameworkLabel && (
+            <p className="text-[11px] text-muted-foreground">Referanse: {frameworkLabel} · {c.id}</p>
+          )}
+        </div>
+      )}
+    </Card>
   );
 }
