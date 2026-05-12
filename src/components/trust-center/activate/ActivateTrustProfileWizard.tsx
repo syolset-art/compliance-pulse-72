@@ -25,25 +25,35 @@ interface Props {
   inline?: boolean;
   /** Pre-known company name (e.g. from logged-in customer's company_profile). Skips Welcome and auto-searches Brreg. */
   initialCompanyName?: string;
+  /** Pre-known org number. When set, Brreg lookup is skipped and the org block is shown as confirmed. */
+  initialOrgNumber?: string;
+  /** Pre-known domain/website. Used as the website suggestion to verify. */
+  initialDomain?: string;
 }
 
 type Step = 0 | 1 | 2 | 3 | 4;
 
 const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Publiser"];
 
-export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompleted, inline, initialCompanyName }: Props) {
+export default function ActivateTrustProfileWizard({
+  open, onOpenChange, onCompleted, inline,
+  initialCompanyName, initialOrgNumber, initialDomain,
+}: Props) {
   const queryClient = useQueryClient();
   // When we already know the customer (logged-in), skip Welcome and start at Organisasjon.
   const hasPrefill = !!(initialCompanyName && initialCompanyName.trim());
+  // When org number is also known, the wizard becomes a single "verify website" step.
+  const hasOrgPrefill = hasPrefill && !!(initialOrgNumber && initialOrgNumber.trim());
   const [step, setStep] = useState<Step>(hasPrefill ? 1 : 0);
 
   // Step 1: org
   const [companyName, setCompanyName] = useState(initialCompanyName ?? "");
-  const [orgNumber, setOrgNumber] = useState("");
+  const [orgNumber, setOrgNumber] = useState(initialOrgNumber ?? "");
   const [country] = useState("Norge");
-  const [website, setWebsite] = useState("");
+  const normalizeUrl = (u: string) => (u && !/^https?:\/\//i.test(u) ? `https://${u}` : u);
+  const [website, setWebsite] = useState(initialDomain ? normalizeUrl(initialDomain) : "");
   const [websiteVerified, setWebsiteVerified] = useState(false);
-  const [verified, setVerified] = useState(false);
+  const [verified, setVerified] = useState(hasOrgPrefill);
   const { searchByName, lookupByOrgNumber, searchResults, isLoading } = useBrregLookup();
   const autoSearchedRef = useRef(false);
 
@@ -71,25 +81,36 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
       setTimeout(() => {
         setStep(hasPrefill ? 1 : 0);
         setCompanyName(initialCompanyName ?? "");
-        setOrgNumber("");
-        setWebsite("");
+        setOrgNumber(initialOrgNumber ?? "");
+        setWebsite(initialDomain ? normalizeUrl(initialDomain) : "");
         setWebsiteVerified(false);
-        setVerified(false);
+        setVerified(hasOrgPrefill);
         setScan(null);
         setScanProgress(0);
         setRevealed(0);
         autoSearchedRef.current = false;
       }, 200);
     }
-  }, [open, hasPrefill, initialCompanyName]);
+  }, [open, hasPrefill, hasOrgPrefill, initialCompanyName, initialOrgNumber, initialDomain]);
 
-  // Auto-search Brreg when we already know the customer's company name.
+  // Auto-search Brreg only when we know the name but NOT the org number.
   useEffect(() => {
-    if (!open || !hasPrefill || autoSearchedRef.current) return;
+    if (!open || !hasPrefill || hasOrgPrefill || autoSearchedRef.current) return;
     if (orgNumber) return;
     autoSearchedRef.current = true;
     searchByName(initialCompanyName!).catch(() => {});
-  }, [open, hasPrefill, initialCompanyName, orgNumber, searchByName]);
+  }, [open, hasPrefill, hasOrgPrefill, initialCompanyName, orgNumber, searchByName]);
+
+  // Auto-derive a website suggestion from company name when org is prefilled but no domain provided.
+  useEffect(() => {
+    if (!open || !hasOrgPrefill || website) return;
+    const slug = (initialCompanyName ?? "")
+      .toLowerCase()
+      .replace(/\s+(as|asa)\s*$/i, "")
+      .replace(/\s+/g, "")
+      .replace(/[^a-z0-9]/g, "");
+    if (slug) setWebsite(`https://${slug}.no`);
+  }, [open, hasOrgPrefill, initialCompanyName, website]);
 
   // Run scan animation when entering step 2
   useEffect(() => {
@@ -210,16 +231,20 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
       </div>
       <h2 className="text-xl font-semibold">
         {step === 0 && "Lag din egen Trust Profile"}
-        {step === 1 && (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din")}
+        {step === 1 && (hasOrgPrefill
+          ? "Bekreft hjemmesiden din"
+          : (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din"))}
         {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
         {step === 3 && "Bekreft og juster informasjonen"}
         {step === 4 && "Forhåndsvis og publiser"}
       </h2>
       <p className="text-sm text-muted-foreground">
         {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
-        {step === 1 && (hasPrefill
-          ? "Vi vet allerede hvem du er. For å gjøre resten automatisk trenger Lara organisasjonsnummeret og hjemmesiden din."
-          : "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start.")}
+        {step === 1 && (hasOrgPrefill
+          ? "Vi har allerede selskapsnavn, organisasjonsnummer og land. For å fortsette trenger Lara hjemmesiden din."
+          : (hasPrefill
+            ? "Vi vet allerede hvem du er. For å gjøre resten automatisk trenger Lara organisasjonsnummeret og hjemmesiden din."
+            : "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start."))}
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
         {step === 4 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
@@ -247,6 +272,7 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
           onSearch={handleSearchName}
           onPick={pickRegistry}
           companyNameLocked={hasPrefill}
+          orgPrefilled={hasOrgPrefill}
         />
       )}
       {step === 2 && scan && (
@@ -380,9 +406,44 @@ function WelcomeStep() {
 function OrgStep({
   companyName, setCompanyName, orgNumber, setOrgNumber, website, setWebsite,
   websiteVerified, onVerifyWebsite,
-  verified, isLoading, searchResults, onSearch, onPick, companyNameLocked,
+  verified, isLoading, searchResults, onSearch, onPick, companyNameLocked, orgPrefilled,
 }: any) {
   const showSearchHint = companyNameLocked && !orgNumber && (searchResults?.length ?? 0) === 0 && !isLoading;
+
+  // Compact "confirmed organisation" summary when everything except website is known.
+  if (orgPrefilled) {
+    return (
+      <div className="space-y-4">
+        <Card className="p-4 bg-primary/5 border-primary/20">
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+              <Building2 className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold truncate">{companyName}</p>
+                <Badge variant="outline" className="text-[10px] gap-1 border-success/40 text-success">
+                  <CheckCircle2 className="h-2.5 w-2.5" /> Verifisert
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Org.nr {orgNumber} · Norge
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <WebsiteVerifyField
+          website={website}
+          setWebsite={setWebsite}
+          websiteVerified={websiteVerified}
+          onVerifyWebsite={onVerifyWebsite}
+          enabled={true}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -452,39 +513,13 @@ function OrgStep({
         </div>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>Hjemmeside</Label>
-          {verified && website && !websiteVerified && (
-            <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
-              <Sparkles className="h-2.5 w-2.5" /> Forslag fra Lara
-            </Badge>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <Input
-            value={website}
-            onChange={(e) => setWebsite(e.target.value)}
-            placeholder="https://example.no"
-            disabled={!verified}
-          />
-          <Button
-            variant={websiteVerified ? "outline" : "default"}
-            onClick={onVerifyWebsite}
-            disabled={!verified || website.trim().length < 4 || websiteVerified}
-            className="gap-1.5 shrink-0"
-          >
-            {websiteVerified ? (<><CheckCircle2 className="h-4 w-4" /> Bekreftet</>) : "Bekreft"}
-          </Button>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          {!verified
-            ? "Velg organisasjon først — så foreslår Lara hjemmesiden automatisk."
-            : websiteVerified
-              ? "Lara bruker denne i neste steg for å hente bedriftsinfo, kontakter, personvern og sikkerhet."
-              : "Stemmer adressen? Juster hvis ikke, og trykk Bekreft."}
-        </p>
-      </div>
+      <WebsiteVerifyField
+        website={website}
+        setWebsite={setWebsite}
+        websiteVerified={websiteVerified}
+        onVerifyWebsite={onVerifyWebsite}
+        enabled={verified}
+      />
 
       {verified && (
         <div className="flex items-center gap-2 text-xs text-success">
@@ -492,6 +527,53 @@ function OrgStep({
           Verifisert mot Brønnøysundregistrene
         </div>
       )}
+    </div>
+  );
+}
+
+function WebsiteVerifyField({
+  website, setWebsite, websiteVerified, onVerifyWebsite, enabled,
+}: {
+  website: string;
+  setWebsite: (v: string) => void;
+  websiteVerified: boolean;
+  onVerifyWebsite: () => void;
+  enabled: boolean;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label>Hjemmeside</Label>
+        {enabled && website && !websiteVerified && (
+          <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
+            <Sparkles className="h-2.5 w-2.5" /> Forslag fra Lara
+          </Badge>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <Input
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+          placeholder="https://example.no"
+          disabled={!enabled}
+          autoFocus={enabled && !websiteVerified}
+        />
+        <Button
+          variant={websiteVerified ? "outline" : "default"}
+          onClick={onVerifyWebsite}
+          disabled={!enabled || website.trim().length < 4 || websiteVerified}
+          className="gap-1.5 shrink-0"
+        >
+          {websiteVerified ? (<><CheckCircle2 className="h-4 w-4" /> Bekreftet</>) : "Bekreft"}
+        </Button>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        {!enabled
+          ? "Velg organisasjon først — så foreslår Lara hjemmesiden automatisk."
+          : websiteVerified
+            ? "Lara bruker denne i neste steg for å hente bedriftsinfo, kontakter, personvern og sikkerhet."
+            : "Stemmer adressen? Juster hvis ikke, og trykk Bekreft."}
+      </p>
     </div>
   );
 }
