@@ -114,6 +114,13 @@ export async function seedDemoTrustProfile() {
   return { selfAssetId };
 }
 
+export interface ActivationDocument {
+  slot: string;
+  title: string;
+  status: "found" | "uploaded" | "skipped";
+  fileName?: string;
+}
+
 export interface ActivationValues {
   name: string;
   orgNumber: string;
@@ -128,6 +135,8 @@ export interface ActivationValues {
   dpoName?: string;
   dpoEmail?: string;
   securityEmail?: string;
+  maturityAnswers?: Record<string, "yes" | "no" | "later">;
+  documents?: ActivationDocument[];
   publishNow: boolean;
 }
 
@@ -151,7 +160,7 @@ export async function seedFromActivation(values: ActivationValues) {
     is_msp_partner: false,
   };
 
-  const selfAsset = {
+  const selfAsset: any = {
     asset_type: "self" as const,
     name: values.name,
     description: values.description,
@@ -166,6 +175,11 @@ export async function seedFromActivation(values: ActivationValues) {
     contact_person: values.contactPerson || null,
     contact_email: values.contactEmail || null,
     url: values.url || null,
+    metadata: {
+      maturity: values.maturityAnswers || {},
+      documents: values.documents || [],
+      activation_completed_at: new Date().toISOString(),
+    },
   };
 
   const { data: existing } = await supabase.from("company_profile").select("id").limit(1);

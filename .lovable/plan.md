@@ -1,69 +1,75 @@
+# Utvide wizarden fra 5 til 7 steg
 
-# Partner-tagging av kunder
+I dag har `ActivateTrustProfileWizard` 5 steg (0–4). Vi utvider til 7 steg (0–6) ved å legge inn **Modenhet** etter dagens bekreft-steg, og **Dokumenter** før forhåndsvisning.
 
-## Mål
-90% av kundene kommer via en MSP/MSSP/IT-partner. Vi trenger ett tydelig sted hvor det fremkommer **hvem som er kundens partner**, og denne taggen må:
-- settes automatisk når en partner oppretter kunden,
-- kunne settes manuelt for direktekunder (10%) som ønsker å koble på en partner i ettertid,
-- være synlig på tvers av plattformen (intern bruk + Trust Profile utad).
+## Ny stegrekkefølge
 
-## Hvor lagres det
+| # | Navn | Endring |
+|---|------|---------|
+| 0 | Velkommen | uendret |
+| 1 | Organisasjon | uendret |
+| 2 | Lara-skanning | uendret |
+| 3 | Bekreft (Om virksomheten + Kontakter) | uendret |
+| 4 | **Modenhet — Ja/Nei/Senere** | NY |
+| 5 | **Dokumenter** | NY |
+| 6 | Forhåndsvis & publiser | flyttet fra 4 |
 
-Utvid `company_profile` (kundens egen organisasjon) med:
-- `partner_company_id` — referanse til partnerens organisasjon (nullable)
-- `partner_name` — denormalisert visningsnavn (nullable, fallback når relasjonen er ekstern)
-- `partner_type` — enum-tekst: `msp`, `mssp`, `it_partner`, `consultant`, `other`
-- `partner_role_description` — kort fritekst (f.eks. "Drift + sikkerhetsovervåking")
-- `partner_since` — dato
-- `managed_by_partner` — boolean (default false; settes true når partner_company_id finnes)
+Progress-bar, "Steg X av 7", `next/back`-grenser og `canProceed` oppdateres tilsvarende.
 
-Dette holdes på `company_profile` (ikke `msp_customers`) fordi:
-- relasjonen tilhører kunden, ikke partneren,
-- direktekunder skal også kunne sette en partner uten at vi har en `msp_customers`-rad,
-- gjør det enkelt å vise "Managed by X" i kundens egen UI uten join mot MSP-tabeller.
+## Steg 4 — Modenhet (kjernen)
 
-`msp_customers` beholdes som partnerens portefølje-view, men ved opprettelse skal den **auto-skrive partner-feltene over på kundens `company_profile`**.
+En kompakt liste med 4 kontrollområder. Hvert spørsmål har en rad med:
+- Spørsmålstekst
+- Liten **Info-ikon** (hover/tooltip viser GDPR-artikkel — f.eks. "Art. 30", "Art. 28") — artikkelen vises *aldri* i hovedteksten
+- Tre-knapp toggle: **Ja / Nei / Senere**
+- Hvis Lara har forhåndsutfylt svar: liten Lara-pille med tooltip "Foreslått av Lara basert på [dokumentnavn]". Brukeren kan bekrefte (lar stå) eller overstyre.
 
-## Hvor det vises
+### Kontrollområder og spørsmål (alle på norsk, eksakt som brukeren skrev)
 
-1. **Sidebar / Org-switcher (alle sider)**
-   Liten "Managed by [partner]"-chip under organisasjonsnavnet. Subtil, ikke fargesterk.
+**1. Styring** — eierskap, ansvar, dokumentasjon (5 spørsmål, knyttet til Art. 24, 13, 24, 30, 39)
+**2. Drift og sikkerhet** — tekniske/organisatoriske tiltak (5 spørsmål, Art. 32, 32, 33, 32, 32)
+**3. Personvern og datahåndtering** — GDPR-kjerne (5 spørsmål, Art. 6, 5(1c), 5(1e), 15–20, 44–49)
+**4. Tredjepartsstyring** — databehandlere (4 spørsmål, Art. 30(1f), 28, 28(1)+35, 28(2))
 
-2. **Top bar / dashboard-header**
-   Ett tynt grått ribbon øverst på dashbordet for kunder med partner: "Administrert av Acme IT — kontakt partner" med liten lenke til partnerinfo-drawer.
+Visuelt: hvert område er et `<Card>` med ikon (Users / ShieldCheck / Lock / Globe) og tittel, så liste av spørsmål under. Layout følger Apple-minimal stil (samme som dagens FieldGroup).
 
-3. **Admin → Organisasjon** (`AdminOrganisation.tsx` / `CompanyInfoForm.tsx`)
-   Egen seksjon "Partner og leveranse" med alle feltene over. For partner-eide kunder vises feltet som lest med liten "Endre"-knapp som krever bekreftelse (forhindrer at sluttkunden ved et uhell kobler fra partneren).
+### Lara-forhåndsutfylling
 
-4. **Trust Profile (utad)**
-   Under "Om virksomheten" vises "Drift og sikkerhet leveres av: [partner]" — bygger tillit, og er ofte etterspurt i due diligence. Kan skjules av kunden hvis ønsket (toggle på partner-seksjonen).
+Basert på funnene fra steg 2 (`scan.findings` + `scan.security` + `scan.privacy` + `scan.documents`), settes default for utvalgte spørsmål:
+- Personvernerklæring publisert → "Ja" hvis `privacy.policyUrl` finnes
+- Kryptering i hvile/transit → "Ja" hvis `security.encryption` nevnt
+- MFA → "Ja" hvis `security.mfa` nevnt
+- DPA signert med databehandlere → "Nei" hvis DPA mangler i scan
+- Oversikt over databehandlere → "Ja" hvis `dataStorage.subProcessors.length > 0`
+- Resten defaulter til **"Senere"** (ingen press på brukeren)
 
-5. **MSP Partner Dashboard**
-   Allerede viser kundeporteføljen. Nytt: når partner oppretter en kunde via wizard, vises bekreftelse "Kunden er nå tagget som administrert av [partner]".
+State lagres som `Record<questionId, "yes" | "no" | "later">`. Ferdige svar persisteres til Trust Profile metadata via eksisterende `seedFromActivation` (utvides med `maturityAnswers`).
 
-6. **Filter og rapporter**
-   Mulighet til å filtrere lister (vendors/systems/assets) på "Administrert av partner" vs "Direktekunde", og inkludere det i eksporterte rapporter.
+## Steg 5 — Dokumenter
 
-## Onboarding-effekt
+Enkel opplastingsliste som adresserer hull fra steg 4:
+- Forhåndsdefinerte slots: **Personvernerklæring**, **Databehandleravtale (mal)**, **Informasjonssikkerhetspolicy**, **Hendelsesplan** (+ "Annet")
+- Hver slot viser status: ✅ "Funnet av Lara" / ⬆️ "Last opp" / ⏭️ "Hopp over"
+- Drag-and-drop område + `<input type=file>` per slot (mock i denne iterasjonen — lagres som metadata-referanse, faktisk filopplasting kan komme senere)
+- Når bruker laster opp DPA: oppdater Steg 4-svaret "Har dere signert databehandleravtale" automatisk fra "Nei" → "Ja" (ved å mutere `maturityAnswers`-state). Vises som en liten toast: "Lara oppdaterte svaret i Personvern-området."
 
-- **Partner-opprettet kunde:** Når MSP fyller ut "Ny kunde"-wizard, settes partner-feltene automatisk på kundens `company_profile`. Kunden ser ved første innlogging et lite banner: "Profilen din administreres av [partner]. De har satt opp kontoen for deg."
-- **Direktekunde:** I onboarding-flyten legges et valgfritt steg "Har dere en IT- eller sikkerhetspartner?" med to valg: "Ja, koble til" (søk i partnerregister eller skriv inn manuelt) / "Nei, vi gjør dette selv". Kan hoppes over og legges til senere fra Admin → Organisasjon.
+Knapp "Hopp over alle" tilgjengelig — alt er valgfritt.
 
-## Tagger og navigering
+## Steg 6 — Forhåndsvis & publiser
 
-På alle steder hvor en kundeorganisasjon vises i lister (admin-vyer, søk, MSP-portefølje), legg til en liten **partner-chip** ved siden av navnet:
-- Med partner: `🤝 Acme IT` (nøytral grå pille)
-- Uten partner: ingen chip (ikke "Direkte" — unngår støy)
+Dagens `PreviewStep` brukes uendret, men får tilleggs-summering nederst:
+- "Modenhet: X av 19 spørsmål besvart (Ja/Nei), Y markert som «Senere»"
+- "Dokumenter: Z lastet opp / oppdaget"
 
-## Tekniske notater
+## Tekniske detaljer
 
-- Ny migrasjon på `company_profile` med feltene over.
-- Trigger eller applikasjonslogikk: når `msp_customers` opprettes, skriv `partner_company_id`/`partner_name`/`partner_type='msp'`/`managed_by_partner=true` på matchende `company_profile`-rad.
-- Lite hook `usePartnerInfo(companyId)` som returnerer `{ hasPartner, partnerName, partnerType, partnerRoleDescription }` og brukes av sidebar-chip, dashboard-ribbon, Trust Profile-seksjonen og admin-skjemaet.
-- Trust Profile får ny visningsmodul `PartnerDeliverySection` styrt av en boolean `show_partner_on_trust_profile` (default true for partner-opprettede kunder, false ellers).
+**Filer som endres:**
+- `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx` — utvid `Step`-typen til `0..6`, oppdater `next/back`/`canProceed`/header/progress, legg til to nye komponenter `MaturityStep` og `DocumentsStep`
+- `src/lib/demoSeedTrustProfile.ts` — utvid `ActivationValues` med `maturityAnswers: Record<string,"yes"|"no"|"later">` og `documents: {slot, name, status}[]`, sørg for at `seedFromActivation` skriver disse til asset-metadata under `metadata.maturity` og `metadata.documents`
 
-## Avgrensning (gjør IKKE nå)
+**Ny fil:**
+- `src/lib/trustMaturityQuestions.ts` — eksporterer kontrollområder + spørsmål + GDPR-artikkel-referanser som typede konstanter, slik at Maturity-steget og senere drilldown-visninger kan dele samme kilde.
 
-- Ingen multi-partner-støtte i v1 (én partner per kunde). Hvis behovet melder seg senere, lager vi en `company_partners`-tabell med rolle per partner.
-- Ingen automatisk fakturering eller revenue-share i denne PRen — kun relasjon og synlighet.
-- Ingen endringer i RBAC: partner ser fortsatt sin egen MSP-konsoll, kunden ser sin egen konsoll. Partner-chip er kun visuell informasjon.
+**Ingen backend-endringer** — alt lagres i eksisterende `assets.metadata`-JSON for self-asset.
+
+**Ingen nye avhengigheter.**

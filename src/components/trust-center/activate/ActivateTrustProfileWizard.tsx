@@ -11,11 +11,18 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
   CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb, Info,
+  Upload, Check, X, Clock, HelpCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
 import { getLaraScanForDomain, SCAN_STEPS_MS, type LaraScanResult } from "@/lib/demoTrustActivation";
-import { seedFromActivation, type ActivationValues } from "@/lib/demoSeedTrustProfile";
+import { seedFromActivation, type ActivationValues, type ActivationDocument } from "@/lib/demoSeedTrustProfile";
+import {
+  MATURITY_AREAS, ALL_MATURITY_QUESTIONS, DOCUMENT_SLOTS,
+  deriveDefaultAnswers, deriveLaraSources,
+  type MaturityAnswers, type MaturityAnswer,
+} from "@/lib/trustMaturityQuestions";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
   open: boolean;
@@ -31,9 +38,9 @@ interface Props {
   initialDomain?: string;
 }
 
-type Step = 0 | 1 | 2 | 3 | 4;
-
-const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Publiser"];
+type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+const TOTAL_STEPS = 7;
+const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter", "Publiser"];
 
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline,
@@ -75,6 +82,13 @@ export default function ActivateTrustProfileWizard({
   const [encryption, setEncryption] = useState("");
   const [mfa, setMfa] = useState("");
   const [subProcessors, setSubProcessors] = useState("");
+
+  // Step 4: maturity answers
+  const [maturityAnswers, setMaturityAnswers] = useState<MaturityAnswers>({});
+  const [laraSources, setLaraSources] = useState<Record<string, string>>({});
+
+  // Step 5: documents
+  const [documents, setDocuments] = useState<ActivationDocument[]>([]);
 
   // Publishing
   const [isPublishing, setIsPublishing] = useState(false);
@@ -142,7 +156,7 @@ export default function ActivateTrustProfileWizard({
     return () => clearInterval(interval);
   }, [step, website, companyName]);
 
-  // When scan finishes, prefill confirm step
+  // When scan finishes, prefill confirm step + maturity defaults
   useEffect(() => {
     if (!scan) return;
     setDescription(scan.description);
@@ -156,6 +170,17 @@ export default function ActivateTrustProfileWizard({
     setEncryption(scan.security.encryption || "");
     setMfa(scan.security.mfa || "");
     setSubProcessors(scan.dataStorage.subProcessors.join(", "));
+    setMaturityAnswers(deriveDefaultAnswers(scan));
+    setLaraSources(deriveLaraSources(scan));
+    // Pre-populate documents found by scan
+    setDocuments(
+      DOCUMENT_SLOTS.map((slot) => {
+        const found = scan.documents.find((d) => d.type === slot.scanType);
+        return found
+          ? { slot: slot.id, title: slot.title, status: "found" as const, fileName: found.title }
+          : { slot: slot.id, title: slot.title, status: "skipped" as const };
+      }),
+    );
   }, [scan]);
 
   const handleSearchName = async () => {
@@ -187,10 +212,31 @@ export default function ActivateTrustProfileWizard({
     if (step === 2) return revealed >= (scan?.findings.length ?? 0) && scan != null;
     if (step === 3) return description.trim().length > 0;
     return true;
-  }, [step, companyName, orgNumber, website, revealed, scan, description]);
+  }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => setStep((s) => (Math.min(4, s + 1) as Step));
+  const next = () => setStep((s) => (Math.min(6, s + 1) as Step));
   const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
+
+  const updateMaturity = (id: string, answer: MaturityAnswer) => {
+    setMaturityAnswers((prev) => ({ ...prev, [id]: answer }));
+  };
+
+  const uploadDocument = (slotId: string, fileName: string) => {
+    setDocuments((prev) => {
+      const slot = DOCUMENT_SLOTS.find((s) => s.id === slotId);
+      const next = prev.filter((d) => d.slot !== slotId);
+      next.push({ slot: slotId, title: slot?.title || slotId, status: "uploaded", fileName });
+      return next;
+    });
+    const slot = DOCUMENT_SLOTS.find((s) => s.id === slotId);
+    if (slot?.resolvesQuestion) {
+      const current = maturityAnswers[slot.resolvesQuestion];
+      if (current !== "yes") {
+        setMaturityAnswers((prev) => ({ ...prev, [slot.resolvesQuestion!]: "yes" }));
+        toast.success("Lara oppdaterte svaret i Modenhet-steget");
+      }
+    }
+  };
 
   const handlePublish = async (publishNow: boolean) => {
     setIsPublishing(true);
@@ -207,6 +253,8 @@ export default function ActivateTrustProfileWizard({
       contactEmail,
       dpoEmail,
       securityEmail,
+      maturityAnswers,
+      documents,
       publishNow,
     };
     try {
@@ -236,7 +284,7 @@ export default function ActivateTrustProfileWizard({
           <ShieldCheck className="h-4 w-4 text-primary" />
         </div>
         <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-          Aktiver Trust Profile · Steg {step + 1} av 5
+          Aktiver Trust Profile · Steg {step + 1} av {TOTAL_STEPS}
         </span>
         {hasPrefill && step === 1 && (
           <Badge variant="outline" className="ml-auto text-[10px] gap-1 border-primary/30 text-primary">
@@ -251,7 +299,9 @@ export default function ActivateTrustProfileWizard({
           : (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din"))}
         {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
         {step === 3 && "Bekreft og juster informasjonen"}
-        {step === 4 && "Forhåndsvis og publiser"}
+        {step === 4 && "Modenhet — bekreft det Lara fant"}
+        {step === 5 && "Last opp dokumenter"}
+        {step === 6 && "Forhåndsvis og publiser"}
       </h2>
       <p className="text-sm text-muted-foreground">
         {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
@@ -262,9 +312,11 @@ export default function ActivateTrustProfileWizard({
             : "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start."))}
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
-        {step === 4 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
+        {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
+        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
+        {step === 6 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
       </p>
-      <Progress value={(step / 4) * 100} className="h-1" />
+      <Progress value={(step / (TOTAL_STEPS - 1)) * 100} className="h-1" />
     </div>
   );
 
@@ -310,6 +362,12 @@ export default function ActivateTrustProfileWizard({
         />
       )}
       {step === 4 && (
+        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
+      )}
+      {step === 5 && (
+        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+      )}
+      {step === 6 && (
         <PreviewStep
           name={companyName}
           orgNumber={orgNumber}
@@ -321,6 +379,8 @@ export default function ActivateTrustProfileWizard({
           encryption={encryption}
           certifications={scan?.security.certifications ?? []}
           subProcessors={subProcessors}
+          maturityAnswers={maturityAnswers}
+          documents={documents}
         />
       )}
     </div>
@@ -332,7 +392,7 @@ export default function ActivateTrustProfileWizard({
         {step === 0 || (hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
-      {step < 4 ? (
+      {step < 6 ? (
         <div className="flex gap-2">
           {step === 2 && (
             <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -343,7 +403,9 @@ export default function ActivateTrustProfileWizard({
             {step === 0 && (<><Sparkles className="h-4 w-4" /> La Lara starte</>)}
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
-            {step === 3 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
+            {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
+            {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
+            {step === 5 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
@@ -729,7 +791,10 @@ function ConfirmStep(props: any) {
   );
 }
 
-function PreviewStep({ name, orgNumber, description, website, contactName, contactEmail, privacyUrl, encryption, certifications, subProcessors }: any) {
+function PreviewStep({ name, orgNumber, description, website, contactName, contactEmail, privacyUrl, encryption, certifications, subProcessors, maturityAnswers, documents }: any) {
+  const answered = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "yes" || v === "no").length : 0;
+  const later = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "later").length : 0;
+  const docCount = documents ? documents.filter((d: ActivationDocument) => d.status === "uploaded" || d.status === "found").length : 0;
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -787,9 +852,192 @@ function PreviewStep({ name, orgNumber, description, website, contactName, conta
         </div>
       </Card>
 
+      {(maturityAnswers || documents) && (
+        <Card className="p-3 space-y-1.5 text-xs">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+            <span><span className="font-medium text-foreground">Modenhet:</span> {answered} av {ALL_MATURITY_QUESTIONS.length} besvart{later > 0 ? ` · ${later} markert «Senere»` : ""}</span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <FileText className="h-3.5 w-3.5 text-primary" />
+            <span><span className="font-medium text-foreground">Dokumenter:</span> {docCount} klart for profilen</span>
+          </div>
+        </Card>
+      )}
+
       <div className="flex items-start gap-2 text-xs text-muted-foreground p-3 rounded-md bg-muted/40">
         <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
         <span>Når du publiserer blir profilen tilgjengelig på <code className="px-1 bg-background rounded">trust.mynder.no</code> og kan deles med kunder og partnere.</span>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------- Maturity step -------------------- */
+
+function MaturityStep({ answers, sources, onChange }: {
+  answers: MaturityAnswers;
+  sources: Record<string, string>;
+  onChange: (id: string, answer: MaturityAnswer) => void;
+}) {
+  return (
+    <TooltipProvider delayDuration={150}>
+      <div className="space-y-3">
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
+          <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <p className="text-xs text-foreground/80 leading-relaxed">
+            Lara har forhåndsutfylt det hun fant i kartleggingen. Bekreft, overstyr eller marker «Senere» — alt er valgfritt nå.
+          </p>
+        </div>
+
+        {MATURITY_AREAS.map((area) => {
+          const Icon = area.icon;
+          return (
+            <Card key={area.id} className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Icon className="h-4 w-4 text-primary" />
+                <div>
+                  <h4 className="text-sm font-semibold leading-tight">{area.title}</h4>
+                  <p className="text-[11px] text-muted-foreground">{area.subtitle}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {area.questions.map((q) => {
+                  const val = answers[q.id] ?? "later";
+                  const laraSrc = sources[q.id];
+                  return (
+                    <div key={q.id} className="flex items-start gap-3 py-1.5 border-t border-border first:border-t-0 first:pt-0">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start gap-1.5">
+                          <p className="text-sm text-foreground leading-snug">{q.text}</p>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button type="button" className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0">
+                                <Info className="h-3.5 w-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs text-xs">
+                              GDPR {q.article}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        {laraSrc && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary cursor-help">
+                                <Sparkles className="h-2.5 w-2.5" /> Foreslått av Lara
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom" className="max-w-xs text-xs">
+                              {laraSrc}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
+                      <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 shrink-0">
+                        {[
+                          { v: "yes" as const, label: "Ja", icon: Check },
+                          { v: "no" as const, label: "Nei", icon: X },
+                          { v: "later" as const, label: "Senere", icon: Clock },
+                        ].map((opt) => {
+                          const OptIcon = opt.icon;
+                          const active = val === opt.v;
+                          return (
+                            <button
+                              key={opt.v}
+                              type="button"
+                              onClick={() => onChange(q.id, opt.v)}
+                              className={`px-2.5 py-1 rounded text-xs font-medium transition inline-flex items-center gap-1 ${
+                                active
+                                  ? opt.v === "yes" ? "bg-success text-success-foreground"
+                                  : opt.v === "no" ? "bg-destructive text-destructive-foreground"
+                                  : "bg-background text-foreground shadow-sm"
+                                  : "text-muted-foreground hover:text-foreground"
+                              }`}
+                            >
+                              <OptIcon className="h-3 w-3" />
+                              {opt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </TooltipProvider>
+  );
+}
+
+/* -------------------- Documents step -------------------- */
+
+function DocumentsStep({ documents, onUpload }: {
+  documents: ActivationDocument[];
+  onUpload: (slotId: string, fileName: string) => void;
+}) {
+  const getDoc = (slotId: string) => documents.find((d) => d.slot === slotId);
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
+        <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <p className="text-xs text-foreground/80 leading-relaxed">
+          Last opp policyer som dekker hullene. Når du laster opp en <span className="font-semibold">DPA</span>, oppdaterer Lara automatisk svaret i Modenhet-steget. Alt er valgfritt — du kan komme tilbake senere.
+        </p>
+      </div>
+
+      {DOCUMENT_SLOTS.map((slot) => {
+        const doc = getDoc(slot.id);
+        const status = doc?.status ?? "skipped";
+        return (
+          <Card key={slot.id} className="p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <h4 className="text-sm font-semibold">{slot.title}</h4>
+                  {status === "found" && (
+                    <Badge variant="secondary" className="bg-success/15 text-success border-success/30 gap-1 text-[10px]">
+                      <Check className="h-2.5 w-2.5" /> Funnet av Lara
+                    </Badge>
+                  )}
+                  {status === "uploaded" && (
+                    <Badge variant="secondary" className="bg-primary/15 text-primary border-primary/30 gap-1 text-[10px]">
+                      <Check className="h-2.5 w-2.5" /> Lastet opp
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">{slot.description}</p>
+                {doc?.fileName && (
+                  <p className="text-[11px] text-muted-foreground mt-1.5 italic truncate">{doc.fileName}</p>
+                )}
+              </div>
+              <div className="shrink-0">
+                <label className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-border bg-background hover:bg-muted/50 cursor-pointer transition">
+                  <Upload className="h-3.5 w-3.5" />
+                  {status === "uploaded" || status === "found" ? "Bytt ut" : "Last opp"}
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) onUpload(slot.id, f.name);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
+
+      <div className="flex items-start gap-2 text-xs text-muted-foreground p-3 rounded-md bg-muted/40">
+        <HelpCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+        <span>Mangler du dokumenter? Hopp over — du kan laste opp senere fra Trust Profile under «Dokumenter».</span>
       </div>
     </div>
   );
