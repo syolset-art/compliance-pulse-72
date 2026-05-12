@@ -45,11 +45,24 @@ interface Recommendation {
   hourlyRate: number;
 }
 
+interface ControlPoint {
+  id: string;
+  name: string;
+  desc: string;
+  status: "missing" | "partial" | "fulfilled";
+  capability: "auto" | "assisted" | "manual";
+  progress?: number;
+  source?: string;
+}
+
 interface OngoingItem {
   id: string;
   title: string;
   status: "pending" | "accepted";
   meta: string;
+  frameworkId?: string;
+  frameworkLabel?: string;
+  controls?: ControlPoint[];
 }
 
 const HOURLY_RATE = 1500;
