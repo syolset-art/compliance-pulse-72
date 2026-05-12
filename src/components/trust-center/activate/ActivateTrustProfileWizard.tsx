@@ -38,9 +38,9 @@ interface Props {
   initialDomain?: string;
 }
 
-type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-const TOTAL_STEPS = 7;
-const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter", "Publiser"];
+type Step = 0 | 1 | 2 | 3 | 4 | 5;
+const TOTAL_STEPS = 6;
+const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter"];
 
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline,
@@ -214,7 +214,7 @@ export default function ActivateTrustProfileWizard({
     return true;
   }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => setStep((s) => (Math.min(6, s + 1) as Step));
+  const next = () => setStep((s) => (Math.min(5, s + 1) as Step));
   const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
@@ -301,7 +301,6 @@ export default function ActivateTrustProfileWizard({
         {step === 3 && "Bekreft og juster informasjonen"}
         {step === 4 && "Modenhet — bekreft det Lara fant"}
         {step === 5 && "Last opp dokumenter"}
-        {step === 6 && "Forhåndsvis og publiser"}
       </h2>
       <p className="text-sm text-muted-foreground">
         {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
@@ -313,8 +312,7 @@ export default function ActivateTrustProfileWizard({
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
         {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
-        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
-        {step === 6 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
+        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk. Når du er ferdig er aktiveringen fullført, og du kommer rett til Trust Profile-siden din."}
       </p>
       <Progress value={(step / (TOTAL_STEPS - 1)) * 100} className="h-1" />
     </div>
@@ -367,22 +365,6 @@ export default function ActivateTrustProfileWizard({
       {step === 5 && (
         <DocumentsStep documents={documents} onUpload={uploadDocument} />
       )}
-      {step === 6 && (
-        <PreviewStep
-          name={companyName}
-          orgNumber={orgNumber}
-          description={description}
-          website={website}
-          contactName={contactName}
-          contactEmail={contactEmail}
-          privacyUrl={privacyUrl}
-          encryption={encryption}
-          certifications={scan?.security.certifications ?? []}
-          subProcessors={subProcessors}
-          maturityAnswers={maturityAnswers}
-          documents={documents}
-        />
-      )}
     </div>
   );
 
@@ -392,7 +374,7 @@ export default function ActivateTrustProfileWizard({
         {step === 0 || (hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
-      {step < 6 ? (
+      {step < 5 ? (
         <div className="flex gap-2">
           {step === 2 && (
             <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -405,19 +387,13 @@ export default function ActivateTrustProfileWizard({
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
             {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
             {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
-            {step === 5 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handlePublish(false)} disabled={isPublishing}>
-            Lagre som utkast
-          </Button>
-          <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
-            {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
-            Publiser profil
-          </Button>
-        </div>
+        <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
+          {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+          Fullfør aktivering — gå til Trust Profile
+        </Button>
       )}
     </div>
   );
