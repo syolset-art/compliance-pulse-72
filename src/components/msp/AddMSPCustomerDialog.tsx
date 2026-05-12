@@ -97,6 +97,11 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     [assessmentResponses]
   );
 
+  // Bulk import state
+  const [bulkText, setBulkText] = useState("");
+  const [bulkRows, setBulkRows] = useState<BulkRow[]>([]);
+  const [bulkSavedCount, setBulkSavedCount] = useState(0);
+
   const reset = useCallback(() => {
     setStep("method");
     setSearchQuery("");
@@ -105,6 +110,9 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setDuplicateFound(false);
     setAssessmentResponses([]);
     setSelectedFrameworks([]);
+    setBulkText("");
+    setBulkRows([]);
+    setBulkSavedCount(0);
     setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis" });
   }, []);
 
