@@ -24,6 +24,10 @@ interface Recommendation {
   title: string;
   desc: string;
   urgent?: boolean;
+  /** Knytt anbefalingen til ett regelverk så partner kan se relevante gap. */
+  frameworkId?: string;
+  /** Antall åpne gap (vises på "Vis gap"-knapp). */
+  openGaps?: number;
   ctas: { label: string; variant: "default" | "outline"; deliveryVariant: "Full leveranse" | "Co-delivery" | "Tjeneste" }[];
 }
 
@@ -41,6 +45,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     title: "NIS2-klargjøring",
     desc: "Kunden er omfattet av NIS2 og lite forberedt. Strukturert leveranse med gap-analyse, policyer og rapporteringsrutiner.",
     urgent: true,
+    frameworkId: "nis2",
+    openGaps: 7,
     ctas: [
       { label: "Tilby full leveranse", variant: "default", deliveryVariant: "Full leveranse" },
       { label: "Tilby co-delivery", variant: "outline", deliveryVariant: "Co-delivery" },
@@ -51,6 +57,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     icon: Brain,
     title: "AI Governance-rammeverk",
     desc: "Kunden har ikke startet på AI-styring. Kartlegging av AI-bruk, klassifisering og policy-oppsett.",
+    frameworkId: "aiact",
+    openGaps: 4,
     ctas: [
       { label: "Tilby full leveranse", variant: "default", deliveryVariant: "Full leveranse" },
       { label: "Tilby co-delivery", variant: "outline", deliveryVariant: "Co-delivery" },
@@ -61,6 +69,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     icon: Bug,
     title: "Penetrasjonstest",
     desc: "Årlig ekstern test av applikasjoner og infrastruktur. Underbygger ISO- og NIS2-arbeidet.",
+    frameworkId: "iso27001",
+    openGaps: 6,
     ctas: [
       { label: "Tilby leveranse", variant: "default", deliveryVariant: "Tjeneste" },
     ],
