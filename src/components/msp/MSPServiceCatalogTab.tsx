@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Sparkles,
   Plus,
@@ -13,6 +14,9 @@ import {
   Shield,
   Tag,
   X,
+  Eye,
+  EyeOff,
+  ShoppingCart,
 } from "lucide-react";
 import {
   Select,
@@ -110,6 +114,8 @@ export function MSPServiceCatalogTab() {
               <p className="text-[13px] text-muted-foreground mt-0.5">
                 Mynder leverer regelverkene. Du legger inn dine egne tjenester her, og Lara viser
                 hvordan de treffer kontrollpunkter på tvers av ISO 27001, NIS2, AI Act m.fl.
+                Bruk bryteren <Eye className="inline h-3 w-3 align-[-2px] text-primary" /> på hver
+                tjeneste for å gjøre den synlig og bestillbar i kundens portal.
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -177,6 +183,12 @@ export function MSPServiceCatalogTab() {
                         {formatPrice(s)}
                       </Badge>
                     )}
+                    {s.publishedToCustomers && (
+                      <Badge variant="outline" className="text-[10px] gap-1 bg-primary/5 text-primary border-primary/30">
+                        <ShoppingCart className="h-3 w-3" />
+                        Bestillbar for kunder
+                      </Badge>
+                    )}
                   </div>
                   <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
 
@@ -197,15 +209,44 @@ export function MSPServiceCatalogTab() {
                     )}
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-8 text-xs gap-1.5 shrink-0"
-                  onClick={() => setEditing(s.id)}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Rediger
-                </Button>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <label
+                    className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-2 py-1.5 cursor-pointer hover:bg-muted/60 transition-colors"
+                    title={
+                      s.publishedToCustomers
+                        ? "Synlig og bestillbar i kundens portal"
+                        : "Skjult — kun synlig for deg"
+                    }
+                  >
+                    {s.publishedToCustomers ? (
+                      <Eye className="h-3.5 w-3.5 text-primary" />
+                    ) : (
+                      <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                    )}
+                    <span className="text-[11px] font-medium text-foreground">
+                      {s.publishedToCustomers ? "Synlig for kunder" : "Skjult"}
+                    </span>
+                    <Switch
+                      checked={!!s.publishedToCustomers}
+                      onCheckedChange={(checked) =>
+                        setServices((prev) =>
+                          prev.map((x) =>
+                            x.id === s.id ? { ...x, publishedToCustomers: checked } : x,
+                          ),
+                        )
+                      }
+                    />
+                  </label>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 text-xs gap-1.5"
+                    onClick={() => setEditing(s.id)}
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                    Rediger
+                  </Button>
+                </div>
               </div>
             )}
           </Card>

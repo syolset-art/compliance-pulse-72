@@ -20,6 +20,8 @@ export interface PartnerService {
   priceModel?: "fixed" | "monthly" | "hourly" | "per-user" | "quote";
   /** Fritekst for prisnotat (f.eks. "fra 25 000 kr" eller "ekskl. mva"). */
   priceNote?: string;
+  /** Synlig og bestillbar for partnerens kunder i deres Mynder-portal. */
+  publishedToCustomers?: boolean;
 }
 
 /**
