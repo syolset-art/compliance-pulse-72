@@ -425,44 +425,6 @@ const TrustCenterEditProfile = () => {
             {/* Hendelser og kontinuitet */}
             <IncidentsSection asset={asset} />
 
-            {/* AI og leverandørstyring */}
-            <AIVendorsSection asset={asset} />
-
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Regelverk */}
-            {/* ═══════════════════════════════════════════ */}
-            <section id="regulations" className="space-y-4 scroll-mt-24">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Scale className="h-4 w-4 text-primary" />
-                  <h2 className="text-base font-semibold text-foreground">
-                    {isNb ? "Regelverk" : "Regulations"}
-                  </h2>
-                  <Badge variant={sectionCompleteness.regulations.done > 0 ? "action" : "secondary"} className="text-[13px]">
-                    {sectionCompleteness.regulations.done}/{sectionCompleteness.regulations.total}
-                  </Badge>
-                </div>
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/trust-center/regulations")}>
-                  <Settings2 className="h-4 w-4" />
-                  {isNb ? "Endre regelverk" : "Change regulations"}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {isNb
-                  ? "Regelverk og standarder virksomheten etterlever."
-                  : "Regulations and standards the organization complies with."}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {frameworks.length > 0 ? frameworks.map((fw: any) => (
-                  <Badge key={fw.framework_id} variant="outline" className={`text-xs font-medium ${frameworkBadgeClass(fw.framework_name)}`}>
-                    {fw.framework_name}
-                  </Badge>
-                )) : (
-                  <p className="text-xs text-muted-foreground">{isNb ? "Ingen regelverk valgt ennå." : "No regulations selected yet."}</p>
-                )}
-              </div>
-            </section>
-
             {/* Dokumentasjon (opplastingsflyt) */}
             <DocumentationSection asset={asset} />
 
