@@ -13,8 +13,14 @@ import {
   Lock,
 } from "lucide-react";
 
+import { useState } from "react";
+import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
+import { toast } from "sonner";
+
 interface Props {
   customerName?: string;
+  contactName?: string;
+  contactEmail?: string;
 }
 
 const certifications = [
@@ -35,9 +41,15 @@ const accessRequests = [
   { initials: "VP", color: "bg-purple-100 text-purple-700", title: "Vipps MobilePay ba om personvernerklæring", meta: "10. april 2026 · Besvart", status: "closed" as const },
 ];
 
-export function MSPCustomerTrustProfileCard({ customerName = "Kunden" }: Props) {
+export function MSPCustomerTrustProfileCard({
+  customerName = "Kunden",
+  contactName = "Truls",
+  contactEmail,
+}: Props) {
   // MVP: profilen er ikke claimet/publisert ennå
   const isPublished = false;
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [invited, setInvited] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -76,21 +88,42 @@ export function MSPCustomerTrustProfileCard({ customerName = "Kunden" }: Props) 
       </div>
 
       {/* Claim banner */}
-      <Card className="p-4 border-primary/30 bg-primary/5 space-y-3">
+      <Card className={`p-4 space-y-3 ${invited ? "border-success/30 bg-success/5" : "border-primary/30 bg-primary/5"}`}>
         <div className="flex items-start gap-2.5">
-          <UserPlus className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-foreground">Profilen er ikke claimet av kunden</p>
+          {invited ? (
+            <Check className="h-4 w-4 text-success mt-0.5 shrink-0" />
+          ) : (
+            <UserPlus className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          )}
+          <div className="space-y-1 flex-1">
+            <p className="text-sm font-semibold text-foreground">
+              {invited ? `Invitasjon sendt til ${contactName}` : "Profilen er ikke claimet av kunden"}
+            </p>
             <p className="text-[13px] text-muted-foreground leading-snug">
-              Du administrerer profilen på vegne av {customerName}. Når kunden claimer profilen tar de over redigering — du
-              beholder innsynet, men kan ikke lenger endre innhold direkte.
+              {invited
+                ? `${contactName} har fått en e-post med en sikker lenke for å overta og signere profilen. Du får varsel når det er gjort. Inntil da kan du fortsatt redigere innholdet.`
+                : `Du administrerer profilen på vegne av ${customerName}. Når kunden claimer profilen tar de over redigering — du beholder innsynet, men kan ikke lenger endre innhold direkte.`}
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" className="h-8 text-xs">Inviter Truls til å claime</Button>
-          <Button variant="outline" size="sm" className="h-8 text-xs">Lær om claim-prosessen</Button>
-        </div>
+        {!invited && (
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setInviteOpen(true)}>
+              <UserPlus className="h-3.5 w-3.5" />
+              Inviter {contactName} til å claime
+            </Button>
+          </div>
+        )}
+        {invited && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs"
+            onClick={() => setInviteOpen(true)}
+          >
+            Send påminnelse
+          </Button>
+        )}
       </Card>
 
       {/* Visibility + views */}
@@ -183,6 +216,21 @@ export function MSPCustomerTrustProfileCard({ customerName = "Kunden" }: Props) 
           ))}
         </div>
       </Card>
+
+      <SendTrustHandoverEmailDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        recipientEmail={contactEmail}
+        recipientName={contactName}
+        customerName={customerName}
+        onSend={() => {
+          setInviteOpen(false);
+          setInvited(true);
+          toast.success("Invitasjon sendt", {
+            description: `${contactName} har fått en e-post med lenke for å claime Trust Profile.`,
+          });
+        }}
+      />
     </div>
   );
 }
