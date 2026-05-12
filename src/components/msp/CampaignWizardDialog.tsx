@@ -48,7 +48,7 @@ import {
 } from "@/lib/campaignSegments";
 import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
 
-export type CampaignKind = "message" | "offer" | "reminder";
+export type CampaignKind = "message" | "offer" | "reminder" | "claim";
 
 export interface CampaignDraft {
   name: string;
@@ -91,6 +91,12 @@ const KIND_OPTIONS: { id: CampaignKind; label: string; hint: string; icon: typeo
     label: "Påminnelse / oppfølging",
     hint: "Kort, vennlig oppfølging — egnet for kunder som ikke har svart.",
     icon: Sparkles,
+  },
+  {
+    id: "claim",
+    label: "Inviter til å overta Trust-profil",
+    hint: "Be kunden claime og signere sin egen Trust-profil med sikker lenke.",
+    icon: UserPlus,
   },
 ];
 
