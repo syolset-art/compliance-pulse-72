@@ -278,6 +278,21 @@ export default function MSPCustomerDetail() {
           customerId={customerId!}
           customerName={customer.customer_name}
         />
+
+        <SendTrustHandoverEmailDialog
+          open={handoverEmailOpen}
+          onOpenChange={setHandoverEmailOpen}
+          recipientEmail={customer.contact_email}
+          recipientName={customer.contact_name}
+          customerName={customer.customer_name || customer.name}
+          onSend={() => {
+            setHandoverEmailOpen(false);
+            setTrustHandoverSent(true);
+            toast.success("E-post sendt", {
+              description: `Invitasjon sendt til ${customer.contact_email || customer.name} om å overta Trust Profile.`,
+            });
+          }}
+        />
       </main>
     </div>
   );
