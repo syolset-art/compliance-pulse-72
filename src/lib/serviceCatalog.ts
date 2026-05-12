@@ -255,22 +255,6 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
     tags: ["gdpr", "ai", "project", "mid", "critical"],
   },
   {
-    id: "tpl-ai-governance",
-    name: "AI Governance-rammeverk",
-    description:
-      "Kartlegging av AI-bruk, risikoklassifisering og policy-oppsett mot AI Act.",
-    defaultChecklist: [
-      "Kartlegging av AI-bruk",
-      "Risikoklassifisering",
-      "Policy-oppsett",
-      "Rutiner for menneskelig tilsyn",
-    ],
-    frameworkMappings: [
-      { frameworkId: "aiact", frameworkLabel: "AI Act", controlIds: ["Art.9", "Art.14"] },
-    ],
-    tags: ["ai", "project", "mid", "high"],
-  },
-  {
     id: "tpl-ai-risk",
     name: "AI-risikovurdering",
     description:
