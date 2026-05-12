@@ -19,6 +19,7 @@ import {
   Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 
 type Filter = "all" | "potential" | "low";
 
@@ -123,6 +124,15 @@ function overallLabel(s: number) {
 export function MSPMaturityServiceMatrix() {
   const [filter, setFilter] = useState<Filter>("all");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({ infosec: true });
+  const [offerCtx, setOfferCtx] = useState<{
+    open: boolean;
+    domainName?: string;
+    serviceTitle?: string;
+    variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
+  }>({ open: false });
+
+  const openOffer = (ctx: Omit<typeof offerCtx, "open">) =>
+    setOfferCtx({ open: true, ...ctx });
 
   const overall = Math.round(DOMAINS.reduce((a, d) => a + d.score, 0) / DOMAINS.length);
   const activeFrameworks = 6;
@@ -258,8 +268,13 @@ export function MSPMaturityServiceMatrix() {
                             <span className="text-[13px] font-medium text-foreground">{s.title}</span>
                           </div>
                           <p className="text-[12px] text-muted-foreground leading-snug">{s.desc}</p>
-                          <Button size="sm" variant="outline" className="h-7 text-xs">
-                            Tilby kunde
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs gap-1"
+                            onClick={() => openOffer({ domainName: d.name, serviceTitle: s.title, variant: "Tjeneste" })}
+                          >
+                            <Send className="h-3 w-3" /> Lag tilbud
                           </Button>
                         </div>
                       );
@@ -277,9 +292,28 @@ export function MSPMaturityServiceMatrix() {
                     </div>
                     <p className="text-[12px] text-muted-foreground leading-snug">{d.highlightOffer.desc}</p>
                     <div className="flex flex-wrap gap-2 pt-1">
-                      <Button size="sm" className="h-7 text-xs">{d.highlightOffer.primaryCta}</Button>
+                      <Button
+                        size="sm"
+                        className="h-7 text-xs gap-1"
+                        onClick={() => openOffer({
+                          domainName: d.name,
+                          serviceTitle: d.highlightOffer!.title,
+                          variant: d.highlightOffer!.primaryCta.toLowerCase().includes("co-delivery") ? "Co-delivery" : "Full leveranse",
+                        })}
+                      >
+                        <Send className="h-3 w-3" /> Lag tilbud — {d.highlightOffer.primaryCta.replace(/^Tilby\s*/i, "")}
+                      </Button>
                       {d.highlightOffer.secondaryCta && (
-                        <Button size="sm" variant="outline" className="h-7 text-xs gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs gap-1"
+                          onClick={() => openOffer({
+                            domainName: d.name,
+                            serviceTitle: d.highlightOffer!.title,
+                            variant: d.highlightOffer!.secondaryCta!.toLowerCase().includes("co-delivery") ? "Co-delivery" : "Tjeneste",
+                          })}
+                        >
                           {d.highlightOffer.secondaryCta.includes("Send") && <Send className="h-3 w-3" />}
                           {d.highlightOffer.secondaryCta}
                         </Button>
@@ -292,6 +326,14 @@ export function MSPMaturityServiceMatrix() {
           );
         })}
       </div>
+
+      <MSPCreateOfferDialog
+        open={offerCtx.open}
+        onOpenChange={(o) => setOfferCtx(s => ({ ...s, open: o }))}
+        domainName={offerCtx.domainName}
+        serviceTitle={offerCtx.serviceTitle}
+        variant={offerCtx.variant}
+      />
     </Card>
   );
 }
