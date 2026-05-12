@@ -132,7 +132,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
 
-  const handleSave = async () => {
+  const handleSave = async (opts?: { silent?: boolean }) => {
     if (!companyProfile) return;
     setSaving(true);
     try {
