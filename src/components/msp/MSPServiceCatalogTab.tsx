@@ -11,8 +11,16 @@ import {
   Pencil,
   CheckSquare,
   Shield,
+  Tag,
   X,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
