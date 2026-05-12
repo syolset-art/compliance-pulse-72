@@ -12,9 +12,11 @@ import {
   CheckCircle2,
   ChevronRight,
   X,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
+import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 
 interface Recommendation {
   id: string;
