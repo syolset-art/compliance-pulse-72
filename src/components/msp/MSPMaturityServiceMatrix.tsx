@@ -110,6 +110,9 @@ export function MSPMaturityServiceMatrix() {
     variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
     attachGap?: boolean;
     gapFrameworkId?: string;
+    defaultItems?: string[];
+    defaultEffort?: string;
+    defaultPrice?: string;
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
