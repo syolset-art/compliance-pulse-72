@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Globe, Check } from "lucide-react";
 import { useAssetMetadata } from "./useAssetMetadata";
+import { LaraAutoFillBanner } from "./LaraAutoFillBanner";
 
 const DATA_TYPES = ["Navn", "E-post", "Telefonnummer", "IP-adresse", "Lokasjonsdata", "Betalingsinformasjon", "Jobbsøkerdata", "Helsedata", "Atferdsdata"];
 const TRANSFER = ["EU adequacy decision", "Standard kontraktsklausuler (SCC)", "Bindende konsernregler (BCR)", "Samtykke fra registrerte"];
