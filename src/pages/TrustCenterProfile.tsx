@@ -610,17 +610,30 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 },
               ].filter(Boolean) as any[];
 
-              if (rows.length === 0) return null;
+              const placeholders = [
+                { label: isNb ? "Generell kontakt" : "General contact", sub: isNb ? "Hovedkontakt for henvendelser" : "Main point of contact", missing: true },
+                { label: isNb ? "Personvernkontakt" : "Privacy contact", sub: isNb ? "For spørsmål om dine personopplysninger" : "For questions about your personal data", missing: true },
+                { label: isNb ? "Sikkerhetskontakt" : "Security contact", sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues", missing: true },
+              ];
+              const display = rows.length > 0 ? rows : placeholders;
 
               return (
                 <>
                   <section id="tc-section-contact" className="rounded-xl border border-border bg-card overflow-hidden">
-                    <div className="px-5 py-3.5 flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4 text-primary" />
-                      <h3 className="text-sm font-semibold text-foreground">{isNb ? "Kontaktinformasjon" : "Contact information"}</h3>
+                    <div className="px-5 py-3.5 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4 text-primary" />
+                        <h3 className="text-sm font-semibold text-foreground">{isNb ? "Kontaktinformasjon" : "Contact information"}</h3>
+                      </div>
+                      {!readOnly && (
+                        <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => navigate("/trust-center/profile/edit#contacts")}>
+                          <Pencil className="h-3 w-3" />
+                          {isNb ? "Rediger" : "Edit"}
+                        </Button>
+                      )}
                     </div>
                     <div className="divide-y divide-border border-t border-border">
-                      {rows.map((r, i) => (
+                      {display.map((r: any, i: number) => (
                         <div key={i} className={`px-5 py-3.5 ${r.block ? "" : "flex items-start justify-between gap-6"}`}>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-foreground">{r.label}</p>
