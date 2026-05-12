@@ -25,6 +25,7 @@ import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCar
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
+import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
 import { toast } from "sonner";
 
 export default function MSPCustomerDetail() {
@@ -33,6 +34,7 @@ export default function MSPCustomerDetail() {
   const [acronisOpen, setAcronisOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("guidance");
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
+  const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
@@ -95,14 +97,9 @@ export default function MSPCustomerDetail() {
     !trustHandoverSent && {
       severity: "critical" as const,
       title: "Kunden har ikke overtatt sin Trust Profile",
-      desc: "Lara kan sende en e-post til kunden og be dem overta og signere Trust Profile selv.",
-      cta: "Send e-post via Lara",
-      onClick: () => {
-        setTrustHandoverSent(true);
-        toast.success("E-post sendt", {
-          description: `Lara har sendt en invitasjon til ${customer.contact_email || customer.name} om å overta Trust Profile.`,
-        });
-      },
+      desc: "Send en e-post til kunden og be dem overta og signere Trust Profile selv.",
+      cta: "Send e-post",
+      onClick: () => setHandoverEmailOpen(true),
     },
     !customer.has_acronis_integration && {
       severity: "high",
@@ -280,6 +277,21 @@ export default function MSPCustomerDetail() {
           onOpenChange={setAcronisOpen}
           customerId={customerId!}
           customerName={customer.customer_name}
+        />
+
+        <SendTrustHandoverEmailDialog
+          open={handoverEmailOpen}
+          onOpenChange={setHandoverEmailOpen}
+          recipientEmail={customer.contact_email}
+          recipientName={customer.contact_name}
+          customerName={customer.customer_name || customer.name}
+          onSend={() => {
+            setHandoverEmailOpen(false);
+            setTrustHandoverSent(true);
+            toast.success("E-post sendt", {
+              description: `Invitasjon sendt til ${customer.contact_email || customer.name} om å overta Trust Profile.`,
+            });
+          }}
         />
       </main>
     </div>
