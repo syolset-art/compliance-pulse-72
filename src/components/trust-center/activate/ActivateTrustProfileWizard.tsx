@@ -265,6 +265,16 @@ export default function ActivateTrustProfileWizard({
 
   const handlePublish = async (publishNow: boolean) => {
     setIsPublishing(true);
+    // Run Lara "calculation" animation before actually publishing
+    setIsCalculating(true);
+    setCalcStep(0);
+    await new Promise((r) => setTimeout(r, 500));
+    setCalcStep(1);
+    await new Promise((r) => setTimeout(r, 600));
+    setCalcStep(2);
+    await new Promise((r) => setTimeout(r, 600));
+    setCalcStep(3);
+    await new Promise((r) => setTimeout(r, 500));
     const values: ActivationValues = {
       name: companyName,
       orgNumber,
