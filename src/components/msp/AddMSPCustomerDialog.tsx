@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import {
   UserPlus, FileSpreadsheet, Server, ArrowLeft, Search, Building2,
-  MapPin, Loader2, CheckCircle2, User, Mail, Briefcase,
+  MapPin, Loader2, CheckCircle2, User, Mail, Briefcase, Upload, AlertCircle, Trash2,
 } from "lucide-react";
 import { COMPANY_ROLES, MSP_SUBSCRIPTION_TIERS } from "@/lib/mspCustomerConstants";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
