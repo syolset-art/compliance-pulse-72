@@ -132,19 +132,22 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
     setOrgNumber(orgnr);
     setCompanyName(navn);
     setVerified(true);
+    setWebsiteVerified(false);
     const result = await lookupByOrgNumber(orgnr);
-    // best-effort: try to derive website from name
-    if (!website) {
-      const guess = navn.toLowerCase().replace(/\s+as\s*$/i, "").replace(/[^a-z0-9]/g, "");
-      if (guess === "framdriftinnovasjon" || guess.includes("framdrift")) {
-        setWebsite("https://framdrift.no");
-      }
+    // Always auto-derive a website guess so user can verify
+    const slug = navn.toLowerCase()
+      .replace(/\s+as\s*$/i, "")
+      .replace(/\s+asa\s*$/i, "")
+      .replace(/\s+/g, "")
+      .replace(/[^a-z0-9]/g, "");
+    if (slug) {
+      setWebsite(`https://${slug}.no`);
     }
   };
 
   const canNext = useMemo(() => {
     if (step === 0) return true;
-    if (step === 1) return companyName.trim().length > 1 && orgNumber.trim().length > 0 && website.trim().length > 3;
+    if (step === 1) return companyName.trim().length > 1 && orgNumber.trim().length > 0 && website.trim().length > 3 && websiteVerified;
     if (step === 2) return revealed >= (scan?.findings.length ?? 0) && scan != null;
     if (step === 3) return description.trim().length > 0;
     return true;
@@ -235,7 +238,9 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
           orgNumber={orgNumber}
           setOrgNumber={setOrgNumber}
           website={website}
-          setWebsite={setWebsite}
+          setWebsite={(v: string) => { setWebsite(v); setWebsiteVerified(false); }}
+          websiteVerified={websiteVerified}
+          onVerifyWebsite={() => setWebsiteVerified(true)}
           verified={verified}
           isLoading={isLoading}
           searchResults={searchResults}
@@ -374,6 +379,7 @@ function WelcomeStep() {
 
 function OrgStep({
   companyName, setCompanyName, orgNumber, setOrgNumber, website, setWebsite,
+  websiteVerified, onVerifyWebsite,
   verified, isLoading, searchResults, onSearch, onPick, companyNameLocked,
 }: any) {
   const showSearchHint = companyNameLocked && !orgNumber && (searchResults?.length ?? 0) === 0 && !isLoading;
@@ -447,9 +453,37 @@ function OrgStep({
       </div>
 
       <div className="space-y-2">
-        <Label>Hjemmeside</Label>
-        <Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://example.no" />
-        <p className="text-xs text-muted-foreground">Lara bruker denne for å hente bedriftsinfo, kontakter, personvern og sikkerhet i neste steg.</p>
+        <div className="flex items-center justify-between">
+          <Label>Hjemmeside</Label>
+          {verified && website && !websiteVerified && (
+            <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
+              <Sparkles className="h-2.5 w-2.5" /> Forslag fra Lara
+            </Badge>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Input
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            placeholder="https://example.no"
+            disabled={!verified}
+          />
+          <Button
+            variant={websiteVerified ? "outline" : "default"}
+            onClick={onVerifyWebsite}
+            disabled={!verified || website.trim().length < 4 || websiteVerified}
+            className="gap-1.5 shrink-0"
+          >
+            {websiteVerified ? (<><CheckCircle2 className="h-4 w-4" /> Bekreftet</>) : "Bekreft"}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {!verified
+            ? "Velg organisasjon først — så foreslår Lara hjemmesiden automatisk."
+            : websiteVerified
+              ? "Lara bruker denne i neste steg for å hente bedriftsinfo, kontakter, personvern og sikkerhet."
+              : "Stemmer adressen? Juster hvis ikke, og trykk Bekreft."}
+        </p>
       </div>
 
       {verified && (
