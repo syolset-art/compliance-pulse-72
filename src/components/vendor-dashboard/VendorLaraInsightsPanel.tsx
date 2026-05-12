@@ -1,14 +1,15 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Diamond, AlertTriangle, FileWarning, Inbox, ShieldCheck, ArrowRight, Sparkles } from "lucide-react";
+import { Diamond, ChevronLeft, ChevronRight, AlertTriangle, FileWarning, Inbox, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Asset {
   id: string;
   name: string;
+  vendor_category?: string | null;
+  gdpr_role?: string | null;
   compliance_score: number | null;
   risk_level: string | null;
   next_review_date?: string | null;
@@ -21,6 +22,39 @@ interface Props {
   onSendRequest?: (vendorIds: string[], requestType: string, categoryKey: string) => void;
 }
 
+type Severity = "critical" | "high" | "medium";
+
+interface Task {
+  id: string;
+  severity: Severity;
+  vendor: Asset;
+  meta: string;
+  laraSees: string;
+  requestType: string;
+  categoryKey: string;
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  saas: "SaaS",
+  infrastructure: "Infrastruktur",
+  consulting: "Rådgivning",
+  it_operations: "IT-drift",
+  facilities: "Kontor",
+  other: "Annet",
+};
+
+const GDPR_LABELS: Record<string, string> = {
+  databehandler: "databehandler",
+  underdatabehandler: "underdatabehandler",
+  ingen: "ingen persondata",
+};
+
+const severityMeta: Record<Severity, { label: string; dot: string; text: string }> = {
+  critical: { label: "KRITISK", dot: "bg-destructive", text: "text-destructive" },
+  high: { label: "HØY", dot: "bg-warning", text: "text-warning" },
+  medium: { label: "MIDDELS", dot: "bg-primary", text: "text-primary" },
+};
+
 export function VendorLaraInsightsPanel({
   vendors,
   expiredDocVendorIds,
@@ -28,198 +62,220 @@ export function VendorLaraInsightsPanel({
   onSendRequest,
 }: Props) {
   const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [index, setIndex] = useState(0);
 
-  const insights = useMemo(() => {
-    const items: {
-      key: string;
-      severity: "critical" | "high" | "medium" | "info";
-      title: string;
-      detail: string;
-      icon: typeof AlertTriangle;
-      cta: string;
-      onClick: () => void;
-    }[] = [];
-
-    const missingDPA = vendors.filter((v) => (v.compliance_score || 0) < 30);
-    const highRiskUnaudited = vendors.filter(
-      (v) => v.risk_level === "high" && (v.compliance_score || 0) < 50
-    );
+  const tasks = useMemo<Task[]>(() => {
+    const list: Task[] = [];
     const now = new Date();
-    const overdueReview = vendors.filter(
-      (v) => v.next_review_date && new Date(v.next_review_date) < now
-    );
 
-    if (missingDPA.length > 0) {
-      items.push({
-        key: "missing-dpa",
-        severity: "critical",
-        title: `${missingDPA.length} leverandører mangler databehandleravtale`,
-        detail: "Lara kan formulere og sende forespørsel om DPA i én operasjon.",
-        icon: FileWarning,
-        cta: "La Lara sende forespørsel",
-        onClick: () =>
-          onSendRequest?.(
-            missingDPA.map((v) => v.id),
-            "dpa",
-            "missing_dpa"
-          ),
-      });
-    }
+    vendors.forEach((v) => {
+      const cat = v.vendor_category ? CATEGORY_LABELS[v.vendor_category] || v.vendor_category : null;
+      const role = v.gdpr_role ? GDPR_LABELS[v.gdpr_role] || v.gdpr_role : null;
+      const meta = [cat, role].filter(Boolean).join(" · ");
 
-    if (expiredDocVendorIds.length > 0) {
-      items.push({
-        key: "expired-docs",
-        severity: "high",
-        title: `${expiredDocVendorIds.length} leverandører har utdaterte dokumenter`,
-        detail: "Sertifikater eller avtaler er utløpt — be om oppdatert dokumentasjon.",
-        icon: AlertTriangle,
-        cta: "Be om oppdatering",
-        onClick: () =>
-          onSendRequest?.(expiredDocVendorIds, "renewal", "expired_docs"),
-      });
-    }
+      if ((v.compliance_score || 0) < 30) {
+        list.push({
+          id: `dpa-${v.id}`,
+          severity: "critical",
+          vendor: v,
+          meta,
+          laraSees: `Behandler personopplysninger. Ingen DPA registrert. Compliance-score ${v.compliance_score || 0}%.`,
+          requestType: "dpa",
+          categoryKey: "missing_dpa",
+        });
+      }
+      if (expiredDocVendorIds.includes(v.id)) {
+        list.push({
+          id: `exp-${v.id}`,
+          severity: "high",
+          vendor: v,
+          meta,
+          laraSees: "Sertifikater eller avtaler er utløpt. Trenger oppdatert dokumentasjon fra leverandøren.",
+          requestType: "renewal",
+          categoryKey: "expired_docs",
+        });
+      }
+      if (v.risk_level === "high" && (v.compliance_score || 0) < 50) {
+        list.push({
+          id: `risk-${v.id}`,
+          severity: "high",
+          vendor: v,
+          meta,
+          laraSees: `Høy risiko og lav compliance (${v.compliance_score || 0}%). Anbefaler strukturert vurdering.`,
+          requestType: "assessment",
+          categoryKey: "high_risk",
+        });
+      }
+      if (pendingInboxVendorIds.includes(v.id)) {
+        list.push({
+          id: `inbox-${v.id}`,
+          severity: "medium",
+          vendor: v,
+          meta,
+          laraSees: "Nye dokumenter eller svar venter behandling i Lara-innboksen.",
+          requestType: "inbox",
+          categoryKey: "inbox",
+        });
+      }
+      if (v.next_review_date && new Date(v.next_review_date) < now) {
+        list.push({
+          id: `rev-${v.id}`,
+          severity: "medium",
+          vendor: v,
+          meta,
+          laraSees: "Planlagt periodisk gjennomgang er overskredet. Sett ny dato eller utfør nå.",
+          requestType: "review",
+          categoryKey: "overdue_review",
+        });
+      }
+    });
 
-    if (highRiskUnaudited.length > 0) {
-      items.push({
-        key: "high-risk",
-        severity: "high",
-        title: `${highRiskUnaudited.length} høy-risiko leverandører er ikke vurdert`,
-        detail: "Lara anbefaler en strukturert risikovurdering og innhenting av evidens.",
-        icon: ShieldCheck,
-        cta: "Start vurdering",
-        onClick: () => navigate("/vendors?tab=all"),
-      });
-    }
+    const order: Severity[] = ["critical", "high", "medium"];
+    return list.sort((a, b) => order.indexOf(a.severity) - order.indexOf(b.severity));
+  }, [vendors, expiredDocVendorIds, pendingInboxVendorIds]);
 
-    if (pendingInboxVendorIds.length > 0) {
-      items.push({
-        key: "inbox",
-        severity: "medium",
-        title: `${pendingInboxVendorIds.length} ventende meldinger fra leverandører`,
-        detail: "Nye dokumenter eller svar venter behandling i Lara-innboksen.",
-        icon: Inbox,
-        cta: "Åpne innboks",
-        onClick: () => navigate("/lara-inbox"),
-      });
-    }
+  if (dismissed || tasks.length === 0) return null;
 
-    if (overdueReview.length > 0) {
-      items.push({
-        key: "overdue",
-        severity: "medium",
-        title: `${overdueReview.length} leverandører har forfalt gjennomgang`,
-        detail: "Planlagt periodisk gjennomgang er overskredet. Sett ny dato eller utfør nå.",
-        icon: AlertTriangle,
-        cta: "Planlegg gjennomgang",
-        onClick: () => navigate("/tasks"),
-      });
-    }
+  const criticalCount = tasks.filter((t) => t.severity === "critical").length;
+  const total = tasks.length;
+  const topCount = Math.min(3, total);
+  const current = tasks[Math.min(index, topCount - 1)];
 
-    return items.slice(0, 4);
-  }, [vendors, expiredDocVendorIds, pendingInboxVendorIds, navigate, onSendRequest]);
-
-  if (insights.length === 0) {
+  // Compact banner
+  if (!expanded) {
     return (
-      <Card variant="flat" className="p-4 border-success/20 bg-success/5">
+      <Card variant="flat" className="px-4 py-3 border-primary/20 bg-primary/[0.03]">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-success/15 flex items-center justify-center shrink-0">
-            <Sparkles className="h-4 w-4 text-success" />
+          <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+            <Diamond className="h-4 w-4 text-primary" />
           </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">Lara har ingen kritiske anbefalinger</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">Lara har en anbefaling til deg</p>
             <p className="text-[13px] text-muted-foreground">
-              Leverandørporteføljen ser sunn ut. Lara overvåker kontinuerlig endringer i status og dokumentasjon.
+              Du har {total} oppgaver som krever oppmerksomhet, hvorav {criticalCount} er kritiske. Vil du starte en gjennomgang?
             </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button size="sm" onClick={() => setExpanded(true)}>
+              Vis plan
+            </Button>
+            <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => setDismissed(true)}>
+              Ikke nå
+            </Button>
           </div>
         </div>
       </Card>
     );
   }
 
-  const severityStyles: Record<string, { bar: string; iconBg: string; iconText: string; badge: string; label: string }> = {
-    critical: {
-      bar: "bg-destructive",
-      iconBg: "bg-destructive/15",
-      iconText: "text-destructive",
-      badge: "bg-destructive/10 text-destructive border-destructive/20",
-      label: "Kritisk",
-    },
-    high: {
-      bar: "bg-warning",
-      iconBg: "bg-warning/15",
-      iconText: "text-warning",
-      badge: "bg-warning/10 text-warning border-warning/20",
-      label: "Høy",
-    },
-    medium: {
-      bar: "bg-primary",
-      iconBg: "bg-primary/10",
-      iconText: "text-primary",
-      badge: "bg-primary/10 text-primary border-primary/20",
-      label: "Middels",
-    },
-    info: {
-      bar: "bg-muted-foreground",
-      iconBg: "bg-muted",
-      iconText: "text-muted-foreground",
-      badge: "bg-muted text-muted-foreground border-border",
-      label: "Info",
-    },
-  };
+  // Expanded plan view
+  const sev = severityMeta[current.severity];
+  const estMin = Math.max(3, Math.round(total * 0.7));
+  const TaskIcon =
+    current.categoryKey === "missing_dpa"
+      ? FileWarning
+      : current.categoryKey === "high_risk"
+      ? ShieldCheck
+      : current.categoryKey === "inbox"
+      ? Inbox
+      : AlertTriangle;
 
   return (
-    <Card variant="flat" className="overflow-hidden border-primary/20">
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border bg-gradient-to-r from-primary/5 via-primary/[0.02] to-transparent">
-        <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
-            <Diamond className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              Lara anbefaler
-              <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-normal">
-                {insights.length} forslag
-              </Badge>
-            </h3>
-            <p className="text-[12px] text-muted-foreground">
-              Prioriterte handlinger basert på status og dokumentasjon i porteføljen
-            </p>
+    <Card variant="flat" className="p-4 border-primary/20 bg-primary/[0.03]">
+      {/* Header */}
+      <div className="flex items-start gap-3 mb-3">
+        <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+          <Diamond className="h-4 w-4 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-foreground">Lara har lagt en plan</p>
+          <p className="text-[13px] text-muted-foreground">
+            {total} oppgaver totalt — starter med de {topCount} mest kritiske · ca. {estMin} min
+          </p>
+          {/* Progress segments */}
+          <div className="flex items-center gap-1 mt-2">
+            {Array.from({ length: topCount }).map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "h-1 w-10 rounded-full transition-colors",
+                  i === index ? "bg-primary" : i < index ? "bg-primary/60" : "bg-primary/15"
+                )}
+              />
+            ))}
           </div>
         </div>
+        <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => setExpanded(false)}>
+          Lukk
+        </Button>
       </div>
-      <div className="divide-y divide-border">
-        {insights.map((item) => {
-          const styles = severityStyles[item.severity];
-          const Icon = item.icon;
-          return (
-            <div key={item.key} className="flex items-stretch group hover:bg-muted/40 transition-colors">
-              <div className={cn("w-1 shrink-0", styles.bar)} />
-              <div className="flex-1 flex items-center gap-3 px-4 py-3">
-                <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center shrink-0", styles.iconBg)}>
-                  <Icon className={cn("h-4 w-4", styles.iconText)} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <Badge variant="outline" className={cn("text-[10px] h-4 px-1.5", styles.badge)}>
-                      {styles.label}
-                    </Badge>
-                    <p className="text-sm font-medium text-foreground truncate">{item.title}</p>
-                  </div>
-                  <p className="text-[13px] text-muted-foreground">{item.detail}</p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="gap-1 text-primary hover:text-primary hover:bg-primary/10 shrink-0"
-                  onClick={item.onClick}
-                >
-                  {item.cta}
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            </div>
-          );
-        })}
+
+      {/* Task card */}
+      <div className="rounded-xl bg-card border border-border p-4 shadow-sm">
+        <div className="flex items-center gap-2 mb-2">
+          <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
+          <span className={cn("text-[11px] font-bold tracking-wider", sev.text)}>{sev.label}</span>
+        </div>
+        <h4 className="text-lg font-semibold text-foreground leading-tight">{current.vendor.name}</h4>
+        {current.meta && <p className="text-[13px] text-muted-foreground mt-0.5">{current.meta}</p>}
+
+        <div className="mt-3 rounded-lg bg-primary/[0.06] border border-primary/10 px-3 py-2.5">
+          <p className="text-[10px] font-bold tracking-wider text-muted-foreground mb-1 flex items-center gap-1.5">
+            <TaskIcon className="h-3 w-3" />
+            LARA SER
+          </p>
+          <p className="text-[13px] text-foreground/90 leading-relaxed">{current.laraSees}</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Button
+            size="sm"
+            onClick={() => onSendRequest?.([current.vendor.id], current.requestType, current.categoryKey)}
+          >
+            Be Lara håndtere det
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => navigate(`/assets/${current.vendor.id}`)}>
+            Åpne leverandøren
+          </Button>
+        </div>
+      </div>
+
+      {/* Footer: pagination + view all */}
+      <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center gap-2">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 rounded-full"
+            disabled={index === 0}
+            onClick={() => setIndex((i) => Math.max(0, i - 1))}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-[13px] text-muted-foreground tabular-nums">
+            {index + 1} av {topCount}
+          </span>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8 rounded-full bg-muted"
+            disabled={index >= topCount - 1}
+            onClick={() => setIndex((i) => Math.min(topCount - 1, i + 1))}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+        <button
+          className="text-[13px] text-primary hover:underline flex items-center gap-1.5 font-medium"
+          onClick={() => navigate("/tasks")}
+        >
+          Vis alle oppgaver
+          <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold">
+            {total}
+          </span>
+        </button>
       </div>
     </Card>
   );
