@@ -117,11 +117,11 @@ export default function VendorDashboard() {
             onActivate={() => setActivateOpen(true)}
           />
 
-          <Tabs defaultValue="all" className="space-y-4">
+          <Tabs defaultValue="overview" className="space-y-4">
             <div className="flex items-center justify-between">
               <TabsList className="h-9 p-0.5">
-                <TabsTrigger value="all" className="text-xs px-3">{t("vendorDashboard.tabs.all")}</TabsTrigger>
                 <TabsTrigger value="overview" className="text-xs px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
+                <TabsTrigger value="all" className="text-xs px-3">{t("vendorDashboard.tabs.all")}</TabsTrigger>
                 <TabsTrigger value="map" className="text-xs px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
                 <TabsTrigger value="supplyChain" className="text-xs px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
                 <TabsTrigger value="compare" className="text-xs px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>

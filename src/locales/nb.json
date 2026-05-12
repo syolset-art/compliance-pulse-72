@@ -1464,7 +1464,7 @@
   "vendorDashboard": {
     "tabs": {
       "overview": "Oversikt",
-      "all": "Alle leverandører",
+      "all": "Leverandører",
       "map": "Kart",
       "supplyChain": "Leverandørkjede",
       "compare": "Sammenlign"
