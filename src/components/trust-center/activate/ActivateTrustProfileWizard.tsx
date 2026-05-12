@@ -297,7 +297,9 @@ export default function ActivateTrustProfileWizard({
           description={description} setDescription={setDescription}
           contactName={contactName} setContactName={setContactName}
           contactEmail={contactEmail} setContactEmail={setContactEmail}
+          dpoName={dpoName} setDpoName={setDpoName}
           dpoEmail={dpoEmail} setDpoEmail={setDpoEmail}
+          securityName={securityName} setSecurityName={setSecurityName}
           securityEmail={securityEmail} setSecurityEmail={setSecurityEmail}
           privacyUrl={privacyUrl} setPrivacyUrl={setPrivacyUrl}
           encryption={encryption} setEncryption={setEncryption}
