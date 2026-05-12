@@ -124,6 +124,15 @@ function overallLabel(s: number) {
 export function MSPMaturityServiceMatrix() {
   const [filter, setFilter] = useState<Filter>("all");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({ infosec: true });
+  const [offerCtx, setOfferCtx] = useState<{
+    open: boolean;
+    domainName?: string;
+    serviceTitle?: string;
+    variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
+  }>({ open: false });
+
+  const openOffer = (ctx: Omit<typeof offerCtx, "open">) =>
+    setOfferCtx({ open: true, ...ctx });
 
   const overall = Math.round(DOMAINS.reduce((a, d) => a + d.score, 0) / DOMAINS.length);
   const activeFrameworks = 6;
