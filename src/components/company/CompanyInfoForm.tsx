@@ -88,6 +88,12 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         dpo_email: (companyProfile as any).dpo_email || "",
         ciso_name: (companyProfile as any).ciso_name || "",
         ciso_email: (companyProfile as any).ciso_email || "",
+        managed_by_partner: (companyProfile as any).managed_by_partner || false,
+        partner_name: (companyProfile as any).partner_name || "",
+        partner_type: (companyProfile as any).partner_type || "msp",
+        partner_role_description: (companyProfile as any).partner_role_description || "",
+        partner_since: (companyProfile as any).partner_since || "",
+        show_partner_on_trust_profile: (companyProfile as any).show_partner_on_trust_profile ?? true,
       });
     }
   }, [companyProfile, selfAsset]);
