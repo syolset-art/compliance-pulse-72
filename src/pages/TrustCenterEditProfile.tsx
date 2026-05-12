@@ -394,9 +394,6 @@ const TrustCenterEditProfile = () => {
               </div>
             </section>
 
-            {/* Hendelser og kontinuitet */}
-            <IncidentsSection asset={asset} />
-
             {/* Dokumentasjon (opplastingsflyt) */}
             <DocumentationSection asset={asset} />
 
