@@ -28,6 +28,7 @@ export default function MSPCustomerDetail() {
   const navigate = useNavigate();
   const [acronisOpen, setAcronisOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("guidance");
+  const [trustHandoverSent, setTrustHandoverSent] = useState(false);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
