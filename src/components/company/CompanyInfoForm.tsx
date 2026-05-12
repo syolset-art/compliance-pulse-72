@@ -25,10 +25,13 @@ interface CompanyInfoFormProps {
 
 export function CompanyInfoForm({ defaultEditing = false, showEditControls = true, onSaved, hidePartner = false, partnerOnly = false }: CompanyInfoFormProps) {
   const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(defaultEditing);
+  const [isEditing] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const hydratedRef = useRef(false);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Partner-lookup (prototype): simulerer søk i Mynder Trust-katalog
   const [partnerLookup, setPartnerLookup] = useState<{
