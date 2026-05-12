@@ -63,6 +63,7 @@ export function MSPCreateOfferDialog({
   useEffect(() => {
     if (open && defaultItems) setItems(defaultItems);
     if (open && defaultMessage) setMessage(defaultMessage);
+    if (open) setAttachGap(attachGapProp);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addItem = () => {
