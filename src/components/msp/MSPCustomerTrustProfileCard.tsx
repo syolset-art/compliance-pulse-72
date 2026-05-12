@@ -41,9 +41,15 @@ const accessRequests = [
   { initials: "VP", color: "bg-purple-100 text-purple-700", title: "Vipps MobilePay ba om personvernerklæring", meta: "10. april 2026 · Besvart", status: "closed" as const },
 ];
 
-export function MSPCustomerTrustProfileCard({ customerName = "Kunden" }: Props) {
+export function MSPCustomerTrustProfileCard({
+  customerName = "Kunden",
+  contactName = "Truls",
+  contactEmail,
+}: Props) {
   // MVP: profilen er ikke claimet/publisert ennå
   const isPublished = false;
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [invited, setInvited] = useState(false);
 
   return (
     <div className="space-y-4">
