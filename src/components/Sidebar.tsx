@@ -633,7 +633,7 @@ const SidebarContent = () => {
                       { name: "Bli Partner", href: "/bli-partner", icon: Sparkles },
                       { name: "Dashbord", href: "/msp-partner", icon: LayoutDashboard },
                       { name: "Kunder", href: "/msp-dashboard", icon: Users },
-                      { name: "Tjenestekatalog", href: "/msp-services", icon: Package },
+                      { name: "Tjenester", href: "/msp-services", icon: Package },
                       { name: "Faktura", href: "/msp-invoices", icon: FileText },
                       { name: "Meldinger", href: "/msp-messages", icon: Inbox },
                     ].map((item) => {
