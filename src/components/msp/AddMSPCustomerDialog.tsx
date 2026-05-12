@@ -266,6 +266,116 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     }
   };
 
+  // ---- Bulk import helpers ----
+  const parseBulk = useCallback(async (text: string) => {
+    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    if (lines.length === 0) return [];
+    // Detect header
+    const first = lines[0].toLowerCase();
+    const hasHeader = /org\s*nr|organisasjon|navn|name|epost|email/.test(first);
+    const dataLines = hasHeader ? lines.slice(1) : lines;
+    // Detect separator
+    const sep = lines[0].includes(";") ? ";" : ",";
+
+    // Get existing org numbers to flag duplicates
+    const { data: existing } = await supabase
+      .from("msp_customers")
+      .select("org_number")
+      .eq("msp_user_id", user!.id);
+    const existingOrgs = new Set((existing || []).map((c: any) => String(c.org_number)));
+
+    const seenInBatch = new Set<string>();
+    const rows: BulkRow[] = dataLines.map((line) => {
+      const cols = line.split(sep).map((c) => c.trim().replace(/^"|"$/g, ""));
+      const [orgRaw, nameRaw, person, email] = cols;
+      const org = (orgRaw || "").replace(/\s/g, "");
+      const name = nameRaw || "";
+      let status: BulkRow["status"] = "ok";
+      let reason: string | undefined;
+      if (!/^\d{9}$/.test(org)) {
+        status = "invalid";
+        reason = "Ugyldig org.nr (må være 9 siffer)";
+      } else if (!name) {
+        status = "invalid";
+        reason = "Mangler navn";
+      } else if (existingOrgs.has(org) || seenInBatch.has(org)) {
+        status = "duplicate";
+        reason = "Allerede registrert";
+      }
+      seenInBatch.add(org);
+      return { org_number: org, customer_name: name, contact_person: person, contact_email: email, status, reason };
+    });
+    return rows;
+  }, [user?.id]);
+
+  const handleBulkFile = async (file: File) => {
+    const text = await file.text();
+    setBulkText(text);
+    const rows = await parseBulk(text);
+    setBulkRows(rows);
+  };
+
+  const handleBulkParse = async () => {
+    const rows = await parseBulk(bulkText);
+    setBulkRows(rows);
+    if (rows.length === 0) toast.error("Fant ingen rader å importere");
+  };
+
+  const handleBulkSave = async () => {
+    if (!user?.id) return;
+    const valid = bulkRows.filter((r) => r.status === "ok");
+    if (valid.length === 0) {
+      toast.error("Ingen gyldige rader å importere");
+      return;
+    }
+    setSaving(true);
+    try {
+      const customerRows = valid.map((r) => ({
+        msp_user_id: user.id,
+        customer_name: r.customer_name,
+        org_number: r.org_number,
+        contact_person: r.contact_person || null,
+        contact_email: r.contact_email || null,
+        compliance_score: 0,
+        status: "active",
+        active_frameworks: [] as string[],
+        subscription_plan: "Gratis",
+        onboarding_completed: false,
+      }));
+      const { data: inserted, error } = await supabase
+        .from("msp_customers")
+        .insert(customerRows as any)
+        .select("id, customer_name, org_number");
+      if (error) throw error;
+
+      // Create matching self-asset for each
+      if (inserted && inserted.length > 0) {
+        const assets = inserted.map((c: any) => ({
+          name: c.customer_name,
+          asset_type: "self",
+          org_number: c.org_number,
+          description: `Trust Profile for ${c.customer_name}`,
+          compliance_score: 0,
+          lifecycle_status: "active",
+          metadata: { created_by_msp: true, msp_customer_id: c.id, bulk_import: true },
+        }));
+        await supabase.from("assets").insert(assets as any);
+      }
+
+      setBulkSavedCount(inserted?.length || 0);
+      setStep("bulk-success");
+      setTimeout(() => {
+        onOpenChange(false);
+        onSuccess();
+      }, 2500);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Kunne ikke importere kunder: " + (err?.message || ""));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const currentStepIndex = STEP_LABELS.indexOf(
     step === "results" || step === "verifying" ? "search" : step === "success" ? "confirm" : step
   );
