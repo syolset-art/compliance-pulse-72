@@ -134,6 +134,7 @@ export function MSPGapAnalysisDialog({
   attachMode = false,
   onAttach,
 }: MSPGapAnalysisDialogProps) {
+  const singleMode = !!initialFrameworkId;
   const [active, setActive] = useState<string>(initialFrameworkId || "all");
   const [search, setSearch] = useState("");
 
@@ -142,9 +143,7 @@ export function MSPGapAnalysisDialog({
     if (open) setActive(initialFrameworkId || "all");
   }, [open, initialFrameworkId]);
 
-  const totalGaps = DEMO_GAPS.reduce((a, f) => a + f.gaps.length, 0);
-  const criticalGaps = DEMO_GAPS.reduce((a, f) => a + f.gaps.filter(g => g.severity === "critical").length, 0);
-  const avgScore = Math.round(DEMO_GAPS.reduce((a, f) => a + f.score, 0) / DEMO_GAPS.length);
+  const activeFramework = DEMO_GAPS.find(f => f.framework_id === active);
 
   const filteredFrameworks = useMemo(() => {
     return DEMO_GAPS.map(f => ({
@@ -157,9 +156,17 @@ export function MSPGapAnalysisDialog({
     })).filter(f => active === "all" || f.framework_id === active);
   }, [search, active]);
 
+  // Stats — i single-mode viser vi bare aktivt regelverk
+  const statsSource = singleMode && activeFramework ? [activeFramework] : DEMO_GAPS;
+  const totalGaps = statsSource.reduce((a, f) => a + f.gaps.length, 0);
+  const criticalGaps = statsSource.reduce((a, f) => a + f.gaps.filter(g => g.severity === "critical").length, 0);
+  const avgScore = Math.round(statsSource.reduce((a, f) => a + f.score, 0) / statsSource.length);
+
   const handleDownload = () => {
     toast.success("Gap-analyse lastes ned", {
-      description: `Rapport for ${customerName} (PDF) genereres.`,
+      description: singleMode && activeFramework
+        ? `${activeFramework.framework_name}-rapport for ${customerName} (PDF) genereres.`
+        : `Rapport for ${customerName} (PDF) genereres.`,
     });
   };
 
@@ -173,6 +180,14 @@ export function MSPGapAnalysisDialog({
     onOpenChange(false);
   };
 
+  const titleText = singleMode && activeFramework
+    ? `Gap-analyse — ${activeFramework.framework_name}`
+    : "Alle gap mot regelverk";
+
+  const descText = singleMode && activeFramework
+    ? `Åpne krav kunden ikke oppfyller mot ${activeFramework.framework_name}. Bruk som grunnlag for tilbud eller legg ved som vedlegg.`
+    : "Oversikt over åpne krav kunden ikke oppfyller per regelverk. Bruk dette til å forme tilbud og prioritere tiltak.";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-0 gap-0 max-h-[90vh] overflow-hidden flex flex-col">
@@ -184,18 +199,18 @@ export function MSPGapAnalysisDialog({
             <span className="text-xs text-muted-foreground">{customerName}</span>
           </div>
           <DialogTitle className="text-lg flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            Alle gap mot regelverk
+            {singleMode && activeFramework ? FRAMEWORK_ICONS[activeFramework.framework_id] : <FileText className="h-5 w-5 text-primary" />}
+            {titleText}
           </DialogTitle>
           <DialogDescription className="text-[13px]">
-            Oversikt over åpne krav kunden ikke oppfyller per regelverk. Bruk dette til å forme tilbud og prioritere tiltak.
+            {descText}
           </DialogDescription>
         </DialogHeader>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-2 p-4 border-b border-border bg-muted/20">
           <Card className="p-3 bg-background">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Snitt modenhet</p>
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{singleMode ? "Modenhet" : "Snitt modenhet"}</p>
             <p className="text-2xl font-bold text-foreground mt-1">{avgScore}%</p>
           </Card>
           <Card className="p-3 bg-background">
@@ -220,81 +235,35 @@ export function MSPGapAnalysisDialog({
           </div>
         </div>
 
-        <Tabs value={active} onValueChange={setActive} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="mx-4 mt-3 inline-flex h-auto w-fit flex-wrap gap-1 bg-muted/40 p-1">
-            <TabsTrigger value="all" className="text-xs gap-1.5">
-              Alle
-              <Badge variant="secondary" className="h-4 px-1 text-[10px]">{totalGaps}</Badge>
-            </TabsTrigger>
-            {DEMO_GAPS.map(f => (
-              <TabsTrigger key={f.framework_id} value={f.framework_id} className="text-xs gap-1.5">
-                {FRAMEWORK_ICONS[f.framework_id]}
-                {f.framework_name}
-                <Badge variant="secondary" className="h-4 px-1 text-[10px]">{f.gaps.length}</Badge>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-
-          <TabsContent value={active} className="flex-1 overflow-y-auto p-4 space-y-4 mt-3">
+        {singleMode ? (
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {filteredFrameworks.map(f => (
-              <Card key={f.framework_id} className="p-4 space-y-3">
-                {/* Framework header */}
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    {FRAMEWORK_ICONS[f.framework_id]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-semibold text-foreground">{f.framework_name}</h4>
-                      <span className="text-[12px] text-muted-foreground">
-                        {f.fulfilled}/{f.total} krav oppfylt
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Progress value={f.score} className="h-1.5 flex-1" />
-                      <span className={cn("text-xs font-semibold tabular-nums", f.score >= 75 ? "text-success" : f.score >= 50 ? "text-warning" : "text-destructive")}>
-                        {f.score}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Gaps list */}
-                {f.gaps.length === 0 ? (
-                  <div className="flex items-center gap-2 text-[13px] text-muted-foreground py-3 px-3 rounded-md bg-muted/30">
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                    Ingen gap matcher søket
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    {f.gaps.map(g => {
-                      const sev = SEVERITY_STYLES[g.severity];
-                      return (
-                        <div key={g.id} className={cn("rounded-md border p-3 space-y-1", sev.bg)}>
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[13px] font-medium text-foreground">{g.title}</p>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">{g.domain}</p>
-                            </div>
-                            <Badge variant="outline" className={cn("text-[10px] gap-1 shrink-0", sev.text, sev.bg)}>
-                              {sev.icon}
-                              {sev.label}
-                            </Badge>
-                          </div>
-                          {g.recommendation && (
-                            <p className="text-[12px] text-muted-foreground leading-snug pt-1 border-t border-border/40">
-                              💡 {g.recommendation}
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </Card>
+              <FrameworkBlock key={f.framework_id} f={f} />
             ))}
-          </TabsContent>
-        </Tabs>
+          </div>
+        ) : (
+          <Tabs value={active} onValueChange={setActive} className="flex-1 overflow-hidden flex flex-col">
+            <TabsList className="mx-4 mt-3 inline-flex h-auto w-fit flex-wrap gap-1 bg-muted/40 p-1">
+              <TabsTrigger value="all" className="text-xs gap-1.5">
+                Alle
+                <Badge variant="secondary" className="h-4 px-1 text-[10px]">{DEMO_GAPS.reduce((a, f) => a + f.gaps.length, 0)}</Badge>
+              </TabsTrigger>
+              {DEMO_GAPS.map(f => (
+                <TabsTrigger key={f.framework_id} value={f.framework_id} className="text-xs gap-1.5">
+                  {FRAMEWORK_ICONS[f.framework_id]}
+                  {f.framework_name}
+                  <Badge variant="secondary" className="h-4 px-1 text-[10px]">{f.gaps.length}</Badge>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            <TabsContent value={active} className="flex-1 overflow-y-auto p-4 space-y-4 mt-3">
+              {filteredFrameworks.map(f => (
+                <FrameworkBlock key={f.framework_id} f={f} />
+              ))}
+            </TabsContent>
+          </Tabs>
+        )}
 
         <DialogFooter className="p-4 border-t border-border bg-muted/20 sm:justify-between gap-2">
           <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
@@ -313,5 +282,63 @@ export function MSPGapAnalysisDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function FrameworkBlock({ f }: { f: FrameworkGap }) {
+  return (
+    <Card className="p-4 space-y-3">
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          {FRAMEWORK_ICONS[f.framework_id]}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h4 className="text-sm font-semibold text-foreground">{f.framework_name}</h4>
+            <span className="text-[12px] text-muted-foreground">
+              {f.fulfilled}/{f.total} krav oppfylt
+            </span>
+          </div>
+          <div className="flex items-center gap-2 mt-1">
+            <Progress value={f.score} className="h-1.5 flex-1" />
+            <span className={cn("text-xs font-semibold tabular-nums", f.score >= 75 ? "text-success" : f.score >= 50 ? "text-warning" : "text-destructive")}>
+              {f.score}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {f.gaps.length === 0 ? (
+        <div className="flex items-center gap-2 text-[13px] text-muted-foreground py-3 px-3 rounded-md bg-muted/30">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          Ingen gap matcher søket
+        </div>
+      ) : (
+        <div className="space-y-1.5">
+          {f.gaps.map(g => {
+            const sev = SEVERITY_STYLES[g.severity];
+            return (
+              <div key={g.id} className={cn("rounded-md border p-3 space-y-1", sev.bg)}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-medium text-foreground">{g.title}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{g.domain}</p>
+                  </div>
+                  <Badge variant="outline" className={cn("text-[10px] gap-1 shrink-0", sev.text, sev.bg)}>
+                    {sev.icon}
+                    {sev.label}
+                  </Badge>
+                </div>
+                {g.recommendation && (
+                  <p className="text-[12px] text-muted-foreground leading-snug pt-1 border-t border-border/40">
+                    💡 {g.recommendation}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
   );
 }
