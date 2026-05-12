@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Check, Plus, Send, Trash2, Info, FileText, Eye } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Send, Trash2, FileText, Eye, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
+import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
 
 export interface CreateOfferDialogProps {
   open: boolean;
@@ -18,14 +20,24 @@ export interface CreateOfferDialogProps {
   variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
   partnerName?: string;
   customerContactName?: string;
-  defaultItems?: string[];
-  defaultDuration?: string;
-  defaultEffort?: string;
-  defaultPrice?: string;
+  defaultTasks?: TaskEstimate[];
+  hourlyRate?: number;
   defaultMessage?: string;
   attachGap?: boolean;
   gapFrameworkId?: string;
 }
+
+interface EditableTask extends TaskEstimate {
+  owner: TaskOwner;
+}
+
+const OWNERS: TaskOwner[] = ["Partner", "Felles", "Kunde"];
+
+const ownerRowClass: Record<TaskOwner, string> = {
+  Partner: "bg-muted/30",
+  Felles: "bg-warning/5",
+  Kunde: "bg-success/10",
+};
 
 export function MSPCreateOfferDialog({
   open,
@@ -35,80 +47,57 @@ export function MSPCreateOfferDialog({
   variant = "Tjeneste",
   partnerName = "Dintero AS",
   customerContactName = "Truls",
-  defaultItems,
-  defaultDuration = "10–12 uker",
-  defaultEffort = "120 timer",
-  defaultPrice = "180 000 kr",
+  defaultTasks,
+  hourlyRate = 1500,
   defaultMessage,
   attachGap: attachGapProp = true,
   gapFrameworkId,
 }: CreateOfferDialogProps) {
-  const [items, setItems] = useState<string[]>(defaultItems || [
-    `Gap-analyse mot ${domainName}-kravene`,
-    "Risiko- og sårbarhetsvurdering",
-    "Policy- og dokumentpakke",
-    "Hendelsesrapporteringsrutiner",
-    "Ledelsesgjennomgang og opplæring",
-  ]);
-  const [newItem, setNewItem] = useState("");
-  const [duration, setDuration] = useState(defaultDuration);
-  const [effort, setEffort] = useState(defaultEffort);
-  const [price, setPrice] = useState(defaultPrice);
-  const [message, setMessage] = useState(
-    defaultMessage ||
-      `Hei ${customerContactName}, basert på modenhetsbildet ditt på 18 % og at kunden faller inn under ${domainName}, foreslår jeg et strukturert klargjøringsløp. Vi har gjort dette for flere lignende selskaper og kan starte i mai.`,
+  const [tasks, setTasks] = useState<EditableTask[]>(
+    (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })),
   );
+  const [message, setMessage] = useState(defaultMessage || "");
   const [attachGap, setAttachGap] = useState(attachGapProp);
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
 
-  // Reset when reopened with new context
   useEffect(() => {
-    if (open && defaultItems) setItems(defaultItems);
-    if (open && defaultMessage) setMessage(defaultMessage);
-    if (open) setAttachGap(attachGapProp);
+    if (!open) return;
+    setTasks((defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })));
+    setMessage(defaultMessage || "");
+    setAttachGap(attachGapProp);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const addItem = () => {
-    const v = newItem.trim();
-    if (!v) return;
-    setItems(p => [...p, v]);
-    setNewItem("");
-  };
+  const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
+  const totalPrice = totalHours * hourlyRate;
 
-  const removeItem = (i: number) => setItems(p => p.filter((_, idx) => idx !== i));
+  const updateTask = (i: number, patch: Partial<EditableTask>) => {
+    setTasks(p => p.map((t, idx) => (idx === i ? { ...t, ...patch } : t)));
+  };
+  const removeTask = (i: number) => setTasks(p => p.filter((_, idx) => idx !== i));
+  const addTask = () =>
+    setTasks(p => [...p, { label: "Ny oppgave", hours: 8, owner: "Partner", weeks: "" }]);
+
+  const offerName = serviceTitle || domainName;
+  const gapCount = 9; // demo
 
   const handleSend = () => {
-    const offerName = serviceTitle || domainName;
     const toastId = toast.loading("Sender tilbud…", {
       description: `Sender «${offerName}» til ${customerContactName}.`,
     });
-
-    // Simulert sending — i produksjon: kall edge-funksjon her
     setTimeout(() => {
-      // Enkle valideringer som kan utløse "feilet"
-      if (!message.trim()) {
+      if (tasks.length === 0) {
         toast.error("Kunne ikke sende tilbud", {
           id: toastId,
-          description: "Meldingen til kunden er tom. Skriv noen ord før du sender.",
-          duration: 7000,
+          description: "Tilbudet mangler oppgaver.",
         });
         return;
       }
-      if (items.length === 0) {
-        toast.error("Kunne ikke sende tilbud", {
-          id: toastId,
-          description: "Tilbudet mangler innhold. Legg til minst ett element under «Hva inngår».",
-          duration: 7000,
-        });
-        return;
-      }
-
       onOpenChange(false);
       toast.success("Tilbud sendt", {
         id: toastId,
         description: attachGap
           ? `«${offerName}» er sendt til ${customerContactName} med gap-analyse vedlagt.`
-          : `«${offerName}» er sendt til ${customerContactName}. Du finner det under Meldinger.`,
+          : `«${offerName}» er sendt til ${customerContactName}.`,
         duration: 6000,
       });
     }, 700);
@@ -116,136 +105,163 @@ export function MSPCreateOfferDialog({
 
   const handleDraft = () => {
     onOpenChange(false);
-    toast.success("Lagret som utkast", {
-      description: "Du finner utkastet under Meldinger.",
-    });
+    toast.success("Lagret som utkast", { description: "Du finner utkastet under Meldinger." });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl p-0 gap-0 max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="p-5 pb-3 border-b border-border space-y-2">
+      <DialogContent className="max-w-2xl p-0 gap-0 max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="p-5 pb-3 border-b border-border space-y-1.5">
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-[10px]">
-              {variant}
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-[10px] gap-1">
+              <Sparkles className="h-2.5 w-2.5" /> Utkast fra Lara
             </Badge>
             <span className="text-xs text-muted-foreground">{partnerName}</span>
           </div>
-          <DialogTitle className="text-lg">
-            {serviceTitle ? `Tilby ${serviceTitle}` : `Tilby ${domainName}`}
-          </DialogTitle>
+          <DialogTitle className="text-lg">{offerName}</DialogTitle>
           <DialogDescription className="text-[13px]">
-            {variant === "Co-delivery"
-              ? "Dere deler leveransen. Kunden gjør deler selv, du leverer resten."
-              : "Du leverer hele løpet. Kunden gjennomgår og signerer tilbudet."}
+            Rediger linjene før du sender. Du kan legge til oppgaver kunden selv skal gjøre.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
-          {/* Hva inngår */}
+          {/* Lara intro */}
+          <div className="flex items-start gap-2.5 rounded-md border border-primary/30 bg-primary/5 p-3">
+            <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+            <p className="text-[12px] text-foreground leading-snug">
+              Jeg har satt opp et standardløp basert på din tjenestekatalog. Juster linjene, sett eier på hver oppgave, og send til {customerContactName}.
+            </p>
+          </div>
+
+          {/* Aktiviteter table */}
           <div className="space-y-2">
             <Label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-              Hva inngår
+              Aktiviteter
             </Label>
-            <div className="space-y-1.5">
-              {items.map((item, i) => (
-                <div key={i} className="group flex items-center gap-2 rounded-md bg-muted/40 px-3 py-2">
-                  <Check className="h-3.5 w-3.5 text-success shrink-0" />
-                  <span className="text-[13px] text-foreground flex-1">{item}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(i)}
-                    className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+            <div className="rounded-md border border-border overflow-hidden">
+              <div className="grid grid-cols-[1fr_120px_90px_32px] gap-2 px-3 py-2 bg-muted/40 text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                <span>Oppgave</span>
+                <span>Eier</span>
+                <span className="text-right">Timer</span>
+                <span />
+              </div>
+              <div className="divide-y divide-border">
+                {tasks.map((t, i) => (
+                  <div
+                    key={i}
+                    className={`grid grid-cols-[1fr_120px_90px_32px] gap-2 px-3 py-2 items-center ${ownerRowClass[t.owner]}`}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
+                    <div className="min-w-0">
+                      <Input
+                        value={t.label}
+                        onChange={e => updateTask(i, { label: e.target.value })}
+                        className="h-7 text-[13px] font-medium border-0 bg-transparent px-0 focus-visible:ring-0"
+                      />
+                      {(t.weeks || t.note) && (
+                        <p className="text-[11px] text-muted-foreground -mt-0.5">
+                          {t.weeks}
+                          {t.weeks && t.note ? " · " : ""}
+                          {t.note}
+                        </p>
+                      )}
+                    </div>
+                    <Select value={t.owner} onValueChange={(v: TaskOwner) => updateTask(i, { owner: v })}>
+                      <SelectTrigger className="h-7 text-[12px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {OWNERS.map(o => (
+                          <SelectItem key={o} value={o} className="text-[12px]">{o}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type="number"
+                      value={t.hours}
+                      onChange={e => updateTask(i, { hours: Number(e.target.value) })}
+                      className="h-7 text-[13px] text-right tabular-nums"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeTask(i)}
+                      className="text-muted-foreground hover:text-destructive flex items-center justify-center"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-2 pt-1">
-              <Input
-                value={newItem}
-                onChange={e => setNewItem(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addItem())}
-                placeholder="Legg til element"
-                className="h-8 text-[13px]"
-              />
-              <Button type="button" size="sm" variant="ghost" className="h-8 text-xs gap-1 text-primary" onClick={addItem}>
-                <Plus className="h-3 w-3" /> Legg til
-              </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full h-8 text-xs border-dashed gap-1 text-muted-foreground"
+              onClick={addTask}
+            >
+              <Plus className="h-3 w-3" /> Legg til oppgave
+            </Button>
+
+            {/* Total */}
+            <div className="flex items-baseline justify-between pt-2 px-1">
+              <span className="text-[12px] text-muted-foreground">
+                Timepris {hourlyRate.toLocaleString("nb-NO")} kr
+              </span>
+              <span className="text-sm font-semibold text-foreground tabular-nums">
+                {totalHours} timer · {totalPrice.toLocaleString("nb-NO")} kr
+              </span>
             </div>
           </div>
 
-          {/* Estimat */}
-          <div className="space-y-2">
-            <Label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-              Estimat
-            </Label>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="rounded-md border border-border p-3 space-y-1">
-                <p className="text-[11px] text-muted-foreground">Varighet</p>
-                <Input value={duration} onChange={e => setDuration(e.target.value)} className="h-7 text-[13px] font-semibold border-0 px-0 focus-visible:ring-0" />
-              </div>
-              <div className="rounded-md border border-border p-3 space-y-1">
-                <p className="text-[11px] text-muted-foreground">Arbeidsmengde</p>
-                <Input value={effort} onChange={e => setEffort(e.target.value)} className="h-7 text-[13px] font-semibold border-0 px-0 focus-visible:ring-0" />
-              </div>
-              <div className="rounded-md border border-border p-3 space-y-1">
-                <p className="text-[11px] text-muted-foreground">Estimert pris</p>
-                <Input value={price} onChange={e => setPrice(e.target.value)} className="h-7 text-[13px] font-semibold border-0 px-0 focus-visible:ring-0" />
+          {/* Vedlegg */}
+          {gapFrameworkId && (
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+                Vedlegg
+              </Label>
+              <div className={`rounded-md border p-3 transition-colors ${attachGap ? "border-primary/40 bg-primary/5" : "border-border"}`}>
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <FileText className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[13px] font-medium text-foreground truncate">
+                        Gap-analyse {gapFrameworkId.toUpperCase()}
+                      </p>
+                      <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30">
+                        Anbefalt
+                      </Badge>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">{gapCount} gap dokumentert</p>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs gap-1 text-primary"
+                    onClick={() => setGapPreviewOpen(true)}
+                  >
+                    <Eye className="h-3 w-3" /> Forhåndsvis
+                  </Button>
+                  <Switch checked={attachGap} onCheckedChange={setAttachGap} />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Melding */}
           <div className="space-y-2">
             <Label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-              Melding til {customerContactName}
+              Melding til {customerContactName} (valgfritt)
             </Label>
             <Textarea
               value={message}
               onChange={e => setMessage(e.target.value)}
-              rows={4}
+              rows={3}
+              placeholder={`Hei ${customerContactName}, basert på modenhetsbildet ditt foreslår jeg følgende løp.`}
               className="text-[13px] resize-none"
             />
-          </div>
-
-          {/* Vedlegg */}
-          <div className="space-y-2">
-            <Label className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
-              Vedlegg
-            </Label>
-            <div className={`rounded-md border p-3 transition-colors ${attachGap ? "border-primary/40 bg-primary/5" : "border-border"}`}>
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <FileText className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-foreground">Gap-analyse (PDF)</p>
-                  <p className="text-[11px] text-muted-foreground">
-                    Detaljert oversikt over kundens åpne krav per regelverk.
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 text-xs gap-1 text-primary"
-                  onClick={() => setGapPreviewOpen(true)}
-                >
-                  <Eye className="h-3 w-3" /> Forhåndsvis
-                </Button>
-                <Switch checked={attachGap} onCheckedChange={setAttachGap} />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-2 rounded-md border border-primary/30 bg-primary/5 p-3">
-            <Send className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-            <p className="text-[12px] text-foreground">
-              Tilbudet sendes til {customerContactName} (kontakt hos kunden){attachGap ? " med gap-analyse vedlagt" : ""}.
-              Kunden kan godta, avvise eller be om endringer.
-            </p>
           </div>
         </div>
 
