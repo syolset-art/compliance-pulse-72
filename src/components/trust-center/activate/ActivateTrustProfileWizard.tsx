@@ -400,11 +400,14 @@ export default function ActivateTrustProfileWizard({
           subProcessors={subProcessors} setSubProcessors={setSubProcessors}
         />
       )}
-      {step === 4 && (
+      {step === 4 && !isCalculating && (
         <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
+      {step === 4 && isCalculating && (
+        <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
+      )}
       {step === 5 && (
-        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+        <DocumentsStep documents={documents} onUpload={uploadDocument} trustScore={trustScore} />
       )}
     </div>
   );
