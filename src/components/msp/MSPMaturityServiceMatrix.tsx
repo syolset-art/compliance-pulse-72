@@ -77,9 +77,8 @@ const DOMAINS: DomainRow[] = [
     services: [],
     highlightOffer: {
       title: "NIS2-klargjøring som tjeneste",
-      desc: "Kunden er omfattet av NIS2 men har lav modenhet. Tilby en strukturert leveranse: gap-analyse, risikovurdering, dokumentasjon og rapporteringsrutiner. Kunden kan velge full leveranse eller co-delivery der de gjør deler selv.",
+      desc: "Kunden er omfattet av NIS2 men har lav modenhet. Lara har laget et utkast til tilbud: gap-analyse, risikovurdering, dokumentasjon og rapporteringsrutiner. Du kan justere innhold, omfang og pris før du sender til kunden.",
       primaryCta: "Tilby full leveranse",
-      secondaryCta: "Tilby co-delivery",
     },
   },
   {
@@ -93,9 +92,8 @@ const DOMAINS: DomainRow[] = [
     services: [],
     highlightOffer: {
       title: "AI Governance-rammeverk",
-      desc: "Kunden har ennå ikke etablert AI-styring. Tilby kartlegging av AI-bruk, klassifisering mot EU AI Act, og oppsett av policy og kontroller. Egnet som kombinert leveranse med personvern.",
+      desc: "Kunden har ennå ikke etablert AI-styring. Lara har laget et utkast til tilbud: kartlegging av AI-bruk, klassifisering mot EU AI Act, og oppsett av policy og kontroller. Du kan justere og sende til kunden.",
       primaryCta: "Tilby leveranse",
-      secondaryCta: "Send oversiktsmateriell",
     },
   },
   {
@@ -286,9 +284,14 @@ export function MSPMaturityServiceMatrix() {
               {isOpen && d.highlightOffer && (
                 <div className="mt-4 pt-4 border-t border-border/60">
                   <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-3.5 w-3.5 text-primary" />
-                      <span className="text-[13px] font-semibold text-foreground">{d.highlightOffer.title}</span>
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-[13px] font-semibold text-foreground">{d.highlightOffer.title}</span>
+                      </div>
+                      <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30 gap-1">
+                        <Sparkles className="h-2.5 w-2.5" /> Utkast laget av Lara
+                      </Badge>
                     </div>
                     <p className="text-[12px] text-muted-foreground leading-snug">{d.highlightOffer.desc}</p>
                     <div className="flex flex-wrap gap-2 pt-1">
@@ -298,26 +301,11 @@ export function MSPMaturityServiceMatrix() {
                         onClick={() => openOffer({
                           domainName: d.name,
                           serviceTitle: d.highlightOffer!.title,
-                          variant: d.highlightOffer!.primaryCta.toLowerCase().includes("co-delivery") ? "Co-delivery" : "Full leveranse",
+                          variant: "Full leveranse",
                         })}
                       >
-                        <Send className="h-3 w-3" /> Lag tilbud — {d.highlightOffer.primaryCta.replace(/^Tilby\s*/i, "")}
+                        <Sparkles className="h-3 w-3" /> Åpne Laras utkast
                       </Button>
-                      {d.highlightOffer.secondaryCta && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 text-xs gap-1"
-                          onClick={() => openOffer({
-                            domainName: d.name,
-                            serviceTitle: d.highlightOffer!.title,
-                            variant: d.highlightOffer!.secondaryCta!.toLowerCase().includes("co-delivery") ? "Co-delivery" : "Tjeneste",
-                          })}
-                        >
-                          {d.highlightOffer.secondaryCta.includes("Send") && <Send className="h-3 w-3" />}
-                          {d.highlightOffer.secondaryCta}
-                        </Button>
-                      )}
                     </div>
                   </div>
                 </div>
