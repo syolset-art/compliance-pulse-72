@@ -17,9 +17,13 @@ interface CompanyInfoFormProps {
   showEditControls?: boolean;
   /** Callback after save completes */
   onSaved?: () => void;
+  /** Hide the Partner & delivery section (render it elsewhere) */
+  hidePartner?: boolean;
+  /** Render ONLY the Partner & delivery section */
+  partnerOnly?: boolean;
 }
 
-export function CompanyInfoForm({ defaultEditing = false, showEditControls = true, onSaved }: CompanyInfoFormProps) {
+export function CompanyInfoForm({ defaultEditing = false, showEditControls = true, onSaved, hidePartner = false, partnerOnly = false }: CompanyInfoFormProps) {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(defaultEditing);
   const [saving, setSaving] = useState(false);
