@@ -780,6 +780,22 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
         <main className="flex-1 overflow-auto pt-11">
+          {showActivateWizard ? (
+            <div className="container max-w-3xl mx-auto p-4 md:p-6">
+              <ActivateTrustProfileWizard
+                inline
+                open={showActivateWizard}
+                onOpenChange={setShowActivateWizard}
+                initialCompanyName={companyProfile?.name || undefined}
+                initialOrgNumber={companyProfile?.org_number || undefined}
+                initialDomain={(companyProfile as any)?.domain || undefined}
+                onCompleted={() => {
+                  queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+                  queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+                }}
+              />
+            </div>
+          ) : (
           <div className="container max-w-4xl mx-auto p-4 md:p-6 space-y-5">
             {/* Page Header */}
             <div className="flex items-center justify-between">
@@ -1757,6 +1773,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </Button>
             </div>
           </div>
+          )}
         </main>
       </div>
 
@@ -2364,17 +2381,7 @@ MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d
           </div>
         </DialogContent>
       </Dialog>
-      <ActivateTrustProfileWizard
-        open={showActivateWizard}
-        onOpenChange={setShowActivateWizard}
-        initialCompanyName={companyProfile?.name || undefined}
-        initialOrgNumber={companyProfile?.org_number || undefined}
-        initialDomain={(companyProfile as any)?.domain || undefined}
-        onCompleted={() => {
-          queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
-          queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-        }}
-      />
+{/* Activation now renders inline at top of main */}
     </SidebarProvider>
   );
 };
