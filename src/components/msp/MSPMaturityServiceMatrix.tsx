@@ -235,7 +235,7 @@ export function MSPMaturityServiceMatrix() {
                           });
                         }}
                       >
-                        Tilby leveranse
+                        Lag tilbud
                       </Button>
                       {r.frameworkId && (
                         <Button
