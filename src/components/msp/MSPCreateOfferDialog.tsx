@@ -24,6 +24,7 @@ export interface CreateOfferDialogProps {
   defaultPrice?: string;
   defaultMessage?: string;
   attachGap?: boolean;
+  gapFrameworkId?: string;
 }
 
 export function MSPCreateOfferDialog({
@@ -40,6 +41,7 @@ export function MSPCreateOfferDialog({
   defaultPrice = "180 000 kr",
   defaultMessage,
   attachGap: attachGapProp = true,
+  gapFrameworkId,
 }: CreateOfferDialogProps) {
   const [items, setItems] = useState<string[]>(defaultItems || [
     `Gap-analyse mot ${domainName}-kravene`,
@@ -266,6 +268,7 @@ export function MSPCreateOfferDialog({
         open={gapPreviewOpen}
         onOpenChange={setGapPreviewOpen}
         customerName={customerContactName}
+        initialFrameworkId={gapFrameworkId}
       />
     </Dialog>
   );

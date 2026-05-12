@@ -89,6 +89,7 @@ export function MSPMaturityServiceMatrix() {
     serviceTitle?: string;
     variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
     attachGap?: boolean;
+    gapFrameworkId?: string;
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
@@ -169,7 +170,7 @@ export function MSPMaturityServiceMatrix() {
                           size="sm"
                           variant={cta.variant}
                           className="h-8 text-xs"
-                          onClick={() => setOfferCtx({ open: true, serviceTitle: r.title, variant: cta.deliveryVariant })}
+                          onClick={() => setOfferCtx({ open: true, serviceTitle: r.title, variant: cta.deliveryVariant, attachGap: !!r.frameworkId, gapFrameworkId: r.frameworkId })}
                         >
                           {cta.label}
                         </Button>
@@ -236,6 +237,7 @@ export function MSPMaturityServiceMatrix() {
         serviceTitle={offerCtx.serviceTitle}
         variant={offerCtx.variant}
         attachGap={offerCtx.attachGap}
+        gapFrameworkId={offerCtx.gapFrameworkId}
       />
 
       <MSPGapAnalysisDialog
@@ -249,6 +251,7 @@ export function MSPMaturityServiceMatrix() {
             serviceTitle: rec?.title,
             variant: "Full leveranse",
             attachGap: true,
+            gapFrameworkId: fwId,
           });
         }}
       />
