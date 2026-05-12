@@ -172,8 +172,19 @@ export default function ActivateTrustProfileWizard({
     setEncryption(scan.security.encryption || "");
     setMfa(scan.security.mfa || "");
     setSubProcessors(scan.dataStorage.subProcessors.join(", "));
-    setMaturityAnswers(deriveDefaultAnswers(scan));
-    setLaraSources(deriveLaraSources(scan));
+    const defaults = deriveDefaultAnswers(scan);
+    const sources = deriveLaraSources(scan);
+    // Merge in any existing answers from the Regelverk module — these win over Lara defaults
+    if (initialMaturity) {
+      for (const [k, v] of Object.entries(initialMaturity)) {
+        if (v) {
+          defaults[k] = v as MaturityAnswer;
+          sources[k] = "Hentet fra ditt arbeid i Regelverk";
+        }
+      }
+    }
+    setMaturityAnswers(defaults);
+    setLaraSources(sources);
     // Pre-populate documents found by scan
     setDocuments(
       DOCUMENT_SLOTS.map((slot) => {
