@@ -1,32 +1,51 @@
-## Hva som endres
+## Mål
+Når brukeren har lastet opp ett eller flere dokumenter i Trust Profile-redigering, kjører Lara en gap-analyse mot de regulatoriske rammeverkene virksomheten er pålagt (`selected_frameworks`) og vurderer om dokumentene er gode nok eller bør oppdateres.
 
-### 1. Partner-kort vises alltid i prototypen (Trust Profile preview)
-Filen `src/pages/TrustCenterProfile.tsx` har allerede et Partner-kort under Dokumentasjon, men det er gated på `partnerInfo.hasPartner` (som krever ekte data i `company_profile`). For demo/prototyping fjerner vi gating og rendrer kortet med fallback-data:
+## UI-tillegg i `DocumentationSection`
+Like under dokumentlisten (kun synlig når `documents.length > 0`):
 
-- Navn: "Mynder MSP-partner AS" (eller `partnerInfo.partnerName` hvis satt)
-- Type: "MSP" (eller `partnerInfo.partnerType` hvis satt)
-- Beskrivelse: "Bistår med drift, sikkerhet og compliance — rapporterer modenhet og hendelser inn i Mynder."
+- **Gap-analyse-kort** (lilla `bg-primary/5 border-primary/20`, samme stil som Lara-anbefalingen):
+  - Tittel: "Lara-analyse av dokumentasjon"
+  - Underline: "Vurderer dine opplastede dokumenter mot {N} pålagte rammeverk: GDPR, ISO 27001, NIS2…"
+  - CTA: **"Analyser dokumenter"** (primary). Ved klikk: spinner + "Analyserer X dokumenter mot rammeverk…"
 
-Slik vises kortet uansett, og blir riktig så snart ekte partner-data finnes.
+- **Resultat-visning** (etter analyse fullført, persisteres til `asset.metadata.doc_gap_analysis`):
+  - Samlet status-pill: "Tilstrekkelig" (primary) / "Forbedringer anbefales" (warning) / "Vesentlige mangler" (destructive)
+  - Sammendrag (én setning fra Lara)
+  - Liste med findings per dokument:
+    - Dokumentnavn + matchet rammeverkskrav (f.eks. "GDPR Art. 28 — DPA")
+    - Vurdering: dekningsgrad-pille + kort begrunnelse
+    - Anbefaling (én linje, f.eks. "Mangler underleverandør-liste — bør legges til")
+  - Liste med manglende dokumenter (krav i rammeverkene som ingen opplastet doc dekker)
+  - "Kjør på nytt"-knapp + "Sist analysert {dato}"
 
-### 2. Fjerne rød readiness-banner + section-chips fra edit-/preview-siden (bilde 1)
-I `src/pages/TrustCenterEditProfile.tsx`:
+## Backend
+Ny edge function `supabase/functions/analyze-doc-gap/index.ts`:
 
-- Fjerne `<PublishingReadiness ... />` (linje 250–257) — den røde "Ikke klar for publisering"-banneren med 1/4-progressbar
-- Fjerne hele "Quick nav tabs"-blokken med chips for Virksomhet / Kontakter / Datalagring / Personvern / Sikkerhet / Hendelser / Dokumentasjon / Detaljinnstillinger (linje 260–286)
-- Fjerne tilhørende ubrukt import (`PublishingReadiness`)
+- Input: `{ assetId }`
+- Henter `vendor_documents` for asset, `selected_frameworks`, og henter signed URLs / metadata (filnavn + document_type + valid_to). Vi trekker ikke ut full PDF-tekst i denne første versjonen — vi sender filnavn, type, dato og rammeverkene til Lara og lar modellen vurdere typisk dekning. (Notert som forenkling i prototypen; full content-OCR kan komme senere via eksisterende `analyze-document`.)
+- Lovable AI Gateway, modell `google/gemini-3-flash-preview`, structured output (zod-skjema):
+  ```ts
+  {
+    overallStatus: "sufficient" | "needs_improvement" | "significant_gaps",
+    summary: string,
+    findings: Array<{
+      documentName: string,
+      coversRequirement: string,  // f.eks. "GDPR Art. 28"
+      coverage: "full" | "partial" | "outdated" | "insufficient",
+      recommendation: string
+    }>,
+    missingDocuments: Array<{
+      requirement: string,        // f.eks. "ISO 27001 A.5.1 — Informasjonssikkerhetspolicy"
+      framework: string,
+      recommendation: string
+    }>
+  }
+  ```
+- Lagrer resultatet på `assets.metadata.doc_gap_analysis = { result, analyzed_at }` (ingen ny tabell — bruker eksisterende metadata-jsonb).
 
-### 3. Erstatte med en mykere Lara-anbefaling (bilde 2)
-Legge til en ny inline-banner øverst (samme sted som readiness-banneren stod), i Mynder-stil:
+## Filer som endres / opprettes
+- `supabase/functions/analyze-doc-gap/index.ts` (ny)
+- `src/components/trust-center/edit/DocumentationSection.tsx` — legge til gap-analyse-kort + resultatvisning, kall til `supabase.functions.invoke("analyze-doc-gap", ...)`, mutation som invalidates asset-cachen
 
-- Lilla `bg-primary/5 border-primary/20`-kort
-- Lara-avatar / `Sparkles`-ikon til venstre
-- Tittel: **"Lara har en anbefaling til deg"**
-- Tekst: *"Du har {N} oppgaver som krever oppmerksomhet, hvorav {K} er kritiske. Vil du starte en gjennomgang?"* — tallene utledes fra `sectionCompleteness` (manglende felter) eller hardkodes for prototypen (13 / 8) hvis logikken ikke finnes ennå
-- To handlinger: primary-knapp **"Vis plan"** (scroller til første ufullstendige seksjon) og ghost-knapp **"Ikke nå"** (skjuler banneren via lokal state)
-
-### Filer som endres
-- `src/pages/TrustCenterProfile.tsx` — fjerne gating på Partner-kortet, hardkode fallback-tekst
-- `src/pages/TrustCenterEditProfile.tsx` — fjerne PublishingReadiness + chips, legge til ny Lara-anbefalingsbanner
-
-Ingen DB-endringer, ingen nye komponenter — alt gjøres inline i de to filene.
+Ingen DB-migrering nødvendig (bruker `assets.metadata` jsonb). Ingen nye dependencies.
