@@ -65,7 +65,22 @@ const LARA_PROPOSALS: LaraProposal[] = [
   },
 ];
 
-type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected";
+type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected" | "campaigns";
+
+interface SentCampaign {
+  id: string;
+  name: string;
+  kind: "message" | "offer" | "reminder";
+  subject: string;
+  body: string;
+  sentAt: Date;
+  recipients: {
+    customerId: string;
+    customerName: string;
+    contactEmail?: string;
+    status: "sent" | "opened" | "accepted" | "rejected";
+  }[];
+}
 type ItemKind = "in" | "out";
 type ItemStatus = "accepted" | "rejected" | "pending" | "message";
 
