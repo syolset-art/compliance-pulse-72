@@ -12,7 +12,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText } from "lucide-react";
+import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   ResponsiveContainer,
