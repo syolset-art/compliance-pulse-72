@@ -664,13 +664,6 @@ function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; 
   );
 }
 
-function LaraBadge() {
-  return (
-    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary">
-      <Sparkles className="h-2.5 w-2.5" /> Lara
-    </span>
-  );
-}
 
 function FieldGroup({ icon: Icon, title, children }: any) {
   return (
