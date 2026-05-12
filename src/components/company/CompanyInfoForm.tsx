@@ -507,7 +507,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                       {partnerLookup.status === "searching" ? (
                         <Loader2 className="h-3.5 w-3.5 text-muted-foreground animate-spin" />
                       ) : partnerLookup.status === "found" ? (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
                       ) : (
                         <Search className="h-3.5 w-3.5 text-muted-foreground/60" />
                       )}
@@ -520,7 +520,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                     </p>
                   )}
                   {partnerLookup.status === "found" && partnerLookup.match && (
-                    <p className="text-[11px] text-success flex items-center gap-1">
+                    <p className="text-[11px] text-primary flex items-center gap-1">
                       <CheckCircle2 className="h-3 w-3" />
                       Funnet i Mynder Trust — feltene under er forhåndsutfylt og kan redigeres.
                     </p>
