@@ -1,14 +1,19 @@
-## Mål
-Informer brukeren på "Modenhet per kontrollområde" (på rediger-siden) om at kontrollområdene drives av rammeverkene som er aktivert under menypunktet **Regelverk**, og gi enkel snarvei dit.
+## Fjerne Lara-analysefeltet fra dokumentasjonsseksjonen
 
-## Endring i `src/pages/TrustCenterEditProfile.tsx`
-Like under section-headeren for "Modenhet per kontrollområde" (etter `</div>` på linje ~304, før kontrollområde-listen) legges et lite info-kort:
+Brukeren vil fjerne hele "Lara-analyse av dokumentasjon"-kortet som vises nederst i dokumentasjonsseksjonen på Rediger profil-siden.
 
-- Stil: `bg-primary/5 border-primary/20` (samme Lara-aktige stil som de andre infokortene), `Info`-ikon i lilla.
-- Tekst (NB):
-  > "Kontrollområdene speiler rammeverkene du har aktivert under **Regelverk** ({frameworkNames eller antall}). Skore beregnes ut fra disse. Trenger du flere eller andre rammeverk? Oppdater i Regelverk – så reflekteres det her."
-- Tekst (EN): tilsvarende oversettelse.
-- CTA: liten outline-knapp **"Gå til Regelverk"** / "Go to Frameworks" som navigerer til `/frameworks` (eller den eksisterende ruten – verifiseres i implementasjonen).
-- Henter aktive rammeverk fra eksisterende `frameworks`-query (linje 83-87) og viser opptil 3 navn + "+N flere".
+### Endring
 
-Ingen andre endringer, ingen DB-endringer.
+**Fil:** `src/components/trust-center/edit/DocumentationSection.tsx`
+
+- Fjern hele analysekortet (linje 192–290), inkludert badge-status, vurderinger per dokument, manglende dokumentasjon-listen og "Kjør på nytt"-knappen.
+- Rydd opp ubrukt kode etter fjerning:
+  - State: `analyzing`, `gap`, og tilhørende setters
+  - Funksjon: `runGapAnalysis`
+  - Query/fetch som henter eksisterende gap-analyse
+  - Ubrukte imports: `Sparkles`, `Loader2`, `CheckCircle2`, `AlertCircle`, `AlertTriangle`, `Badge`, samt `supabase.functions.invoke`-kallet hvis ingen andre bruker det
+  - `frameworkCount`-variabelen hvis den kun brukes her
+
+Edge-funksjonen `analyze-doc-gap` beholdes urørt (kan brukes senere), men UI-inngangen fjernes helt.
+
+Ingen andre filer påvirkes.
