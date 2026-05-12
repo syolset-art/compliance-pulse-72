@@ -110,10 +110,20 @@ export function MSPMaturityServiceMatrix() {
         </Card>
       )}
 
-      {/* Recommended */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-foreground">Anbefalt for denne kunden</h3>
-        <div className="space-y-2">
+      {/* Tabs: Anbefalt / Pågående */}
+      <Tabs defaultValue="recommended" className="space-y-3">
+        <TabsList>
+          <TabsTrigger value="recommended" className="gap-2">
+            Anbefalt
+            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{RECOMMENDATIONS.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="ongoing" className="gap-2">
+            Pågående
+            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{ONGOING.length}</Badge>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="recommended" className="space-y-2 mt-0">
           {RECOMMENDATIONS.map(r => {
             const Icon = r.icon;
             return (
@@ -150,16 +160,9 @@ export function MSPMaturityServiceMatrix() {
               </Card>
             );
           })}
-        </div>
-      </div>
+        </TabsContent>
 
-      {/* Ongoing */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Pågående med denne kunden</h3>
-          <span className="text-xs text-muted-foreground">{ONGOING.length} aktive</span>
-        </div>
-        <div className="space-y-2">
+        <TabsContent value="ongoing" className="space-y-2 mt-0">
           {ONGOING.map(o => {
             const isPending = o.status === "pending";
             return (
@@ -188,8 +191,8 @@ export function MSPMaturityServiceMatrix() {
               </Card>
             );
           })}
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
 
       <MSPCreateOfferDialog
         open={offerCtx.open}
