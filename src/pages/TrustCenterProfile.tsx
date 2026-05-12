@@ -210,6 +210,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   });
 
   const evaluation = useTrustControlEvaluation(asset?.id || "");
+  const { data: partnerInfo } = usePartnerInfo(companyProfile?.id);
 
   // First-time activation: show wizard instead of auto-seeding silently.
   // If user skipped previously, fall back to auto-seed so the page is never empty.
