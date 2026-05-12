@@ -175,9 +175,6 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="trust-profile" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Kundens Trust Profile
                 </TabsTrigger>
-                <TabsTrigger value="nis2" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
-                  NIS2
-                </TabsTrigger>
               </TabsList>
             </nav>
 
@@ -267,22 +264,6 @@ export default function MSPCustomerDetail() {
               <MSPCustomerTrustProfileCard customerName={customer.name || "Kunden"} />
             </TabsContent>
 
-            {/* ── NIS2 ── */}
-            <TabsContent value="nis2" className="mt-6">
-              <Card className="p-6 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" />
-                  <h3 className="font-semibold text-foreground">NIS2-vurdering</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Start eller se status på NIS2-kartlegging for kundens enheter og systemer.
-                </p>
-                <Button size="sm" className="gap-2" onClick={() => navigate(`/msp-dashboard/${customerId}/nis2`)}>
-                  <Shield className="h-4 w-4" />
-                  {customer.active_frameworks?.includes("NIS2") ? "Se NIS2-vurdering" : "Start NIS2-vurdering"}
-                </Button>
-              </Card>
-            </TabsContent>
           </Tabs>
         </div>
 
