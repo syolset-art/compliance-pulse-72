@@ -239,7 +239,23 @@ export default function ActivateTrustProfileWizard({
     return true;
   }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => setStep((s) => (Math.min(5, s + 1) as Step));
+  const next = () => {
+    if (step === 4) {
+      // Lara "calculates" preliminary Trust Score before showing documents step
+      setIsCalculating(true);
+      setCalcStep(0);
+      const t1 = setTimeout(() => setCalcStep(1), 500);
+      const t2 = setTimeout(() => setCalcStep(2), 1100);
+      const t3 = setTimeout(() => setCalcStep(3), 1700);
+      const t4 = setTimeout(() => {
+        setIsCalculating(false);
+        setStep(5);
+      }, 2100);
+      // best-effort cleanup if user closes during calc
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    }
+    setStep((s) => (Math.min(5, s + 1) as Step));
+  };
   const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
