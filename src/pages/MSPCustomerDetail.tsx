@@ -191,13 +191,40 @@ export default function MSPCustomerDetail() {
                 </Card>
               )}
 
-              <DomainComplianceWidget hideHeader />
+              {/* Modenhet per kontrollområde — samme som leverandørprofil */}
+              <AssetMaturityByDomainCard assetId={customerId!} />
+
+              {/* Modenhetsutvikling drevet av aktiviteter */}
+              <Card className="p-5 border-primary/20 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-foreground">Modenhetsutvikling drevet av aktiviteter</h3>
+                    <p className="text-[13px] text-muted-foreground mt-0.5">
+                      Hver markør på linjen er en aktivitet fra loggen under. Tiltak hever modenhet, hendelser senker den.
+                    </p>
+                  </div>
+                </div>
+                <MaturityHistoryChart assetId={customerId!} baselinePercent={40} enrichmentPercent={20} />
+              </Card>
 
               {frameworks.length > 0 && (
                 <FrameworkMaturityGrid frameworks={frameworks} />
               )}
 
               <VendorPrivacyAssessment vendorName={customer.name || "kunden"} />
+
+              {/* Aktivitetslogg — partner ser sine egne handlinger og anonymiserte kundehandlinger */}
+              <VendorActivityTab
+                assetId={customerId!}
+                assetName={customer.name || ""}
+                mspPartnerView
+              />
+
+              {/* Domain compliance fortsatt tilgjengelig — kompakt under */}
+              <DomainComplianceWidget hideHeader />
             </TabsContent>
 
             {/* ── Vurdering ── */}
