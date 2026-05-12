@@ -25,7 +25,7 @@ import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
-import { PublishingReadiness } from "@/components/trust-center/PublishingReadiness";
+
 import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
 import { DataStorageSection } from "@/components/trust-center/edit/DataStorageSection";
 import { PrivacySection } from "@/components/trust-center/edit/PrivacySection";
@@ -62,6 +62,7 @@ const TrustCenterEditProfile = () => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [showLaraRec, setShowLaraRec] = useState(true);
   const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
   usePageHelpListener(setHelpOpenCb);
 
@@ -246,44 +247,37 @@ const TrustCenterEditProfile = () => {
               </div>
             </Card>
 
-            {/* Readiness Indicator */}
-            <PublishingReadiness
-              trustScore={trustScore}
-              companyProfile={companyProfile}
-              frameworks={frameworks}
-              linkedProducts={[]}
-              evaluation={evaluation}
-              asset={asset}
-            />
-
-            {/* Quick nav tabs */}
-            <div className="flex flex-wrap gap-2">
-              {[
-                { icon: Building2, label: isNb ? "Virksomhet" : "Company", anchor: "#company" },
-                { icon: Users, label: isNb ? "Kontakter" : "Contacts", anchor: "#contacts" },
-                { icon: Database, label: isNb ? "Datalagring" : "Data storage", anchor: "#data-storage" },
-                { icon: Globe, label: isNb ? "Personvern" : "Privacy", anchor: "#privacy" },
-                { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
-                { icon: AlertTriangle, label: isNb ? "Hendelser" : "Incidents", anchor: "#incidents" },
-                { icon: FileText, label: isNb ? "Dokumentasjon" : "Documentation", anchor: "#documentation" },
-              ].map(tab => (
-                <button
-                  key={tab.anchor}
-                  onClick={() => document.querySelector(tab.anchor)?.scrollIntoView({ behavior: "smooth" })}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
-                >
-                  <tab.icon className="h-3 w-3" />
-                  {tab.label}
-                </button>
-              ))}
-              <button
-                onClick={() => navigate(`/assets/${asset.id}`)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
-              >
-                <Settings className="h-3 w-3" />
-                {isNb ? "Detaljinnstillinger" : "Detail settings"}
-              </button>
-            </div>
+            {/* Lara recommendation banner */}
+            {showLaraRec && (
+              <Card className="p-4 border-primary/20 bg-primary/5">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground">
+                      {isNb ? "Lara har en anbefaling til deg" : "Lara has a recommendation for you"}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {isNb
+                        ? "Du har 13 oppgaver som krever oppmerksomhet, hvorav 8 er kritiske. Vil du starte en gjennomgang?"
+                        : "You have 13 tasks that need attention, 8 of them critical. Want to start a review?"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      size="sm"
+                      onClick={() => document.querySelector("#company")?.scrollIntoView({ behavior: "smooth" })}
+                    >
+                      {isNb ? "Vis plan" : "Show plan"}
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setShowLaraRec(false)}>
+                      {isNb ? "Ikke nå" : "Not now"}
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            )}
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Virksomhet */}
