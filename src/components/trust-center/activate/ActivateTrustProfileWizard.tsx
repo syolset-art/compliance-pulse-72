@@ -992,13 +992,36 @@ function MaturityStep({ answers, sources, onChange }: {
 
 /* -------------------- Documents step -------------------- */
 
-function DocumentsStep({ documents, onUpload }: {
+function DocumentsStep({ documents, onUpload, trustScore }: {
   documents: ActivationDocument[];
   onUpload: (slotId: string, fileName: string) => void;
+  trustScore: number;
 }) {
   const getDoc = (slotId: string) => documents.find((d) => d.slot === slotId);
+  const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
+  const trustColorClass = trustScore >= 80 ? "text-success" : trustScore >= 50 ? "text-warning" : "text-destructive";
+  const trustStrokeClass = trustScore >= 80 ? "stroke-success" : trustScore >= 50 ? "stroke-warning" : "stroke-destructive";
   return (
     <div className="space-y-3">
+      <Card className="p-4 border-primary/20 bg-primary/5">
+        <div className="flex items-center gap-4">
+          <ScoreGauge score={trustScore} strokeClass={trustStrokeClass} />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-bold tracking-wider ${trustColorClass}`}>{trustLabel}</span>
+              <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
+                <Sparkles className="h-2.5 w-2.5" /> Foreløpig — beregnet av Lara
+              </Badge>
+            </div>
+            <p className="text-sm font-semibold mt-0.5">Trust Score: {trustScore} / 100</p>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              Skåren er basert på modenhetssvarene dine. Den oppdateres når du laster opp dokumenter under,
+              og fortsetter å øke når du svarer på flere kontrollpunkter under <span className="font-medium text-foreground">Regelverk</span> i menyen.
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
         <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
         <p className="text-xs text-foreground/80 leading-relaxed">
