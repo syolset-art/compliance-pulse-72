@@ -174,6 +174,23 @@ function KindIcon({ kind, status, customer }: { kind: ItemKind; status: ItemStat
 export default function MSPMessages() {
   const [filter, setFilter] = useState<Filter>("all");
   const [dismissedBanner, setDismissedBanner] = useState(false);
+  const [proposalsOpen, setProposalsOpen] = useState(false);
+  const [selected, setSelected] = useState<Record<string, boolean>>(
+    Object.fromEntries(LARA_PROPOSALS.map(p => [p.id, true]))
+  );
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({ p1: true });
+  const [drafts, setDrafts] = useState<Record<string, string>>(
+    Object.fromEntries(LARA_PROPOSALS.map(p => [p.id, p.body]))
+  );
+
+  const selectedCount = Object.values(selected).filter(Boolean).length;
+
+  const handleSendAll = () => {
+    setProposalsOpen(false);
+    toast.success(`${selectedCount} påminnelse${selectedCount === 1 ? "" : "r"} sendt`, {
+      description: "Lara har lagt oppfølgingen i loggen.",
+    });
+  };
 
   const filtered = ITEMS.filter(i => {
     if (filter === "all") return true;
