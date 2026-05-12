@@ -54,6 +54,8 @@ export function MSPCreateOfferDialog({
     defaultMessage ||
       `Hei ${customerContactName}, basert på modenhetsbildet ditt på 18 % og at kunden faller inn under ${domainName}, foreslår jeg et strukturert klargjøringsløp. Vi har gjort dette for flere lignende selskaper og kan starte i mai.`,
   );
+  const [attachGap, setAttachGap] = useState(true);
+  const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
 
   // Reset when reopened with new context
   useEffect(() => {
