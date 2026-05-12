@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { AddOrganizationDialog } from "./AddOrganizationDialog";
-import { Building2, ChevronDown, Plus, Check } from "lucide-react";
+import { Building2, ChevronDown, Plus, Check, Handshake } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { usePartnerInfo } from "@/hooks/usePartnerInfo";
 
 export function OrganizationSwitcher() {
   const { i18n } = useTranslation();
