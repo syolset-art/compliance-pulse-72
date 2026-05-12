@@ -237,6 +237,7 @@ export function MSPMaturityServiceMatrix() {
         serviceTitle={offerCtx.serviceTitle}
         variant={offerCtx.variant}
         attachGap={offerCtx.attachGap}
+        gapFrameworkId={offerCtx.gapFrameworkId}
       />
 
       <MSPGapAnalysisDialog
@@ -250,6 +251,7 @@ export function MSPMaturityServiceMatrix() {
             serviceTitle: rec?.title,
             variant: "Full leveranse",
             attachGap: true,
+            gapFrameworkId: fwId,
           });
         }}
       />
