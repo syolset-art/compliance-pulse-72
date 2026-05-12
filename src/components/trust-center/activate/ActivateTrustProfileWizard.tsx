@@ -284,12 +284,19 @@ export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompl
       </Button>
 
       {step < 4 ? (
-        <Button onClick={next} disabled={!canNext} className="gap-2">
-          {step === 0 && (<><Sparkles className="h-4 w-4" /> La Lara starte</>)}
-          {step === 1 && (<><Sparkles className="h-4 w-4" /> Start Lara-skann</>)}
-          {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
-          {step === 3 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
-        </Button>
+        <div className="flex gap-2">
+          {step === 2 && (
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Lukk — kom tilbake senere
+            </Button>
+          )}
+          <Button onClick={next} disabled={!canNext} className="gap-2">
+            {step === 0 && (<><Sparkles className="h-4 w-4" /> La Lara starte</>)}
+            {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
+            {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
+            {step === 3 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
+          </Button>
+        </div>
       ) : (
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => handlePublish(false)} disabled={isPublishing}>
