@@ -201,6 +201,9 @@ export default function MSPMessages() {
   const [drafts, setDrafts] = useState<Record<string, string>>(
     Object.fromEntries(LARA_PROPOSALS.map(p => [p.id, p.body]))
   );
+  const [campaigns, setCampaigns] = useState<SentCampaign[]>([]);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [expandedCampaign, setExpandedCampaign] = useState<Record<string, boolean>>({});
 
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
@@ -211,6 +214,28 @@ export default function MSPMessages() {
     });
   };
 
+  const handleCampaignSend = (draft: CampaignDraft) => {
+    const campaign: SentCampaign = {
+      id: `camp-${Date.now()}`,
+      name: draft.name,
+      kind: draft.kind,
+      subject: draft.subject,
+      body: draft.body,
+      sentAt: new Date(),
+      recipients: draft.recipients.map((c) => ({
+        customerId: c.id,
+        customerName: c.name,
+        contactEmail: c.contactEmail,
+        status: "sent" as const,
+      })),
+    };
+    setCampaigns((prev) => [campaign, ...prev]);
+    setExpandedCampaign((prev) => ({ ...prev, [campaign.id]: false }));
+    toast.success(`Kampanje sendt til ${draft.recipients.length} kunder`, {
+      description: draft.name,
+    });
+  };
+
   const filtered = ITEMS.filter(i => {
     if (filter === "all") return true;
     if (filter === "in") return i.kind === "in";
@@ -218,11 +243,12 @@ export default function MSPMessages() {
     if (filter === "pending") return i.status === "pending";
     if (filter === "accepted") return i.status === "accepted";
     if (filter === "rejected") return i.status === "rejected";
+    if (filter === "campaigns") return false; // kampanjer rendres separat
     return true;
   });
 
-  const today = filtered.filter(i => i.group === "today");
-  const earlier = filtered.filter(i => i.group === "earlier");
+  const today = filter === "campaigns" ? [] : filtered.filter(i => i.group === "today");
+  const earlier = filter === "campaigns" ? [] : filtered.filter(i => i.group === "earlier");
 
   const stats = {
     pending: ITEMS.filter(i => i.status === "pending").length,
@@ -238,6 +264,7 @@ export default function MSPMessages() {
     { value: "pending", label: "Tilbud venter", count: stats.pending },
     { value: "accepted", label: "Akseptert", count: stats.accepted },
     { value: "rejected", label: "Avvist", count: stats.rejected },
+    { value: "campaigns", label: "Kampanjer", icon: Megaphone, count: campaigns.length },
   ];
 
   return (
