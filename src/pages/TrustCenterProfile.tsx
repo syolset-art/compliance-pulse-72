@@ -833,29 +833,65 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
             {/* Lara activation prompt — vises kun når profilen ikke er aktivert (org.nr OG beskrivelse mangler) */}
             {(!companyProfile?.org_number && !asset?.description) && (
-              <Card className="p-4 border-primary/20 bg-primary/5">
+              <Card className="p-5 border-primary/20 bg-primary/5">
                 <div className="flex items-start gap-3">
                   <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                     <Sparkles className="h-4 w-4 text-primary" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground">
-                      {isNb ? "Lara anbefaler å aktivere Trust Profile" : "Lara recommends activating Trust Profile"}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      {isNb
-                        ? "Trust Profilen din er ikke aktivert ennå. La Lara kombinere offentlig informasjon med det du allerede har lagt inn i Mynder, og sette opp profilen for deg."
-                        : "Your Trust Profile is not activated yet. Let Lara combine public information with what you already have in Mynder to set up the profile for you."}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Button size="sm" onClick={() => setShowActivateWizard(true)}>
-                      {isNb ? "Aktiver profilen" : "Activate profile"}
-                    </Button>
+                  <div className="flex-1 min-w-0 space-y-3">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">
+                        {isNb ? "Lara anbefaler å aktivere Trust Profile" : "Lara recommends activating Trust Profile"}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                        {isNb
+                          ? "Trust Profilen din er ikke aktivert ennå. Lara kombinerer offentlig informasjon med det du allerede har lagt inn i Mynder, og setter opp et førsteutkast for deg. Når du aktiverer overtar du eierskapet — du bestemmer selv hva som vises og hvem som får se den."
+                          : "Your Trust Profile is not activated yet. Lara combines public information with what you already have in Mynder and sets up a first draft for you. When you activate, you take ownership — you decide what is shown and who gets to see it."}
+                      </p>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      <div className="rounded-lg border border-border bg-background/60 p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Globe className="h-3.5 w-3.5 text-primary" />
+                          <p className="text-sm font-medium text-foreground">
+                            {isNb ? "Publiser på Mynder Trust Engine" : "Publish on Mynder Trust Engine"}
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {isNb
+                            ? "Bli synlig i det offentlige registeret over virksomheters Trust Profiler — så kunder og partnere kan finne dere."
+                            : "Become visible in the public registry of company Trust Profiles — so customers and partners can find you."}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border border-border bg-background/60 p-3">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Lock className="h-3.5 w-3.5 text-primary" />
+                          <p className="text-sm font-medium text-foreground">
+                            {isNb ? "Del kun med utvalgte" : "Share with selected only"}
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {isNb
+                            ? "Hold profilen privat og del den via lenke med utvalgte kunder, partnere og leverandører."
+                            : "Keep the profile private and share it via link with selected customers, partners and vendors."}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <Button size="sm" onClick={() => setShowActivateWizard(true)}>
+                        {isNb ? "Aktiver profilen" : "Activate profile"}
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        {isNb ? "Du velger synlighet i neste steg." : "You choose visibility in the next step."}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </Card>
             )}
+
 
             {/* Tab bar */}
             <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-muted border border-border">
