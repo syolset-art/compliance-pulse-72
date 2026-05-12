@@ -1463,7 +1463,7 @@
   "vendorDashboard": {
     "tabs": {
       "overview": "Overview",
-      "all": "All Vendors",
+      "all": "Vendors",
       "map": "Map",
       "supplyChain": "Supply Chain",
       "compare": "Compare"
