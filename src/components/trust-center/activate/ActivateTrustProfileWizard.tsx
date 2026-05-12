@@ -382,7 +382,7 @@ export default function ActivateTrustProfileWizard({
             </Button>
           )}
           <Button onClick={next} disabled={!canNext} className="gap-2">
-            {step === 0 && (<><Sparkles className="h-4 w-4" /> La Lara starte</>)}
+            {step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
             {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
