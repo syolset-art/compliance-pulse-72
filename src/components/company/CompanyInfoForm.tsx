@@ -138,6 +138,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
       queryClient.invalidateQueries({ queryKey: ["self-asset-shared"] });
       queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+      queryClient.invalidateQueries({ queryKey: ["partner-info"] });
 
       setIsEditing(false);
       toast.success("Selskapsinformasjon lagret");
