@@ -89,6 +89,7 @@ export function MSPMaturityServiceMatrix() {
     serviceTitle?: string;
     variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
     attachGap?: boolean;
+    gapFrameworkId?: string;
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
