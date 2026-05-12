@@ -16,6 +16,8 @@ import { AcronisConnectDialog } from "@/components/msp/AcronisConnectDialog";
 import { SecurityServiceGapCard } from "@/components/msp/SecurityServiceGapCard";
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
 import type { LaraPlanTask } from "@/components/lara/types";
+import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
+import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
