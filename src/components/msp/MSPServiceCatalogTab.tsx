@@ -286,6 +286,7 @@ function ServiceForm({
             .filter(Boolean),
         };
       });
+    const parsedPrice = price.trim() ? Number(price.replace(/\s/g, "").replace(",", ".")) : undefined;
     onSave({
       id: initial?.id ?? `svc-${Date.now()}`,
       name: name.trim(),
@@ -295,6 +296,9 @@ function ServiceForm({
         .map((l) => l.trim())
         .filter(Boolean),
       frameworkMappings: parsedFrameworks,
+      priceModel,
+      price: Number.isFinite(parsedPrice) ? parsedPrice : undefined,
+      priceNote: priceNote.trim() || undefined,
     });
   };
 
