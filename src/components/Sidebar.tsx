@@ -19,6 +19,7 @@ import {
   LogOut,
   
   MessageSquare,
+  Inbox,
   Globe,
   Layers,
   Cloud,
