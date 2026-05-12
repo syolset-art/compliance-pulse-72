@@ -184,11 +184,11 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
   // Resolve flettetags for preview
   const resolveTags = (text: string, c: CampaignCustomer) =>
     text
-      .replaceAll("{{kunde}}", c.name)
-      .replaceAll("{{kontaktperson}}", c.contactName ?? "der")
-      .replaceAll("{{partner}}", "Partner-navn")
-      .replaceAll("{{regelverk}}", (c.missingFrameworks ?? []).join(", ") || "regelverk")
-      .replaceAll("{{frist}}", "snarest");
+      .replace(/\{\{kunde\}\}/g, c.name)
+      .replace(/\{\{kontaktperson\}\}/g, c.contactName ?? "der")
+      .replace(/\{\{partner\}\}/g, "Partner-navn")
+      .replace(/\{\{regelverk\}\}/g, (c.missingFrameworks ?? []).join(", ") || "regelverk")
+      .replace(/\{\{frist\}\}/g, "snarest");
 
   const canNext1 = recipients.length > 0;
   const canNext2 = subject.trim().length > 0 && body.trim().length > 0;
