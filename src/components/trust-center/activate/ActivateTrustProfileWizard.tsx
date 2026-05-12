@@ -453,9 +453,37 @@ function OrgStep({
       </div>
 
       <div className="space-y-2">
-        <Label>Hjemmeside</Label>
-        <Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://example.no" />
-        <p className="text-xs text-muted-foreground">Lara bruker denne for å hente bedriftsinfo, kontakter, personvern og sikkerhet i neste steg.</p>
+        <div className="flex items-center justify-between">
+          <Label>Hjemmeside</Label>
+          {verified && website && !websiteVerified && (
+            <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
+              <Sparkles className="h-2.5 w-2.5" /> Forslag fra Lara
+            </Badge>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Input
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            placeholder="https://example.no"
+            disabled={!verified}
+          />
+          <Button
+            variant={websiteVerified ? "outline" : "default"}
+            onClick={onVerifyWebsite}
+            disabled={!verified || website.trim().length < 4 || websiteVerified}
+            className="gap-1.5 shrink-0"
+          >
+            {websiteVerified ? (<><CheckCircle2 className="h-4 w-4" /> Bekreftet</>) : "Bekreft"}
+          </Button>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {!verified
+            ? "Velg organisasjon først — så foreslår Lara hjemmesiden automatisk."
+            : websiteVerified
+              ? "Lara bruker denne i neste steg for å hente bedriftsinfo, kontakter, personvern og sikkerhet."
+              : "Stemmer adressen? Juster hvis ikke, og trykk Bekreft."}
+        </p>
       </div>
 
       {verified && (
