@@ -471,9 +471,31 @@ function Step1({
           )}
         </div>
         {matches.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Ingen kunder ennå — velg ett eller flere kriterier over.
-          </p>
+          selected.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Ingen kunder ennå — velg ett eller flere kriterier over.
+            </p>
+          ) : combine === "and" && selected.length >= 2 ? (
+            <div className="space-y-2">
+              <p className="text-sm text-foreground">
+                <span className="font-medium">Ingen kunder matcher alle valgene samtidig.</span>{" "}
+                Det er sjelden at samme kunde mangler flere regelverk på én gang.
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setCombine("or")}
+                className="gap-1.5"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                Bytt til «minst ett av valgene»
+              </Button>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Ingen kunder matcher kriteriene. Prøv å velge flere segmenter eller andre kategorier.
+            </p>
+          )
         ) : (
           <div className="space-y-1 max-h-48 overflow-y-auto">
             {matches.map((c) => {
