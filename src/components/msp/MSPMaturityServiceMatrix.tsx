@@ -241,6 +241,15 @@ export function MSPMaturityServiceMatrix() {
         open={gapOpen}
         onOpenChange={setGapOpen}
         initialFrameworkId={gapFrameworkId}
+        onCreateOffer={(fwId) => {
+          const rec = RECOMMENDATIONS.find(r => r.frameworkId === fwId);
+          setOfferCtx({
+            open: true,
+            serviceTitle: rec?.title,
+            variant: "Full leveranse",
+            attachGap: true,
+          });
+        }}
       />
     </div>
   );
