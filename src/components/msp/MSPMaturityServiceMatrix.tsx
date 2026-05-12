@@ -21,8 +21,11 @@ import {
   User as UserIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
+import { MSPServiceCatalogTab } from "./MSPServiceCatalogTab";
+import { PARTNER_SERVICES, getService } from "@/lib/serviceCatalog";
 
 export type TaskOwner = "Partner" | "Kunde";
 
