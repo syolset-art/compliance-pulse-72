@@ -1705,6 +1705,39 @@ export type Database = {
           },
         ]
       }
+      lara_suggestion_states: {
+        Row: {
+          context_snapshot: Json
+          created_at: string
+          id: string
+          snoozed_until: string | null
+          state: string
+          suggestion_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context_snapshot?: Json
+          created_at?: string
+          id?: string
+          snoozed_until?: string | null
+          state: string
+          suggestion_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context_snapshot?: Json
+          created_at?: string
+          id?: string
+          snoozed_until?: string | null
+          state?: string
+          suggestion_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       maturity_milestones: {
         Row: {
           achieved_at: string | null
