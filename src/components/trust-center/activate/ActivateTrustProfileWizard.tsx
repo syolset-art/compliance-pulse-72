@@ -1,0 +1,576 @@
+import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
+  CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle,
+} from "lucide-react";
+import { toast } from "sonner";
+import { useBrregLookup } from "@/hooks/useBrregLookup";
+import { getLaraScanForDomain, SCAN_STEPS_MS, type LaraScanResult } from "@/lib/demoTrustActivation";
+import { seedFromActivation, type ActivationValues } from "@/lib/demoSeedTrustProfile";
+
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCompleted?: () => void;
+}
+
+type Step = 0 | 1 | 2 | 3 | 4;
+
+const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Publiser"];
+
+export default function ActivateTrustProfileWizard({ open, onOpenChange, onCompleted }: Props) {
+  const queryClient = useQueryClient();
+  const [step, setStep] = useState<Step>(0);
+
+  // Step 1: org
+  const [companyName, setCompanyName] = useState("");
+  const [orgNumber, setOrgNumber] = useState("");
+  const [country] = useState("Norge");
+  const [website, setWebsite] = useState("");
+  const [verified, setVerified] = useState(false);
+  const { searchByName, lookupByOrgNumber, searchResults, isLoading } = useBrregLookup();
+
+  // Step 2: scan
+  const [scanProgress, setScanProgress] = useState(0);
+  const [revealed, setRevealed] = useState<number>(0);
+  const [scan, setScan] = useState<LaraScanResult | null>(null);
+
+  // Step 3: confirmed values (prefilled from scan)
+  const [description, setDescription] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [dpoName, setDpoName] = useState("");
+  const [dpoEmail, setDpoEmail] = useState("");
+  const [privacyUrl, setPrivacyUrl] = useState("");
+  const [encryption, setEncryption] = useState("");
+  const [mfa, setMfa] = useState("");
+  const [subProcessors, setSubProcessors] = useState("");
+
+  // Publishing
+  const [isPublishing, setIsPublishing] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setTimeout(() => {
+        setStep(0);
+        setCompanyName("");
+        setOrgNumber("");
+        setWebsite("");
+        setVerified(false);
+        setScan(null);
+        setScanProgress(0);
+        setRevealed(0);
+      }, 200);
+    }
+  }, [open]);
+
+  // Run scan animation when entering step 2
+  useEffect(() => {
+    if (step !== 2) return;
+    const result = getLaraScanForDomain(website || companyName);
+    setScan(result);
+    setRevealed(0);
+    setScanProgress(0);
+    let i = 0;
+    const total = result.findings.length;
+    const interval = setInterval(() => {
+      i += 1;
+      setRevealed(i);
+      setScanProgress(Math.min(100, Math.round((i / total) * 100)));
+      if (i >= total) clearInterval(interval);
+    }, SCAN_STEPS_MS);
+    return () => clearInterval(interval);
+  }, [step, website, companyName]);
+
+  // When scan finishes, prefill confirm step
+  useEffect(() => {
+    if (!scan) return;
+    setDescription(scan.description);
+    setContactName(scan.contacts.primaryName || "");
+    setContactEmail(scan.contacts.primaryEmail || "");
+    setDpoName(scan.contacts.dpoName || "");
+    setDpoEmail(scan.contacts.dpoEmail || "");
+    setPrivacyUrl(scan.privacy.policyUrl || "");
+    setEncryption(scan.security.encryption || "");
+    setMfa(scan.security.mfa || "");
+    setSubProcessors(scan.dataStorage.subProcessors.join(", "));
+  }, [scan]);
+
+  const handleSearchName = async () => {
+    if (companyName.trim().length < 2) return;
+    await searchByName(companyName);
+  };
+
+  const pickRegistry = async (orgnr: string, navn: string) => {
+    setOrgNumber(orgnr);
+    setCompanyName(navn);
+    setVerified(true);
+    const result = await lookupByOrgNumber(orgnr);
+    // best-effort: try to derive website from name
+    if (!website) {
+      const guess = navn.toLowerCase().replace(/\s+as\s*$/i, "").replace(/[^a-z0-9]/g, "");
+      if (guess === "framdriftinnovasjon" || guess.includes("framdrift")) {
+        setWebsite("https://framdrift.no");
+      }
+    }
+  };
+
+  const canNext = useMemo(() => {
+    if (step === 0) return true;
+    if (step === 1) return companyName.trim().length > 1 && orgNumber.trim().length > 0;
+    if (step === 2) return revealed >= (scan?.findings.length ?? 0) && scan != null;
+    if (step === 3) return description.trim().length > 0;
+    return true;
+  }, [step, companyName, orgNumber, revealed, scan, description]);
+
+  const next = () => setStep((s) => (Math.min(4, s + 1) as Step));
+  const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
+
+  const handlePublish = async (publishNow: boolean) => {
+    setIsPublishing(true);
+    const values: ActivationValues = {
+      name: companyName,
+      orgNumber,
+      country,
+      region: scan?.region,
+      industry: scan?.industry,
+      employees: scan?.employees,
+      description,
+      url: website,
+      contactPerson: contactName,
+      contactEmail,
+      dpoName,
+      dpoEmail,
+      publishNow,
+    };
+    try {
+      await seedFromActivation(values);
+      try { localStorage.setItem("mynder.trustprofile.activated", "1"); } catch {}
+      await queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+      await queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+      toast.success(publishNow ? "Trust Profile publisert" : "Trust Profile lagret som utkast");
+      onOpenChange(false);
+      onCompleted?.();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Noe gikk galt");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleSkip = () => {
+    try { localStorage.setItem("mynder.trustprofile.activated", "skipped"); } catch {}
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+            </div>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+              Aktiver Trust Profile · Steg {step + 1} av 5
+            </span>
+          </div>
+          <DialogTitle className="text-xl">
+            {step === 0 && "Lag din egen Trust Profile"}
+            {step === 1 && "Bekreft organisasjonen din"}
+            {step === 2 && "Lara henter informasjon fra hjemmesiden"}
+            {step === 3 && "Bekreft og juster informasjonen"}
+            {step === 4 && "Forhåndsvis og publiser"}
+          </DialogTitle>
+          <DialogDescription>
+            {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
+            {step === 1 && "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start."}
+            {step === 2 && "Lara analyserer hjemmesiden din for å forhåndsutfylle profilen — beskrivelse, kontakter, personvern og sikkerhet."}
+            {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
+            {step === 4 && "Sånn ser profilen ut. Du kan publisere nå eller lagre som utkast."}
+          </DialogDescription>
+          <Progress value={(step / 4) * 100} className="h-1" />
+        </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto py-2 pr-1">
+          {step === 0 && <WelcomeStep />}
+          {step === 1 && (
+            <OrgStep
+              companyName={companyName}
+              setCompanyName={setCompanyName}
+              orgNumber={orgNumber}
+              setOrgNumber={setOrgNumber}
+              website={website}
+              setWebsite={setWebsite}
+              verified={verified}
+              isLoading={isLoading}
+              searchResults={searchResults}
+              onSearch={handleSearchName}
+              onPick={pickRegistry}
+            />
+          )}
+          {step === 2 && scan && (
+            <ScanStep scan={scan} revealed={revealed} progress={scanProgress} domain={website || companyName} />
+          )}
+          {step === 3 && (
+            <ConfirmStep
+              description={description} setDescription={setDescription}
+              contactName={contactName} setContactName={setContactName}
+              contactEmail={contactEmail} setContactEmail={setContactEmail}
+              dpoName={dpoName} setDpoName={setDpoName}
+              dpoEmail={dpoEmail} setDpoEmail={setDpoEmail}
+              privacyUrl={privacyUrl} setPrivacyUrl={setPrivacyUrl}
+              encryption={encryption} setEncryption={setEncryption}
+              mfa={mfa} setMfa={setMfa}
+              subProcessors={subProcessors} setSubProcessors={setSubProcessors}
+            />
+          )}
+          {step === 4 && (
+            <PreviewStep
+              name={companyName}
+              orgNumber={orgNumber}
+              description={description}
+              website={website}
+              contactName={contactName}
+              contactEmail={contactEmail}
+              privacyUrl={privacyUrl}
+              encryption={encryption}
+              certifications={scan?.security.certifications ?? []}
+              subProcessors={subProcessors}
+            />
+          )}
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
+          <Button variant="ghost" onClick={step === 0 ? handleSkip : back} disabled={isPublishing}>
+            {step === 0 ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
+          </Button>
+
+          {step < 4 ? (
+            <Button onClick={next} disabled={!canNext} className="gap-2">
+              {step === 0 && (<><Sparkles className="h-4 w-4" /> La Lara starte</>)}
+              {step === 1 && (<>Neste <ArrowRight className="h-4 w-4" /></>)}
+              {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
+              {step === 3 && (<>Forhåndsvis <ArrowRight className="h-4 w-4" /></>)}
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => handlePublish(false)} disabled={isPublishing}>
+                Lagre som utkast
+              </Button>
+              <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
+                {isPublishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                Publiser profil
+              </Button>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* -------------------- Steps -------------------- */
+
+function WelcomeStep() {
+  const items = [
+    { icon: Building2, label: "Bedriftsinfo" },
+    { icon: Users, label: "Kontakter" },
+    { icon: Lock, label: "Personvern" },
+    { icon: ShieldCheck, label: "Sikkerhet" },
+    { icon: FileText, label: "Dokumenter" },
+    { icon: Globe, label: "Underleverandører" },
+  ];
+  return (
+    <div className="space-y-4">
+      <Card className="p-4 bg-primary/5 border-primary/20">
+        <div className="flex gap-3">
+          <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+          <div className="text-sm text-foreground/80 space-y-1">
+            <p><strong>Lara hjelper deg.</strong> Hun går gjennom hjemmesiden din og henter automatisk beskrivelse, kontaktinfo, personvernerklæring og sikkerhetstiltak.</p>
+            <p>Du kan justere alt før profilen publiseres på <code className="text-xs bg-muted px-1 rounded">trust.mynder.no</code>.</p>
+          </div>
+        </div>
+      </Card>
+      <div>
+        <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2">Profilen vil inneholde</p>
+        <div className="grid grid-cols-2 gap-2">
+          {items.map(({ icon: Icon, label }) => (
+            <div key={label} className="flex items-center gap-2 p-2.5 rounded-md border border-border bg-card">
+              <Icon className="h-4 w-4 text-primary" />
+              <span className="text-sm text-foreground">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OrgStep({
+  companyName, setCompanyName, orgNumber, setOrgNumber, website, setWebsite,
+  verified, isLoading, searchResults, onSearch, onPick,
+}: any) {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>Selskapsnavn</Label>
+        <div className="flex gap-2">
+          <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="F.eks. Framdrift Innovasjon AS" autoFocus />
+          <Button variant="outline" onClick={onSearch} disabled={isLoading || companyName.trim().length < 2} className="gap-1.5 shrink-0">
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+            Søk i Brreg
+          </Button>
+        </div>
+      </div>
+
+      {searchResults?.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Treff i registeret</p>
+          {searchResults.slice(0, 4).map((r: any) => (
+            <Card key={r.organisasjonsnummer}
+              className={`p-2.5 cursor-pointer transition-colors ${orgNumber === r.organisasjonsnummer ? "border-primary bg-primary/5" : "hover:border-primary/40"}`}
+              onClick={() => onPick(r.organisasjonsnummer, r.navn)}>
+              <div className="flex items-center gap-2.5">
+                <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium truncate">{r.navn}</p>
+                  <p className="text-xs text-muted-foreground">Org.nr {r.organisasjonsnummer}{r.forretningsadresse?.poststed ? ` · ${r.forretningsadresse.poststed}` : ""}</p>
+                </div>
+                {orgNumber === r.organisasjonsnummer && <CheckCircle2 className="h-4 w-4 text-primary" />}
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <Label>Organisasjonsnummer</Label>
+          <Input value={orgNumber} onChange={(e) => { setOrgNumber(e.target.value); }} placeholder="9 sifre" />
+        </div>
+        <div className="space-y-2">
+          <Label>Land</Label>
+          <Input value="Norge" disabled />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Hjemmeside</Label>
+        <Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://example.no" />
+        <p className="text-xs text-muted-foreground">Lara bruker denne for å forhåndsutfylle profilen i neste steg.</p>
+      </div>
+
+      {verified && (
+        <div className="flex items-center gap-2 text-xs text-success">
+          <CheckCircle2 className="h-4 w-4" />
+          Verifisert mot Brønnøysundregistrene
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; revealed: number; progress: number; domain: string }) {
+  const done = revealed >= scan.findings.length;
+  return (
+    <div className="space-y-4">
+      <Card className="p-4 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center">
+            {done ? <CheckCircle2 className="h-5 w-5 text-success" /> : <Loader2 className="h-5 w-5 text-primary animate-spin" />}
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">
+              {done ? "Lara er ferdig" : "Lara analyserer"} <span className="text-muted-foreground">{domain || "hjemmesiden"}…</span>
+            </p>
+            <Progress value={progress} className="h-1 mt-1.5" />
+          </div>
+        </div>
+      </Card>
+
+      <div className="space-y-1.5">
+        {scan.findings.map((f, idx) => {
+          const visible = idx < revealed;
+          return (
+            <div key={f.key}
+              className={`flex items-start gap-2.5 p-2.5 rounded-md border transition-all duration-300 ${
+                visible ? "opacity-100 translate-y-0 border-border bg-card" : "opacity-0 -translate-y-1 border-transparent"
+              }`}>
+              <CheckCircle2 className="h-4 w-4 text-success mt-0.5 shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">{f.label}</p>
+                {f.detail && <p className="text-xs text-muted-foreground">{f.detail}{f.source ? ` · ${f.source}` : ""}</p>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {done && (
+        <Card className="p-3 bg-success/5 border-success/30">
+          <div className="flex items-center gap-2 text-sm text-foreground">
+            <Sparkles className="h-4 w-4 text-success" />
+            <span><strong>Lara fant {scan.findings.length} områder</strong> som er forhåndsutfylt i neste steg.</span>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function LaraBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary">
+      <Sparkles className="h-2.5 w-2.5" /> Lara
+    </span>
+  );
+}
+
+function FieldGroup({ icon: Icon, title, children }: any) {
+  return (
+    <Card className="p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <Icon className="h-4 w-4 text-primary" />
+        <h4 className="text-sm font-semibold">{title}</h4>
+      </div>
+      {children}
+    </Card>
+  );
+}
+
+function ConfirmStep(props: any) {
+  return (
+    <div className="space-y-3">
+      <FieldGroup icon={Building2} title="Om virksomheten">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label>Beskrivelse</Label><LaraBadge />
+          </div>
+          <Textarea value={props.description} onChange={(e) => props.setDescription(e.target.value)} rows={3} />
+        </div>
+      </FieldGroup>
+
+      <FieldGroup icon={Users} title="Kontakter">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between"><Label>Hovedkontakt</Label><LaraBadge /></div>
+            <Input value={props.contactName} onChange={(e) => props.setContactName(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between"><Label>E-post</Label><LaraBadge /></div>
+            <Input value={props.contactEmail} onChange={(e) => props.setContactEmail(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>DPO / personvernkontakt</Label>
+            <Input value={props.dpoName} onChange={(e) => props.setDpoName(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>DPO e-post</Label>
+            <Input value={props.dpoEmail} onChange={(e) => props.setDpoEmail(e.target.value)} />
+          </div>
+        </div>
+      </FieldGroup>
+
+      <FieldGroup icon={Lock} title="Personvern">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between"><Label>Lenke til personvernerklæring</Label><LaraBadge /></div>
+          <Input value={props.privacyUrl} onChange={(e) => props.setPrivacyUrl(e.target.value)} placeholder="https://…/personvern" />
+        </div>
+      </FieldGroup>
+
+      <FieldGroup icon={ShieldCheck} title="Sikkerhet">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between"><Label>Kryptering</Label><LaraBadge /></div>
+          <Input value={props.encryption} onChange={(e) => props.setEncryption(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between"><Label>Multifaktor (MFA)</Label><LaraBadge /></div>
+          <Input value={props.mfa} onChange={(e) => props.setMfa(e.target.value)} />
+        </div>
+      </FieldGroup>
+
+      <FieldGroup icon={Globe} title="Underleverandører">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between"><Label>Sub-processors (kommaseparert)</Label><LaraBadge /></div>
+          <Input value={props.subProcessors} onChange={(e) => props.setSubProcessors(e.target.value)} />
+        </div>
+      </FieldGroup>
+    </div>
+  );
+}
+
+function PreviewStep({ name, orgNumber, description, website, contactName, contactEmail, privacyUrl, encryption, certifications, subProcessors }: any) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Eye className="h-3.5 w-3.5" /> Forhåndsvisning av Trust Profile
+      </div>
+      <Card className="p-5 space-y-4 bg-gradient-to-br from-card to-muted/30">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="text-lg font-bold truncate">{name || "Bedriften din"}</h3>
+            <p className="text-xs text-muted-foreground">Org.nr {orgNumber || "—"} {website ? `· ${website.replace(/^https?:\/\//, "")}` : ""}</p>
+          </div>
+          <Badge variant="outline" className="border-success/40 text-success gap-1">
+            <ShieldCheck className="h-3 w-3" /> Aktiv
+          </Badge>
+        </div>
+        <p className="text-sm text-foreground/80">{description}</p>
+
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="flex items-start gap-2">
+            <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">Kontakt</p>
+              <p className="truncate">{contactName || "—"}</p>
+              <p className="text-xs text-muted-foreground truncate">{contactEmail || "—"}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <Lock className="h-4 w-4 text-muted-foreground mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground">Personvern</p>
+              <p className="text-xs truncate">{privacyUrl || "—"}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2 col-span-2">
+            <ShieldCheck className="h-4 w-4 text-muted-foreground mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs text-muted-foreground">Sikkerhet</p>
+              <p className="text-xs">{encryption || "—"}</p>
+              {certifications?.length > 0 && (
+                <div className="flex gap-1 flex-wrap mt-1">
+                  {certifications.map((c: string) => <Badge key={c} variant="secondary" className="text-[10px]">{c}</Badge>)}
+                </div>
+              )}
+            </div>
+          </div>
+          {subProcessors && (
+            <div className="flex items-start gap-2 col-span-2">
+              <Globe className="h-4 w-4 text-muted-foreground mt-0.5" />
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">Underleverandører</p>
+                <p className="text-xs">{subProcessors}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      <div className="flex items-start gap-2 text-xs text-muted-foreground p-3 rounded-md bg-muted/40">
+        <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+        <span>Når du publiserer blir profilen tilgjengelig på <code className="px-1 bg-background rounded">trust.mynder.no</code> og kan deles med kunder og partnere.</span>
+      </div>
+    </div>
+  );
+}

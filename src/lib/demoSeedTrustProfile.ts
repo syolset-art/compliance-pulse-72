@@ -114,6 +114,92 @@ export async function seedDemoTrustProfile() {
   return { selfAssetId };
 }
 
+export interface ActivationValues {
+  name: string;
+  orgNumber: string;
+  country: string;
+  region?: string;
+  industry?: string;
+  employees?: string;
+  description: string;
+  url?: string;
+  contactPerson?: string;
+  contactEmail?: string;
+  dpoName?: string;
+  dpoEmail?: string;
+  publishNow: boolean;
+}
+
+export async function seedFromActivation(values: ActivationValues) {
+  const profile = {
+    name: values.name,
+    org_number: values.orgNumber,
+    industry: values.industry || "Annet",
+    domain: values.url?.replace(/^https?:\/\//, "").replace(/\/$/, "") || null,
+    employees: values.employees || null,
+    compliance_officer: values.contactPerson || null,
+    compliance_officer_email: values.contactEmail || null,
+    dpo_name: values.dpoName || null,
+    dpo_email: values.dpoEmail || null,
+    geographic_scope: values.country || "Norge",
+    governance_level: "medium",
+    sensitive_data: "limited",
+    maturity: "developing",
+    use_cases: ["gdpr"],
+    active_roles: values.dpoName ? ["compliance_officer", "dpo"] : ["compliance_officer"],
+    is_msp_partner: false,
+  };
+
+  const selfAsset = {
+    asset_type: "self" as const,
+    name: values.name,
+    description: values.description,
+    compliance_score: 55,
+    publish_mode: values.publishNow ? "public" : "private",
+    lifecycle_status: "active",
+    criticality: "high",
+    risk_level: "medium",
+    country: values.country || "Norge",
+    region: values.region || null,
+    org_number: values.orgNumber,
+    contact_person: values.contactPerson || null,
+    contact_email: values.contactEmail || null,
+    url: values.url || null,
+  };
+
+  const { data: existing } = await supabase.from("company_profile").select("id").limit(1);
+  if (existing && existing.length > 0) {
+    const { error } = await supabase.from("company_profile").update(profile).eq("id", existing[0].id);
+    if (error) throw new Error("Kunne ikke oppdatere bedriftsprofil: " + error.message);
+  } else {
+    const { error } = await supabase.from("company_profile").insert(profile);
+    if (error) throw new Error("Kunne ikke opprette bedriftsprofil: " + error.message);
+  }
+
+  const { data: selfAssets } = await supabase.from("assets").select("id").eq("asset_type", "self").limit(1);
+  let selfAssetId: string;
+  if (selfAssets && selfAssets.length > 0) {
+    selfAssetId = selfAssets[0].id;
+    const { error } = await supabase.from("assets").update(selfAsset).eq("id", selfAssetId);
+    if (error) throw new Error("Kunne ikke oppdatere self-asset: " + error.message);
+  } else {
+    const { data, error } = await supabase.from("assets").insert(selfAsset).select("id").single();
+    if (error) throw new Error("Kunne ikke opprette self-asset: " + error.message);
+    selfAssetId = data.id;
+  }
+
+  await supabase.from("evidence_checks").delete().eq("asset_id", selfAssetId);
+  const checksToInsert = EVIDENCE_CHECKS.map((c) => ({
+    ...c,
+    asset_id: selfAssetId,
+    last_verified_at: c.status === "missing" ? null : new Date(Date.now() - c.staleness_days * 86400000).toISOString(),
+    details: c.details as any,
+  }));
+  await supabase.from("evidence_checks").insert(checksToInsert as any);
+
+  return { selfAssetId };
+}
+
 export async function deleteDemoTrustProfile() {
   // Reset company profile to empty
   const { data: existing } = await supabase.from("company_profile").select("id").limit(1);
