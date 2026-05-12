@@ -607,6 +607,12 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues",
                   primary: { text: securityEmail, href: `mailto:${securityEmail}` },
                 },
+                (incidentEmail || incidentPhone) && {
+                  label: isNb ? "Hendelseskontakt" : "Incident contact",
+                  sub: isNb ? "Døgnbemannet kontakt for aktive hendelser" : "24/7 contact for active incidents",
+                  primary: incidentEmail ? { text: incidentEmail, href: `mailto:${incidentEmail}` } : undefined,
+                  secondary: incidentPhone ? { text: incidentPhone, href: `tel:${incidentPhone}` } : undefined,
+                },
                 privacyAddress && {
                   label: isNb ? "Postadresse" : "Postal address",
                   block: privacyAddress,
