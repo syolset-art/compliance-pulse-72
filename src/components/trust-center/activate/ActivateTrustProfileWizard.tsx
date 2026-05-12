@@ -272,6 +272,7 @@ export default function ActivateTrustProfileWizard({
           onSearch={handleSearchName}
           onPick={pickRegistry}
           companyNameLocked={hasPrefill}
+          orgPrefilled={hasOrgPrefill}
         />
       )}
       {step === 2 && scan && (
