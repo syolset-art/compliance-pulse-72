@@ -245,6 +245,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <div className="h-64 bg-muted rounded" />
             </div>
           </main>
+          <ActivateTrustProfileWizard
+            open={showActivateWizard}
+            onOpenChange={setShowActivateWizard}
+            onCompleted={() => {
+              queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+              queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+            }}
+          />
         </div>
       </SidebarProvider>
     );
