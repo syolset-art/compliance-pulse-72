@@ -46,7 +46,7 @@ const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Mo
 
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline,
-  initialCompanyName, initialOrgNumber, initialDomain,
+  initialCompanyName, initialOrgNumber, initialDomain, initialMaturity,
 }: Props) {
   const queryClient = useQueryClient();
   // When we already know the customer (logged-in), skip Welcome and start at Organisasjon.
