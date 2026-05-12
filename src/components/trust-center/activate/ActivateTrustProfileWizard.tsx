@@ -855,14 +855,20 @@ function MaturityStep({ answers, sources, onChange }: {
   sources: Record<string, string>;
   onChange: (id: string, answer: MaturityAnswer) => void;
 }) {
+  const fromRegelverkCount = Object.values(sources).filter((s) => s?.includes("Regelverk")).length;
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-3">
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
           <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <p className="text-xs text-foreground/80 leading-relaxed">
-            Lara har forhåndsutfylt det hun fant i kartleggingen. Bekreft, overstyr eller marker «Senere» — alt er valgfritt nå.
-          </p>
+          <div className="space-y-1.5">
+            <p className="text-xs text-foreground/80 leading-relaxed">
+              Lara har forhåndsutfylt det hun fant i kartleggingen{fromRegelverkCount > 0 ? `, og ${fromRegelverkCount} svar er hentet fra arbeidet du allerede har gjort i Regelverk` : ""}. Bekreft, overstyr eller marker «Senere» — alt er valgfritt nå.
+            </p>
+            <p className="text-xs text-foreground/70 leading-relaxed">
+              <span className="font-medium">Tips:</span> Du kan fortsette å heve modenheten din når som helst under <span className="font-medium">Regelverk</span> i menyen — der jobber du systematisk med kontroller per rammeverk, og endringene speiles automatisk her på Trust Profile.
+            </p>
+          </div>
         </div>
 
         {MATURITY_AREAS.map((area) => {
