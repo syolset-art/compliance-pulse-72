@@ -177,7 +177,7 @@ export function MSPMaturityServiceMatrix() {
                       )}
                     </div>
                     <p className="text-[13px] text-muted-foreground leading-snug">{r.desc}</p>
-                    <div className="flex flex-wrap gap-2 pt-1">
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
                       {r.ctas.map(cta => (
                         <Button
                           key={cta.label}
@@ -189,6 +189,22 @@ export function MSPMaturityServiceMatrix() {
                           {cta.label}
                         </Button>
                       ))}
+                      {r.frameworkId && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                          onClick={() => openGap(r.frameworkId)}
+                        >
+                          <FileText className="h-3.5 w-3.5" />
+                          Vis gap
+                          {typeof r.openGaps === "number" && (
+                            <Badge variant="secondary" className="h-4 px-1 text-[10px] ml-0.5">
+                              {r.openGaps}
+                            </Badge>
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
