@@ -16,7 +16,7 @@ import {
   ChevronDown, ChevronUp, ChevronRight, Clock, MessageSquare, FileText, Award, Globe,
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
-  Linkedin, Facebook, Mail, Star,
+  Linkedin, Facebook, Mail, Star, TrendingUp, BarChart3,
 } from "lucide-react";
 
 // EU-style 12-star wreath used in the compliance badge
@@ -96,7 +96,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const isServiceProfile = !!propAssetId;
-  const [activeTab, setActiveTab] = useState<"preview" | "publish">("preview");
+  const [activeTab, setActiveTab] = useState<"preview" | "publish" | "benchmark">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [publishSubTab, setPublishSubTab] = useState<"link" | "vendor" | "badge">("link");
   const [badgeTheme, setBadgeTheme] = useState<"dark" | "light">("dark");
@@ -941,9 +941,184 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 <Share2 className="h-4 w-4" />
                 Share & Publish
               </button>
+              <button
+                onClick={() => setActiveTab("benchmark")}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                  activeTab === "benchmark"
+                    ? "bg-background text-foreground shadow-sm border border-border"
+                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                }`}
+              >
+                <BarChart3 className="h-4 w-4" />
+                {isNb ? "Benchmark" : "Benchmark"}
+              </button>
             </div>
 
-            {activeTab === "publish" ? (
+            {activeTab === "benchmark" ? (
+              (() => {
+                const score = trustScore;
+                const level =
+                  score >= 80 ? (isNb ? "Sterk" : "Strong")
+                  : score >= 65 ? (isNb ? "God" : "Good")
+                  : score >= 40 ? (isNb ? "Moderat" : "Moderate")
+                  : (isNb ? "Tidlig" : "Early");
+                const ringColor =
+                  score >= 80 ? "hsl(var(--success))"
+                  : score >= 50 ? "hsl(var(--primary))"
+                  : "hsl(var(--warning))";
+                const r = 36;
+                const c = 2 * Math.PI * r;
+                const d = (Math.max(0, Math.min(100, score)) / 100) * c;
+                const markerLeft = `${Math.max(2, Math.min(98, score))}%`;
+                return (
+                  <div className="space-y-5">
+                    {/* Header card with company + score gauge */}
+                    <Card className="p-6">
+                      <div className="flex items-start justify-between gap-6">
+                        <div className="flex items-start gap-4 min-w-0">
+                          <div className="h-12 w-12 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-semibold text-lg shrink-0">
+                            {(companyProfile?.name || asset?.name || "?").charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <h2 className="text-lg font-semibold text-foreground">
+                              {companyProfile?.name || asset?.name || (isNb ? "Din virksomhet" : "Your organization")}
+                            </h2>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {(companyProfile as any)?.description ||
+                                asset?.description ||
+                                (isNb
+                                  ? "Slik står din Trust Score sammenlignet med bransjestandard."
+                                  : "How your Trust Score compares to industry standards.")}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-center shrink-0">
+                          <div className="relative" style={{ width: 88, height: 88 }}>
+                            <svg width={88} height={88} className="-rotate-90">
+                              <circle cx={44} cy={44} r={r} stroke="hsl(var(--muted))" strokeWidth={4} fill="none" />
+                              <circle cx={44} cy={44} r={r} stroke={ringColor} strokeWidth={4} fill="none" strokeLinecap="round" strokeDasharray={`${d} ${c}`} />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-2xl font-bold tabular-nums text-foreground">{score}</span>
+                            </div>
+                          </div>
+                          <span className="text-xs text-muted-foreground mt-1">{level}</span>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Position bar */}
+                    <Card className="p-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-semibold text-foreground">
+                          {isNb ? "Slik ligger dere an" : "Where you stand"}
+                        </h3>
+                        <span className="text-xs text-muted-foreground">
+                          {isNb ? "0 – 100" : "0 – 100"}
+                        </span>
+                      </div>
+                      <div className="relative pt-6 pb-6">
+                        <div className="absolute -top-1 text-[11px] font-medium text-primary -translate-x-1/2" style={{ left: markerLeft }}>
+                          {isNb ? "Dere er her" : "You are here"}
+                        </div>
+                        <div
+                          className="h-3 rounded-full"
+                          style={{
+                            background:
+                              "linear-gradient(to right, hsl(var(--destructive)/0.25), hsl(var(--warning)/0.35), hsl(var(--primary)/0.35), hsl(var(--success)/0.45))",
+                          }}
+                        />
+                        <div className="absolute top-4 w-0.5 h-5 bg-foreground -translate-x-1/2" style={{ left: markerLeft }} />
+                        <div className="grid grid-cols-4 mt-3 text-xs text-muted-foreground">
+                          <span>{isNb ? "Tidlig" : "Early"}</span>
+                          <span className="text-center">{isNb ? "Moderat" : "Moderate"}</span>
+                          <span className="text-center">{isNb ? "God" : "Good"}</span>
+                          <span className="text-right">{isNb ? "Sterk" : "Strong"}</span>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {/* Two info cards */}
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <Card className="p-5 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Shield className="h-4 w-4 text-primary" />
+                          <h4 className="text-sm font-semibold text-foreground">
+                            {isNb ? "For dere selv" : "For your organization"}
+                          </h4>
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {isNb
+                            ? "Et godt nivå avhenger av hvilke data dere håndterer og hvilken risiko dere kan akseptere. Trust Score er en indikator, ikke en konklusjon."
+                            : "A solid level depends on the data you handle and the risk you can accept. Trust Score is an indicator, not a verdict."}
+                        </p>
+                        <button
+                          className="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline"
+                          onClick={() => navigate("/regulations")}
+                        >
+                          {isNb ? "Gjør en risikovurdering" : "Do a risk assessment"}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </button>
+                      </Card>
+                      <Card className="p-5 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-primary" />
+                          <h4 className="text-sm font-semibold text-foreground">
+                            {isNb ? "For kunder og partnere" : "For customers and partners"}
+                          </h4>
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {isNb ? (
+                            <>Typisk SaaS-selskap i Norge ligger på <strong className="text-foreground">62</strong>. Offentlig sektor forventer som regel <strong className="text-foreground">65+</strong>. ISO 27001-sertifiserte selskaper ligger gjerne over <strong className="text-foreground">75</strong>.</>
+                          ) : (
+                            <>A typical Norwegian SaaS company sits at <strong className="text-foreground">62</strong>. Public sector usually expects <strong className="text-foreground">65+</strong>. ISO 27001-certified companies tend to be above <strong className="text-foreground">75</strong>.</>
+                          )}
+                        </p>
+                        <button
+                          className="text-sm text-primary font-medium inline-flex items-center gap-1 hover:underline"
+                          onClick={() => setActiveTab("preview")}
+                        >
+                          {isNb ? "Slik høyner du skåren" : "How to raise your score"}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </button>
+                      </Card>
+                    </div>
+
+                    {/* Industry benchmarks table */}
+                    <Card className="p-5">
+                      <div className="flex items-center gap-2 mb-3">
+                        <TrendingUp className="h-4 w-4 text-primary" />
+                        <h4 className="text-sm font-semibold text-foreground">
+                          {isNb ? "Bransjereferanser" : "Industry benchmarks"}
+                        </h4>
+                      </div>
+                      <div className="space-y-2">
+                        {[
+                          { label: isNb ? "Tidlig fase / oppstart" : "Early stage / startup", value: 35 },
+                          { label: isNb ? "Typisk SaaS-selskap (Norge)" : "Typical SaaS company (Norway)", value: 62 },
+                          { label: isNb ? "Forventet av offentlig sektor" : "Expected by public sector", value: 65 },
+                          { label: isNb ? "ISO 27001-sertifisert" : "ISO 27001-certified", value: 78 },
+                          { label: isNb ? "Bank / finans / kritisk infrastruktur" : "Banking / finance / critical infra", value: 88 },
+                        ].map((row) => (
+                          <div key={row.label} className="flex items-center gap-3 text-sm">
+                            <span className="w-64 shrink-0 text-foreground">{row.label}</span>
+                            <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full bg-primary/60" style={{ width: `${row.value}%` }} />
+                            </div>
+                            <span className="w-10 text-right tabular-nums text-muted-foreground">{row.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-4">
+                        {isNb
+                          ? "Tallene er retningsgivende gjennomsnitt basert på rammeverk, sertifiseringer og sektorforventninger. Trust Score er ikke en sertifisering — den hjelper dere å se hvor dere står og hva som mangler."
+                          : "These are indicative averages based on frameworks, certifications, and sector expectations. Trust Score is not a certification — it helps you see where you stand and what's missing."}
+                      </p>
+                    </Card>
+                  </div>
+                );
+              })()
+            ) : activeTab === "publish" ? (
               <div className="space-y-5">
                 {/* Sub-tabs */}
                 <div className="inline-flex items-center gap-1 p-1 rounded-lg bg-muted border border-border">
