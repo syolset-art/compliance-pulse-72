@@ -85,7 +85,11 @@ const frameworkTaskMapping: Record<string, string[]> = {
   "ai-ethics": ["ai-ethics", "AI ethics"],
 };
 
-export function DomainComplianceWidget() {
+interface DomainComplianceWidgetProps {
+  hideHeader?: boolean;
+}
+
+export function DomainComplianceWidget({ hideHeader = false }: DomainComplianceWidgetProps = {}) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
