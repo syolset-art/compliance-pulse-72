@@ -102,15 +102,24 @@ export default function ActivateTrustProfileWizard({
   }, [open, hasPrefill, hasOrgPrefill, initialCompanyName, orgNumber, searchByName]);
 
   // Auto-derive a website suggestion from company name when org is prefilled but no domain provided.
+  // Lara has "mapped" the address — pre-mark as verified so Fortsett is active by default.
   useEffect(() => {
-    if (!open || !hasOrgPrefill || website) return;
-    const slug = (initialCompanyName ?? "")
-      .toLowerCase()
-      .replace(/\s+(as|asa)\s*$/i, "")
-      .replace(/\s+/g, "")
-      .replace(/[^a-z0-9]/g, "");
-    if (slug) setWebsite(`https://${slug}.no`);
-  }, [open, hasOrgPrefill, initialCompanyName, website]);
+    if (!open || !hasOrgPrefill) return;
+    if (!website) {
+      const slug = (initialCompanyName ?? "")
+        .toLowerCase()
+        .replace(/\s+(as|asa)\s*$/i, "")
+        .replace(/\s+/g, "")
+        .replace(/[^a-z0-9]/g, "");
+      if (slug) {
+        setWebsite(`https://${slug}.no`);
+        setWebsiteVerified(true);
+      }
+    } else if (initialDomain) {
+      // Domain came from the customer record — treat as already verified.
+      setWebsiteVerified(true);
+    }
+  }, [open, hasOrgPrefill, initialCompanyName, initialDomain, website]);
 
   // Run scan animation when entering step 2
   useEffect(() => {
