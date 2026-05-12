@@ -24,6 +24,7 @@ import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivit
 import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCard";
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
+import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
 import { toast } from "sonner";
 
 export default function MSPCustomerDetail() {
