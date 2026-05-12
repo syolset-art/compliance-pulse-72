@@ -77,9 +77,8 @@ const DOMAINS: DomainRow[] = [
     services: [],
     highlightOffer: {
       title: "NIS2-klargjøring som tjeneste",
-      desc: "Kunden er omfattet av NIS2 men har lav modenhet. Tilby en strukturert leveranse: gap-analyse, risikovurdering, dokumentasjon og rapporteringsrutiner. Kunden kan velge full leveranse eller co-delivery der de gjør deler selv.",
+      desc: "Kunden er omfattet av NIS2 men har lav modenhet. Lara har laget et utkast til tilbud: gap-analyse, risikovurdering, dokumentasjon og rapporteringsrutiner. Du kan justere innhold, omfang og pris før du sender til kunden.",
       primaryCta: "Tilby full leveranse",
-      secondaryCta: "Tilby co-delivery",
     },
   },
   {
