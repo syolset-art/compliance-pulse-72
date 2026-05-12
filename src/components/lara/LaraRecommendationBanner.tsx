@@ -164,7 +164,7 @@ export function LaraRecommendationBanner({
 
       {/* Step dots */}
       <div className="flex items-center justify-center gap-1.5">
-        {tasks.map((_, i) => (
+        {visibleTasks.map((_, i) => (
           <span
             key={i}
             className={cn("h-1 rounded-full transition-all", i === step ? "w-8 bg-primary" : "w-5 bg-muted")}
