@@ -174,12 +174,18 @@ export function MSPCreateOfferDialog({
                         ))}
                       </SelectContent>
                     </Select>
-                    <Input
-                      type="number"
-                      value={t.hours}
-                      onChange={e => updateTask(i, { hours: Number(e.target.value) })}
-                      className="h-7 text-[13px] text-right tabular-nums"
-                    />
+                    {t.owner === "Partner" ? (
+                      <Input
+                        type="number"
+                        value={t.hours}
+                        onChange={e => updateTask(i, { hours: Number(e.target.value) })}
+                        className="h-7 text-[13px] text-right tabular-nums"
+                      />
+                    ) : (
+                      <span className="text-[11px] text-muted-foreground text-right pr-2 italic">
+                        Kunden
+                      </span>
+                    )}
                     <button
                       type="button"
                       onClick={() => removeTask(i)}
