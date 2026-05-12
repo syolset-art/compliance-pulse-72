@@ -181,53 +181,44 @@ export function MSPGapAnalysisDialog({
   };
 
   const titleText = singleMode && activeFramework
-    ? `Gap-analyse — ${activeFramework.framework_name}`
-    : "Alle gap mot regelverk";
-
-  const descText = singleMode && activeFramework
-    ? `Åpne krav kunden ikke oppfyller mot ${activeFramework.framework_name}. Bruk som grunnlag for tilbud eller legg ved som vedlegg.`
-    : "Oversikt over åpne krav kunden ikke oppfyller per regelverk. Bruk dette til å forme tilbud og prioritere tiltak.";
+    ? `Gap — ${activeFramework.framework_name}`
+    : "Manglende kontroller per regelverk";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl p-0 gap-0 max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader className="p-5 pb-3 border-b border-border space-y-2">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 text-[10px]">
-              Gap-analyse
-            </Badge>
-            <span className="text-xs text-muted-foreground">{customerName}</span>
-          </div>
-          <DialogTitle className="text-lg flex items-center gap-2">
-            {singleMode && activeFramework ? FRAMEWORK_ICONS[activeFramework.framework_id] : <FileText className="h-5 w-5 text-primary" />}
+      <DialogContent className="max-w-3xl p-0 gap-0 max-h-[88vh] overflow-hidden flex flex-col">
+        <DialogHeader className="px-5 pt-4 pb-3 border-b border-border space-y-1">
+          <p className="text-[11px] text-muted-foreground">{customerName} · Gap-analyse</p>
+          <DialogTitle className="text-base font-semibold flex items-center gap-2">
+            {singleMode && activeFramework ? FRAMEWORK_ICONS[activeFramework.framework_id] : <FileText className="h-4 w-4 text-primary" />}
             {titleText}
           </DialogTitle>
-          <DialogDescription className="text-[13px]">
-            {descText}
+          <DialogDescription className="sr-only">
+            Oversikt over manglende kontroller {singleMode && activeFramework ? `for ${activeFramework.framework_name}` : "per regelverk"}.
           </DialogDescription>
         </DialogHeader>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 p-4 border-b border-border bg-muted/20">
-          <Card className="p-3 bg-background">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{singleMode ? "Modenhet" : "Snitt modenhet"}</p>
-            <p className="text-2xl font-bold text-foreground mt-1">{avgScore}%</p>
-          </Card>
-          <Card className="p-3 bg-background">
+        {/* Stats — kompakt */}
+        <div className="grid grid-cols-3 gap-2 px-4 py-3 border-b border-border bg-muted/20">
+          <div className="rounded-md border border-border bg-background px-3 py-2">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{singleMode ? "Modenhet" : "Snitt"}</p>
+            <p className="text-lg font-semibold text-foreground tabular-nums">{avgScore}%</p>
+          </div>
+          <div className="rounded-md border border-border bg-background px-3 py-2">
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Åpne gap</p>
-            <p className="text-2xl font-bold text-foreground mt-1">{totalGaps}</p>
-          </Card>
-          <Card className="p-3 bg-background">
+            <p className="text-lg font-semibold text-foreground tabular-nums">{totalGaps}</p>
+          </div>
+          <div className="rounded-md border border-border bg-background px-3 py-2">
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Kritiske</p>
-            <p className="text-2xl font-bold text-destructive mt-1">{criticalGaps}</p>
-          </Card>
+            <p className="text-lg font-semibold text-destructive tabular-nums">{criticalGaps}</p>
+          </div>
         </div>
 
-        <div className="p-4 border-b border-border">
+        <div className="px-4 py-2 border-b border-border">
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
-              placeholder="Søk i gap (krav eller område)…"
+              placeholder="Søk…"
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="pl-8 h-8 text-[13px]"
@@ -314,26 +305,17 @@ function FrameworkBlock({ f }: { f: FrameworkGap }) {
           Ingen gap matcher søket
         </div>
       ) : (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {f.gaps.map(g => {
             const sev = SEVERITY_STYLES[g.severity];
+            const dotColor = g.severity === "critical" ? "bg-destructive" : g.severity === "high" ? "bg-warning" : "bg-muted-foreground/50";
             return (
-              <div key={g.id} className={cn("rounded-md border p-3 space-y-1", sev.bg)}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-foreground">{g.title}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{g.domain}</p>
-                  </div>
-                  <Badge variant="outline" className={cn("text-[10px] gap-1 shrink-0", sev.text, sev.bg)}>
-                    {sev.icon}
-                    {sev.label}
-                  </Badge>
+              <div key={g.id} className="flex items-center gap-2.5 rounded-md px-2.5 py-1.5 hover:bg-muted/40">
+                <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", dotColor)} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] text-foreground truncate">{g.title}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">{g.domain} · {sev.label}</p>
                 </div>
-                {g.recommendation && (
-                  <p className="text-[12px] text-muted-foreground leading-snug pt-1 border-t border-border/40">
-                    💡 {g.recommendation}
-                  </p>
-                )}
               </div>
             );
           })}
