@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send } from "lucide-react";
+import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send, ShieldCheck, Download } from "lucide-react";
 
 type OfferStatus = "approved" | "pending" | "declined";
 type MessageType = "offer" | "message";
