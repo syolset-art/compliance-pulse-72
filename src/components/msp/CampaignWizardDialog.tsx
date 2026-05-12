@@ -150,39 +150,54 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
       .map((s) => s.label.toLowerCase())
       .join(", ");
     const auto =
-      kind === "offer" && selectedService
+      kind === "claim"
         ? {
-            name: name || `${selectedService.name} — kampanje`,
-            subject: `Tilbud: ${selectedService.name} for {{kunde}}`,
+            name: name || `Inviter til Trust-profil — ${segLabels || "alle kunder"}`,
+            subject: `Overta og signer Trust-profilen til {{kunde}}`,
             body:
               `Hei {{kontaktperson}},\n\n` +
-              `Basert på vår siste gjennomgang ser vi at {{kunde}} ${segLabels ? `treffer kriteriene "${segLabels}"` : "har behov i dette området"}. ` +
-              `Vi anbefaler vår leveranse "${selectedService.name}":\n\n` +
-              `${selectedService.description}\n\n` +
-              `Pris: ${selectedService.price ? `${selectedService.price.toLocaleString("nb-NO")} kr` : selectedService.priceNote || "etter avtale"}.\n\n` +
-              `Si fra om dere ønsker en kort gjennomgang før dere bestemmer dere.\n\n` +
+              `Vi har bygget opp en Trust-profil for {{kunde}} på vegne av dere — med sertifiseringer, policyer og dokumentasjon samlet på ett sted. ` +
+              `Profilen er klar til at dere kan overta den (claime den) og publisere den selv.\n\n` +
+              `Når dere claimer profilen får dere:\n` +
+              `• Full kontroll over hva som vises utad\n` +
+              `• Mulighet til å besvare innsynsforespørsler fra kunder og partnere direkte\n` +
+              `• En offentlig Trust-side dere kan dele i salg og anbud\n\n` +
+              `Klikk lenken i e-posten for å signere og ta over profilen — det tar under 2 minutter. Vi beholder innsynet og hjelper dere videre.\n\n` +
               `Mvh\n{{partner}}`,
           }
-        : kind === "reminder"
+        : kind === "offer" && selectedService
           ? {
-              name: name || `Oppfølging — ${segLabels || "valgte kunder"}`,
-              subject: `Vennlig påminnelse til {{kunde}}`,
+              name: name || `${selectedService.name} — kampanje`,
+              subject: `Tilbud: ${selectedService.name} for {{kunde}}`,
               body:
                 `Hei {{kontaktperson}},\n\n` +
-                `Håper alt vel hos {{kunde}}. Jeg ville bare høre om dere har hatt anledning til å se nærmere på det vi snakket om sist.\n\n` +
-                `Si gjerne fra om noe er uklart, eller om dere ønsker en kort prat.\n\n` +
+                `Basert på vår siste gjennomgang ser vi at {{kunde}} ${segLabels ? `treffer kriteriene "${segLabels}"` : "har behov i dette området"}. ` +
+                `Vi anbefaler vår leveranse "${selectedService.name}":\n\n` +
+                `${selectedService.description}\n\n` +
+                `Pris: ${selectedService.price ? `${selectedService.price.toLocaleString("nb-NO")} kr` : selectedService.priceNote || "etter avtale"}.\n\n` +
+                `Si fra om dere ønsker en kort gjennomgang før dere bestemmer dere.\n\n` +
                 `Mvh\n{{partner}}`,
             }
-          : {
-              name: name || `Informasjon — ${segLabels || "valgte kunder"}`,
-              subject: `Viktig informasjon til {{kunde}}`,
-              body:
-                `Hei {{kontaktperson}},\n\n` +
-                `Vi ønsker å informere om at ${segLabels || "endringer i regelverket"} kan påvirke {{kunde}}. ` +
-                `Vi har samlet en kort oversikt over hva dette betyr og hva dere bør gjøre nå.\n\n` +
-                `Ta kontakt om dere ønsker en uforpliktende prat.\n\n` +
-                `Mvh\n{{partner}}`,
-            };
+          : kind === "reminder"
+            ? {
+                name: name || `Oppfølging — ${segLabels || "valgte kunder"}`,
+                subject: `Vennlig påminnelse til {{kunde}}`,
+                body:
+                  `Hei {{kontaktperson}},\n\n` +
+                  `Håper alt vel hos {{kunde}}. Jeg ville bare høre om dere har hatt anledning til å se nærmere på det vi snakket om sist.\n\n` +
+                  `Si gjerne fra om noe er uklart, eller om dere ønsker en kort prat.\n\n` +
+                  `Mvh\n{{partner}}`,
+              }
+            : {
+                name: name || `Informasjon — ${segLabels || "valgte kunder"}`,
+                subject: `Viktig informasjon til {{kunde}}`,
+                body:
+                  `Hei {{kontaktperson}},\n\n` +
+                  `Vi ønsker å informere om at ${segLabels || "endringer i regelverket"} kan påvirke {{kunde}}. ` +
+                  `Vi har samlet en kort oversikt over hva dette betyr og hva dere bør gjøre nå.\n\n` +
+                  `Ta kontakt om dere ønsker en uforpliktende prat.\n\n` +
+                  `Mvh\n{{partner}}`,
+              };
     setName((prev) => prev || auto.name);
     setSubject(auto.subject);
     setBody(auto.body);
