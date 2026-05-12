@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
-  CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb,
+  CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb, Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
@@ -736,8 +736,8 @@ function ConfirmStep(props: any) {
 
         <div className="flex items-center justify-between pt-3 border-t border-border">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Lock className="h-3.5 w-3.5" />
-            Kontaktinformasjon vises kun til godkjente kjøpere
+            <Info className="h-3.5 w-3.5" />
+            Fyll ut kontaktene dersom Lara ikke fant informasjonen automatisk
           </div>
           <Button type="button" variant="outline" size="sm" className="gap-1.5 text-xs h-8">
             Usikker? Spør Lara
