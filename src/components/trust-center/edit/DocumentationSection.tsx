@@ -205,6 +205,53 @@ export function DocumentationSection({ asset }: { asset: any }) {
         )}
       </Card>
 
+      {visibleSuggestions.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              Foreslått av Lara — ikke i bruk ennå
+            </p>
+          </div>
+          <Card className="divide-y divide-dashed divide-border border-dashed">
+            {visibleSuggestions.map((s) => (
+              <div key={s.id} className="flex items-center gap-3 p-4">
+                <Checkbox
+                  className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{s.file_name}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    <span className="text-[11px] text-muted-foreground">
+                      {s.type_label} · {s.source}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => addSuggestion(s)}
+                  disabled={adding === s.id}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {adding === s.id ? "Legger til..." : "Legg til"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setDismissed((d) => [...d, s.id])}
+                  aria-label="Avvis forslag"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </Card>
+        </div>
+      )}
+
 
 
       <Dialog open={!!reading} onOpenChange={(o) => !o && setReading(null)}>
