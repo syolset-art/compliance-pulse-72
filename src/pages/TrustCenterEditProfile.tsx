@@ -265,8 +265,6 @@ const TrustCenterEditProfile = () => {
                 { icon: Globe, label: isNb ? "Personvern" : "Privacy", anchor: "#privacy" },
                 { icon: Shield, label: isNb ? "Sikkerhet" : "Security", anchor: "#security" },
                 { icon: AlertTriangle, label: isNb ? "Hendelser" : "Incidents", anchor: "#incidents" },
-                { icon: Sparkles, label: isNb ? "AI og leverandører" : "AI & vendors", anchor: "#ai-vendors" },
-                { icon: Scale, label: isNb ? "Regelverk" : "Regulations", anchor: "#regulations" },
                 { icon: FileText, label: isNb ? "Dokumentasjon" : "Documentation", anchor: "#documentation" },
               ].map(tab => (
                 <button
