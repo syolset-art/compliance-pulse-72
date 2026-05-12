@@ -163,13 +163,23 @@ export function VendorLaraInsightsPanel({
   const current = visibleTasks[safeIndex];
 
   const handleSnooze = () => {
+    const until = new Date(Date.now() + 7 * 86400000);
+    const untilLabel = until.toLocaleDateString("nb-NO", { day: "numeric", month: "long" });
     snooze({ key: current.id, snapshot: snapshotFor(current) });
-    toast.success("Utsatt 7 dager — du finner det igjen i Lara-innboksen.");
+    toast.success(`Forslaget er utsatt`, {
+      description: `Lara minner deg på «${current.vendor.name}» igjen ${untilLabel}. Du finner det i Lara-innboksen til da.`,
+      icon: <Clock className="h-4 w-4" />,
+      duration: 5000,
+    });
   };
 
   const handleDismiss = () => {
     dismiss({ key: current.id, snapshot: snapshotFor(current) });
-    toast.success("Avvist — du kan hente det tilbake i Lara-innboksen.");
+    toast.success("Forslaget er avvist", {
+      description: `«${current.vendor.name}» er flyttet til arkivet i Lara-innboksen og kan hentes tilbake derfra.`,
+      icon: <X className="h-4 w-4" />,
+      duration: 5000,
+    });
   };
 
 
