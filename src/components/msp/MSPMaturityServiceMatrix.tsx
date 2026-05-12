@@ -223,8 +223,8 @@ export function MSPMaturityServiceMatrix() {
               </div>
 
               <div className="mt-3 flex items-center gap-3">
-                <div className="flex-1">
-                  <Progress value={d.score} className="h-1.5" indicatorClassName={scoreColor(d.score)} />
+                <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className={cn("h-full transition-all", scoreColor(d.score))} style={{ width: `${d.score}%` }} />
                 </div>
                 <span className="text-sm font-semibold text-foreground tabular-nums">{d.score}%</span>
                 {d.ownership === "customer" ? (
