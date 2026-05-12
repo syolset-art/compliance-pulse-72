@@ -262,7 +262,11 @@ export default function MSPCustomerDetail() {
 
             {/* ── Trust Profile ── */}
             <TabsContent value="trust-profile" className="mt-6">
-              <MSPCustomerTrustProfileCard customerName={customer.name || "Kunden"} />
+              <MSPCustomerTrustProfileCard
+                customerName={customer.name || "Kunden"}
+                contactName={customer.contact_name || "kontaktperson"}
+                contactEmail={customer.contact_email}
+              />
             </TabsContent>
 
             <TabsContent value="messages" className="mt-6">
