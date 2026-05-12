@@ -66,7 +66,7 @@ export function MSPCreateOfferDialog({
     setAttachGap(attachGapProp);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
+  const totalHours = tasks.reduce((s, t) => s + (t.owner === "Partner" ? Number(t.hours) || 0 : 0), 0);
   const totalPrice = totalHours * hourlyRate;
 
   const updateTask = (i: number, patch: Partial<EditableTask>) => {
