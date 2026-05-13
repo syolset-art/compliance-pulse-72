@@ -10,8 +10,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Loader2, Search, Globe, Database, CheckCircle2, AlertCircle, 
-  ChevronRight, ChevronLeft, Sparkles, Shield, User, Building
+  ChevronRight, ChevronLeft, Sparkles, Shield, User, Building,
+  Cloud, Server, Activity, Hash, HelpCircle, Plus, Circle, Check
 } from "lucide-react";
+import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Progress } from "@/components/ui/progress";
 import { useVendorMatch, type VendorMatchCandidate } from "@/hooks/useVendorMatch";
 import { VendorLinkStep } from "./VendorLinkStep";
