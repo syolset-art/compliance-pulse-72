@@ -21,6 +21,7 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
 
     --primary: 239 41% 51%;           /* mynder-blue #4F51B6 */
     --primary-foreground: 0 0% 100%;
+    --mynder-blue: 239 41% 51%;       /* alias for #4F51B6 — used by Trust Profile visibility controls */
 
     --secondary: 247 71% 96%;         /* purple-100 #F0EEFB */
     --secondary-foreground: 240 53% 23%;
