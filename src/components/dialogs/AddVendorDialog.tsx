@@ -301,6 +301,10 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Post-creation discovery dialog
+  const [discoveryOpen, setDiscoveryOpen] = useState(false);
+  const [discoveryVendor, setDiscoveryVendor] = useState<{ id: string; name: string; url: string | null } | null>(null);
+
   const resetForm = useCallback(() => {
     setStep("quantity");
     setMode("single");
