@@ -324,7 +324,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               />
             )}
 
-            <ContextualHelpPanel open={helpOpen} onOpenChange={setHelpOpen} />
+            <ContextualHelpPanel
+              open={helpOpen}
+              onOpenChange={setHelpOpen}
+              icon={Shield}
+              title={isNb ? "Trust Profile" : "Trust Profile"}
+              description={isNb
+                ? "Trust Profile er din offentlige tillitsside. Den viser modenhet, dokumentasjon og sertifiseringer slik at kunder, partnere og myndigheter kan forstå hvordan dere håndterer sikkerhet, personvern og compliance."
+                : "Trust Profile is your public trust page. It shows maturity, documentation and certifications so customers, partners and regulators can understand how you handle security, privacy and compliance."}
+            />
           </main>
         </div>
       </SidebarProvider>
