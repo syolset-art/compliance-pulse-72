@@ -161,8 +161,8 @@ export function DashboardMaturityOverTime() {
   return (
     <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-1">
-        <div>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="min-w-0">
           <h3 className="text-sm font-semibold text-foreground">
             {isNb ? "Modenhet over tid" : "Maturity over time"}
           </h3>
@@ -172,34 +172,37 @@ export function DashboardMaturityOverTime() {
               : "Overall score with activities that moved it"}
           </p>
         </div>
-        <div className="flex items-center rounded-full border border-border bg-muted/30 p-0.5 self-start">
-          {RANGES.map((r) => {
-            const active = range === r.key;
-            return (
-              <button
-                key={r.key}
-                onClick={() => setRange(r.key)}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs font-medium transition-all",
-                  active
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {r.label}
-              </button>
-            );
-          })}
+        {/* Score in upper right corner */}
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-bold text-foreground tracking-tight leading-none">{overall}%</span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-success/15 text-success">
+              +{delta}
+            </span>
+          </div>
+          <span className="text-xs text-muted-foreground">{rangeLabelMap[range]}</span>
         </div>
       </div>
 
-      {/* Score + delta */}
-      <div className="flex items-center gap-3 mt-4 mb-3">
-        <span className="text-4xl font-bold text-foreground tracking-tight">{overall}%</span>
-        <span className="text-xs font-semibold px-2 py-1 rounded-full bg-success/15 text-success">
-          +{delta}
-        </span>
-        <span className="text-sm text-muted-foreground">{rangeLabelMap[range]}</span>
+      {/* Range selector */}
+      <div className="flex items-center rounded-full border border-border bg-muted/30 p-0.5 self-start w-fit mb-3">
+        {RANGES.map((r) => {
+          const active = range === r.key;
+          return (
+            <button
+              key={r.key}
+              onClick={() => setRange(r.key)}
+              className={cn(
+                "px-3 py-1 rounded-full text-xs font-medium transition-all",
+                active
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {r.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Chart */}
