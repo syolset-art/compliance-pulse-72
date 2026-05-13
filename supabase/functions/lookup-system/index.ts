@@ -132,6 +132,10 @@ Svar ved å kalle lookup_system-funksjonen.`;
                     type: "string",
                     description: "Brief GDPR relevance note in Norwegian",
                   },
+                  parent_vendor: {
+                    type: "string",
+                    description: "Name of the parent company / owner of the system (e.g. 'Microsoft' for Teams). May equal vendor if no separate parent.",
+                  },
                   confidence: {
                     type: "string",
                     enum: ["high", "medium", "low"],
