@@ -1415,29 +1415,82 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                       </Card>
                     ) : (
-                      <Card className="p-8 text-center space-y-4">
-                        <Globe className="h-10 w-10 mx-auto text-muted-foreground" aria-hidden="true" />
+                      <Card className="p-6 space-y-5">
                         <div>
-                          <h3 className="text-lg font-semibold text-foreground">{isNb ? "Klar til publisering" : "Ready to publish"}</h3>
+                          <h3 className="text-base font-semibold text-foreground">
+                            {isNb ? "Del eller publiser profilen" : "Share or publish the profile"}
+                          </h3>
                           <p className="text-sm text-muted-foreground mt-1">
-                            {isNb ? "Publiser din Trust Center for å gjøre den tilgjengelig på" : "Publish your Trust Center to make it available at"}{" "}
+                            {isNb
+                              ? "Del privat med enkeltpersoner, publiser åpent eller del på sosiale medier."
+                              : "Share privately with individuals, publish openly, or share on social media."}{" "}
                             <span className="font-medium text-foreground">{publicUrl}</span>
                           </p>
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <Button
                             variant="outline"
-                            className="gap-2"
+                            className="gap-2 justify-start"
                             onClick={() => setShareDialogOpen(true)}
-                            title={isNb ? "Del med interne eller eksterne mottakere" : "Share with internal or external recipients"}
                           >
-                            <Share2 className="h-4 w-4" />
-                            {isNb ? "Del" : "Share"}
+                            <Share2 className="h-4 w-4" aria-hidden="true" />
+                            {isNb ? "Del med enkeltpersoner" : "Share with individuals"}
                           </Button>
-                          <Button onClick={openPublishDialog} className="gap-2 bg-primary hover:bg-primary/90">
-                            <Globe className="h-4 w-4" />
-                            {isNb ? "Publiser" : "Publish"}
+                          <Button onClick={openPublishDialog} className="gap-2 justify-start bg-primary hover:bg-primary/90">
+                            <Globe className="h-4 w-4" aria-hidden="true" />
+                            {isNb ? "Publiser åpent" : "Publish openly"}
                           </Button>
+                        </div>
+
+                        <div className="pt-2 border-t border-border">
+                          <p className="text-xs font-medium text-muted-foreground mb-2">
+                            {isNb ? "Del på sosiale medier" : "Share on social media"}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2"
+                              onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(publicFullUrl)}`, "_blank", "noopener,noreferrer")}
+                            >
+                              <Linkedin className="h-4 w-4" aria-hidden="true" />
+                              LinkedIn
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2"
+                              onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(publicFullUrl)}`, "_blank", "noopener,noreferrer")}
+                            >
+                              <Facebook className="h-4 w-4" aria-hidden="true" />
+                              Facebook
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2"
+                              onClick={() => {
+                                const subject = isNb ? "Vår Trust Profile" : "Our Trust Profile";
+                                const body = isNb
+                                  ? `Hei,\n\nDu kan se vår Trust Profile her: ${publicFullUrl}\n`
+                                  : `Hi,\n\nYou can view our Trust Profile here: ${publicFullUrl}\n`;
+                                window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                              }}
+                            >
+                              <Mail className="h-4 w-4" aria-hidden="true" />
+                              {isNb ? "E-post" : "Email"}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-2"
+                              onClick={handleCopyLink}
+                            >
+                              {copiedLink ? <Check className="h-4 w-4 text-success" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+                              {copiedLink ? (isNb ? "Kopiert" : "Copied") : (isNb ? "Kopier lenke" : "Copy link")}
+                            </Button>
+                          </div>
                         </div>
                       </Card>
                     )}
