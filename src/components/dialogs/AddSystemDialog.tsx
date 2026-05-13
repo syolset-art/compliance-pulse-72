@@ -385,6 +385,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
           <DialogDescription>
             {step === "search" && "Søk etter systemet i vårt bibliotek eller på nett."}
             {step === "confirm" && "Bekreft at dette er riktig system."}
+            {step === "vendor" && "Vi har funnet leverandøren — vil du koble systemet?"}
             {step === "category" && "AI har foreslått en kategori — juster om nødvendig."}
             {step === "risk" && "Angi risikonivå og kritikalitet for systemet."}
             {step === "contact" && "Legg til kontaktinformasjon (valgfritt)."}
