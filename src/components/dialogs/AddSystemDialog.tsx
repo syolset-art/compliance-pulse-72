@@ -230,11 +230,12 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
   const handleSubmit = async () => {
     setIsSaving(true);
     try {
-      const insertData = {
+      const insertData: Record<string, unknown> = {
         name: formData.name,
         description: formData.description || null,
         category: formData.category || null,
         vendor: formData.vendor || null,
+        vendor_asset_id: formData.vendor_asset_id || null,
         risk_level: formData.risk_level || null,
         status: formData.status,
         url: formData.url || null,
