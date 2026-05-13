@@ -379,7 +379,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       } as any).select("id").single();
 
       if (insertError) throw insertError;
-      return { name: vendor.name, id: insertData?.id };
+      return { name: vendor.name, id: insertData?.id, url: vendor.url || null };
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["assets"] });
@@ -389,6 +389,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       if (mode === "multiple") {
         setAddedVendors((prev) => [...prev, result.name]);
         resetForNext();
+      } else if (result.id) {
+        setDiscoveryVendor({ id: result.id, name: result.name, url: result.url });
+        setDiscoveryOpen(true);
       } else {
         onOpenChange(false);
         resetForm();
