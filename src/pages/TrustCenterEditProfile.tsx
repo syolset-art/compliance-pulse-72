@@ -193,9 +193,12 @@ const TrustCenterEditProfile = () => {
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Trust Profile
               </button>
-              <h1 className="text-2xl font-bold text-foreground">
-                {isNb ? "Rediger Trust Profile" : "Edit Trust Profile"}
-              </h1>
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <h1 className="text-2xl font-bold text-foreground">
+                  {isNb ? "Rediger Trust Profile" : "Edit Trust Profile"}
+                </h1>
+                <SavedIndicator lastEditedAt={(asset?.metadata as any)?.last_edited_at || asset?.updated_at} />
+              </div>
               <p className="text-sm text-muted-foreground mt-1">
                 {isNb
                   ? "Lara har generert din profil basert på offentlig informasjon. Bekreft eller juster forslagene under, og last opp egne dokumenter."
