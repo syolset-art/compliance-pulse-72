@@ -17,6 +17,15 @@ import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Progress } from "@/components/ui/progress";
 import { useVendorMatch, type VendorMatchCandidate } from "@/hooks/useVendorMatch";
 import { VendorLinkStep } from "./VendorLinkStep";
+import {
+  PRIORITY_KEYS,
+  PRIORITY_META,
+  priorityLabel,
+  suggestPriority,
+  suggestionRationale,
+  type PriorityKey,
+} from "@/lib/derivedPriority";
+import { cn } from "@/lib/utils";
 
 interface AddSystemDialogProps {
   open: boolean;
