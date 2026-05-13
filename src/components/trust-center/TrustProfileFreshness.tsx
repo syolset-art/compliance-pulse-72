@@ -2,17 +2,27 @@ import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Sparkles, Clock, RefreshCw, CheckCircle2, Globe, Search, FileSearch, Wand2 } from "lucide-react";
+import {
+  Sparkles,
+  RefreshCw,
+  CheckCircle2,
+  Globe,
+  Search,
+  FileSearch,
+  Wand2,
+} from "lucide-react";
+import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
+import { getVisibilityFromAsset, type TrustVisibility } from "@/lib/trustVisibility";
 
 type Props = {
   assetId: string;
   updatedAt?: string | null;
   lastEnrichedAt?: string | null;
+  publishMode?: string | null;
 };
 
 function formatRelative(iso: string | null | undefined, isNb: boolean): string {
@@ -43,7 +53,12 @@ const STEPS_EN = [
   { icon: Wand2, label: "Enriching and updating profile" },
 ];
 
-export default function TrustProfileFreshness({ assetId, updatedAt, lastEnrichedAt }: Props) {
+export default function TrustProfileFreshness({
+  assetId,
+  updatedAt,
+  lastEnrichedAt,
+  publishMode,
+}: Props) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const qc = useQueryClient();
@@ -53,6 +68,8 @@ export default function TrustProfileFreshness({ assetId, updatedAt, lastEnriched
   const [activeStep, setActiveStep] = useState(0);
   const [signalsFound, setSignalsFound] = useState(0);
   const [justUpdatedAt, setJustUpdatedAt] = useState<string | null>(null);
+
+  const currentVisibility = getVisibilityFromAsset({ publish_mode: publishMode });
 
   const lastUpdate = justUpdatedAt || lastEnrichedAt || updatedAt || null;
   const ageDays = useMemo(() => {
@@ -89,147 +106,114 @@ export default function TrustProfileFreshness({ assetId, updatedAt, lastEnriched
     qc.invalidateQueries({ queryKey: ["self-asset-profile"] });
   };
 
-  // Success state — compact confirmation
-  if (status === "success") {
-    return (
-      <Card className="p-4 border-success/30 bg-success/5 animate-in fade-in slide-in-from-top-1 duration-300">
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="h-9 w-9 rounded-full bg-success/15 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="h-4 w-4 text-success" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-foreground">
-                {isNb ? "Trust Profile er oppdatert" : "Trust Profile updated"}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {isNb
-                  ? `Lara la til ${signalsFound} nye signaler · oppdatert ${formatRelative(justUpdatedAt, isNb)}`
-                  : `Lara added ${signalsFound} new signals · updated ${formatRelative(justUpdatedAt, isNb)}`}
-              </p>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setStatus("idle")}>
-            <RefreshCw className="h-3.5 w-3.5" />
-            {isNb ? "Kjør på nytt" : "Run again"}
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
-  // Running state — progress + animated step list
+  // Running state — keep as a compact card since it's transient
   if (status === "running") {
     const pct = Math.round(((activeStep + 1) / steps.length) * 100);
     return (
-      <Card className="p-5 border-primary/30 bg-primary/5 overflow-hidden">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="relative h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-            <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 overflow-hidden">
+        <div className="flex items-center gap-2.5 mb-2">
+          <div className="relative h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+            <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
             <span className="absolute inset-0 rounded-full border-2 border-primary/40 animate-ping" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-foreground">
-              {isNb ? "Lara oppdaterer Trust Profilen din…" : "Lara is updating your Trust Profile…"}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isNb
-                ? `Fant ${signalsFound} nye signaler så langt`
-                : `Found ${signalsFound} new signals so far`}
+            <p className="text-xs font-semibold text-foreground">
+              {isNb ? "Lara oppdaterer…" : "Lara is updating…"}
             </p>
           </div>
-          <Badge variant="outline" className="text-[10px] tabular-nums">{pct}%</Badge>
+          <Badge variant="outline" className="text-[10px] tabular-nums">
+            {pct}%
+          </Badge>
         </div>
-        <Progress value={pct} className="h-1.5 mb-4" />
-        <ul className="space-y-2">
+        <Progress value={pct} className="h-1 mb-2" />
+        <div className="flex items-center gap-1.5 flex-wrap">
           {steps.map((s, i) => {
             const Icon = s.icon;
             const done = i < activeStep;
             const active = i === activeStep;
             return (
-              <li
+              <div
                 key={i}
-                className={`flex items-center gap-2.5 text-xs transition-all ${
-                  done ? "text-muted-foreground" : active ? "text-foreground" : "text-muted-foreground/50"
+                className={`flex items-center gap-1 text-[10px] ${
+                  done
+                    ? "text-muted-foreground"
+                    : active
+                      ? "text-foreground"
+                      : "text-muted-foreground/50"
                 }`}
               >
-                <span
-                  className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 ${
-                    done
-                      ? "bg-success/15 text-success"
-                      : active
-                        ? "bg-primary/15 text-primary animate-pulse"
-                        : "bg-muted text-muted-foreground/50"
-                  }`}
-                >
-                  {done ? <CheckCircle2 className="h-3 w-3" /> : <Icon className="h-3 w-3" />}
-                </span>
-                <span className={active ? "font-medium" : ""}>{s.label}</span>
-                {active && (
-                  <span className="ml-auto inline-flex gap-0.5">
-                    <span className="h-1 w-1 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="h-1 w-1 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="h-1 w-1 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </span>
+                {done ? (
+                  <CheckCircle2 className="h-2.5 w-2.5 text-success" />
+                ) : (
+                  <Icon className={`h-2.5 w-2.5 ${active ? "text-primary" : ""}`} />
                 )}
-              </li>
+                <span className={active ? "font-medium" : ""}>{s.label}</span>
+                {i < steps.length - 1 && (
+                  <span className="text-muted-foreground/30 mx-0.5">·</span>
+                )}
+              </div>
             );
           })}
-        </ul>
-      </Card>
+        </div>
+      </div>
     );
   }
 
-  // Idle state — last updated + Lara CTA
-  return (
-    <Card
-      className={`p-4 transition-colors ${
-        isStale ? "border-warning/30 bg-warning/5" : "border-border bg-muted/30"
-      }`}
-    >
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-3 min-w-0">
-          <div
-            className={`h-9 w-9 rounded-full flex items-center justify-center shrink-0 ${
-              isStale ? "bg-warning/15" : "bg-primary/10"
-            }`}
-          >
-            {isStale ? (
-              <Sparkles className="h-4 w-4 text-warning" />
-            ) : (
-              <Clock className="h-4 w-4 text-primary" />
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground flex items-center gap-2 flex-wrap">
-              {isNb ? "Sist oppdatert" : "Last updated"} {formatRelative(lastUpdate, isNb)}
-              {isStale && (
-                <Badge variant="outline" className="text-[10px] border-warning/40 text-warning bg-warning/10">
-                  {isNb ? "Bør oppdateres" : "Needs refresh"}
-                </Badge>
-              )}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isStale
-                ? (isNb
-                  ? "Lara foreslår å berike profilen med ny offentlig informasjon, dokumenter og signaler."
-                  : "Lara suggests enriching the profile with new public information, documents and signals.")
-                : (isNb
-                  ? "La Lara hente inn ferske signaler og oppdatere innholdet automatisk."
-                  : "Let Lara fetch fresh signals and update the content automatically.")}
-            </p>
-          </div>
+  // Success state — compact confirmation
+  if (status === "success") {
+    return (
+      <div className="flex items-center justify-between gap-3 rounded-lg border border-success/20 bg-success/5 px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-300">
+        <div className="flex items-center gap-2 min-w-0">
+          <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+          <p className="text-xs text-foreground">
+            {isNb ? "Oppdatert" : "Updated"} ·{" "}
+            <span className="text-muted-foreground">
+              {isNb
+                ? `${signalsFound} nye signaler`
+                : `${signalsFound} new signals`}
+            </span>
+          </p>
         </div>
         <Button
+          variant="ghost"
           size="sm"
-          className="h-8 text-xs gap-1.5 shrink-0"
-          variant={isStale ? "default" : "outline"}
-          onClick={runEnrichment}
+          className="h-6 text-[11px] gap-1 px-2"
+          onClick={() => setStatus("idle")}
         >
-          <Sparkles className="h-3.5 w-3.5" />
-          {isNb ? "Oppdater med Lara" : "Update with Lara"}
+          <RefreshCw className="h-3 w-3" />
+          {isNb ? "Kjør på nytt" : "Run again"}
         </Button>
       </div>
-    </Card>
+    );
+  }
+
+  // Idle state — compact action bar
+  return (
+    <div className="flex items-center justify-between gap-2 flex-wrap">
+      <span className="text-[11px] text-muted-foreground">
+        {isNb ? "Sist oppdatert" : "Last updated"} {formatRelative(lastUpdate, isNb)}
+        {isStale && (
+          <span className="ml-1.5 text-warning">
+            · {isNb ? "Bør oppdateres" : "Needs refresh"}
+          </span>
+        )}
+      </span>
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 text-[11px] gap-1.5 rounded-full px-3"
+          onClick={runEnrichment}
+        >
+          <Sparkles className="h-3 w-3" />
+          {isNb ? "Oppdater" : "Update"}
+        </Button>
+        <VisibilitySelector
+          assetId={assetId}
+          current={currentVisibility}
+          compact
+        />
+      </div>
+    </div>
   );
 }
