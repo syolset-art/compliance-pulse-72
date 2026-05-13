@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Server, Sparkles, AlertTriangle, ArrowRight } from "lucide-react";
+import { Building2, Sparkles, AlertTriangle, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Priority = "A" | "B" | "C" | "D";
@@ -68,12 +68,12 @@ export function SystemsPriorityChart() {
   const navigate = useNavigate();
 
   const { data: systems = [] } = useQuery({
-    queryKey: ["systems-priority-chart"],
+    queryKey: ["vendors-priority-chart"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("assets")
         .select("id, name, priority, criticality, compliance_score, asset_type")
-        .eq("asset_type", "system");
+        .eq("asset_type", "vendor");
       if (error) throw error;
       return (data || []) as SystemRow[];
     },
@@ -111,8 +111,8 @@ export function SystemsPriorityChart() {
       <div className="flex items-start justify-between mb-4">
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Server className="h-4 w-4 text-primary" aria-hidden="true" />
-            Systemer per prioritet
+            <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
+            Leverandører per prioritet
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
             Sortering etter Mynder-prioritet · andelen som er kritisk for virksomheten er uthevet
@@ -120,7 +120,7 @@ export function SystemsPriorityChart() {
         </div>
         <Badge variant="outline" className="text-xs shrink-0 gap-1">
           <Sparkles className="h-3 w-3" aria-hidden="true" />
-          {total} systemer
+          {total} leverandører
         </Badge>
       </div>
 
@@ -129,7 +129,7 @@ export function SystemsPriorityChart() {
         className="grid grid-cols-4 gap-3 h-[160px] items-end"
         role="img"
         aria-label={
-          `Systemer per prioritet: ` +
+          `Leverandører per prioritet: ` +
           orderedKeys
             .map((k) => `${PRIO_META[k].label} ${buckets[k].total} (${buckets[k].critical} kritiske)`)
             .join(", ")
@@ -154,7 +154,7 @@ export function SystemsPriorityChart() {
                     meta.ring
                   )}
                   style={{ height: `${Math.max(heightPct, t > 0 ? 6 : 0)}%`, minHeight: t > 0 ? 6 : 0 }}
-                  title={`${t} systemer · ${critical} kritiske`}
+                  title={`${t} leverandører · ${critical} kritiske`}
                 >
                   {/* Critical-for-business segment */}
                   {critical > 0 && (
@@ -213,7 +213,7 @@ export function SystemsPriorityChart() {
                   key={s.id}
                   type="button"
                   onClick={() => navigate(`/assets/${s.id}`)}
-                  aria-label={`Åpne system ${s.name}, prioritet ${p}`}
+                  aria-label={`Åpne leverandør ${s.name}, prioritet ${p}`}
                   className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
                 >
                   <span
