@@ -50,6 +50,8 @@ import { VendorContactsBlock } from "./VendorContactsBlock";
 import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 import { InlineEditableField } from "./InlineEditableField";
+import { PriorityChip } from "@/components/PriorityChip";
+import { PriorityEditorPopover } from "./PriorityEditorPopover";
 
 interface TrustMetrics {
   trustScore: number;
