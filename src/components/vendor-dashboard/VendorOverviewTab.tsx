@@ -227,51 +227,9 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
       {/* Lara recommendation banner — replaces noisy KPI widgets */}
       <DashboardLaraRecommendation />
 
-      {/* Recently Added + Lara Priority */}
+      {/* Activity over time + Systems priority */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Recently Added */}
-        <Card variant="flat" className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Clock className="h-4 w-4 text-primary" />
-              Sist lagt til
-            </h2>
-            <Badge variant="outline" className="text-[13px]">Siste 5</Badge>
-          </div>
-          <div className="space-y-2">
-            {[...vendors]
-              .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
-              .slice(0, 5)
-              .map((v) => {
-                const score = v.compliance_score || 0;
-                const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
-                return (
-                  <button
-                    key={v.id}
-                    type="button"
-                    onClick={() => navigate(`/assets/${v.id}`)}
-                    aria-label={`Åpne leverandør ${v.name}, compliance-score ${score} prosent`}
-                    className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
-                      <p className="text-[13px] text-muted-foreground">
-                        {v.created_at
-                          ? formatDistanceToNow(new Date(v.created_at), { addSuffix: true, locale: nb })
-                          : "Ukjent dato"}
-                      </p>
-                    </div>
-                    <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
-                  </button>
-                );
-              })}
-          </div>
-        </Card>
-
-        {/* Systems by priority — replaces Lara-anbefalinger */}
+        <ComplianceActivityChart />
         <SystemsPriorityChart />
       </div>
 
