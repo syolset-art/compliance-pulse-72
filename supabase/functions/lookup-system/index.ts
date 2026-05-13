@@ -61,6 +61,7 @@ Gi følgende informasjon basert på din kunnskap:
 6. Hvilken type data systemet typisk behandler
 7. Land/region leverandøren er basert i
 8. Om systemet typisk er en databehandler under GDPR
+9. Morselskap/eier av systemet hvis det er et produkt under et større selskap (f.eks. Teams → "Microsoft", Workspace → "Google", Slack → "Salesforce"). Sett samme som vendor hvis ikke relevant.
 
 Svar ved å kalle lookup_system-funksjonen.`;
 
