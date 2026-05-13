@@ -143,7 +143,7 @@ export function ComplianceActivityChart() {
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Activity className="h-4 w-4 text-primary" aria-hidden="true" />
-            Compliance-aktivitet
+            Aktiviteter
           </h2>
           <div className="flex items-baseline gap-2 mt-1">
             <span className="text-2xl font-bold text-foreground tabular-nums">{total}</span>
