@@ -13,6 +13,8 @@ import {
   ChevronRight, ChevronLeft, Sparkles, Shield, User, Building
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useVendorMatch, type VendorMatchCandidate } from "@/hooks/useVendorMatch";
+import { VendorLinkStep } from "./VendorLinkStep";
 
 interface AddSystemDialogProps {
   open: boolean;
