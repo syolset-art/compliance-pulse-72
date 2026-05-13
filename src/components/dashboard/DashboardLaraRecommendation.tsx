@@ -10,14 +10,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type Severity = "critical" | "high" | "medium";
+type Priority = 0 | 1 | 2 | 3;
 
 interface PlanTask {
   severity: Severity;
+  priority: Priority;
   vendor: string;
   category: string;
   insight: string;
   vendorPath: string;
 }
+
+const PRIORITY_META: Record<Priority, { label: string; letter: string }> = {
+  0: { label: "Kritisk", letter: "A" },
+  1: { label: "Høy", letter: "B" },
+  2: { label: "Medium", letter: "C" },
+  3: { label: "Lav", letter: "D" },
+};
 
 export function DashboardLaraRecommendation() {
   const { i18n } = useTranslation();
@@ -75,10 +84,21 @@ export function DashboardLaraRecommendation() {
   const count = missingDpaCount || 12;
   const criticalCount = 8;
 
-  // Demo plan tasks (3 critical examples)
-  const tasks: PlanTask[] = [
+  // Demo plan tasks (mix of severities and priorities — sorted by priority below)
+  const rawTasks: PlanTask[] = [
     {
       severity: "critical",
+      priority: 2,
+      vendor: "Slack Technologies",
+      category: isNb ? "Kommunikasjon · databehandler" : "Communication · processor",
+      insight: isNb
+        ? "Overfører data til USA. Mangler dokumentasjon på SCCs. Brukes daglig av 32 ansatte."
+        : "Transfers data to the US. Missing SCC documentation. Used daily by 32 employees.",
+      vendorPath: "/vendors",
+    },
+    {
+      severity: "critical",
+      priority: 0,
       vendor: "Visma Software AS",
       category: isNb ? "Lønn og HR · databehandler" : "Payroll & HR · processor",
       insight: isNb
@@ -88,6 +108,7 @@ export function DashboardLaraRecommendation() {
     },
     {
       severity: "critical",
+      priority: 1,
       vendor: "Microsoft Azure",
       category: isNb ? "Skyinfrastruktur · databehandler" : "Cloud infrastructure · processor",
       insight: isNb
@@ -95,16 +116,13 @@ export function DashboardLaraRecommendation() {
         : "Critical system without updated risk assessment in the last 12 months. DPA exists but not verified.",
       vendorPath: "/vendors",
     },
-    {
-      severity: "critical",
-      vendor: "Slack Technologies",
-      category: isNb ? "Kommunikasjon · databehandler" : "Communication · processor",
-      insight: isNb
-        ? "Overfører data til USA. Mangler dokumentasjon på SCCs. Brukes daglig av 32 ansatte."
-        : "Transfers data to the US. Missing SCC documentation. Used daily by 32 employees.",
-      vendorPath: "/vendors",
-    },
   ];
+
+  // Priority drives order — P0 (A) always first. Severity is only a tiebreaker.
+  const SEV_RANK: Record<Severity, number> = { critical: 0, high: 1, medium: 2 };
+  const tasks = [...rawTasks].sort(
+    (a, b) => a.priority - b.priority || SEV_RANK[a.severity] - SEV_RANK[b.severity]
+  );
 
   const total = tasks.length;
   const current = tasks[step];
@@ -185,8 +203,8 @@ export function DashboardLaraRecommendation() {
           </p>
           <p className="text-sm text-foreground/80 mt-0.5">
             {isNb
-              ? `${count} oppgaver totalt — starter med de ${total} mest kritiske · ca. ${total * 3} min`
-              : `${count} tasks total — starting with the ${total} most critical · ~${total * 3} min`}
+              ? `${count} oppgaver totalt — sortert etter prioritet, starter med A · ca. ${total * 3} min`
+              : `${count} tasks total — sorted by priority, starting with A · ~${total * 3} min`}
           </p>
         </div>
         <button
@@ -213,10 +231,23 @@ export function DashboardLaraRecommendation() {
       {/* Task card */}
       <div className="rounded-xl bg-card border border-border p-4 sm:p-5 space-y-4">
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
-            <span className={cn("text-xs font-bold tracking-wider", sev.text)}>
-              {sev.label}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Priority — neutral pill, drives ordering */}
+            <span
+              className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 px-2 py-0.5 text-[11px] font-semibold text-foreground"
+              title={isNb ? "Prioritet" : "Priority"}
+            >
+              <span className="text-foreground/60">{isNb ? "Prioritet" : "Priority"}</span>
+              <span className="font-bold tabular-nums">
+                {PRIORITY_META[current.priority].letter}
+              </span>
+            </span>
+            {/* Risk severity — status colour */}
+            <span className="inline-flex items-center gap-1.5">
+              <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
+              <span className={cn("text-xs font-bold tracking-wider", sev.text)}>
+                {sev.label}
+              </span>
             </span>
           </div>
           <h4 className="text-lg sm:text-xl font-bold text-foreground break-words">{current.vendor}</h4>
