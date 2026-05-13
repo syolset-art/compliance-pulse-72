@@ -51,22 +51,43 @@ interface WebLookupResult {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  crm: "CRM",
-  erp: "ERP",
-  hr: "HR",
-  productivity: "Produktivitet",
-  communication: "Kommunikasjon",
-  storage: "Lagring",
-  security: "Sikkerhet",
-  monitoring: "Overvåkning",
-  finance: "Finans",
-  marketing: "Markedsføring",
-  "e-commerce": "E-handel",
-  project_management: "Prosjektstyring",
-  development: "Utvikling",
-  analytics: "Analyse",
+  crm: "CRM – Kundehåndtering",
+  erp: "ERP – Økonomistyring og ressursplanlegging",
+  hr: "HR – Personal og lønn",
+  productivity: "Produktivitet og kontor",
+  communication: "Kommunikasjon og samhandling",
+  storage: "Fil- og dokumentlagring",
+  security: "Sikkerhet og IAM",
+  monitoring: "Overvåkning og logging",
+  finance: "Finans og regnskap",
+  marketing: "Markedsføring og kampanje",
+  "e-commerce": "E-handel og betaling",
+  project_management: "Prosjekt- og oppgavestyring",
+  development: "Utvikling og DevOps",
+  analytics: "Analyse og BI",
   other: "Annet",
 };
+
+type DeliveryModel = "saas" | "on_prem" | "hybrid" | "private_cloud" | "open_source" | "other";
+
+const DELIVERY_MODELS: { key: DeliveryModel; label: string; description: string; icon: typeof Database }[] = [
+  { key: "saas", label: "SaaS / Sky", description: "Multi-tenant, driftet av leverandør", icon: Cloud },
+  { key: "on_prem", label: "On-prem", description: "Installert i egen infrastruktur", icon: Server },
+  { key: "hybrid", label: "Hybrid", description: "Både sky og lokal komponent", icon: Activity },
+  { key: "private_cloud", label: "Privat sky", description: "Single-tenant hos leverandør", icon: Hash },
+  { key: "open_source", label: "Open source", description: "Selv-hostet, ingen leverandøravtale", icon: Globe },
+  { key: "other", label: "Annet", description: "Spesifiser", icon: HelpCircle },
+];
+
+type VendorRole = "software" | "service" | "infrastructure" | "consultant" | "reseller";
+
+const VENDOR_ROLES: { key: VendorRole; label: string }[] = [
+  { key: "software", label: "Programvareleverandør" },
+  { key: "service", label: "Tjenesteleverandør" },
+  { key: "infrastructure", label: "Infrastrukturleverandør" },
+  { key: "consultant", label: "Konsulent / rådgiver" },
+  { key: "reseller", label: "Reseller / distributør" },
+];
 
 const STEPS: { key: WizardStep; label: string }[] = [
   { key: "search", label: "Søk" },
