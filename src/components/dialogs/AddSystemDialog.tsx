@@ -13,6 +13,8 @@ import {
   ChevronRight, ChevronLeft, Sparkles, Shield, User, Building
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useVendorMatch, type VendorMatchCandidate } from "@/hooks/useVendorMatch";
+import { VendorLinkStep } from "./VendorLinkStep";
 
 interface AddSystemDialogProps {
   open: boolean;
@@ -20,7 +22,7 @@ interface AddSystemDialogProps {
   onSystemAdded: (status?: string) => void;
 }
 
-type WizardStep = "search" | "confirm" | "category" | "risk" | "contact";
+type WizardStep = "search" | "confirm" | "vendor" | "category" | "risk" | "contact";
 
 interface TrustEngineResult {
   name: string;
@@ -44,6 +46,7 @@ interface WebLookupResult {
   vendor_country?: string;
   is_data_processor?: boolean;
   gdpr_note?: string;
+  parent_vendor?: string;
   confidence: string;
 }
 
@@ -68,6 +71,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 const STEPS: { key: WizardStep; label: string }[] = [
   { key: "search", label: "Søk" },
   { key: "confirm", label: "Bekreft" },
+  { key: "vendor", label: "Leverandør" },
   { key: "category", label: "Kategori" },
   { key: "risk", label: "Risiko" },
   { key: "contact", label: "Kontakt" },
@@ -95,6 +99,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
     description: "",
     category: "",
     vendor: "",
+    vendor_asset_id: "" as string,
     risk_level: "",
     status: "in_use",
     url: "",
@@ -118,6 +123,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         description: "",
         category: "",
         vendor: "",
+        vendor_asset_id: "",
         risk_level: "",
         status: "in_use",
         url: "",
@@ -229,6 +235,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         description: formData.description || null,
         category: formData.category || null,
         vendor: formData.vendor || null,
+        vendor_asset_id: formData.vendor_asset_id || null,
         risk_level: formData.risk_level || null,
         status: formData.status,
         url: formData.url || null,
@@ -237,7 +244,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         contact_email: formData.contact_email || null,
       };
 
-      const { error } = await supabase.from("systems").insert([insertData]);
+      const { error } = await supabase.from("systems").insert([insertData as never]);
       if (error) throw error;
 
       // Update onboarding progress
@@ -314,6 +321,59 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
     }
   };
 
+  // Vendor matching for the "vendor" step
+  const vendorMatch = useVendorMatch({
+    enabled: step === "vendor",
+    vendorName: formData.vendor,
+    parentVendor: webResult?.parent_vendor,
+  });
+
+  // Auto-skip vendor step if no candidate at all
+  useEffect(() => {
+    if (
+      step === "vendor" &&
+      !vendorMatch.isLoading &&
+      !vendorMatch.exact &&
+      !vendorMatch.suggested &&
+      !vendorMatch.parentKnown
+    ) {
+      setStep("category");
+    }
+  }, [step, vendorMatch.isLoading, vendorMatch.exact, vendorMatch.suggested, vendorMatch.parentKnown]);
+
+  const handleLinkExistingVendor = (vendor: VendorMatchCandidate) => {
+    setFormData((prev) => ({ ...prev, vendor: vendor.name, vendor_asset_id: vendor.id }));
+    toast({
+      title: "Koblet til leverandør",
+      description: `${formData.name || "Systemet"} er koblet til ${vendor.name}.`,
+    });
+    setStep("category");
+  };
+
+  const handleCreateAndLinkVendor = async (parentName: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("assets")
+        .insert([{ name: parentName, asset_type: "vendor" }])
+        .select("id, name")
+        .single();
+      if (error) throw error;
+      setFormData((prev) => ({ ...prev, vendor: data.name, vendor_asset_id: data.id }));
+      toast({
+        title: "Leverandør opprettet",
+        description: `${parentName} er lagt til i registeret og koblet til systemet.`,
+      });
+      setStep("category");
+    } catch (e) {
+      console.error("Create vendor error:", e);
+      toast({
+        title: "Kunne ikke opprette leverandør",
+        description: "Prøv igjen, eller hopp over og koble senere.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -325,6 +385,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
           <DialogDescription>
             {step === "search" && "Søk etter systemet i vårt bibliotek eller på nett."}
             {step === "confirm" && "Bekreft at dette er riktig system."}
+            {step === "vendor" && "Vi har funnet leverandøren — vil du koble systemet?"}
             {step === "category" && "AI har foreslått en kategori — juster om nødvendig."}
             {step === "risk" && "Angi risikonivå og kritikalitet for systemet."}
             {step === "contact" && "Legg til kontaktinformasjon (valgfritt)."}
@@ -527,11 +588,23 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <Button variant="outline" onClick={() => setStep("search")}>
                 <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
               </Button>
-              <Button onClick={() => setStep("category")} disabled={!formData.name.trim()}>
+              <Button onClick={() => setStep("vendor")} disabled={!formData.name.trim()}>
                 Neste<ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
           </div>
+        )}
+
+        {/* Step 2b: Vendor link */}
+        {step === "vendor" && (
+          <VendorLinkStep
+            vendorName={formData.vendor}
+            match={vendorMatch}
+            onLinkExisting={handleLinkExistingVendor}
+            onCreateAndLink={handleCreateAndLinkVendor}
+            onSkip={() => setStep("category")}
+            onBack={() => setStep("confirm")}
+          />
         )}
 
         {/* Step 3: Category (AI-suggested) */}
@@ -569,7 +642,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             )}
 
             <div className="flex gap-2 justify-end pt-2">
-              <Button variant="outline" onClick={() => setStep("confirm")}>
+              <Button variant="outline" onClick={() => setStep("vendor")}>
                 <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
               </Button>
               <Button onClick={() => setStep("risk")}>
