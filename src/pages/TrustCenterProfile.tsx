@@ -1243,16 +1243,24 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 {publishSubTab === "link" && (
                   <div className="space-y-5">
                     <Card className="p-6 space-y-4">
-                      <div className="space-y-1">
-                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                          <Link2 className="h-4 w-4 text-primary" />
-                          {isNb ? "Din offentlige Trust Center-lenke" : "Your public Trust Center link"}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {isNb
-                            ? "Dette er din unike adresse – som en LinkedIn-profil for virksomhetens sikkerhet."
-                            : "This is your unique address – like a LinkedIn profile for your organization's security posture."}
-                        </p>
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="space-y-1">
+                          <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                            <Link2 className="h-4 w-4 text-primary" />
+                            {isNb ? "Din offentlige Trust Center-lenke" : "Your public Trust Center link"}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {isNb
+                              ? "Dette er din unike adresse – som en LinkedIn-profil for virksomhetens sikkerhet."
+                              : "This is your unique address – like a LinkedIn profile for your organization's security posture."}
+                          </p>
+                        </div>
+                        {asset?.id && (
+                          <VisibilitySelector
+                            assetId={asset.id}
+                            current={getVisibilityFromAsset(asset as any)}
+                          />
+                        )}
                       </div>
 
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-1">
