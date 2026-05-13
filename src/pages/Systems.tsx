@@ -471,7 +471,7 @@ export default function Systems() {
     return (
       <div className="border border-border rounded-lg overflow-hidden bg-card">
         {/* Table header */}
-        <div className="hidden sm:grid sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(160px,1.2fr)_60px] gap-x-4 px-4 py-2.5 border-b border-border bg-muted/40 text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="hidden sm:grid sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(110px,0.9fr)_minmax(160px,1.2fr)_60px] gap-x-4 px-4 py-2.5 border-b border-border bg-muted/40 text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
           <span>System</span>
           <span>Type</span>
           <span className="flex items-center gap-1">
@@ -493,6 +493,17 @@ export default function Systems() {
                   <Info className="h-3 w-3 cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent><p>Hvor kritisk dette systemet er for virksomheten — du setter dette selv. Risiko beregnes separat av Mynder.</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </span>
+          <span className="flex items-center gap-1">
+            Prioritet
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3 w-3 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent><p>Lara foreslår basert på risiko og kritikalitet. Eier kan overstyre med begrunnelse.</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </span>
