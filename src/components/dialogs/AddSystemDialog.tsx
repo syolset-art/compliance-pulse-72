@@ -630,7 +630,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             )}
 
             <div className="flex gap-2 justify-end pt-2">
-              <Button variant="outline" onClick={() => setStep("confirm")}>
+              <Button variant="outline" onClick={() => setStep("vendor")}>
                 <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
               </Button>
               <Button onClick={() => setStep("risk")}>
