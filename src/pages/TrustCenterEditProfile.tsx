@@ -30,6 +30,7 @@ import { ContactsSection } from "@/components/trust-center/edit/ContactsSection"
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
 import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
+import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
