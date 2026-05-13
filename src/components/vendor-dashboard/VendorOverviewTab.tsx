@@ -435,9 +435,9 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
             ))}
           </div>
 
-          <h2 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
-            <Globe className="h-3.5 w-3.5" /> Geografi
-          </h2>
+          <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+            <Globe className="h-3.5 w-3.5" aria-hidden="true" /> Geografi
+          </h3>
           <div className="space-y-1.5">
             {countryBreakdown.map(c => (
               <div key={c.country} className="flex items-center justify-between text-xs">
