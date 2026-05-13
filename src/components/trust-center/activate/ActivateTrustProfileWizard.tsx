@@ -40,9 +40,9 @@ interface Props {
   initialMaturity?: MaturityAnswers;
 }
 
-type Step = 0 | 1 | 2 | 3 | 4 | 5;
-const TOTAL_STEPS = 6;
-const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter"];
+type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+const TOTAL_STEPS = 7;
+const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter", "Synlighet"];
 
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline,
