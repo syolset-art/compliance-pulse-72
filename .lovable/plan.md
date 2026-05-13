@@ -1,63 +1,93 @@
 ## Mål
 
-Når brukeren legger til et nytt system i `AddSystemDialog`, skal Mynder undersøke om det allerede finnes en leverandør i registeret som er «mor»/eier av systemet (f.eks. Microsoft → Teams, Google → Workspace). Hvis ja, vises et kontekstuelt kort der brukeren kan koble systemet til leverandøren med ett klikk, med tydelig forklaring av fordelen.
+Når en leverandør legges til, skal Mynder automatisk lete etter eksisterende systemer og andre assets som ser ut til å høre sammen med leverandøren. Funnene presenteres for brukeren som kan godkjenne hvilke som skal kobles, og koblingene lagres i `asset_relationships`.
 
-## Brukeropplevelse
+## Når skjer kartleggingen
 
-Nytt mellomtrinn **«Leverandør»** legges til mellom *Bekreft* og *Kategori* i wizarden. Trinnet vises kun hvis vi har funnet kandidater — ellers hoppes det automatisk over (ingen ekstra friksjon).
+Rett **etter** at leverandøren er opprettet (`createVendor.onSuccess` i `AddVendorDialog.tsx`). Vi legger ikke et nytt wizard-steg foran lagringen — leverandøren skal først eksistere så vi har en `target_asset_id` å koble mot.
 
-Tre tilstander:
-
-1. **Eksakt match funnet** (f.eks. `formData.vendor` = "Microsoft" og leverandør «Microsoft AS» finnes i registeret)
-   - Kort med leverandørens logo, navn, kategori og risikoscore
-   - Primær-CTA «Koble til [Leverandør]» (mynder-blue, pille-form)
-   - Sekundær «Hopp over»
-   - Forklaringsboks: «Når systemet er koblet til leverandøren arver det leverandørens TPRM-status, dokumenter (DPA, ISO 27001, SOC 2) og overvåkning. Du slipper å laste opp samme dokumentasjon to ganger, og varsler om utløp eller hendelser hos leverandøren treffer automatisk dette systemet.»
-
-2. **Sannsynlig match** (fuzzy/AI-forslag, f.eks. brukeren skrev «Teams» og Lara gjenkjenner Microsoft som mor)
-   - Samme kort, men med «Lara foreslår»-badge og lavere visuell vekt
-   - CTA «Bekreft kobling» + «Det er en annen leverandør»
-
-3. **Ingen leverandør i registeret, men kjent mor finnes** (Lara vet at Teams = Microsoft, men Microsoft er ikke registrert)
-   - Banner: «Microsoft er ikke i leverandørregisteret ditt enda»
-   - CTA «Legg til Microsoft som leverandør og koble» (oppretter leverandør + kobling i én operasjon)
-   - Sekundær «Bare lagre systemet»
-
-Etter valg går wizarden videre til *Kategori*.
-
-## Teknisk
-
-**Datakilde for kandidater**
-
-- Eksakt/fuzzy: `select id, name, logo_url, vendor_category, risk_score, tprm_status from assets where asset_type='vendor' and (lower(name) ilike %vendor% or lower(name) ilike %parent_brand%)`
-- Mor-utledning: bruk eksisterende `webResult.vendor` fra `lookup-system` edge function. Utvid prompten til å returnere `parent_vendor` (offisielt morselskap, f.eks. Teams → "Microsoft Corporation"). Denne brukes som søkenøkkel mot `assets`.
-
-**Lagring av koblingen**
-
-- Bruk eksisterende `asset_relationships` (source=system, target=vendor, relationship_type=`provided_by`).
-- Sett også `assets.vendor` (tekstfeltet) på systemraden for visning i lister.
-
-**Komponenter**
-
-- Ny `src/components/dialogs/VendorLinkStep.tsx` — håndterer de tre tilstandene over.
-- Ny hook `src/hooks/useVendorMatch.ts` — tar `{ vendorName, parentVendor }`, returnerer `{ exact, suggested, parentKnown, isLoading }`.
-- `AddSystemDialog.tsx` — legg til `WizardStep = "vendor"`, kall hook etter «Bekreft», skip step hvis tom respons. Ved kobling: opprett rad i `asset_relationships` etter `insert` på systems.
-
-**Edge function**
-
-- `lookup-system`: utvid JSON-skjema med `parent_vendor: string | null` og `parent_vendor_reason: string`.
-
-## ASCII-flyt
+Flyt:
 
 ```text
-Søk → Bekreft → [Leverandør?] → Kategori → Risiko → Kontakt
-                    │
-        ┌───────────┼────────────┐
-   eksakt match  Lara-forslag  ukjent → tilby å opprette
+Bekreft → [lagre vendor] → Kartlegging (ny dialog) → ferdig
+                                  │
+                                  └─ hvis ingen treff: hopp over og lukk
 ```
 
-## Avgrensninger
+## Hva regnes som et treff
 
-- Ingen endringer i leverandør-onboarding eller TPRM-logikk i denne iterasjonen — kun kobling.
-- Mynder-blue `#4F51B6` på primær-CTA, pille-form, Mulish-font (eksisterende design-tokens).
-- Hvis brukeren hopper over, lagres systemet uten kobling og Lara legger forslaget i innboksen for senere.
+Vi gjør én spørring mot `assets` (alle typer unntatt `vendor`) og scorer hver kandidat:
+
+1. **Sterk match (auto-foreslått, hake på):**
+   - `assets.vendor` ≈ vendornavn (case/whitespace-normalisert, fjerner AS/Inc/Ltd osv. — gjenbruker `normalize()` fra `useVendorMatch.ts`)
+   - `assets.name` = vendornavn (f.eks. system kalt "Microsoft 365" når vi legger til "Microsoft")
+2. **Mulig match (vist, hake av):**
+   - `assets.name` inneholder vendornavn, eller vendornavn inneholder `assets.name`
+   - `assets.description` nevner vendornavnet
+   - `assets.url`-domene matcher vendor-URL
+3. **Ignoreres:** treff med score under terskel, eller assets som allerede har en `asset_relationships`-rad mot denne vendoren.
+
+Vi grupperer resultater per `asset_type` (System, Enhet, Prosess, …) i listen.
+
+## Ny komponent: `VendorRelationshipDiscoveryDialog.tsx`
+
+Plassering: `src/components/dialogs/VendorRelationshipDiscoveryDialog.tsx`
+
+Props:
+- `open`, `onOpenChange`
+- `vendorId: string`
+- `vendorName: string`
+- `onComplete?: () => void`
+
+Innhold:
+- Header: "Vi fant {N} mulige koblinger til {vendorName}"
+- Kort forklaring av hvorfor koblinger er nyttige (TPRM-arv, automatisk varsling ved DPA-utløp, oversikt i Supply Chain).
+- Liste gruppert per asset-type. Hver rad:
+  - Ikon + navn + meta (kategori, work area)
+  - Badge: "Sterk match" (mynder-blue) eller "Mulig match" (muted)
+  - Kort begrunnelse: "Oppgitt leverandør: Microsoft" / "Navn ligner"
+  - Checkbox (default på for sterke, av for mulige)
+- Footer-knapper:
+  - **"Opprett {n} koblinger"** (mynder-blue, pill, primær)
+  - "Hopp over" (ghost)
+
+Tomt resultat → vi viser ikke dialogen i det hele tatt; bare en kort toast: "Ingen interne koblinger funnet".
+
+## Lagring av koblinger
+
+For hver hakede rad: insert i `asset_relationships`:
+
+```text
+source_asset_id  = asset.id (system/enhet/…)
+target_asset_id  = vendor.id
+relationship_type = 'provided_by'
+description      = 'Auto-foreslått ved leverandør-onboarding'
+```
+
+Gjøres i én batch-insert. Toast: "{n} koblinger opprettet". Invaliderer `["asset_relationships"]` og `["assets"]`.
+
+## Endringer i `AddVendorDialog.tsx`
+
+- I `createVendor.onSuccess`: i stedet for å lukke dialogen umiddelbart i single-mode, sett `discoveryOpen=true` og `discoveryVendorId/Name`, og la `VendorRelationshipDiscoveryDialog` stå for resten. Når den lukkes → `onOpenChange(false)` + `resetForm()`.
+- Multi-mode (bulk import) påvirkes ikke i denne iterasjonen.
+
+## Ny hook: `useVendorRelationshipCandidates.ts`
+
+Plassering: `src/hooks/useVendorRelationshipCandidates.ts`
+
+- Tar `{ vendorId, vendorName, vendorUrl?, enabled }`.
+- Henter `assets` (ikke `vendor`-typer) og eksisterende `asset_relationships` der target = vendorId.
+- Returnerer `{ strong: Candidate[], possible: Candidate[], isLoading }`.
+- Bruker samme `normalize()` som `useVendorMatch`.
+
+## Tekniske detaljer
+
+- Ingen DB-endringer. `asset_relationships` finnes allerede.
+- All tekst på norsk, i Mynders Apple-minimal stil. Mynder-blue `#5A3184` på primær CTA, pill-knapper.
+- Kun frontend + ny hook + ny dialogkomponent.
+
+## Filer som berøres
+
+- `src/components/dialogs/AddVendorDialog.tsx` (liten endring i onSuccess + render ny dialog)
+- `src/components/dialogs/VendorRelationshipDiscoveryDialog.tsx` (ny)
+- `src/hooks/useVendorRelationshipCandidates.ts` (ny)
