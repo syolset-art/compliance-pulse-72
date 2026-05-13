@@ -222,19 +222,6 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
   return (
     <div className="space-y-6">
 
-      {/* Lara dashboard insights — prioritized recommendations */}
-      <VendorLaraInsightsPanel
-        vendors={vendors}
-        expiredDocVendorIds={Object.keys(expiredCounts).filter((id) => vendors.some((v) => v.id === id))}
-        pendingInboxVendorIds={Object.keys(inboxCounts).filter((id) => vendors.some((v) => v.id === id))}
-        onSendRequest={(vendorIds, requestType, categoryKey) => {
-          setPreselectedVendorIds(vendorIds);
-          setPreselectedRequestType(requestType);
-          setPreselectedCategoryKey(categoryKey);
-          setRequestWizardOpen(true);
-        }}
-      />
-
       {/* KPI Row */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <Card variant="flat" className="p-4">
