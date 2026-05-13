@@ -91,7 +91,10 @@ export default function VendorDashboard() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <h1 className="text-xl md:text-2xl font-bold text-primary">{t("nav.vendors", "Leverandører")}</h1>
-              <span className="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-muted text-muted-foreground text-sm font-medium">
+              <span
+                className="inline-flex items-center justify-center min-w-7 h-7 px-2 rounded-full bg-muted text-foreground text-sm font-semibold"
+                aria-label={`${vendors.length} ${t("nav.vendors", "leverandører")}`}
+              >
                 {vendors.length}
               </span>
             </div>
@@ -106,7 +109,7 @@ export default function VendorDashboard() {
                 }}
                 className="gap-2"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-4 w-4" aria-hidden="true" />
                 {t("vendorDashboard.addVendor", "Legg til leverandør")}
               </Button>
             </div>
@@ -122,17 +125,17 @@ export default function VendorDashboard() {
 
           <Tabs defaultValue="overview" className="space-y-4">
             <div className="flex items-center justify-between">
-              <TabsList className="h-9 p-0.5">
-                <TabsTrigger value="overview" className="text-xs px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
-                <TabsTrigger value="all" className="text-xs px-3 gap-1.5">
+              <TabsList className="h-10 p-0.5" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
+                <TabsTrigger value="overview" className="text-sm px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
+                <TabsTrigger value="all" className="text-sm px-3 gap-1.5">
                   {t("vendorDashboard.tabs.all")}
-                  <span className="inline-flex items-center justify-center min-w-5 h-4 px-1.5 rounded-full bg-muted text-muted-foreground text-[10px] font-medium">
+                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-muted text-foreground text-xs font-semibold">
                     {vendors.length}
                   </span>
                 </TabsTrigger>
-                <TabsTrigger value="map" className="text-xs px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
-                <TabsTrigger value="supplyChain" className="text-xs px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
-                <TabsTrigger value="compare" className="text-xs px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
+                <TabsTrigger value="map" className="text-sm px-3">{t("vendorDashboard.tabs.map")}</TabsTrigger>
+                <TabsTrigger value="supplyChain" className="text-sm px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
+                <TabsTrigger value="compare" className="text-sm px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
               </TabsList>
               <div className="flex items-center gap-2">
                 <VendorPortfolioActions vendors={vendors} />
