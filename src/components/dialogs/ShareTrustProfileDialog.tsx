@@ -193,31 +193,6 @@ export default function ShareTrustProfileDialog({
               maxLength={255}
               className="flex-1"
             />
-            <Select
-              value={typeDraft}
-              onValueChange={(v) => {
-                setTypeDraft(v as AccessType);
-                setTypeManuallyChosen(true);
-              }}
-            >
-              <SelectTrigger className="w-[120px] shrink-0">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="internal">
-                  <span className="inline-flex items-center gap-2">
-                    <Building2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    {isNb ? "Intern" : "Internal"}
-                  </span>
-                </SelectItem>
-                <SelectItem value="external">
-                  <span className="inline-flex items-center gap-2">
-                    <Globe className="h-3.5 w-3.5" aria-hidden="true" />
-                    {isNb ? "Ekstern" : "External"}
-                  </span>
-                </SelectItem>
-              </SelectContent>
-            </Select>
             <Button
               type="button"
               size="icon"
@@ -229,6 +204,23 @@ export default function ShareTrustProfileDialog({
               <Plus className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
+          {detectedType && !draftDuplicate && (
+            <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1.5">
+              {detectedType === "internal" ? (
+                <>
+                  <Building2 className="h-3 w-3" aria-hidden="true" />
+                  {isNb
+                    ? `Oppdaget som intern (samme domene som ${orgDomain})`
+                    : `Detected as internal (same domain as ${orgDomain})`}
+                </>
+              ) : (
+                <>
+                  <Globe className="h-3 w-3" aria-hidden="true" />
+                  {isNb ? "Oppdaget som ekstern" : "Detected as external"}
+                </>
+              )}
+            </p>
+          )}
           {emailDraft && !draftValid && (
             <p className="text-xs text-destructive">{isNb ? "Ugyldig e-postadresse" : "Invalid email address"}</p>
           )}
