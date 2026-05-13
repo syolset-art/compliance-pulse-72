@@ -468,13 +468,15 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
               const score = v.compliance_score || 0;
               const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
               return (
-                <div
+                <button
                   key={v.id}
+                  type="button"
                   onClick={() => navigate(`/assets/${v.id}`)}
-                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                  aria-label={`Åpne leverandør ${v.name}, score ${score} prosent`}
+                  className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
                 >
                   <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Building2 className="h-4 w-4 text-primary" />
+                    <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
@@ -483,10 +485,10 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                       {v.risk_level && (
                         <Badge
                           variant="outline"
-                          className={`text-[13px] h-4 ${
-                            v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/20" :
-                            v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/20" :
-                            "bg-success/10 text-success border-success/20"
+                          className={`text-[13px] h-5 ${
+                            v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/30" :
+                            v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/30" :
+                            "bg-success/10 text-success border-success/30"
                           }`}
                         >
                           {{ high: "Høy", medium: "Middels", low: "Lav" }[v.risk_level] || v.risk_level}
@@ -496,9 +498,9 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
