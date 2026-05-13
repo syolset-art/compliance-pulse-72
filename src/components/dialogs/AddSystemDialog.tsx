@@ -44,6 +44,7 @@ interface WebLookupResult {
   vendor_country?: string;
   is_data_processor?: boolean;
   gdpr_note?: string;
+  parent_vendor?: string;
   confidence: string;
 }
 
