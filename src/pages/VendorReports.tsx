@@ -178,7 +178,12 @@ export default function VendorReports() {
         ))}
       </div>
 
-      <ShareReportDialog open={shareOpen} onOpenChange={setShareOpen} />
+      <ShareReportDialog
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        frameworkName="Leverandørportefølje"
+        frameworkId="vendor-portfolio"
+      />
       <BulkGapAnalysisDialog open={gapOpen} onOpenChange={setGapOpen} vendors={vendors} />
     </div>
   );
