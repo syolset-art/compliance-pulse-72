@@ -168,6 +168,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         contact_email: "",
         delivery_model: "",
         vendor_roles: [],
+        priority: "",
+        priority_reason: "",
       });
     }
   }, [open]);
