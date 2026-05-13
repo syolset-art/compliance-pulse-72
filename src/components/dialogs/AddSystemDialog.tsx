@@ -10,8 +10,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Loader2, Search, Globe, Database, CheckCircle2, AlertCircle, 
-  ChevronRight, ChevronLeft, Sparkles, Shield, User, Building
+  ChevronRight, ChevronLeft, Sparkles, Shield, User, Building,
+  Cloud, Server, Activity, Hash, HelpCircle, Plus, Circle, Check
 } from "lucide-react";
+import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Progress } from "@/components/ui/progress";
 import { useVendorMatch, type VendorMatchCandidate } from "@/hooks/useVendorMatch";
 import { VendorLinkStep } from "./VendorLinkStep";
@@ -51,22 +53,43 @@ interface WebLookupResult {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  crm: "CRM",
-  erp: "ERP",
-  hr: "HR",
-  productivity: "Produktivitet",
-  communication: "Kommunikasjon",
-  storage: "Lagring",
-  security: "Sikkerhet",
-  monitoring: "Overvåkning",
-  finance: "Finans",
-  marketing: "Markedsføring",
-  "e-commerce": "E-handel",
-  project_management: "Prosjektstyring",
-  development: "Utvikling",
-  analytics: "Analyse",
+  crm: "CRM – Kundehåndtering",
+  erp: "ERP – Økonomistyring og ressursplanlegging",
+  hr: "HR – Personal og lønn",
+  productivity: "Produktivitet og kontor",
+  communication: "Kommunikasjon og samhandling",
+  storage: "Fil- og dokumentlagring",
+  security: "Sikkerhet og IAM",
+  monitoring: "Overvåkning og logging",
+  finance: "Finans og regnskap",
+  marketing: "Markedsføring og kampanje",
+  "e-commerce": "E-handel og betaling",
+  project_management: "Prosjekt- og oppgavestyring",
+  development: "Utvikling og DevOps",
+  analytics: "Analyse og BI",
   other: "Annet",
 };
+
+type DeliveryModel = "saas" | "on_prem" | "hybrid" | "private_cloud" | "open_source" | "other";
+
+const DELIVERY_MODELS: { key: DeliveryModel; label: string; description: string; icon: typeof Database }[] = [
+  { key: "saas", label: "SaaS / Sky", description: "Multi-tenant, driftet av leverandør", icon: Cloud },
+  { key: "on_prem", label: "On-prem", description: "Installert i egen infrastruktur", icon: Server },
+  { key: "hybrid", label: "Hybrid", description: "Både sky og lokal komponent", icon: Activity },
+  { key: "private_cloud", label: "Privat sky", description: "Single-tenant hos leverandør", icon: Hash },
+  { key: "open_source", label: "Open source", description: "Selv-hostet, ingen leverandøravtale", icon: Globe },
+  { key: "other", label: "Annet", description: "Spesifiser", icon: HelpCircle },
+];
+
+type VendorRole = "software" | "service" | "infrastructure" | "consultant" | "reseller";
+
+const VENDOR_ROLES: { key: VendorRole; label: string }[] = [
+  { key: "software", label: "Programvareleverandør" },
+  { key: "service", label: "Tjenesteleverandør" },
+  { key: "infrastructure", label: "Infrastrukturleverandør" },
+  { key: "consultant", label: "Konsulent / rådgiver" },
+  { key: "reseller", label: "Reseller / distributør" },
+];
 
 const STEPS: { key: WizardStep; label: string }[] = [
   { key: "search", label: "Søk" },
@@ -106,6 +129,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
     system_manager: "",
     contact_person: "",
     contact_email: "",
+    delivery_model: "" as DeliveryModel | "",
+    vendor_roles: [] as VendorRole[],
   });
 
   // Reset when dialog opens/closes
@@ -130,6 +155,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         system_manager: "",
         contact_person: "",
         contact_email: "",
+        delivery_model: "",
+        vendor_roles: [],
       });
     }
   }, [open]);
@@ -386,7 +413,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             {step === "search" && "Søk etter systemet i vårt bibliotek eller på nett."}
             {step === "confirm" && "Bekreft at dette er riktig system."}
             {step === "vendor" && "Vi har funnet leverandøren — vil du koble systemet?"}
-            {step === "category" && "AI har foreslått en kategori — juster om nødvendig."}
+            {step === "category" && "Lara har foreslått klassifisering — juster om nødvendig."}
             {step === "risk" && "Angi risikonivå og kritikalitet for systemet."}
             {step === "contact" && "Legg til kontaktinformasjon (valgfritt)."}
           </DialogDescription>
@@ -609,19 +636,32 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
 
         {/* Step 3: Category (AI-suggested) */}
         {step === "category" && (
-          <div className="space-y-4">
-            {webResult?.category_reason && (
-              <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
-                <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium">AI-forslag</p>
-                  <p className="text-xs text-muted-foreground">{webResult.category_reason}</p>
+          <div className="space-y-5">
+            {/* Lara hero card */}
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
+              <LaraAvatar size={32} />
+              <div className="flex-1 space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-foreground">Lara</span>
+                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] bg-primary/10 text-primary border-primary/20">
+                    Mynder-agent
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">· analyserte 4 kilder</span>
                 </div>
+                <p className="text-sm text-foreground leading-relaxed">
+                  {webResult?.category_reason
+                    ? webResult.category_reason
+                    : `${formData.name || "Systemet"} tilbyr et bredt spekter av forretningssystemer. Forslagene under er basert på offentlig tilgjengelig informasjon — juster om noe ikke stemmer.`}
+                </p>
               </div>
-            )}
+            </div>
 
+            {/* Funksjonell kategori */}
             <div className="space-y-2">
-              <Label>Kategori</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Funksjonell kategori</Label>
+                <span className="text-xs text-muted-foreground">Hva systemet brukes til</span>
+              </div>
               <Select value={formData.category} onValueChange={(v) => setFormData(prev => ({ ...prev, category: v }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Velg kategori" />
@@ -634,6 +674,88 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               </Select>
             </div>
 
+            {/* Leveransemodell */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Leveransemodell</Label>
+                <span className="text-xs text-muted-foreground">Hvordan systemet driftes</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {DELIVERY_MODELS.map(({ key, label, description, icon: Icon }) => {
+                  const selected = formData.delivery_model === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, delivery_model: key }))}
+                      className={`text-left p-3 rounded-lg border transition-all ${
+                        selected
+                          ? "border-primary bg-primary/5 ring-1 ring-primary/30"
+                          : "border-border hover:border-primary/40 hover:bg-muted/30"
+                      }`}
+                      aria-pressed={selected}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon className={`h-4 w-4 ${selected ? "text-primary" : "text-muted-foreground"}`} aria-hidden="true" />
+                        <span className="text-sm font-semibold text-foreground">{label}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">{description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Valget påvirker hvilke kontroller og dokumentasjonskrav som er relevante (DPA, datalokasjon, oppdateringspraksis).
+              </p>
+            </div>
+
+            {/* Leverandørrolle */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Leverandørrolle</Label>
+                <span className="text-xs text-muted-foreground">Velg én eller flere</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {VENDOR_ROLES.map(({ key, label }) => {
+                  const selected = formData.vendor_roles.includes(key);
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setFormData(prev => ({
+                        ...prev,
+                        vendor_roles: selected
+                          ? prev.vendor_roles.filter(r => r !== key)
+                          : [...prev.vendor_roles, key],
+                      }))}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-all ${
+                        selected
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border text-foreground hover:border-primary/40 hover:bg-muted/30"
+                      }`}
+                      aria-pressed={selected}
+                    >
+                      {selected
+                        ? <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        : <Circle className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />}
+                      {label}
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-border text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all"
+                  onClick={() => { /* future: open custom role input */ }}
+                >
+                  <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                  Legg til egen
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Samme leverandør kan ha flere roller (f.eks. Microsoft leverer både programvare og infrastruktur).
+              </p>
+            </div>
+
             {webResult?.ai_features && (
               <div className="space-y-1">
                 <Label className="text-xs text-muted-foreground">AI-funksjoner identifisert</Label>
@@ -641,13 +763,19 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               </div>
             )}
 
-            <div className="flex gap-2 justify-end pt-2">
-              <Button variant="outline" onClick={() => setStep("vendor")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
-              </Button>
-              <Button onClick={() => setStep("risk")}>
-                Neste<ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" aria-hidden="true" />
+                Endringer lagres automatisk
+              </span>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setStep("vendor")}>
+                  <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
+                </Button>
+                <Button onClick={() => setStep("risk")} disabled={!formData.category}>
+                  Neste<ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
             </div>
           </div>
         )}
