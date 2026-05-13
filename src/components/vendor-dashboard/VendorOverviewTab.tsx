@@ -17,7 +17,10 @@ import {
   Globe,
   Shield,
   ArrowRight,
+  Clock,
 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { nb } from "date-fns/locale";
 import {
   PieChart,
   Pie,
