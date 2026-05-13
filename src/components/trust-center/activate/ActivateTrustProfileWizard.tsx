@@ -245,7 +245,7 @@ export default function ActivateTrustProfileWizard({
     return true;
   }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => setStep((s) => (Math.min(5, s + 1) as Step));
+  const next = () => setStep((s) => (Math.min(6, s + 1) as Step));
   const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
@@ -269,7 +269,7 @@ export default function ActivateTrustProfileWizard({
     }
   };
 
-  const handlePublish = async (publishNow: boolean) => {
+  const handlePublish = async () => {
     setIsPublishing(true);
     // Run Lara "calculation" animation before actually publishing
     setIsCalculating(true);
@@ -296,14 +296,14 @@ export default function ActivateTrustProfileWizard({
       securityEmail,
       maturityAnswers,
       documents,
-      publishNow,
+      visibility,
     };
     try {
       await seedFromActivation(values);
       try { localStorage.setItem("mynder.trustprofile.activated", "1"); } catch {}
       await queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
       await queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-      toast.success(publishNow ? "Trust Profile publisert" : "Trust Profile lagret som utkast");
+      toast.success("Trust Profile aktivert");
       onOpenChange(false);
       onCompleted?.();
     } catch (e: any) {
