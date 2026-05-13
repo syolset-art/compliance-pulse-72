@@ -372,7 +372,13 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         {/* Risk Distribution Pie */}
         <Card variant="flat" className="p-4">
           <h2 className="text-sm font-semibold text-foreground mb-3">Risikofordeling</h2>
-          <div className="h-[160px]">
+          <div
+            className="h-[160px]"
+            role="img"
+            aria-label={`Risikofordeling: ${riskDistribution
+              .map(d => `${({ low: "Lav", medium: "Middels", high: "Høy", unknown: "Ukjent" } as Record<string, string>)[d.name]} ${d.value}`)
+              .join(", ")}`}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
