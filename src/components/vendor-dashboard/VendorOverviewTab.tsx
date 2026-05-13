@@ -223,33 +223,8 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
   return (
     <div className="space-y-6">
 
-      {/* KPI Row */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <Card variant="flat" className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="h-4 w-4 text-success" />
-            <span className="text-xs text-muted-foreground">Snitt compliance</span>
-          </div>
-          <p className="text-2xl font-bold text-success">{metrics.avgScore}%</p>
-          <Progress value={metrics.avgScore} className="h-1.5 mt-2" />
-        </Card>
-        <Card variant="flat" className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <AlertTriangle className="h-4 w-4 text-destructive" />
-            <span className="text-xs text-muted-foreground">Høy risiko</span>
-          </div>
-          <p className="text-2xl font-bold text-destructive">{metrics.highRisk}</p>
-          <p className="text-[13px] text-muted-foreground mt-1">{metrics.missingDPA} mangler DPA</p>
-        </Card>
-        <Card variant="flat" className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Shield className="h-4 w-4 text-warning" />
-            <span className="text-xs text-muted-foreground">Krever oppfølging</span>
-          </div>
-          <p className="text-2xl font-bold text-warning">{totalAttention}</p>
-          <p className="text-[13px] text-muted-foreground mt-1">{metrics.withExpiredDocs} utdaterte dok.</p>
-        </Card>
-      </div>
+      {/* Lara recommendation banner — replaces noisy KPI widgets */}
+      <DashboardLaraRecommendation />
 
       {/* Recently Added + Lara Priority */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
