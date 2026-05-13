@@ -420,8 +420,10 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               className="h-8 w-8"
               onClick={() => setScoreDisplay("percent")}
               title="Vis prosent"
+              aria-label="Vis score som prosent"
+              aria-pressed={scoreDisplay === "percent"}
             >
-              <Percent className="h-3.5 w-3.5" />
+              <Percent className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
             <Button
               variant={scoreDisplay === "label" ? "secondary" : "ghost"}
@@ -429,8 +431,10 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               className="h-8 w-8"
               onClick={() => setScoreDisplay("label")}
               title="Vis nivå"
+              aria-label="Vis score som nivå"
+              aria-pressed={scoreDisplay === "label"}
             >
-              <Type className="h-3.5 w-3.5" />
+              <Type className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
           </div>
         </div>

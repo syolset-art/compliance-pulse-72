@@ -212,8 +212,8 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
   if (vendors.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground">
-        <Building2 className="h-12 w-12 mx-auto mb-4 opacity-30" />
-        <p className="text-lg mb-2">{t("vendorDashboard.noVendors", "Ingen leverandører ennå")}</p>
+        <Building2 className="h-12 w-12 mx-auto mb-4 text-muted-foreground/60" aria-hidden="true" />
+        <p className="text-lg mb-2 text-foreground">{t("vendorDashboard.noVendors", "Ingen leverandører ennå")}</p>
         <p className="text-sm">{t("vendorDashboard.noVendorsDesc", "Legg til din første leverandør for å komme i gang")}</p>
       </div>
     );
@@ -255,10 +255,10 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         {/* Recently Added */}
         <Card variant="flat" className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Clock className="h-4 w-4 text-primary" />
               Sist lagt til
-            </h3>
+            </h2>
             <Badge variant="outline" className="text-[13px]">Siste 5</Badge>
           </div>
           <div className="space-y-2">
@@ -269,13 +269,15 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                 const score = v.compliance_score || 0;
                 const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
                 return (
-                  <div
+                  <button
                     key={v.id}
+                    type="button"
                     onClick={() => navigate(`/assets/${v.id}`)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                    aria-label={`Åpne leverandør ${v.name}, compliance-score ${score} prosent`}
+                    className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
                   >
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Building2 className="h-4 w-4 text-primary" />
+                      <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
@@ -286,7 +288,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                       </p>
                     </div>
                     <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
-                  </div>
+                  </button>
                 );
               })}
           </div>
@@ -295,10 +297,10 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         {/* Lara Priority — Low Trust Score */}
         <Card variant="flat" className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
               Lara-anbefalinger
-            </h3>
+            </h2>
             <Badge variant="outline" className="text-[13px]">Lav trust score</Badge>
           </div>
           <div className="space-y-2">
@@ -310,13 +312,15 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                 const score = v.compliance_score || 0;
                 const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
                 return (
-                  <div
+                  <button
                     key={v.id}
+                    type="button"
                     onClick={() => navigate(`/assets/${v.id}`)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                    aria-label={`Åpne leverandør ${v.name}, risiko ${v.risk_level || "ukjent"}, score ${score} prosent`}
+                    className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
                   >
                     <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
-                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                      <AlertTriangle className="h-4 w-4 text-destructive" aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
@@ -325,10 +329,10 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                         {v.risk_level && (
                           <Badge
                             variant="outline"
-                            className={`text-[13px] h-4 ${
-                              v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/20" :
-                              v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/20" :
-                              "bg-success/10 text-success border-success/20"
+                            className={`text-[13px] h-5 ${
+                              v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/30" :
+                              v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/30" :
+                              "bg-success/10 text-success border-success/30"
                             }`}
                           >
                             {{ high: "Høy", medium: "Middels", low: "Lav" }[v.risk_level] || v.risk_level}
@@ -337,7 +341,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                       </div>
                     </div>
                     <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
-                  </div>
+                  </button>
                 );
               })}
             {vendors.filter((v) => (v.compliance_score || 100) < 60 || v.risk_level === "high").length === 0 && (
@@ -367,8 +371,14 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Risk Distribution Pie */}
         <Card variant="flat" className="p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Risikofordeling</h3>
-          <div className="h-[160px]">
+          <h2 className="text-sm font-semibold text-foreground mb-3">Risikofordeling</h2>
+          <div
+            className="h-[160px]"
+            role="img"
+            aria-label={`Risikofordeling: ${riskDistribution
+              .map(d => `${({ low: "Lav", medium: "Middels", high: "Høy", unknown: "Ukjent" } as Record<string, string>)[d.name]} ${d.value}`)
+              .join(", ")}`}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -407,8 +417,12 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
         {/* Category Bar Chart */}
         <Card variant="flat" className="p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Leverandørtyper</h3>
-          <div className="h-[190px]">
+          <h2 className="text-sm font-semibold text-foreground mb-3">Leverandørtyper</h2>
+          <div
+            className="h-[190px]"
+            role="img"
+            aria-label={`Leverandørtyper: ${categoryData.map(c => `${c.name} ${c.count}`).join(", ")}`}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData} layout="vertical" margin={{ left: 0, right: 12 }}>
                 <XAxis type="number" hide />
@@ -422,7 +436,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
         {/* GDPR + Geography */}
         <Card variant="flat" className="p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">GDPR-roller</h3>
+          <h2 className="text-sm font-semibold text-foreground mb-3">GDPR-roller</h2>
           <div className="space-y-3 mb-5">
             {gdprBreakdown.map(g => (
               <div key={g.key}>
@@ -436,7 +450,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
           </div>
 
           <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
-            <Globe className="h-3.5 w-3.5" /> Geografi
+            <Globe className="h-3.5 w-3.5" aria-hidden="true" /> Geografi
           </h3>
           <div className="space-y-1.5">
             {countryBreakdown.map(c => (
@@ -456,7 +470,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         {/* Lowest Compliance */}
         <Card variant="flat" className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground">Lavest compliance-score</h3>
+            <h2 className="text-sm font-semibold text-foreground">Lavest compliance-score</h2>
             <Badge variant="outline" className="text-[13px]">Topp 5</Badge>
           </div>
           <div className="space-y-2">
@@ -464,13 +478,15 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
               const score = v.compliance_score || 0;
               const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
               return (
-                <div
+                <button
                   key={v.id}
+                  type="button"
                   onClick={() => navigate(`/assets/${v.id}`)}
-                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                  aria-label={`Åpne leverandør ${v.name}, score ${score} prosent`}
+                  className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
                 >
                   <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Building2 className="h-4 w-4 text-primary" />
+                    <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
@@ -479,10 +495,10 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                       {v.risk_level && (
                         <Badge
                           variant="outline"
-                          className={`text-[13px] h-4 ${
-                            v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/20" :
-                            v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/20" :
-                            "bg-success/10 text-success border-success/20"
+                          className={`text-[13px] h-5 ${
+                            v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/30" :
+                            v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/30" :
+                            "bg-success/10 text-success border-success/30"
                           }`}
                         >
                           {{ high: "Høy", medium: "Middels", low: "Lav" }[v.risk_level] || v.risk_level}
@@ -492,9 +508,9 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -502,7 +518,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
         {/* Compliance Score Distribution */}
         <Card variant="flat" className="p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Compliance-fordeling</h3>
+          <h2 className="text-sm font-semibold text-foreground mb-3">Compliance-fordeling</h2>
           <ComplianceDistribution vendors={vendors} />
         </Card>
       </div>
