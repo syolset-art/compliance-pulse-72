@@ -34,6 +34,7 @@ import {
 } from "recharts";
 import { VendorActionCards } from "./VendorActionCards";
 import { VendorLaraInsightsPanel } from "./VendorLaraInsightsPanel";
+import { SystemsPriorityChart } from "./SystemsPriorityChart";
 import { BulkSendConfirmDialog } from "./BulkSendConfirmDialog";
 import { toast } from "sonner";
 
@@ -294,63 +295,8 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
           </div>
         </Card>
 
-        {/* Lara Priority — Low Trust Score */}
-        <Card variant="flat" className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
-              Lara-anbefalinger
-            </h2>
-            <Badge variant="outline" className="text-[13px]">Lav trust score</Badge>
-          </div>
-          <div className="space-y-2">
-            {[...vendors]
-              .filter((v) => (v.compliance_score || 100) < 60 || v.risk_level === "high")
-              .sort((a, b) => (a.compliance_score || 100) - (b.compliance_score || 100))
-              .slice(0, 5)
-              .map((v) => {
-                const score = v.compliance_score || 0;
-                const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
-                return (
-                  <button
-                    key={v.id}
-                    type="button"
-                    onClick={() => navigate(`/assets/${v.id}`)}
-                    aria-label={`Åpne leverandør ${v.name}, risiko ${v.risk_level || "ukjent"}, score ${score} prosent`}
-                    className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
-                  >
-                    <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
-                      <AlertTriangle className="h-4 w-4 text-destructive" aria-hidden="true" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
-                      <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
-                        {v.vendor_category && <span>{CATEGORY_LABELS[v.vendor_category] || v.vendor_category}</span>}
-                        {v.risk_level && (
-                          <Badge
-                            variant="outline"
-                            className={`text-[13px] h-5 ${
-                              v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/30" :
-                              v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/30" :
-                              "bg-success/10 text-success border-success/30"
-                            }`}
-                          >
-                            {{ high: "Høy", medium: "Middels", low: "Lav" }[v.risk_level] || v.risk_level}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
-                  </button>
-                );
-              })}
-            {vendors.filter((v) => (v.compliance_score || 100) < 60 || v.risk_level === "high").length === 0 && (
-              <p className="text-sm text-muted-foreground py-4 text-center">
-                Ingen leverandører med lav trust score. Bra jobbet!
-              </p>
-            )}
-          </div>
-        </Card>
+        {/* Systems by priority — replaces Lara-anbefalinger */}
+        <SystemsPriorityChart />
       </div>
 
       {/* Actionable Attention Section */}
