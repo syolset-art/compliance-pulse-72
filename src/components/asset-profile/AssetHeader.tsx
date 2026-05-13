@@ -438,8 +438,12 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
     high: { label: "Høy", dot: "bg-warning" },
     medium: { label: "Medium", dot: "bg-warning" },
     low: { label: "Lav", dot: "bg-status-closed" },
+    P0: { label: "P0 – Kritisk", dot: "bg-destructive" },
+    P1: { label: "P1 – Høy", dot: "bg-warning" },
+    P2: { label: "P2 – Medium", dot: "bg-foreground/50" },
+    P3: { label: "P3 – Lav", dot: "bg-muted-foreground/40" },
   };
-  const currentPriorityVal = (asset as any).priority as string | null;
+  const currentPriorityVal = (asset as { priority?: string | null }).priority ?? null;
   const isActive = asset.lifecycle_status === "active" || !asset.lifecycle_status;
 
   return (
