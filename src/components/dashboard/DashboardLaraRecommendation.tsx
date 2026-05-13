@@ -10,14 +10,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type Severity = "critical" | "high" | "medium";
+type Priority = 0 | 1 | 2 | 3;
 
 interface PlanTask {
   severity: Severity;
+  priority: Priority;
   vendor: string;
   category: string;
   insight: string;
   vendorPath: string;
 }
+
+const PRIORITY_META: Record<Priority, { label: string; letter: string }> = {
+  0: { label: "Kritisk", letter: "A" },
+  1: { label: "Høy", letter: "B" },
+  2: { label: "Medium", letter: "C" },
+  3: { label: "Lav", letter: "D" },
+};
 
 export function DashboardLaraRecommendation() {
   const { i18n } = useTranslation();
