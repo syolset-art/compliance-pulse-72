@@ -20,7 +20,7 @@ interface AddSystemDialogProps {
   onSystemAdded: (status?: string) => void;
 }
 
-type WizardStep = "search" | "confirm" | "category" | "risk" | "contact";
+type WizardStep = "search" | "confirm" | "vendor" | "category" | "risk" | "contact";
 
 interface TrustEngineResult {
   name: string;
