@@ -1395,6 +1395,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             </Button>
                             <Button
                               variant="outline"
+                              className="flex-1 gap-2"
+                              onClick={handleCopyLink}
+                            >
+                              {copiedLink ? <Check className="h-4 w-4 text-success" /> : <Share2 className="h-4 w-4" />}
+                              {copiedLink
+                                ? (isNb ? "Lenke kopiert" : "Link copied")
+                                : (isNb ? "Del lenke" : "Share link")}
+                            </Button>
+                            <Button
+                              variant="outline"
                               className="flex-1 gap-2 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
                               onClick={() => setUnpublishConfirmOpen(true)}
                             >
@@ -1406,7 +1416,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       </Card>
                     ) : (
                       <Card className="p-8 text-center space-y-4">
-                        <Globe className="h-10 w-10 mx-auto text-muted-foreground" />
+                        <Globe className="h-10 w-10 mx-auto text-muted-foreground" aria-hidden="true" />
                         <div>
                           <h3 className="text-lg font-semibold text-foreground">{isNb ? "Klar til publisering" : "Ready to publish"}</h3>
                           <p className="text-sm text-muted-foreground mt-1">
@@ -1414,10 +1424,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <span className="font-medium text-foreground">{publicUrl}</span>
                           </p>
                         </div>
-                        <Button onClick={openPublishDialog} className="gap-2 bg-primary hover:bg-primary/90">
-                          <Share2 className="h-4 w-4" />
-                          {isNb ? "Publiser" : "Publish"}
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                          <Button
+                            variant="outline"
+                            className="gap-2"
+                            onClick={handleCopyLink}
+                            title={isNb ? "Kopier den fremtidige offentlige lenken" : "Copy the future public link"}
+                          >
+                            {copiedLink ? <Check className="h-4 w-4 text-success" /> : <Share2 className="h-4 w-4" />}
+                            {copiedLink
+                              ? (isNb ? "Lenke kopiert" : "Link copied")
+                              : (isNb ? "Del lenke" : "Share link")}
+                          </Button>
+                          <Button onClick={openPublishDialog} className="gap-2 bg-primary hover:bg-primary/90">
+                            <Globe className="h-4 w-4" />
+                            {isNb ? "Publiser" : "Publish"}
+                          </Button>
+                        </div>
                       </Card>
                     )}
 
