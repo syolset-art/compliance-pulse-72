@@ -17,6 +17,15 @@ import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Progress } from "@/components/ui/progress";
 import { useVendorMatch, type VendorMatchCandidate } from "@/hooks/useVendorMatch";
 import { VendorLinkStep } from "./VendorLinkStep";
+import {
+  PRIORITY_KEYS,
+  PRIORITY_META,
+  priorityLabel,
+  suggestPriority,
+  suggestionRationale,
+  type PriorityKey,
+} from "@/lib/derivedPriority";
+import { cn } from "@/lib/utils";
 
 interface AddSystemDialogProps {
   open: boolean;
@@ -131,6 +140,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
     contact_email: "",
     delivery_model: "" as DeliveryModel | "",
     vendor_roles: [] as VendorRole[],
+    priority: "" as PriorityKey | "",
+    priority_reason: "",
   });
 
   // Reset when dialog opens/closes
@@ -157,6 +168,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         contact_email: "",
         delivery_model: "",
         vendor_roles: [],
+        priority: "",
+        priority_reason: "",
       });
     }
   }, [open]);
@@ -257,6 +270,12 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
   const handleSubmit = async () => {
     setIsSaving(true);
     try {
+      const suggestedPrio = suggestPriority(formData.risk_level || null);
+      const chosenPrio = (formData.priority || suggestedPrio) as PriorityKey;
+      const prioSource = chosenPrio === suggestedPrio ? "lara" : "manual";
+      const { data: userResp } = await supabase.auth.getUser();
+      const who = userResp?.user?.email ?? userResp?.user?.id ?? "system";
+
       const insertData = {
         name: formData.name,
         description: formData.description || null,
@@ -264,15 +283,40 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         vendor: formData.vendor || null,
         vendor_asset_id: formData.vendor_asset_id || null,
         risk_level: formData.risk_level || null,
+        criticality: formData.risk_level || null,
         status: formData.status,
         url: formData.url || null,
         system_manager: formData.system_manager || null,
         contact_person: formData.contact_person || null,
         contact_email: formData.contact_email || null,
+        priority: chosenPrio,
+        priority_source: prioSource,
+        priority_suggested: suggestedPrio,
+        priority_reason: prioSource === "manual" ? (formData.priority_reason.trim() || null) : null,
+        priority_updated_at: new Date().toISOString(),
+        priority_updated_by: who,
       };
 
-      const { error } = await supabase.from("systems").insert([insertData as never]);
+      const { data: inserted, error } = await supabase
+        .from("systems")
+        .insert([insertData as never])
+        .select("id")
+        .single();
       if (error) throw error;
+
+      const newId = (inserted as { id?: string } | null)?.id;
+      if (newId) {
+        await supabase.from("asset_priority_history").insert({
+          asset_id: newId,
+          entity_type: "system",
+          from_priority: null,
+          to_priority: chosenPrio,
+          suggested_priority: suggestedPrio,
+          source: prioSource,
+          reason: prioSource === "manual" ? (formData.priority_reason.trim() || null) : null,
+          changed_by: who,
+        } as never);
+      }
 
       // Update onboarding progress
       const { data: progressData } = await supabase
@@ -862,6 +906,69 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 </SelectContent>
               </Select>
             </div>
+
+            {formData.risk_level && (() => {
+              const suggested = suggestPriority(formData.risk_level);
+              const selected = (formData.priority || suggested) as PriorityKey;
+              const isOverride = selected !== suggested;
+              return (
+                <div className="space-y-2 rounded-lg border border-primary/15 bg-primary/[0.03] p-3">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium">
+                        Lara foreslår prioritet:{" "}
+                        <span className="text-primary">{priorityLabel(suggested)}</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {suggestionRationale(formData.risk_level)}. Du kan overstyre.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {PRIORITY_KEYS.map((p) => {
+                      const meta = PRIORITY_META[p];
+                      const isSel = selected === p;
+                      const isSugg = p === suggested;
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, priority: p }))}
+                          className={cn(
+                            "flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs text-left transition",
+                            isSel
+                              ? "border-primary bg-background ring-1 ring-primary/30"
+                              : "border-border bg-background/60 hover:bg-background",
+                          )}
+                        >
+                          <span className={cn("h-2 w-2 rounded-full", meta.dotClass)} aria-hidden />
+                          <span className="font-medium">{meta.labelNb}</span>
+                          {isSugg && (
+                            <Sparkles className="ml-auto h-3 w-3 text-primary opacity-70" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {isOverride && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">
+                        Begrunnelse for overstyring{" "}
+                        <span className="text-muted-foreground font-normal">(valgfritt, men anbefalt)</span>
+                      </Label>
+                      <Textarea
+                        value={formData.priority_reason}
+                        onChange={(e) => setFormData(prev => ({ ...prev, priority_reason: e.target.value }))}
+                        placeholder="F.eks. kompenserende kontroller, system under utfasing, klinisk kontekst"
+                        rows={2}
+                        className="text-xs resize-none bg-background"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="space-y-2">
               <Label>Status</Label>

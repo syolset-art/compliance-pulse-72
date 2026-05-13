@@ -64,6 +64,7 @@ import {
 import { SystemPremiumBanner } from "@/components/systems/SystemPremiumBanner";
 import { SystemActivateDialog } from "@/components/systems/SystemActivateDialog";
 import { SystemStatusRow } from "@/components/systems/SystemStatusRow";
+import { PriorityChip } from "@/components/PriorityChip";
 
 const MAX_FREE_SYSTEMS = 5;
 
@@ -78,6 +79,12 @@ interface System {
   compliance_score?: number;
   work_area_id?: string | null;
   system_manager?: string | null;
+  priority?: string | null;
+  priority_source?: string | null;
+  priority_suggested?: string | null;
+  priority_reason?: string | null;
+  priority_updated_at?: string | null;
+  priority_updated_by?: string | null;
 }
 
 interface WorkArea {
@@ -465,7 +472,7 @@ export default function Systems() {
     return (
       <div className="border border-border rounded-lg overflow-hidden bg-card">
         {/* Table header */}
-        <div className="hidden sm:grid sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(160px,1.2fr)_60px] gap-x-4 px-4 py-2.5 border-b border-border bg-muted/40 text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="hidden sm:grid sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(110px,0.9fr)_minmax(160px,1.2fr)_60px] gap-x-4 px-4 py-2.5 border-b border-border bg-muted/40 text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
           <span>System</span>
           <span>Type</span>
           <span className="flex items-center gap-1">
@@ -490,6 +497,17 @@ export default function Systems() {
               </Tooltip>
             </TooltipProvider>
           </span>
+          <span className="flex items-center gap-1">
+            Prioritet
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3 w-3 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent><p>Lara foreslår basert på risiko og kritikalitet. Eier kan overstyre med begrunnelse.</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </span>
           <span>Eier (Arbeidsområde)</span>
           <span></span>
         </div>
@@ -506,7 +524,7 @@ export default function Systems() {
             return (
               <div
                 key={system.id}
-                className="grid grid-cols-1 sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(160px,1.2fr)_60px] gap-x-4 items-center px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer"
+                className="grid grid-cols-1 sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(110px,0.9fr)_minmax(160px,1.2fr)_60px] gap-x-4 items-center px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer"
                 onClick={() => navigate(`/systems/${system.id}`)}
               >
                 {/* System name + icon */}
@@ -533,6 +551,19 @@ export default function Systems() {
                 {/* Risk */}
                 <div className="hidden sm:flex items-center gap-2">
                   <span className={`h-2.5 w-2.5 rounded-full shrink-0 ${risk.dotClass}`} />
+                </div>
+
+                {/* Priority */}
+                <div className="hidden sm:flex items-center" onClick={(e) => e.stopPropagation()}>
+                  <PriorityChip
+                    value={system.priority ?? null}
+                    suggested={system.priority_suggested ?? null}
+                    source={(system.priority_source as "lara" | "manual" | null) ?? null}
+                    reason={system.priority_reason ?? null}
+                    updatedBy={system.priority_updated_by ?? null}
+                    updatedAt={system.priority_updated_at ?? null}
+                    short
+                  />
                 </div>
 
                 {/* Owner */}

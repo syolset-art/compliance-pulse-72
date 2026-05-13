@@ -445,6 +445,45 @@ export type Database = {
           },
         ]
       }
+      asset_priority_history: {
+        Row: {
+          asset_id: string
+          changed_at: string
+          changed_by: string | null
+          entity_type: string
+          from_priority: string | null
+          id: string
+          reason: string | null
+          source: string
+          suggested_priority: string | null
+          to_priority: string
+        }
+        Insert: {
+          asset_id: string
+          changed_at?: string
+          changed_by?: string | null
+          entity_type?: string
+          from_priority?: string | null
+          id?: string
+          reason?: string | null
+          source?: string
+          suggested_priority?: string | null
+          to_priority: string
+        }
+        Update: {
+          asset_id?: string
+          changed_at?: string
+          changed_by?: string | null
+          entity_type?: string
+          from_priority?: string | null
+          id?: string
+          reason?: string | null
+          source?: string
+          suggested_priority?: string | null
+          to_priority?: string
+        }
+        Relationships: []
+      }
       asset_relationships: {
         Row: {
           created_at: string | null
@@ -557,6 +596,11 @@ export type Database = {
           next_review_date: string | null
           org_number: string | null
           priority: string | null
+          priority_reason: string | null
+          priority_source: string | null
+          priority_suggested: string | null
+          priority_updated_at: string | null
+          priority_updated_by: string | null
           privacy_contact_address: string | null
           privacy_contact_email: string | null
           privacy_contact_name: string | null
@@ -605,6 +649,11 @@ export type Database = {
           next_review_date?: string | null
           org_number?: string | null
           priority?: string | null
+          priority_reason?: string | null
+          priority_source?: string | null
+          priority_suggested?: string | null
+          priority_updated_at?: string | null
+          priority_updated_by?: string | null
           privacy_contact_address?: string | null
           privacy_contact_email?: string | null
           privacy_contact_name?: string | null
@@ -653,6 +702,11 @@ export type Database = {
           next_review_date?: string | null
           org_number?: string | null
           priority?: string | null
+          priority_reason?: string | null
+          priority_source?: string | null
+          priority_suggested?: string | null
+          priority_updated_at?: string | null
+          priority_updated_by?: string | null
           privacy_contact_address?: string | null
           privacy_contact_email?: string | null
           privacy_contact_name?: string | null
@@ -3110,10 +3164,17 @@ export type Database = {
           contact_email: string | null
           contact_person: string | null
           created_at: string | null
+          criticality: string | null
           description: string | null
           id: string
           name: string
           next_review_date: string | null
+          priority: string | null
+          priority_reason: string | null
+          priority_source: string | null
+          priority_suggested: string | null
+          priority_updated_at: string | null
+          priority_updated_by: string | null
           risk_level: string | null
           risk_score: number | null
           status: string | null
@@ -3130,10 +3191,17 @@ export type Database = {
           contact_email?: string | null
           contact_person?: string | null
           created_at?: string | null
+          criticality?: string | null
           description?: string | null
           id?: string
           name: string
           next_review_date?: string | null
+          priority?: string | null
+          priority_reason?: string | null
+          priority_source?: string | null
+          priority_suggested?: string | null
+          priority_updated_at?: string | null
+          priority_updated_by?: string | null
           risk_level?: string | null
           risk_score?: number | null
           status?: string | null
@@ -3150,10 +3218,17 @@ export type Database = {
           contact_email?: string | null
           contact_person?: string | null
           created_at?: string | null
+          criticality?: string | null
           description?: string | null
           id?: string
           name?: string
           next_review_date?: string | null
+          priority?: string | null
+          priority_reason?: string | null
+          priority_source?: string | null
+          priority_suggested?: string | null
+          priority_updated_at?: string | null
+          priority_updated_by?: string | null
           risk_level?: string | null
           risk_score?: number | null
           status?: string | null

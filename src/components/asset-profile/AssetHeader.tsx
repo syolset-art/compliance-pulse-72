@@ -50,6 +50,8 @@ import { VendorContactsBlock } from "./VendorContactsBlock";
 import { SelfProfileMetadataRow } from "./SelfProfileMetadataRow";
 import { HeaderMaturityIndicators } from "@/components/trust-controls/HeaderMaturityIndicators";
 import { InlineEditableField } from "./InlineEditableField";
+import { PriorityChip } from "@/components/PriorityChip";
+import { PriorityEditorPopover } from "./PriorityEditorPopover";
 
 interface TrustMetrics {
   trustScore: number;
@@ -438,8 +440,12 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
     high: { label: "Høy", dot: "bg-warning" },
     medium: { label: "Medium", dot: "bg-warning" },
     low: { label: "Lav", dot: "bg-status-closed" },
+    P0: { label: "P0 – Kritisk", dot: "bg-destructive" },
+    P1: { label: "P1 – Høy", dot: "bg-warning" },
+    P2: { label: "P2 – Medium", dot: "bg-foreground/50" },
+    P3: { label: "P3 – Lav", dot: "bg-muted-foreground/40" },
   };
-  const currentPriorityVal = (asset as any).priority as string | null;
+  const currentPriorityVal = (asset as { priority?: string | null }).priority ?? null;
   const isActive = asset.lifecycle_status === "active" || !asset.lifecycle_status;
 
   return (
@@ -582,12 +588,27 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
                 {isNb ? "Partner og forhandler av Mynder" : "Mynder partner & reseller"}
               </Badge>
             )}
-            {currentPriorityVal && PRIORITY_CONFIG_RIBBON[currentPriorityVal] && (
-              <Badge variant="outline" className="text-[13px] px-1.5 py-0 gap-1 shrink-0">
-                <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CONFIG_RIBBON[currentPriorityVal].dot}`} />
-                {PRIORITY_CONFIG_RIBBON[currentPriorityVal].label}
-              </Badge>
-            )}
+            <PriorityEditorPopover
+              assetId={asset.id}
+              currentPriority={(asset as { priority?: string | null }).priority ?? null}
+              currentReason={(asset as { priority_reason?: string | null }).priority_reason ?? null}
+              currentSource={((asset as { priority_source?: string | null }).priority_source ?? null) as "lara" | "manual" | null}
+              currentSuggested={(asset as { priority_suggested?: string | null }).priority_suggested ?? null}
+              criticality={(asset as { criticality?: string | null; risk_level?: string | null }).criticality ?? (asset as { risk_level?: string | null }).risk_level ?? null}
+              onSaved={() => queryClient.invalidateQueries({ queryKey: ["asset", asset.id] })}
+              trigger={
+                <button type="button" className="inline-flex">
+                  <PriorityChip
+                    value={(asset as { priority?: string | null }).priority ?? null}
+                    suggested={(asset as { priority_suggested?: string | null }).priority_suggested ?? null}
+                    source={((asset as { priority_source?: string | null }).priority_source ?? null) as "lara" | "manual" | null}
+                    reason={(asset as { priority_reason?: string | null }).priority_reason ?? null}
+                    updatedBy={(asset as { priority_updated_by?: string | null }).priority_updated_by ?? null}
+                    updatedAt={(asset as { priority_updated_at?: string | null }).priority_updated_at ?? null}
+                  />
+                </button>
+              }
+            />
           </div>
 
           {/* TPRM status line for vendors */}
