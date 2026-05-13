@@ -281,15 +281,22 @@ export default function ShareTrustProfileDialog({
                         })}
                       </p>
                     </div>
-                    <Select value={a.type} onValueChange={(v) => updateType(a.id, v as AccessType)}>
-                      <SelectTrigger className="h-7 w-[110px] text-xs shrink-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="internal">{isNb ? "Intern" : "Internal"}</SelectItem>
-                        <SelectItem value="external">{isNb ? "Ekstern" : "External"}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Badge
+                      variant="secondary"
+                      className="h-6 px-2 gap-1 text-[11px] shrink-0"
+                    >
+                      {a.type === "internal" ? (
+                        <>
+                          <Building2 className="h-3 w-3" aria-hidden="true" />
+                          {isNb ? "Intern" : "Internal"}
+                        </>
+                      ) : (
+                        <>
+                          <Globe className="h-3 w-3" aria-hidden="true" />
+                          {isNb ? "Ekstern" : "External"}
+                        </>
+                      )}
+                    </Badge>
                     <Button
                       type="button"
                       variant="ghost"
