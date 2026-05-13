@@ -36,6 +36,7 @@ import { VendorActionCards } from "./VendorActionCards";
 import { VendorLaraInsightsPanel } from "./VendorLaraInsightsPanel";
 import { DashboardLaraRecommendation } from "@/components/dashboard/DashboardLaraRecommendation";
 import { SystemsPriorityChart } from "./SystemsPriorityChart";
+import { ComplianceActivityChart } from "./ComplianceActivityChart";
 import { BulkSendConfirmDialog } from "./BulkSendConfirmDialog";
 import { toast } from "sonner";
 
