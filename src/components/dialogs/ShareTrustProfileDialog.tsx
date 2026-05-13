@@ -135,12 +135,6 @@ export default function ShareTrustProfileDialog({
     saveAccess(storageKey, next);
   };
 
-  const updateType = (id: string, type: AccessType) => {
-    const next = access.map(a => (a.id === id ? { ...a, type } : a));
-    setAccess(next);
-    saveAccess(storageKey, next);
-  };
-
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(publicUrl);
