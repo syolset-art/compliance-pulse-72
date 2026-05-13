@@ -231,10 +231,23 @@ export function DashboardLaraRecommendation() {
       {/* Task card */}
       <div className="rounded-xl bg-card border border-border p-4 sm:p-5 space-y-4">
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
-            <span className={cn("text-xs font-bold tracking-wider", sev.text)}>
-              {sev.label}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Priority — neutral pill, drives ordering */}
+            <span
+              className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 px-2 py-0.5 text-[11px] font-semibold text-foreground"
+              title={isNb ? "Prioritet" : "Priority"}
+            >
+              <span className="text-foreground/60">{isNb ? "Prioritet" : "Priority"}</span>
+              <span className="font-bold tabular-nums">
+                {PRIORITY_META[current.priority].letter}
+              </span>
+            </span>
+            {/* Risk severity — status colour */}
+            <span className="inline-flex items-center gap-1.5">
+              <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
+              <span className={cn("text-xs font-bold tracking-wider", sev.text)}>
+                {sev.label}
+              </span>
             </span>
           </div>
           <h4 className="text-lg sm:text-xl font-bold text-foreground break-words">{current.vendor}</h4>
