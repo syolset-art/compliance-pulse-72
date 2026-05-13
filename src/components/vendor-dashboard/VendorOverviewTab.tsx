@@ -269,13 +269,15 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                 const score = v.compliance_score || 0;
                 const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
                 return (
-                  <div
+                  <button
                     key={v.id}
+                    type="button"
                     onClick={() => navigate(`/assets/${v.id}`)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                    aria-label={`Åpne leverandør ${v.name}, compliance-score ${score} prosent`}
+                    className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
                   >
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Building2 className="h-4 w-4 text-primary" />
+                      <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
@@ -286,7 +288,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                       </p>
                     </div>
                     <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
-                  </div>
+                  </button>
                 );
               })}
           </div>
