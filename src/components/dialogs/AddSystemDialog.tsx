@@ -321,6 +321,59 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
     }
   };
 
+  // Vendor matching for the "vendor" step
+  const vendorMatch = useVendorMatch({
+    enabled: step === "vendor",
+    vendorName: formData.vendor,
+    parentVendor: webResult?.parent_vendor,
+  });
+
+  // Auto-skip vendor step if no candidate at all
+  useEffect(() => {
+    if (
+      step === "vendor" &&
+      !vendorMatch.isLoading &&
+      !vendorMatch.exact &&
+      !vendorMatch.suggested &&
+      !vendorMatch.parentKnown
+    ) {
+      setStep("category");
+    }
+  }, [step, vendorMatch.isLoading, vendorMatch.exact, vendorMatch.suggested, vendorMatch.parentKnown]);
+
+  const handleLinkExistingVendor = (vendor: VendorMatchCandidate) => {
+    setFormData((prev) => ({ ...prev, vendor: vendor.name, vendor_asset_id: vendor.id }));
+    toast({
+      title: "Koblet til leverandør",
+      description: `${formData.name || "Systemet"} er koblet til ${vendor.name}.`,
+    });
+    setStep("category");
+  };
+
+  const handleCreateAndLinkVendor = async (parentName: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("assets")
+        .insert([{ name: parentName, asset_type: "vendor" }])
+        .select("id, name")
+        .single();
+      if (error) throw error;
+      setFormData((prev) => ({ ...prev, vendor: data.name, vendor_asset_id: data.id }));
+      toast({
+        title: "Leverandør opprettet",
+        description: `${parentName} er lagt til i registeret og koblet til systemet.`,
+      });
+      setStep("category");
+    } catch (e) {
+      console.error("Create vendor error:", e);
+      toast({
+        title: "Kunne ikke opprette leverandør",
+        description: "Prøv igjen, eller hopp over og koble senere.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
