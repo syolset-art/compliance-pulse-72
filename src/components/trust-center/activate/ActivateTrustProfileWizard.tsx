@@ -343,6 +343,7 @@ export default function ActivateTrustProfileWizard({
         {step === 3 && "Bekreft og juster informasjonen"}
         {step === 4 && "Modenhet — bekreft det Lara fant"}
         {step === 5 && "Last opp dokumenter"}
+        {step === 6 && "Hvem skal se din Trust Profile?"}
       </h2>
       <p className="text-sm text-muted-foreground">
         {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
@@ -354,7 +355,8 @@ export default function ActivateTrustProfileWizard({
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
         {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
-        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk. Når du er ferdig er aktiveringen fullført, og du kommer rett til Trust Profile-siden din."}
+        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
+        {step === 6 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
       </p>
       <Progress value={(step / (TOTAL_STEPS - 1)) * 100} className="h-1" />
     </div>
@@ -407,7 +409,15 @@ export default function ActivateTrustProfileWizard({
       {step === 5 && !isCalculating && (
         <DocumentsStep documents={documents} onUpload={uploadDocument} />
       )}
-      {step === 5 && isCalculating && (
+      {step === 6 && !isCalculating && (
+        <VisibilityStep
+          visibility={visibility}
+          setVisibility={setVisibility}
+          publicAcknowledged={publicAcknowledged}
+          setPublicAcknowledged={setPublicAcknowledged}
+        />
+      )}
+      {step === 6 && isCalculating && (
         <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
       )}
     </div>
@@ -419,23 +429,28 @@ export default function ActivateTrustProfileWizard({
         {step === 0 || (hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
-      {step < 5 ? (
+      {step < 6 ? (
         <div className="flex gap-2">
           {step === 2 && (
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-full">
               Lukk — kom tilbake senere
             </Button>
           )}
-          <Button onClick={next} disabled={!canNext} className="gap-2">
+          <Button onClick={next} disabled={!canNext} className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white">
             {step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
             {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
             {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
+            {step === 5 && (<>Velg synlighet <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
-        <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
+        <Button
+          onClick={() => handlePublish()}
+          disabled={isPublishing || (visibility === "public" && !publicAcknowledged)}
+          className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white"
+        >
           {isPublishing || isCalculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
           {isCalculating ? "Lara beregner Trust Score …" : "Fullfør aktivering — gå til Trust Profile"}
         </Button>
