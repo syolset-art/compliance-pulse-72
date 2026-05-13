@@ -1258,10 +1258,17 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </p>
                         </div>
                         {asset?.id && (
-                          <VisibilitySelector
-                            assetId={asset.id}
-                            current={getVisibilityFromAsset(asset as any)}
-                          />
+                          <div className="flex flex-col items-end gap-1.5">
+                            <VisibilitySelector
+                              assetId={asset.id}
+                              current={getVisibilityFromAsset(asset as any)}
+                            />
+                            <p className="text-xs text-muted-foreground max-w-[260px] text-right">
+                              {isNb
+                                ? "Standard er Mynder-økosystem. Du kan velge å gjøre profilen privat."
+                                : "Default is the Mynder ecosystem. You can choose to make the profile private."}
+                            </p>
+                          </div>
                         )}
                       </div>
 
