@@ -84,10 +84,21 @@ export function DashboardLaraRecommendation() {
   const count = missingDpaCount || 12;
   const criticalCount = 8;
 
-  // Demo plan tasks (3 critical examples)
-  const tasks: PlanTask[] = [
+  // Demo plan tasks (mix of severities and priorities — sorted by priority below)
+  const rawTasks: PlanTask[] = [
     {
       severity: "critical",
+      priority: 2,
+      vendor: "Slack Technologies",
+      category: isNb ? "Kommunikasjon · databehandler" : "Communication · processor",
+      insight: isNb
+        ? "Overfører data til USA. Mangler dokumentasjon på SCCs. Brukes daglig av 32 ansatte."
+        : "Transfers data to the US. Missing SCC documentation. Used daily by 32 employees.",
+      vendorPath: "/vendors",
+    },
+    {
+      severity: "critical",
+      priority: 0,
       vendor: "Visma Software AS",
       category: isNb ? "Lønn og HR · databehandler" : "Payroll & HR · processor",
       insight: isNb
@@ -97,6 +108,7 @@ export function DashboardLaraRecommendation() {
     },
     {
       severity: "critical",
+      priority: 1,
       vendor: "Microsoft Azure",
       category: isNb ? "Skyinfrastruktur · databehandler" : "Cloud infrastructure · processor",
       insight: isNb
@@ -104,16 +116,13 @@ export function DashboardLaraRecommendation() {
         : "Critical system without updated risk assessment in the last 12 months. DPA exists but not verified.",
       vendorPath: "/vendors",
     },
-    {
-      severity: "critical",
-      vendor: "Slack Technologies",
-      category: isNb ? "Kommunikasjon · databehandler" : "Communication · processor",
-      insight: isNb
-        ? "Overfører data til USA. Mangler dokumentasjon på SCCs. Brukes daglig av 32 ansatte."
-        : "Transfers data to the US. Missing SCC documentation. Used daily by 32 employees.",
-      vendorPath: "/vendors",
-    },
   ];
+
+  // Priority drives order — P0 (A) always first. Severity is only a tiebreaker.
+  const SEV_RANK: Record<Severity, number> = { critical: 0, high: 1, medium: 2 };
+  const tasks = [...rawTasks].sort(
+    (a, b) => a.priority - b.priority || SEV_RANK[a.severity] - SEV_RANK[b.severity]
+  );
 
   const total = tasks.length;
   const current = tasks[step];
