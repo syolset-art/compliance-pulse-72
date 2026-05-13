@@ -1345,5 +1345,20 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         )}
       </DialogContent>
     </Dialog>
+
+    <VendorRelationshipDiscoveryDialog
+      open={discoveryOpen}
+      onOpenChange={setDiscoveryOpen}
+      vendorId={discoveryVendor?.id || null}
+      vendorName={discoveryVendor?.name || ""}
+      vendorUrl={discoveryVendor?.url || null}
+      onComplete={() => {
+        setDiscoveryOpen(false);
+        setDiscoveryVendor(null);
+        onOpenChange(false);
+        resetForm();
+      }}
+    />
+    </>
   );
 }
