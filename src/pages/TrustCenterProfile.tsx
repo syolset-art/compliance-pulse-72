@@ -912,17 +912,30 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </button>
             )}
 
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                {isServiceProfile ? (asset?.name || "Trust Profile") : "Trust Profile"}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {isServiceProfile
-                  ? (isNb
-                    ? "Produkt- eller tjenesteprofil slik den vises for kunder og partnere."
-                    : "Product or service profile as seen by customers and partners.")
-                  : "Shareable compliance profile for due diligence"}
-              </p>
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {isServiceProfile ? (asset?.name || "Trust Profile") : "Trust Profile"}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {isServiceProfile
+                    ? (isNb
+                      ? "Produkt- eller tjenesteprofil slik den vises for kunder og partnere."
+                      : "Product or service profile as seen by customers and partners.")
+                    : "Shareable compliance profile for due diligence"}
+                </p>
+              </div>
+              {isOwnProfile && asset?.id && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                    {isNb ? "Synlighet" : "Visibility"}
+                  </span>
+                  <VisibilitySelector
+                    assetId={asset.id}
+                    current={getVisibilityFromAsset(asset as any)}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Lara aktivert-banner — vises etter aktivering inntil bruker har bekreftet synlighet */}
