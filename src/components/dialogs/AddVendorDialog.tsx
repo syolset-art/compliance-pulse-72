@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useVendorLookup, VendorSearchResult } from "@/hooks/useVendorLookup";
+import { VendorRelationshipDiscoveryDialog } from "@/components/dialogs/VendorRelationshipDiscoveryDialog";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
