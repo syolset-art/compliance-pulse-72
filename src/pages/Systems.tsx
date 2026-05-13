@@ -64,6 +64,7 @@ import {
 import { SystemPremiumBanner } from "@/components/systems/SystemPremiumBanner";
 import { SystemActivateDialog } from "@/components/systems/SystemActivateDialog";
 import { SystemStatusRow } from "@/components/systems/SystemStatusRow";
+import { PriorityChip } from "@/components/PriorityChip";
 
 const MAX_FREE_SYSTEMS = 5;
 
