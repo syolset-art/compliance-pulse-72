@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useVendorLookup, VendorSearchResult } from "@/hooks/useVendorLookup";
+import { VendorRelationshipDiscoveryDialog } from "@/components/dialogs/VendorRelationshipDiscoveryDialog";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -301,6 +302,10 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Post-creation discovery dialog
+  const [discoveryOpen, setDiscoveryOpen] = useState(false);
+  const [discoveryVendor, setDiscoveryVendor] = useState<{ id: string; name: string; url: string | null } | null>(null);
+
   const resetForm = useCallback(() => {
     setStep("quantity");
     setMode("single");
@@ -375,7 +380,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       } as any).select("id").single();
 
       if (insertError) throw insertError;
-      return { name: vendor.name, id: insertData?.id };
+      return { name: vendor.name, id: insertData?.id, url: vendor.url || null };
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["assets"] });
@@ -385,6 +390,9 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
       if (mode === "multiple") {
         setAddedVendors((prev) => [...prev, result.name]);
         resetForNext();
+      } else if (result.id) {
+        setDiscoveryVendor({ id: result.id, name: result.name, url: result.url });
+        setDiscoveryOpen(true);
       } else {
         onOpenChange(false);
         resetForm();
@@ -632,6 +640,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
   const totalSteps = isFileFlow ? fileFlowSteps.length : STEPS_SINGLE.length;
 
   return (
+    <>
     <Dialog
       open={open}
       onOpenChange={(o) => {
@@ -1338,5 +1347,20 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
         )}
       </DialogContent>
     </Dialog>
+
+    <VendorRelationshipDiscoveryDialog
+      open={discoveryOpen}
+      onOpenChange={setDiscoveryOpen}
+      vendorId={discoveryVendor?.id || null}
+      vendorName={discoveryVendor?.name || ""}
+      vendorUrl={discoveryVendor?.url || null}
+      onComplete={() => {
+        setDiscoveryOpen(false);
+        setDiscoveryVendor(null);
+        onOpenChange(false);
+        resetForm();
+      }}
+    />
+    </>
   );
 }
