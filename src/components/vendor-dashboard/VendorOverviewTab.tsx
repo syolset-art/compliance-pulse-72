@@ -255,10 +255,10 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         {/* Recently Added */}
         <Card variant="flat" className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Clock className="h-4 w-4 text-primary" />
               Sist lagt til
-            </h3>
+            </h2>
             <Badge variant="outline" className="text-[13px]">Siste 5</Badge>
           </div>
           <div className="space-y-2">
@@ -295,10 +295,10 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         {/* Lara Priority — Low Trust Score */}
         <Card variant="flat" className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
               Lara-anbefalinger
-            </h3>
+            </h2>
             <Badge variant="outline" className="text-[13px]">Lav trust score</Badge>
           </div>
           <div className="space-y-2">
@@ -367,7 +367,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Risk Distribution Pie */}
         <Card variant="flat" className="p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Risikofordeling</h3>
+          <h2 className="text-sm font-semibold text-foreground mb-3">Risikofordeling</h2>
           <div className="h-[160px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -407,7 +407,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
         {/* Category Bar Chart */}
         <Card variant="flat" className="p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Leverandørtyper</h3>
+          <h2 className="text-sm font-semibold text-foreground mb-3">Leverandørtyper</h2>
           <div className="h-[190px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData} layout="vertical" margin={{ left: 0, right: 12 }}>
@@ -422,7 +422,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
         {/* GDPR + Geography */}
         <Card variant="flat" className="p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">GDPR-roller</h3>
+          <h2 className="text-sm font-semibold text-foreground mb-3">GDPR-roller</h2>
           <div className="space-y-3 mb-5">
             {gdprBreakdown.map(g => (
               <div key={g.key}>
@@ -435,9 +435,9 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
             ))}
           </div>
 
-          <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
+          <h2 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
             <Globe className="h-3.5 w-3.5" /> Geografi
-          </h3>
+          </h2>
           <div className="space-y-1.5">
             {countryBreakdown.map(c => (
               <div key={c.country} className="flex items-center justify-between text-xs">
@@ -456,7 +456,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         {/* Lowest Compliance */}
         <Card variant="flat" className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground">Lavest compliance-score</h3>
+            <h2 className="text-sm font-semibold text-foreground">Lavest compliance-score</h2>
             <Badge variant="outline" className="text-[13px]">Topp 5</Badge>
           </div>
           <div className="space-y-2">
@@ -502,7 +502,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
 
         {/* Compliance Score Distribution */}
         <Card variant="flat" className="p-4">
-          <h3 className="text-sm font-semibold text-foreground mb-3">Compliance-fordeling</h3>
+          <h2 className="text-sm font-semibold text-foreground mb-3">Compliance-fordeling</h2>
           <ComplianceDistribution vendors={vendors} />
         </Card>
       </div>
