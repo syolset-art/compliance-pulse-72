@@ -381,7 +381,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     setPublishStep("publishing");
     const { error } = await supabase
       .from("assets")
-      .update({ publish_mode: "all" } as any)
+      .update({ publish_mode: "public" } as any)
       .eq("id", asset!.id);
 
     if (error) {
