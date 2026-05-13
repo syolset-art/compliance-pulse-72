@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
 import { getLaraScanForDomain, SCAN_STEPS_MS, type LaraScanResult } from "@/lib/demoTrustActivation";
 import { seedFromActivation, type ActivationValues, type ActivationDocument } from "@/lib/demoSeedTrustProfile";
+import { VISIBILITY_META, ALL_VISIBILITY_LEVELS, DEFAULT_VISIBILITY, type TrustVisibility } from "@/lib/trustVisibility";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   MATURITY_AREAS, ALL_MATURITY_QUESTIONS, DOCUMENT_SLOTS,
   deriveDefaultAnswers, deriveLaraSources,
@@ -91,6 +93,10 @@ export default function ActivateTrustProfileWizard({
 
   // Step 5: documents
   const [documents, setDocuments] = useState<ActivationDocument[]>([]);
+
+  // Step 6: visibility
+  const [visibility, setVisibility] = useState<TrustVisibility>(DEFAULT_VISIBILITY);
+  const [publicAcknowledged, setPublicAcknowledged] = useState(false);
 
   // Publishing
   const [isPublishing, setIsPublishing] = useState(false);
