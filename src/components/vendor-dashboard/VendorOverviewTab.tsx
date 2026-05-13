@@ -233,15 +233,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
       />
 
       {/* KPI Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card variant="flat" className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Building2 className="h-4 w-4 text-primary" />
-            <span className="text-xs text-muted-foreground">Totalt leverandører</span>
-          </div>
-          <p className="text-2xl font-bold text-primary">{metrics.total}</p>
-          <p className="text-[13px] text-muted-foreground mt-1">{metrics.compliant} compliant (&ge;80%)</p>
-        </Card>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <Card variant="flat" className="p-4">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="h-4 w-4 text-success" />
