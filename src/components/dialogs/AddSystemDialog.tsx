@@ -588,7 +588,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <Button variant="outline" onClick={() => setStep("search")}>
                 <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
               </Button>
-              <Button onClick={() => setStep("category")} disabled={!formData.name.trim()}>
+              <Button onClick={() => setStep("vendor")} disabled={!formData.name.trim()}>
                 Neste<ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
