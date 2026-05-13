@@ -1147,3 +1147,81 @@ function CalculatingScoreStep({ activeStep, score }: { activeStep: number; score
     </div>
   );
 }
+
+function VisibilityStep({
+  visibility,
+  setVisibility,
+  publicAcknowledged,
+  setPublicAcknowledged,
+}: {
+  visibility: TrustVisibility;
+  setVisibility: (v: TrustVisibility) => void;
+  publicAcknowledged: boolean;
+  setPublicAcknowledged: (v: boolean) => void;
+}) {
+  return (
+    <div className="space-y-3">
+      {ALL_VISIBILITY_LEVELS.map((level) => {
+        const meta = VISIBILITY_META[level];
+        const Icon = meta.icon;
+        const selected = visibility === level;
+        return (
+          <button
+            key={level}
+            type="button"
+            onClick={() => setVisibility(level)}
+            className={`w-full text-left rounded-2xl border p-4 transition-all ${
+              selected
+                ? "border-[hsl(var(--mynder-blue))] bg-[hsl(var(--mynder-blue))]/5 ring-2 ring-[hsl(var(--mynder-blue))]/20"
+                : "border-border hover:border-foreground/20"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-full ${
+                  selected ? "bg-[hsl(var(--mynder-blue))] text-white" : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-sm">{meta.labelNb}</h3>
+                  {level === "ecosystem" && (
+                    <Badge variant="outline" className="text-[10px] border-[hsl(var(--mynder-blue))]/40 text-[hsl(var(--mynder-blue))]">
+                      Anbefalt
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{meta.descNb}</p>
+              </div>
+              <div
+                className={`mt-1 h-4 w-4 rounded-full border-2 ${
+                  selected ? "border-[hsl(var(--mynder-blue))] bg-[hsl(var(--mynder-blue))]" : "border-muted-foreground/40"
+                }`}
+              />
+            </div>
+          </button>
+        );
+      })}
+
+      {visibility === "public" && (
+        <div className="rounded-xl border border-warning/30 bg-warning/5 p-3 flex gap-2">
+          <Checkbox
+            id="public-ack"
+            checked={publicAcknowledged}
+            onCheckedChange={(c) => setPublicAcknowledged(c === true)}
+            className="mt-0.5"
+          />
+          <Label htmlFor="public-ack" className="text-xs leading-relaxed cursor-pointer">
+            Jeg bekrefter at innholdet i Trust Profilen er klarert for offentlig publisering og indeksering av søkemotorer.
+          </Label>
+        </div>
+      )}
+
+      <p className="text-xs text-muted-foreground pt-1">
+        Du kan endre synlighet når som helst fra Trust Profile-siden.
+      </p>
+    </div>
+  );
+}
