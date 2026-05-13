@@ -155,6 +155,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         system_manager: "",
         contact_person: "",
         contact_email: "",
+        delivery_model: "",
+        vendor_roles: [],
       });
     }
   }, [open]);
