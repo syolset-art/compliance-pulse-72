@@ -595,6 +595,18 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
           </div>
         )}
 
+        {/* Step 2b: Vendor link */}
+        {step === "vendor" && (
+          <VendorLinkStep
+            vendorName={formData.vendor}
+            match={vendorMatch}
+            onLinkExisting={handleLinkExistingVendor}
+            onCreateAndLink={handleCreateAndLinkVendor}
+            onSkip={() => setStep("category")}
+            onBack={() => setStep("confirm")}
+          />
+        )}
+
         {/* Step 3: Category (AI-suggested) */}
         {step === "category" && (
           <div className="space-y-4">
