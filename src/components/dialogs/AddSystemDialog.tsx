@@ -69,6 +69,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 const STEPS: { key: WizardStep; label: string }[] = [
   { key: "search", label: "Søk" },
   { key: "confirm", label: "Bekreft" },
+  { key: "vendor", label: "Leverandør" },
   { key: "category", label: "Kategori" },
   { key: "risk", label: "Risiko" },
   { key: "contact", label: "Kontakt" },
