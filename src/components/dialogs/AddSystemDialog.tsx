@@ -907,6 +907,69 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               </Select>
             </div>
 
+            {formData.risk_level && (() => {
+              const suggested = suggestPriority(formData.risk_level);
+              const selected = (formData.priority || suggested) as PriorityKey;
+              const isOverride = selected !== suggested;
+              return (
+                <div className="space-y-2 rounded-lg border border-primary/15 bg-primary/[0.03] p-3">
+                  <div className="flex items-start gap-2">
+                    <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium">
+                        Lara foreslår prioritet:{" "}
+                        <span className="text-primary">{priorityLabel(suggested)}</span>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {suggestionRationale(formData.risk_level)}. Du kan overstyre.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {PRIORITY_KEYS.map((p) => {
+                      const meta = PRIORITY_META[p];
+                      const isSel = selected === p;
+                      const isSugg = p === suggested;
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, priority: p }))}
+                          className={cn(
+                            "flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs text-left transition",
+                            isSel
+                              ? "border-primary bg-background ring-1 ring-primary/30"
+                              : "border-border bg-background/60 hover:bg-background",
+                          )}
+                        >
+                          <span className={cn("h-2 w-2 rounded-full", meta.dotClass)} aria-hidden />
+                          <span className="font-medium">{meta.labelNb}</span>
+                          {isSugg && (
+                            <Sparkles className="ml-auto h-3 w-3 text-primary opacity-70" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {isOverride && (
+                    <div className="space-y-1">
+                      <Label className="text-xs">
+                        Begrunnelse for overstyring{" "}
+                        <span className="text-muted-foreground font-normal">(valgfritt, men anbefalt)</span>
+                      </Label>
+                      <Textarea
+                        value={formData.priority_reason}
+                        onChange={(e) => setFormData(prev => ({ ...prev, priority_reason: e.target.value }))}
+                        placeholder="F.eks. kompenserende kontroller, system under utfasing, klinisk kontekst"
+                        rows={2}
+                        className="text-xs resize-none bg-background"
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             <div className="space-y-2">
               <Label>Status</Label>
               <Select value={formData.status} onValueChange={(v) => setFormData(prev => ({ ...prev, status: v }))}>
