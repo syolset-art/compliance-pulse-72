@@ -914,30 +914,17 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </button>
             )}
 
-            <div className="flex items-start justify-between gap-3 flex-wrap">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">
-                  {isServiceProfile ? (asset?.name || "Trust Profile") : "Trust Profile"}
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {isServiceProfile
-                    ? (isNb
-                      ? "Produkt- eller tjenesteprofil slik den vises for kunder og partnere."
-                      : "Product or service profile as seen by customers and partners.")
-                    : "Shareable compliance profile for due diligence"}
-                </p>
-              </div>
-              {isOwnProfile && asset?.id && (
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
-                    {isNb ? "Synlighet" : "Visibility"}
-                  </span>
-                  <VisibilitySelector
-                    assetId={asset.id}
-                    current={getVisibilityFromAsset(asset as any)}
-                  />
-                </div>
-              )}
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">
+                {isServiceProfile ? (asset?.name || "Trust Profile") : "Trust Profile"}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {isServiceProfile
+                  ? (isNb
+                    ? "Produkt- eller tjenesteprofil slik den vises for kunder og partnere."
+                    : "Product or service profile as seen by customers and partners.")
+                  : "Shareable compliance profile for due diligence"}
+              </p>
             </div>
 
             {/* Lara aktivert-banner — vises etter aktivering inntil bruker har bekreftet synlighet */}
@@ -1271,10 +1258,17 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </p>
                         </div>
                         {asset?.id && (
-                          <VisibilitySelector
-                            assetId={asset.id}
-                            current={getVisibilityFromAsset(asset as any)}
-                          />
+                          <div className="flex flex-col items-end gap-1.5">
+                            <VisibilitySelector
+                              assetId={asset.id}
+                              current={getVisibilityFromAsset(asset as any)}
+                            />
+                            <p className="text-xs text-muted-foreground max-w-[260px] text-right">
+                              {isNb
+                                ? "Standard er Mynder-økosystem. Du kan velge å gjøre profilen privat."
+                                : "Default is the Mynder ecosystem. You can choose to make the profile private."}
+                            </p>
+                          </div>
                         )}
                       </div>
 
