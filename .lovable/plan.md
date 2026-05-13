@@ -1,83 +1,50 @@
+## Mål
 
-# Prioritet på system/leverandør
+Fjerne "Sist lagt til"-widgeten på Leverandør-oversikten og erstatte den med en graf som viser compliance-aktivitet over tid — uavhengig av om aktiviteten er utført av Lara (agentisk) eller av et menneske.
 
-Legger til en P0–P3-prioritet på hvert system/leverandør (asset). Lara foreslår basert på risiko + kritikalitet, eier kan overstyre med valgfri begrunnelse. Avvik fra forslag flagges visuelt.
+## Hva som endres
 
-## Konsept
+**Fil:** `src/components/vendor-dashboard/VendorOverviewTab.tsx`
+- Fjern hele "Recently Added"-kortet (linje ~232–272).
+- Behold rutenettet 2-kolonner: venstre = ny `ComplianceActivityChart`, høyre = eksisterende `SystemsPriorityChart`.
 
-```
-Risiko (Lara)  ─┐
-                ├──►  Foreslått prioritet (P0–P3)  ──►  Faktisk prioritet
-Kritikalitet  ─┘                                        (kan overstyres + begrunnelse)
-(eier)
-```
+**Ny fil:** `src/components/vendor-dashboard/ComplianceActivityChart.tsx`
 
-- **P0 – Kritisk** (rød)
-- **P1 – Høy** (oransje)
-- **P2 – Medium** (gul)
-- **P3 – Lav** (grå)
+## Graf-design
 
-Avvik på ≥2 nivåer fra Laras forslag vises med liten markør og tooltip.
+- **Type:** Stacked area chart (Recharts) med myk gradient — passer eksisterende visuelle språk.
+- **X-akse:** Siste 30 dager (gruppert per dag) med toggle for 7d / 30d / 90d.
+- **Y-akse:** Antall aktiviteter.
+- **To serier (stacket):**
+  - **Lara (agentisk)** — primary-fargen
+  - **Manuell (menneske)** — accent/muted-foreground
+- **Header:** Tittel "Compliance-aktivitet", totalsum siste periode + endring vs forrige periode (↑/↓ %).
+- **Tooltip:** Dato + fordeling Lara / Manuell + total.
+- **Tom tilstand:** Diskret melding "Ingen aktivitet registrert i perioden".
 
-## Forslagsmatrise
+## Datakilder (aktivitet = enhver compliance-handling)
 
-| Risiko \ Kritikalitet | Lav | Medium | Høy |
+Aggregeres i én spørring per kilde, deretter slått sammen klient-side per dag:
+
+| Kilde | Tabell | Tidsstempel | Kategori |
 |---|---|---|---|
-| Lav | P3 | P3 | P2 |
-| Medium | P3 | P2 | P1 |
-| Høy | P2 | P1 | P0 |
-| Kritisk | P1 | P0 | P0 |
+| Statusendringer på krav | `requirement_status` | `updated_at` | Manuell hvis `updated_by` er bruker, ellers Lara |
+| Evidens lagt til/sjekket | `evidence_checks` | `created_at` | Lara hvis `source = 'lara'/'ai'`, ellers Manuell |
+| Lara-forslag utført | `lara_inbox` | `updated_at` der `status = 'accepted'/'executed'` | Lara |
+| Leverandør opprettet/oppdatert | `assets` (filter `asset_type = 'vendor'`) | `updated_at` | Manuell |
+| Prioritetsendringer | `asset_priority_history` | `created_at` | Manuell hvis `changed_by` finnes, ellers Lara |
 
-## Datamodell (assets-tabellen)
+Filtreres på company/tenant via eksisterende RLS (ingen schema-endringer).
 
-Feltet `priority` finnes allerede – gjenbrukes for faktisk prioritet (verdier endres til `P0`/`P1`/`P2`/`P3`). Nye kolonner:
+Hvis en kilde mangler kolonner som angir agent vs menneske, faller den til "Manuell" som default.
 
-- `priority_source` (text: `lara` | `manual`) – hvem som satte den sist
-- `priority_suggested` (text) – siste Lara-forslag, brukes til avviksdeteksjon
-- `priority_reason` (text, valgfri) – eiers begrunnelse ved overstyring
-- `priority_updated_at` (timestamptz)
-- `priority_updated_by` (text) – navn/e-post for audit
+## Tilgjengelighet (UU)
 
-Enkel audit trail i ny tabell `asset_priority_history`:
-- `asset_id`, `from_priority`, `to_priority`, `source`, `reason`, `changed_by`, `changed_at`
+- `<h2>` for korttittel.
+- Wrapper rundt grafen med `role="img"` og `aria-label` som oppsummerer total + fordeling.
+- Periode-toggle som `<button>` med `aria-pressed`.
 
-## UX-endringer
+## Avgrensning
 
-**1. AddSystemDialog – risiko-steg**
-Etter at risiko_level + kritikalitet er valgt vises et lite Lara-kort:
-> "Foreslått prioritet: **P1 – Høy** basert på medium risiko + høy kritikalitet"
-
-Under: 4 chips (P0/P1/P2/P3). Velger eier noe annet enn forslaget, glir et "Begrunnelse (valgfritt)"-felt inn under, med plassholder "F.eks. kompenserende kontroller, system under utfasing, klinisk kontekst".
-
-**2. Asset-/leverandørprofil – header**
-Ny pille ved siden av risiko-pillen: prioritets-chip med ikon
-- Lara-stjerne hvis `priority_source = lara`
-- Brukerikon hvis overstyrt
-- Tooltip viser forslag + begrunnelse + hvem/når
-
-"Endre prioritet"-knapp åpner popover med chips + begrunnelse + en "Vis historikk"-lenke som åpner audit-listen.
-
-**3. Systems-liste**
-Ny sortérbar kolonne "Prioritet" (P0–P3 chip, fargekodet). Liten avviksmarkør hvis faktisk ≠ forslag. Filter i topplinjen.
-
-**4. Aktiviteter**
-Nye Activity-er på et system arver `priority` fra systemet som default. Eksisterende oppgaver røres ikke i denne runden.
-
-## Filer som endres / opprettes
-
-- `supabase/migrations/...` – 4 kolonner + `asset_priority_history`-tabell + RLS
-- `src/lib/derivedPriority.ts` – matrise + helpers (`suggestPriority`, `isDeviation`, `priorityLabel`, `priorityColor`)
-- `src/components/PriorityChip.tsx` – ny gjenbrukbar komponent
-- `src/components/dialogs/AddSystemDialog.tsx` – Lara-forslag + chips + begrunnelse
-- `src/components/asset-profile/AssetProfileHeader.tsx` – pille + popover
-- `src/components/asset-profile/PriorityHistoryDrawer.tsx` – ny, audit trail
-- `src/pages/Systems.tsx` – ny kolonne + filter
-- `src/hooks/useCreateActivity.ts` (eller tilsvarende) – arv av default-prioritet
-- i18n: `priority.p0..p3`, `priority.suggestedBy`, `priority.overrideReason`, `priority.deviation`, `priority.history`, `priority.changeButton` (EN/NO)
-
-## Ikke med i denne runden
-
-- Endring av eksisterende oppgavers prioritet
-- Automatisk eskalering (P0 over X dager)
-- Bulk-oppdatering på tvers av systemer
-- Push-varsler ved avvik
+- Kun frontend + lese-spørringer mot eksisterende tabeller.
+- Ingen migrasjoner, ingen endringer i RLS, ingen endringer i `SystemsPriorityChart` eller andre seksjoner.
