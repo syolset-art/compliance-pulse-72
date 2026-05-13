@@ -1428,13 +1428,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           <Button
                             variant="outline"
                             className="gap-2"
-                            onClick={handleCopyLink}
-                            title={isNb ? "Kopier den fremtidige offentlige lenken" : "Copy the future public link"}
+                            onClick={() => setShareDialogOpen(true)}
+                            title={isNb ? "Del med interne eller eksterne mottakere" : "Share with internal or external recipients"}
                           >
-                            {copiedLink ? <Check className="h-4 w-4 text-success" /> : <Share2 className="h-4 w-4" />}
-                            {copiedLink
-                              ? (isNb ? "Lenke kopiert" : "Link copied")
-                              : (isNb ? "Del lenke" : "Share link")}
+                            <Share2 className="h-4 w-4" />
+                            {isNb ? "Del" : "Share"}
                           </Button>
                           <Button onClick={openPublishDialog} className="gap-2 bg-primary hover:bg-primary/90">
                             <Globe className="h-4 w-4" />
