@@ -84,6 +84,7 @@ import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifa
 import { buildPublicTrustUrl, buildSlug } from "@/lib/publicTrustUrl";
 import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
 import { getVisibilityFromAsset, VISIBILITY_META, type TrustVisibility } from "@/lib/trustVisibility";
+import ShareTrustProfileDialog from "@/components/dialogs/ShareTrustProfileDialog";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
@@ -121,6 +122,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   });
   const [previewDoc, setPreviewDoc] = useState<any>(null);
   const [proofDialogOpen, setProofDialogOpen] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
   usePageHelpListener(setHelpOpenCb);
 
@@ -1396,12 +1398,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <Button
                               variant="outline"
                               className="flex-1 gap-2"
-                              onClick={handleCopyLink}
+                              onClick={() => setShareDialogOpen(true)}
                             >
-                              {copiedLink ? <Check className="h-4 w-4 text-success" /> : <Share2 className="h-4 w-4" />}
-                              {copiedLink
-                                ? (isNb ? "Lenke kopiert" : "Link copied")
-                                : (isNb ? "Del lenke" : "Share link")}
+                              <Share2 className="h-4 w-4" />
+                              {isNb ? "Del" : "Share"}
                             </Button>
                             <Button
                               variant="outline"
@@ -1428,13 +1428,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           <Button
                             variant="outline"
                             className="gap-2"
-                            onClick={handleCopyLink}
-                            title={isNb ? "Kopier den fremtidige offentlige lenken" : "Copy the future public link"}
+                            onClick={() => setShareDialogOpen(true)}
+                            title={isNb ? "Del med interne eller eksterne mottakere" : "Share with internal or external recipients"}
                           >
-                            {copiedLink ? <Check className="h-4 w-4 text-success" /> : <Share2 className="h-4 w-4" />}
-                            {copiedLink
-                              ? (isNb ? "Lenke kopiert" : "Link copied")
-                              : (isNb ? "Del lenke" : "Share link")}
+                            <Share2 className="h-4 w-4" />
+                            {isNb ? "Del" : "Share"}
                           </Button>
                           <Button onClick={openPublishDialog} className="gap-2 bg-primary hover:bg-primary/90">
                             <Globe className="h-4 w-4" />
@@ -2849,6 +2847,11 @@ MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d
         </DialogContent>
       </Dialog>
 {/* Activation now renders inline at top of main */}
+      <ShareTrustProfileDialog
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+        publicUrl={publicFullUrl}
+      />
     </SidebarProvider>
   );
 };
