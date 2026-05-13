@@ -137,7 +137,7 @@ export interface ActivationValues {
   securityEmail?: string;
   maturityAnswers?: Record<string, "yes" | "no" | "later">;
   documents?: ActivationDocument[];
-  publishNow: boolean;
+  visibility: "private" | "ecosystem" | "public";
 }
 
 export async function seedFromActivation(values: ActivationValues) {
@@ -165,7 +165,7 @@ export async function seedFromActivation(values: ActivationValues) {
     name: values.name,
     description: values.description,
     compliance_score: 55,
-    publish_mode: values.publishNow ? "public" : "private",
+    publish_mode: values.visibility,
     lifecycle_status: "active",
     criticality: "high",
     risk_level: "medium",
