@@ -30,6 +30,7 @@ import { ContactsSection } from "@/components/trust-center/edit/ContactsSection"
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
 import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
+import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
@@ -192,9 +193,12 @@ const TrustCenterEditProfile = () => {
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Trust Profile
               </button>
-              <h1 className="text-2xl font-bold text-foreground">
-                {isNb ? "Rediger Trust Profile" : "Edit Trust Profile"}
-              </h1>
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <h1 className="text-2xl font-bold text-foreground">
+                  {isNb ? "Rediger Trust Profile" : "Edit Trust Profile"}
+                </h1>
+                <SavedIndicator lastEditedAt={(asset?.metadata as any)?.last_edited_at || asset?.updated_at} />
+              </div>
               <p className="text-sm text-muted-foreground mt-1">
                 {isNb
                   ? "Lara har generert din profil basert på offentlig informasjon. Bekreft eller juster forslagene under, og last opp egne dokumenter."
@@ -448,8 +452,19 @@ const TrustCenterEditProfile = () => {
             readinessPercent={trustScore}
             passedCount={trustScore}
             totalCount={100}
+            lastEditedAt={(asset?.metadata as any)?.last_edited_at || asset?.updated_at}
+            lastPublishedAt={(asset?.metadata as any)?.last_published_at}
             onPreview={() => navigate("/trust-center/profile")}
-            onPublish={() => toast.success(isNb ? "Trust Profile publisert" : "Trust Profile published")}
+            onPublish={async () => {
+              if (!asset?.id) return;
+              const nowIso = new Date().toISOString();
+              const currentMeta = (asset?.metadata || {}) as Record<string, any>;
+              const nextMeta = { ...currentMeta, last_published_at: nowIso };
+              await supabase.from("assets").update({ metadata: nextMeta as any }).eq("id", asset.id);
+              queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+              queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+              toast.success(isNb ? "Trust Profile publisert" : "Trust Profile published");
+            }}
           />
         </main>
       </div>

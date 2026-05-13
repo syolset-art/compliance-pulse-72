@@ -17,6 +17,8 @@ export function useAssetMetadata(assetId: string | undefined, currentMeta: Recor
         cursor = cursor[k];
       }
       cursor[path[path.length - 1]] = value;
+      const nowIso = new Date().toISOString();
+      next.last_edited_at = nowIso;
       const { error } = await supabase.from("assets").update({ metadata: next }).eq("id", assetId);
       if (error) {
         toast.error("Kunne ikke lagre");
@@ -24,6 +26,10 @@ export function useAssetMetadata(assetId: string | undefined, currentMeta: Recor
       }
       qc.invalidateQueries({ queryKey: ["self-asset-edit"] });
       qc.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
+      // Subtle global save signal — picked up by SavedIndicator
+      try {
+        window.dispatchEvent(new CustomEvent("trust-profile-saved", { detail: { at: nowIso } }));
+      } catch {}
       if (!opts?.silent) toast.success("Lagret");
     },
     [assetId, currentMeta, qc]
