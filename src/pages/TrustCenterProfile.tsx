@@ -85,6 +85,7 @@ import { buildPublicTrustUrl, buildSlug } from "@/lib/publicTrustUrl";
 import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
 import { getVisibilityFromAsset, VISIBILITY_META, type TrustVisibility } from "@/lib/trustVisibility";
 import ShareTrustProfileDialog from "@/components/dialogs/ShareTrustProfileDialog";
+import TrustProfileFreshness from "@/components/trust-center/TrustProfileFreshness";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
