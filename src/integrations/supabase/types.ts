@@ -3121,6 +3121,7 @@ export type Database = {
           updated_at: string | null
           url: string | null
           vendor: string | null
+          vendor_asset_id: string | null
           work_area_id: string | null
         }
         Insert: {
@@ -3140,6 +3141,7 @@ export type Database = {
           updated_at?: string | null
           url?: string | null
           vendor?: string | null
+          vendor_asset_id?: string | null
           work_area_id?: string | null
         }
         Update: {
@@ -3159,9 +3161,17 @@ export type Database = {
           updated_at?: string | null
           url?: string | null
           vendor?: string | null
+          vendor_asset_id?: string | null
           work_area_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "systems_vendor_asset_id_fkey"
+            columns: ["vendor_asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "systems_work_area_id_fkey"
             columns: ["work_area_id"]

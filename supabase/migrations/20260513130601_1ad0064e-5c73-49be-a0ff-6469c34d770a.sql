@@ -1,0 +1,2 @@
+ALTER TABLE public.systems ADD COLUMN IF NOT EXISTS vendor_asset_id uuid REFERENCES public.assets(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_systems_vendor_asset_id ON public.systems(vendor_asset_id);
