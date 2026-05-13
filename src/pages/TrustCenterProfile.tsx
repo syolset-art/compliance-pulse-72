@@ -82,6 +82,8 @@ import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
 import { buildPublicTrustUrl, buildSlug } from "@/lib/publicTrustUrl";
+import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
+import { getVisibilityFromAsset, VISIBILITY_META, type TrustVisibility } from "@/lib/trustVisibility";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
@@ -381,7 +383,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     setPublishStep("publishing");
     const { error } = await supabase
       .from("assets")
-      .update({ publish_mode: "all" } as any)
+      .update({ publish_mode: "public" } as any)
       .eq("id", asset!.id);
 
     if (error) {
@@ -923,6 +925,33 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </p>
             </div>
 
+            {/* Lara aktivert-banner — vises etter aktivering inntil bruker har bekreftet synlighet */}
+            {isOwnProfile && asset && (companyProfile?.org_number || asset?.description) && !((asset as any)?.metadata?.visibility_confirmed_at) && (
+              <Card className="p-4 border-[hsl(var(--mynder-blue))]/25 bg-[hsl(var(--mynder-blue))]/5">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-9 w-9 rounded-full bg-[hsl(var(--mynder-blue))]/15 flex items-center justify-center shrink-0">
+                      <Sparkles className="h-4 w-4 text-[hsl(var(--mynder-blue))]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground">
+                        {isNb ? "Trust Profile er aktivert" : "Trust Profile is activated"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {isNb
+                          ? `Synlighet: ${VISIBILITY_META[getVisibilityFromAsset(asset as any)].labelNb} · Bekreft eller endre når som helst.`
+                          : `Visibility: ${VISIBILITY_META[getVisibilityFromAsset(asset as any)].labelEn} · Confirm or change anytime.`}
+                      </p>
+                    </div>
+                  </div>
+                  <VisibilitySelector
+                    assetId={asset.id}
+                    current={getVisibilityFromAsset(asset as any)}
+                  />
+                </div>
+              </Card>
+            )}
+
             {/* Lara activation prompt — vises kun når profilen ikke er aktivert (org.nr OG beskrivelse mangler) */}
             {(!companyProfile?.org_number && !asset?.description) && (
               <Card className="p-5 border-primary/20 bg-primary/5">
@@ -1214,16 +1243,24 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 {publishSubTab === "link" && (
                   <div className="space-y-5">
                     <Card className="p-6 space-y-4">
-                      <div className="space-y-1">
-                        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                          <Link2 className="h-4 w-4 text-primary" />
-                          {isNb ? "Din offentlige Trust Center-lenke" : "Your public Trust Center link"}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {isNb
-                            ? "Dette er din unike adresse – som en LinkedIn-profil for virksomhetens sikkerhet."
-                            : "This is your unique address – like a LinkedIn profile for your organization's security posture."}
-                        </p>
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div className="space-y-1">
+                          <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+                            <Link2 className="h-4 w-4 text-primary" />
+                            {isNb ? "Din offentlige Trust Center-lenke" : "Your public Trust Center link"}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {isNb
+                              ? "Dette er din unike adresse – som en LinkedIn-profil for virksomhetens sikkerhet."
+                              : "This is your unique address – like a LinkedIn profile for your organization's security posture."}
+                          </p>
+                        </div>
+                        {asset?.id && (
+                          <VisibilitySelector
+                            assetId={asset.id}
+                            current={getVisibilityFromAsset(asset as any)}
+                          />
+                        )}
                       </div>
 
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-1">
@@ -1325,9 +1362,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <span className="text-xs text-muted-foreground">
                               {isNb ? "Synlig for: " : "Visible to: "}
                               <span className="font-medium text-foreground">
-                                {(asset as any).publish_mode === "all"
+                                {(asset as any).publish_mode === "public"
                                   ? (isNb ? "Alle (offentlig)" : "Everyone (public)")
-                                  : (isNb ? "Utvalgte kunder" : "Selected customers")}
+                                  : (asset as any).publish_mode === "ecosystem"
+                                    ? (isNb ? "Mynder-økosystem" : "Mynder ecosystem")
+                                    : (isNb ? "Privat" : "Private")}
                               </span>
                             </span>
                           </div>

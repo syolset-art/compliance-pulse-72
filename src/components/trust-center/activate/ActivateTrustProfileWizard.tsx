@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
 import { getLaraScanForDomain, SCAN_STEPS_MS, type LaraScanResult } from "@/lib/demoTrustActivation";
 import { seedFromActivation, type ActivationValues, type ActivationDocument } from "@/lib/demoSeedTrustProfile";
+import { VISIBILITY_META, ALL_VISIBILITY_LEVELS, DEFAULT_VISIBILITY, type TrustVisibility } from "@/lib/trustVisibility";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   MATURITY_AREAS, ALL_MATURITY_QUESTIONS, DOCUMENT_SLOTS,
   deriveDefaultAnswers, deriveLaraSources,
@@ -40,9 +42,9 @@ interface Props {
   initialMaturity?: MaturityAnswers;
 }
 
-type Step = 0 | 1 | 2 | 3 | 4 | 5;
-const TOTAL_STEPS = 6;
-const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter"];
+type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+const TOTAL_STEPS = 7;
+const STEP_LABELS = ["Velkommen", "Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter", "Synlighet"];
 
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline,
@@ -91,6 +93,10 @@ export default function ActivateTrustProfileWizard({
 
   // Step 5: documents
   const [documents, setDocuments] = useState<ActivationDocument[]>([]);
+
+  // Step 6: visibility
+  const [visibility, setVisibility] = useState<TrustVisibility>(DEFAULT_VISIBILITY);
+  const [publicAcknowledged, setPublicAcknowledged] = useState(false);
 
   // Publishing
   const [isPublishing, setIsPublishing] = useState(false);
@@ -239,7 +245,7 @@ export default function ActivateTrustProfileWizard({
     return true;
   }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => setStep((s) => (Math.min(5, s + 1) as Step));
+  const next = () => setStep((s) => (Math.min(6, s + 1) as Step));
   const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
@@ -263,7 +269,7 @@ export default function ActivateTrustProfileWizard({
     }
   };
 
-  const handlePublish = async (publishNow: boolean) => {
+  const handlePublish = async () => {
     setIsPublishing(true);
     // Run Lara "calculation" animation before actually publishing
     setIsCalculating(true);
@@ -290,14 +296,14 @@ export default function ActivateTrustProfileWizard({
       securityEmail,
       maturityAnswers,
       documents,
-      publishNow,
+      visibility,
     };
     try {
       await seedFromActivation(values);
       try { localStorage.setItem("mynder.trustprofile.activated", "1"); } catch {}
       await queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
       await queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-      toast.success(publishNow ? "Trust Profile publisert" : "Trust Profile lagret som utkast");
+      toast.success("Trust Profile aktivert");
       onOpenChange(false);
       onCompleted?.();
     } catch (e: any) {
@@ -337,6 +343,7 @@ export default function ActivateTrustProfileWizard({
         {step === 3 && "Bekreft og juster informasjonen"}
         {step === 4 && "Modenhet — bekreft det Lara fant"}
         {step === 5 && "Last opp dokumenter"}
+        {step === 6 && "Hvem skal se din Trust Profile?"}
       </h2>
       <p className="text-sm text-muted-foreground">
         {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
@@ -348,7 +355,8 @@ export default function ActivateTrustProfileWizard({
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
         {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
-        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk. Når du er ferdig er aktiveringen fullført, og du kommer rett til Trust Profile-siden din."}
+        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
+        {step === 6 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
       </p>
       <Progress value={(step / (TOTAL_STEPS - 1)) * 100} className="h-1" />
     </div>
@@ -401,7 +409,15 @@ export default function ActivateTrustProfileWizard({
       {step === 5 && !isCalculating && (
         <DocumentsStep documents={documents} onUpload={uploadDocument} />
       )}
-      {step === 5 && isCalculating && (
+      {step === 6 && !isCalculating && (
+        <VisibilityStep
+          visibility={visibility}
+          setVisibility={setVisibility}
+          publicAcknowledged={publicAcknowledged}
+          setPublicAcknowledged={setPublicAcknowledged}
+        />
+      )}
+      {step === 6 && isCalculating && (
         <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
       )}
     </div>
@@ -413,23 +429,28 @@ export default function ActivateTrustProfileWizard({
         {step === 0 || (hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
-      {step < 5 ? (
+      {step < 6 ? (
         <div className="flex gap-2">
           {step === 2 && (
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-full">
               Lukk — kom tilbake senere
             </Button>
           )}
-          <Button onClick={next} disabled={!canNext} className="gap-2">
+          <Button onClick={next} disabled={!canNext} className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white">
             {step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
             {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
             {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
+            {step === 5 && (<>Velg synlighet <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
-        <Button onClick={() => handlePublish(true)} disabled={isPublishing} className="gap-2">
+        <Button
+          onClick={() => handlePublish()}
+          disabled={isPublishing || (visibility === "public" && !publicAcknowledged)}
+          className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white"
+        >
           {isPublishing || isCalculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
           {isCalculating ? "Lara beregner Trust Score …" : "Fullfør aktivering — gå til Trust Profile"}
         </Button>
@@ -1123,6 +1144,84 @@ function CalculatingScoreStep({ activeStep, score }: { activeStep: number; score
           );
         })}
       </ul>
+    </div>
+  );
+}
+
+function VisibilityStep({
+  visibility,
+  setVisibility,
+  publicAcknowledged,
+  setPublicAcknowledged,
+}: {
+  visibility: TrustVisibility;
+  setVisibility: (v: TrustVisibility) => void;
+  publicAcknowledged: boolean;
+  setPublicAcknowledged: (v: boolean) => void;
+}) {
+  return (
+    <div className="space-y-3">
+      {ALL_VISIBILITY_LEVELS.map((level) => {
+        const meta = VISIBILITY_META[level];
+        const Icon = meta.icon;
+        const selected = visibility === level;
+        return (
+          <button
+            key={level}
+            type="button"
+            onClick={() => setVisibility(level)}
+            className={`w-full text-left rounded-2xl border p-4 transition-all ${
+              selected
+                ? "border-[hsl(var(--mynder-blue))] bg-[hsl(var(--mynder-blue))]/5 ring-2 ring-[hsl(var(--mynder-blue))]/20"
+                : "border-border hover:border-foreground/20"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className={`mt-0.5 flex h-9 w-9 items-center justify-center rounded-full ${
+                  selected ? "bg-[hsl(var(--mynder-blue))] text-white" : "bg-muted text-muted-foreground"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-sm">{meta.labelNb}</h3>
+                  {level === "ecosystem" && (
+                    <Badge variant="outline" className="text-[10px] border-[hsl(var(--mynder-blue))]/40 text-[hsl(var(--mynder-blue))]">
+                      Anbefalt
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{meta.descNb}</p>
+              </div>
+              <div
+                className={`mt-1 h-4 w-4 rounded-full border-2 ${
+                  selected ? "border-[hsl(var(--mynder-blue))] bg-[hsl(var(--mynder-blue))]" : "border-muted-foreground/40"
+                }`}
+              />
+            </div>
+          </button>
+        );
+      })}
+
+      {visibility === "public" && (
+        <div className="rounded-xl border border-warning/30 bg-warning/5 p-3 flex gap-2">
+          <Checkbox
+            id="public-ack"
+            checked={publicAcknowledged}
+            onCheckedChange={(c) => setPublicAcknowledged(c === true)}
+            className="mt-0.5"
+          />
+          <Label htmlFor="public-ack" className="text-xs leading-relaxed cursor-pointer">
+            Jeg bekrefter at innholdet i Trust Profilen er klarert for offentlig publisering og indeksering av søkemotorer.
+          </Label>
+        </div>
+      )}
+
+      <p className="text-xs text-muted-foreground pt-1">
+        Du kan endre synlighet når som helst fra Trust Profile-siden.
+      </p>
     </div>
   );
 }
