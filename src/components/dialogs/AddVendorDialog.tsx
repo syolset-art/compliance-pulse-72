@@ -639,6 +639,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
   const totalSteps = isFileFlow ? fileFlowSteps.length : STEPS_SINGLE.length;
 
   return (
+    <>
     <Dialog
       open={open}
       onOpenChange={(o) => {
