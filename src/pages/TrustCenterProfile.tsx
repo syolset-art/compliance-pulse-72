@@ -928,6 +928,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </p>
             </div>
 
+            {isOwnProfile && asset?.id && (companyProfile?.org_number || asset?.description) && (
+              <TrustProfileFreshness
+                assetId={asset.id}
+                updatedAt={(asset as any).updated_at}
+                lastEnrichedAt={(asset as any)?.metadata?.last_enriched_at}
+              />
+            )}
+
             {/* Lara aktivert-banner — vises etter aktivering inntil bruker har bekreftet synlighet */}
             {isOwnProfile && asset && (companyProfile?.org_number || asset?.description) && !((asset as any)?.metadata?.visibility_confirmed_at) && (
               <Card className="p-4 border-[hsl(var(--mynder-blue))]/25 bg-[hsl(var(--mynder-blue))]/5">
