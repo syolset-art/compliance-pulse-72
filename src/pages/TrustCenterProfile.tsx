@@ -223,35 +223,29 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const evaluation = useTrustControlEvaluation(asset?.id || "");
   const { data: partnerInfo } = usePartnerInfo(companyProfile?.id);
 
-  // First-time activation: show wizard instead of auto-seeding silently.
-  // If user skipped previously, fall back to auto-seed so the page is never empty.
+  // Trust Profile is gated behind explicit activation. If the user hasn't
+  // completed the activation wizard, we show a locked landing state instead
+  // of any profile content. propAssetId / readOnly views (public link, MSP
+  // partner view, service profile) bypass this gate entirely.
+  const isOwnProfile = !propAssetId && !readOnly;
+
   useEffect(() => {
-    if (asset || isLoading || isSeeding || propAssetId) return;
+    if (!isOwnProfile) return;
+    if (isActivated) return;
+    if (isLoading || isSeeding) return;
+    // Auto-open wizard the very first time. After that the locked state's
+    // CTA is the only entry point — we don't keep popping it open.
     let activatedFlag: string | null = null;
     try { activatedFlag = localStorage.getItem("mynder.trustprofile.activated"); } catch {}
-    if (!activatedFlag) {
+    if (activatedFlag === null) {
       setShowActivateWizard(true);
-      return;
     }
-    // Skipped previously → keep legacy auto-seed behaviour
-    setIsSeeding(true);
-    seedDemoTrustProfile()
-      .then(() => {
-        queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
-        queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-      })
-      .catch((e) => {
-        console.error("Auto-seed failed:", e);
-        toast.error(isNb ? "Kunne ikke opprette profil" : "Could not create profile");
-      })
-      .finally(() => setIsSeeding(false));
-  }, [asset, isLoading, isSeeding, propAssetId]);
+  }, [isOwnProfile, isActivated, isLoading, isSeeding]);
 
   // Allow external trigger (e.g. from sidebar demo button) to re-open the wizard
   useEffect(() => {
     const open = () => setShowActivateWizard(true);
     window.addEventListener("open-activate-trust-wizard", open);
-    // Also support ?activate=1 query param on initial load
     if (typeof window !== "undefined" && window.location.search.includes("activate=1")) {
       setShowActivateWizard(true);
     }
