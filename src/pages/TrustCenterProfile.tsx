@@ -84,6 +84,7 @@ import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifa
 import { buildPublicTrustUrl, buildSlug } from "@/lib/publicTrustUrl";
 import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
 import { getVisibilityFromAsset, VISIBILITY_META, type TrustVisibility } from "@/lib/trustVisibility";
+import ShareTrustProfileDialog from "@/components/dialogs/ShareTrustProfileDialog";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
