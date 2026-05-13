@@ -450,6 +450,7 @@ export type Database = {
           asset_id: string
           changed_at: string
           changed_by: string | null
+          entity_type: string
           from_priority: string | null
           id: string
           reason: string | null
@@ -461,6 +462,7 @@ export type Database = {
           asset_id: string
           changed_at?: string
           changed_by?: string | null
+          entity_type?: string
           from_priority?: string | null
           id?: string
           reason?: string | null
@@ -472,6 +474,7 @@ export type Database = {
           asset_id?: string
           changed_at?: string
           changed_by?: string | null
+          entity_type?: string
           from_priority?: string | null
           id?: string
           reason?: string | null
@@ -3161,10 +3164,17 @@ export type Database = {
           contact_email: string | null
           contact_person: string | null
           created_at: string | null
+          criticality: string | null
           description: string | null
           id: string
           name: string
           next_review_date: string | null
+          priority: string | null
+          priority_reason: string | null
+          priority_source: string | null
+          priority_suggested: string | null
+          priority_updated_at: string | null
+          priority_updated_by: string | null
           risk_level: string | null
           risk_score: number | null
           status: string | null
@@ -3181,10 +3191,17 @@ export type Database = {
           contact_email?: string | null
           contact_person?: string | null
           created_at?: string | null
+          criticality?: string | null
           description?: string | null
           id?: string
           name: string
           next_review_date?: string | null
+          priority?: string | null
+          priority_reason?: string | null
+          priority_source?: string | null
+          priority_suggested?: string | null
+          priority_updated_at?: string | null
+          priority_updated_by?: string | null
           risk_level?: string | null
           risk_score?: number | null
           status?: string | null
@@ -3201,10 +3218,17 @@ export type Database = {
           contact_email?: string | null
           contact_person?: string | null
           created_at?: string | null
+          criticality?: string | null
           description?: string | null
           id?: string
           name?: string
           next_review_date?: string | null
+          priority?: string | null
+          priority_reason?: string | null
+          priority_source?: string | null
+          priority_suggested?: string | null
+          priority_updated_at?: string | null
+          priority_updated_by?: string | null
           risk_level?: string | null
           risk_score?: number | null
           status?: string | null
