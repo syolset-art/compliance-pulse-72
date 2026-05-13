@@ -83,8 +83,6 @@ export default function ShareTrustProfileDialog({
 
   const [access, setAccess] = useState<AccessEntry[]>([]);
   const [emailDraft, setEmailDraft] = useState("");
-  const [typeDraft, setTypeDraft] = useState<AccessType>("external");
-  const [typeManuallyChosen, setTypeManuallyChosen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
   // Load when opened
@@ -92,21 +90,12 @@ export default function ShareTrustProfileDialog({
     if (open) {
       setAccess(loadAccess(storageKey));
       setEmailDraft("");
-      setTypeDraft("external");
-      setTypeManuallyChosen(false);
       setLinkCopied(false);
     }
   }, [open, storageKey]);
 
-  // Auto-classify draft type by domain unless user overrode
-  useEffect(() => {
-    if (typeManuallyChosen) return;
-    if (!emailDraft.trim()) return;
-    const guess = classify(emailDraft, orgDomain);
-    setTypeDraft(prev => (prev === guess ? prev : guess));
-  }, [emailDraft, orgDomain, typeManuallyChosen]);
-
   const draftValid = emailSchema.safeParse(emailDraft).success;
+  const detectedType: AccessType | null = draftValid ? classify(emailDraft, orgDomain) : null;
   const draftDuplicate = useMemo(() => {
     const e = emailDraft.trim().toLowerCase();
     return !!e && access.some(a => a.email === e);
@@ -122,21 +111,21 @@ export default function ShareTrustProfileDialog({
       toast.error(isNb ? "Personen har allerede tilgang" : "Person already has access");
       return;
     }
+    const type = classify(parsed.data, orgDomain);
     const entry: AccessEntry = {
       id: crypto.randomUUID(),
       email: parsed.data,
-      type: typeDraft,
+      type,
       addedAt: new Date().toISOString(),
     };
     const next = [entry, ...access];
     setAccess(next);
     saveAccess(storageKey, next);
     setEmailDraft("");
-    setTypeManuallyChosen(false);
     toast.success(
       isNb
-        ? `Tilgang gitt til ${parsed.data} (${typeDraft === "internal" ? "intern" : "ekstern"})`
-        : `Access granted to ${parsed.data} (${typeDraft})`
+        ? `Tilgang gitt til ${parsed.data} (${type === "internal" ? "intern" : "ekstern"})`
+        : `Access granted to ${parsed.data} (${type})`
     );
   };
 
