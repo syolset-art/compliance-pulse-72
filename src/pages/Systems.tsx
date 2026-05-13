@@ -78,6 +78,12 @@ interface System {
   compliance_score?: number;
   work_area_id?: string | null;
   system_manager?: string | null;
+  priority?: string | null;
+  priority_source?: string | null;
+  priority_suggested?: string | null;
+  priority_reason?: string | null;
+  priority_updated_at?: string | null;
+  priority_updated_by?: string | null;
 }
 
 interface WorkArea {
