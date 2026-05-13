@@ -452,8 +452,19 @@ const TrustCenterEditProfile = () => {
             readinessPercent={trustScore}
             passedCount={trustScore}
             totalCount={100}
+            lastEditedAt={(asset?.metadata as any)?.last_edited_at || asset?.updated_at}
+            lastPublishedAt={(asset?.metadata as any)?.last_published_at}
             onPreview={() => navigate("/trust-center/profile")}
-            onPublish={() => toast.success(isNb ? "Trust Profile publisert" : "Trust Profile published")}
+            onPublish={async () => {
+              if (!asset?.id) return;
+              const nowIso = new Date().toISOString();
+              const currentMeta = (asset?.metadata || {}) as Record<string, any>;
+              const nextMeta = { ...currentMeta, last_published_at: nowIso };
+              await supabase.from("assets").update({ metadata: nextMeta as any }).eq("id", asset.id);
+              queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+              queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+              toast.success(isNb ? "Trust Profile publisert" : "Trust Profile published");
+            }}
           />
         </main>
       </div>
