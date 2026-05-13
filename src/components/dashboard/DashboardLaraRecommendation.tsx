@@ -203,8 +203,8 @@ export function DashboardLaraRecommendation() {
           </p>
           <p className="text-sm text-foreground/80 mt-0.5">
             {isNb
-              ? `${count} oppgaver totalt — starter med de ${total} mest kritiske · ca. ${total * 3} min`
-              : `${count} tasks total — starting with the ${total} most critical · ~${total * 3} min`}
+              ? `${count} oppgaver totalt — sortert etter prioritet, starter med A · ca. ${total * 3} min`
+              : `${count} tasks total — sorted by priority, starting with A · ~${total * 3} min`}
           </p>
         </div>
         <button
