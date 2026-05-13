@@ -140,6 +140,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
     contact_email: "",
     delivery_model: "" as DeliveryModel | "",
     vendor_roles: [] as VendorRole[],
+    priority: "" as PriorityKey | "",
+    priority_reason: "",
   });
 
   // Reset when dialog opens/closes
