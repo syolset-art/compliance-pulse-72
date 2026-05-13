@@ -91,6 +91,9 @@ export default function VendorDashboard() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <h1 className="text-xl md:text-2xl font-bold text-primary">{t("nav.vendors", "Leverandører")}</h1>
+              <span className="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-muted text-muted-foreground text-sm font-medium">
+                {vendors.length}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <Button

@@ -17,7 +17,10 @@ import {
   Globe,
   Shield,
   ArrowRight,
+  Clock,
 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { nb } from "date-fns/locale";
 import {
   PieChart,
   Pie,
@@ -48,6 +51,7 @@ interface Asset {
   vendor_category?: string | null;
   gdpr_role?: string | null;
   work_area_id?: string | null;
+  created_at?: string | null;
 }
 
 interface VendorOverviewTabProps {
@@ -232,15 +236,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
       />
 
       {/* KPI Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card variant="flat" className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Building2 className="h-4 w-4 text-primary" />
-            <span className="text-xs text-muted-foreground">Totalt leverandører</span>
-          </div>
-          <p className="text-2xl font-bold text-primary">{metrics.total}</p>
-          <p className="text-[13px] text-muted-foreground mt-1">{metrics.compliant} compliant (&ge;80%)</p>
-        </Card>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <Card variant="flat" className="p-4">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="h-4 w-4 text-success" />
@@ -264,6 +260,105 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
           </div>
           <p className="text-2xl font-bold text-warning">{totalAttention}</p>
           <p className="text-[13px] text-muted-foreground mt-1">{metrics.withExpiredDocs} utdaterte dok.</p>
+        </Card>
+      </div>
+
+      {/* Recently Added + Lara Priority */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Recently Added */}
+        <Card variant="flat" className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Clock className="h-4 w-4 text-primary" />
+              Sist lagt til
+            </h3>
+            <Badge variant="outline" className="text-[13px]">Siste 5</Badge>
+          </div>
+          <div className="space-y-2">
+            {[...vendors]
+              .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+              .slice(0, 5)
+              .map((v) => {
+                const score = v.compliance_score || 0;
+                const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
+                return (
+                  <div
+                    key={v.id}
+                    onClick={() => navigate(`/assets/${v.id}`)}
+                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Building2 className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
+                      <p className="text-[13px] text-muted-foreground">
+                        {v.created_at
+                          ? formatDistanceToNow(new Date(v.created_at), { addSuffix: true, locale: nb })
+                          : "Ukjent dato"}
+                      </p>
+                    </div>
+                    <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
+                  </div>
+                );
+              })}
+          </div>
+        </Card>
+
+        {/* Lara Priority — Low Trust Score */}
+        <Card variant="flat" className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Lara-anbefalinger
+            </h3>
+            <Badge variant="outline" className="text-[13px]">Lav trust score</Badge>
+          </div>
+          <div className="space-y-2">
+            {[...vendors]
+              .filter((v) => (v.compliance_score || 100) < 60 || v.risk_level === "high")
+              .sort((a, b) => (a.compliance_score || 100) - (b.compliance_score || 100))
+              .slice(0, 5)
+              .map((v) => {
+                const score = v.compliance_score || 0;
+                const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
+                return (
+                  <div
+                    key={v.id}
+                    onClick={() => navigate(`/assets/${v.id}`)}
+                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
+                      <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
+                        {v.vendor_category && <span>{CATEGORY_LABELS[v.vendor_category] || v.vendor_category}</span>}
+                        {v.risk_level && (
+                          <Badge
+                            variant="outline"
+                            className={`text-[13px] h-4 ${
+                              v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/20" :
+                              v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/20" :
+                              "bg-success/10 text-success border-success/20"
+                            }`}
+                          >
+                            {{ high: "Høy", medium: "Middels", low: "Lav" }[v.risk_level] || v.risk_level}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
+                  </div>
+                );
+              })}
+            {vendors.filter((v) => (v.compliance_score || 100) < 60 || v.risk_level === "high").length === 0 && (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                Ingen leverandører med lav trust score. Bra jobbet!
+              </p>
+            )}
+          </div>
         </Card>
       </div>
 
