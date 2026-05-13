@@ -244,7 +244,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         contact_email: formData.contact_email || null,
       };
 
-      const { error } = await supabase.from("systems").insert([insertData]);
+      const { error } = await supabase.from("systems").insert([insertData as never]);
       if (error) throw error;
 
       // Update onboarding progress
