@@ -123,6 +123,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         description: "",
         category: "",
         vendor: "",
+        vendor_asset_id: "",
         risk_level: "",
         status: "in_use",
         url: "",
