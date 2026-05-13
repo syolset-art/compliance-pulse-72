@@ -1398,12 +1398,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <Button
                               variant="outline"
                               className="flex-1 gap-2"
-                              onClick={handleCopyLink}
+                              onClick={() => setShareDialogOpen(true)}
                             >
-                              {copiedLink ? <Check className="h-4 w-4 text-success" /> : <Share2 className="h-4 w-4" />}
-                              {copiedLink
-                                ? (isNb ? "Lenke kopiert" : "Link copied")
-                                : (isNb ? "Del lenke" : "Share link")}
+                              <Share2 className="h-4 w-4" />
+                              {isNb ? "Del" : "Share"}
                             </Button>
                             <Button
                               variant="outline"
