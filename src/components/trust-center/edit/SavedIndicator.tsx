@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Check, CloudCheck } from "lucide-react";
+import { Check } from "lucide-react";
 
 type Props = {
   lastEditedAt?: string | null;
