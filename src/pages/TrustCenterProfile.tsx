@@ -85,6 +85,7 @@ import { buildPublicTrustUrl, buildSlug } from "@/lib/publicTrustUrl";
 import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
 import { getVisibilityFromAsset, VISIBILITY_META, type TrustVisibility } from "@/lib/trustVisibility";
 import ShareTrustProfileDialog from "@/components/dialogs/ShareTrustProfileDialog";
+import TrustProfileFreshness from "@/components/trust-center/TrustProfileFreshness";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
@@ -926,6 +927,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   : "Shareable compliance profile for due diligence"}
               </p>
             </div>
+
+            {isOwnProfile && asset?.id && (companyProfile?.org_number || asset?.description) && (
+              <TrustProfileFreshness
+                assetId={asset.id}
+                updatedAt={(asset as any).updated_at}
+                lastEnrichedAt={(asset as any)?.metadata?.last_enriched_at}
+              />
+            )}
 
             {/* Lara aktivert-banner — vises etter aktivering inntil bruker har bekreftet synlighet */}
             {isOwnProfile && asset && (companyProfile?.org_number || asset?.description) && !((asset as any)?.metadata?.visibility_confirmed_at) && (
