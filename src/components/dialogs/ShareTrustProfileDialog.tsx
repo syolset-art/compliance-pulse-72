@@ -8,9 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import {
@@ -83,8 +80,6 @@ export default function ShareTrustProfileDialog({
 
   const [access, setAccess] = useState<AccessEntry[]>([]);
   const [emailDraft, setEmailDraft] = useState("");
-  const [typeDraft, setTypeDraft] = useState<AccessType>("external");
-  const [typeManuallyChosen, setTypeManuallyChosen] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
   // Load when opened
@@ -92,21 +87,12 @@ export default function ShareTrustProfileDialog({
     if (open) {
       setAccess(loadAccess(storageKey));
       setEmailDraft("");
-      setTypeDraft("external");
-      setTypeManuallyChosen(false);
       setLinkCopied(false);
     }
   }, [open, storageKey]);
 
-  // Auto-classify draft type by domain unless user overrode
-  useEffect(() => {
-    if (typeManuallyChosen) return;
-    if (!emailDraft.trim()) return;
-    const guess = classify(emailDraft, orgDomain);
-    setTypeDraft(prev => (prev === guess ? prev : guess));
-  }, [emailDraft, orgDomain, typeManuallyChosen]);
-
   const draftValid = emailSchema.safeParse(emailDraft).success;
+  const detectedType: AccessType | null = draftValid ? classify(emailDraft, orgDomain) : null;
   const draftDuplicate = useMemo(() => {
     const e = emailDraft.trim().toLowerCase();
     return !!e && access.some(a => a.email === e);
@@ -122,32 +108,26 @@ export default function ShareTrustProfileDialog({
       toast.error(isNb ? "Personen har allerede tilgang" : "Person already has access");
       return;
     }
+    const type = classify(parsed.data, orgDomain);
     const entry: AccessEntry = {
       id: crypto.randomUUID(),
       email: parsed.data,
-      type: typeDraft,
+      type,
       addedAt: new Date().toISOString(),
     };
     const next = [entry, ...access];
     setAccess(next);
     saveAccess(storageKey, next);
     setEmailDraft("");
-    setTypeManuallyChosen(false);
     toast.success(
       isNb
-        ? `Tilgang gitt til ${parsed.data} (${typeDraft === "internal" ? "intern" : "ekstern"})`
-        : `Access granted to ${parsed.data} (${typeDraft})`
+        ? `Tilgang gitt til ${parsed.data} (${type === "internal" ? "intern" : "ekstern"})`
+        : `Access granted to ${parsed.data} (${type})`
     );
   };
 
   const removePerson = (id: string) => {
     const next = access.filter(a => a.id !== id);
-    setAccess(next);
-    saveAccess(storageKey, next);
-  };
-
-  const updateType = (id: string, type: AccessType) => {
-    const next = access.map(a => (a.id === id ? { ...a, type } : a));
     setAccess(next);
     saveAccess(storageKey, next);
   };
@@ -204,31 +184,6 @@ export default function ShareTrustProfileDialog({
               maxLength={255}
               className="flex-1"
             />
-            <Select
-              value={typeDraft}
-              onValueChange={(v) => {
-                setTypeDraft(v as AccessType);
-                setTypeManuallyChosen(true);
-              }}
-            >
-              <SelectTrigger className="w-[120px] shrink-0">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="internal">
-                  <span className="inline-flex items-center gap-2">
-                    <Building2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    {isNb ? "Intern" : "Internal"}
-                  </span>
-                </SelectItem>
-                <SelectItem value="external">
-                  <span className="inline-flex items-center gap-2">
-                    <Globe className="h-3.5 w-3.5" aria-hidden="true" />
-                    {isNb ? "Ekstern" : "External"}
-                  </span>
-                </SelectItem>
-              </SelectContent>
-            </Select>
             <Button
               type="button"
               size="icon"
@@ -240,6 +195,23 @@ export default function ShareTrustProfileDialog({
               <Plus className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>
+          {detectedType && !draftDuplicate && (
+            <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1.5">
+              {detectedType === "internal" ? (
+                <>
+                  <Building2 className="h-3 w-3" aria-hidden="true" />
+                  {isNb
+                    ? `Oppdaget som intern (samme domene som ${orgDomain})`
+                    : `Detected as internal (same domain as ${orgDomain})`}
+                </>
+              ) : (
+                <>
+                  <Globe className="h-3 w-3" aria-hidden="true" />
+                  {isNb ? "Oppdaget som ekstern" : "Detected as external"}
+                </>
+              )}
+            </p>
+          )}
           {emailDraft && !draftValid && (
             <p className="text-xs text-destructive">{isNb ? "Ugyldig e-postadresse" : "Invalid email address"}</p>
           )}
@@ -300,15 +272,22 @@ export default function ShareTrustProfileDialog({
                         })}
                       </p>
                     </div>
-                    <Select value={a.type} onValueChange={(v) => updateType(a.id, v as AccessType)}>
-                      <SelectTrigger className="h-7 w-[110px] text-xs shrink-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="internal">{isNb ? "Intern" : "Internal"}</SelectItem>
-                        <SelectItem value="external">{isNb ? "Ekstern" : "External"}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Badge
+                      variant="secondary"
+                      className="h-6 px-2 gap-1 text-[11px] shrink-0"
+                    >
+                      {a.type === "internal" ? (
+                        <>
+                          <Building2 className="h-3 w-3" aria-hidden="true" />
+                          {isNb ? "Intern" : "Internal"}
+                        </>
+                      ) : (
+                        <>
+                          <Globe className="h-3 w-3" aria-hidden="true" />
+                          {isNb ? "Ekstern" : "External"}
+                        </>
+                      )}
+                    </Badge>
                     <Button
                       type="button"
                       variant="ghost"
