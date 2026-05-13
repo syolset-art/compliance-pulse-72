@@ -1,93 +1,83 @@
-## Mål
 
-Når en leverandør legges til, skal Mynder automatisk lete etter eksisterende systemer og andre assets som ser ut til å høre sammen med leverandøren. Funnene presenteres for brukeren som kan godkjenne hvilke som skal kobles, og koblingene lagres i `asset_relationships`.
+# Prioritet på system/leverandør
 
-## Når skjer kartleggingen
+Legger til en P0–P3-prioritet på hvert system/leverandør (asset). Lara foreslår basert på risiko + kritikalitet, eier kan overstyre med valgfri begrunnelse. Avvik fra forslag flagges visuelt.
 
-Rett **etter** at leverandøren er opprettet (`createVendor.onSuccess` i `AddVendorDialog.tsx`). Vi legger ikke et nytt wizard-steg foran lagringen — leverandøren skal først eksistere så vi har en `target_asset_id` å koble mot.
+## Konsept
 
-Flyt:
-
-```text
-Bekreft → [lagre vendor] → Kartlegging (ny dialog) → ferdig
-                                  │
-                                  └─ hvis ingen treff: hopp over og lukk
+```
+Risiko (Lara)  ─┐
+                ├──►  Foreslått prioritet (P0–P3)  ──►  Faktisk prioritet
+Kritikalitet  ─┘                                        (kan overstyres + begrunnelse)
+(eier)
 ```
 
-## Hva regnes som et treff
+- **P0 – Kritisk** (rød)
+- **P1 – Høy** (oransje)
+- **P2 – Medium** (gul)
+- **P3 – Lav** (grå)
 
-Vi gjør én spørring mot `assets` (alle typer unntatt `vendor`) og scorer hver kandidat:
+Avvik på ≥2 nivåer fra Laras forslag vises med liten markør og tooltip.
 
-1. **Sterk match (auto-foreslått, hake på):**
-   - `assets.vendor` ≈ vendornavn (case/whitespace-normalisert, fjerner AS/Inc/Ltd osv. — gjenbruker `normalize()` fra `useVendorMatch.ts`)
-   - `assets.name` = vendornavn (f.eks. system kalt "Microsoft 365" når vi legger til "Microsoft")
-2. **Mulig match (vist, hake av):**
-   - `assets.name` inneholder vendornavn, eller vendornavn inneholder `assets.name`
-   - `assets.description` nevner vendornavnet
-   - `assets.url`-domene matcher vendor-URL
-3. **Ignoreres:** treff med score under terskel, eller assets som allerede har en `asset_relationships`-rad mot denne vendoren.
+## Forslagsmatrise
 
-Vi grupperer resultater per `asset_type` (System, Enhet, Prosess, …) i listen.
+| Risiko \ Kritikalitet | Lav | Medium | Høy |
+|---|---|---|---|
+| Lav | P3 | P3 | P2 |
+| Medium | P3 | P2 | P1 |
+| Høy | P2 | P1 | P0 |
+| Kritisk | P1 | P0 | P0 |
 
-## Ny komponent: `VendorRelationshipDiscoveryDialog.tsx`
+## Datamodell (assets-tabellen)
 
-Plassering: `src/components/dialogs/VendorRelationshipDiscoveryDialog.tsx`
+Feltet `priority` finnes allerede – gjenbrukes for faktisk prioritet (verdier endres til `P0`/`P1`/`P2`/`P3`). Nye kolonner:
 
-Props:
-- `open`, `onOpenChange`
-- `vendorId: string`
-- `vendorName: string`
-- `onComplete?: () => void`
+- `priority_source` (text: `lara` | `manual`) – hvem som satte den sist
+- `priority_suggested` (text) – siste Lara-forslag, brukes til avviksdeteksjon
+- `priority_reason` (text, valgfri) – eiers begrunnelse ved overstyring
+- `priority_updated_at` (timestamptz)
+- `priority_updated_by` (text) – navn/e-post for audit
 
-Innhold:
-- Header: "Vi fant {N} mulige koblinger til {vendorName}"
-- Kort forklaring av hvorfor koblinger er nyttige (TPRM-arv, automatisk varsling ved DPA-utløp, oversikt i Supply Chain).
-- Liste gruppert per asset-type. Hver rad:
-  - Ikon + navn + meta (kategori, work area)
-  - Badge: "Sterk match" (mynder-blue) eller "Mulig match" (muted)
-  - Kort begrunnelse: "Oppgitt leverandør: Microsoft" / "Navn ligner"
-  - Checkbox (default på for sterke, av for mulige)
-- Footer-knapper:
-  - **"Opprett {n} koblinger"** (mynder-blue, pill, primær)
-  - "Hopp over" (ghost)
+Enkel audit trail i ny tabell `asset_priority_history`:
+- `asset_id`, `from_priority`, `to_priority`, `source`, `reason`, `changed_by`, `changed_at`
 
-Tomt resultat → vi viser ikke dialogen i det hele tatt; bare en kort toast: "Ingen interne koblinger funnet".
+## UX-endringer
 
-## Lagring av koblinger
+**1. AddSystemDialog – risiko-steg**
+Etter at risiko_level + kritikalitet er valgt vises et lite Lara-kort:
+> "Foreslått prioritet: **P1 – Høy** basert på medium risiko + høy kritikalitet"
 
-For hver hakede rad: insert i `asset_relationships`:
+Under: 4 chips (P0/P1/P2/P3). Velger eier noe annet enn forslaget, glir et "Begrunnelse (valgfritt)"-felt inn under, med plassholder "F.eks. kompenserende kontroller, system under utfasing, klinisk kontekst".
 
-```text
-source_asset_id  = asset.id (system/enhet/…)
-target_asset_id  = vendor.id
-relationship_type = 'provided_by'
-description      = 'Auto-foreslått ved leverandør-onboarding'
-```
+**2. Asset-/leverandørprofil – header**
+Ny pille ved siden av risiko-pillen: prioritets-chip med ikon
+- Lara-stjerne hvis `priority_source = lara`
+- Brukerikon hvis overstyrt
+- Tooltip viser forslag + begrunnelse + hvem/når
 
-Gjøres i én batch-insert. Toast: "{n} koblinger opprettet". Invaliderer `["asset_relationships"]` og `["assets"]`.
+"Endre prioritet"-knapp åpner popover med chips + begrunnelse + en "Vis historikk"-lenke som åpner audit-listen.
 
-## Endringer i `AddVendorDialog.tsx`
+**3. Systems-liste**
+Ny sortérbar kolonne "Prioritet" (P0–P3 chip, fargekodet). Liten avviksmarkør hvis faktisk ≠ forslag. Filter i topplinjen.
 
-- I `createVendor.onSuccess`: i stedet for å lukke dialogen umiddelbart i single-mode, sett `discoveryOpen=true` og `discoveryVendorId/Name`, og la `VendorRelationshipDiscoveryDialog` stå for resten. Når den lukkes → `onOpenChange(false)` + `resetForm()`.
-- Multi-mode (bulk import) påvirkes ikke i denne iterasjonen.
+**4. Aktiviteter**
+Nye Activity-er på et system arver `priority` fra systemet som default. Eksisterende oppgaver røres ikke i denne runden.
 
-## Ny hook: `useVendorRelationshipCandidates.ts`
+## Filer som endres / opprettes
 
-Plassering: `src/hooks/useVendorRelationshipCandidates.ts`
+- `supabase/migrations/...` – 4 kolonner + `asset_priority_history`-tabell + RLS
+- `src/lib/derivedPriority.ts` – matrise + helpers (`suggestPriority`, `isDeviation`, `priorityLabel`, `priorityColor`)
+- `src/components/PriorityChip.tsx` – ny gjenbrukbar komponent
+- `src/components/dialogs/AddSystemDialog.tsx` – Lara-forslag + chips + begrunnelse
+- `src/components/asset-profile/AssetProfileHeader.tsx` – pille + popover
+- `src/components/asset-profile/PriorityHistoryDrawer.tsx` – ny, audit trail
+- `src/pages/Systems.tsx` – ny kolonne + filter
+- `src/hooks/useCreateActivity.ts` (eller tilsvarende) – arv av default-prioritet
+- i18n: `priority.p0..p3`, `priority.suggestedBy`, `priority.overrideReason`, `priority.deviation`, `priority.history`, `priority.changeButton` (EN/NO)
 
-- Tar `{ vendorId, vendorName, vendorUrl?, enabled }`.
-- Henter `assets` (ikke `vendor`-typer) og eksisterende `asset_relationships` der target = vendorId.
-- Returnerer `{ strong: Candidate[], possible: Candidate[], isLoading }`.
-- Bruker samme `normalize()` som `useVendorMatch`.
+## Ikke med i denne runden
 
-## Tekniske detaljer
-
-- Ingen DB-endringer. `asset_relationships` finnes allerede.
-- All tekst på norsk, i Mynders Apple-minimal stil. Mynder-blue `#5A3184` på primær CTA, pill-knapper.
-- Kun frontend + ny hook + ny dialogkomponent.
-
-## Filer som berøres
-
-- `src/components/dialogs/AddVendorDialog.tsx` (liten endring i onSuccess + render ny dialog)
-- `src/components/dialogs/VendorRelationshipDiscoveryDialog.tsx` (ny)
-- `src/hooks/useVendorRelationshipCandidates.ts` (ny)
+- Endring av eksisterende oppgavers prioritet
+- Automatisk eskalering (P0 over X dager)
+- Bulk-oppdatering på tvers av systemer
+- Push-varsler ved avvik
