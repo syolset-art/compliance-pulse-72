@@ -418,7 +418,11 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         {/* Category Bar Chart */}
         <Card variant="flat" className="p-4">
           <h2 className="text-sm font-semibold text-foreground mb-3">Leverandørtyper</h2>
-          <div className="h-[190px]">
+          <div
+            className="h-[190px]"
+            role="img"
+            aria-label={`Leverandørtyper: ${categoryData.map(c => `${c.name} ${c.count}`).join(", ")}`}
+          >
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={categoryData} layout="vertical" margin={{ left: 0, right: 12 }}>
                 <XAxis type="number" hide />
