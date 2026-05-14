@@ -208,26 +208,44 @@ const SidebarContent = () => {
   const queryClient = useQueryClient();
   const { hasCoreAccess, hasRegistriesAccess, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade } = useSubscription();
 
-  // Optimistic activation skeletons — modules currently being activated
+  // Optimistic activation skeletons — cleared as soon as the underlying
+  // subscription/activated-services queries confirm access (or as a final
+  // 30s safety net if something goes wrong upstream).
   const [activatingModules, setActivatingModules] = useState<Set<"vendors" | "core" | "assets">>(new Set());
   useEffect(() => {
     const onStart = (e: Event) => {
       const m = (e as CustomEvent).detail?.module;
       if (!m) return;
-      setActivatingModules((prev) => new Set(prev).add(m));
-      // Safety auto-clear in case the activator forgets to send "activated"
+      setActivatingModules((prev) => {
+        if (prev.has(m)) return prev;
+        return new Set(prev).add(m);
+      });
+      // Force the queries that drive access flags to refetch immediately so
+      // the skeleton clears the moment real data confirms access.
+      queryClient.invalidateQueries({ queryKey: ["company-subscription"] });
+      queryClient.invalidateQueries({ queryKey: ["domain-addons"] });
+      queryClient.invalidateQueries({ queryKey: ["activated-services"] });
+      queryClient.invalidateQueries({ queryKey: ["module-addons"] });
+      // Final safety net — never leave a skeleton spinning forever.
       window.setTimeout(() => {
         setActivatingModules((prev) => {
+          if (!prev.has(m)) return prev;
           const next = new Set(prev);
           next.delete(m);
           return next;
         });
-      }, 8000);
+      }, 30000);
     };
     const onEnd = (e: Event) => {
       const m = (e as CustomEvent).detail?.module;
       if (!m) return;
+      // Refetch so access flags pick up immediately, then clear.
+      queryClient.invalidateQueries({ queryKey: ["company-subscription"] });
+      queryClient.invalidateQueries({ queryKey: ["domain-addons"] });
+      queryClient.invalidateQueries({ queryKey: ["activated-services"] });
+      queryClient.invalidateQueries({ queryKey: ["module-addons"] });
       setActivatingModules((prev) => {
+        if (!prev.has(m)) return prev;
         const next = new Set(prev);
         next.delete(m);
         return next;
@@ -239,7 +257,27 @@ const SidebarContent = () => {
       window.removeEventListener("module:activating", onStart);
       window.removeEventListener("module:activated", onEnd);
     };
-  }, []);
+  }, [queryClient]);
+
+  // Auto-clear skeletons the instant the real access flags flip on — this is
+  // the primary clear path; the event/timeout are just fallbacks.
+  useEffect(() => {
+    if (activatingModules.size === 0) return;
+    setActivatingModules((prev) => {
+      let changed = false;
+      const next = new Set(prev);
+      if (next.has("core") && (selectedCoreAtOnboarding || hasCoreAccess)) {
+        next.delete("core"); changed = true;
+      }
+      if (next.has("vendors") && (selectedRegistriesAtOnboarding || hasRegistriesAccess)) {
+        next.delete("vendors"); changed = true;
+      }
+      if (next.has("assets") && (selectedRegistriesAtOnboarding || hasRegistriesAccess)) {
+        next.delete("assets"); changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [hasCoreAccess, hasRegistriesAccess, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, activatingModules]);
 
   // Determine display mode per module (include optimistic activations)
   const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess || activatingModules.has("core");
