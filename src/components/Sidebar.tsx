@@ -674,40 +674,67 @@ const SidebarContent = () => {
 
       </nav>
 
-      {/* Demo menu */}
-      <div className="mx-3 mb-2 space-y-1">
+      {/* Demoer */}
+      <div className="mx-3 mb-2">
         <button
-          onClick={async () => {
-            try { localStorage.removeItem("mynder.trustprofile.activated"); } catch {}
-            const { deleteDemoTrustProfile } = await import("@/lib/demoSeedTrustProfile");
-            try { await deleteDemoTrustProfile(); } catch (e) { console.error(e); }
-            navigate("/trust-center/profile?activate=1");
-            setTimeout(() => {
-              window.dispatchEvent(new CustomEvent("open-activate-trust-wizard"));
-            }, 100);
-          }}
-          title={isNb ? "Demonstrasjon: aktiver Trust Profile med Lara" : "Demo: activate Trust Profile with Lara"}
-          className="w-full px-2 py-1 flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary border border-dashed border-primary/20 hover:border-primary/40 rounded-md transition-colors"
+          onClick={() => setDemoOpen(!demoOpen)}
+          className={cn(
+            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
+            isDemoActive
+              ? "text-sidebar-primary border-l-2 border-primary/30"
+              : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+          )}
         >
-          <Sparkles className="h-3 w-3" />
-          {isNb ? "Demo: Aktiver Trust Profile" : "Demo: Activate Trust Profile"}
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="h-[18px] w-[18px]" />
+            <span className="text-sm font-semibold">{isNb ? "Demoer" : "Demos"}</span>
+          </div>
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", demoOpen && "rotate-180")} />
         </button>
-        <button
-          onClick={() => window.dispatchEvent(new CustomEvent("start-customer-request-demo"))}
-          title={isNb ? "Spill av demonstrasjon: motta og besvar leverandøroppdatering" : "Play demo: receive and respond to vendor update"}
-          className="w-full px-2 py-1 flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary border border-dashed border-primary/20 hover:border-primary/40 rounded-md transition-colors"
-        >
-          <Sparkles className="h-3 w-3" />
-          {isNb ? "Demo: Kundemelding" : "Demo: Customer message"}
-        </button>
-        <button
-          onClick={() => navigate("/demo/vendor-activation")}
-          title={isNb ? "Demonstrasjon: aktivere leverandørmodulen" : "Demo: activate vendor module"}
-          className="w-full px-2 py-1 flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-primary border border-dashed border-primary/20 hover:border-primary/40 rounded-md transition-colors"
-        >
-          <Sparkles className="h-3 w-3" />
-          {isNb ? "Demo: Aktiver leverandør" : "Demo: Activate vendors"}
-        </button>
+        <div className={cn(
+          "overflow-hidden transition-all duration-200",
+          demoOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+        )}>
+          <div className="ml-3 mt-0.5 space-y-1 border-l border-sidebar-border/50 pl-3">
+            <button
+              onClick={async () => {
+                try { localStorage.removeItem("mynder.trustprofile.activated"); } catch {}
+                const { deleteDemoTrustProfile } = await import("@/lib/demoSeedTrustProfile");
+                try { await deleteDemoTrustProfile(); } catch (e) { console.error(e); }
+                navigate("/trust-center/profile?activate=1");
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent("open-activate-trust-wizard"));
+                }, 100);
+              }}
+              title={isNb ? "Demonstrasjon: aktiver Trust Profile med Lara" : "Demo: activate Trust Profile with Lara"}
+              className="w-full px-2 py-1.5 flex items-center gap-1.5 text-[12px] text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md hover:bg-sidebar-accent/40 transition-colors text-left"
+            >
+              <Sparkles className="h-3 w-3" />
+              {isNb ? "Aktiver Trust Profile" : "Activate Trust Profile"}
+            </button>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("start-customer-request-demo"))}
+              title={isNb ? "Spill av demonstrasjon: motta og besvar leverandøroppdatering" : "Play demo: receive and respond to vendor update"}
+              className="w-full px-2 py-1.5 flex items-center gap-1.5 text-[12px] text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md hover:bg-sidebar-accent/40 transition-colors text-left"
+            >
+              <Sparkles className="h-3 w-3" />
+              {isNb ? "Kundemelding" : "Customer message"}
+            </button>
+            <button
+              onClick={() => navigate("/demo/vendor-activation")}
+              title={isNb ? "Demonstrasjon: aktivere leverandørmodulen" : "Demo: activate vendor module"}
+              className={cn(
+                "w-full px-2 py-1.5 flex items-center gap-1.5 text-[12px] rounded-md transition-colors text-left",
+                location.pathname === "/demo/vendor-activation"
+                  ? "text-sidebar-primary bg-sidebar-accent/40"
+                  : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
+              )}
+            >
+              <Sparkles className="h-3 w-3" />
+              {isNb ? "Aktiver leverandør" : "Activate vendors"}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Company section at bottom */}
