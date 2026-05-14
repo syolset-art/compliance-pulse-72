@@ -211,10 +211,6 @@ export function UnifiedInboxContent() {
 
   // Filter buckets
   const buckets = useMemo(() => {
-    const laraWorking = merged.filter((i) =>
-      i.__source === "lara" && (i.status === "new" || i.status === "auto_matched") &&
-      (i.analysis_status === "pending" || i.analysis_status === "analyzing" || !i.analysis_status)
-    );
     const needsYou = merged.filter((i) => {
       if (i.__source === "lara") {
         return (i.status === "new" || i.status === "auto_matched") && i.analysis_status === "analyzed";
@@ -225,7 +221,7 @@ export function UnifiedInboxContent() {
       if (i.__source === "lara") return i.status === "manually_assigned" || i.status === "rejected";
       return i.status === "responded" || i.status === "archived";
     });
-    return { all: merged, lara_working: laraWorking, needs_you: needsYou, done };
+    return { all: merged, needs_you: needsYou, done };
   }, [merged]);
 
   const filtered = buckets[filter];
