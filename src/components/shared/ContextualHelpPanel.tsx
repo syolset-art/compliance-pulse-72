@@ -60,6 +60,7 @@ export interface ContextualHelpPanelProps {
   colorLegend?: ColorLegend;
 
   // Gjør tab
+  doDescription?: React.ReactNode;
   actions?: ActionItem[];
 
   // Spør Lara tab
