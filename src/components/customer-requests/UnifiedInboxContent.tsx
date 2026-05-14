@@ -41,7 +41,7 @@ function buildAnalysisSummary(docType: string) {
   return presets[docType] || { confirms: ["Dokument mottatt og lest"], affects: ["Generell etterlevelse"], score_impact: 4 };
 }
 
-type FilterKey = "all" | "lara_working" | "needs_you" | "done";
+type FilterKey = "all" | "needs_you" | "done";
 
 export function UnifiedInboxContent() {
   const { i18n } = useTranslation();
@@ -211,10 +211,6 @@ export function UnifiedInboxContent() {
 
   // Filter buckets
   const buckets = useMemo(() => {
-    const laraWorking = merged.filter((i) =>
-      i.__source === "lara" && (i.status === "new" || i.status === "auto_matched") &&
-      (i.analysis_status === "pending" || i.analysis_status === "analyzing" || !i.analysis_status)
-    );
     const needsYou = merged.filter((i) => {
       if (i.__source === "lara") {
         return (i.status === "new" || i.status === "auto_matched") && i.analysis_status === "analyzed";
@@ -225,14 +221,13 @@ export function UnifiedInboxContent() {
       if (i.__source === "lara") return i.status === "manually_assigned" || i.status === "rejected";
       return i.status === "responded" || i.status === "archived";
     });
-    return { all: merged, lara_working: laraWorking, needs_you: needsYou, done };
+    return { all: merged, needs_you: needsYou, done };
   }, [merged]);
 
   const filtered = buckets[filter];
 
   const filterTabs: { key: FilterKey; label: string; count: number }[] = [
     { key: "all", label: isNb ? "Alle" : "All", count: buckets.all.length },
-    { key: "lara_working", label: isNb ? "Lara jobber" : "Lara working", count: buckets.lara_working.length },
     { key: "needs_you", label: isNb ? "Venter deg" : "Needs you", count: buckets.needs_you.length },
     { key: "done", label: isNb ? "Ferdig" : "Done", count: buckets.done.length },
   ];
