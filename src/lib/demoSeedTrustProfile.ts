@@ -138,6 +138,13 @@ export interface ActivationValues {
   maturityAnswers?: Record<string, "yes" | "no" | "later">;
   documents?: ActivationDocument[];
   visibility: "private" | "ecosystem" | "public";
+  partner?: {
+    status: "auto" | "yes" | "no" | "unknown";
+    name?: string | null;
+    companyId?: string | null;
+    type?: string | null;
+    showOnProfile?: boolean;
+  };
 }
 
 export async function seedFromActivation(values: ActivationValues) {
