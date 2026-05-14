@@ -60,18 +60,18 @@ const globalNav = [
 ];
 
 
-// Mynder Core (contextual management tools)
-const managementNav = [
+// Mynder Core (contextual management tools — Systems lives in Registre below)
+const coreNav = [
   { name: "nav.myWorkAreas", href: "/work-areas", icon: Users },
   { name: "nav.tasks", href: "/tasks", icon: ClipboardList },
   { name: "nav.deviations", href: "/deviations", icon: AlertTriangle },
   { name: "nav.reports", href: "/reports", icon: FileText },
-  { name: "nav.systems", href: "/systems", icon: Cloud },
 ];
 
 // Standalone module links (each activatable independently)
 const vendorLink = { name: "nav.vendors", href: "/vendors", icon: Building2 };
 const assetsLink = { name: "nav.assetsDevices", href: "/assets", icon: Package };
+const systemsLink = { name: "nav.systems", href: "/systems", icon: Cloud };
 
 // Innstillinger submenu (merged Admin + Company settings)
 const settingsMenu = [
