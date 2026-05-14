@@ -302,6 +302,10 @@ const SidebarContent = () => {
 
   const isManagementActive = coreNav.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
+  const [vendorsOpen, setVendorsOpen] = useState(() => location.pathname.startsWith("/vendors"));
+  useEffect(() => {
+    if (location.pathname.startsWith("/vendors")) setVendorsOpen(true);
+  }, [location.pathname]);
 
   // Keep the section open when navigating between its sub-routes (e.g. /reports → /reports/compliance)
   useEffect(() => {
@@ -502,48 +506,69 @@ const SidebarContent = () => {
                   <ModuleSkeletonRow label={t(vendorLink.name)} />
                 ) : (
                 <div>
-                  <Link
-                    to={vendorLink.href}
+                  <button
+                    onClick={() => setVendorsOpen(!vendorsOpen)}
                     className={cn(
-                      "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
-                      vIsActive
-                        ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                      "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
+                      sectionActive
+                        ? "text-sidebar-primary border-l-2 border-primary/30"
                         : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
                     )}
                   >
-                    {vIsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                    <vendorLink.icon className="h-4 w-4" />
-                    {t(vendorLink.name)}
-                  </Link>
-                  <div className="ml-7 mt-1 space-y-0.5">
-                    <Link
-                      to="/vendors/reports"
-                      className={cn(
-                        "flex items-center gap-2 px-2 py-1 rounded text-xs transition-colors",
-                        isReportsActive
-                          ? "text-sidebar-primary font-medium bg-sidebar-accent/30"
-                          : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/30"
+                    <div className="flex items-center gap-2.5">
+                      <vendorLink.icon className="h-[18px] w-[18px]" />
+                      <span className="text-sm font-semibold">{t(vendorLink.name)}</span>
+                    </div>
+                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", vendorsOpen && "rotate-180")} />
+                  </button>
+                  <div className={cn(
+                    "overflow-hidden transition-all duration-200",
+                    vendorsOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                  )}>
+                    <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
+                      <Link
+                        to={vendorLink.href}
+                        className={cn(
+                          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                          vIsActive
+                            ? "bg-sidebar-accent text-sidebar-primary"
+                            : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                        )}
+                      >
+                        {vIsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                        <LayoutDashboard className="h-3.5 w-3.5" />
+                        {isNb ? "Oversikt" : "Overview"}
+                      </Link>
+                      <Link
+                        to="/vendors/reports"
+                        className={cn(
+                          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                          isReportsActive
+                            ? "bg-sidebar-accent text-sidebar-primary"
+                            : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                        )}
+                      >
+                        {isReportsActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+                        <FileText className="h-3.5 w-3.5" />
+                        {isNb ? "Rapporter" : "Reports"}
+                      </Link>
+                      {sectionActive && (
+                        <>
+                          <button
+                            onClick={handleSeed}
+                            className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground px-2.5 py-1.5 rounded-md hover:bg-sidebar-accent/40 transition-colors"
+                          >
+                            {isNb ? "Last inn demo-data" : "Load demo data"}
+                          </button>
+                          <button
+                            onClick={handleDelete}
+                            className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-destructive px-2.5 py-1.5 rounded-md hover:bg-sidebar-accent/40 transition-colors"
+                          >
+                            {isNb ? "Fjern demo-data" : "Remove demo data"}
+                          </button>
+                        </>
                       )}
-                    >
-                      <FileText className="h-3.5 w-3.5" />
-                      Rapporter
-                    </Link>
-                    {sectionActive && vIsActive && (
-                      <>
-                        <button
-                          onClick={handleSeed}
-                          className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground px-2 py-1 rounded hover:bg-sidebar-accent/30 transition-colors"
-                        >
-                          Last inn demo-data
-                        </button>
-                        <button
-                          onClick={handleDelete}
-                          className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-destructive px-2 py-1 rounded hover:bg-sidebar-accent/30 transition-colors"
-                        >
-                          Fjern demo-data
-                        </button>
-                      </>
-                    )}
+                    </div>
                   </div>
                 </div>
                 )}
