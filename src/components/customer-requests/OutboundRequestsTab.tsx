@@ -197,19 +197,42 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
         </Select>
       </div>
 
-      {/* List */}
-      <div className="space-y-3">
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">
-            <Inbox className="h-12 w-12 mx-auto mb-3 opacity-40" />
-            <p className="text-sm font-medium">{isNb ? "Ingen forespørsler funnet" : "No requests found"}</p>
-          </div>
-        ) : (
-          filtered.map((req) => (
-            <OutboundRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
-          ))
-        )}
-      </div>
+      {/* List grouped by month */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <Inbox className="h-12 w-12 mx-auto mb-3 opacity-40" />
+          <p className="text-sm font-medium">{isNb ? "Ingen forespørsler funnet" : "No requests found"}</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {(() => {
+            const locale = isNb ? "nb-NO" : "en-US";
+            const groups: { key: string; label: string; items: typeof filtered }[] = [];
+            const map = new Map<string, { label: string; items: typeof filtered }>();
+            for (const r of filtered) {
+              const d = new Date(r.sent_date);
+              const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, "0")}`;
+              const label = d.toLocaleDateString(locale, { month: "long", year: "numeric" }).toUpperCase();
+              if (!map.has(key)) { map.set(key, { label, items: [] }); groups.push({ key, label, items: [] }); }
+              map.get(key)!.items.push(r);
+            }
+            return groups.map((g) => ({ ...g, items: map.get(g.key)!.items })).map((group) => (
+              <div key={group.key} className="space-y-1">
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-[11px] font-semibold tracking-wider text-muted-foreground">{group.label}</span>
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-[11px] text-muted-foreground tabular-nums">{group.items.length}</span>
+                </div>
+                <div className="divide-y divide-border/60">
+                  {group.items.map((req) => (
+                    <OutboundRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
+                  ))}
+                </div>
+              </div>
+            ));
+          })()}
+        </div>
+      )}
 
       <SendRequestWizard open={wizardOpen} onOpenChange={setWizardOpen} onSend={handleSend} />
 
