@@ -510,7 +510,12 @@ export default function ActivateTrustProfileWizard({
       ) : (
         <Button
           onClick={() => handlePublish()}
-          disabled={isPublishing || (visibility === "public" && !publicAcknowledged)}
+          disabled={
+            isPublishing ||
+            (visibility === "public" && !publicAcknowledged) ||
+            partnerStatus === null ||
+            (partnerStatus === "yes" && !partnerName.trim())
+          }
           className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white"
         >
           {isPublishing || isCalculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
