@@ -47,6 +47,20 @@ import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
 import { OrganizationSwitcher } from "@/components/sidebar/OrganizationSwitcher";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
+
+const ModuleSkeletonRow = ({ label }: { label: string }) => (
+  <div
+    aria-busy="true"
+    aria-live="polite"
+    className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-sidebar-foreground/60 bg-sidebar-accent/30 border-l-2 border-primary/40 animate-pulse"
+  >
+    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+    <Skeleton className="h-3.5 flex-1 max-w-[120px] bg-sidebar-foreground/10" />
+    <span className="sr-only">Aktiverer {label}…</span>
+  </div>
+);
 
 // Top-level dashboard link (single)
 const dashboardNav = [
@@ -194,12 +208,49 @@ const SidebarContent = () => {
   const queryClient = useQueryClient();
   const { hasCoreAccess, hasRegistriesAccess, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade } = useSubscription();
 
-  // Determine display mode per module
-  const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess;
+  // Optimistic activation skeletons — modules currently being activated
+  const [activatingModules, setActivatingModules] = useState<Set<"vendors" | "core" | "assets">>(new Set());
+  useEffect(() => {
+    const onStart = (e: Event) => {
+      const m = (e as CustomEvent).detail?.module;
+      if (!m) return;
+      setActivatingModules((prev) => new Set(prev).add(m));
+      // Safety auto-clear in case the activator forgets to send "activated"
+      window.setTimeout(() => {
+        setActivatingModules((prev) => {
+          const next = new Set(prev);
+          next.delete(m);
+          return next;
+        });
+      }, 8000);
+    };
+    const onEnd = (e: Event) => {
+      const m = (e as CustomEvent).detail?.module;
+      if (!m) return;
+      setActivatingModules((prev) => {
+        const next = new Set(prev);
+        next.delete(m);
+        return next;
+      });
+    };
+    window.addEventListener("module:activating", onStart);
+    window.addEventListener("module:activated", onEnd);
+    return () => {
+      window.removeEventListener("module:activating", onStart);
+      window.removeEventListener("module:activated", onEnd);
+    };
+  }, []);
+
+  // Determine display mode per module (include optimistic activations)
+  const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess || activatingModules.has("core");
   // Vendors and Assets are independent — check registries access for both
-  const showVendorsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
-  const showAssetsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
-  
+  const showVendorsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess || activatingModules.has("vendors");
+  const showAssetsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess || activatingModules.has("assets");
+
+  const isVendorsActivating = activatingModules.has("vendors") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
+  const isCoreActivating = activatingModules.has("core") && !(selectedCoreAtOnboarding || hasCoreAccess);
+  const isAssetsActivating = activatingModules.has("assets") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
+
   // "Flere tjenester" collects anything not shown normally
   const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal;
   
@@ -406,6 +457,9 @@ const SidebarContent = () => {
             };
             return (
               <React.Fragment key="vendors-and-next">
+                {isVendorsActivating ? (
+                  <ModuleSkeletonRow label={t(vendorLink.name)} />
+                ) : (
                 <div>
                   <Link
                     to={vendorLink.href}
@@ -453,6 +507,7 @@ const SidebarContent = () => {
                     </div>
                   )}
                 </div>
+                )}
                 {link}
               </React.Fragment>
             );
@@ -464,24 +519,28 @@ const SidebarContent = () => {
         {(showCoreNormal || showRegistries) && <div className="my-2 border-b border-sidebar-border/40" />}
 
         {/* Mynder Core — only if selected at onboarding or paid */}
-        {showCoreNormal && renderCollapsibleSection(
+        {showCoreNormal && (isCoreActivating ? (
+          <ModuleSkeletonRow label={t("nav.mynderCore", "Mynder Core")} />
+        ) : renderCollapsibleSection(
           t("nav.mynderCore", "Mynder Core"),
           Briefcase,
           coreNav,
           managementOpen,
           setManagementOpen,
           isManagementActive,
-        )}
+        ))}
 
         {/* Registre — Systemer (Core) + Aktiva (Assets) */}
-        {showRegistries && registriesItems.length > 0 && renderCollapsibleSection(
+        {showRegistries && registriesItems.length > 0 && ((isCoreActivating || isAssetsActivating) ? (
+          <ModuleSkeletonRow label={t("nav.registries", "Registre")} />
+        ) : renderCollapsibleSection(
           t("nav.registries", "Registre"),
           Layers,
           registriesItems,
           registriesOpen,
           setRegistriesOpen,
           isRegistriesActive,
-        )}
+        ))}
 
         {/* "Flere tjenester" — for modules NOT selected at onboarding */}
         {showExploreSection && (
