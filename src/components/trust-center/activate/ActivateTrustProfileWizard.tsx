@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
   CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb, Info,
-  Upload, Check, X, Clock, HelpCircle,
+  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
@@ -25,6 +25,10 @@ import {
   type MaturityAnswers, type MaturityAnswer,
 } from "@/lib/trustMaturityQuestions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { PARTNER_TYPE_LABEL, type PartnerType } from "@/hooks/usePartnerInfo";
+import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 
 interface Props {
   open: boolean;
