@@ -108,19 +108,19 @@ export function SystemsPriorityChart() {
   return (
     <Card variant="flat" className="p-4">
       {/* Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
-            Leverandører per prioritet
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2 truncate">
+            <Building2 className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+            <span className="truncate">Leverandører per prioritet</span>
           </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Sortering etter Mynder-prioritet · andelen som er kritisk for virksomheten er uthevet
+          <p className="text-xs text-muted-foreground mt-0.5 hidden lg:block">
+            Sortering etter Mynder-prioritet · kritiske er uthevet
           </p>
         </div>
-        <Badge variant="outline" className="text-xs shrink-0 gap-1">
+        <Badge variant="outline" className="text-xs shrink-0 gap-1 whitespace-nowrap">
           <Sparkles className="h-3 w-3" aria-hidden="true" />
-          {total} leverandører
+          {total}
         </Badge>
       </div>
 
