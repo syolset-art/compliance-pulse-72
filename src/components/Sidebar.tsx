@@ -519,24 +519,28 @@ const SidebarContent = () => {
         {(showCoreNormal || showRegistries) && <div className="my-2 border-b border-sidebar-border/40" />}
 
         {/* Mynder Core — only if selected at onboarding or paid */}
-        {showCoreNormal && renderCollapsibleSection(
+        {showCoreNormal && (isCoreActivating ? (
+          <ModuleSkeletonRow label={t("nav.mynderCore", "Mynder Core")} />
+        ) : renderCollapsibleSection(
           t("nav.mynderCore", "Mynder Core"),
           Briefcase,
           coreNav,
           managementOpen,
           setManagementOpen,
           isManagementActive,
-        )}
+        ))}
 
         {/* Registre — Systemer (Core) + Aktiva (Assets) */}
-        {showRegistries && registriesItems.length > 0 && renderCollapsibleSection(
+        {showRegistries && registriesItems.length > 0 && ((isCoreActivating || isAssetsActivating) ? (
+          <ModuleSkeletonRow label={t("nav.registries", "Registre")} />
+        ) : renderCollapsibleSection(
           t("nav.registries", "Registre"),
           Layers,
           registriesItems,
           registriesOpen,
           setRegistriesOpen,
           isRegistriesActive,
-        )}
+        ))}
 
         {/* "Flere tjenester" — for modules NOT selected at onboarding */}
         {showExploreSection && (
