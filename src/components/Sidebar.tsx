@@ -194,12 +194,49 @@ const SidebarContent = () => {
   const queryClient = useQueryClient();
   const { hasCoreAccess, hasRegistriesAccess, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade } = useSubscription();
 
-  // Determine display mode per module
-  const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess;
+  // Optimistic activation skeletons — modules currently being activated
+  const [activatingModules, setActivatingModules] = useState<Set<"vendors" | "core" | "assets">>(new Set());
+  useEffect(() => {
+    const onStart = (e: Event) => {
+      const m = (e as CustomEvent).detail?.module;
+      if (!m) return;
+      setActivatingModules((prev) => new Set(prev).add(m));
+      // Safety auto-clear in case the activator forgets to send "activated"
+      window.setTimeout(() => {
+        setActivatingModules((prev) => {
+          const next = new Set(prev);
+          next.delete(m);
+          return next;
+        });
+      }, 8000);
+    };
+    const onEnd = (e: Event) => {
+      const m = (e as CustomEvent).detail?.module;
+      if (!m) return;
+      setActivatingModules((prev) => {
+        const next = new Set(prev);
+        next.delete(m);
+        return next;
+      });
+    };
+    window.addEventListener("module:activating", onStart);
+    window.addEventListener("module:activated", onEnd);
+    return () => {
+      window.removeEventListener("module:activating", onStart);
+      window.removeEventListener("module:activated", onEnd);
+    };
+  }, []);
+
+  // Determine display mode per module (include optimistic activations)
+  const showCoreNormal = selectedCoreAtOnboarding || hasCoreAccess || activatingModules.has("core");
   // Vendors and Assets are independent — check registries access for both
-  const showVendorsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
-  const showAssetsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess;
-  
+  const showVendorsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess || activatingModules.has("vendors");
+  const showAssetsNormal = selectedRegistriesAtOnboarding || hasRegistriesAccess || activatingModules.has("assets");
+
+  const isVendorsActivating = activatingModules.has("vendors") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
+  const isCoreActivating = activatingModules.has("core") && !(selectedCoreAtOnboarding || hasCoreAccess);
+  const isAssetsActivating = activatingModules.has("assets") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
+
   // "Flere tjenester" collects anything not shown normally
   const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal;
   
