@@ -354,6 +354,15 @@ export default function ActivateTrustProfileWizard({
       maturityAnswers,
       documents,
       visibility,
+      partner: partnerStatus
+        ? {
+            status: partnerStatus,
+            name: partnerName || null,
+            companyId: partnerCompanyId,
+            type: partnerType,
+            showOnProfile: showPartnerOnProfile,
+          }
+        : undefined,
     };
     try {
       await seedFromActivation(values);
