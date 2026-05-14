@@ -9,50 +9,49 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Send, Clock, CheckCircle2, AlertTriangle, Search, Inbox, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
-const STORAGE_KEY = "mynder_outbound_requests";
+const STORAGE_KEY = "mynder_outbound_requests_v2";
 const AUTO_DELETE_DAYS = 180; // 6 months retention
 
 const DEMO_OUTBOUND_REQUESTS: OutboundRequest[] = [
   {
     id: "demo-out-1",
-    vendor_name: "Microsoft Norge AS",
+    vendor_name: "Stripe Payments Europe",
     request_type: "dpa",
-    status: "received",
-    due_date: new Date(Date.now() - 5 * 86400000).toISOString().split("T")[0],
-    sent_date: new Date(Date.now() - 20 * 86400000).toISOString().split("T")[0],
+    status: "awaiting",
+    due_date: "",
+    sent_date: new Date(Date.now() - 2 * 86400000).toISOString().split("T")[0],
+    sent_by_lara: true,
+    approved_by: "Synnøve",
   },
   {
     id: "demo-out-2",
-    vendor_name: "Amazon Web Services",
-    request_type: "iso_documentation",
-    status: "sent",
-    due_date: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
-    sent_date: new Date(Date.now() - 3 * 86400000).toISOString().split("T")[0],
+    vendor_name: "Acme Cloud AS",
+    request_type: "dpa",
+    status: "received",
+    due_date: "",
+    sent_date: new Date(Date.now() - 16 * 86400000).toISOString().split("T")[0],
+    response_date: new Date(Date.now() - 16 * 86400000).toISOString().split("T")[0],
+    sent_by_lara: true,
+    approved_by: "Synnøve",
   },
   {
     id: "demo-out-3",
-    vendor_name: "Salesforce Inc.",
-    request_type: "vendor_assessment",
-    status: "overdue",
-    due_date: new Date(Date.now() - 10 * 86400000).toISOString().split("T")[0],
-    sent_date: new Date(Date.now() - 30 * 86400000).toISOString().split("T")[0],
+    vendor_name: "ADVOKATFIRMA HØYER",
+    request_type: "dpa",
+    status: "awaiting",
+    due_date: "",
+    sent_date: new Date(Date.now() - 18 * 86400000).toISOString().split("T")[0],
+    approved_by: "Synnøve",
   },
   {
     id: "demo-out-4",
-    vendor_name: "Visma AS",
-    request_type: "gdpr_report",
-    status: "awaiting",
-    due_date: new Date(Date.now() + 14 * 86400000).toISOString().split("T")[0],
-    sent_date: new Date(Date.now() - 7 * 86400000).toISOString().split("T")[0],
-  },
-  {
-    id: "demo-out-5",
-    vendor_name: "HubSpot",
-    request_type: "soc2",
-    status: "received",
-    due_date: new Date(Date.now() - 2 * 86400000).toISOString().split("T")[0],
-    sent_date: new Date(Date.now() - 25 * 86400000).toISOString().split("T")[0],
-    response_date: new Date(Date.now() - 4 * 86400000).toISOString().split("T")[0],
+    vendor_name: "Microsoft Norge AS",
+    request_type: "dpa",
+    status: "overdue",
+    due_date: new Date(Date.now() - 11 * 86400000).toISOString().split("T")[0],
+    sent_date: new Date(Date.now() - 26 * 86400000).toISOString().split("T")[0],
+    sent_by_lara: true,
+    approved_by: "Synnøve",
   },
 ];
 
@@ -198,19 +197,42 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
         </Select>
       </div>
 
-      {/* List */}
-      <div className="space-y-3">
-        {filtered.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">
-            <Inbox className="h-12 w-12 mx-auto mb-3 opacity-40" />
-            <p className="text-sm font-medium">{isNb ? "Ingen forespørsler funnet" : "No requests found"}</p>
-          </div>
-        ) : (
-          filtered.map((req) => (
-            <OutboundRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
-          ))
-        )}
-      </div>
+      {/* List grouped by month */}
+      {filtered.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <Inbox className="h-12 w-12 mx-auto mb-3 opacity-40" />
+          <p className="text-sm font-medium">{isNb ? "Ingen forespørsler funnet" : "No requests found"}</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {(() => {
+            const locale = isNb ? "nb-NO" : "en-US";
+            const groups: { key: string; label: string; items: typeof filtered }[] = [];
+            const map = new Map<string, { label: string; items: typeof filtered }>();
+            for (const r of filtered) {
+              const d = new Date(r.sent_date);
+              const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, "0")}`;
+              const label = d.toLocaleDateString(locale, { month: "long", year: "numeric" }).toUpperCase();
+              if (!map.has(key)) { map.set(key, { label, items: [] }); groups.push({ key, label, items: [] }); }
+              map.get(key)!.items.push(r);
+            }
+            return groups.map((g) => ({ ...g, items: map.get(g.key)!.items })).map((group) => (
+              <div key={group.key} className="space-y-1">
+                <div className="flex items-center gap-3 mb-1">
+                  <span className="text-[11px] font-semibold tracking-wider text-muted-foreground">{group.label}</span>
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-[11px] text-muted-foreground tabular-nums">{group.items.length}</span>
+                </div>
+                <div className="divide-y divide-border/60">
+                  {group.items.map((req) => (
+                    <OutboundRequestCard key={req.id} request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
+                  ))}
+                </div>
+              </div>
+            ));
+          })()}
+        </div>
+      )}
 
       <SendRequestWizard open={wizardOpen} onOpenChange={setWizardOpen} onSend={handleSend} />
 
