@@ -234,23 +234,25 @@ export function UnifiedInboxContent() {
 
   const isLoading = laraLoading || manualLoading;
 
+  // Group filtered items by month (newest first)
+  const groupedByMonth = useMemo(() => {
+    const groups: { key: string; label: string; items: any[] }[] = [];
+    const map = new Map<string, { label: string; items: any[] }>();
+    for (const item of filtered) {
+      const d = new Date(item.__ts);
+      const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, "0")}`;
+      const label = d.toLocaleDateString(locale, { month: "long", year: "numeric" }).toUpperCase();
+      if (!map.has(key)) {
+        map.set(key, { label, items: [] });
+        groups.push({ key, label, items: [] });
+      }
+      map.get(key)!.items.push(item);
+    }
+    return groups.map((g) => ({ ...g, items: map.get(g.key)!.items }));
+  }, [filtered, locale]);
+
   return (
     <div className="space-y-6">
-      {/* Lara intro banner */}
-      <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/15">
-        <img src={laraButterfly} alt="Lara" className="h-8 w-8 mt-0.5" />
-        <div>
-          <p className="text-sm font-medium text-foreground">
-            {isNb ? "Én innboks for alt" : "One inbox for everything"}
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {isNb
-              ? "Lara analyserer dokumenter automatisk. Manuelle forespørsler fra kunder ligger samme sted. Du ser tydelig hva som er håndtert av AI og hva som krever deg."
-              : "Lara analyzes documents automatically. Manual customer requests live in the same place. You always see what AI handled and what needs you."}
-          </p>
-        </div>
-      </div>
-
       {/* Filter chips */}
       <div className="flex items-center gap-1 border-b border-border">
         {filterTabs.map((t) => (
@@ -280,12 +282,21 @@ export function UnifiedInboxContent() {
           <p className="text-sm">{isNb ? "Ingen meldinger her" : "No messages here"}</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map((item: any) =>
-            item.__source === "lara"
-              ? renderLaraItem(item)
-              : renderManualItem(item)
-          )}
+        <div className="space-y-6">
+          {groupedByMonth.map((group) => (
+            <div key={group.key} className="space-y-2">
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] font-semibold tracking-wider text-muted-foreground">{group.label}</span>
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-[11px] text-muted-foreground tabular-nums">{group.items.length}</span>
+              </div>
+              <div className="space-y-2">
+                {group.items.map((item: any) =>
+                  item.__source === "lara" ? renderLaraItem(item) : renderManualItem(item)
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -346,11 +357,6 @@ export function UnifiedInboxContent() {
           )}
         >
           <div className="flex items-center gap-3 min-w-0">
-            {/* Source chip */}
-            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 gap-1 text-[10px] flex-shrink-0">
-              <Sparkles className="h-3 w-3" />
-              Lara
-            </Badge>
             {isAnalyzing ? (
               <Loader2 className="h-4 w-4 text-primary animate-spin flex-shrink-0" />
             ) : isQueued ? (
@@ -359,7 +365,15 @@ export function UnifiedInboxContent() {
               <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             )}
             <div className="min-w-0">
-              <p className="text-sm font-medium truncate text-foreground">{item.file_name || item.subject}</p>
+              <p className="text-sm font-medium truncate text-foreground flex items-center gap-1.5">
+                {item.file_name || item.subject}
+                <span
+                  title={isNb ? "Mottatt og behandlet automatisk av Lara" : "Received and processed automatically by Lara"}
+                  className="inline-flex items-center text-muted-foreground/70"
+                >
+                  <Sparkles className="h-3 w-3" />
+                </span>
+              </p>
               <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
                 <Building2 className="h-3 w-3" />
                 {asset?.name || (isNb ? "Ukjent leverandør" : "Unknown vendor")} · {docTypeLabel} · {receivedDate}
@@ -464,22 +478,12 @@ export function UnifiedInboxContent() {
 
   function renderManualItem(item: any) {
     return (
-      <div key={item.id} className="relative">
-        {/* Source chip overlay */}
-        <div className="absolute top-3 left-3 z-10">
-          <Badge variant="outline" className="bg-muted text-muted-foreground border-border gap-1 text-[10px]">
-            <User className="h-3 w-3" />
-            {isNb ? "Manuell" : "Manual"}
-          </Badge>
-        </div>
-        <div className="pl-[88px]">
-          <CustomerRequestCard
-            request={item}
-            onArchive={(id) => archiveManualMutation.mutate(id)}
-            onDelete={(id) => deleteManualMutation.mutate(id)}
-          />
-        </div>
-      </div>
+      <CustomerRequestCard
+        key={item.id}
+        request={item}
+        onArchive={(id) => archiveManualMutation.mutate(id)}
+        onDelete={(id) => deleteManualMutation.mutate(id)}
+      />
     );
   }
 }
