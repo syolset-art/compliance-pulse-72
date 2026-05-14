@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
   CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb, Info,
-  Upload, Check, X, Clock, HelpCircle,
+  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
@@ -25,6 +25,10 @@ import {
   type MaturityAnswers, type MaturityAnswer,
 } from "@/lib/trustMaturityQuestions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { PARTNER_TYPE_LABEL, type PartnerType } from "@/hooks/usePartnerInfo";
+import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 
 interface Props {
   open: boolean;
@@ -98,6 +102,14 @@ export default function ActivateTrustProfileWizard({
   const [visibility, setVisibility] = useState<TrustVisibility>(DEFAULT_VISIBILITY);
   const [publicAcknowledged, setPublicAcknowledged] = useState(false);
 
+  // Step 6: partner relationship (asked above visibility)
+  const [partnerStatus, setPartnerStatus] = useState<"auto" | "yes" | "no" | "unknown" | null>(null);
+  const [partnerName, setPartnerName] = useState("");
+  const [partnerCompanyId, setPartnerCompanyId] = useState<string | null>(null);
+  const [partnerType, setPartnerType] = useState<PartnerType | null>(null);
+  const [showPartnerOnProfile, setShowPartnerOnProfile] = useState(true);
+  const { activeOrg } = useActiveOrganization();
+
   // Publishing
   const [isPublishing, setIsPublishing] = useState(false);
 
@@ -126,9 +138,55 @@ export default function ActivateTrustProfileWizard({
         setScanProgress(0);
         setRevealed(0);
         autoSearchedRef.current = false;
+        setPartnerStatus(null);
+        setPartnerName("");
+        setPartnerCompanyId(null);
+        setPartnerType(null);
+        setShowPartnerOnProfile(true);
       }, 200);
     }
   }, [open, hasPrefill, hasOrgPrefill, initialCompanyName, initialOrgNumber, initialDomain]);
+
+  // Auto-detect partner relationship when wizard opens
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: cp } = await supabase
+          .from("company_profile")
+          .select("managed_by_partner, partner_name, partner_company_id, partner_type")
+          .limit(1)
+          .maybeSingle();
+        if (cancelled) return;
+        if (cp && (cp as any).managed_by_partner && (cp as any).partner_name) {
+          setPartnerStatus("auto");
+          setPartnerName((cp as any).partner_name ?? "");
+          setPartnerCompanyId((cp as any).partner_company_id ?? null);
+          setPartnerType(((cp as any).partner_type as PartnerType) ?? null);
+          return;
+        }
+        // MSP-side: any partner has registered this org as their customer
+        const orgnr = activeOrg?.orgNumber || initialOrgNumber;
+        if (orgnr) {
+          const { data: mc } = await supabase
+            .from("msp_customers" as any)
+            .select("msp_user_id")
+            .eq("org_number", orgnr)
+            .limit(1)
+            .maybeSingle();
+          if (cancelled) return;
+          if (mc) {
+            setPartnerStatus("auto");
+            setPartnerName("Mynder-partner"); // generic — user can refine
+          }
+        }
+      } catch {
+        // ignore — fall back to manual question
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, activeOrg?.orgNumber, initialOrgNumber]);
 
   // Auto-search Brreg only when we know the name but NOT the org number.
   useEffect(() => {
@@ -296,6 +354,15 @@ export default function ActivateTrustProfileWizard({
       maturityAnswers,
       documents,
       visibility,
+      partner: partnerStatus
+        ? {
+            status: partnerStatus,
+            name: partnerName || null,
+            companyId: partnerCompanyId,
+            type: partnerType,
+            showOnProfile: showPartnerOnProfile,
+          }
+        : undefined,
     };
     try {
       await seedFromActivation(values);
@@ -406,12 +473,29 @@ export default function ActivateTrustProfileWizard({
         <DocumentsStep documents={documents} onUpload={uploadDocument} />
       )}
       {step === 6 && !isCalculating && (
-        <VisibilityStep
-          visibility={visibility}
-          setVisibility={setVisibility}
-          publicAcknowledged={publicAcknowledged}
-          setPublicAcknowledged={setPublicAcknowledged}
-        />
+        <div className="space-y-6">
+          <PartnerSelectionBlock
+            status={partnerStatus}
+            setStatus={setPartnerStatus}
+            name={partnerName}
+            setName={setPartnerName}
+            companyId={partnerCompanyId}
+            setCompanyId={setPartnerCompanyId}
+            partnerType={partnerType}
+            setPartnerType={setPartnerType}
+            showOnProfile={showPartnerOnProfile}
+            setShowOnProfile={setShowPartnerOnProfile}
+          />
+          <div className="border-t border-border pt-4">
+            <h3 className="text-sm font-semibold mb-3">Hvem skal se Trust Profilen?</h3>
+            <VisibilityStep
+              visibility={visibility}
+              setVisibility={setVisibility}
+              publicAcknowledged={publicAcknowledged}
+              setPublicAcknowledged={setPublicAcknowledged}
+            />
+          </div>
+        </div>
       )}
       {step === 6 && isCalculating && (
         <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
@@ -443,7 +527,12 @@ export default function ActivateTrustProfileWizard({
       ) : (
         <Button
           onClick={() => handlePublish()}
-          disabled={isPublishing || (visibility === "public" && !publicAcknowledged)}
+          disabled={
+            isPublishing ||
+            (visibility === "public" && !publicAcknowledged) ||
+            partnerStatus === null ||
+            (partnerStatus === "yes" && !partnerName.trim())
+          }
           className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white"
         >
           {isPublishing || isCalculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
@@ -1217,6 +1306,259 @@ function VisibilityStep({
       <p className="text-xs text-muted-foreground pt-1">
         Du kan endre synlighet når som helst fra Trust Profile-siden.
       </p>
+    </div>
+  );
+}
+
+/* -------------------- Partner relationship block -------------------- */
+
+const PARTNER_TYPE_OPTIONS: { value: PartnerType; label: string }[] = [
+  { value: "msp", label: "MSP" },
+  { value: "mssp", label: "MSSP" },
+  { value: "it_partner", label: "IT-partner" },
+  { value: "consultant", label: "Konsulent" },
+  { value: "other", label: "Annet" },
+];
+
+function PartnerSelectionBlock({
+  status, setStatus,
+  name, setName,
+  companyId, setCompanyId,
+  partnerType, setPartnerType,
+  showOnProfile, setShowOnProfile,
+}: {
+  status: "auto" | "yes" | "no" | "unknown" | null;
+  setStatus: (s: "auto" | "yes" | "no" | "unknown" | null) => void;
+  name: string;
+  setName: (v: string) => void;
+  companyId: string | null;
+  setCompanyId: (v: string | null) => void;
+  partnerType: PartnerType | null;
+  setPartnerType: (v: PartnerType | null) => void;
+  showOnProfile: boolean;
+  setShowOnProfile: (v: boolean) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [results, setResults] = useState<{ id: string; name: string; type?: string | null }[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [manualEntry, setManualEntry] = useState(false);
+
+  // Debounced search of partner companies in Mynder ecosystem
+  useEffect(() => {
+    if (status !== "yes" || manualEntry || search.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const { data } = await supabase
+          .from("company_profile")
+          .select("id, name, partner_type, is_msp_partner")
+          .ilike("name", `%${search.trim()}%`)
+          .limit(8);
+        setResults(
+          (data || []).map((r: any) => ({
+            id: r.id,
+            name: r.name,
+            type: r.partner_type ?? (r.is_msp_partner ? "msp" : null),
+          })),
+        );
+      } catch {
+        setResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [search, status, manualEntry]);
+
+  // Auto-detected: confirmation card
+  if (status === "auto") {
+    return (
+      <Card className="p-4 bg-success/5 border-success/30 space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="h-9 w-9 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+            <Sparkles className="h-4 w-4 text-success" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm">
+              Lara har sett at <strong>{name || "en partner"}</strong> forvalter sikkerheten din.
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Bekreft at dette skal vises på Trust Profilen din. Det styrker tilliten hos kunder og partnere.
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="shrink-0 h-7 px-2 text-xs gap-1"
+            onClick={() => { setStatus("yes"); setManualEntry(true); }}
+          >
+            <Pencil className="h-3 w-3" /> Endre
+          </Button>
+        </div>
+        <label className="flex items-start gap-2 cursor-pointer select-none rounded-md bg-background/60 border border-border p-2.5">
+          <Checkbox
+            checked={showOnProfile}
+            onCheckedChange={(v) => setShowOnProfile(v === true)}
+            className="mt-0.5"
+          />
+          <span className="text-xs text-foreground leading-snug">
+            Vis partner-tilknytningen på Trust Profilen min
+          </span>
+        </label>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-start gap-2">
+        <Handshake className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <div>
+          <h3 className="text-sm font-semibold">Er du knyttet til en partner?</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Mange virksomheter får hjelp av en MSP, MSSP, IT-partner eller konsulent. Hvis du har en, viser vi det på profilen — det styrker tilliten.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          { v: "yes" as const, label: "Ja, koblet til partner" },
+          { v: "no" as const, label: "Nei, vi forvalter selv" },
+          { v: "unknown" as const, label: "Vet ikke ennå" },
+        ].map((opt) => {
+          const selected = status === opt.v;
+          return (
+            <button
+              key={opt.v}
+              type="button"
+              onClick={() => { setStatus(opt.v); if (opt.v !== "yes") { setName(""); setCompanyId(null); setPartnerType(null); } }}
+              className={`text-left rounded-xl border p-3 text-xs font-medium transition-all ${
+                selected
+                  ? "border-[hsl(var(--mynder-blue))] bg-[hsl(var(--mynder-blue))]/5 ring-2 ring-[hsl(var(--mynder-blue))]/20"
+                  : "border-border hover:border-foreground/20"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {status === "yes" && (
+        <Card className="p-3 space-y-3 border-primary/20 bg-primary/5">
+          {!manualEntry && !companyId && (
+            <div className="space-y-2">
+              <Label className="text-xs">Søk etter partner i Mynder-økosystemet</Label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Skriv navn på partner…"
+                  className="pl-8 h-9 text-sm"
+                />
+              </div>
+              {searching && (
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Søker…
+                </p>
+              )}
+              {results.length > 0 && (
+                <div className="space-y-1">
+                  {results.map((r) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => {
+                        setName(r.name);
+                        setCompanyId(r.id);
+                        setPartnerType((r.type as PartnerType) || null);
+                      }}
+                      className="w-full text-left rounded-md border border-border bg-background p-2 hover:border-primary/40 transition flex items-center gap-2"
+                    >
+                      <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-sm flex-1 truncate">{r.name}</span>
+                      {r.type && (
+                        <Badge variant="outline" className="text-[10px]">
+                          {PARTNER_TYPE_LABEL[r.type as PartnerType] ?? r.type}
+                        </Badge>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setManualEntry(true)}
+                className="text-[11px] text-primary hover:underline"
+              >
+                Ikke i listen? Skriv inn manuelt →
+              </button>
+            </div>
+          )}
+
+          {(manualEntry || companyId) && (
+            <div className="space-y-2.5">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Partnernavn</Label>
+                  <Input
+                    value={name}
+                    onChange={(e) => { setName(e.target.value); if (companyId) setCompanyId(null); }}
+                    placeholder="F.eks. Atea, Sopra Steria"
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Partner-type</Label>
+                  <Select
+                    value={partnerType ?? ""}
+                    onValueChange={(v) => setPartnerType(v as PartnerType)}
+                  >
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue placeholder="Velg type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PARTNER_TYPE_OPTIONS.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              {companyId && (
+                <p className="text-[11px] text-success flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Koblet til partner i Mynder-økosystemet
+                </p>
+              )}
+              {manualEntry && (
+                <button
+                  type="button"
+                  onClick={() => { setManualEntry(false); setName(""); setCompanyId(null); setPartnerType(null); }}
+                  className="text-[11px] text-muted-foreground hover:underline"
+                >
+                  ← Tilbake til søk
+                </button>
+              )}
+            </div>
+          )}
+
+          <label className="flex items-start gap-2 cursor-pointer select-none rounded-md bg-background/60 border border-border p-2.5">
+            <Checkbox
+              checked={showOnProfile}
+              onCheckedChange={(v) => setShowOnProfile(v === true)}
+              className="mt-0.5"
+            />
+            <span className="text-xs text-foreground leading-snug">
+              Vis partner-tilknytningen på Trust Profilen min
+            </span>
+          </label>
+        </Card>
+      )}
     </div>
   );
 }

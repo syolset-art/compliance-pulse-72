@@ -138,6 +138,13 @@ export interface ActivationValues {
   maturityAnswers?: Record<string, "yes" | "no" | "later">;
   documents?: ActivationDocument[];
   visibility: "private" | "ecosystem" | "public";
+  partner?: {
+    status: "auto" | "yes" | "no" | "unknown";
+    name?: string | null;
+    companyId?: string | null;
+    type?: string | null;
+    showOnProfile?: boolean;
+  };
 }
 
 export async function seedFromActivation(values: ActivationValues) {
@@ -158,6 +165,24 @@ export async function seedFromActivation(values: ActivationValues) {
     use_cases: ["gdpr"],
     active_roles: values.dpoName ? ["compliance_officer", "dpo"] : ["compliance_officer"],
     is_msp_partner: false,
+    ...(values.partner
+      ? values.partner.status === "yes" || values.partner.status === "auto"
+        ? {
+            managed_by_partner: true,
+            partner_name: values.partner.name ?? null,
+            partner_company_id: values.partner.companyId ?? null,
+            partner_type: values.partner.type ?? null,
+            show_partner_on_trust_profile: values.partner.showOnProfile ?? true,
+          }
+        : values.partner.status === "no"
+        ? {
+            managed_by_partner: false,
+            partner_name: null,
+            partner_company_id: null,
+            partner_type: null,
+          }
+        : {}
+      : {}),
   };
 
   const selfAsset: any = {
