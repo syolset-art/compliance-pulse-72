@@ -102,6 +102,14 @@ export default function ActivateTrustProfileWizard({
   const [visibility, setVisibility] = useState<TrustVisibility>(DEFAULT_VISIBILITY);
   const [publicAcknowledged, setPublicAcknowledged] = useState(false);
 
+  // Step 6: partner relationship (asked above visibility)
+  const [partnerStatus, setPartnerStatus] = useState<"auto" | "yes" | "no" | "unknown" | null>(null);
+  const [partnerName, setPartnerName] = useState("");
+  const [partnerCompanyId, setPartnerCompanyId] = useState<string | null>(null);
+  const [partnerType, setPartnerType] = useState<PartnerType | null>(null);
+  const [showPartnerOnProfile, setShowPartnerOnProfile] = useState(true);
+  const { activeOrg } = useActiveOrganization();
+
   // Publishing
   const [isPublishing, setIsPublishing] = useState(false);
 
