@@ -60,6 +60,7 @@ export interface ContextualHelpPanelProps {
   colorLegend?: ColorLegend;
 
   // Gjør tab
+  doDescription?: React.ReactNode;
   actions?: ActionItem[];
 
   // Spør Lara tab
@@ -81,6 +82,7 @@ export function ContextualHelpPanel({
   steps,
   stepsHeading,
   colorLegend,
+  doDescription,
   actions,
   laraSuggestions,
   laraSuggestion,
@@ -204,6 +206,9 @@ export function ContextualHelpPanel({
 
           {/* === Gjør === */}
           <TabsContent value="actions" className="px-6 pb-6 mt-4 space-y-3">
+            {doDescription && (
+              <div className="text-sm text-muted-foreground leading-relaxed space-y-3">{doDescription}</div>
+            )}
             {hasActions ? (
               actions.map((action, i) => (
                 <button
