@@ -357,22 +357,26 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 isNb
                   ? (
                     <>
-                      <p>Trust Profile er mer enn en offentlig side — det er et levende tillitskort som Lara holder oppdatert basert på det du allerede gjør i Mynder. Slik fungerer det:</p>
-                      <p><strong>Lara kartlegger og oppdaterer fortløpende.</strong> Basert på regelverk du har aktivert kartlegger Lara informasjonen du har lagt inn på kontrollpunktene, og oppdaterer Trust Profile fortløpende.</p>
-                      <p><strong>Last opp eller pek på dokumentasjon — Lara samler alt.</strong> Last opp personvernerklæring, databehandleravtaler, sertifiseringer og annen dokumentasjon — eller pek på hvor den ligger. Lara henter inn det som er tilgjengelig og samler alt ett sted, slik at kunder og partnere finner det de trenger uten å spørre.</p>
-                      <p><strong>Tillitsskåren beregnes automatisk.</strong> Både kartlagt informasjon og tilgjengelig dokumentasjon tas med i beregningen av tillitsskåren.</p>
-                      <p><strong>Svar på spørsmål med Laras hjelp.</strong> Når noen ber om mer, foreslår Lara svar du kan godkjenne, og fanger opp hva som mangler.</p>
-                      <p><strong>Du bestemmer hva som skal deles.</strong> Velg selv hva som skal være offentlig, hva som deles kun med utvalgte, og hva som holdes internt.</p>
+                      <p>Trust Profile bygger seg selv etter hvert som du bruker Mynder. Lara holder den oppdatert basert på det du legger inn. Slik fungerer det:</p>
+                      <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                        <li><strong>Lara kartlegger og oppdaterer fortløpende.</strong> Basert på regelverk du har aktivert, kartlegger Lara informasjonen du har lagt inn på kontrollpunktene og oppdaterer profilen automatisk.</li>
+                        <li><strong>Last opp dokumentasjon.</strong> Lara samler personvernerklæringer, databehandleravtaler, sertifiseringer og annen dokumentasjon på ett sted.</li>
+                        <li><strong>Tillitsskåren beregnes automatisk.</strong> Både kartlagt informasjon og tilgjengelig dokumentasjon tas med i beregningen.</li>
+                        <li><strong>Svar på forespørsler med Laras hjelp.</strong> Når noen ber om mer, foreslår Lara svar du kan godkjenne, og fanger opp hva som mangler.</li>
+                        <li><strong>Du bestemmer hva som deles.</strong> Velg selv hva som er offentlig, hva som deles med utvalgte, og hva som holdes internt.</li>
+                      </ul>
                     </>
                   )
                   : (
                     <>
-                      <p>Trust Profile is more than a public page — it's a living trust card that Lara keeps updated based on what you already do in Mynder. Here's how it works:</p>
-                      <p><strong>Lara maps and updates continuously.</strong> Based on the regulations you have activated, Lara maps the information you have entered at the control points and updates the Trust Profile continuously.</p>
-                      <p><strong>Upload or point to documentation — Lara collects everything.</strong> Upload privacy policies, data processing agreements, certifications and other documentation — or point to where it is. Lara fetches what is available and gathers everything in one place so customers and partners find what they need without asking.</p>
-                      <p><strong>The trust score is calculated automatically.</strong> Both mapped information and available documentation are included in the trust score calculation.</p>
-                      <p><strong>Answer questions with Lara's help.</strong> When someone asks for more, Lara suggests answers you can approve, and catches what is missing.</p>
-                      <p><strong>You decide what to share.</strong> Choose yourself what should be public, what is shared only with selected parties, and what is kept internal.</p>
+                      <p>Trust Profile builds itself as you use Mynder. Lara keeps it updated based on what you enter. Here's how it works:</p>
+                      <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+                        <li><strong>Lara maps and updates continuously.</strong> Based on the regulations you have activated, Lara maps the information you have entered at the control points and updates the profile automatically.</li>
+                        <li><strong>Upload documentation.</strong> Lara gathers privacy policies, data processing agreements, certifications and other documentation in one place.</li>
+                        <li><strong>The trust score is calculated automatically.</strong> Both mapped information and available documentation are included in the calculation.</li>
+                        <li><strong>Respond to requests with Lara's help.</strong> When someone asks for more, Lara suggests answers you can approve, and catches what is missing.</li>
+                        <li><strong>You decide what is shared.</strong> Choose what is public, what is shared with selected parties, and what is kept internal.</li>
+                      </ul>
                     </>
                   )
               }
