@@ -2643,6 +2643,21 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           isNb
             ? (
               <>
+                <p>Trust Profile er din virksomhets offentlige tillitsside. Her samler du sertifiseringer, policyer og dokumentasjon som viser hvor moden organisasjonen din er innen styring, sikkerhet, personvern og tredjepartsstyring.</p>
+                <p>Kunder og partnere kan se profilen uten å logge inn.</p>
+              </>
+            )
+            : (
+              <>
+                <p>Trust Profile is your organization's public trust page. Here you collect certifications, policies and documentation that show how mature your organization is in governance, security, privacy and third-party management.</p>
+                <p>Customers and partners can view the profile without logging in.</p>
+              </>
+            )
+        }
+        doDescription={
+          isNb
+            ? (
+              <>
                 <p>Personvernerklæringer, databehandleravtaler og lovpålagt dokumentasjon må uansett finnes og deles. Med en Trust Profile gjør du jobben én gang. Kunder og partnere finner det selv — eller spør direkte gjennom profilen.</p>
                 <p>Lara hjelper deg å svare og holde dokumentasjonen oppdatert. Den som spør trenger ikke Mynder-konto.</p>
                 <p>Kunder og innkjøpere ber stadig oftere om denne dokumentasjonen. Med en Trust Profile slipper du å fylle ut samme leverandørskjema om igjen.</p>
