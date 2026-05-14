@@ -338,16 +338,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 isNb
                   ? (
                     <>
-                      <p>Personvernerklæringer, databehandleravtaler og lovpålagt dokumentasjon må uansett finnes og deles. Med en Trust Profile gjør du jobben én gang. Kunder og partnere finner det selv — eller spør direkte gjennom profilen.</p>
-                      <p>Lara kartlegger informasjonen du har lagt inn på regelverk du har aktivert, henter relevant dokumentasjon, og holder Trust Profile oppdatert. Den som spør trenger ikke Mynder-konto.</p>
+                      <p>Personvernerklæringer, databehandleravtaler og lovpålagt dokumentasjon må uansett finnes og deles. Med en Trust Profile gjør du jobben én gang. Kunder og partnere finner det selv — eller spør direkte gjennom profilen. Den som spør trenger ikke Mynder-konto.</p>
+                      <p>Lara hjelper deg å holde profilen oppdatert basert på regelverk du har aktivert.</p>
                       <p>Profilen får en tillitsskår basert på det du har dokumentert og informasjonen Lara har kartlagt. Skåren vokser etter hvert som du legger til mer.</p>
                       <p>Du blir en sterkere partner. Underleverandører er ofte det svake punktet i leverandørkjeder. Med en Trust Profile bidrar du til å redusere sårbarhet i kjeden du er en del av.</p>
                     </>
                   )
                   : (
                     <>
-                      <p>Privacy policies, data processing agreements and legally required documentation must exist and be shared anyway. With a Trust Profile you do the work once. Customers and partners find it themselves — or ask directly through the profile.</p>
-                      <p>Lara maps the information you have entered for the regulations you have activated, fetches relevant documentation, and keeps the Trust Profile updated. The person asking does not need a Mynder account.</p>
+                      <p>Privacy policies, data processing agreements and legally required documentation must exist and be shared anyway. With a Trust Profile you do the work once. Customers and partners find it themselves — or ask directly through the profile. The person asking does not need a Mynder account.</p>
+                      <p>Lara helps you keep the profile updated based on the regulations you have activated.</p>
                       <p>The profile gets a trust score based on what you have documented and the information Lara has mapped. The score grows as you add more.</p>
                       <p>You become a stronger partner. Sub-suppliers are often the weak point in supply chains. With a Trust Profile you help reduce vulnerability in the chain you are part of.</p>
                     </>
