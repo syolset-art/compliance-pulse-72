@@ -515,38 +515,36 @@ const SidebarContent = () => {
                     <vendorLink.icon className="h-4 w-4" />
                     {t(vendorLink.name)}
                   </Link>
-                  {sectionActive && (
-                    <div className="ml-7 mt-1 space-y-0.5">
-                      <Link
-                        to="/vendors/reports"
-                        className={cn(
-                          "flex items-center gap-2 px-2 py-1 rounded text-xs transition-colors",
-                          isReportsActive
-                            ? "text-sidebar-primary font-medium bg-sidebar-accent/30"
-                            : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/30"
-                        )}
-                      >
-                        <FileText className="h-3.5 w-3.5" />
-                        Rapporter
-                      </Link>
-                      {vIsActive && (
-                        <>
-                          <button
-                            onClick={handleSeed}
-                            className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground px-2 py-1 rounded hover:bg-sidebar-accent/30 transition-colors"
-                          >
-                            Last inn demo-data
-                          </button>
-                          <button
-                            onClick={handleDelete}
-                            className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-destructive px-2 py-1 rounded hover:bg-sidebar-accent/30 transition-colors"
-                          >
-                            Fjern demo-data
-                          </button>
-                        </>
+                  <div className="ml-7 mt-1 space-y-0.5">
+                    <Link
+                      to="/vendors/reports"
+                      className={cn(
+                        "flex items-center gap-2 px-2 py-1 rounded text-xs transition-colors",
+                        isReportsActive
+                          ? "text-sidebar-primary font-medium bg-sidebar-accent/30"
+                          : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/30"
                       )}
-                    </div>
-                  )}
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      Rapporter
+                    </Link>
+                    {sectionActive && vIsActive && (
+                      <>
+                        <button
+                          onClick={handleSeed}
+                          className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground px-2 py-1 rounded hover:bg-sidebar-accent/30 transition-colors"
+                        >
+                          Last inn demo-data
+                        </button>
+                        <button
+                          onClick={handleDelete}
+                          className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-destructive px-2 py-1 rounded hover:bg-sidebar-accent/30 transition-colors"
+                        >
+                          Fjern demo-data
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
                 )}
                 {link}
