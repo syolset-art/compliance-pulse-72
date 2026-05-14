@@ -357,11 +357,6 @@ export function UnifiedInboxContent() {
           )}
         >
           <div className="flex items-center gap-3 min-w-0">
-            {/* Source chip */}
-            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 gap-1 text-[10px] flex-shrink-0">
-              <Sparkles className="h-3 w-3" />
-              Lara
-            </Badge>
             {isAnalyzing ? (
               <Loader2 className="h-4 w-4 text-primary animate-spin flex-shrink-0" />
             ) : isQueued ? (
@@ -370,7 +365,15 @@ export function UnifiedInboxContent() {
               <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             )}
             <div className="min-w-0">
-              <p className="text-sm font-medium truncate text-foreground">{item.file_name || item.subject}</p>
+              <p className="text-sm font-medium truncate text-foreground flex items-center gap-1.5">
+                {item.file_name || item.subject}
+                <span
+                  title={isNb ? "Mottatt og behandlet automatisk av Lara" : "Received and processed automatically by Lara"}
+                  className="inline-flex items-center text-muted-foreground/70"
+                >
+                  <Sparkles className="h-3 w-3" />
+                </span>
+              </p>
               <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
                 <Building2 className="h-3 w-3" />
                 {asset?.name || (isNb ? "Ukjent leverandør" : "Unknown vendor")} · {docTypeLabel} · {receivedDate}
