@@ -116,7 +116,7 @@ export default function ActivateTrustProfileWizard({
   useEffect(() => {
     if (!open) {
       setTimeout(() => {
-        setStep(0);
+        setStep(1);
         setCompanyName(initialCompanyName ?? "");
         setOrgNumber(initialOrgNumber ?? "");
         setWebsite(initialDomain ? normalizeUrl(initialDomain) : "");
@@ -238,7 +238,6 @@ export default function ActivateTrustProfileWizard({
   };
 
   const canNext = useMemo(() => {
-    if (step === 0) return true;
     if (step === 1) return companyName.trim().length > 1 && orgNumber.trim().length > 0 && website.trim().length > 3 && websiteVerified;
     if (step === 2) return revealed >= (scan?.findings.length ?? 0) && scan != null;
     if (step === 3) return description.trim().length > 0;
@@ -246,7 +245,7 @@ export default function ActivateTrustProfileWizard({
   }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
   const next = () => setStep((s) => (Math.min(6, s + 1) as Step));
-  const back = () => setStep((s) => (Math.max(0, s - 1) as Step));
+  const back = () => setStep((s) => (Math.max(1, s - 1) as Step));
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
     setMaturityAnswers((prev) => ({ ...prev, [id]: answer }));
@@ -326,7 +325,7 @@ export default function ActivateTrustProfileWizard({
           <ShieldCheck className="h-4 w-4 text-primary" />
         </div>
         <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-          Aktiver Trust Profile · Steg {step + 1} av {TOTAL_STEPS}
+          Aktiver Trust Profile · Steg {step} av {TOTAL_STEPS}
         </span>
         {hasPrefill && step === 1 && (
           <Badge variant="outline" className="ml-auto text-[10px] gap-1 border-primary/30 text-primary">
@@ -335,7 +334,6 @@ export default function ActivateTrustProfileWizard({
         )}
       </div>
       <h2 className="text-xl font-semibold">
-        {step === 0 && "Lag din egen Trust Profile"}
         {step === 1 && (hasOrgPrefill
           ? "Bekreft hjemmesiden din"
           : (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din"))}
@@ -346,7 +344,6 @@ export default function ActivateTrustProfileWizard({
         {step === 6 && "Hvem skal se din Trust Profile?"}
       </h2>
       <p className="text-sm text-muted-foreground">
-        {step === 0 && "Du har valgt Mynder Core. Nå lager vi en publiserbar Trust Profile som viser kunder og partnere at du tar sikkerhet og personvern på alvor."}
         {step === 1 && (hasOrgPrefill
           ? "Vi har allerede selskapsnavn, organisasjonsnummer og land. For å fortsette trenger Lara hjemmesiden din."
           : (hasPrefill
@@ -358,13 +355,12 @@ export default function ActivateTrustProfileWizard({
         {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
         {step === 6 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
       </p>
-      <Progress value={(step / (TOTAL_STEPS - 1)) * 100} className="h-1" />
+      <Progress value={((step - 1) / (TOTAL_STEPS - 1)) * 100} className="h-1" />
     </div>
   );
 
   const body = (
     <div className="flex-1 overflow-y-auto py-2 pr-1">
-      {step === 0 && <WelcomeStep />}
       {step === 1 && (
         <OrgStep
           companyName={companyName}
@@ -425,8 +421,8 @@ export default function ActivateTrustProfileWizard({
 
   const footer = (
     <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
-      <Button variant="ghost" onClick={step === 0 || (hasPrefill && step === 1) ? handleSkip : back} disabled={isPublishing || isCalculating}>
-        {step === 0 || (hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
+      <Button variant="ghost" onClick={(hasPrefill && step === 1) ? handleSkip : back} disabled={isPublishing || isCalculating}>
+        {(hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
       {step < 6 ? (
@@ -437,7 +433,6 @@ export default function ActivateTrustProfileWizard({
             </Button>
           )}
           <Button onClick={next} disabled={!canNext} className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white">
-            {step === 0 && (<><Sparkles className="h-4 w-4" /> Start aktivering</>)}
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
             {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
