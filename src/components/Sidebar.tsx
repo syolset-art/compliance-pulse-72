@@ -507,6 +507,7 @@ const SidebarContent = () => {
                     </div>
                   )}
                 </div>
+                )}
                 {link}
               </React.Fragment>
             );
