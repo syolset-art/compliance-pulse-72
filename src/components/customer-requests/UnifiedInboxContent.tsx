@@ -396,70 +396,37 @@ export function UnifiedInboxContent() {
         {isExpanded && (
           <>
             <Separator />
-            <div className="px-4 py-3">
-              <div className="flex items-center gap-2 mb-3">
-                <img src={laraButterfly} alt="Lara" className="h-3.5 w-3.5" />
-                <p className="text-xs font-medium text-foreground">{isNb ? "Lara foreslår følgende" : "Lara proposes"}</p>
-              </div>
-              <ul className="space-y-1 text-xs text-foreground mb-4">
-                <li className="flex gap-2">
-                  <span className="text-primary">→</span>
-                  <span>
-                    {asset?.name
-                      ? <>{isNb ? "Koble dokumentet til leverandør" : "Link document to vendor"} <span className="font-medium">{asset.name}</span></>
-                      : <span className="text-warning">{isNb ? "Tilordne leverandør (ikke automatisk matchet)" : "Assign vendor (no auto-match)"}</span>}
-                  </span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-primary">→</span>
-                  <span>{isNb ? "Registrere som gjeldende" : "Register as current"} <span className="font-medium">{docTypeLabel}</span> {isNb ? "og erstatte tidligere versjon hvis den finnes" : "and supersede previous version if any"}</span>
-                </li>
+            <div className="px-4 py-3 space-y-2">
+              {summary.note && (
+                <p className="text-xs text-foreground leading-relaxed">{summary.note}</p>
+              )}
+              <div className="flex flex-wrap gap-1.5 text-[11px]">
+                {asset?.name ? (
+                  <Badge variant="secondary" className="font-normal">
+                    {isNb ? "Leverandør" : "Vendor"}: {asset.name}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="font-normal text-warning border-warning/30">
+                    {isNb ? "Mangler leverandør" : "No vendor match"}
+                  </Badge>
+                )}
+                <Badge variant="secondary" className="font-normal">{docTypeLabel}</Badge>
                 {validUntilLabel && (
-                  <li className="flex gap-2">
-                    <span className="text-primary">→</span>
-                    <span>{isNb ? "Sette gyldighet til" : "Set validity to"} <span className="font-medium">{validUntilLabel}</span></span>
-                  </li>
+                  <Badge variant="secondary" className="font-normal">
+                    {isNb ? "Gyldig til" : "Valid until"} {validUntilLabel}
+                  </Badge>
                 )}
                 {summary.score_impact && (
-                  <li className="flex gap-2">
-                    <span className="text-primary">→</span>
-                    <span>{isNb ? "Øke trust score med" : "Increase trust score by"} <span className="font-medium text-success">+{summary.score_impact} {isNb ? "poeng" : "pts"}</span></span>
-                  </li>
-                )}
-              </ul>
-
-              <p className="text-xs font-medium text-foreground mb-2">{isNb ? "Laras analyse" : "Lara's analysis"}</p>
-              <dl className="space-y-1.5 text-xs">
-                {summary.confirms?.length > 0 && (
-                  <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                    <dt className="text-muted-foreground">{isNb ? "Bekrefter" : "Confirms"}</dt>
-                    <dd className="text-foreground">{summary.confirms.join(" · ")}</dd>
-                  </div>
-                )}
-                {summary.affects?.length > 0 && (
-                  <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                    <dt className="text-muted-foreground">{isNb ? "Berører" : "Affects"}</dt>
-                    <dd className="text-foreground">{summary.affects.join(", ")}</dd>
-                  </div>
-                )}
-              </dl>
-              {summary.note && (
-                <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
-                  <span className="font-medium text-foreground">{isNb ? "Merk" : "Note"}:</span> {summary.note}
-                </p>
-              )}
-            </div>
-            <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-border">
-              <div className="flex items-center gap-1">
-                <Button size="sm" variant="ghost" className="h-8 text-xs gap-1.5 -ml-2" onClick={() => setPreviewItem(item)}>
-                  <Eye className="h-3.5 w-3.5" />{isNb ? "Les dokumentet" : "Read document"}
-                </Button>
-                {asset?.id && (
-                  <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => navigate(`/assets/${asset.id}`)}>
-                    {isNb ? "Åpne" : "Open"} {asset.name}
-                  </Button>
+                  <Badge variant="secondary" className="font-normal text-success">
+                    +{summary.score_impact} {isNb ? "poeng" : "pts"}
+                  </Badge>
                 )}
               </div>
+            </div>
+            <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-border">
+              <Button size="sm" variant="ghost" className="h-8 text-xs gap-1.5 -ml-2" onClick={() => setPreviewItem(item)}>
+                <Eye className="h-3.5 w-3.5" />{isNb ? "Les" : "Read"}
+              </Button>
               <div className="flex items-center gap-1">
                 <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground hover:text-destructive" onClick={() => rejectMutation.mutate(item.id)}>
                   {isNb ? "Avvis" : "Reject"}
