@@ -234,23 +234,25 @@ export function UnifiedInboxContent() {
 
   const isLoading = laraLoading || manualLoading;
 
+  // Group filtered items by month (newest first)
+  const groupedByMonth = useMemo(() => {
+    const groups: { key: string; label: string; items: any[] }[] = [];
+    const map = new Map<string, { label: string; items: any[] }>();
+    for (const item of filtered) {
+      const d = new Date(item.__ts);
+      const key = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, "0")}`;
+      const label = d.toLocaleDateString(locale, { month: "long", year: "numeric" }).toUpperCase();
+      if (!map.has(key)) {
+        map.set(key, { label, items: [] });
+        groups.push({ key, label, items: [] });
+      }
+      map.get(key)!.items.push(item);
+    }
+    return groups.map((g) => ({ ...g, items: map.get(g.key)!.items }));
+  }, [filtered, locale]);
+
   return (
     <div className="space-y-6">
-      {/* Lara intro banner */}
-      <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/15">
-        <img src={laraButterfly} alt="Lara" className="h-8 w-8 mt-0.5" />
-        <div>
-          <p className="text-sm font-medium text-foreground">
-            {isNb ? "Én innboks for alt" : "One inbox for everything"}
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {isNb
-              ? "Lara analyserer dokumenter automatisk. Manuelle forespørsler fra kunder ligger samme sted. Du ser tydelig hva som er håndtert av AI og hva som krever deg."
-              : "Lara analyzes documents automatically. Manual customer requests live in the same place. You always see what AI handled and what needs you."}
-          </p>
-        </div>
-      </div>
-
       {/* Filter chips */}
       <div className="flex items-center gap-1 border-b border-border">
         {filterTabs.map((t) => (
@@ -280,12 +282,21 @@ export function UnifiedInboxContent() {
           <p className="text-sm">{isNb ? "Ingen meldinger her" : "No messages here"}</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map((item: any) =>
-            item.__source === "lara"
-              ? renderLaraItem(item)
-              : renderManualItem(item)
-          )}
+        <div className="space-y-6">
+          {groupedByMonth.map((group) => (
+            <div key={group.key} className="space-y-2">
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] font-semibold tracking-wider text-muted-foreground">{group.label}</span>
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-[11px] text-muted-foreground tabular-nums">{group.items.length}</span>
+              </div>
+              <div className="space-y-2">
+                {group.items.map((item: any) =>
+                  item.__source === "lara" ? renderLaraItem(item) : renderManualItem(item)
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
