@@ -1,50 +1,59 @@
 ## Mål
+Gjør aktiverte moduler raskt tilgjengelige som førsteklasses menypunkter, og samle systemer/aktiva i en logisk "Registre"-gruppe. Aktiverte moduler skal alltid være synlige direkte — uaktiverte havner i "Flere tjenester".
 
-Fjerne "Sist lagt til"-widgeten på Leverandør-oversikten og erstatte den med en graf som viser compliance-aktivitet over tid — uavhengig av om aktiviteten er utført av Lara (agentisk) eller av et menneske.
+## Foreslått sidebar-struktur
 
-## Hva som endres
+```text
+Dashboard
+Trust Center                (alltid)
+──────────
+Regelverk                   (alltid)
+Leverandører ▸ Rapporter    (kun hvis Vendor-modul aktivert)
+Meldinger                   (alltid)
+──────────
+Mynder Core ▾               (kun hvis Core aktivert)
+  Arbeidsområder
+  Aktivitet
+  Avvik
+  Rapporter
+Registre ▾                  (kun hvis Core eller Assets aktivert)
+  Systemer                  (vises når Core aktivert)
+  Aktiva                    (vises når Assets aktivert)
+──────────
+Flere tjenester ▾           (samler kun ikke-aktiverte moduler)
+  Mynder Core / Leverandører / Aktiva
+```
 
-**Fil:** `src/components/vendor-dashboard/VendorOverviewTab.tsx`
-- Fjern hele "Recently Added"-kortet (linje ~232–272).
-- Behold rutenettet 2-kolonner: venstre = ny `ComplianceActivityChart`, høyre = eksisterende `SystemsPriorityChart`.
+### Begrunnelse for plassering
+- **Leverandører** løftes opp mellom Regelverk og Meldinger — det er en hyppig brukt modul og fortjener ett klikk, ikke to. Beholder `Rapporter` som inline-undermeny som i dag.
+- **Mynder Core** beholdes som collapsible gruppe (mange underpunkter), men `Systemer` flyttes ut til en ny **Registre**-gruppe sammen med **Aktiva**. Dette gir én mental modell: "registre over ting vi forvalter".
+- **Registre** vises automatisk når enten Core eller Assets er aktivert; underpunkter filtreres etter hvilken modul som er aktiv. Dette unngår et nytt aktiveringsbegrep — Systemer følger Core, Aktiva følger Assets, slik du beskriver.
+- **Flere tjenester** beholdes for oppdagelse av ikke-aktiverte moduler, men inneholder ikke lenger Systemer separat (det følger Core).
+- Ingen nye toppnivåpunkter for brukere som ikke har aktivert noe — sidebar holdes ren.
 
-**Ny fil:** `src/components/vendor-dashboard/ComplianceActivityChart.tsx`
+## Endringer i kode (kun `src/components/Sidebar.tsx`)
 
-## Graf-design
+1. **Konstanter**:
+   - Splitt `managementNav` slik at `Systemer` ikke lenger ligger der. Ny `coreNav` = Arbeidsområder, Aktivitet, Avvik, Rapporter.
+   - Ny `systemsLink = { name: "nav.systems", href: "/systems", icon: Cloud }`.
+   - Behold `vendorLink` og `assetsLink`.
 
-- **Type:** Stacked area chart (Recharts) med myk gradient — passer eksisterende visuelle språk.
-- **X-akse:** Siste 30 dager (gruppert per dag) med toggle for 7d / 30d / 90d.
-- **Y-akse:** Antall aktiviteter.
-- **To serier (stacket):**
-  - **Lara (agentisk)** — primary-fargen
-  - **Manuell (menneske)** — accent/muted-foreground
-- **Header:** Tittel "Compliance-aktivitet", totalsum siste periode + endring vs forrige periode (↑/↓ %).
-- **Tooltip:** Dato + fordeling Lara / Manuell + total.
-- **Tom tilstand:** Diskret melding "Ingen aktivitet registrert i perioden".
+2. **Render-rekkefølge** i `<nav>`:
+   - Dashboard → Trust Center → separator
+   - Regelverk → (Leverandører hvis aktivert, med Rapporter-undermeny som i dag) → Meldinger → separator
+   - Mynder Core (collapsible, bruker ny `coreNav`) hvis aktivert
+   - Registre (ny collapsible-seksjon, ikon `Layers` eller `Cloud`) hvis `showCoreNormal || showAssetsNormal`. Underpunkter bygges dynamisk: `[showCoreNormal && systemsLink, showAssetsNormal && assetsLink]`.
+   - Fjern dagens "Trust Moduler"-overskrift og inline Leverandører/Aktiva-blokk (Leverandører er nå løftet opp, Aktiva flyttet til Registre).
+   - Flere tjenester: `exploreCoreItems` peker fortsatt til `coreNav` + `systemsLink` (Systemer er en del av Core-tilbudet i utforsk-visningen). `exploreRegistryItems` blir bare `assetsLink` hvis ikke aktivert.
 
-## Datakilder (aktivitet = enhver compliance-handling)
+3. **Aktiv-state**:
+   - Ny `isRegistriesActive = location.pathname.startsWith("/systems") || location.pathname.startsWith("/assets")`.
+   - `isManagementActive` oppdateres til å bruke `coreNav` (uten Systems).
 
-Aggregeres i én spørring per kilde, deretter slått sammen klient-side per dag:
+4. **i18n**: legg til `nav.registries` ("Registre" / "Registries") hvis ikke allerede finnes (brukes i dag i Flere tjenester, så nøkkelen finnes).
 
-| Kilde | Tabell | Tidsstempel | Kategori |
-|---|---|---|---|
-| Statusendringer på krav | `requirement_status` | `updated_at` | Manuell hvis `updated_by` er bruker, ellers Lara |
-| Evidens lagt til/sjekket | `evidence_checks` | `created_at` | Lara hvis `source = 'lara'/'ai'`, ellers Manuell |
-| Lara-forslag utført | `lara_inbox` | `updated_at` der `status = 'accepted'/'executed'` | Lara |
-| Leverandør opprettet/oppdatert | `assets` (filter `asset_type = 'vendor'`) | `updated_at` | Manuell |
-| Prioritetsendringer | `asset_priority_history` | `created_at` | Manuell hvis `changed_by` finnes, ellers Lara |
+Ingen endringer i ruter, sider eller backend — kun navigasjonsstruktur.
 
-Filtreres på company/tenant via eksisterende RLS (ingen schema-endringer).
-
-Hvis en kilde mangler kolonner som angir agent vs menneske, faller den til "Manuell" som default.
-
-## Tilgjengelighet (UU)
-
-- `<h2>` for korttittel.
-- Wrapper rundt grafen med `role="img"` og `aria-label` som oppsummerer total + fordeling.
-- Periode-toggle som `<button>` med `aria-pressed`.
-
-## Avgrensning
-
-- Kun frontend + lese-spørringer mot eksisterende tabeller.
-- Ingen migrasjoner, ingen endringer i RLS, ingen endringer i `SystemsPriorityChart` eller andre seksjoner.
+## Ut av scope
+- Ingen endringer i selve modul-aktiveringsflyten eller `useSubscription`-logikken.
+- Ingen endringer i Trust Center-, Innstillinger- eller Partner-menyene.
