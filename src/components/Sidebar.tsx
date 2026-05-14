@@ -211,7 +211,7 @@ const SidebarContent = () => {
   // in demo/preview when company_profile is empty.
   const companyName = activeOrg?.name || "Mynder AS";
 
-  const isManagementActive = managementNav.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
+  const isManagementActive = coreNav.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [managementOpen, setManagementOpen] = useState(() => isManagementActive);
 
   // Keep the section open when navigating between its sub-routes (e.g. /reports → /reports/compliance)
@@ -219,8 +219,20 @@ const SidebarContent = () => {
     if (isManagementActive) setManagementOpen(true);
   }, [isManagementActive]);
 
+  // Registre: Systemer (følger Core) + Aktiva (følger Assets)
+  const showRegistries = showCoreNormal || showAssetsNormal;
+  const registriesItems = [
+    ...(showCoreNormal ? [systemsLink] : []),
+    ...(showAssetsNormal ? [assetsLink] : []),
+  ];
+  const isRegistriesActive = registriesItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
+  const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
+  useEffect(() => {
+    if (isRegistriesActive) setRegistriesOpen(true);
+  }, [isRegistriesActive]);
+
   // "Flere tjenester" combines items from sections not shown normally, split by category
-  const exploreCoreItems = !showCoreNormal ? managementNav : [];
+  const exploreCoreItems = !showCoreNormal ? [...coreNav, systemsLink] : [];
   const exploreRegistryItems = [
     ...(!showVendorsNormal ? [vendorLink] : []),
     ...(!showAssetsNormal ? [assetsLink] : []),
