@@ -207,11 +207,6 @@ export function CustomerRequestCard({ request, onDelete, onArchive, onToggleVisi
           <div className={`flex items-center gap-1.5 text-xs ${deadlineInfo.className}`}>
             <DeadlineIcon className="h-3.5 w-3.5 shrink-0" />
             <span className="font-medium">{deadlineInfo.label}</span>
-            {request.due_date && request.status !== "completed" && (
-              <span className="text-muted-foreground font-normal ml-1">
-                · {isNb ? "Frist" : "Due"}: {new Date(request.due_date).toLocaleDateString(locale, { day: "numeric", month: "short" })}
-              </span>
-            )}
           </div>
         </div>
       </div>
