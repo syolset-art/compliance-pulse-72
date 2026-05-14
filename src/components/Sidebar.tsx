@@ -260,7 +260,7 @@ const SidebarContent = () => {
   const renderCollapsibleSection = (
     label: string,
     icon: React.ElementType,
-    items: typeof managementNav,
+    items: typeof coreNav,
     isOpen: boolean,
     setIsOpen: (open: boolean) => void,
     isSectionActive: boolean,
