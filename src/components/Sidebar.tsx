@@ -330,6 +330,9 @@ const SidebarContent = () => {
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
   const [exploreOpen, setExploreOpen] = useState(() => isExploreActive);
 
+  const isDemoActive = location.pathname.startsWith("/demo/");
+  const [demoOpen, setDemoOpen] = useState(() => isDemoActive);
+
 
   const handleLogout = async () => {
     setLoggingOut(true);
