@@ -41,7 +41,7 @@ function buildAnalysisSummary(docType: string) {
   return presets[docType] || { confirms: ["Dokument mottatt og lest"], affects: ["Generell etterlevelse"], score_impact: 4 };
 }
 
-type FilterKey = "all" | "lara_working" | "needs_you" | "done";
+type FilterKey = "all" | "needs_you" | "done";
 
 export function UnifiedInboxContent() {
   const { i18n } = useTranslation();
