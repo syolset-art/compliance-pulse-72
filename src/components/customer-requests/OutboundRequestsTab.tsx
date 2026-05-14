@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Send, Clock, CheckCircle2, AlertTriangle, Search, Inbox, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 
-const STORAGE_KEY = "mynder_outbound_requests";
+const STORAGE_KEY = "mynder_outbound_requests_v2";
 const AUTO_DELETE_DAYS = 180; // 6 months retention
 
 const DEMO_OUTBOUND_REQUESTS: OutboundRequest[] = [
