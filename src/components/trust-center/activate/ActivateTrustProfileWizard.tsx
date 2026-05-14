@@ -138,9 +138,55 @@ export default function ActivateTrustProfileWizard({
         setScanProgress(0);
         setRevealed(0);
         autoSearchedRef.current = false;
+        setPartnerStatus(null);
+        setPartnerName("");
+        setPartnerCompanyId(null);
+        setPartnerType(null);
+        setShowPartnerOnProfile(true);
       }, 200);
     }
   }, [open, hasPrefill, hasOrgPrefill, initialCompanyName, initialOrgNumber, initialDomain]);
+
+  // Auto-detect partner relationship when wizard opens
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: cp } = await supabase
+          .from("company_profile")
+          .select("managed_by_partner, partner_name, partner_company_id, partner_type")
+          .limit(1)
+          .maybeSingle();
+        if (cancelled) return;
+        if (cp && (cp as any).managed_by_partner && (cp as any).partner_name) {
+          setPartnerStatus("auto");
+          setPartnerName((cp as any).partner_name ?? "");
+          setPartnerCompanyId((cp as any).partner_company_id ?? null);
+          setPartnerType(((cp as any).partner_type as PartnerType) ?? null);
+          return;
+        }
+        // MSP-side: any partner has registered this org as their customer
+        const orgnr = activeOrg?.orgNumber || initialOrgNumber;
+        if (orgnr) {
+          const { data: mc } = await supabase
+            .from("msp_customers" as any)
+            .select("msp_user_id")
+            .eq("org_number", orgnr)
+            .limit(1)
+            .maybeSingle();
+          if (cancelled) return;
+          if (mc) {
+            setPartnerStatus("auto");
+            setPartnerName("Mynder-partner"); // generic — user can refine
+          }
+        }
+      } catch {
+        // ignore — fall back to manual question
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, activeOrg?.orgNumber, initialOrgNumber]);
 
   // Auto-search Brreg only when we know the name but NOT the org number.
   useEffect(() => {
