@@ -228,7 +228,6 @@ export function UnifiedInboxContent() {
 
   const filterTabs: { key: FilterKey; label: string; count: number }[] = [
     { key: "all", label: isNb ? "Alle" : "All", count: buckets.all.length },
-    { key: "lara_working", label: isNb ? "Lara jobber" : "Lara working", count: buckets.lara_working.length },
     { key: "needs_you", label: isNb ? "Venter deg" : "Needs you", count: buckets.needs_you.length },
     { key: "done", label: isNb ? "Ferdig" : "Done", count: buckets.done.length },
   ];
