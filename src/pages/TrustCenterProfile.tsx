@@ -357,25 +357,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 isNb
                   ? (
                     <>
-                      <p>Trust Profile bygger seg selv etter hvert som du bruker Mynder. Lara holder den oppdatert basert på det du legger inn. Slik fungerer det:</p>
+                      <p>Bygg og hold Trust Profile oppdatert. Lara hjelper deg underveis.</p>
                       <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
-                        <li><strong>Lara kartlegger og oppdaterer fortløpende.</strong> Basert på regelverk du har aktivert, kartlegger Lara informasjonen du har lagt inn på kontrollpunktene og oppdaterer profilen automatisk.</li>
-                        <li><strong>Last opp dokumentasjon.</strong> Lara samler personvernerklæringer, databehandleravtaler, sertifiseringer og annen dokumentasjon på ett sted.</li>
-                        <li><strong>Tillitsskåren beregnes automatisk.</strong> Både kartlagt informasjon og tilgjengelig dokumentasjon tas med i beregningen.</li>
-                        <li><strong>Svar på forespørsler med Laras hjelp.</strong> Når noen ber om mer, foreslår Lara svar du kan godkjenne, og fanger opp hva som mangler.</li>
-                        <li><strong>Du bestemmer hva som deles.</strong> Velg selv hva som er offentlig, hva som deles med utvalgte, og hva som holdes internt.</li>
+                        <li><strong>Aktiver regelverk du vil dekke.</strong> Lara kartlegger informasjonen du har lagt inn og oppdaterer profilen fortløpende.</li>
+                        <li><strong>Last opp dokumentasjon.</strong> Last opp personvernerklæring, databehandleravtaler og sertifiseringer — eller pek på hvor de ligger.</li>
+                        <li><strong>Svar på spørsmål.</strong> Når kunder og partnere ber om mer, foreslår Lara svar du kan godkjenne.</li>
+                        <li><strong>Velg synlighet.</strong> Bestem om profilen skal være offentlig, deles med utvalgte, eller holdes intern.</li>
                       </ul>
                     </>
                   )
                   : (
                     <>
-                      <p>Trust Profile builds itself as you use Mynder. Lara keeps it updated based on what you enter. Here's how it works:</p>
+                      <p>Build and keep your Trust Profile updated. Lara helps you along the way.</p>
                       <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
-                        <li><strong>Lara maps and updates continuously.</strong> Based on the regulations you have activated, Lara maps the information you have entered at the control points and updates the profile automatically.</li>
-                        <li><strong>Upload documentation.</strong> Lara gathers privacy policies, data processing agreements, certifications and other documentation in one place.</li>
-                        <li><strong>The trust score is calculated automatically.</strong> Both mapped information and available documentation are included in the calculation.</li>
-                        <li><strong>Respond to requests with Lara's help.</strong> When someone asks for more, Lara suggests answers you can approve, and catches what is missing.</li>
-                        <li><strong>You decide what is shared.</strong> Choose what is public, what is shared with selected parties, and what is kept internal.</li>
+                        <li><strong>Activate regulations you want to cover.</strong> Lara maps the information you have entered and updates the profile continuously.</li>
+                        <li><strong>Upload documentation.</strong> Upload privacy policies, data processing agreements and certifications — or point to where they are.</li>
+                        <li><strong>Answer questions.</strong> When customers and partners ask for more, Lara suggests answers you can approve.</li>
+                        <li><strong>Choose visibility.</strong> Decide whether the profile should be public, shared with selected parties, or kept internal.</li>
                       </ul>
                     </>
                   )
