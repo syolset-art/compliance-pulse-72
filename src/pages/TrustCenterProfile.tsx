@@ -335,8 +335,24 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               icon={Shield}
               title={isNb ? "Trust Profile" : "Trust Profile"}
               description={isNb
-                ? "Trust Profile er din offentlige tillitsside. Den viser modenhet, dokumentasjon og sertifiseringer slik at kunder, partnere og myndigheter kan forstå hvordan dere håndterer sikkerhet, personvern og compliance."
-                : "Trust Profile is your public trust page. It shows maturity, documentation and certifications so customers, partners and regulators can understand how you handle security, privacy and compliance."}
+                ? (
+                  <>
+                    <p>Personvernerklæringer, databehandleravtaler og lovpålagt dokumentasjon må uansett finnes og deles. Med en Trust Profile gjør du jobben én gang. Kunder og partnere finner det selv — eller spør direkte gjennom profilen.</p>
+                    <p>Lara hjelper deg å svare og holde dokumentasjonen oppdatert. Den som spør trenger ikke Mynder-konto.</p>
+                    <p>Kunder og innkjøpere ber stadig oftere om denne dokumentasjonen. Med en Trust Profile slipper du å fylle ut samme leverandørskjema om igjen.</p>
+                    <p>Profilen får en tillitsskår basert på det du har dokumentert og det Lara har verifisert. Skåren vokser etter hvert som du legger til mer.</p>
+                    <p>Du blir en sterkere partner. Underleverandører er ofte det svake punktet i leverandørkjeder. Med en Trust Profile bidrar du til å redusere sårbarhet i kjeden du er en del av.</p>
+                  </>
+                )
+                : (
+                  <>
+                    <p>Privacy policies, data processing agreements and legally required documentation must exist and be shared anyway. With a Trust Profile, you do the work once. Customers and partners find it themselves — or ask directly through the profile.</p>
+                    <p>Lara helps you respond and keep documentation up to date. The person asking doesn't need a Mynder account.</p>
+                    <p>Customers and buyers increasingly request this documentation. With a Trust Profile, you avoid filling out the same vendor questionnaire over and over.</p>
+                    <p>The profile receives a trust score based on what you have documented and what Lara has verified. The score grows as you add more.</p>
+                    <p>You become a stronger partner. Sub-suppliers are often the weak point in supply chains. With a Trust Profile, you help reduce vulnerability in the chain you are part of.</p>
+                  </>
+                )}
             />
           </main>
         </div>
@@ -2608,8 +2624,24 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         title={isNb ? "Trust Profile" : "Trust Profile"}
         description={
           isNb
-            ? "Trust Profilen er din virksomhets offentlige tillitserklæring. Den samler compliance-dokumentasjon, egenerklæringer og sertifiseringer i en delbar profil som kunder, partnere og myndigheter kan bruke til due diligence."
-            : "The Trust Profile is your organization's public trust declaration. It gathers compliance documentation, self-assessments, and certifications into a shareable profile for due diligence by customers, partners, and regulators."
+            ? (
+              <>
+                <p>Personvernerklæringer, databehandleravtaler og lovpålagt dokumentasjon må uansett finnes og deles. Med en Trust Profile gjør du jobben én gang. Kunder og partnere finner det selv — eller spør direkte gjennom profilen.</p>
+                <p>Lara hjelper deg å svare og holde dokumentasjonen oppdatert. Den som spør trenger ikke Mynder-konto.</p>
+                <p>Kunder og innkjøpere ber stadig oftere om denne dokumentasjonen. Med en Trust Profile slipper du å fylle ut samme leverandørskjema om igjen.</p>
+                <p>Profilen får en tillitsskår basert på det du har dokumentert og det Lara har verifisert. Skåren vokser etter hvert som du legger til mer.</p>
+                <p>Du blir en sterkere partner. Underleverandører er ofte det svake punktet i leverandørkjeder. Med en Trust Profile bidrar du til å redusere sårbarhet i kjeden du er en del av.</p>
+              </>
+            )
+            : (
+              <>
+                <p>Privacy policies, data processing agreements and legally required documentation must exist and be shared anyway. With a Trust Profile, you do the work once. Customers and partners find it themselves — or ask directly through the profile.</p>
+                <p>Lara helps you respond and keep documentation up to date. The person asking doesn't need a Mynder account.</p>
+                <p>Customers and buyers increasingly request this documentation. With a Trust Profile, you avoid filling out the same vendor questionnaire over and over.</p>
+                <p>The profile receives a trust score based on what you have documented and what Lara has verified. The score grows as you add more.</p>
+                <p>You become a stronger partner. Sub-suppliers are often the weak point in supply chains. With a Trust Profile, you help reduce vulnerability in the chain you are part of.</p>
+              </>
+            )
         }
         itemsHeading={isNb ? "De fire kontrollområdene" : "The four control areas"}
         items={[

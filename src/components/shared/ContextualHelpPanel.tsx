@@ -49,7 +49,7 @@ export interface ContextualHelpPanelProps {
   title: string;
 
   // Forstå tab
-  description: string;
+  description: React.ReactNode;
   items?: HelpItem[];
   itemsHeading?: string;
   whyTitle?: string;
@@ -132,7 +132,7 @@ export function ContextualHelpPanel({
 
           {/* === Forstå === */}
           <TabsContent value="understand" className="px-6 pb-6 mt-4 space-y-5">
-            <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
+            <div className="text-sm text-muted-foreground leading-relaxed space-y-3">{description}</div>
 
             {items && items.length > 0 && (
               <div className="space-y-3">
