@@ -56,11 +56,14 @@ export default function VendorDemoActivation() {
     setTermsOpen(true);
   };
 
-  const confirmActivation = () => {
+  const confirmActivation = async () => {
     setTermsOpen(false);
     setStep("activating");
+    const { notifyModuleActivating, notifyModuleActivated } = await import("@/lib/moduleActivationEvents");
+    notifyModuleActivating("vendors");
     setTimeout(() => {
       setStep("activated");
+      notifyModuleActivated("vendors");
       toast.success("Leverandørstyring aktivert!");
     }, 1800);
   };
