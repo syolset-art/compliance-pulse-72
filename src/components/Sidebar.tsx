@@ -457,6 +457,9 @@ const SidebarContent = () => {
             };
             return (
               <React.Fragment key="vendors-and-next">
+                {isVendorsActivating ? (
+                  <ModuleSkeletonRow label={t(vendorLink.name)} />
+                ) : (
                 <div>
                   <Link
                     to={vendorLink.href}
