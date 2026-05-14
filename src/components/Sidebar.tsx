@@ -47,6 +47,20 @@ import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
 import { OrganizationSwitcher } from "@/components/sidebar/OrganizationSwitcher";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
+
+const ModuleSkeletonRow = ({ label }: { label: string }) => (
+  <div
+    aria-busy="true"
+    aria-live="polite"
+    className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium text-sidebar-foreground/60 bg-sidebar-accent/30 border-l-2 border-primary/40 animate-pulse"
+  >
+    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+    <Skeleton className="h-3.5 flex-1 max-w-[120px] bg-sidebar-foreground/10" />
+    <span className="sr-only">Aktiverer {label}…</span>
+  </div>
+);
 
 // Top-level dashboard link (single)
 const dashboardNav = [
