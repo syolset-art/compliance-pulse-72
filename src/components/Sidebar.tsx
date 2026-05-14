@@ -760,10 +760,10 @@ const SidebarContent = () => {
       </nav>
 
       {/* Company section at bottom (locked) */}
-      <div className="border-t border-sidebar-border">
+      <div className="flex-shrink-0 border-t border-sidebar-border bg-sidebar">
 
         {companyName ? (
-          <div className="px-3 pb-3">
+          <div className="px-3 pb-3 pt-2">
             <button 
               onClick={() => setCompanyOpen(!companyOpen)}
               className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-colors text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
@@ -773,7 +773,7 @@ const SidebarContent = () => {
             </button>
 
             {companyOpen && (
-              <div className="mt-1 ml-2 space-y-1 animate-fade-in">
+              <div className="mt-1 ml-2 space-y-1 animate-fade-in max-h-[50vh] overflow-y-auto pr-1">
                 {settingsMenu.map((item) => {
                   const isActive = location.pathname === item.href;
                   return (
