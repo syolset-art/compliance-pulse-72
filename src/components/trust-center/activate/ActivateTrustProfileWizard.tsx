@@ -1309,3 +1309,256 @@ function VisibilityStep({
     </div>
   );
 }
+
+/* -------------------- Partner relationship block -------------------- */
+
+const PARTNER_TYPE_OPTIONS: { value: PartnerType; label: string }[] = [
+  { value: "msp", label: "MSP" },
+  { value: "mssp", label: "MSSP" },
+  { value: "it_partner", label: "IT-partner" },
+  { value: "consultant", label: "Konsulent" },
+  { value: "other", label: "Annet" },
+];
+
+function PartnerSelectionBlock({
+  status, setStatus,
+  name, setName,
+  companyId, setCompanyId,
+  partnerType, setPartnerType,
+  showOnProfile, setShowOnProfile,
+}: {
+  status: "auto" | "yes" | "no" | "unknown" | null;
+  setStatus: (s: "auto" | "yes" | "no" | "unknown" | null) => void;
+  name: string;
+  setName: (v: string) => void;
+  companyId: string | null;
+  setCompanyId: (v: string | null) => void;
+  partnerType: PartnerType | null;
+  setPartnerType: (v: PartnerType | null) => void;
+  showOnProfile: boolean;
+  setShowOnProfile: (v: boolean) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [results, setResults] = useState<{ id: string; name: string; type?: string | null }[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [manualEntry, setManualEntry] = useState(false);
+
+  // Debounced search of partner companies in Mynder ecosystem
+  useEffect(() => {
+    if (status !== "yes" || manualEntry || search.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const { data } = await supabase
+          .from("company_profile")
+          .select("id, name, partner_type, is_msp_partner")
+          .ilike("name", `%${search.trim()}%`)
+          .limit(8);
+        setResults(
+          (data || []).map((r: any) => ({
+            id: r.id,
+            name: r.name,
+            type: r.partner_type ?? (r.is_msp_partner ? "msp" : null),
+          })),
+        );
+      } catch {
+        setResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [search, status, manualEntry]);
+
+  // Auto-detected: confirmation card
+  if (status === "auto") {
+    return (
+      <Card className="p-4 bg-success/5 border-success/30 space-y-3">
+        <div className="flex items-start gap-3">
+          <div className="h-9 w-9 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+            <Sparkles className="h-4 w-4 text-success" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm">
+              Lara har sett at <strong>{name || "en partner"}</strong> forvalter sikkerheten din.
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Bekreft at dette skal vises på Trust Profilen din. Det styrker tilliten hos kunder og partnere.
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="shrink-0 h-7 px-2 text-xs gap-1"
+            onClick={() => { setStatus("yes"); setManualEntry(true); }}
+          >
+            <Pencil className="h-3 w-3" /> Endre
+          </Button>
+        </div>
+        <label className="flex items-start gap-2 cursor-pointer select-none rounded-md bg-background/60 border border-border p-2.5">
+          <Checkbox
+            checked={showOnProfile}
+            onCheckedChange={(v) => setShowOnProfile(v === true)}
+            className="mt-0.5"
+          />
+          <span className="text-xs text-foreground leading-snug">
+            Vis partner-tilknytningen på Trust Profilen min
+          </span>
+        </label>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-start gap-2">
+        <Handshake className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <div>
+          <h3 className="text-sm font-semibold">Er du knyttet til en partner?</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Mange virksomheter får hjelp av en MSP, MSSP, IT-partner eller konsulent. Hvis du har en, viser vi det på profilen — det styrker tilliten.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          { v: "yes" as const, label: "Ja, koblet til partner" },
+          { v: "no" as const, label: "Nei, vi forvalter selv" },
+          { v: "unknown" as const, label: "Vet ikke ennå" },
+        ].map((opt) => {
+          const selected = status === opt.v;
+          return (
+            <button
+              key={opt.v}
+              type="button"
+              onClick={() => { setStatus(opt.v); if (opt.v !== "yes") { setName(""); setCompanyId(null); setPartnerType(null); } }}
+              className={`text-left rounded-xl border p-3 text-xs font-medium transition-all ${
+                selected
+                  ? "border-[hsl(var(--mynder-blue))] bg-[hsl(var(--mynder-blue))]/5 ring-2 ring-[hsl(var(--mynder-blue))]/20"
+                  : "border-border hover:border-foreground/20"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {status === "yes" && (
+        <Card className="p-3 space-y-3 border-primary/20 bg-primary/5">
+          {!manualEntry && !companyId && (
+            <div className="space-y-2">
+              <Label className="text-xs">Søk etter partner i Mynder-økosystemet</Label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Skriv navn på partner…"
+                  className="pl-8 h-9 text-sm"
+                />
+              </div>
+              {searching && (
+                <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                  <Loader2 className="h-3 w-3 animate-spin" /> Søker…
+                </p>
+              )}
+              {results.length > 0 && (
+                <div className="space-y-1">
+                  {results.map((r) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => {
+                        setName(r.name);
+                        setCompanyId(r.id);
+                        setPartnerType((r.type as PartnerType) || null);
+                      }}
+                      className="w-full text-left rounded-md border border-border bg-background p-2 hover:border-primary/40 transition flex items-center gap-2"
+                    >
+                      <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-sm flex-1 truncate">{r.name}</span>
+                      {r.type && (
+                        <Badge variant="outline" className="text-[10px]">
+                          {PARTNER_TYPE_LABEL[r.type as PartnerType] ?? r.type}
+                        </Badge>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setManualEntry(true)}
+                className="text-[11px] text-primary hover:underline"
+              >
+                Ikke i listen? Skriv inn manuelt →
+              </button>
+            </div>
+          )}
+
+          {(manualEntry || companyId) && (
+            <div className="space-y-2.5">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Partnernavn</Label>
+                  <Input
+                    value={name}
+                    onChange={(e) => { setName(e.target.value); if (companyId) setCompanyId(null); }}
+                    placeholder="F.eks. Atea, Sopra Steria"
+                    className="h-9 text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Partner-type</Label>
+                  <Select
+                    value={partnerType ?? ""}
+                    onValueChange={(v) => setPartnerType(v as PartnerType)}
+                  >
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue placeholder="Velg type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PARTNER_TYPE_OPTIONS.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              {companyId && (
+                <p className="text-[11px] text-success flex items-center gap-1">
+                  <CheckCircle2 className="h-3 w-3" /> Koblet til partner i Mynder-økosystemet
+                </p>
+              )}
+              {manualEntry && (
+                <button
+                  type="button"
+                  onClick={() => { setManualEntry(false); setName(""); setCompanyId(null); setPartnerType(null); }}
+                  className="text-[11px] text-muted-foreground hover:underline"
+                >
+                  ← Tilbake til søk
+                </button>
+              )}
+            </div>
+          )}
+
+          <label className="flex items-start gap-2 cursor-pointer select-none rounded-md bg-background/60 border border-border p-2.5">
+            <Checkbox
+              checked={showOnProfile}
+              onCheckedChange={(v) => setShowOnProfile(v === true)}
+              className="mt-0.5"
+            />
+            <span className="text-xs text-foreground leading-snug">
+              Vis partner-tilknytningen på Trust Profilen min
+            </span>
+          </label>
+        </Card>
+      )}
+    </div>
+  );
+}
