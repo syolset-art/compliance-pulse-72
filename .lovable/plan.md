@@ -1,59 +1,75 @@
 ## Mål
-Gjør aktiverte moduler raskt tilgjengelige som førsteklasses menypunkter, og samle systemer/aktiva i en logisk "Registre"-gruppe. Aktiverte moduler skal alltid være synlige direkte — uaktiverte havner i "Flere tjenester".
 
-## Foreslått sidebar-struktur
+På siste steg (Synlighet) i aktiveringsveiviseren, vis en seksjon øverst som avklarer om virksomheten er knyttet til en partner (MSP/MSSP/IT-partner/konsulent). Auto-deteksjon brukes når mulig; ellers må brukeren svare før de kan publisere.
 
-```text
-Dashboard
-Trust Center                (alltid)
-──────────
-Regelverk                   (alltid)
-Leverandører ▸ Rapporter    (kun hvis Vendor-modul aktivert)
-Meldinger                   (alltid)
-──────────
-Mynder Core ▾               (kun hvis Core aktivert)
-  Arbeidsområder
-  Aktivitet
-  Avvik
-  Rapporter
-Registre ▾                  (kun hvis Core eller Assets aktivert)
-  Systemer                  (vises når Core aktivert)
-  Aktiva                    (vises når Assets aktivert)
-──────────
-Flere tjenester ▾           (samler kun ikke-aktiverte moduler)
-  Mynder Core / Leverandører / Aktiva
+## Endringer
+
+### 1. Auto-deteksjon av partner ved aktivering
+I `ActivateTrustProfileWizard.tsx`, last inn partner-status når veiviseren åpnes:
+- Les `company_profile`: `managed_by_partner`, `partner_name`, `partner_company_id`, `partner_type` (via `usePartnerInfo`-mønsteret).
+- Sjekk `msp_customers` for rader hvor aktiv organisasjon matcher (`customer_name` eller `customer_org_number`) — gir partner-kandidat fra MSP-siden.
+- Hvis enten kilde bekrefter en partner → `autoDetected = true`, prefyll partner-info, vis bekreftelse uten å spørre.
+
+### 2. Ny PartnerStep-seksjon (vises på Synlighet-steget — fortsatt 6 steg totalt)
+Legges som første blokk i `VisibilityStep` (eller direkte i body for `step === 6`, før eksisterende synlighet-UI). Tre tilstander:
+
+**A) Auto-detektert partner**
+- Grønn bekreftelses-card med Lara-ikon: «Vi har registrert at [Partner] forvalter Trust Profilen din.»
+- Checkbox (default på): «Vis partner-tilknytningen på Trust Profilen min.»
+- Brukeren kan klikke «Endre» for å bytte til manuell tilstand.
+
+**B) Ikke detektert — må svare**
+- Spørsmål: «Er du knyttet til en partner som hjelper deg med sikkerhet, IT eller compliance?»
+- Tre valg (radio-cards): `Ja, koblet til partner` / `Nei, vi forvalter selv` / `Vet ikke ennå`.
+- Inntil et valg er gjort er «Publiser»-knappen disabled (oppdater `canNext`/publish-validering).
+
+**C) Ja → velg partner**
+- Søkefelt med kombinasjons-velger: søker i `company_profile` (type partner) og `msp_customers.partner` for matchende navn (Mynder-økosystem).
+- Treff vises som klikkbare resultatkort (navn, type, evt. logo).
+- Fallback: «Ikke i listen?» → fritekst-input for partnernavn + valgfri e-post + partner-type (dropdown: MSP / MSSP / IT-partner / Konsulent / Annet).
+- Checkbox: «Vis partner-tilknytningen på Trust Profilen min» (default på).
+
+### 3. State i wizard
+Legg til:
+```ts
+const [partnerStatus, setPartnerStatus] = useState<"auto" | "yes" | "no" | "unknown" | null>(null);
+const [partnerName, setPartnerName] = useState("");
+const [partnerCompanyId, setPartnerCompanyId] = useState<string | null>(null);
+const [partnerType, setPartnerType] = useState<PartnerType | null>(null);
+const [showPartnerOnProfile, setShowPartnerOnProfile] = useState(true);
+```
+Auto-deteksjon ved åpning setter `partnerStatus = "auto"` + prefyller felt.
+
+### 4. Persistering ved publisering
+I `handlePublish` → utvid `ActivationValues` med `partner`-felt og oppdater `seedFromActivation` (i `src/lib/demoSeedTrustProfile.ts`) til å skrive på `company_profile`:
+- `managed_by_partner = (status === "auto" || status === "yes")`
+- `partner_name`, `partner_company_id`, `partner_type`, `show_partner_on_trust_profile`
+- Hvis status `"no"` → sett eksplisitt `managed_by_partner = false`.
+- Hvis `"unknown"` → ikke endre eksisterende verdier.
+
+### 5. Validering
+Oppdater `canNext` på step 6 / publish-knappen:
+```ts
+if (step === 6) {
+  if (partnerStatus === null) return false;          // må svare
+  if (partnerStatus === "yes" && !partnerName.trim()) return false;
+  // visibility validering (eksisterende public-akknowledgment) består
+}
 ```
 
-### Begrunnelse for plassering
-- **Leverandører** løftes opp mellom Regelverk og Meldinger — det er en hyppig brukt modul og fortjener ett klikk, ikke to. Beholder `Rapporter` som inline-undermeny som i dag.
-- **Mynder Core** beholdes som collapsible gruppe (mange underpunkter), men `Systemer` flyttes ut til en ny **Registre**-gruppe sammen med **Aktiva**. Dette gir én mental modell: "registre over ting vi forvalter".
-- **Registre** vises automatisk når enten Core eller Assets er aktivert; underpunkter filtreres etter hvilken modul som er aktiv. Dette unngår et nytt aktiveringsbegrep — Systemer følger Core, Aktiva følger Assets, slik du beskriver.
-- **Flere tjenester** beholdes for oppdagelse av ikke-aktiverte moduler, men inneholder ikke lenger Systemer separat (det følger Core).
-- Ingen nye toppnivåpunkter for brukere som ikke har aktivert noe — sidebar holdes ren.
+### 6. Tekster (norsk, Lara-tone)
+- Auto: «Lara har sett at **{partnerName}** forvalter sikkerheten din. Bekreft at dette skal vises på Trust Profilen.»
+- Manuelt: «Mange virksomheter får hjelp av en partner. Hvis du har en, viser vi det på profilen — det styrker tilliten.»
+- Tooltip på «Vis på Trust Profilen»: «Andre ser at en kvalifisert partner forvalter Trust Profilen din.»
 
-## Endringer i kode (kun `src/components/Sidebar.tsx`)
+## Filer som endres
 
-1. **Konstanter**:
-   - Splitt `managementNav` slik at `Systemer` ikke lenger ligger der. Ny `coreNav` = Arbeidsområder, Aktivitet, Avvik, Rapporter.
-   - Ny `systemsLink = { name: "nav.systems", href: "/systems", icon: Cloud }`.
-   - Behold `vendorLink` og `assetsLink`.
-
-2. **Render-rekkefølge** i `<nav>`:
-   - Dashboard → Trust Center → separator
-   - Regelverk → (Leverandører hvis aktivert, med Rapporter-undermeny som i dag) → Meldinger → separator
-   - Mynder Core (collapsible, bruker ny `coreNav`) hvis aktivert
-   - Registre (ny collapsible-seksjon, ikon `Layers` eller `Cloud`) hvis `showCoreNormal || showAssetsNormal`. Underpunkter bygges dynamisk: `[showCoreNormal && systemsLink, showAssetsNormal && assetsLink]`.
-   - Fjern dagens "Trust Moduler"-overskrift og inline Leverandører/Aktiva-blokk (Leverandører er nå løftet opp, Aktiva flyttet til Registre).
-   - Flere tjenester: `exploreCoreItems` peker fortsatt til `coreNav` + `systemsLink` (Systemer er en del av Core-tilbudet i utforsk-visningen). `exploreRegistryItems` blir bare `assetsLink` hvis ikke aktivert.
-
-3. **Aktiv-state**:
-   - Ny `isRegistriesActive = location.pathname.startsWith("/systems") || location.pathname.startsWith("/assets")`.
-   - `isManagementActive` oppdateres til å bruke `coreNav` (uten Systems).
-
-4. **i18n**: legg til `nav.registries` ("Registre" / "Registries") hvis ikke allerede finnes (brukes i dag i Flere tjenester, så nøkkelen finnes).
-
-Ingen endringer i ruter, sider eller backend — kun navigasjonsstruktur.
+- `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx` — state, auto-load, ny PartnerStep-seksjon øverst i step 6, validering, publisering.
+- `src/lib/demoSeedTrustProfile.ts` — utvid `ActivationValues` med partner-felt, skriv til `company_profile`.
+- (Ny lokal komponent) `PartnerSelectionBlock` inne i samme fil eller egen fil under `src/components/trust-center/activate/`.
 
 ## Ut av scope
-- Ingen endringer i selve modul-aktiveringsflyten eller `useSubscription`-logikken.
-- Ingen endringer i Trust Center-, Innstillinger- eller Partner-menyene.
+
+- Ingen endringer på selve Trust Profile-visningen (partner-bånn vises allerede når `managed_by_partner` er satt).
+- Ingen nye DB-kolonner — alle felt finnes på `company_profile` allerede.
+- Ingen endring av antall steg (forblir 6).
