@@ -473,12 +473,29 @@ export default function ActivateTrustProfileWizard({
         <DocumentsStep documents={documents} onUpload={uploadDocument} />
       )}
       {step === 6 && !isCalculating && (
-        <VisibilityStep
-          visibility={visibility}
-          setVisibility={setVisibility}
-          publicAcknowledged={publicAcknowledged}
-          setPublicAcknowledged={setPublicAcknowledged}
-        />
+        <div className="space-y-6">
+          <PartnerSelectionBlock
+            status={partnerStatus}
+            setStatus={setPartnerStatus}
+            name={partnerName}
+            setName={setPartnerName}
+            companyId={partnerCompanyId}
+            setCompanyId={setPartnerCompanyId}
+            partnerType={partnerType}
+            setPartnerType={setPartnerType}
+            showOnProfile={showPartnerOnProfile}
+            setShowOnProfile={setShowPartnerOnProfile}
+          />
+          <div className="border-t border-border pt-4">
+            <h3 className="text-sm font-semibold mb-3">Hvem skal se Trust Profilen?</h3>
+            <VisibilityStep
+              visibility={visibility}
+              setVisibility={setVisibility}
+              publicAcknowledged={publicAcknowledged}
+              setPublicAcknowledged={setPublicAcknowledged}
+            />
+          </div>
+        </div>
       )}
       {step === 6 && isCalculating && (
         <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
