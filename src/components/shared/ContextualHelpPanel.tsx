@@ -82,6 +82,7 @@ export function ContextualHelpPanel({
   steps,
   stepsHeading,
   colorLegend,
+  doDescription,
   actions,
   laraSuggestions,
   laraSuggestion,
