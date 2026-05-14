@@ -478,22 +478,12 @@ export function UnifiedInboxContent() {
 
   function renderManualItem(item: any) {
     return (
-      <div key={item.id} className="relative">
-        {/* Source chip overlay */}
-        <div className="absolute top-3 left-3 z-10">
-          <Badge variant="outline" className="bg-muted text-muted-foreground border-border gap-1 text-[10px]">
-            <User className="h-3 w-3" />
-            {isNb ? "Manuell" : "Manual"}
-          </Badge>
-        </div>
-        <div className="pl-[88px]">
-          <CustomerRequestCard
-            request={item}
-            onArchive={(id) => archiveManualMutation.mutate(id)}
-            onDelete={(id) => deleteManualMutation.mutate(id)}
-          />
-        </div>
-      </div>
+      <CustomerRequestCard
+        key={item.id}
+        request={item}
+        onArchive={(id) => archiveManualMutation.mutate(id)}
+        onDelete={(id) => deleteManualMutation.mutate(id)}
+      />
     );
   }
 }
