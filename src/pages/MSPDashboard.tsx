@@ -60,8 +60,9 @@ export default function MSPDashboard() {
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Kunder</h1>
-              <p className="text-muted-foreground mt-1">Oversikt over dine kunder og deres compliance-status</p>
+              <h1 className="text-3xl font-bold text-foreground">
+                Kunder <span className="text-muted-foreground font-normal">({customers.length})</span>
+              </h1>
             </div>
             <div className="flex items-center gap-2">
               <DropdownMenu>
@@ -79,8 +80,6 @@ export default function MSPDashboard() {
               </Button>
             </div>
           </div>
-
-          <MSPMetricsRow customers={customers} />
 
           {customers.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground">
