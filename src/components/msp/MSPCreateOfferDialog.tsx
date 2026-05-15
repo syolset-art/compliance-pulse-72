@@ -155,12 +155,8 @@ export function MSPCreateOfferDialog({
                         onChange={e => updateTask(i, { label: e.target.value })}
                         className="h-7 text-[13px] font-medium border-0 bg-transparent px-0 focus-visible:ring-0"
                       />
-                      {(t.weeks || t.note) && (
-                        <p className="text-[11px] text-muted-foreground -mt-0.5">
-                          {t.weeks}
-                          {t.weeks && t.note ? " · " : ""}
-                          {t.note}
-                        </p>
+                      {t.note && (
+                        <p className="text-[11px] text-muted-foreground -mt-0.5">{t.note}</p>
                       )}
                     </div>
                     <Input
