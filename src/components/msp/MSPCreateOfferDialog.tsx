@@ -66,7 +66,7 @@ export function MSPCreateOfferDialog({
     setAttachGap(attachGapProp);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const totalHours = tasks.reduce((s, t) => s + (t.owner === "Partner" ? Number(t.hours) || 0 : 0), 0);
+  const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
   const totalPrice = totalHours * hourlyRate;
 
   const updateTask = (i: number, patch: Partial<EditableTask>) => {
@@ -119,7 +119,7 @@ export function MSPCreateOfferDialog({
           </div>
           <DialogTitle className="text-lg">{offerName}</DialogTitle>
           <DialogDescription className="text-[13px]">
-            Rediger linjene før du sender. Du kan legge til oppgaver kunden selv skal gjøre.
+            Rediger linjene og sett antall timer per oppgave før du sender.
           </DialogDescription>
         </DialogHeader>
 
@@ -128,7 +128,7 @@ export function MSPCreateOfferDialog({
           <div className="flex items-start gap-2.5 rounded-md border border-primary/30 bg-primary/5 p-3">
             <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
             <p className="text-[12px] text-foreground leading-snug">
-              Jeg har satt opp et standardløp basert på din tjenestekatalog. Juster linjene, sett eier på hver oppgave, og send til {customerContactName}.
+              Jeg har satt opp et standardløp basert på din tjenestekatalog. Juster timene per oppgave og send til {customerContactName}.
             </p>
           </div>
 
@@ -138,9 +138,8 @@ export function MSPCreateOfferDialog({
               Aktiviteter
             </Label>
             <div className="rounded-md border border-border overflow-hidden">
-              <div className="grid grid-cols-[1fr_120px_90px_32px] gap-2 px-3 py-2 bg-muted/40 text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+              <div className="grid grid-cols-[1fr_90px_32px] gap-2 px-3 py-2 bg-muted/40 text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
                 <span>Oppgave</span>
-                <span>Eier</span>
                 <span className="text-right">Timer</span>
                 <span />
               </div>
@@ -148,7 +147,7 @@ export function MSPCreateOfferDialog({
                 {tasks.map((t, i) => (
                   <div
                     key={i}
-                    className={`grid grid-cols-[1fr_120px_90px_32px] gap-2 px-3 py-2 items-center ${ownerRowClass[t.owner]}`}
+                    className="grid grid-cols-[1fr_90px_32px] gap-2 px-3 py-2 items-center"
                   >
                     <div className="min-w-0">
                       <Input
@@ -164,28 +163,12 @@ export function MSPCreateOfferDialog({
                         </p>
                       )}
                     </div>
-                    <Select value={t.owner} onValueChange={(v: TaskOwner) => updateTask(i, { owner: v })}>
-                      <SelectTrigger className="h-7 text-[12px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {OWNERS.map(o => (
-                          <SelectItem key={o} value={o} className="text-[12px]">{o}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {t.owner === "Partner" ? (
-                      <Input
-                        type="number"
-                        value={t.hours}
-                        onChange={e => updateTask(i, { hours: Number(e.target.value) })}
-                        className="h-7 text-[13px] text-right tabular-nums"
-                      />
-                    ) : (
-                      <span className="text-[11px] text-muted-foreground text-right pr-2 italic">
-                        Kunden
-                      </span>
-                    )}
+                    <Input
+                      type="number"
+                      value={t.hours}
+                      onChange={e => updateTask(i, { hours: Number(e.target.value) })}
+                      className="h-7 text-[13px] text-right tabular-nums"
+                    />
                     <button
                       type="button"
                       onClick={() => removeTask(i)}
