@@ -201,7 +201,7 @@ export function MSPServiceCatalogTab() {
       {suggestions && (
         <MSPLaraServiceSuggestions
           suggestions={suggestions}
-          onChangeSuggestions={setSuggestions}
+          onChangeSuggestions={(next) => setSuggestions(next)}
           onImport={handleAddSuggestions}
           onDismiss={() => setSuggestions(null)}
         />
