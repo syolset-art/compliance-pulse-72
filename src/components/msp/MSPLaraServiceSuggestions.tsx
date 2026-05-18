@@ -82,24 +82,33 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
               <div className="flex-1 min-w-0 space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-semibold text-foreground">{s.name}</span>
-                  <Badge variant="outline" className="text-[10px] gap-1">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] gap-1"
+                    title="Antall leveransepunkter i tjenesten (det du faktisk gjør for kunden)"
+                  >
                     <CheckSquare className="h-3 w-3" />
-                    {s.defaultChecklist.length} sjekkpunkter
+                    {s.defaultChecklist.length} leveransepunkter
                   </Badge>
                 </div>
                 <p className="text-[13px] text-muted-foreground leading-snug">
                   {s.description}
                 </p>
                 <div className="flex flex-wrap items-center gap-1.5">
-                  {s.frameworkMappings.map((m) => (
-                    <Badge
-                      key={m.frameworkId}
-                      variant="outline"
-                      className="text-[10px] bg-primary/5 text-primary border-primary/30"
-                    >
-                      {m.frameworkLabel} · {m.controlIds.length} kontroller
-                    </Badge>
-                  ))}
+                  {s.frameworkMappings.map((m) => {
+                    const shown = m.controlIds.slice(0, 3).join(", ");
+                    const extra = m.controlIds.length > 3 ? ` +${m.controlIds.length - 3}` : "";
+                    return (
+                      <Badge
+                        key={m.frameworkId}
+                        variant="outline"
+                        className="text-[10px] bg-primary/5 text-primary border-primary/30"
+                        title="Tjenesten dokumenterer disse kontrollpunktene i regelverket — kunden får automatisk evidens på dem når dere leverer."
+                      >
+                        {m.frameworkLabel} · {shown}{extra}
+                      </Badge>
+                    );
+                  })}
                 </div>
               </div>
             </button>
