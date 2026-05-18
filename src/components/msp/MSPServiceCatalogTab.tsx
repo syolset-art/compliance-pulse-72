@@ -1,23 +1,10 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import {
-  Sparkles,
-  Plus,
-  Pencil,
-  Shield,
-  Tag,
-  Eye,
-  EyeOff,
-  RotateCcw,
-  Trash2,
-} from "lucide-react";
-import { ServiceEvidenceSection, totalControlCount, primaryFrameworkId } from "./ServiceEvidenceSection";
-import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
+import { Sparkles, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ServiceForm } from "./ServiceForm";
+import { ServiceCard } from "./ServiceCard";
 import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
