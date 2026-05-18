@@ -12,12 +12,14 @@ import {
   Pencil,
   CheckSquare,
   Shield,
+  ShieldCheck,
   Tag,
   X,
   Eye,
   EyeOff,
   ShoppingCart,
 } from "lucide-react";
+import { ServiceEvidenceSection, totalControlCount } from "./ServiceEvidenceSection";
 import {
   Select,
   SelectContent,
