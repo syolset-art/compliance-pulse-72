@@ -262,25 +262,4 @@ function StatCard({
   );
 }
 
-const PRICE_MODEL_LABEL: Record<NonNullable<PartnerService["priceModel"]>, string> = {
-  fixed: "fastpris",
-  monthly: "kr/mnd",
-  hourly: "kr/time",
-  "per-user": "kr/bruker/mnd",
-  quote: "etter avtale",
-};
-
-function formatPrice(s: PartnerService): string {
-  const model = s.priceModel ?? "fixed";
-  if (model === "quote") return s.priceNote || "Etter avtale";
-  if (s.price == null && !s.priceNote) return "";
-  const amount =
-    s.price != null ? new Intl.NumberFormat("nb-NO").format(s.price) : "";
-  const label = PRICE_MODEL_LABEL[model];
-  const base =
-    model === "fixed"
-      ? amount ? `${amount} kr` : ""
-      : amount ? `${amount} ${label}` : label;
-  return [base, s.priceNote].filter(Boolean).join(" · ");
-}
 
