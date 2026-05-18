@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ShieldCheck, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ServiceFrameworkMapping } from "@/lib/serviceCatalog";
+import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 
 interface Props {
   mappings: ServiceFrameworkMapping[];
