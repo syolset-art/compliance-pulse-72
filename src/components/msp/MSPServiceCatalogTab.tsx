@@ -18,13 +18,6 @@ import { ServiceEvidenceSection, totalControlCount, primaryFrameworkId } from ".
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { cn } from "@/lib/utils";
 import { ServiceForm } from "./ServiceForm";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
