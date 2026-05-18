@@ -10,16 +10,15 @@ import {
   Sparkles,
   Plus,
   Pencil,
-  CheckSquare,
   Shield,
-  ShieldCheck,
   Tag,
   X,
   Eye,
   EyeOff,
-  ShoppingCart,
 } from "lucide-react";
-import { ServiceEvidenceSection, totalControlCount } from "./ServiceEvidenceSection";
+import { ServiceEvidenceSection, totalControlCount, primaryFrameworkId } from "./ServiceEvidenceSection";
+import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -70,9 +69,29 @@ export function MSPServiceCatalogTab() {
 
   const showEmptyHero = services.length === 0 && !suggestions;
 
+  // Stats
+  const stats = {
+    count: services.length,
+    controls: (() => {
+      const ids = new Set<string>();
+      services.forEach((s) =>
+        s.frameworkMappings.forEach((m) =>
+          m.controlIds.forEach((c) => ids.add(`${m.frameworkId}:${c}`)),
+        ),
+      );
+      return ids.size;
+    })(),
+    frameworks: (() => {
+      const ids = new Set<string>();
+      services.forEach((s) => s.frameworkMappings.forEach((m) => ids.add(m.frameworkId)));
+      return ids.size;
+    })(),
+    suggestions: suggestions?.length ?? 0,
+  };
+
   return (
-    <div className="space-y-3">
-      {/* Header / hero */}
+    <div className="space-y-4">
+      {/* Header */}
       {showEmptyHero ? (
         <Card className="p-6 border-primary/20 bg-primary/5">
           <div className="flex items-start gap-4">
@@ -106,34 +125,36 @@ export function MSPServiceCatalogTab() {
           </div>
         </Card>
       ) : (
-        <Card className="p-4 border-primary/20 bg-primary/5">
-          <div className="flex items-start gap-3">
-            <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-              <Sparkles className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground">Din tjenestekatalog</p>
-              <p className="text-[13px] text-muted-foreground mt-0.5">
-                Dine egne tjenester, koblet til kontrollpunkter på tvers av ISO 27001, NIS2, AI Act m.fl.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 gap-1.5"
-                onClick={() => setWizardOpen(true)}
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                Lara: foreslå flere
-              </Button>
-              <Button size="sm" className="h-8 gap-1.5" onClick={() => setAdding(true)}>
-                <Plus className="h-3.5 w-3.5" />
-                Ny tjeneste
-              </Button>
-            </div>
+        <>
+          {/* Top action row */}
+          <div className="flex items-center justify-end gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-9 gap-1.5"
+              onClick={() => setWizardOpen(true)}
+            >
+              <Sparkles className="h-4 w-4" />
+              Lara: foreslå flere
+            </Button>
+            <Button size="sm" className="h-9 gap-1.5" onClick={() => setAdding(true)}>
+              <Plus className="h-4 w-4" />
+              Ny tjeneste
+            </Button>
           </div>
-        </Card>
+
+          {/* Stats row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <StatCard label="I katalog" value={stats.count} />
+            <StatCard label="Kontrollpunkter dekket" value={stats.controls} />
+            <StatCard label="Regelverk" value={stats.frameworks} />
+            <StatCard
+              label="Lara foreslår"
+              value={stats.suggestions}
+              highlight={stats.suggestions > 0}
+            />
+          </div>
+        </>
       )}
 
       {/* Lara-forslag */}
@@ -147,128 +168,109 @@ export function MSPServiceCatalogTab() {
 
       {adding && <ServiceForm onCancel={() => setAdding(false)} onSave={addService} />}
 
-      {services.map((s) => {
-        const totalControls = totalControlCount(s.frameworkMappings);
-        const isEditing = editing === s.id;
-        return (
-          <Card key={s.id} className="p-4 hover:border-primary/30 transition-colors">
-            {isEditing ? (
-              <ServiceForm
-                initial={s}
-                onCancel={() => setEditing(null)}
-                onSave={(updated) => {
-                  setServices((prev) => prev.map((x) => (x.id === s.id ? updated : x)));
-                  setEditing(null);
-                }}
-              />
-            ) : (
-              <div className="flex items-start gap-3">
-                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Shield className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0 space-y-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-semibold text-foreground">{s.name}</span>
-                    <Badge
-                      variant="outline"
-                      className="text-[10px] gap-1"
-                      title="Antall leveransepunkter i tjenesten (det du faktisk gjør for kunden)"
-                    >
-                      <CheckSquare className="h-3 w-3" />
-                      {s.defaultChecklist.length} leveransepunkter
-                    </Badge>
-                    {totalControls > 0 && (
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] gap-1 bg-primary/5 text-primary border-primary/30"
-                        title="Antall kontrollpunkter i regelverk denne tjenesten dokumenterer for kunden"
-                      >
-                        <ShieldCheck className="h-3 w-3" />
-                        {totalControls} kontrollpunkter
-                      </Badge>
-                    )}
-                    {(s.price != null || s.priceNote) && (
-                      <Badge variant="outline" className="text-[10px] gap-1 bg-success/5 text-success border-success/30">
-                        <Tag className="h-3 w-3" />
-                        {formatPrice(s)}
-                      </Badge>
-                    )}
-                    <Badge
-                      variant="outline"
-                      className={
-                        s.publishedToCustomers
-                          ? "text-[10px] gap-1 bg-primary/5 text-primary border-primary/30"
-                          : "text-[10px] gap-1 text-muted-foreground"
-                      }
-                      title={
-                        s.publishedToCustomers
-                          ? "Synlig og bestillbar i kundens portal"
-                          : "Skjult — kun synlig for deg"
-                      }
-                    >
-                      {s.publishedToCustomers ? (
-                        <>
-                          <ShoppingCart className="h-3 w-3" />
-                          Bestillbar for kunder
-                        </>
-                      ) : (
-                        <>
-                          <EyeOff className="h-3 w-3" />
-                          Skjult for kunder
-                        </>
-                      )}
-                    </Badge>
-                  </div>
-                  <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
-
-                  <ServiceEvidenceSection
-                    mappings={s.frameworkMappings}
-                    onConnect={() => setEditing(s.id)}
+      {/* Service grid */}
+      {services.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {services.map((s) => {
+            const totalControls = totalControlCount(s.frameworkMappings);
+            const isEditing = editing === s.id;
+            const primaryId = primaryFrameworkId(s.frameworkMappings);
+            const theme = primaryId ? getFrameworkTheme(primaryId) : null;
+            return (
+              <Card
+                key={s.id}
+                className={cn(
+                  "p-4 hover:border-primary/30 transition-colors border-l-4",
+                  theme ? theme.border : "border-l-muted",
+                  isEditing && "md:col-span-2",
+                )}
+              >
+                {isEditing ? (
+                  <ServiceForm
+                    initial={s}
+                    onCancel={() => setEditing(null)}
+                    onSave={(updated) => {
+                      setServices((prev) => prev.map((x) => (x.id === s.id ? updated : x)));
+                      setEditing(null);
+                    }}
                   />
-                </div>
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                  <label
-                    className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-2 py-1.5 cursor-pointer hover:bg-muted/60 transition-colors"
-                    title={
-                      s.publishedToCustomers
-                        ? "Synlig og bestillbar i kundens portal"
-                        : "Skjult — kun synlig for deg"
-                    }
-                  >
-                    {s.publishedToCustomers ? (
-                      <Eye className="h-3.5 w-3.5 text-primary" />
-                    ) : (
-                      <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-                    )}
-                    <span className="text-[11px] font-medium text-foreground">
-                      {s.publishedToCustomers ? "Synlig for kunder" : "Skjult"}
-                    </span>
-                    <Switch
-                      checked={!!s.publishedToCustomers}
-                      onCheckedChange={(checked) =>
-                        setServices((prev) =>
-                          prev.map((x) =>
-                            x.id === s.id ? { ...x, publishedToCustomers: checked } : x,
-                          ),
-                        )
-                      }
-                    />
-                  </label>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 text-xs gap-1.5"
-                    onClick={() => setEditing(s.id)}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Rediger
-                  </Button>
-                </div>
-              </div>
-            )}
-          </Card>
-        );
-      })}
+                ) : (
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={cn(
+                        "h-9 w-9 rounded-lg flex items-center justify-center shrink-0",
+                        theme ? theme.iconBg : "bg-muted",
+                      )}
+                    >
+                      <Shield className={cn("h-4 w-4", theme ? theme.iconColor : "text-muted-foreground")} />
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="flex items-start gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-sm font-semibold text-foreground">{s.name}</span>
+                            {(s.price != null || s.priceNote) && (
+                              <Badge variant="outline" className="text-[10px] gap-1 bg-success/5 text-success border-success/30">
+                                <Tag className="h-3 w-3" />
+                                {formatPrice(s)}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            {s.defaultChecklist.length} leveransepunkter
+                            {totalControls > 0 && <> · {totalControls} kontrollpunkter</>}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <label
+                            className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-1.5 py-1 cursor-pointer hover:bg-muted/60 transition-colors"
+                            title={
+                              s.publishedToCustomers
+                                ? "Synlig og bestillbar i kundens portal"
+                                : "Skjult — kun synlig for deg"
+                            }
+                          >
+                            {s.publishedToCustomers ? (
+                              <Eye className="h-3 w-3 text-primary" />
+                            ) : (
+                              <EyeOff className="h-3 w-3 text-muted-foreground" />
+                            )}
+                            <Switch
+                              checked={!!s.publishedToCustomers}
+                              onCheckedChange={(checked) =>
+                                setServices((prev) =>
+                                  prev.map((x) =>
+                                    x.id === s.id ? { ...x, publishedToCustomers: checked } : x,
+                                  ),
+                                )
+                              }
+                            />
+                          </label>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            onClick={() => setEditing(s.id)}
+                            title="Rediger tjeneste"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
+                      <ServiceEvidenceSection
+                        mappings={s.frameworkMappings}
+                        onConnect={() => setEditing(s.id)}
+                        compact
+                      />
+                    </div>
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
       <MSPLaraServiceWizard
         open={wizardOpen}
@@ -277,6 +279,32 @@ export function MSPServiceCatalogTab() {
         onSkip={() => setWizardDone(true)}
       />
     </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: number;
+  highlight?: boolean;
+}) {
+  return (
+    <Card className={cn("p-3", highlight && "border-primary/30 bg-primary/[0.04]")}>
+      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+        {label}
+      </p>
+      <p
+        className={cn(
+          "text-2xl font-bold mt-1",
+          highlight ? "text-primary" : "text-foreground",
+        )}
+      >
+        {value}
+      </p>
+    </Card>
   );
 }
 

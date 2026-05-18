@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ShieldCheck, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ServiceFrameworkMapping } from "@/lib/serviceCatalog";
+import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 
 interface Props {
   mappings: ServiceFrameworkMapping[];
@@ -35,62 +36,62 @@ export function ServiceEvidenceSection({ mappings, onConnect, compact }: Props) 
   }
 
   return (
-    <div
-      className={cn(
-        "rounded-md border border-primary/15 bg-primary/[0.03]",
-        compact ? "p-2" : "p-2.5",
-      )}
-    >
-      <div className="flex items-center gap-1.5 mb-1.5">
-        <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-        <span className="text-[11px] font-medium text-foreground/80 uppercase tracking-wide">
-          Kunden får evidens på
-        </span>
-      </div>
-      <div className="space-y-1.5">
-        {mappings.map((m) => (
-          <FrameworkRow key={m.frameworkId} mapping={m} />
-        ))}
-      </div>
+    <div className={cn("flex flex-wrap items-center gap-x-2 gap-y-1.5", compact ? "pt-1" : "pt-1.5")}>
+      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider shrink-0">
+        Evidens på
+      </span>
+      {mappings.map((m) => (
+        <FrameworkRow key={m.frameworkId} mapping={m} />
+      ))}
     </div>
   );
 }
 
 function FrameworkRow({ mapping }: { mapping: ServiceFrameworkMapping }) {
   const [expanded, setExpanded] = useState(false);
+  const theme = getFrameworkTheme(mapping.frameworkId);
   const total = mapping.controlIds.length;
   const visible = expanded ? mapping.controlIds : mapping.controlIds.slice(0, MAX_VISIBLE);
   const hidden = total - visible.length;
 
   return (
-    <div className="flex items-start gap-2 flex-wrap">
-      <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 shrink-0">
+    <div className="flex flex-wrap items-center gap-1">
+      <span
+        className={cn(
+          "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border shrink-0",
+          theme.chip,
+        )}
+      >
         {mapping.frameworkLabel}
       </span>
-      <div className="flex flex-wrap items-center gap-1">
-        {visible.map((id) => (
-          <span
-            key={id}
-            className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] bg-background border border-border text-foreground/80"
-            title={`${mapping.frameworkLabel} ${id}`}
-          >
-            {id}
-          </span>
-        ))}
-        {hidden > 0 && (
-          <button
-            type="button"
-            onClick={() => setExpanded(true)}
-            className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
-          >
-            +{hidden} flere
-          </button>
-        )}
-      </div>
+      {visible.map((id) => (
+        <span
+          key={id}
+          className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] bg-background border border-border text-foreground/80"
+          title={`${mapping.frameworkLabel} ${id}`}
+        >
+          {id}
+        </span>
+      ))}
+      {hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+        >
+          +{hidden} flere
+        </button>
+      )}
     </div>
   );
 }
 
 export function totalControlCount(mappings: ServiceFrameworkMapping[]): number {
   return mappings.reduce((sum, m) => sum + m.controlIds.length, 0);
+}
+
+export function primaryFrameworkId(mappings: ServiceFrameworkMapping[]): string | undefined {
+  if (mappings.length === 0) return undefined;
+  // Velg det med flest kontrollpunkter, tie-break: første
+  return [...mappings].sort((a, b) => b.controlIds.length - a.controlIds.length)[0].frameworkId;
 }
