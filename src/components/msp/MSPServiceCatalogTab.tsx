@@ -88,9 +88,11 @@ export function MSPServiceCatalogTab() {
     suggestions: suggestions?.length ?? 0,
   };
 
+  const inSuggestionMode = !!suggestions;
+
   return (
     <div className="space-y-4">
-      {/* Header */}
+      {/* Header — empty hero, suggestion mode, eller katalog-modus */}
       {showEmptyHero ? (
         <Card className="p-6 border-primary/20 bg-primary/5">
           <div className="flex items-start gap-4">
@@ -120,6 +122,45 @@ export function MSPServiceCatalogTab() {
                   Bruk demo-katalog
                 </Button>
               </div>
+            </div>
+          </div>
+        </Card>
+      ) : inSuggestionMode ? (
+        <Card className="p-4 border-primary/20 bg-primary/[0.04]">
+          <div className="flex items-start gap-3 flex-wrap">
+            <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-base font-semibold text-foreground">
+                Lara har skreddersydd {suggestions!.length} tjenester — tilpass før du importerer
+              </p>
+              <p className="text-[13px] text-muted-foreground mt-0.5">
+                Toggle synlighet, rediger detaljer eller fjern forslag du ikke vil ha. Trykk «Importer» når du er klar.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 gap-1.5"
+                onClick={() => {
+                  setSuggestions(null);
+                  setWizardOpen(true);
+                }}
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Start på nytt
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 gap-1.5 text-muted-foreground"
+                onClick={() => setSuggestions(null)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Forkast alle
+              </Button>
             </div>
           </div>
         </Card>
@@ -156,16 +197,19 @@ export function MSPServiceCatalogTab() {
         </>
       )}
 
-      {/* Lara-forslag */}
+      {/* Lara-forslag — primær landing etter wizard */}
       {suggestions && (
         <MSPLaraServiceSuggestions
           suggestions={suggestions}
-          onAdd={handleAddSuggestions}
+          onChangeSuggestions={setSuggestions}
+          onImport={handleAddSuggestions}
           onDismiss={() => setSuggestions(null)}
         />
       )}
 
-      {adding && <ServiceForm onCancel={() => setAdding(false)} onSave={addService} />}
+      {adding && !inSuggestionMode && (
+        <ServiceForm onCancel={() => setAdding(false)} onSave={addService} />
+      )}
 
       {/* Service grid */}
       {services.length > 0 && (
