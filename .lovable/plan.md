@@ -1,41 +1,44 @@
 ## Mål
-Gjøre det umiddelbart synlig hvilke regelverkskontroller kunden får evidens på når en tjeneste leveres — uten å åpne tjenesten eller hovre over en badge.
+Etter at brukeren har svart på Lara-veiviseren (kundetyper, domener, modell, modenhet), skal **forslagslisten med tilpasningsmulighet være standard landingsside** på tjenestesiden — ikke en mellomtilstand som forsvinner ved første "Legg til i katalog". Slik blir det enklere å se og finjustere tjenestene før de blir en del av katalogen.
 
-## Endring i UI (per tjenestekort i `MSPServiceCatalogTab.tsx`)
+## Endring i flyt
 
-Erstatte dagens flate rad med små badges (`GDPR · Art.35`, `ISO 27001 · A.5.1, A.5.4 …`) med et tydeligere "Evidens"-felt:
+I dag:
+1. Wizard → forslag vises midlertidig over (tom) katalog
+2. Bruker trykker "Legg til i katalog" → forslag forsvinner, kun lagt-til tjenester vises
 
-1. **Egen seksjon med ledende ikon + label**  
-   Under beskrivelsen, en liten boks med `ShieldCheck`-ikon og teksten **"Kunden får evidens på:"**. Dette gjør det eksplisitt hva badgene betyr — ingen hover nødvendig.
+Ny flyt:
+1. Wizard → forslag rendres som **hovedinnhold** ("Tilpass før import"-modus) — fyller hele tjenestesiden
+2. Bruker kan toggle synlighet, redigere, fjerne forslag i listen før import
+3. Først når bruker eksplisitt trykker "Importer valgte til katalog" → tjenestene flyttes til katalogen og forslag-modus avsluttes
+4. Bruker kan også **forkaste forslag** for å gå direkte til (tom) katalog
 
-2. **Per regelverk: logo/forkortelses-chip + kontrollpunkter som chips**  
-   Hver framework-mapping rendres som en gruppe:
-   ```text
-   [GDPR]  Art.35
-   [ISO 27001]  A.5.1   A.5.4   A.6.1
-   [NIS2]  Art.20   Art.21
-   ```
-   - Venstre: en farget framework-pille (bruker eksisterende fargesystem — primary/muted, ingen nye tokens).
-   - Høyre: hver `controlId` som egen liten chip, klikkbar (tooltip viser kort hva kontrollen handler om der vi har data, ellers bare ID).
-   - Maks 4 kontrollpunkter vises per rad, resten samles i `+N flere` chip som expander on click.
+## UI-endringer
 
-3. **Liten "evidens-teller" badge i tittelraden**  
-   Ved siden av "X leveransepunkter" i toppen: `ShieldCheck` ikon + `N kontrollpunkter` (sum på tvers av rammeverk). Gir én-blikks-oversikt over verdien.
+### `MSPServiceCatalogTab.tsx`
+- Når `suggestions` er satt: **skjul stats-rad og top action-rad**. Vis kun forslag-visningen som primær landing.
+- Legg til en tydelig **header over forslagsvisningen**: "Lara har skreddersydd N tjenester — tilpass før du importerer". Med sekundærknapp "Start på nytt" (åpner wizard igjen) og "Forkast alle".
+- Etter import: vis katalog + stats som før.
 
-4. **Tom-tilstand**  
-   Når `frameworkMappings` er tom: vis en svak prompt-rad: *"Lara har ikke koblet denne tjenesten til regelverk ennå — rediger for å legge til."* med en liten "Koble til regelverk"-knapp som åpner ServiceForm.
+### `MSPLaraServiceSuggestions.tsx`
+Utvid hvert forslagskort med samme redigeringsmuligheter som i katalogen, slik at brukeren faktisk kan **tilpasse før import**:
+- **Synlighets-toggle** (Eye/EyeOff + Switch) per forslag — `publishedToCustomers` settes per kort, beholdes ved import.
+- **Rediger-knapp** (Pencil) per forslag → åpner inline `ServiceForm` (samme komponent som i katalogen) for å endre navn, beskrivelse, sjekkliste, rammeverk, pris.
+- **Fjern-knapp** (X) per forslag → fjerner forslaget fra listen helt.
+- Sticky bottom-bar oppdateres: knappetekst endres fra "Legg til i katalog" → **"Importer N tjenester til katalog"**, og "Tilpass før import" fjernes (siden hele visningen nå ER tilpassings-modus). Beholder "Forkast"-knapp som alternativ til import.
 
-## Samme oppgradering i Lara-forslag (`MSPLaraServiceSuggestions.tsx`)
-Speil samme "Kunden får evidens på:"-blokk i hvert forslagskort, slik at brukeren ser verdien før de aksepterer forslaget.
-
-## Hva som IKKE endres
-- Datamodellen (`PartnerService`, `frameworkMappings`, `controlIds`) er uendret.
-- `serviceCatalog.ts` mappingen endres ikke.
-- Eksisterende synlighets-toggle, pris, rediger-knapp og leveransepunkter-badge beholdes som i dag.
-- Ingen nye dependencies, ingen designtokens — bruker eksisterende `primary`, `muted`, `border`, `ShieldCheck`/`Shield` fra lucide.
+### Wizard-trigger
+- "Lara: foreslå flere"-knappen i toppen av katalogen (når katalog ikke er tom) skal også sende resultatet til samme forslag-visning — dvs. den blir igjen primær landing til brukeren importerer eller forkaster.
 
 ## Filer som endres
-- `src/components/msp/MSPServiceCatalogTab.tsx` — erstatt nåværende framework-badge-rad (linje 215–235) med ny "Evidens"-seksjon; legg til kontrollpunkt-teller i tittelraden (linje 171–212).
-- `src/components/msp/MSPLaraServiceSuggestions.tsx` — speil samme komponent for forslagsvisningen (linje 96–113).
+- `src/components/msp/MSPServiceCatalogTab.tsx` — skjul stats + action-rad i forslag-modus, legg til header for forslagsvisning, oppdater state-flyt for import/forkast.
+- `src/components/msp/MSPLaraServiceSuggestions.tsx` — legg til synlighets-toggle, rediger-knapp (inline ServiceForm), fjern-knapp per forslag. Oppdater sticky bottom-bar.
+- Trekk `ServiceForm` ut av `MSPServiceCatalogTab.tsx` til egen fil `src/components/msp/ServiceForm.tsx` så den kan gjenbrukes i forslagsvisningen.
 
-Resultat: en partner ser umiddelbart, uten å hovre, at f.eks. *Awareness-programmet* gir kunden evidens på `ISO 27001 A.6.3, A.5.10` og `NIS2 Art.20` — koblingen mellom tjenesteleveranse og compliance-verdi blir visuell og selvforklarende.
+## Hva som IKKE endres
+- Datamodellen (`PartnerService`) er uendret.
+- Wizard-spørsmål og `suggestServices`-logikk uendret.
+- Eksisterende katalog-visning, stats-kort og kortdesign uendret.
+- Ingen nye dependencies eller designtokens.
+
+Resultat: Etter wizarden lander brukeren rett i en redigerbar liste der hvert Lara-forslag kan toggles, redigeres eller fjernes før de eksplisitt importeres. Det blir den naturlige "arbeidsbenken" på tjenestesiden inntil katalogen er bekreftet.

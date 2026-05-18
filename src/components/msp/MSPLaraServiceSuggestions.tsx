@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Sparkles,
@@ -8,6 +9,10 @@ import {
   X,
   ArrowDown,
   Award,
+  Pencil,
+  Eye,
+  EyeOff,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -15,20 +20,28 @@ import {
   totalControlCount,
   primaryFrameworkId,
 } from "./ServiceEvidenceSection";
+import { ServiceForm } from "./ServiceForm";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import type { PartnerService } from "@/lib/serviceCatalog";
 
 interface Props {
   suggestions: PartnerService[];
-  onAdd: (services: PartnerService[]) => void;
+  onChangeSuggestions: (next: PartnerService[]) => void;
+  onImport: (services: PartnerService[]) => void;
   onDismiss: () => void;
 }
 
-export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Props) {
+export function MSPLaraServiceSuggestions({
+  suggestions,
+  onChangeSuggestions,
+  onImport,
+  onDismiss,
+}: Props) {
   const [selected, setSelected] = useState<Set<string>>(
     new Set(suggestions.map((s) => s.id)),
   );
   const [filter, setFilter] = useState<string>("all");
+  const [editing, setEditing] = useState<string | null>(null);
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -39,10 +52,28 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
     });
   };
 
-  const selectAll = () =>
-    setSelected(new Set(suggestions.map((s) => s.id)));
+  const selectAll = () => setSelected(new Set(suggestions.map((s) => s.id)));
 
-  // Bygg filtre per regelverk
+  const updateSuggestion = (id: string, updated: PartnerService) => {
+    onChangeSuggestions(suggestions.map((s) => (s.id === id ? { ...updated, id: s.id } : s)));
+    setEditing(null);
+  };
+
+  const removeSuggestion = (id: string) => {
+    onChangeSuggestions(suggestions.filter((s) => s.id !== id));
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const togglePublished = (id: string, value: boolean) => {
+    onChangeSuggestions(
+      suggestions.map((s) => (s.id === id ? { ...s, publishedToCustomers: value } : s)),
+    );
+  };
+
   const frameworkFilters = useMemo(() => {
     const map = new Map<string, { id: string; label: string; count: number }>();
     suggestions.forEach((s) =>
@@ -62,7 +93,6 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
     );
   }, [suggestions, filter]);
 
-  // "Mest dekning" = tjenesten med flest kontrollpunkter
   const topId = useMemo(() => {
     if (suggestions.length === 0) return null;
     return [...suggestions].sort(
@@ -70,14 +100,6 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
     )[0].id;
   }, [suggestions]);
 
-  // Totaler for stats
-  const totalControls = useMemo(
-    () =>
-      suggestions.reduce((sum, s) => sum + totalControlCount(s.frameworkMappings), 0),
-    [suggestions],
-  );
-
-  // Antall kontrollpunkter dekket av valgte
   const selectedControlCount = useMemo(() => {
     const ids = new Set<string>();
     suggestions
@@ -90,45 +112,25 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
     return ids.size;
   }, [suggestions, selected]);
 
-  const handleAdd = () => {
+  const handleImport = () => {
     const chosen = suggestions
       .filter((s) => selected.has(s.id))
       .map((s) => ({ ...s, id: `svc-${Date.now()}-${s.id}` }));
-    onAdd(chosen);
+    onImport(chosen);
   };
 
   return (
     <div className="space-y-3">
-      {/* Lara banner */}
-      <Card className="p-3 border-primary/30 bg-primary/[0.06]">
-        <div className="flex items-start gap-3">
-          <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-            <Sparkles className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-primary">
-              Lara foreslår {suggestions.length} tjenester
-            </p>
-            <p className="text-[13px] text-muted-foreground mt-0.5">
-              Basert på din kundeportefølje og kontrollpunkter du mangler dekning på.
-            </p>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <Button size="sm" variant="outline" className="h-8 text-xs" onClick={selectAll}>
-              Velg alle
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-8 w-8 p-0"
-              onClick={onDismiss}
-              aria-label="Lukk forslag"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+      {/* Lara mini-banner med velg-alle */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+          Basert på din kundeportefølje og kontrollpunkter du mangler dekning på.
         </div>
-      </Card>
+        <Button size="sm" variant="outline" className="h-8 text-xs" onClick={selectAll}>
+          Velg alle
+        </Button>
+      </div>
 
       {/* Filter chips */}
       <div className="flex flex-wrap items-center gap-1.5">
@@ -155,24 +157,44 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {filtered.map((s) => {
           const isSelected = selected.has(s.id);
+          const isEditing = editing === s.id;
           const isTop = s.id === topId && totalControlCount(s.frameworkMappings) > 0;
           const primaryId = primaryFrameworkId(s.frameworkMappings);
           const theme = primaryId ? getFrameworkTheme(primaryId) : null;
           const controls = totalControlCount(s.frameworkMappings);
+
+          if (isEditing) {
+            return (
+              <div key={s.id} className="md:col-span-2">
+                <ServiceForm
+                  initial={s}
+                  onCancel={() => setEditing(null)}
+                  onSave={(updated) => updateSuggestion(s.id, updated)}
+                />
+              </div>
+            );
+          }
+
           return (
-            <button
+            <div
               key={s.id}
-              type="button"
-              onClick={() => toggle(s.id)}
               className={cn(
-                "text-left rounded-lg bg-card border transition-all p-3 border-l-4",
+                "rounded-lg bg-card border transition-all p-3 border-l-4",
                 theme ? theme.border : "border-l-muted",
                 isSelected
                   ? "border-border ring-1 ring-primary/30"
-                  : "border-border hover:border-primary/30",
+                  : "border-border opacity-70 hover:opacity-100",
               )}
             >
               <div className="flex items-start gap-3">
+                <button
+                  type="button"
+                  onClick={() => toggle(s.id)}
+                  className="shrink-0 pt-0.5"
+                  aria-label={isSelected ? "Fjern fra import" : "Velg for import"}
+                >
+                  <Checkbox checked={isSelected} tabIndex={-1} />
+                </button>
                 <div
                   className={cn(
                     "h-9 w-9 rounded-lg flex items-center justify-center shrink-0",
@@ -198,7 +220,44 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
                         {controls > 0 && <> · {controls} kontrollpunkter</>}
                       </p>
                     </div>
-                    <Checkbox checked={isSelected} className="mt-0.5 shrink-0" tabIndex={-1} />
+                    <div className="flex items-center gap-1 shrink-0">
+                      <label
+                        className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-1.5 py-1 cursor-pointer hover:bg-muted/60 transition-colors"
+                        title={
+                          s.publishedToCustomers
+                            ? "Vil være synlig for kunden ved import"
+                            : "Vil være skjult etter import"
+                        }
+                      >
+                        {s.publishedToCustomers ? (
+                          <Eye className="h-3 w-3 text-primary" />
+                        ) : (
+                          <EyeOff className="h-3 w-3 text-muted-foreground" />
+                        )}
+                        <Switch
+                          checked={!!s.publishedToCustomers}
+                          onCheckedChange={(checked) => togglePublished(s.id, checked)}
+                        />
+                      </label>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0"
+                        onClick={() => setEditing(s.id)}
+                        title="Rediger forslag"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                        onClick={() => removeSuggestion(s.id)}
+                        title="Fjern forslag"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                   <p className="text-[13px] text-muted-foreground leading-snug line-clamp-2">
                     {s.description}
@@ -206,7 +265,7 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
                   <ServiceEvidenceSection mappings={s.frameworkMappings} compact />
                 </div>
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
@@ -231,18 +290,16 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={onDismiss}>
-              Tilpass før import
+            <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground" onClick={onDismiss}>
+              <Trash2 className="h-3.5 w-3.5" />
+              Forkast
             </Button>
-            <Button size="sm" onClick={handleAdd} disabled={selected.size === 0}>
-              Legg til i katalog
+            <Button size="sm" onClick={handleImport} disabled={selected.size === 0}>
+              Importer {selected.size} tjenester til katalog
             </Button>
           </div>
         </div>
       </Card>
-
-      {/* Inkluder totalControls for å unngå ubrukt-advarsel; vises ikke direkte */}
-      <span className="sr-only">Totalt {totalControls} kontrollpunkter foreslått.</span>
     </div>
   );
 }
