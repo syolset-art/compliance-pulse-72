@@ -1,226 +1,135 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Sparkles, Plus, RotateCcw, Trash2 } from "lucide-react";
-import { ServiceForm } from "./ServiceForm";
-import { ServiceTableRow } from "./ServiceTableRow";
-import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
-import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
-import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
+import { Input } from "@/components/ui/input";
+import { Sparkles, TrendingUp } from "lucide-react";
+import {
+  FRAMEWORK_CATALOG,
+  type CoverageLevel,
+} from "@/lib/frameworkCoverageCatalog";
+import {
+  FrameworkCoverageCard,
+  type FrameworkSelection,
+} from "./FrameworkCoverageCard";
+
+type AllSelections = Record<string, FrameworkSelection>;
+
+function formatNOK(n: number): string {
+  return new Intl.NumberFormat("nb-NO").format(Math.round(n)) + " kr";
+}
 
 export function MSPServiceCatalogTab() {
-  // Demo: start tom så Lara-flyten vises første gang
-  const [services, setServices] = useState<PartnerService[]>([]);
-  const [editing, setEditing] = useState<string | null>(null);
-  const [adding, setAdding] = useState(false);
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [wizardDone, setWizardDone] = useState(false);
-  const [suggestions, setSuggestions] = useState<PartnerService[] | null>(null);
-
-  // Auto-åpne veiviser første gang katalogen er tom
-  useEffect(() => {
-    if (services.length === 0 && !wizardDone && !suggestions) {
-      setWizardOpen(true);
+  const [hourlyRate, setHourlyRate] = useState<number>(1500);
+  const [selections, setSelections] = useState<AllSelections>(() => {
+    // Demo-seed: NIS2 valgt med delvis dekning på alle KP
+    const init: AllSelections = {};
+    const nis2 = FRAMEWORK_CATALOG.find((f) => f.id === "nis2");
+    if (nis2) {
+      const s: FrameworkSelection = {};
+      nis2.controlPoints.forEach((cp) => {
+        s[cp.id] = {
+          enabled: true,
+          level: "partial" as CoverageLevel,
+          hours: cp.hoursByLevel.partial,
+        };
+      });
+      init.nis2 = s;
     }
-  }, [services.length, wizardDone, suggestions]);
+    return init;
+  });
 
-  const addService = (s: PartnerService) => {
-    setServices((prev) => [...prev, s]);
-    setAdding(false);
-  };
-
-  const handleWizardComplete = (sug: PartnerService[]) => {
-    setSuggestions(sug);
-    setWizardDone(true);
-  };
-
-  const handleAddSuggestions = (chosen: PartnerService[]) => {
-    setServices((prev) => [...prev, ...chosen]);
-    setSuggestions(null);
-  };
-
-  const seedDemo = () => {
-    setServices(PARTNER_SERVICES);
-    setWizardDone(true);
-    setSuggestions(null);
-  };
-
-  const showEmptyHero = services.length === 0 && !suggestions;
-
-
-  const inSuggestionMode = !!suggestions;
+  const { grandHours, grandPrice, frameworksActive } = useMemo(() => {
+    let h = 0;
+    let n = 0;
+    FRAMEWORK_CATALOG.forEach((fw) => {
+      const sel = selections[fw.id];
+      if (!sel) return;
+      let fwHours = 0;
+      let fwActive = false;
+      fw.controlPoints.forEach((cp) => {
+        const s = sel[cp.id];
+        if (s?.enabled) {
+          fwHours += s.hours;
+          fwActive = true;
+        }
+      });
+      h += fwHours;
+      if (fwActive) n += 1;
+    });
+    return { grandHours: h, grandPrice: h * hourlyRate, frameworksActive: n };
+  }, [selections, hourlyRate]);
 
   return (
     <div className="space-y-4">
-      {/* Header — empty hero, suggestion mode, eller katalog-modus */}
-      {showEmptyHero ? (
-        <Card className="p-6 border-primary/20 bg-primary/5">
-          <div className="flex items-start gap-4">
-            <div className="h-11 w-11 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-              <Sparkles className="h-5 w-5 text-primary" />
+      {/* Toppkort: timepris + samlet inntektspotensial */}
+      <Card className="p-5 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background">
+        <div className="grid items-end gap-4 md:grid-cols-[260px_1fr_auto]">
+          {/* Timepris */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Din timepris
+            </label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                min={0}
+                step={50}
+                value={hourlyRate}
+                onChange={(e) =>
+                  setHourlyRate(Math.max(0, Number(e.target.value) || 0))
+                }
+                className="h-11 text-lg font-semibold tabular-nums"
+              />
+              <span className="text-sm text-muted-foreground whitespace-nowrap">kr / time</span>
             </div>
-            <div className="flex-1 min-w-0 space-y-3">
-              <div>
-                <p className="text-base font-semibold text-foreground">
-                  La Lara sette opp tjenestekatalogen din
-                </p>
-                <p className="text-[13px] text-muted-foreground mt-1">
-                  Svar på fire korte spørsmål om hva dere leverer, så foreslår Lara en
-                  skreddersydd tjenestepakke. Du kan velge, tilpasse eller lage egne tjenester
-                  etterpå.
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button size="sm" onClick={() => setWizardOpen(true)} className="gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Kom i gang med Lara
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => setAdding(true)}>
-                  Lag egen tjeneste
-                </Button>
-                <Button size="sm" variant="ghost" onClick={seedDemo}>
-                  Bruk demo-katalog
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-      ) : inSuggestionMode ? (
-        <Card className="p-4 border-primary/20 bg-primary/[0.04]">
-          <div className="flex items-start gap-3 flex-wrap">
-            <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-              <Sparkles className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-base font-semibold text-foreground">
-                Lara har skreddersydd {suggestions!.length} tjenester — tilpass før du importerer
-              </p>
-              <p className="text-[13px] text-muted-foreground mt-0.5">
-                Toggle synlighet, rediger detaljer eller fjern forslag du ikke vil ha. Trykk «Importer» når du er klar.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8 gap-1.5"
-                onClick={() => {
-                  setSuggestions(null);
-                  setWizardOpen(true);
-                }}
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                Start på nytt
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-8 gap-1.5 text-muted-foreground"
-                onClick={() => setSuggestions(null)}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                Forkast alle
-              </Button>
-            </div>
-          </div>
-        </Card>
-      ) : (
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="min-w-0">
-            <p className="text-[13px] text-muted-foreground">
-              Klikk på timer eller pris for å justere. Aktiviteter og kontrollpunkter velges fra
-              Mynders bibliotek.
+            <p className="text-[11px] text-muted-foreground">
+              Brukes som standard for alle regelverk under.
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-9 gap-1.5"
-              onClick={() => setWizardOpen(true)}
-            >
-              <Sparkles className="h-4 w-4" />
-              Lara: foreslå flere
-            </Button>
-            <Button size="sm" className="h-9 gap-1.5" onClick={() => setAdding(true)}>
-              <Plus className="h-4 w-4" />
-              Ny tjeneste
-            </Button>
+
+          {/* Forklaring */}
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-primary" />
+              Si hva dere leverer — Lara regner ut inntektspotensialet
+            </p>
+            <p className="text-[12px] text-muted-foreground leading-relaxed">
+              Slå på regelverkene dere leverer på, hak av kontrollpunkter, og velg dekningsnivå:
+              <span className="font-medium text-foreground"> Gap-analyse</span>,
+              <span className="font-medium text-foreground"> Delvis dekning</span> eller
+              <span className="font-medium text-foreground"> Full dekning</span>.
+              Lara foreslår timetall — du kan justere fritt.
+            </p>
+          </div>
+
+          {/* Totalt inntektspotensial */}
+          <div className="text-right md:border-l md:border-border md:pl-4">
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1 justify-end">
+              <TrendingUp className="h-3 w-3" /> Samlet potensial
+            </div>
+            <div className="text-2xl font-bold text-foreground tabular-nums">
+              {formatNOK(grandPrice)}
+            </div>
+            <div className="text-[11px] text-muted-foreground tabular-nums">
+              {grandHours} timer · {frameworksActive} regelverk
+            </div>
           </div>
         </div>
-      )}
+      </Card>
 
-      {/* Lara-forslag — primær landing etter wizard */}
-      {suggestions && (
-        <MSPLaraServiceSuggestions
-          suggestions={suggestions}
-          onChangeSuggestions={(next) => setSuggestions(next)}
-          onImport={handleAddSuggestions}
-          onDismiss={() => setSuggestions(null)}
-        />
-      )}
-
-      {adding && !inSuggestionMode && (
-        <ServiceForm onCancel={() => setAdding(false)} onSave={addService} />
-      )}
-
-      {/* Service-tabell */}
-      {services.length > 0 && !inSuggestionMode && (
-        <div className="space-y-2">
-          {/* Kolonneoverskrifter */}
-          <div className="grid items-center gap-3 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[1fr_180px_80px_120px_120px_40px]">
-            <span>Tjeneste</span>
-            <span>Regelverk</span>
-            <span>Timer</span>
-            <span>Timepris</span>
-            <span className="text-right">Totalpris</span>
-            <span />
-          </div>
-          {services.map((s) => {
-            const isEditing = editing === s.id;
-            if (isEditing) {
-              return (
-                <ServiceForm
-                  key={s.id}
-                  initial={s}
-                  onCancel={() => setEditing(null)}
-                  onSave={(updated) => {
-                    setServices((prev) => prev.map((x) => (x.id === s.id ? updated : x)));
-                    setEditing(null);
-                  }}
-                />
-              );
+      {/* Regelverk-liste */}
+      <div className="space-y-2">
+        {FRAMEWORK_CATALOG.map((fw) => (
+          <FrameworkCoverageCard
+            key={fw.id}
+            framework={fw}
+            hourlyRate={hourlyRate}
+            selection={selections[fw.id] ?? {}}
+            onSelectionChange={(next) =>
+              setSelections((prev) => ({ ...prev, [fw.id]: next }))
             }
-            return (
-              <ServiceTableRow
-                key={s.id}
-                service={s}
-                onEdit={() => setEditing(s.id)}
-                onTogglePublished={(checked) =>
-                  setServices((prev) =>
-                    prev.map((x) =>
-                      x.id === s.id ? { ...x, publishedToCustomers: checked } : x,
-                    ),
-                  )
-                }
-                onDelete={() =>
-                  setServices((prev) => prev.filter((x) => x.id !== s.id))
-                }
-              />
-            );
-          })}
-        </div>
-      )}
-
-      <MSPLaraServiceWizard
-        open={wizardOpen}
-        onOpenChange={setWizardOpen}
-        onComplete={handleWizardComplete}
-        onSkip={() => setWizardDone(true)}
-      />
+          />
+        ))}
+      </div>
     </div>
   );
 }
-
-
-
