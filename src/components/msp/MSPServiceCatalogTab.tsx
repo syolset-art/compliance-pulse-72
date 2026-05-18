@@ -47,8 +47,6 @@ export function MSPServiceCatalogTab() {
 
   const showEmptyHero = services.length === 0 && !suggestions;
 
-  const suggestionsCount = suggestions?.length ?? 0;
-  void suggestionsCount;
 
   const inSuggestionMode = !!suggestions;
 
