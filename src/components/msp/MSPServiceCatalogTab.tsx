@@ -212,7 +212,7 @@ export function MSPServiceCatalogTab() {
       )}
 
       {/* Service grid */}
-      {services.length > 0 && (
+      {services.length > 0 && !inSuggestionMode && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {services.map((s) => {
             const totalControls = totalControlCount(s.frameworkMappings);
