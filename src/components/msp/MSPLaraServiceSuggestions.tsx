@@ -91,26 +91,21 @@ export function MSPLaraServiceSuggestions({ suggestions, onAdd, onDismiss }: Pro
                     <CheckSquare className="h-3 w-3" />
                     {s.defaultChecklist.length} leveransepunkter
                   </Badge>
+                  {totalControlCount(s.frameworkMappings) > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] gap-1 bg-primary/5 text-primary border-primary/30"
+                      title="Antall kontrollpunkter i regelverk denne tjenesten dokumenterer for kunden"
+                    >
+                      <ShieldCheck className="h-3 w-3" />
+                      {totalControlCount(s.frameworkMappings)} kontrollpunkter
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-[13px] text-muted-foreground leading-snug">
                   {s.description}
                 </p>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {s.frameworkMappings.map((m) => {
-                    const shown = m.controlIds.slice(0, 3).join(", ");
-                    const extra = m.controlIds.length > 3 ? ` +${m.controlIds.length - 3}` : "";
-                    return (
-                      <Badge
-                        key={m.frameworkId}
-                        variant="outline"
-                        className="text-[10px] bg-primary/5 text-primary border-primary/30"
-                        title="Tjenesten dokumenterer disse kontrollpunktene i regelverket — kunden får automatisk evidens på dem når dere leverer."
-                      >
-                        {m.frameworkLabel} · {shown}{extra}
-                      </Badge>
-                    );
-                  })}
-                </div>
+                <ServiceEvidenceSection mappings={s.frameworkMappings} compact />
               </div>
             </button>
           );
