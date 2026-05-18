@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
-import { Pencil, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { ServiceFrameworkMapping } from "@/lib/serviceCatalog";
@@ -8,6 +7,7 @@ import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 
 interface Props {
   mappings: ServiceFrameworkMapping[];
+  /** @deprecated MSP kan ikke redigere rammeverk-koblinger – styres av Lara */
   onConnect?: () => void;
   compact?: boolean;
 }
@@ -22,27 +22,18 @@ function suggestHours(frameworkId: string, controlId: string): number {
   return 1 + (h % 4); // 1, 2, 3 eller 4 timer
 }
 
-export function ServiceEvidenceSection({ mappings, onConnect, compact }: Props) {
+export function ServiceEvidenceSection({ mappings, compact }: Props) {
   if (mappings.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-border bg-muted/20 px-3 py-2 flex items-center justify-between gap-2">
+      <div className="rounded-md border border-dashed border-border bg-muted/20 px-3 py-2 flex items-center gap-2">
+        <Sparkles className="h-3 w-3 text-muted-foreground shrink-0" />
         <span className="text-[12px] text-muted-foreground">
           Lara har ikke koblet denne tjenesten til regelverk ennå.
         </span>
-        {onConnect && (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 text-[11px] gap-1.5"
-            onClick={onConnect}
-          >
-            <Pencil className="h-3 w-3" />
-            Koble til regelverk
-          </Button>
-        )}
       </div>
     );
   }
+
 
   return (
     <div className={cn("space-y-1", compact ? "pt-1" : "pt-1.5")}>
