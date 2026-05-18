@@ -148,10 +148,7 @@ export function MSPServiceCatalogTab() {
       {adding && <ServiceForm onCancel={() => setAdding(false)} onSave={addService} />}
 
       {services.map((s) => {
-        const totalControls = s.frameworkMappings.reduce(
-          (sum, m) => sum + m.controlIds.length,
-          0,
-        );
+        const totalControls = totalControlCount(s.frameworkMappings);
         const isEditing = editing === s.id;
         return (
           <Card key={s.id} className="p-4 hover:border-primary/30 transition-colors">
@@ -180,6 +177,16 @@ export function MSPServiceCatalogTab() {
                       <CheckSquare className="h-3 w-3" />
                       {s.defaultChecklist.length} leveransepunkter
                     </Badge>
+                    {totalControls > 0 && (
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] gap-1 bg-primary/5 text-primary border-primary/30"
+                        title="Antall kontrollpunkter i regelverk denne tjenesten dokumenterer for kunden"
+                      >
+                        <ShieldCheck className="h-3 w-3" />
+                        {totalControls} kontrollpunkter
+                      </Badge>
+                    )}
                     {(s.price != null || s.priceNote) && (
                       <Badge variant="outline" className="text-[10px] gap-1 bg-success/5 text-success border-success/30">
                         <Tag className="h-3 w-3" />
@@ -214,27 +221,10 @@ export function MSPServiceCatalogTab() {
                   </div>
                   <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
 
-                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                    {s.frameworkMappings.map((m) => {
-                      const shown = m.controlIds.slice(0, 3).join(", ");
-                      const extra = m.controlIds.length > 3 ? ` +${m.controlIds.length - 3}` : "";
-                      return (
-                        <Badge
-                          key={m.frameworkId}
-                          variant="outline"
-                          className="text-[10px] bg-primary/5 text-primary border-primary/30"
-                          title="Tjenesten dokumenterer disse kontrollpunktene i regelverket — kunden får automatisk evidens på dem når dere leverer."
-                        >
-                          {m.frameworkLabel} · {shown}{extra}
-                        </Badge>
-                      );
-                    })}
-                    {totalControls === 0 && (
-                      <span className="text-[11px] text-muted-foreground">
-                        Ingen rammeverk-kobling ennå
-                      </span>
-                    )}
-                  </div>
+                  <ServiceEvidenceSection
+                    mappings={s.frameworkMappings}
+                    onConnect={() => setEditing(s.id)}
+                  />
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <label
