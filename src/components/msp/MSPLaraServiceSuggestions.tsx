@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Sparkles, CheckSquare, Shield, X } from "lucide-react";
+import { Sparkles, CheckSquare, Shield, ShieldCheck, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ServiceEvidenceSection, totalControlCount } from "./ServiceEvidenceSection";
 import type { PartnerService } from "@/lib/serviceCatalog";
 
 interface Props {
