@@ -213,15 +213,20 @@ export function MSPServiceCatalogTab() {
                   <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
 
                   <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                    {s.frameworkMappings.map((m) => (
-                      <Badge
-                        key={m.frameworkId}
-                        variant="outline"
-                        className="text-[10px] bg-primary/5 text-primary border-primary/30"
-                      >
-                        {m.frameworkLabel} · {m.controlIds.length} kontroller
-                      </Badge>
-                    ))}
+                    {s.frameworkMappings.map((m) => {
+                      const shown = m.controlIds.slice(0, 3).join(", ");
+                      const extra = m.controlIds.length > 3 ? ` +${m.controlIds.length - 3}` : "";
+                      return (
+                        <Badge
+                          key={m.frameworkId}
+                          variant="outline"
+                          className="text-[10px] bg-primary/5 text-primary border-primary/30"
+                          title="Tjenesten dokumenterer disse kontrollpunktene i regelverket — kunden får automatisk evidens på dem når dere leverer."
+                        >
+                          {m.frameworkLabel} · {shown}{extra}
+                        </Badge>
+                      );
+                    })}
                     {totalControls === 0 && (
                       <span className="text-[11px] text-muted-foreground">
                         Ingen rammeverk-kobling ennå
