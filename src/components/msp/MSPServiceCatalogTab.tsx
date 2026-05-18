@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Plus, RotateCcw, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { ServiceForm } from "./ServiceForm";
 import { ServiceTableRow } from "./ServiceTableRow";
 import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
@@ -49,6 +48,7 @@ export function MSPServiceCatalogTab() {
   const showEmptyHero = services.length === 0 && !suggestions;
 
   const suggestionsCount = suggestions?.length ?? 0;
+  void suggestionsCount;
 
   const inSuggestionMode = !!suggestions;
 
