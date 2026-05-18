@@ -1,26 +1,11 @@
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Sparkles,
-  Shield,
-  X,
-  ArrowDown,
-  Award,
-  Pencil,
-  Eye,
-  EyeOff,
-  Trash2,
-} from "lucide-react";
+import { Sparkles, ArrowDown, Award, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  ServiceEvidenceSection,
-  totalControlCount,
-  primaryFrameworkId,
-} from "./ServiceEvidenceSection";
+import { totalControlCount } from "./ServiceEvidenceSection";
 import { ServiceForm } from "./ServiceForm";
+import { ServiceCard } from "./ServiceCard";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import type { PartnerService } from "@/lib/serviceCatalog";
 
