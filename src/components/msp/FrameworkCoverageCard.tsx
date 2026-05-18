@@ -175,10 +175,9 @@ export function FrameworkCoverageCard({
           </div>
 
           {/* Kolonneoverskrifter */}
-          <div className="grid items-center gap-3 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_280px_90px_110px]">
+          <div className="grid items-center gap-3 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_90px_110px]">
             <span className="w-4" />
             <span>Kontrollpunkt</span>
-            <span>Dekningsnivå</span>
             <span className="text-right">Timer</span>
             <span className="text-right">Inntekt</span>
           </div>
@@ -196,7 +195,7 @@ export function FrameworkCoverageCard({
                 <li
                   key={cp.id}
                   className={cn(
-                    "grid items-center gap-3 px-2 py-2 rounded-md border bg-background grid-cols-[auto_1fr_280px_90px_110px]",
+                    "grid items-center gap-3 px-2 py-2 rounded-md border bg-background grid-cols-[auto_1fr_90px_110px]",
                     enabled ? "border-border" : "border-border/40 opacity-70",
                   )}
                 >
@@ -213,34 +212,6 @@ export function FrameworkCoverageCard({
                       <span className="text-muted-foreground mr-1.5">{cp.id}</span>
                       {cp.label}
                     </div>
-                  </div>
-
-                  {/* Dekningsnivå-velger */}
-                  <div className="flex items-center gap-1">
-                    {COVERAGE_LEVELS.map((lvl) => (
-                      <button
-                        key={lvl.id}
-                        type="button"
-                        disabled={!enabled}
-                        onClick={() =>
-                          updateControl(cp.id, {
-                            level: lvl.id,
-                            hoursOverridden: false,
-                          })
-                        }
-                        title={lvl.hint}
-                        className={cn(
-                          "flex-1 px-2 py-1 rounded text-[11px] font-medium border transition-colors",
-                          enabled
-                            ? level === lvl.id
-                              ? "bg-primary text-primary-foreground border-primary"
-                              : "bg-background text-foreground border-border hover:bg-muted"
-                            : "bg-muted/40 text-muted-foreground border-border/40 cursor-not-allowed",
-                        )}
-                      >
-                        {lvl.label}
-                      </button>
-                    ))}
                   </div>
 
                   {/* Timer */}
