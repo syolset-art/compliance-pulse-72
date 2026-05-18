@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Pencil, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { ServiceFrameworkMapping } from "@/lib/serviceCatalog";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
@@ -12,6 +13,14 @@ interface Props {
 }
 
 const MAX_VISIBLE = 4;
+
+// Deterministisk Lara-forslag: 1-4 timer pr kontrollpunkt basert på id-hash
+function suggestHours(frameworkId: string, controlId: string): number {
+  const key = `${frameworkId}:${controlId}`;
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return 1 + (h % 4); // 1, 2, 3 eller 4 timer
+}
 
 export function ServiceEvidenceSection({ mappings, onConnect, compact }: Props) {
   if (mappings.length === 0) {
