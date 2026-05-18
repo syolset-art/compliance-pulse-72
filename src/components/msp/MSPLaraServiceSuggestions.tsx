@@ -1,26 +1,11 @@
 import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Sparkles,
-  Shield,
-  X,
-  ArrowDown,
-  Award,
-  Pencil,
-  Eye,
-  EyeOff,
-  Trash2,
-} from "lucide-react";
+import { Sparkles, ArrowDown, Award, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  ServiceEvidenceSection,
-  totalControlCount,
-  primaryFrameworkId,
-} from "./ServiceEvidenceSection";
+import { totalControlCount } from "./ServiceEvidenceSection";
 import { ServiceForm } from "./ServiceForm";
+import { ServiceCard } from "./ServiceCard";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import type { PartnerService } from "@/lib/serviceCatalog";
 
@@ -153,15 +138,12 @@ export function MSPLaraServiceSuggestions({
         ))}
       </div>
 
-      {/* Grid */}
+      {/* Grid — samme kortdesign som katalogen, med valg-checkbox */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {filtered.map((s) => {
           const isSelected = selected.has(s.id);
           const isEditing = editing === s.id;
           const isTop = s.id === topId && totalControlCount(s.frameworkMappings) > 0;
-          const primaryId = primaryFrameworkId(s.frameworkMappings);
-          const theme = primaryId ? getFrameworkTheme(primaryId) : null;
-          const controls = totalControlCount(s.frameworkMappings);
 
           if (isEditing) {
             return (
@@ -176,95 +158,23 @@ export function MSPLaraServiceSuggestions({
           }
 
           return (
-            <div
-              key={s.id}
-              className={cn(
-                "rounded-lg bg-card border transition-all p-3 border-l-4",
-                theme ? theme.border : "border-l-muted",
-                isSelected
-                  ? "border-border ring-1 ring-primary/30"
-                  : "border-border opacity-70 hover:opacity-100",
+            <div key={s.id} className="relative">
+              {isTop && (
+                <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-primary text-primary-foreground shadow-sm">
+                  <Award className="h-2.5 w-2.5" />
+                  Mest dekning
+                </span>
               )}
-            >
-              <div className="flex items-start gap-3">
-                <button
-                  type="button"
-                  onClick={() => toggle(s.id)}
-                  className="shrink-0 pt-0.5"
-                  aria-label={isSelected ? "Fjern fra import" : "Velg for import"}
-                >
-                  <Checkbox checked={isSelected} tabIndex={-1} />
-                </button>
-                <div
-                  className={cn(
-                    "h-9 w-9 rounded-lg flex items-center justify-center shrink-0",
-                    theme ? theme.iconBg : "bg-muted",
-                  )}
-                >
-                  <Shield className={cn("h-4 w-4", theme ? theme.iconColor : "text-muted-foreground")} />
-                </div>
-                <div className="flex-1 min-w-0 space-y-1.5">
-                  <div className="flex items-start gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="text-sm font-semibold text-foreground">{s.name}</span>
-                        {isTop && (
-                          <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-primary/10 text-primary border border-primary/25">
-                            <Award className="h-2.5 w-2.5" />
-                            Mest dekning
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
-                        {s.defaultChecklist.length} leveransepunkter
-                        {controls > 0 && <> · {controls} kontrollpunkter</>}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-1 shrink-0">
-                      <label
-                        className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-1.5 py-1 cursor-pointer hover:bg-muted/60 transition-colors"
-                        title={
-                          s.publishedToCustomers
-                            ? "Vil være synlig for kunden ved import"
-                            : "Vil være skjult etter import"
-                        }
-                      >
-                        {s.publishedToCustomers ? (
-                          <Eye className="h-3 w-3 text-primary" />
-                        ) : (
-                          <EyeOff className="h-3 w-3 text-muted-foreground" />
-                        )}
-                        <Switch
-                          checked={!!s.publishedToCustomers}
-                          onCheckedChange={(checked) => togglePublished(s.id, checked)}
-                        />
-                      </label>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 w-7 p-0"
-                        onClick={() => setEditing(s.id)}
-                        title="Rediger forslag"
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                        onClick={() => removeSuggestion(s.id)}
-                        title="Fjern forslag"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                  <p className="text-[13px] text-muted-foreground leading-snug line-clamp-2">
-                    {s.description}
-                  </p>
-                  <ServiceEvidenceSection mappings={s.frameworkMappings} compact />
-                </div>
-              </div>
+              <ServiceCard
+                service={s}
+                onEdit={() => setEditing(s.id)}
+                onTogglePublished={(checked) => togglePublished(s.id, checked)}
+                selectable={{
+                  selected: isSelected,
+                  onToggleSelect: () => toggle(s.id),
+                  onRemove: () => removeSuggestion(s.id),
+                }}
+              />
             </div>
           );
         })}

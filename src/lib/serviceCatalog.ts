@@ -201,7 +201,108 @@ export const PARTNER_SERVICES: PartnerService[] = [
     price: 65000,
     priceModel: "fixed",
   },
+  {
+    id: "soc",
+    name: "SOC-as-a-Service (24/7)",
+    description:
+      "Døgnbemannet sikkerhetsovervåking med SIEM, hendelseshåndtering og månedlig rapportering til kunden.",
+    defaultChecklist: [
+      "Onboarding og logg-kilder koblet",
+      "Use-cases og deteksjon aktivert",
+      "Hendelseshåndtering 24/7",
+      "Månedlig SOC-rapport",
+      "Kvartalsvis tuning av regler",
+    ],
+    frameworkMappings: [
+      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.8.15", "A.8.16", "A.5.24"] },
+      { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21", "Art.23"] },
+    ],
+    tags: ["security", "subscription", "mid", "critical"],
+    price: 18000,
+    priceModel: "monthly",
+    priceNote: "fra 18 000 kr/mnd",
+  },
+  {
+    id: "managed-edr",
+    name: "Managed EDR / endpoint-beskyttelse",
+    description:
+      "Drift og overvåking av endepunktsikkerhet (EDR/XDR) med respons på alarmer og kvartalsrapport.",
+    defaultChecklist: [
+      "Rollout av EDR-agent",
+      "Policy hardening",
+      "Døgnkontinuerlig alarmrespons",
+      "Kvartalsrapport til kunde",
+    ],
+    frameworkMappings: [
+      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.8.7", "A.8.16"] },
+      { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
+    ],
+    tags: ["security", "subscription", "smb", "mid"],
+    price: 95,
+    priceModel: "per-user",
+    priceNote: "per bruker/mnd",
+  },
+  {
+    id: "managed-backup",
+    name: "Managed Backup & Recovery",
+    description:
+      "Driftet sikkerhetskopi med immutable storage, restore-tester og rapportering iht. 3-2-1-prinsippet.",
+    defaultChecklist: [
+      "Oppsett av backup-policy",
+      "Immutable storage konfigurert",
+      "Månedlig restore-test",
+      "Kvartalsrapport med RTO/RPO",
+    ],
+    frameworkMappings: [
+      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.8.13", "A.5.29"] },
+      { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
+    ],
+    tags: ["security", "subscription", "smb", "mid", "critical"],
+    price: 6500,
+    priceModel: "monthly",
+    priceNote: "fra 6 500 kr/mnd",
+  },
+  {
+    id: "incident-response",
+    name: "Beredskap & hendelseshåndtering",
+    description:
+      "Retainer for IR-bistand ved sikkerhetshendelser, inkl. øvelser og varslingsrutiner mot tilsynsmyndigheter.",
+    defaultChecklist: [
+      "IR-plan etablert",
+      "Årlig table-top øvelse",
+      "Kontaktveier for 24/7 varsling",
+      "Etterevaluering ved hendelse",
+    ],
+    frameworkMappings: [
+      { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.23"] },
+      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.24", "A.5.26"] },
+    ],
+    tags: ["security", "subscription", "critical", "mid"],
+    price: 4500,
+    priceModel: "monthly",
+    priceNote: "retainer fra 4 500 kr/mnd",
+  },
+  {
+    id: "m365-hardening",
+    name: "Microsoft 365 sikkerhetshardening",
+    description:
+      "Gjennomgang og hardening av M365-tenant (Entra ID, Defender, Purview) med konfigurasjonsrapport.",
+    defaultChecklist: [
+      "Tenant-vurdering (Secure Score)",
+      "Conditional Access policies",
+      "MFA og rolle-hygiene",
+      "Defender/Purview konfigurert",
+      "Rapport og overlevering",
+    ],
+    frameworkMappings: [
+      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.15", "A.8.2", "A.8.3"] },
+    ],
+    tags: ["security", "project", "smb", "mid"],
+    price: 35000,
+    priceModel: "fixed",
+  },
 ];
+
 
 export function getService(id: string): PartnerService | undefined {
   return PARTNER_SERVICES.find((s) => s.id === id);

@@ -1,23 +1,10 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import {
-  Sparkles,
-  Plus,
-  Pencil,
-  Shield,
-  Tag,
-  Eye,
-  EyeOff,
-  RotateCcw,
-  Trash2,
-} from "lucide-react";
-import { ServiceEvidenceSection, totalControlCount, primaryFrameworkId } from "./ServiceEvidenceSection";
-import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
+import { Sparkles, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ServiceForm } from "./ServiceForm";
+import { ServiceCard } from "./ServiceCard";
 import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
@@ -208,20 +195,10 @@ export function MSPServiceCatalogTab() {
       {services.length > 0 && !inSuggestionMode && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {services.map((s) => {
-            const totalControls = totalControlCount(s.frameworkMappings);
             const isEditing = editing === s.id;
-            const primaryId = primaryFrameworkId(s.frameworkMappings);
-            const theme = primaryId ? getFrameworkTheme(primaryId) : null;
-            return (
-              <Card
-                key={s.id}
-                className={cn(
-                  "p-4 hover:border-primary/30 transition-colors border-l-4",
-                  theme ? theme.border : "border-l-muted",
-                  isEditing && "md:col-span-2",
-                )}
-              >
-                {isEditing ? (
+            if (isEditing) {
+              return (
+                <div key={s.id} className="md:col-span-2">
                   <ServiceForm
                     initial={s}
                     onCancel={() => setEditing(null)}
@@ -230,79 +207,20 @@ export function MSPServiceCatalogTab() {
                       setEditing(null);
                     }}
                   />
-                ) : (
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={cn(
-                        "h-9 w-9 rounded-lg flex items-center justify-center shrink-0",
-                        theme ? theme.iconBg : "bg-muted",
-                      )}
-                    >
-                      <Shield className={cn("h-4 w-4", theme ? theme.iconColor : "text-muted-foreground")} />
-                    </div>
-                    <div className="flex-1 min-w-0 space-y-1.5">
-                      <div className="flex items-start gap-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-sm font-semibold text-foreground">{s.name}</span>
-                            {(s.price != null || s.priceNote) && (
-                              <Badge variant="outline" className="text-[10px] gap-1 bg-success/5 text-success border-success/30">
-                                <Tag className="h-3 w-3" />
-                                {formatPrice(s)}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">
-                            {s.defaultChecklist.length} leveransepunkter
-                            {totalControls > 0 && <> · {totalControls} kontrollpunkter</>}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <label
-                            className="flex items-center gap-1.5 rounded-md border border-border bg-muted/30 px-1.5 py-1 cursor-pointer hover:bg-muted/60 transition-colors"
-                            title={
-                              s.publishedToCustomers
-                                ? "Synlig og bestillbar i kundens portal"
-                                : "Skjult — kun synlig for deg"
-                            }
-                          >
-                            {s.publishedToCustomers ? (
-                              <Eye className="h-3 w-3 text-primary" />
-                            ) : (
-                              <EyeOff className="h-3 w-3 text-muted-foreground" />
-                            )}
-                            <Switch
-                              checked={!!s.publishedToCustomers}
-                              onCheckedChange={(checked) =>
-                                setServices((prev) =>
-                                  prev.map((x) =>
-                                    x.id === s.id ? { ...x, publishedToCustomers: checked } : x,
-                                  ),
-                                )
-                              }
-                            />
-                          </label>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0"
-                            onClick={() => setEditing(s.id)}
-                            title="Rediger tjeneste"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                      <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
-                      <ServiceEvidenceSection
-                        mappings={s.frameworkMappings}
-                        onConnect={() => setEditing(s.id)}
-                        compact
-                      />
-                    </div>
-                  </div>
-                )}
-              </Card>
+                </div>
+              );
+            }
+            return (
+              <ServiceCard
+                key={s.id}
+                service={s}
+                onEdit={() => setEditing(s.id)}
+                onTogglePublished={(checked) =>
+                  setServices((prev) =>
+                    prev.map((x) => (x.id === s.id ? { ...x, publishedToCustomers: checked } : x)),
+                  )
+                }
+              />
             );
           })}
         </div>
@@ -344,25 +262,4 @@ function StatCard({
   );
 }
 
-const PRICE_MODEL_LABEL: Record<NonNullable<PartnerService["priceModel"]>, string> = {
-  fixed: "fastpris",
-  monthly: "kr/mnd",
-  hourly: "kr/time",
-  "per-user": "kr/bruker/mnd",
-  quote: "etter avtale",
-};
-
-function formatPrice(s: PartnerService): string {
-  const model = s.priceModel ?? "fixed";
-  if (model === "quote") return s.priceNote || "Etter avtale";
-  if (s.price == null && !s.priceNote) return "";
-  const amount =
-    s.price != null ? new Intl.NumberFormat("nb-NO").format(s.price) : "";
-  const label = PRICE_MODEL_LABEL[model];
-  const base =
-    model === "fixed"
-      ? amount ? `${amount} kr` : ""
-      : amount ? `${amount} ${label}` : label;
-  return [base, s.priceNote].filter(Boolean).join(" · ");
-}
 
