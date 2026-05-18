@@ -10,14 +10,11 @@ import {
   Sparkles,
   Plus,
   Pencil,
-  CheckSquare,
   Shield,
-  ShieldCheck,
   Tag,
   X,
   Eye,
   EyeOff,
-  ShoppingCart,
 } from "lucide-react";
 import { ServiceEvidenceSection, totalControlCount, primaryFrameworkId } from "./ServiceEvidenceSection";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
