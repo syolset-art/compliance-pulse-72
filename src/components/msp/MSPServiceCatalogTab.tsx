@@ -48,25 +48,7 @@ export function MSPServiceCatalogTab() {
 
   const showEmptyHero = services.length === 0 && !suggestions;
 
-  // Stats
-  const stats = {
-    count: services.length,
-    controls: (() => {
-      const ids = new Set<string>();
-      services.forEach((s) =>
-        s.frameworkMappings.forEach((m) =>
-          m.controlIds.forEach((c) => ids.add(`${m.frameworkId}:${c}`)),
-        ),
-      );
-      return ids.size;
-    })(),
-    frameworks: (() => {
-      const ids = new Set<string>();
-      services.forEach((s) => s.frameworkMappings.forEach((m) => ids.add(m.frameworkId)));
-      return ids.size;
-    })(),
-    suggestions: suggestions?.length ?? 0,
-  };
+  const suggestionsCount = suggestions?.length ?? 0;
 
   const inSuggestionMode = !!suggestions;
 
@@ -242,30 +224,5 @@ export function MSPServiceCatalogTab() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: number;
-  highlight?: boolean;
-}) {
-  return (
-    <Card className={cn("p-3", highlight && "border-primary/30 bg-primary/[0.04]")}>
-      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-        {label}
-      </p>
-      <p
-        className={cn(
-          "text-2xl font-bold mt-1",
-          highlight ? "text-primary" : "text-foreground",
-        )}
-      >
-        {value}
-      </p>
-    </Card>
-  );
-}
 
 
