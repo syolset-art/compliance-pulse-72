@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Pencil, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { ServiceFrameworkMapping } from "@/lib/serviceCatalog";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
@@ -12,6 +13,14 @@ interface Props {
 }
 
 const MAX_VISIBLE = 4;
+
+// Deterministisk Lara-forslag: 1-4 timer pr kontrollpunkt basert på id-hash
+function suggestHours(frameworkId: string, controlId: string): number {
+  const key = `${frameworkId}:${controlId}`;
+  let h = 0;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return 1 + (h % 4); // 1, 2, 3 eller 4 timer
+}
 
 export function ServiceEvidenceSection({ mappings, onConnect, compact }: Props) {
   if (mappings.length === 0) {
@@ -52,36 +61,97 @@ export function ServiceEvidenceSection({ mappings, onConnect, compact }: Props) 
 function FrameworkRow({ mapping }: { mapping: ServiceFrameworkMapping }) {
   const [expanded, setExpanded] = useState(false);
   const theme = getFrameworkTheme(mapping.frameworkId);
+
+  const suggested = useMemo(() => {
+    const map: Record<string, number> = {};
+    mapping.controlIds.forEach((id) => {
+      map[id] = suggestHours(mapping.frameworkId, id);
+    });
+    return map;
+  }, [mapping.frameworkId, mapping.controlIds]);
+
+  const [hours, setHours] = useState<Record<string, number>>(suggested);
+
   const total = mapping.controlIds.length;
   const visible = expanded ? mapping.controlIds : mapping.controlIds.slice(0, MAX_VISIBLE);
   const hidden = total - visible.length;
+  const sumHours = mapping.controlIds.reduce((s, id) => s + (hours[id] ?? 0), 0);
 
   return (
-    <div className="flex flex-wrap items-center gap-1">
-      <span
-        className={cn(
-          "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border shrink-0",
-          theme.chip,
-        )}
-      >
-        {mapping.frameworkLabel}
-      </span>
-      {visible.map((id) => (
+    <div className="rounded-md border border-border bg-background/40 p-2 space-y-1.5">
+      <div className="flex items-center justify-between gap-2">
         <span
-          key={id}
-          className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] bg-background border border-border text-foreground/80"
-          title={`${mapping.frameworkLabel} ${id}`}
+          className={cn(
+            "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border shrink-0",
+            theme.chip,
+          )}
         >
-          {id}
+          {mapping.frameworkLabel}
         </span>
-      ))}
-      {hidden > 0 && (
+        <span className="text-[10px] text-muted-foreground">
+          {total} kontrollpunkt{total === 1 ? "" : "er"} · {sumHours}t totalt
+        </span>
+      </div>
+
+      <ul className="divide-y divide-border/60">
+        {visible.map((id) => {
+          const isOverride = hours[id] !== suggested[id];
+          return (
+            <li
+              key={id}
+              className="flex items-center justify-between gap-2 py-1"
+            >
+              <span
+                className="text-[11px] text-foreground/80 font-mono truncate"
+                title={`${mapping.frameworkLabel} ${id}`}
+              >
+                {id}
+              </span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {!isOverride && (
+                  <span
+                    className="inline-flex items-center gap-1 text-[10px] text-muted-foreground"
+                    title="Foreslått av Lara"
+                  >
+                    <Sparkles className="h-2.5 w-2.5" />
+                    Lara
+                  </span>
+                )}
+                <Input
+                  type="number"
+                  min={0}
+                  step={0.5}
+                  value={hours[id] ?? 0}
+                  onChange={(e) =>
+                    setHours((prev) => ({
+                      ...prev,
+                      [id]: Math.max(0, Number(e.target.value) || 0),
+                    }))
+                  }
+                  className="h-6 w-14 px-1.5 text-[11px] text-right"
+                />
+                <span className="text-[10px] text-muted-foreground w-3">t</span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      {total > MAX_VISIBLE && (
         <button
           type="button"
-          onClick={() => setExpanded(true)}
-          className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
+          onClick={() => setExpanded((v) => !v)}
+          className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
         >
-          +{hidden} flere
+          {expanded ? (
+            <>
+              <ChevronUp className="h-3 w-3" /> Vis færre
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-3 w-3" /> Vis {hidden} flere
+            </>
+          )}
         </button>
       )}
     </div>
