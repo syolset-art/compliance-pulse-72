@@ -285,6 +285,32 @@ export function MSPServiceCatalogTab() {
   );
 }
 
+function StatCard({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: number;
+  highlight?: boolean;
+}) {
+  return (
+    <Card className={cn("p-3", highlight && "border-primary/30 bg-primary/[0.04]")}>
+      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+        {label}
+      </p>
+      <p
+        className={cn(
+          "text-2xl font-bold mt-1",
+          highlight ? "text-primary" : "text-foreground",
+        )}
+      >
+        {value}
+      </p>
+    </Card>
+  );
+}
+
 const PRICE_MODEL_LABEL: Record<NonNullable<PartnerService["priceModel"]>, string> = {
   fixed: "fastpris",
   monthly: "kr/mnd",
