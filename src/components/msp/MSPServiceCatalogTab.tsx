@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Plus, RotateCcw, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { ServiceForm } from "./ServiceForm";
-import { ServiceCard } from "./ServiceCard";
+import { ServiceTableRow } from "./ServiceTableRow";
 import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
@@ -48,25 +47,6 @@ export function MSPServiceCatalogTab() {
 
   const showEmptyHero = services.length === 0 && !suggestions;
 
-  // Stats
-  const stats = {
-    count: services.length,
-    controls: (() => {
-      const ids = new Set<string>();
-      services.forEach((s) =>
-        s.frameworkMappings.forEach((m) =>
-          m.controlIds.forEach((c) => ids.add(`${m.frameworkId}:${c}`)),
-        ),
-      );
-      return ids.size;
-    })(),
-    frameworks: (() => {
-      const ids = new Set<string>();
-      services.forEach((s) => s.frameworkMappings.forEach((m) => ids.add(m.frameworkId)));
-      return ids.size;
-    })(),
-    suggestions: suggestions?.length ?? 0,
-  };
 
   const inSuggestionMode = !!suggestions;
 
@@ -145,9 +125,14 @@ export function MSPServiceCatalogTab() {
           </div>
         </Card>
       ) : (
-        <>
-          {/* Top action row */}
-          <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="min-w-0">
+            <p className="text-[13px] text-muted-foreground">
+              Klikk på timer eller pris for å justere. Aktiviteter og kontrollpunkter velges fra
+              Mynders bibliotek.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
             <Button
               size="sm"
               variant="outline"
@@ -162,19 +147,7 @@ export function MSPServiceCatalogTab() {
               Ny tjeneste
             </Button>
           </div>
-
-          {/* Stats row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard label="I katalog" value={stats.count} />
-            <StatCard label="Kontrollpunkter dekket" value={stats.controls} />
-            <StatCard label="Regelverk" value={stats.frameworks} />
-            <StatCard
-              label="Lara foreslår"
-              value={stats.suggestions}
-              highlight={stats.suggestions > 0}
-            />
-          </div>
-        </>
+        </div>
       )}
 
       {/* Lara-forslag — primær landing etter wizard */}
@@ -191,34 +164,47 @@ export function MSPServiceCatalogTab() {
         <ServiceForm onCancel={() => setAdding(false)} onSave={addService} />
       )}
 
-      {/* Service grid */}
+      {/* Service-tabell */}
       {services.length > 0 && !inSuggestionMode && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-2">
+          {/* Kolonneoverskrifter */}
+          <div className="grid items-center gap-3 px-4 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[1fr_180px_80px_120px_120px_40px]">
+            <span>Tjeneste</span>
+            <span>Regelverk</span>
+            <span>Timer</span>
+            <span>Timepris</span>
+            <span className="text-right">Totalpris</span>
+            <span />
+          </div>
           {services.map((s) => {
             const isEditing = editing === s.id;
             if (isEditing) {
               return (
-                <div key={s.id} className="md:col-span-2">
-                  <ServiceForm
-                    initial={s}
-                    onCancel={() => setEditing(null)}
-                    onSave={(updated) => {
-                      setServices((prev) => prev.map((x) => (x.id === s.id ? updated : x)));
-                      setEditing(null);
-                    }}
-                  />
-                </div>
+                <ServiceForm
+                  key={s.id}
+                  initial={s}
+                  onCancel={() => setEditing(null)}
+                  onSave={(updated) => {
+                    setServices((prev) => prev.map((x) => (x.id === s.id ? updated : x)));
+                    setEditing(null);
+                  }}
+                />
               );
             }
             return (
-              <ServiceCard
+              <ServiceTableRow
                 key={s.id}
                 service={s}
                 onEdit={() => setEditing(s.id)}
                 onTogglePublished={(checked) =>
                   setServices((prev) =>
-                    prev.map((x) => (x.id === s.id ? { ...x, publishedToCustomers: checked } : x)),
+                    prev.map((x) =>
+                      x.id === s.id ? { ...x, publishedToCustomers: checked } : x,
+                    ),
                   )
+                }
+                onDelete={() =>
+                  setServices((prev) => prev.filter((x) => x.id !== s.id))
                 }
               />
             );
@@ -236,30 +222,5 @@ export function MSPServiceCatalogTab() {
   );
 }
 
-function StatCard({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: number;
-  highlight?: boolean;
-}) {
-  return (
-    <Card className={cn("p-3", highlight && "border-primary/30 bg-primary/[0.04]")}>
-      <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-        {label}
-      </p>
-      <p
-        className={cn(
-          "text-2xl font-bold mt-1",
-          highlight ? "text-primary" : "text-foreground",
-        )}
-      >
-        {value}
-      </p>
-    </Card>
-  );
-}
 
 
