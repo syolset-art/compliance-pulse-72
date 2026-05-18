@@ -36,13 +36,15 @@ export function ServiceEvidenceSection({ mappings, onConnect, compact }: Props) 
   }
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-x-2 gap-y-1.5", compact ? "pt-1" : "pt-1.5")}>
-      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider shrink-0">
+    <div className={cn("space-y-1", compact ? "pt-1" : "pt-1.5")}>
+      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
         Evidens på
       </span>
-      {mappings.map((m) => (
-        <FrameworkRow key={m.frameworkId} mapping={m} />
-      ))}
+      <div className="space-y-1">
+        {mappings.map((m) => (
+          <FrameworkRow key={m.frameworkId} mapping={m} />
+        ))}
+      </div>
     </div>
   );
 }
