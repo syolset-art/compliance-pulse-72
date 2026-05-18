@@ -112,10 +112,7 @@ export function MSPServiceCatalogTab() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">Din tjenestekatalog</p>
               <p className="text-[13px] text-muted-foreground mt-0.5">
-                Mynder leverer regelverkene. Du legger inn dine egne tjenester her, og Lara viser
-                hvordan de treffer kontrollpunkter på tvers av ISO 27001, NIS2, AI Act m.fl.
-                Bruk bryteren <Eye className="inline h-3 w-3 align-[-2px] text-primary" /> på hver
-                tjeneste for å gjøre den synlig og bestillbar i kundens portal.
+                Dine egne tjenester, koblet til kontrollpunkter på tvers av ISO 27001, NIS2, AI Act m.fl.
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -173,9 +170,13 @@ export function MSPServiceCatalogTab() {
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-sm font-semibold text-foreground">{s.name}</span>
-                    <Badge variant="outline" className="text-[10px] gap-1">
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] gap-1"
+                      title="Antall leveransepunkter i tjenesten (det du faktisk gjør for kunden)"
+                    >
                       <CheckSquare className="h-3 w-3" />
-                      {s.defaultChecklist.length} sjekkpunkter
+                      {s.defaultChecklist.length} leveransepunkter
                     </Badge>
                     {(s.price != null || s.priceNote) && (
                       <Badge variant="outline" className="text-[10px] gap-1 bg-success/5 text-success border-success/30">
@@ -183,12 +184,31 @@ export function MSPServiceCatalogTab() {
                         {formatPrice(s)}
                       </Badge>
                     )}
-                    {s.publishedToCustomers && (
-                      <Badge variant="outline" className="text-[10px] gap-1 bg-primary/5 text-primary border-primary/30">
-                        <ShoppingCart className="h-3 w-3" />
-                        Bestillbar for kunder
-                      </Badge>
-                    )}
+                    <Badge
+                      variant="outline"
+                      className={
+                        s.publishedToCustomers
+                          ? "text-[10px] gap-1 bg-primary/5 text-primary border-primary/30"
+                          : "text-[10px] gap-1 text-muted-foreground"
+                      }
+                      title={
+                        s.publishedToCustomers
+                          ? "Synlig og bestillbar i kundens portal"
+                          : "Skjult — kun synlig for deg"
+                      }
+                    >
+                      {s.publishedToCustomers ? (
+                        <>
+                          <ShoppingCart className="h-3 w-3" />
+                          Bestillbar for kunder
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="h-3 w-3" />
+                          Skjult for kunder
+                        </>
+                      )}
+                    </Badge>
                   </div>
                   <p className="text-[13px] text-muted-foreground leading-snug">{s.description}</p>
 
