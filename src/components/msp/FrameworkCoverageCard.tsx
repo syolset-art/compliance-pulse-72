@@ -175,10 +175,9 @@ export function FrameworkCoverageCard({
           </div>
 
           {/* Kolonneoverskrifter */}
-          <div className="grid items-center gap-3 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_280px_90px_110px]">
+          <div className="grid items-center gap-3 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_90px_110px]">
             <span className="w-4" />
             <span>Kontrollpunkt</span>
-            <span>Dekningsnivå</span>
             <span className="text-right">Timer</span>
             <span className="text-right">Inntekt</span>
           </div>
