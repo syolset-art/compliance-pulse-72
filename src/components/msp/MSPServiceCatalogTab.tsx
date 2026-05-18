@@ -19,7 +19,9 @@ import {
   EyeOff,
   ShoppingCart,
 } from "lucide-react";
-import { ServiceEvidenceSection, totalControlCount } from "./ServiceEvidenceSection";
+import { ServiceEvidenceSection, totalControlCount, primaryFrameworkId } from "./ServiceEvidenceSection";
+import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
