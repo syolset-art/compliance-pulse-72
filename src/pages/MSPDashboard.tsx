@@ -189,6 +189,10 @@ export default function MSPDashboard() {
     () => Array.from(new Set((customers as any[]).map((c) => c.industry).filter(Boolean))).sort(),
     [customers],
   );
+  const countryCodeOptions = useMemo(
+    () => Array.from(new Set((customers as any[]).map((c) => c.country_code || "NO").filter(Boolean))).sort(),
+    [customers],
+  );
   const serviceOptions = useMemo(
     () => Array.from(new Set((customers as any[]).flatMap((c) => deriveNeededServices(c)))).sort(),
     [customers],
