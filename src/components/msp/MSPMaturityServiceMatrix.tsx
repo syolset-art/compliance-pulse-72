@@ -177,10 +177,20 @@ const ONGOING: OngoingItem[] = [
   },
 ];
 
-interface ChecklistItem {
+interface DeliveryActivity {
   id: string;
   label: string;
   done: boolean;
+  owner?: TaskOwner;
+  date?: string;
+}
+
+interface DeliveryControl {
+  id: string; // f.eks. "A.6.3"
+  name: string;
+  status: "missing" | "partial" | "fulfilled";
+  progress: number; // 0-100
+  activities: DeliveryActivity[];
 }
 
 interface DeliveryItem {
@@ -188,15 +198,8 @@ interface DeliveryItem {
   title: string;
   meta: string;
   serviceId?: string;
-  checklist: ChecklistItem[];
+  controls: DeliveryControl[];
 }
-
-const buildChecklist = (items: string[], doneCount = 0): ChecklistItem[] =>
-  items.map((label, i) => ({
-    id: `c${i}`,
-    label,
-    done: i < doneCount,
-  }));
 
 const DELIVERIES: DeliveryItem[] = [
   {
@@ -204,14 +207,61 @@ const DELIVERIES: DeliveryItem[] = [
     title: "Awareness-program 2025",
     meta: "Løpende leveranse · Neste kampanje 20. mai",
     serviceId: "awareness",
-    checklist: buildChecklist(getService("awareness")!.defaultChecklist, 2),
+    controls: [
+      {
+        id: "A.6.3",
+        name: "Sikkerhetsbevissthet, opplæring og trening",
+        status: "partial",
+        progress: 60,
+        activities: [
+          { id: "a1", label: "Baselinemåling phishing-simulering", done: true, owner: "Partner", date: "12. feb" },
+          { id: "a2", label: "Kvartalsvis e-læring rullet ut (Q1)", done: true, owner: "Partner", date: "5. mar" },
+          { id: "a3", label: "Målrettet opplæring for ledergruppen", done: false, owner: "Partner", date: "20. mai" },
+          { id: "a4", label: "Re-test phishing og rapportering", done: false, owner: "Partner", date: "15. jun" },
+        ],
+      },
+      {
+        id: "A.5.10",
+        name: "Akseptabel bruk av informasjonsmidler",
+        status: "missing",
+        progress: 20,
+        activities: [
+          { id: "b1", label: "Workshop med kunde for å forankre policy", done: true, owner: "Kunde", date: "18. apr" },
+          { id: "b2", label: "Utkast til policy lagt frem", done: false, owner: "Partner", date: "10. mai" },
+          { id: "b3", label: "Kommunisert til alle ansatte", done: false, owner: "Kunde" },
+        ],
+      },
+    ],
   },
   {
     id: "d2",
     title: "Penetrasjonstest – Q1 2025",
     meta: "Levert 14. mars · Rapport sendt til Truls",
     serviceId: "pentest",
-    checklist: buildChecklist(getService("pentest")!.defaultChecklist, 5),
+    controls: [
+      {
+        id: "A.8.29",
+        name: "Sikkerhetstesting under utvikling og aksept",
+        status: "fulfilled",
+        progress: 100,
+        activities: [
+          { id: "p1", label: "Scoping og avtale signert", done: true, owner: "Partner", date: "20. jan" },
+          { id: "p2", label: "Ekstern penetrasjonstest gjennomført", done: true, owner: "Partner", date: "10. feb" },
+          { id: "p3", label: "Rapport levert med funn og tiltak", done: true, owner: "Partner", date: "14. mar" },
+          { id: "p4", label: "Gjennomgang med kundens ledelse", done: true, owner: "Partner", date: "21. mar" },
+        ],
+      },
+      {
+        id: "A.8.8",
+        name: "Sårbarhetshåndtering",
+        status: "partial",
+        progress: 50,
+        activities: [
+          { id: "v1", label: "Kritiske funn lukket innen SLA", done: true, owner: "Kunde", date: "28. mar" },
+          { id: "v2", label: "Middels funn under retting", done: false, owner: "Kunde", date: "15. mai" },
+        ],
+      },
+    ],
   },
 ];
 
