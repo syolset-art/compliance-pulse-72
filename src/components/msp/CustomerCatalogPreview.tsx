@@ -117,11 +117,14 @@ export function CustomerCatalogPreview({ services }: Props) {
 
               {/* Lara-advarsel hvis tjenesten ser tom ut */}
               {issues.length > 0 && (
-                <div className="rounded-md bg-warning/10 border border-warning/30 px-2 py-1.5 flex items-start gap-1.5">
-                  <Sparkles className="h-3 w-3 text-warning mt-0.5 shrink-0" />
+                <div
+                  role="status"
+                  className="rounded-md bg-warning/15 border border-warning px-2 py-1.5 flex items-start gap-1.5"
+                >
+                  <AlertCircle className="h-4 w-4 text-warning-foreground mt-0.5 shrink-0" aria-hidden="true" />
                   <div className="text-xs text-foreground">
-                    <span className="font-semibold text-warning inline-flex items-center gap-1">
-                      <AlertCircle className="h-2.5 w-2.5" /> Lara
+                    <span className="font-semibold inline-flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" aria-hidden="true" /> Lara
                     </span>
                     <span className="ml-1">{issues[0]}</span>
                   </div>
