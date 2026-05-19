@@ -844,8 +844,10 @@ export function MSPMaturityServiceMatrix({
         </TabsContent>
 
         <TabsContent value="deliveries" className="mt-0">
-          <DeliveryWizard
+          <OngoingDeliveriesList
             deliveries={deliveries}
+            customerName={customerName}
+            customerEmail={customerEmail}
             onConfirm={confirmActivity}
             onUndo={undoActivity}
           />
