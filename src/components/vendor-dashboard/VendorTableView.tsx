@@ -6,12 +6,11 @@ import {
 import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Filter, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ALL_VENDOR_STATUSES, deriveVendorStatus } from "@/lib/vendorStatus";
-import { scoreToLabel, scoreLabelColor, type ScoreDisplayMode } from "./VendorListTab";
+import { getCriticality, CRITICALITY_META, type CriticalityKey } from "@/lib/criticality";
+import type { ScoreDisplayMode } from "./VendorListTab";
 
 interface Asset {
   id: string;
@@ -19,6 +18,7 @@ interface Asset {
   category: string | null;
   compliance_score: number | null;
   risk_level: string | null;
+  criticality?: string | null;
   country?: string | null;
   vendor_category?: string | null;
   gdpr_role?: string | null;
@@ -39,14 +39,10 @@ interface Props {
   setCountryFilter: (v: string) => void;
   vendorCategoryFilter: string;
   setVendorCategoryFilter: (v: string) => void;
-  gdprRoleFilter: string;
-  setGdprRoleFilter: (v: string) => void;
   priorityFilter: string;
   setPriorityFilter: (v: string) => void;
-  riskFilter: string;
-  setRiskFilter: (v: string) => void;
-  statusFilter: string;
-  setStatusFilter: (v: string) => void;
+  criticalityFilter: string;
+  setCriticalityFilter: (v: string) => void;
   ownerFilter: string;
   setOwnerFilter: (v: string) => void;
 }
@@ -54,14 +50,18 @@ interface Props {
 const PRIORITY_LABEL: Record<string, string> = {
   critical: "Kritisk", high: "Høy", medium: "Medium", low: "Lav",
 };
+
+/** Pille-stil for prioritet — bruker semantiske tokens. */
+const PRIORITY_PILL: Record<string, string> = {
+  critical: "bg-destructive/10 text-destructive border-destructive/20",
+  high:     "bg-warning/15 text-warning border-warning/30",
+  medium:   "bg-secondary text-secondary-foreground border-border",
+  low:      "bg-muted text-muted-foreground border-border",
+};
+
 const VENDOR_CAT_LABEL: Record<string, string> = {
   saas: "SaaS", infrastructure: "Infrastruktur", consulting: "Rådgivning",
   it_operations: "IT-drift", facilities: "Kontor", other: "Annet",
-};
-const GDPR_LABEL: Record<string, string> = {
-  databehandler: "Databehandler",
-  underdatabehandler: "Underdatabehandler",
-  ingen: "Ingen persondata",
 };
 
 function ColumnFilter({
@@ -117,15 +117,56 @@ function ColumnFilter({
   );
 }
 
+/**
+ * ScoreRing — delt visuell standard for modenhets-/trustscore på tvers av
+ * leverandør- og kundeprofiler. Følger Risk Colors-regelen i designsystemet:
+ * grønn ≥75, gul 50–74, rød <50.
+ */
+function ScoreRing({ score }: { score: number }) {
+  const size = 32;
+  const stroke = 3;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const pct = Math.min(Math.max(score, 0), 100);
+  const dash = `${(pct / 100) * c} ${c}`;
+  const tone =
+    pct >= 75 ? "text-success"
+    : pct >= 50 ? "text-warning"
+    : "text-destructive";
+
+  if (score <= 0) {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  return (
+    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          stroke="currentColor" strokeWidth={stroke}
+          className="text-muted/40" fill="none"
+        />
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          stroke="currentColor" strokeWidth={stroke}
+          strokeDasharray={dash} strokeLinecap="round"
+          className={tone} fill="none"
+        />
+      </svg>
+      <span className={cn("absolute inset-0 flex items-center justify-center text-[10px] font-semibold tabular-nums", tone)}>
+        {pct}
+      </span>
+    </div>
+  );
+}
+
 export function VendorTableView({
   vendors,
   expiredCounts, inboxCounts, getOwnerName, scoreDisplay,
   countryFilter, setCountryFilter,
   vendorCategoryFilter, setVendorCategoryFilter,
-  gdprRoleFilter, setGdprRoleFilter,
   priorityFilter, setPriorityFilter,
-  riskFilter, setRiskFilter,
-  statusFilter, setStatusFilter,
+  criticalityFilter, setCriticalityFilter,
   ownerFilter, setOwnerFilter,
 }: Props) {
   const navigate = useNavigate();
@@ -172,14 +213,6 @@ export function VendorTableView({
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="GDPR"
-                  value={gdprRoleFilter}
-                  onChange={setGdprRoleFilter}
-                  options={Object.entries(GDPR_LABEL).map(([v, l]) => ({ value: v, label: l }))}
-                />
-              </TableHead>
-              <TableHead>
-                <ColumnFilter
                   label="Prioritet"
                   value={priorityFilter}
                   onChange={setPriorityFilter}
@@ -188,25 +221,15 @@ export function VendorTableView({
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="Risiko"
-                  value={riskFilter}
-                  onChange={setRiskFilter}
-                  options={[
-                    { value: "high", label: "Høy" },
-                    { value: "medium", label: "Medium" },
-                    { value: "low", label: "Lav" },
-                  ]}
+                  label="Kritikalitet"
+                  value={criticalityFilter}
+                  onChange={setCriticalityFilter}
+                  options={(Object.keys(CRITICALITY_META) as CriticalityKey[]).map(k => ({
+                    value: k, label: CRITICALITY_META[k].labelNb,
+                  }))}
                 />
               </TableHead>
-              <TableHead>
-                <ColumnFilter
-                  label="Status"
-                  value={statusFilter}
-                  onChange={setStatusFilter}
-                  options={ALL_VENDOR_STATUSES.map(s => ({ value: s.key, label: s.label }))}
-                />
-              </TableHead>
-              <TableHead className="text-right text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <TableHead className="text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground w-16">
                 Score
               </TableHead>
               <TableHead>
@@ -221,15 +244,9 @@ export function VendorTableView({
           </TableHeader>
           <TableBody>
             {vendors.map(v => {
-              const status = deriveVendorStatus({
-                compliance_score: v.compliance_score,
-                risk_level: v.risk_level,
-                lifecycle_status: v.lifecycle_status,
-                expiredDocsCount: expiredCounts[v.id] || 0,
-                inboxCount: inboxCounts[v.id] || 0,
-              });
               const score = v.compliance_score || 0;
               const owner = getOwnerName(v);
+              const crit = getCriticality(v);
               return (
                 <TableRow
                   key={v.id}
@@ -243,35 +260,22 @@ export function VendorTableView({
                   <TableCell className="text-xs text-muted-foreground">
                     {v.vendor_category ? VENDOR_CAT_LABEL[v.vendor_category] || v.vendor_category : "—"}
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
-                    {v.gdpr_role ? GDPR_LABEL[v.gdpr_role] || v.gdpr_role : "—"}
-                  </TableCell>
-                  <TableCell className="text-xs">
+                  <TableCell>
                     {v.priority ? (
-                      <span className="text-muted-foreground">{PRIORITY_LABEL[v.priority] || v.priority}</span>
-                    ) : "—"}
+                      <Badge variant="outline" className={cn("font-normal text-[11px]", PRIORITY_PILL[v.priority] || "")}>
+                        {PRIORITY_LABEL[v.priority] || v.priority}
+                      </Badge>
+                    ) : <span className="text-xs text-muted-foreground">—</span>}
                   </TableCell>
-                  <TableCell className="text-xs">
-                    {v.risk_level ? (
-                      <span className={cn(
-                        v.risk_level === "high" && "text-destructive",
-                        v.risk_level === "medium" && "text-warning",
-                        v.risk_level === "low" && "text-success",
-                      )}>
-                        {v.risk_level === "high" ? "Høy" : v.risk_level === "medium" ? "Medium" : "Lav"}
-                      </span>
-                    ) : "—"}
+                  <TableCell>
+                    {crit ? (
+                      <Badge variant="outline" className={cn("font-normal text-[11px]", crit.pillClass)}>
+                        {crit.labelNb}
+                      </Badge>
+                    ) : <span className="text-xs text-muted-foreground">—</span>}
                   </TableCell>
-                  <TableCell className="text-xs">
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className={cn("h-1.5 w-1.5 rounded-full", status.stripeBg)} />
-                      {status.label}
-                    </span>
-                  </TableCell>
-                  <TableCell className={cn("text-right text-xs font-mono tabular-nums", scoreLabelColor(score))}>
-                    {scoreDisplay === "percent"
-                      ? (score > 0 ? `${score}%` : "—")
-                      : scoreToLabel(score)}
+                  <TableCell className="text-center">
+                    <ScoreRing score={score} />
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground truncate max-w-[140px]">
                     {owner || "—"}
