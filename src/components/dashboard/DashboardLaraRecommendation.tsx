@@ -211,12 +211,45 @@ export function DashboardLaraRecommendation() {
               : `${count} tasks total — sorted by priority, starting with A · ~${total * 3} min`}
           </p>
         </div>
-        <button
-          onClick={() => setShowPlan(false)}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
-        >
-          {isNb ? "Lukk" : "Close"}
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          {/* View toggle: stegvis vs tabell */}
+          <div className="inline-flex items-center rounded-full border border-border bg-card p-0.5">
+            <button
+              onClick={() => setViewMode("step")}
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs transition-colors",
+                viewMode === "step"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              aria-pressed={viewMode === "step"}
+              aria-label={isNb ? "Stegvis visning" : "Step view"}
+            >
+              <LayoutList className="h-3 w-3" />
+              {isNb ? "Stegvis" : "Step"}
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs transition-colors",
+                viewMode === "table"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              aria-pressed={viewMode === "table"}
+              aria-label={isNb ? "Tabellvisning" : "Table view"}
+            >
+              <TableIcon className="h-3 w-3" />
+              {isNb ? "Tabell" : "Table"}
+            </button>
+          </div>
+          <button
+            onClick={() => setShowPlan(false)}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2"
+          >
+            {isNb ? "Lukk" : "Close"}
+          </button>
+        </div>
       </div>
 
       {/* Step dots */}
