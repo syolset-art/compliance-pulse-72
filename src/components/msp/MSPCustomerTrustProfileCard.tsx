@@ -11,7 +11,34 @@ import {
   Check,
   AlertCircle,
   Lock,
+  ShieldCheck,
+  Activity,
+  Users,
+  Sparkles,
 } from "lucide-react";
+
+type ControlDomain = {
+  key: string;
+  name: string;
+  description: string;
+  level: number; // 0-4
+  source: "lara" | "self";
+  Icon: typeof ShieldCheck;
+};
+
+const controlDomains: ControlDomain[] = [
+  { key: "governance", name: "Styring", description: "Policy, roller og ledelsesforankring", level: 3, source: "lara", Icon: ShieldCheck },
+  { key: "operations", name: "Drift og sikkerhet", description: "Tilgang, logging, hendelseshåndtering", level: 4, source: "self", Icon: Activity },
+  { key: "privacy", name: "Personvern", description: "GDPR-etterlevelse og datahåndtering", level: 2, source: "lara", Icon: Lock },
+  { key: "third_party", name: "Tredjepart", description: "Leverandørstyring og verdikjede", level: 3, source: "lara", Icon: Users },
+];
+
+function levelTone(level: number) {
+  const pct = (level / 4) * 100;
+  if (pct >= 75) return { bar: "bg-success", text: "text-success", badge: "bg-success/10 text-success border-success/30" };
+  if (pct >= 50) return { bar: "bg-warning", text: "text-warning", badge: "bg-warning/10 text-warning border-warning/30" };
+  return { bar: "bg-destructive", text: "text-destructive", badge: "bg-destructive/10 text-destructive border-destructive/30" };
+}
 
 import { useState } from "react";
 import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
@@ -143,6 +170,49 @@ export function MSPCustomerTrustProfileCard({
           </div>
         </Card>
       </div>
+
+      {/* Kontrollpunkter — 4 kjernedomener */}
+      <Card className="p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">Kontrollpunkter</h3>
+          <span className="text-[11px] text-muted-foreground">Modenhet 0–4 · 4 kjernedomener</span>
+        </div>
+        <div className="space-y-2">
+          {controlDomains.map(d => {
+            const tone = levelTone(d.level);
+            const pct = (d.level / 4) * 100;
+            return (
+              <div key={d.key} className="flex items-center gap-3 rounded-lg border border-border/60 p-2.5">
+                <div className="h-8 w-8 rounded-md flex items-center justify-center shrink-0 bg-muted/40">
+                  <d.Icon className="h-4 w-4 text-foreground/70" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[13px] font-medium text-foreground truncate">{d.name}</p>
+                    {d.source === "lara" ? (
+                      <Badge variant="outline" className="text-[10px] gap-1 px-1.5 py-0 bg-primary/5 text-primary border-primary/20">
+                        <Sparkles className="h-2.5 w-2.5" />
+                        Lara
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-muted text-muted-foreground border-border">
+                        Selvrapportert
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground truncate">{d.description}</p>
+                  <div className="mt-1.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div className={`h-full ${tone.bar} rounded-full`} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <span className={`text-sm font-semibold ${tone.text}`}>{d.level}<span className="text-muted-foreground font-normal">/4</span></span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
 
       {/* Certifications */}
       <Card className="p-4 space-y-3">
