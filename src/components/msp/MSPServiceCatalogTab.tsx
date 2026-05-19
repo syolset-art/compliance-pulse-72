@@ -51,7 +51,7 @@ export function MSPServiceCatalogTab() {
   const [extras, setExtras] = useState<ExtraService[]>([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"partner" | "customer">("partner");
+  const [emailPreviewOpen, setEmailPreviewOpen] = useState(false);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
