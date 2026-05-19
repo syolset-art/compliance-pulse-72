@@ -214,40 +214,8 @@ export default function MSPCustomerDetail() {
                 </Card>
               )}
 
-              {/* 1) Partner-snapshot — bruker reelle svar når kunden har fullført spørreskjema */}
-              {(() => {
-                const completed = questionnaireDeliveries
-                  .filter((d) => d.customerId === customerId && d.status === "completed")
-                  .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""))[0];
+              {/* Partner-snapshot fjernet – overflødig informasjon */}
 
-                const realScore = completed
-                  ? scoreDelivery(completed, getQuestionnaire(completed.questionnaireId).totalQuestions)
-                  : null;
-                const base = customer.initial_assessment_score || 0;
-                const overall = realScore ?? Math.min(100, Math.round(base));
-                return (
-                  <MSPCustomerSnapshotCard
-                    customerName={customer.name || "kunden"}
-                    overallMaturity={overall}
-                    deltaPct={overall >= 60 ? 4 : -3}
-                    criticalGaps={tasks.filter(t => t.severity === "critical").length}
-                    hiddenIssues={3}
-                    nextDeadlineDays={14}
-                    nextDeadlineLabel="NIS2 Art.23"
-                    sourceLabel={realScore != null ? `${getQuestionnaire(completed!.questionnaireId).title} (kunde-svar)` : undefined}
-                    onCriticalGapsClick={() => {
-                      const el = document.getElementById("gap-list-anchor");
-                      if (el) {
-                        el.scrollIntoView({ behavior: "smooth", block: "start" });
-                        el.classList.add("ring-2", "ring-destructive/40", "rounded-2xl");
-                        setTimeout(() => el.classList.remove("ring-2", "ring-destructive/40", "rounded-2xl"), 2000);
-                      }
-                    }}
-                    onHiddenIssuesClick={() => setHiddenIssuesOpen(true)}
-                    onNextDeadlineClick={() => setDeadlineOpen(true)}
-                  />
-                );
-              })()}
 
               {/* 2) Spørreskjema-tjenester — bestill kartlegging fra kunden */}
               <QuestionnaireDispatchCard
