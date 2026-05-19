@@ -1,19 +1,11 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Mail, Send } from "lucide-react";
+import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone } from "lucide-react";
 import { toast } from "sonner";
-import { CustomerCatalogPreview } from "./CustomerCatalogPreview";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   FRAMEWORK_CATALOG,
   type CoverageLevel,
@@ -46,12 +38,12 @@ function formatNOK(n: number): string {
 }
 
 export function MSPServiceCatalogTab() {
+  const navigate = useNavigate();
   const [hourlyRate, setHourlyRate] = useState<number>(1500);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [emailPreviewOpen, setEmailPreviewOpen] = useState(false);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -265,20 +257,18 @@ export function MSPServiceCatalogTab() {
         </div>
       </Card>
 
-      {/* Handlingsrad: forhåndsvis e-post + legg til */}
+      {/* Handlingsrad: lag kampanje + legg til */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <p className="text-xs text-muted-foreground">
-          Tjenestene er <span className="font-medium text-foreground">interne</span> by default — kunden ser dem ikke før du sender en e-post.
+          Tjenestene er <span className="font-medium text-foreground">interne</span> by default — kunden ser dem først når du sender ut en kampanje.
         </p>
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
-            onClick={() => setEmailPreviewOpen(true)}
-            disabled={extras.length === 0}
+            onClick={() => navigate("/msp-messages?compose=campaign")}
             className="gap-2"
           >
-            <Mail className="h-4 w-4" />
-            Forhåndsvis e-post til kunde
+            <Megaphone className="h-4 w-4" />
+            Lag kampanje
           </Button>
           <Button variant="outline" onClick={() => setManualOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
@@ -286,6 +276,7 @@ export function MSPServiceCatalogTab() {
           </Button>
         </div>
       </div>
+
 
       {/* Partnervisning: adopterte / egne tjenester */}
       {extras.length > 0 && (
@@ -422,46 +413,6 @@ export function MSPServiceCatalogTab() {
         mode={editingId ? "edit" : "create"}
       />
 
-      {/* E-postforhåndsvisning til kunde */}
-      <Dialog open={emailPreviewOpen} onOpenChange={setEmailPreviewOpen}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Forhåndsvis e-post til kunde</DialogTitle>
-            <DialogDescription>
-              Slik vil tjenestene fremstå når du sender oversikten til kunden. Pris, timer og interne marginer er skjult, og partner-formuleringer er skrevet om til kundevennlig språk.
-            </DialogDescription>
-          </DialogHeader>
-          <CustomerCatalogPreview
-            asEmail
-            services={extras.map((e) => ({
-              id: e.id,
-              name: e.name,
-              description: e.description,
-              activities: e.activities,
-              mappings: e.mappings,
-              templateCode: e.templateCode,
-              source: e.source,
-            }))}
-          />
-          <DialogFooter className="gap-2 sm:gap-2">
-            <Button variant="outline" onClick={() => setEmailPreviewOpen(false)}>
-              Lukk
-            </Button>
-            <Button
-              className="gap-2"
-              onClick={() => {
-                setEmailPreviewOpen(false);
-                toast.success("E-post sendt til kunden", {
-                  description: "Kunden får nå tilgang til oversikten over leverte tjenester.",
-                });
-              }}
-            >
-              <Send className="h-4 w-4" />
-              Send til kunde
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
     </div>
   );
