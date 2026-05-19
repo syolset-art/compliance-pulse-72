@@ -54,6 +54,8 @@ export default function MSPDashboard() {
   const [view, setView] = useState<ViewMode>("cards");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("customer_name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const queryClient = useQueryClient();
 
   const { data: customers = [], refetch } = useQuery({
