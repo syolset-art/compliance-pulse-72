@@ -11,7 +11,7 @@ import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { CampaignWizardDialog } from "@/components/msp/CampaignWizardDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
