@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -459,6 +460,15 @@ export default function MSPMessages() {
               Velg hvor svar og varsler fra kunder skal mottas. Alle utgående kampanjer og tilbud sendes fortsatt fra Mynder, men kundens svar videresendes til adressen du oppgir her.
             </DialogDescription>
           </DialogHeader>
+
+          <Link
+            to="/msp-settings"
+            onClick={() => setSettingsOpen(false)}
+            className="inline-flex items-center gap-1 text-[12px] text-primary hover:underline -mt-1"
+          >
+            Administrer i Innstillinger →
+          </Link>
+
 
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">

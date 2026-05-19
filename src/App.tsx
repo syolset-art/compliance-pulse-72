@@ -48,6 +48,7 @@ import MSPPartnerDashboard from "./pages/MSPPartnerDashboard";
 import MSPCustomerDetail from "./pages/MSPCustomerDetail";
 import MSPCustomerPortal from "./pages/MSPCustomerPortal";
 import MSPBillingSettings from "./pages/MSPBillingSettings";
+import MSPPartnerSettings from "./pages/MSPPartnerSettings";
 import MSPLicenses from "./pages/MSPLicenses";
 import MSPInvoices from "./pages/MSPInvoices";
 import MSPMessages from "./pages/MSPMessages";
@@ -160,6 +161,7 @@ const App = () => (
                   <Route path="/bli-partner" element={<BliPartner />} />
                   <Route path="/msp-customer-roi" element={<MSPCustomerROI />} />
                   <Route path="/msp-billing" element={<MSPBillingSettings />} />
+                  <Route path="/msp-settings" element={<MSPPartnerSettings />} />
                   <Route path="/mynder-me" element={<MynderMe />} />
                   <Route path="/developer/trust-profile-architecture" element={<TrustProfileArchitecture />} />
                   <Route path="/dashboard-v2" element={<DashboardV2 />} />

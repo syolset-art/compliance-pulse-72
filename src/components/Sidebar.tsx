@@ -26,7 +26,7 @@ import {
   Bell,
   Pencil,
   Briefcase,
-  
+  Settings as SettingsIcon,
   Sparkles
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
@@ -817,6 +817,7 @@ const SidebarContent = () => {
                       { name: "Tjenester", href: "/msp-services", icon: Package },
                       { name: "Faktura", href: "/msp-invoices", icon: FileText },
                       { name: "Meldinger", href: "/msp-messages", icon: Inbox },
+                      { name: "Innstillinger", href: "/msp-settings", icon: SettingsIcon },
                     ].map((item) => {
                       const isActive = location.pathname === item.href;
                       return (
