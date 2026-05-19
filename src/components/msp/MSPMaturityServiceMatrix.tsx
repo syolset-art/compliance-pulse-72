@@ -516,8 +516,8 @@ export function MSPMaturityServiceMatrix({
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
-  const [expandedOngoing, setExpandedOngoing] = useState<string | null>("aware");
-  const [controlFilter, setControlFilter] = useState<"all" | "missing" | "partial" | "fulfilled">("all");
+  const [savedOffers, setSavedOffers] = useState<SavedOffer[]>(SAVED_OFFERS_SEED);
+
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
 
