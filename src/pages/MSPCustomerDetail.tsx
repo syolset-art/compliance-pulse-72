@@ -50,6 +50,10 @@ export default function MSPCustomerDetail() {
     enabled: !!customerId,
   });
 
+  const { deliveries: questionnaireDeliveries } = useQuestionnaireDeliveries();
+
+
+
 
   if (isLoading) {
     return (
