@@ -51,7 +51,8 @@ export function MSPCreateOfferDialog({
   const [message, setMessage] = useState(defaultMessage || "");
   const [attachGap, setAttachGap] = useState(attachGapProp);
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
-  const [view, setView] = useState<"edit" | "preview">("edit");
+  const [view, setView] = useState<"edit" | "preview" | "saved">("edit");
+  const [savedAt, setSavedAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -59,6 +60,7 @@ export function MSPCreateOfferDialog({
     setMessage(defaultMessage || "");
     setAttachGap(attachGapProp);
     setView("edit");
+    setSavedAt(null);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
