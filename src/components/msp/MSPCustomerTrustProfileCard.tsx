@@ -153,23 +153,6 @@ export function MSPCustomerTrustProfileCard({
         )}
       </Card>
 
-      {/* Visibility + views */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Card className="p-4 bg-muted/30 border-border/60">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Synlighet</p>
-          <div className="flex items-center gap-1.5 mt-1.5">
-            <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-sm text-foreground">Privat — kun via invitasjon</span>
-          </div>
-        </Card>
-        <Card className="p-4 bg-muted/30 border-border/60">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Profilvisninger siste 30d</p>
-          <div className="flex items-baseline gap-1.5 mt-1.5">
-            <span className="text-xl font-bold text-foreground">4</span>
-            <span className="text-sm text-muted-foreground">tredjeparter</span>
-          </div>
-        </Card>
-      </div>
 
       {/* Kontrollpunkter — 4 kjernedomener */}
       <Card className="p-4 space-y-3">
