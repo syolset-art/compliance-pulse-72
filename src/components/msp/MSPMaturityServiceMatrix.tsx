@@ -859,6 +859,16 @@ export function MSPMaturityServiceMatrix({
         hourlyRate={offerCtx.hourlyRate}
       />
 
+      <ShareOfferDialog
+        open={shareCtx.open}
+        onOpenChange={(o) => setShareCtx(s => ({ ...s, open: o }))}
+        offerNumber={shareCtx.offerNumber ?? ""}
+        serviceTitle={shareCtx.serviceTitle}
+        customerName={customerName}
+        customerEmail={customerEmail}
+      />
+
+
       <MSPGapAnalysisDialog
         open={gapOpen}
         onOpenChange={setGapOpen}
