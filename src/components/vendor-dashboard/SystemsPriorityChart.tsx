@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Sparkles, AlertTriangle, ArrowRight } from "lucide-react";
+import { Building2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Priority = "A" | "B" | "C" | "D";
