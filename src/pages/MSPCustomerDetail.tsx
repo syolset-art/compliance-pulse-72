@@ -206,7 +206,24 @@ export default function MSPCustomerDetail() {
                 </Card>
               )}
 
-              {/* Modenhet per kontrollområde — samme mal som leverandørprofil */}
+              {/* 1) Partner-snapshot — kun synlig for partner */}
+              {(() => {
+                const base = customer.initial_assessment_score || 0;
+                const overall = Math.min(100, Math.round(base));
+                return (
+                  <MSPCustomerSnapshotCard
+                    customerName={customer.name || "kunden"}
+                    overallMaturity={overall}
+                    deltaPct={overall >= 60 ? 4 : -3}
+                    criticalGaps={tasks.filter(t => t.severity === "critical").length}
+                    hiddenIssues={3}
+                    nextDeadlineDays={14}
+                    nextDeadlineLabel="NIS2 Art.23"
+                  />
+                );
+              })()}
+
+              {/* 2) Modenhet per kontrollområde */}
               {(() => {
                 const base = customer.initial_assessment_score || 0;
                 return (
@@ -219,37 +236,23 @@ export default function MSPCustomerDetail() {
                 );
               })()}
 
-              {/* Modenhetsutvikling drevet av aktiviteter */}
-              <Card className="p-5 border-primary/20 space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-foreground">Modenhetsutvikling drevet av aktiviteter</h3>
-                    <p className="text-[13px] text-muted-foreground mt-0.5">
-                      Hver markør på linjen er en aktivitet fra loggen under. Tiltak hever modenhet, hendelser senker den.
-                    </p>
-                  </div>
-                </div>
-                <MaturityHistoryChart assetId={customerId!} baselinePercent={40} enrichmentPercent={20} />
-              </Card>
-
+              {/* 3) Modenhet per regelverk */}
               {frameworks.length > 0 && (
                 <FrameworkMaturityGrid frameworks={frameworks} />
               )}
 
-              <VendorPrivacyAssessment vendorName={customer.name || "kunden"} />
-
-              {/* Aktivitetslogg — partner ser sine egne handlinger og anonymiserte kundehandlinger */}
-              <VendorActivityTab
-                assetId={customerId!}
-                assetName={customer.name || ""}
-                mspPartnerView
+              {/* 4) Inntekts- og tjenestepotensial */}
+              <MSPCustomerOpportunityCard
+                customerName={customer.name || "kunden"}
+                customerCoveragePct={Math.min(100, Math.round(customer.initial_assessment_score || 40))}
+                onCreateOffer={() => toast.info("Åpner tilbudsverktøy …")}
               />
 
-              {/* Domain compliance fortsatt tilgjengelig — kompakt under */}
-              <DomainComplianceWidget hideHeader />
+              {/* 5) Sikkerhets- og personverninnsikt */}
+              <VendorPrivacyAssessment vendorName={customer.name || "kunden"} />
+
+              {/* 6) Signaler fra Mynder — erstatter aktivitetslogg */}
+              <MSPMynderSignalsFeed customerName={customer.name || "kunden"} />
             </TabsContent>
 
             {/* ── Vurdering ── */}
