@@ -236,173 +236,106 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         <SystemsPriorityChart />
       </div>
 
-      {/* Actionable Attention Section */}
-      <VendorActionCards
-        vendors={vendors}
-        expiredDocVendorIds={Object.keys(expiredCounts).filter(id => vendors.some(v => v.id === id))}
-        pendingInboxVendorIds={Object.keys(inboxCounts).filter(id => vendors.some(v => v.id === id))}
-        sentCategories={sentCategories}
-        onSendRequest={(vendorIds, requestType, categoryKey) => {
-          setPreselectedVendorIds(vendorIds);
-          setPreselectedRequestType(requestType);
-          setPreselectedCategoryKey(categoryKey);
-          setRequestWizardOpen(true);
-        }}
-      />
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Risk Distribution Pie */}
-        <Card variant="flat" className="p-4">
-          <h2 className="text-sm font-semibold text-foreground mb-3">Risikofordeling</h2>
-          <div
-            className="h-[160px]"
-            role="img"
-            aria-label={`Risikofordeling: ${riskDistribution
-              .map(d => `${({ low: "Lav", medium: "Middels", high: "Høy", unknown: "Ukjent" } as Record<string, string>)[d.name]} ${d.value}`)
-              .join(", ")}`}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={riskDistribution}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={40}
-                  outerRadius={65}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {riskDistribution.map((entry, i) => (
-                    <Cell key={i} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value: number, name: string) => {
-                    const labels: Record<string, string> = { low: "Lav", medium: "Middels", high: "Høy", unknown: "Ukjent" };
-                    return [value, labels[name] || name];
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex justify-center gap-4 mt-2">
-            {riskDistribution.map(d => (
-              <div key={d.name} className="flex items-center gap-1.5 text-xs">
-                <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: d.fill }} />
-                <span className="text-muted-foreground">
-                  {{ low: "Lav", medium: "Middels", high: "Høy", unknown: "Ukjent" }[d.name]} ({d.value})
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Category Bar Chart */}
-        <Card variant="flat" className="p-4">
-          <h2 className="text-sm font-semibold text-foreground mb-3">Leverandørtyper</h2>
-          <div
-            className="h-[190px]"
-            role="img"
-            aria-label={`Leverandørtyper: ${categoryData.map(c => `${c.name} ${c.count}`).join(", ")}`}
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={categoryData} layout="vertical" margin={{ left: 0, right: 12 }}>
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" width={90} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                <Tooltip formatter={(v: number) => [v, "Antall"]} />
-                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={18} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        {/* GDPR + Geography */}
-        <Card variant="flat" className="p-4">
-          <h2 className="text-sm font-semibold text-foreground mb-3">GDPR-roller</h2>
-          <div className="space-y-3 mb-5">
-            {gdprBreakdown.map(g => (
-              <div key={g.key}>
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-muted-foreground">{g.label}</span>
-                  <span className="font-medium text-foreground">{g.count} ({g.percent}%)</span>
-                </div>
-                <Progress value={g.percent} className="h-1.5" />
-              </div>
-            ))}
-          </div>
-
-          <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-1.5">
-            <Globe className="h-3.5 w-3.5" aria-hidden="true" /> Geografi
-          </h3>
-          <div className="space-y-1.5">
-            {countryBreakdown.map(c => (
-              <div key={c.country} className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-1.5 text-muted-foreground">
-                  <MapPin className="h-3 w-3" /> {c.country}
-                </span>
-                <Badge variant="outline" className="text-[13px]">{c.count}</Badge>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      {/* Bottom row: Top risk vendors + compliance distribution */}
+      {/* Visuell oppsummering: Risikofordeling (donut) + Geografi */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Lowest Compliance */}
-        <Card variant="flat" className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-foreground">Lavest compliance-score</h2>
-            <Badge variant="outline" className="text-[13px]">Topp 5</Badge>
+        {/* Risk donut med stort sentertall */}
+        <Card variant="flat" className="p-5">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-sm font-semibold text-foreground">Risikofordeling</h2>
+            <Badge variant="outline" className="text-[11px] font-normal">
+              {vendors.length} leverandører
+            </Badge>
           </div>
-          <div className="space-y-2">
-            {topRiskVendors.map(v => {
-              const score = v.compliance_score || 0;
-              const scoreColor = score >= 80 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
-              return (
-                <button
-                  key={v.id}
-                  type="button"
-                  onClick={() => navigate(`/assets/${v.id}`)}
-                  aria-label={`Åpne leverandør ${v.name}, score ${score} prosent`}
-                  className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
-                >
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
-                    <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
-                      {v.vendor_category && <span>{CATEGORY_LABELS[v.vendor_category] || v.vendor_category}</span>}
-                      {v.risk_level && (
-                        <Badge
-                          variant="outline"
-                          className={`text-[13px] h-5 ${
-                            v.risk_level === "high" ? "bg-destructive/10 text-destructive border-destructive/30" :
-                            v.risk_level === "medium" ? "bg-warning/10 text-warning border-warning/30" :
-                            "bg-success/10 text-success border-success/30"
-                          }`}
-                        >
-                          {{ high: "Høy", medium: "Middels", low: "Lav" }[v.risk_level] || v.risk_level}
-                        </Badge>
-                      )}
+          <div className="flex items-center gap-6">
+            <div className="relative h-[180px] w-[180px] shrink-0" role="img"
+              aria-label={`Risikofordeling: ${riskDistribution
+                .map(d => `${({ low: "Lav", medium: "Middels", high: "Høy", unknown: "Ukjent" } as Record<string, string>)[d.name]} ${d.value}`)
+                .join(", ")}`}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={riskDistribution}
+                    cx="50%" cy="50%"
+                    innerRadius={62} outerRadius={84}
+                    dataKey="value" stroke="none" paddingAngle={2}
+                  >
+                    {riskDistribution.map((entry, i) => (
+                      <Cell key={i} fill={entry.fill} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-semibold text-foreground tabular-nums">
+                  {metrics.highRisk}
+                </span>
+                <span className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                  høy risiko
+                </span>
+              </div>
+            </div>
+            <div className="flex-1 space-y-2.5 min-w-0">
+              {riskDistribution.map(d => {
+                const pct = vendors.length > 0 ? Math.round((d.value / vendors.length) * 100) : 0;
+                const label = ({ low: "Lav", medium: "Middels", high: "Høy", unknown: "Ukjent" } as Record<string, string>)[d.name];
+                return (
+                  <div key={d.name}>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="h-2 w-2 rounded-full" style={{ backgroundColor: d.fill }} />
+                        {label}
+                      </span>
+                      <span className="font-medium text-foreground tabular-nums">
+                        {d.value} <span className="text-muted-foreground font-normal">· {pct}%</span>
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                      <div className="h-full rounded-full transition-all"
+                        style={{ width: `${pct}%`, backgroundColor: d.fill }} />
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm font-bold ${scoreColor}`}>{score}%</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                );
+              })}
+            </div>
+          </div>
+        </Card>
+
+        {/* Geografi — visuell liste med store land-koder */}
+        <Card variant="flat" className="p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+              <Globe className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+              Geografi
+            </h2>
+            <Badge variant="outline" className="text-[11px] font-normal">
+              {countryBreakdown.length} land
+            </Badge>
+          </div>
+          <div className="space-y-2.5">
+            {countryBreakdown.map(c => {
+              const pct = vendors.length > 0 ? Math.round((c.count / vendors.length) * 100) : 0;
+              return (
+                <div key={c.country} className="flex items-center gap-3">
+                  <span className="inline-flex items-center justify-center h-9 w-9 rounded-md bg-primary/5 border border-primary/10 text-[11px] font-mono font-semibold text-primary uppercase shrink-0">
+                    {c.country.slice(0, 2)}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-foreground font-medium truncate">{c.country}</span>
+                      <span className="text-muted-foreground tabular-nums">
+                        {c.count} <span className="opacity-60">· {pct}%</span>
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted/40 overflow-hidden">
+                      <div className="h-full rounded-full bg-primary/70 transition-all"
+                        style={{ width: `${pct}%` }} />
+                    </div>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
-        </Card>
-
-        {/* Compliance Score Distribution */}
-        <Card variant="flat" className="p-4">
-          <h2 className="text-sm font-semibold text-foreground mb-3">Compliance-fordeling</h2>
-          <ComplianceDistribution vendors={vendors} />
         </Card>
       </div>
 
