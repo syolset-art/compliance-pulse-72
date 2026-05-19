@@ -163,7 +163,7 @@ export default function MSPCustomerDetail() {
           <CustomerStatusBanner customer={customer} />
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full min-w-0">
             <nav aria-label="Kunde-faner" className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
               <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
                 <TabsTrigger value="guidance" className="relative text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
