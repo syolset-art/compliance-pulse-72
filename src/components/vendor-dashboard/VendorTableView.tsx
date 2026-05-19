@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Filter, X, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCriticality, CRITICALITY_META, type CriticalityKey } from "@/lib/criticality";
+import { deriveVendorStatus } from "@/lib/vendorStatus";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PLATFORM_USERS } from "@/lib/platformUsers";
 import type { ScoreDisplayMode } from "./VendorListTab";
 
