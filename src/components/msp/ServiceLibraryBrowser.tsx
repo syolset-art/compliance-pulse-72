@@ -292,7 +292,12 @@ function TemplateCard({
           <span className="text-muted-foreground inline-flex items-center gap-1">
             <Clock className="h-3 w-3" /> {formatHoursRange(template.estimatedHours)}
           </span>
-          <span className="font-semibold text-foreground tabular-nums">{formatPriceRange(template.recommendedPrice)}</span>
+          <span
+            className="font-semibold text-foreground tabular-nums"
+            title={`Beregnet fra ${formatHoursRange(template.estimatedHours)} × ${hourlyRate.toLocaleString("nb-NO")} kr/t`}
+          >
+            {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
+          </span>
         </div>
         <Button
           size="sm"
