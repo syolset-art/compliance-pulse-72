@@ -213,7 +213,7 @@ export function CustomServiceDialog({
                 <ListChecks className="h-3.5 w-3.5" />
                 Aktiviteter
               </span>
-              <span className="text-[10px] text-muted-foreground tabular-nums">
+              <span className="text-xs text-muted-foreground tabular-nums">
                 Sum: {totalHours} t
               </span>
             </div>
@@ -224,7 +224,7 @@ export function CustomServiceDialog({
                     value={a.label}
                     onChange={(e) => updateActivity(i, { label: e.target.value })}
                     placeholder={`Aktivitet ${i + 1} — f.eks. "Gjennomgang med kunden"`}
-                    className="h-8 text-[12px] flex-1"
+                    className="h-8 text-xs flex-1"
                   />
                   <Input
                     type="number"
@@ -234,9 +234,9 @@ export function CustomServiceDialog({
                     onChange={(e) =>
                       updateActivity(i, { hours: Math.max(0, Number(e.target.value) || 0) })
                     }
-                    className="h-8 w-20 text-[12px] tabular-nums"
+                    className="h-8 w-20 text-xs tabular-nums"
                   />
-                  <span className="text-[11px] text-muted-foreground w-3">t</span>
+                  <span className="text-xs text-muted-foreground w-3">t</span>
                   <Button
                     type="button"
                     variant="ghost"
@@ -256,7 +256,7 @@ export function CustomServiceDialog({
               variant="outline"
               size="sm"
               onClick={addActivity}
-              className="h-8 text-[12px] gap-1.5"
+              className="h-8 text-xs gap-1.5"
             >
               <Plus className="h-3.5 w-3.5" /> Legg til aktivitet
             </Button>
@@ -270,7 +270,7 @@ export function CustomServiceDialog({
                 Lara foreslår kontrollpunkter
               </span>
               {selectedCount > 0 && (
-                <span className="text-[10px] text-muted-foreground tabular-nums">
+                <span className="text-xs text-muted-foreground tabular-nums">
                   {selectedCount} valgt
                 </span>
               )}
@@ -311,10 +311,10 @@ export function CustomServiceDialog({
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                        <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
                           {m.frameworkShortName}
                         </span>
-                        <span className="text-[12px] text-foreground">
+                        <span className="text-xs text-foreground">
                           <span className="text-muted-foreground mr-1">{m.controlId}</span>
                           {m.controlLabel}
                         </span>
@@ -338,7 +338,7 @@ export function CustomServiceDialog({
               })}
 
             {suggestions.length === 0 ? (
-              <p className="text-[11px] text-muted-foreground italic">
+              <p className="text-xs text-muted-foreground italic">
                 Skriv inn et navn — så finner Lara aktuelle regelverk og kontrollpunkter.
               </p>
             ) : (
@@ -362,16 +362,16 @@ export function CustomServiceDialog({
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                            <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
                               {s.frameworkShortName}
                             </span>
-                            <span className="text-[12px] text-foreground">
+                            <span className="text-xs text-foreground">
                               <span className="text-muted-foreground mr-1">{s.controlId}</span>
                               {s.controlLabel}
                             </span>
                           </div>
                           {s.matchedTerms.length > 0 && (
-                            <div className="text-[10px] text-muted-foreground mt-0.5">
+                            <div className="text-xs text-muted-foreground mt-0.5">
                               Treff: {s.matchedTerms.join(", ")}
                             </div>
                           )}

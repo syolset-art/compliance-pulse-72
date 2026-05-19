@@ -229,7 +229,7 @@ export function MSPServiceCatalogTab() {
               />
               <span className="text-sm text-muted-foreground whitespace-nowrap">kr / time</span>
             </div>
-            <p className="text-[11px] text-muted-foreground">Brukes som grunnlag i alle estimat under.</p>
+            <p className="text-xs text-muted-foreground">Brukes som grunnlag i alle estimat under.</p>
           </div>
 
           <div className="space-y-1">
@@ -237,7 +237,7 @@ export function MSPServiceCatalogTab() {
               <Sparkles className="h-4 w-4 text-primary" />
               Adopter ferdige tjenester fra Mynders bibliotek
             </p>
-            <p className="text-[12px] text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               19 kuraterte tjenester på tvers av <span className="font-medium text-foreground">universell basis</span>,
               <span className="font-medium text-foreground"> MSP</span> og <span className="font-medium text-foreground">MSSP</span> — pluss
               land-spesifikke for NO/SE/NL/AU. Lara sorterer etter partnertype og kundeportefølje. Du kan også legge til
@@ -250,7 +250,7 @@ export function MSPServiceCatalogTab() {
               <TrendingUp className="h-3 w-3" /> Samlet potensial
             </div>
             <div className="text-2xl font-bold text-foreground tabular-nums">{formatNOK(grandPrice)}</div>
-            <div className="text-[11px] text-muted-foreground tabular-nums">
+            <div className="text-xs text-muted-foreground tabular-nums">
               {grandHours} timer · {extras.length} adoptert{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
             </div>
           </div>
@@ -264,7 +264,7 @@ export function MSPServiceCatalogTab() {
             type="button"
             onClick={() => setViewMode("partner")}
             className={
-              "inline-flex items-center gap-1.5 px-3 h-8 text-[12px] font-medium rounded transition-colors " +
+              "inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded transition-colors " +
               (viewMode === "partner"
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground")
@@ -276,7 +276,7 @@ export function MSPServiceCatalogTab() {
             type="button"
             onClick={() => setViewMode("customer")}
             className={
-              "inline-flex items-center gap-1.5 px-3 h-8 text-[12px] font-medium rounded transition-colors " +
+              "inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded transition-colors " +
               (viewMode === "customer"
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground")
@@ -313,7 +313,7 @@ export function MSPServiceCatalogTab() {
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
-            <span className="text-[11px] text-muted-foreground">Rediger aktiviteter, timer og koblinger per tjeneste</span>
+            <span className="text-xs text-muted-foreground">Rediger aktiviteter, timer og koblinger per tjeneste</span>
           </div>
           <div className="space-y-2">
             {extras.map((e) => {
@@ -323,44 +323,44 @@ export function MSPServiceCatalogTab() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       {e.templateCode && (
-                        <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                        <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
                           {e.templateCode}
                         </span>
                       )}
                       <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
-                      <Badge variant="secondary" className="text-[10px] gap-1 h-5">
+                      <Badge variant="secondary" className="text-xs gap-1 h-5">
                         {e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Bibliotek</>) : "Manuell"}
                       </Badge>
                       {e.templateVersion && (
-                        <span className="text-[10px] text-muted-foreground">v{e.templateVersion}</span>
+                        <span className="text-xs text-muted-foreground">v{e.templateVersion}</span>
                       )}
                       {e.activities.length > 0 && (
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           · {e.activities.length} aktivitet{e.activities.length === 1 ? "" : "er"}
                         </span>
                       )}
                     </div>
                     {e.description && (
-                      <p className="text-[11px] text-muted-foreground truncate">{e.description}</p>
+                      <p className="text-xs text-muted-foreground truncate">{e.description}</p>
                     )}
                     {e.mappings.length > 0 && (
                       <div className="flex flex-wrap items-center gap-1 mt-1">
                         {e.mappings.slice(0, 6).map((m, i) => (
                           <span
                             key={i}
-                            className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                            className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
                             title={`${m.frameworkShortName} · ${m.controlId} ${m.controlLabel}`}
                           >
-                            <span className="font-semibold text-foreground/70">{m.frameworkShortName}</span>
+                            <span className="font-semibold text-foreground">{m.frameworkShortName}</span>
                             <span>{m.controlId}</span>
                           </span>
                         ))}
                         {e.mappings.length > 6 && (
-                          <span className="text-[10px] text-muted-foreground">+{e.mappings.length - 6}</span>
+                          <span className="text-xs text-muted-foreground">+{e.mappings.length - 6}</span>
                         )}
                       </div>
                     )}
-                    <p className="text-[11px] text-muted-foreground tabular-nums mt-1">
+                    <p className="text-xs text-muted-foreground tabular-nums mt-1">
                       {e.hours} timer × {hourlyRate.toLocaleString("nb-NO")} kr
                     </p>
                   </div>
@@ -406,7 +406,7 @@ export function MSPServiceCatalogTab() {
             <button
               type="button"
               onClick={() => setShowCalculator((v) => !v)}
-              className="inline-flex items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               <Settings2 className="h-3.5 w-3.5" />
               Avansert: bygg fra regelverk og kontrollpunkter
@@ -414,7 +414,7 @@ export function MSPServiceCatalogTab() {
             </button>
             {showCalculator && (
               <div className="space-y-2 mt-3">
-                <p className="text-[11px] text-muted-foreground italic">
+                <p className="text-xs text-muted-foreground italic">
                   Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
                 </p>
                 {FRAMEWORK_CATALOG.map((fw) => (

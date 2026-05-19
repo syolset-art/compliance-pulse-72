@@ -42,11 +42,11 @@ export function CustomerCatalogPreview({ services }: Props) {
         </span>
         <div className="flex-1">
           <p className="text-sm font-semibold text-foreground">Slik ser kunden tjenestene dine</p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Pris, timer og interne marginer er skjult. Aktiviteter vises som leveranseinnhold.
           </p>
         </div>
-        <Badge variant="outline" className="text-[10px]">Forhåndsvisning</Badge>
+        <Badge variant="outline" className="text-xs">Forhåndsvisning</Badge>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -64,12 +64,12 @@ export function CustomerCatalogPreview({ services }: Props) {
                 <div className="min-w-0">
                   <h4 className="text-sm font-semibold text-foreground leading-tight">{s.name}</h4>
                   {s.description && (
-                    <p className="text-[11px] text-muted-foreground mt-1 leading-snug line-clamp-2">
+                    <p className="text-xs text-muted-foreground mt-1 leading-snug line-clamp-2">
                       {s.description}
                     </p>
                   )}
                 </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-success/10 text-success px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap">
+                <span className="inline-flex items-center gap-1 rounded-full bg-success/10 text-success px-1.5 py-0.5 text-xs font-medium whitespace-nowrap">
                   <CheckCircle2 className="h-2.5 w-2.5" /> Aktiv
                 </span>
               </div>
@@ -77,18 +77,18 @@ export function CustomerCatalogPreview({ services }: Props) {
               {/* Aktiviteter (uten timer) */}
               {s.activities.length > 0 && (
                 <div className="space-y-0.5">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     Hva inngår
                   </p>
                   <ul className="space-y-0.5">
                     {s.activities.slice(0, 5).map((a, i) => (
-                      <li key={i} className="text-[11px] text-foreground/80 flex items-start gap-1.5">
+                      <li key={i} className="text-xs text-foreground flex items-start gap-1.5">
                         <span className="text-success mt-0.5">·</span>
                         <span>{a.label}</span>
                       </li>
                     ))}
                     {s.activities.length > 5 && (
-                      <li className="text-[10px] text-muted-foreground pl-3">
+                      <li className="text-xs text-muted-foreground pl-3">
                         +{s.activities.length - 5} til
                       </li>
                     )}
@@ -99,14 +99,14 @@ export function CustomerCatalogPreview({ services }: Props) {
               {/* Regelverk-dekning */}
               {s.mappings.length > 0 && (
                 <div className="mt-auto pt-2 border-t border-border">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                     Dekker krav i
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {dedupeFrameworks(s.mappings).slice(0, 4).map((fw, i) => (
                       <span
                         key={i}
-                        className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-foreground/70"
+                        className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-foreground"
                       >
                         {fw}
                       </span>
@@ -119,7 +119,7 @@ export function CustomerCatalogPreview({ services }: Props) {
               {issues.length > 0 && (
                 <div className="rounded-md bg-warning/10 border border-warning/30 px-2 py-1.5 flex items-start gap-1.5">
                   <Sparkles className="h-3 w-3 text-warning mt-0.5 shrink-0" />
-                  <div className="text-[10px] text-foreground/80">
+                  <div className="text-xs text-foreground">
                     <span className="font-semibold text-warning inline-flex items-center gap-1">
                       <AlertCircle className="h-2.5 w-2.5" /> Lara
                     </span>

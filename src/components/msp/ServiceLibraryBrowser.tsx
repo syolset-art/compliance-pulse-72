@@ -135,7 +135,7 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
               <Sparkles className="h-3 w-3 text-primary" />
             </span>
             <h3 className="text-sm font-semibold text-foreground">Lara anbefaler for deg</h3>
-            <span className="text-[11px] text-muted-foreground">basert på partnertype og kundeportefølje</span>
+            <span className="text-xs text-muted-foreground">basert på partnertype og kundeportefølje</span>
           </div>
           <div className="grid gap-3 md:grid-cols-3">
             {topPicks.map(({ template, reasons }) => (
@@ -161,7 +161,7 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
           <section key={tier} className="space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground">{tierLabel(tier)}</h3>
-              <span className="text-[11px] text-muted-foreground tabular-nums">{items.length} tjenester</span>
+              <span className="text-xs text-muted-foreground tabular-nums">{items.length} tjenester</span>
             </div>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {items.map(({ template }) => (
@@ -198,12 +198,12 @@ function FilterSelect({
   options: { value: string; label: string }[];
 }) {
   return (
-    <label className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+    <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
       <span>{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-8 rounded-md border border-border bg-background px-2 text-[12px] text-foreground"
+        className="h-8 rounded-md border border-border bg-background px-2 text-xs text-foreground"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>{o.label}</option>
@@ -232,14 +232,14 @@ function TemplateCard({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+            <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
               {template.code}
             </span>
-            <Badge variant="outline" className="text-[10px] h-5">
+            <Badge variant="outline" className="text-xs h-5">
               {deliveryLabel(template.delivery)}
             </Badge>
             {template.partnerType !== "all" && (
-              <Badge variant="secondary" className="text-[10px] h-5">
+              <Badge variant="secondary" className="text-xs h-5">
                 {template.partnerType.toUpperCase()}
               </Badge>
             )}
@@ -248,17 +248,17 @@ function TemplateCard({
         </div>
       </div>
 
-      <p className="text-[12px] text-muted-foreground leading-snug line-clamp-3">{template.shortDescription}</p>
+      <p className="text-xs text-muted-foreground leading-snug line-clamp-3">{template.shortDescription}</p>
 
       {/* Scope og bransje */}
       <div className="flex flex-wrap items-center gap-1">
         {template.scopes.map((s) => (
-          <span key={s} className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+          <span key={s} className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-xs text-muted-foreground">
             <Globe className="h-2.5 w-2.5" /> {scopeLabel(s)}
           </span>
         ))}
         {(template.industries ?? []).map((i) => (
-          <span key={i} className="inline-flex items-center rounded-full bg-accent/40 px-1.5 py-0.5 text-[10px] text-foreground/70">
+          <span key={i} className="inline-flex items-center rounded-full bg-accent/40 px-1.5 py-0.5 text-xs text-foreground">
             {industryLabel(i)}
           </span>
         ))}
@@ -267,8 +267,8 @@ function TemplateCard({
       {/* KP-mapping */}
       <div className="flex flex-wrap gap-1">
         {template.mappings.map((m, i) => (
-          <span key={i} className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-            <span className="font-semibold text-foreground/70">{m.frameworkLabel}</span>
+          <span key={i} className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">{m.frameworkLabel}</span>
             <span className="text-[9px]">{m.controlIds.slice(0, 2).join(", ")}{m.controlIds.length > 2 ? "…" : ""}</span>
           </span>
         ))}
@@ -277,10 +277,10 @@ function TemplateCard({
       {/* Lara-grunner */}
       {reasons && reasons.length > 0 && (
         <div className="rounded-md bg-primary/5 border border-primary/15 px-2 py-1.5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
             <Sparkles className="h-2.5 w-2.5" /> Hvorfor relevant
           </p>
-          <ul className="text-[11px] text-foreground/80 mt-0.5 space-y-0.5">
+          <ul className="text-xs text-foreground mt-0.5 space-y-0.5">
             {reasons.slice(0, 2).map((r, i) => <li key={i}>· {r}</li>)}
           </ul>
         </div>
@@ -288,7 +288,7 @@ function TemplateCard({
 
       {/* Footer: pris, timer, adopter */}
       <div className="mt-auto pt-2 border-t border-border space-y-1.5">
-        <div className="flex items-center justify-between text-[11px]">
+        <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground inline-flex items-center gap-1">
             <Clock className="h-3 w-3" /> {formatHoursRange(template.estimatedHours)}
           </span>
@@ -302,7 +302,7 @@ function TemplateCard({
         <Button
           size="sm"
           variant={adopted ? "outline" : "default"}
-          className="w-full h-8 text-[12px] gap-1"
+          className="w-full h-8 text-xs gap-1"
           onClick={onAdopt}
           disabled={adopted}
         >
