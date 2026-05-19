@@ -204,7 +204,7 @@ export default function MSPDashboard() {
         if (!serviceFilter.some((s) => svcs.includes(s))) return false;
       }
       if (!q) return true;
-      return [c.customer_name, c.industry, c.org_number, c.contact_email]
+      return [c.customer_name, c.industry, c.org_number, c.contact_email, c.country_code]
         .filter(Boolean)
         .some((v: string) => v.toLowerCase().includes(q));
     });
