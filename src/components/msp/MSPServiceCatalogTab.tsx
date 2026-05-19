@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2 } from "lucide-react";
+import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Eye, Briefcase } from "lucide-react";
 import { toast } from "sonner";
+import { CustomerCatalogPreview } from "./CustomerCatalogPreview";
 import {
   FRAMEWORK_CATALOG,
   type CoverageLevel,
@@ -42,6 +43,7 @@ export function MSPServiceCatalogTab() {
   const [extras, setExtras] = useState<ExtraService[]>([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"partner" | "customer">("partner");
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -255,16 +257,59 @@ export function MSPServiceCatalogTab() {
         </div>
       </Card>
 
-      {/* Handlingsknapper */}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={() => setManualOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Legg til egen tjeneste
-        </Button>
+      {/* Handlingsrad: visningsbytter + legg til */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="inline-flex items-center rounded-md border border-border bg-card p-0.5">
+          <button
+            type="button"
+            onClick={() => setViewMode("partner")}
+            className={
+              "inline-flex items-center gap-1.5 px-3 h-8 text-[12px] font-medium rounded transition-colors " +
+              (viewMode === "partner"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            <Briefcase className="h-3.5 w-3.5" /> Partnervisning
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("customer")}
+            className={
+              "inline-flex items-center gap-1.5 px-3 h-8 text-[12px] font-medium rounded transition-colors " +
+              (viewMode === "customer"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            <Eye className="h-3.5 w-3.5" /> Kundevisning
+          </button>
+        </div>
+        {viewMode === "partner" && (
+          <Button variant="outline" onClick={() => setManualOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Legg til egen tjeneste
+          </Button>
+        )}
       </div>
 
-      {/* Adopterte / egne tjenester */}
-      {extras.length > 0 && (
+      {/* Kundevisning */}
+      {viewMode === "customer" && (
+        <CustomerCatalogPreview
+          services={extras.map((e) => ({
+            id: e.id,
+            name: e.name,
+            description: e.description,
+            activities: e.activities,
+            mappings: e.mappings,
+            templateCode: e.templateCode,
+            source: e.source,
+          }))}
+        />
+      )}
+
+      {/* Partnervisning: adopterte / egne tjenester */}
+      {viewMode === "partner" && extras.length > 0 && (
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
@@ -347,44 +392,47 @@ export function MSPServiceCatalogTab() {
         </Card>
       )}
 
-      {/* Bibliotek */}
-      <ServiceLibraryBrowser
-        context={partnerContext}
-        adoptedIds={adoptedIds}
-        onAdopt={adoptTemplate}
-        hourlyRate={hourlyRate}
-      />
+      {/* Bibliotek + kalkulator vises kun i partnervisning */}
+      {viewMode === "partner" && (
+        <>
+          <ServiceLibraryBrowser
+            context={partnerContext}
+            adoptedIds={adoptedIds}
+            onAdopt={adoptTemplate}
+            hourlyRate={hourlyRate}
+          />
 
-      {/* Avansert: bygg fra regelverk */}
-      <div className="pt-2">
-        <button
-          type="button"
-          onClick={() => setShowCalculator((v) => !v)}
-          className="inline-flex items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <Settings2 className="h-3.5 w-3.5" />
-          Avansert: bygg fra regelverk og kontrollpunkter
-          {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        </button>
-        {showCalculator && (
-          <div className="space-y-2 mt-3">
-            <p className="text-[11px] text-muted-foreground italic">
-              Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
-            </p>
-            {FRAMEWORK_CATALOG.map((fw) => (
-              <FrameworkCoverageCard
-                key={fw.id}
-                framework={fw}
-                hourlyRate={hourlyRate}
-                selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
-                onSelectionChange={(next) =>
-                  setSelections((prev) => ({ ...prev, [fw.id]: next }))
-                }
-              />
-            ))}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setShowCalculator((v) => !v)}
+              className="inline-flex items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Settings2 className="h-3.5 w-3.5" />
+              Avansert: bygg fra regelverk og kontrollpunkter
+              {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            </button>
+            {showCalculator && (
+              <div className="space-y-2 mt-3">
+                <p className="text-[11px] text-muted-foreground italic">
+                  Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
+                </p>
+                {FRAMEWORK_CATALOG.map((fw) => (
+                  <FrameworkCoverageCard
+                    key={fw.id}
+                    framework={fw}
+                    hourlyRate={hourlyRate}
+                    selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
+                    onSelectionChange={(next) =>
+                      setSelections((prev) => ({ ...prev, [fw.id]: next }))
+                    }
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
 
       <CustomServiceDialog
         open={manualOpen}
