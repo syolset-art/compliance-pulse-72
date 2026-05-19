@@ -1,62 +1,99 @@
 ## Mål
-Partner skal kunne markere en aktivitet (eller et helt kontrollpunkt) som ferdig via en eksplisitt **"Bekreft ferdig"-knapp**, laste opp ett eller flere dokumenter som bevis, og få en bekreftelse om at dette beriker kundens Trust Profile.
+Gjøre fanen **«Pågående oppdrag»** mer dialog-/wizard-basert, der **Lara gjør jobben** og partner bare bekrefter eller laster opp ett bevis. Mindre lister, mer "neste handling".
 
-Dagens checkbox toggles `a.done` umiddelbart uten bevis — det erstattes med en bevisst bekreftelse + bevisopplasting.
+## Ny opplevelse
 
-## UX-flyt (i `MSPMaturityServiceMatrix.tsx`, fanen "Pågående oppdrag")
+Erstatt dagens lange liste av leveranser → kontrollpunkter → checkboxer med en **Lara-veileder per oppdrag** som driver én aktivitet av gangen.
 
-1. På hver aktivitetsrad i "Kontrollpunkter og aktiviteter":
-   - Checkbox erstattes/forsterkes med en liten **"Bekreft ferdig"-knapp** (ghost, ikon `CheckCircle2`) til høyre på raden når `!a.done`.
-   - Når `a.done`: vis grønn "Ferdig" pille + lenke "Se bevis" (åpner samme dialog i read-only) + "Angre" (åpner liten confirm).
-
-2. På kontrollpunkt-headeren (over progress-bar): tillegg **"Bekreft hele kontrollpunktet"** når alle aktiviteter er ferdige men status fortsatt `partial`/`missing` — én klikk setter status til `fulfilled` og åpner bevis-dialog for samlet leveransebevis.
-
-3. Klikk på "Bekreft ferdig" → ny **`ConfirmActivityDialog`**:
-   - Tittel: aktivitetens navn + kontrollpunkt-kontekst (id + navn + framework-badge).
-   - Felt:
-     - Notat/kommentar (valgfritt, textarea).
-     - Bevis-opplasting: dra-og-slipp + filvelger, multi-file, viser liste med navn/størrelse/X.
-     - Sjekkboks "Del med kunden som en del av Trust Profile" (default på).
-   - Footer: "Avbryt" + primær "Bekreft og berik Trust Profile".
-
-4. Etter bekreftelse:
-   - Aktivitet markeres `done`, bevis lagres i lokal state på leveransen (`a.evidence: EvidenceFile[]`, `a.confirmedAt`, `a.note`).
-   - Toast (sonner): "Aktivitet bekreftet — Trust Profile oppdatert" med sekundærtekst "N bevis lagt ved · Kunden varsles".
-   - Hvis alle aktiviteter i kontrollpunkt = done → status auto-flyttes til `fulfilled` og progress = 100.
-
-## Datamodell-endring (kun frontend-state i denne iterasjonen)
-
-I `MSPMaturityServiceMatrix.tsx`:
-
-```ts
-interface EvidenceFile { id: string; name: string; size: number; uploadedAt: string; }
-interface Activity {
-  id: string; label: string; done: boolean; owner?: string; date?: string;
-  // NYTT:
-  confirmedAt?: string;
-  confirmedBy?: string;     // "Partner" (hardkodet i demo)
-  note?: string;
-  evidence?: EvidenceFile[];
-  sharedWithCustomer?: boolean;
-}
+```
+┌─────────────────────────────────────────────────────────┐
+│ 🟣 Lara · Awareness-program 2025          [Levert 3/8]  │
+│                                                          │
+│ "Hei Truls! Neste steg er å bekrefte at e-læringen       │
+│  er rullet ut til ledergruppen. Jeg har allerede:        │
+│   ✓ Generert deltakerliste                               │
+│   ✓ Sendt invitasjon via Outlook                         │
+│   ✓ Utkast til gjennomføringsrapport ligger klar"        │
+│                                                          │
+│ Hva trenger du fra meg?                                  │
+│ ┌──────────────────┐  ┌──────────────────┐              │
+│ │ 📄 Se rapport-   │  │ ⬆ Last opp eget │              │
+│ │   utkast fra Lara│  │   bevis          │              │
+│ └──────────────────┘  └──────────────────┘              │
+│                                                          │
+│ [✓ Bekreft ferdig og berik Trust Profile]               │
+│ [Hopp over · Spør kunden i stedet]                       │
+└─────────────────────────────────────────────────────────┘
+              ●─○─○─○─○─○─○─○   (steg 3 av 8)
 ```
 
-`toggleActivity` brukes ikke lenger til å sette `done = true` — kun til "angre" (sette `done = false` og rydde bevis-felt). Ny handler `confirmActivity(deliveryId, controlId, activityId, payload)` skriver feltene.
+### Strukturen
 
-## Nye komponenter
+1. **Oppdragvelger på toppen** — kompakt segmented control eller dropdown: «Awareness 2025», «Pentest Q1», «NIS2 …». Viser totalprogresjon som tynn linje.
+2. **Lara-kort i midten (eneste fokus)** — viser:
+   - Aktivt steg (kontrollpunkt-id + aktivitetstittel + framework-pill).
+   - **Lara-tråd** med bullet-liste over hva hun allerede har gjort (autonomous-handlinger).
+   - **Anbefalt handling**: tekst som forklarer hva som trengs nå.
+3. **To primære actions per steg**:
+   - **«Se utkast fra Lara»** — åpner dialog med ferdig generert rapport/dokument som partner kan akseptere som bevis (genereres on-demand fra Lovable AI for demo).
+   - **«Last opp eget bevis»** — åpner ConfirmActivityDialog (gjenbruker eksisterende komponent) — kun fil + ev. notat.
+4. **Bekreft-knapp** — primær: «Bekreft ferdig og berik Trust Profile». Etter klikk: kort sukkess-animasjon → automatisk neste steg.
+5. **Stepper** under kortet — visuell progress-prikker (●○○○) for alle aktiviteter i oppdraget. Klikkbare for å hoppe.
+6. **Når alle steg er ferdige**: kortet bytter til en grønn «Oppdrag levert»-tilstand med oppsummering (X kontrollpunkter oppfylt · Y bevis lagt ved · TP-økning +12 pp) og «Send leveranserapport til kunde»-CTA.
 
-- `src/components/msp/ConfirmActivityDialog.tsx` — Dialog (shadcn) med tekstfelt, fil-upload (input `type=file` med multiple, ingen ekte upload — kun lokal state med blob-metadata), checkbox, og knapp. Returnerer `{ note, files, sharedWithCustomer }` via `onConfirm`.
+### Lara gjør jobben — for hvert aktivitetstrinn
 
-## Filer som endres
+Lara-tråden viser 1–4 punkter avhengig av aktivitetstype:
+- **Awareness**: «Generert deltakerliste», «Sendt påminnelser», «Samlet kvitteringer».
+- **Pentest**: «Hentet rapport fra leverandørportal», «Mappet funn mot kontroller».
+- **Policy**: «Skrevet utkast basert på ISO 27001 Annex A.5.10», «Tilpasset kundens domene og roller».
+- **Risikovurdering**: «Identifisert 12 trusler», «Foreslått tiltak».
 
-- `src/components/msp/MSPMaturityServiceMatrix.tsx`
-  - Utvid Activity-typen, legg til `confirmActivity` og `undoActivity` handlere.
-  - Bytt checkbox-only raden med knapp/badge-mønsteret over.
-  - Render bevis-liste under aktiviteten når `confirmed`.
-- `src/components/msp/ConfirmActivityDialog.tsx` (ny).
+Hver linje har et lite ikon (Bot/Sparkles). Punktene er hardkodet per aktivitet i `DELIVERIES` (ny `laraSteps?: string[]` per `DeliveryActivity`) — ingen ekte AI-kall i denne iterasjonen, men strukturen er klar.
 
-Ingen DB-endringer i denne iterasjonen — alt lever i lokal state slik resten av matrisen gjør. Når vi senere skal persistere, blir det en egen task (egen tabell `delivery_activity_evidence` + storage-bucket).
+### «Se utkast fra Lara»-dialog
 
-## Spørsmål før jeg bygger
-1. **Bevis-lagring nå:** OK å holde det i lokal state (demo) i denne runden, eller vil du at jeg samtidig setter opp `delivery_activity_evidence`-tabell + storage-bucket?
-2. **Kontrollpunkt-bevis:** Skal det også finnes en "Bekreft hele kontrollpunktet"-knapp (bulk-bekrefte alle aktiviteter med ett felles bevissett), eller kun per-aktivitet?
+Enkelt mock-preview:
+- Header: filtype-ikon + foreslått navn («Gjennomføringsrapport-awareness-Q1.pdf»).
+- Body: kort innholdsblokk (overskrift, 3–5 punkter Lara har fylt ut, signaturlinje).
+- Footer: «Avvis», «Rediger», **«Bruk som bevis»** (primær — markerer aktivitet ferdig + legger til som bevis-fil med kilde «Generert av Lara»).
+
+### «Last opp eget bevis»
+
+Gjenbruker `ConfirmActivityDialog` uforandret.
+
+## Tekniske endringer (kun frontend)
+
+**Filer:**
+- `src/components/msp/MSPMaturityServiceMatrix.tsx` — bytt ut hele `<TabsContent value="deliveries">`-blokken med ny `<DeliveryWizard />`.
+- `src/components/msp/DeliveryWizard.tsx` (ny) — Lara-kortet, stepper, oppdragvelger, sukkess-tilstand.
+- `src/components/msp/LaraDraftDialog.tsx` (ny) — utkast-preview.
+
+**Datamodell-utvidelse** (i `MSPMaturityServiceMatrix.tsx`):
+```ts
+interface DeliveryActivity {
+  // ... eksisterende felt
+  laraSteps?: string[];        // hva Lara har gjort autonomt
+  laraDraft?: {                // utkast Lara har klar
+    title: string;
+    fileName: string;
+    summary: string[];         // bullet-punkter for preview
+  };
+}
+```
+Seed `DELIVERIES` med disse feltene for demo-realisme.
+
+**Wizard-state** holdes lokalt i `DeliveryWizard`: `activeDeliveryId`, `activeActivityIndex`. Reduksjon-handlere (`confirmActivity`, `undoActivity`) flyttes ned som props eller via callback — eksisterende state og handler i `MSPMaturityServiceMatrix` beholdes som sannhetskilde.
+
+**Eksisterende fane-toggle**: «Pågående oppdrag»-fanen erstattes med wizard-visningen. Tittel og count-badge beholdes.
+
+## Visuell stil
+- Lara-kort: subtil primær-tint (`bg-primary/5` + `border-primary/20`), runde hjørner, romslig padding.
+- Lara-avatar/ikon øverst venstre (Sparkles i sirkel) med liten "tenker"-puls når aktiv.
+- Stepper: små prikker, primær for ferdig, ring for aktiv, muted for kommende.
+- Knapper: én klar primær per steg. Sekundære som ghost.
+- Suksess-tilstand: grønn ring + konfetti-pulse (CSS, ingen lib).
+
+## Spørsmål
+1. Skal **Lara-utkastet** (knappen «Se utkast fra Lara») være hardkodet mock-innhold per aktivitet i denne runden, eller vil du at jeg kobler det til Lovable AI for å generere innholdet on-demand? Mock går raskest; AI gir wow-effekt men koster credits per visning.
+2. Skal det fortsatt være mulig å se **gammel listevisning** (kontrollpunkter + alle aktiviteter samlet) som en sekundær «Detaljer»-fane, eller fjerner vi den helt til fordel for wizard-en?
