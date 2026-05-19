@@ -376,3 +376,90 @@ export function MSPCustomerMessagesTab() {
     </div>
   );
 }
+
+function DeliveryReportRow({
+  r,
+  onApprove,
+  onDecline,
+}: {
+  r: DeliveryReport;
+  onApprove?: () => void;
+  onDecline?: () => void;
+}) {
+  const approved = r.status === "approved";
+  const declined = r.status === "declined";
+  return (
+    <div className="rounded-lg border border-border bg-card p-3 space-y-2">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-2 min-w-0">
+          <FileText className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-[13px] font-semibold text-foreground truncate">
+              {r.deliveryTitle}
+            </p>
+            <p className="text-[11px] text-muted-foreground truncate">
+              {r.fileName}
+            </p>
+          </div>
+        </div>
+        <Badge
+          variant="outline"
+          className={
+            approved
+              ? "text-[10px] bg-success/10 text-success border-success/30 gap-1"
+              : declined
+                ? "text-[10px] bg-destructive/10 text-destructive border-destructive/30 gap-1"
+                : "text-[10px] bg-warning/10 text-warning border-warning/30 gap-1"
+          }
+        >
+          {approved ? (
+            <><CheckCircle2 className="h-3 w-3" /> Godkjent</>
+          ) : declined ? (
+            <><XCircle className="h-3 w-3" /> Avvist</>
+          ) : (
+            <><Clock className="h-3 w-3" /> Avventer godkjenning</>
+          )}
+        </Badge>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+        {r.frameworkLabel && (
+          <Badge variant="outline" className="text-[10px]">{r.frameworkLabel}</Badge>
+        )}
+        <span>{r.controlIds.length} kontroller</span>
+        <span>·</span>
+        <span>{r.activitiesCount} aktiviteter</span>
+        <span>·</span>
+        <span>{r.evidenceCount} vedlegg</span>
+        <span className="ml-auto">Sendt {new Date(r.sentAt).toLocaleDateString("nb-NO")}</span>
+      </div>
+      {approved && r.approvedAt && (
+        <div className="flex items-center gap-1.5 text-[11px] text-success border-t border-success/20 pt-2">
+          <ShieldCheck className="h-3 w-3" />
+          Godkjent av {r.approvedBy} · {new Date(r.approvedAt).toLocaleString("nb-NO")} · Modenhet +{r.maturityDeltaPercent ?? 0} %
+        </div>
+      )}
+      {!approved && !declined && onApprove && (
+        <div className="flex items-center gap-2 pt-1 border-t border-border/60">
+          <Button size="sm" className="h-7 text-xs gap-1.5" onClick={onApprove}>
+            <ThumbsUp className="h-3 w-3" />
+            Simuler kundens godkjenning
+          </Button>
+          {onDecline && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs text-muted-foreground"
+              onClick={onDecline}
+            >
+              Avvis
+            </Button>
+          )}
+          <span className="ml-auto text-[11px] text-muted-foreground">
+            Ved godkjenning oppdateres modenheten automatisk
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
