@@ -209,13 +209,16 @@ export function MSPCustomerTrustProfileCard({
         </div>
       </Card>
 
-      {/* Certifications */}
-      <Card className="p-4 space-y-3">
+      {/* Dokumenter og bevis */}
+      <Card className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Sertifiseringer og attesteringer</h3>
-          <span className="text-[11px] text-muted-foreground">2 publisert · 1 utløpt</span>
+          <h3 className="text-sm font-semibold text-foreground">Dokumenter og bevis</h3>
+          <span className="text-[11px] text-muted-foreground">{certifications.length + policies.filter(p => p.published).length} publisert · {policies.filter(p => !p.published).length} mangler</span>
         </div>
+
+        {/* Sertifiseringer og attesteringer */}
         <div className="space-y-2">
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Sertifiseringer og attesteringer</p>
           {certifications.map(c => (
             <div key={c.name} className="flex items-center gap-3 rounded-lg border border-border/60 p-2.5">
               <div className={`h-8 w-8 rounded-md flex items-center justify-center shrink-0 ${c.status === "active" ? "bg-success/10" : "bg-destructive/10"}`}>
@@ -233,26 +236,23 @@ export function MSPCustomerTrustProfileCard({
             </div>
           ))}
         </div>
-      </Card>
 
-      {/* Policies */}
-      <Card className="p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Policyer og dokumenter</h3>
-          <span className="text-[11px] text-muted-foreground">5 av 12 publisert</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {policies.map(p => (
-            <div key={p.name} className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${p.published ? "border-border/60" : "border-dashed border-border bg-muted/20"}`}>
-              <FileText className={`h-3.5 w-3.5 shrink-0 ${p.published ? "text-muted-foreground" : "text-muted-foreground/50"}`} />
-              <span className={`text-[13px] flex-1 truncate ${p.published ? "text-foreground" : "text-muted-foreground"}`}>{p.name}</span>
-              {p.published ? (
-                <Check className="h-3.5 w-3.5 text-success" />
-              ) : (
-                <span className="text-[10px] text-muted-foreground">Mangler</span>
-              )}
-            </div>
-          ))}
+        {/* Policyer og dokumenter */}
+        <div className="space-y-2">
+          <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Policyer og dokumenter</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {policies.map(p => (
+              <div key={p.name} className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${p.published ? "border-border/60" : "border-dashed border-border bg-muted/20"}`}>
+                <FileText className={`h-3.5 w-3.5 shrink-0 ${p.published ? "text-muted-foreground" : "text-muted-foreground/50"}`} />
+                <span className={`text-[13px] flex-1 truncate ${p.published ? "text-foreground" : "text-muted-foreground"}`}>{p.name}</span>
+                {p.published ? (
+                  <Check className="h-3.5 w-3.5 text-success" />
+                ) : (
+                  <span className="text-[10px] text-muted-foreground">Mangler</span>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </Card>
 
