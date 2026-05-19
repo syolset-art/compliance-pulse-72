@@ -258,7 +258,7 @@ export function MSPCreateOfferDialog({
               Lagre som utkast
             </Button>
             <Button size="sm" onClick={handleSend} className="gap-1.5">
-              Send tilbud <Send className="h-3.5 w-3.5" />
+              Generer tilbudsgrunnlag <Send className="h-3.5 w-3.5" />
             </Button>
           </div>
         </DialogFooter>
