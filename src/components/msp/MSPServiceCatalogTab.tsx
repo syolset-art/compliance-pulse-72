@@ -372,8 +372,9 @@ export function MSPServiceCatalogTab() {
       )}
 
       {/* Bibliotek + kalkulator vises kun i partnervisning */}
-      {viewMode === "partner" && (
-        <>
+      {/* Bibliotek + kalkulator */}
+      <>
+
           <ServiceLibraryBrowser
             context={partnerContext}
             adoptedIds={adoptedIds}
