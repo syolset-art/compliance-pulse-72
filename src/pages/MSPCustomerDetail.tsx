@@ -22,6 +22,10 @@ import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMat
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
+import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
+import { QuestionnaireGapList } from "@/components/msp/QuestionnaireGapList";
+import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
+import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
 
 export default function MSPCustomerDetail() {
