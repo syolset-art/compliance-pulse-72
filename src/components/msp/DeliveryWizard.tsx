@@ -65,6 +65,10 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [draftOpen, setDraftOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [approvedDeliveries, setApprovedDeliveries] = useState<Set<string>>(
+    new Set(),
+  );
 
   const activeDelivery =
     deliveries.find((d) => d.id === activeDeliveryId) ?? deliveries[0];
