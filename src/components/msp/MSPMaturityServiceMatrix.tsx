@@ -440,7 +440,12 @@ const DELIVERIES: DeliveryItem[] = [
             done: false,
             owner: "Kunde",
             date: "15. mai",
-            laraSteps: ["6 middels funn identifisert", "Tiltaksforslag generert per funn"],
+            laraSteps: [
+              { text: "Identifisert 6 middels CVE-funn", via: "Tenable" },
+              { text: "Foreslått eier per funn basert på asset-tagging", via: "Lara" },
+              { text: "Opprettet oppfølgings-tickets med 30 d SLA", via: "Jira" },
+              { text: "Identifisert patche-vindu helg 18. mai", via: "Microsoft Defender" },
+            ],
             partnerSteps: ["Avklare patche-vindu med drift", "Følge opp eier per funn ukentlig"],
             laraDraft: {
               title: "Tiltaksplan — middels sårbarheter",
