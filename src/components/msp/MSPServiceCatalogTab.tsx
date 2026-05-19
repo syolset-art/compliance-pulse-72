@@ -412,7 +412,6 @@ export function MSPServiceCatalogTab() {
             )}
           </div>
         </>
-      )}
 
       <CustomServiceDialog
         open={manualOpen}
@@ -422,6 +421,48 @@ export function MSPServiceCatalogTab() {
         initial={editingDraft}
         mode={editingId ? "edit" : "create"}
       />
+
+      {/* E-postforhåndsvisning til kunde */}
+      <Dialog open={emailPreviewOpen} onOpenChange={setEmailPreviewOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Forhåndsvis e-post til kunde</DialogTitle>
+            <DialogDescription>
+              Slik vil tjenestene fremstå når du sender oversikten til kunden. Pris, timer og interne marginer er skjult, og partner-formuleringer er skrevet om til kundevennlig språk.
+            </DialogDescription>
+          </DialogHeader>
+          <CustomerCatalogPreview
+            asEmail
+            services={extras.map((e) => ({
+              id: e.id,
+              name: e.name,
+              description: e.description,
+              activities: e.activities,
+              mappings: e.mappings,
+              templateCode: e.templateCode,
+              source: e.source,
+            }))}
+          />
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => setEmailPreviewOpen(false)}>
+              Lukk
+            </Button>
+            <Button
+              className="gap-2"
+              onClick={() => {
+                setEmailPreviewOpen(false);
+                toast.success("E-post sendt til kunden", {
+                  description: "Kunden får nå tilgang til oversikten over leverte tjenester.",
+                });
+              }}
+            >
+              <Send className="h-4 w-4" />
+              Send til kunde
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
