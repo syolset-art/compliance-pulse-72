@@ -92,13 +92,17 @@ export function MSPServiceCatalogTab() {
   }, [selections, hourlyRate, extras]);
 
   const handleLaraComplete = (suggestions: PartnerService[]) => {
-    const imported: ExtraService[] = suggestions.map((s) => ({
-      id: s.id,
-      name: s.name,
-      description: s.description,
-      hours: s.estimatedHours ?? 8,
-      source: "lara",
-    }));
+    const imported: ExtraService[] = suggestions.map((s) => {
+      const isFixed = s.priceModel === "fixed" || s.priceModel === "monthly";
+      return {
+        id: s.id,
+        name: s.name,
+        description: s.description,
+        hours: s.priceModel === "hourly" && s.price ? s.price : 8,
+        fixedPrice: isFixed ? s.price : undefined,
+        source: "lara" as const,
+      };
+    });
     setExtras((prev) => [...prev, ...imported]);
     setLaraOpen(false);
     toast.success(`${imported.length} tjenester importert fra Laras forslag`);
