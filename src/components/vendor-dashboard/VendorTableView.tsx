@@ -1,5 +1,8 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -7,9 +10,10 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Filter, X } from "lucide-react";
+import { Filter, X, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCriticality, CRITICALITY_META, type CriticalityKey } from "@/lib/criticality";
+import { PLATFORM_USERS } from "@/lib/platformUsers";
 import type { ScoreDisplayMode } from "./VendorListTab";
 
 interface Asset {
