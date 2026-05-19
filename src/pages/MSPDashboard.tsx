@@ -296,7 +296,8 @@ export default function MSPDashboard() {
                           </button>
                         </TableHead>
                         <TableHead>Bransje</TableHead>
-                        <TableHead>Org.nr</TableHead>
+                        <TableHead>Kritikalitet</TableHead>
+                        <TableHead>Tjenester kunden trenger</TableHead>
                         <TableHead>
                           <button type="button" onClick={() => toggleSort("status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
                             Status <SortIcon k="status" />
@@ -314,6 +315,8 @@ export default function MSPDashboard() {
                       {filtered.map((c: any) => {
                         const sk = deriveStatusKey(c);
                         const score = c.compliance_score || 0;
+                        const crit = deriveCriticality(c);
+                        const services = deriveNeededServices(c);
                         const last = c.last_activity_at
                           ? new Date(c.last_activity_at).toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" })
                           : "—";
@@ -325,7 +328,24 @@ export default function MSPDashboard() {
                           >
                             <TableCell className="font-medium">{c.customer_name}</TableCell>
                             <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
-                            <TableCell className="text-muted-foreground tabular-nums">{c.org_number || "—"}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={cn("font-normal", crit.tone)}>
+                                {crit.label}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {services.length === 0 ? (
+                                <span className="text-muted-foreground text-sm">—</span>
+                              ) : (
+                                <div className="flex flex-wrap gap-1 max-w-[280px]">
+                                  {services.map((s) => (
+                                    <Badge key={s} variant="outline" className="font-normal bg-primary/5 text-primary border-primary/20 text-[11px]">
+                                      {s}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                            </TableCell>
                             <TableCell>
                               <Badge variant="outline" className={cn("font-normal", STATUS_TONE[sk])}>
                                 {STATUS_LABEL[sk]}
