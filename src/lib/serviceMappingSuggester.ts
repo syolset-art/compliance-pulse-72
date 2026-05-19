@@ -19,12 +19,29 @@ export interface ControlSuggestion {
  */
 const EXTRA_KEYWORDS: Record<string, string[]> = {
   // NIS2
-  "nis2:Art.20": ["styring", "ledelse", "opplæring", "awareness", "kurs"],
+  "nis2:Art.20": [
+    "styring", "ledelse", "opplæring", "awareness", "kurs",
+    // Roller som ansvarlig sikkerhetsleder dekker ledelsesansvar
+    "ciso", "sikkerhetssjef", "sikkerhetsleder", "sikkerhetsansvarlig",
+    "informasjonssikkerhetsansvarlig", "informasjonssikkerhetsleder",
+    "ciso-as-a-service", "ciso as a service", "virtuell ciso", "vciso",
+  ],
   "nis2:Art.21": ["mfa", "patch", "sårbarhet", "kryptering", "tilgangskontroll", "endepunkt", "edr", "sikkerhetstiltak"],
   "nis2:Art.23": ["hendelse", "incident", "varsling", "beredskap", "ir", "csirt"],
   // ISO 27001
-  "iso27001:A.5.1": ["policy", "policyer", "retningslinjer"],
-  "iso27001:A.5.4": ["ledelse", "ledelsens", "gjennomgang", "styre"],
+  "iso27001:A.5.1": [
+    "policy", "policyer", "retningslinjer",
+    // Compliance-roller forvalter policy-rammeverket
+    "compliance officer", "etterlevelsesansvarlig", "compliance-ansvarlig",
+    "compliance lead", "compliance-leder",
+  ],
+  "iso27001:A.5.4": [
+    "ledelse", "ledelsens", "gjennomgang", "styre",
+    // CISO / sikkerhetsleder ivaretar ledelsens ansvar for informasjonssikkerhet
+    "ciso", "sikkerhetssjef", "sikkerhetsleder", "sikkerhetsansvarlig",
+    "informasjonssikkerhetsansvarlig", "informasjonssikkerhetsleder",
+    "vciso", "virtuell ciso",
+  ],
   "iso27001:A.5.10": ["akseptabel bruk", "bruksregler", "instruks"],
   "iso27001:A.5.15": ["tilgang", "rbac", "iam", "offboarding", "rolle"],
   "iso27001:A.5.24": ["hendelse", "incident response", "ir-plan", "eskalering"],
@@ -37,7 +54,11 @@ const EXTRA_KEYWORDS: Record<string, string[]> = {
   "gdpr:Art.28": ["dpa", "databehandler", "leverandøravtale"],
   "gdpr:Art.30": ["protokoll", "ropa", "behandlingsprotokoll", "behandlingsoversikt"],
   "gdpr:Art.35": ["dpia", "personvernkonsekvens"],
-  "gdpr:Art.37": ["dpo", "personvernombud"],
+  "gdpr:Art.37": [
+    "dpo", "personvernombud", "personvernansvarlig", "personvernrådgiver",
+    "personvern-rådgiver", "dpo-as-a-service", "dpo as a service",
+    "ekstern dpo", "personvernombud-tjeneste",
+  ],
   // AI Act
   "aiact:Art.4": ["ai-kurs", "ai opplæring", "ai litteracy", "ai-litteracy"],
   "aiact:Art.9": ["ai risiko", "ai-risiko", "ai governance"],
