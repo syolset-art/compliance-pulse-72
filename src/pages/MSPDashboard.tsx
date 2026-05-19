@@ -32,6 +32,40 @@ function deriveStatusKey(c: any): "draft" | "invited" | "claimed" | "archived" {
   return "draft";
 }
 
+// Derived criticality based on industry + size — purely presentational
+const HIGH_CRIT_INDUSTRIES = new Set(["Energi", "Helse", "Finans"]);
+const MED_CRIT_INDUSTRIES = new Set(["Teknologi", "Transport", "Utdanning"]);
+function deriveCriticality(c: any): { key: "high" | "medium" | "low"; label: string; tone: string } {
+  const ind = c.industry || "";
+  const emp = c.employees || "";
+  const big = /201|500|1000|\+/.test(emp);
+  if (HIGH_CRIT_INDUSTRIES.has(ind) || big) return { key: "high", label: "Høy", tone: "bg-destructive/10 text-destructive border-destructive/20" };
+  if (MED_CRIT_INDUSTRIES.has(ind)) return { key: "medium", label: "Medium", tone: "bg-warning/10 text-warning border-warning/20" };
+  return { key: "low", label: "Lav", tone: "bg-muted text-muted-foreground border-border" };
+}
+
+// Suggested services Lara recommends based on gap, frameworks and industry
+function deriveNeededServices(c: any): string[] {
+  const services: string[] = [];
+  const score = c.compliance_score || 0;
+  const frameworks: string[] = c.active_frameworks || [];
+  const ind = c.industry || "";
+
+  if (score < 50) services.push("Compliance-grunnpakke");
+  else if (score < 75) services.push("Modenhetsløft");
+
+  if (!frameworks.includes("ISO 27001") && (HIGH_CRIT_INDUSTRIES.has(ind) || score >= 70)) {
+    services.push("ISO 27001-forberedelse");
+  }
+  if (ind === "Helse") services.push("Pasientdata & DPIA");
+  if (ind === "Finans") services.push("DORA-beredskap");
+  if (ind === "Energi" || ind === "Transport") services.push("NIS2-vurdering");
+  if (!frameworks.includes("GDPR")) services.push("GDPR-oppstart");
+  if (score >= 80 && frameworks.includes("ISO 27001")) services.push("Sertifiseringsstøtte");
+
+  return services.slice(0, 3);
+}
+
 const STATUS_LABEL: Record<string, string> = {
   draft: "Utkast",
   invited: "Onboarding",
