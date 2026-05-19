@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, X, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Upload, FileText, X, CheckCircle2, ShieldCheck, Eye } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export interface EvidenceFileMeta {
