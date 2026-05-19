@@ -156,12 +156,12 @@ export const ConfirmActivityDialog = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
-              Notat til kunde {readOnly ? "" : "(valgfritt)"}
+              Hva er gjort? {readOnly ? "" : "(valgfritt)"}
             </label>
             <Textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Kort beskrivelse av hva som er gjort…"
+              placeholder="Beskriv hva som er utført på aktiviteten…"
               rows={3}
               disabled={readOnly}
             />
@@ -169,7 +169,7 @@ export const ConfirmActivityDialog = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
-              Dokumentbevis {!readOnly && <span className="text-muted-foreground font-normal">— vedlegg kunden får til godkjenning</span>}
+              Dokument / bevis {!readOnly && <span className="text-muted-foreground font-normal">— last opp filer som dokumenterer arbeidet</span>}
             </label>
 
 
