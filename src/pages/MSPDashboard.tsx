@@ -87,6 +87,26 @@ function deriveNeededServices(c: any): string[] {
   return services.slice(0, 3);
 }
 
+function ScoreCircle({ score }: { score: number }) {
+  const r = 14;
+  const c = 2 * Math.PI * r;
+  const pct = Math.min(Math.max(score, 0), 100);
+  const dash = `${(pct / 100) * c} ${c}`;
+  const color =
+    pct >= 75 ? "text-success"
+    : pct >= 50 ? "text-warning"
+    : "text-destructive";
+  return (
+    <div className="relative inline-flex items-center justify-center" style={{ width: 36, height: 36 }}>
+      <svg width="36" height="36" className="-rotate-90">
+        <circle cx="18" cy="18" r={r} fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/30" />
+        <circle cx="18" cy="18" r={r} fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={dash} className={color} strokeLinecap="round" />
+      </svg>
+      <span className={cn("absolute text-[10px] font-semibold tabular-nums", color)}>{pct}%</span>
+    </div>
+  );
+}
+
 type SortKey = "customer_name" | "country_code" | "tp_status" | "compliance_score";
 type SortDir = "asc" | "desc";
 
