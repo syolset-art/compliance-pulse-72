@@ -65,27 +65,37 @@ function deriveCriticality(c: any): { key: "high" | "medium" | "low"; label: str
   return { key: "low", label: "Lav", tone: "bg-muted text-muted-foreground border-border" };
 }
 
-// Suggested services Lara recommends based on gap, frameworks and industry
+// Suggested services Lara recommends — MUST match titles used in MSPMaturityServiceMatrix
+// (Anbefalte tjenester på kundens TP-detaljside) slik at klikk fra tabellen lander på riktig kort.
 function deriveNeededServices(c: any): string[] {
   const services: string[] = [];
   const score = c.compliance_score || 0;
   const frameworks: string[] = c.active_frameworks || [];
   const ind = c.industry || "";
 
-  if (score < 50) services.push("Compliance-grunnpakke");
-  else if (score < 75) services.push("Modenhetsløft");
-
-  if (!frameworks.includes("ISO 27001") && (HIGH_CRIT_INDUSTRIES.has(ind) || score >= 70)) {
-    services.push("ISO 27001-forberedelse");
+  // NIS2 — kritiske bransjer eller manglende rammeverk
+  if (HIGH_CRIT_INDUSTRIES.has(ind) || ind === "Energi" || ind === "Transport" || ind === "Helse" || ind === "Finans") {
+    services.push("NIS2-klargjøring");
   }
-  if (ind === "Helse") services.push("Pasientdata & DPIA");
-  if (ind === "Finans") services.push("DORA-beredskap");
-  if (ind === "Energi" || ind === "Transport") services.push("NIS2-vurdering");
-  if (!frameworks.includes("GDPR")) services.push("GDPR-oppstart");
-  if (score >= 80 && frameworks.includes("ISO 27001")) services.push("Sertifiseringsstøtte");
 
-  return services.slice(0, 3);
+  // AI Governance — moden nok til å adressere AI, eller tech/finans
+  if (score < 60 || ind === "Finans" || ind === "Teknologi") {
+    services.push("AI Governance-rammeverk");
+  }
+
+  // Penetrasjonstest — har eller bør ha ISO 27001
+  if (frameworks.includes("ISO 27001") || score >= 50) {
+    services.push("Penetrasjonstest");
+  }
+
+  // Fallback: alltid foreslå noe når kunden er umoden
+  if (services.length === 0) {
+    services.push("NIS2-klargjøring", "AI Governance-rammeverk");
+  }
+
+  return Array.from(new Set(services)).slice(0, 3);
 }
+
 
 function ScoreCircle({ score }: { score: number }) {
   const r = 14;
