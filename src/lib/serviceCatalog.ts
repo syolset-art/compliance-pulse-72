@@ -4,6 +4,12 @@ export interface ServiceFrameworkMapping {
   controlIds: string[];
 }
 
+/** Hvilken type leveranse partneren utfører. */
+export type ServiceDeliveryType = "advisory" | "questionnaire";
+
+/** Identifikator for et innebygd spørreskjema (gjenbruker eksisterende spørsmålssett). */
+export type QuestionnaireId = "gdpr_maturity" | "nis2_scope" | "iso_gap";
+
 export interface PartnerService {
   id: string;
   name: string;
@@ -22,6 +28,12 @@ export interface PartnerService {
   priceNote?: string;
   /** Synlig og bestillbar for partnerens kunder i deres Mynder-portal. */
   publishedToCustomers?: boolean;
+  /** Hvordan tjenesten leveres. Default "advisory". */
+  deliveryType?: ServiceDeliveryType;
+  /** Hvilket innebygd spørreskjema som benyttes når deliveryType === "questionnaire". */
+  questionnaireId?: QuestionnaireId;
+  /** Estimert tid for kunden å besvare et spørreskjema, i minutter. */
+  estimatedMinutes?: number;
 }
 
 /**
