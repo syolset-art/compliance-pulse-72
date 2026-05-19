@@ -126,7 +126,7 @@ export default function VendorDashboard() {
             onActivate={() => setActivateOpen(true)}
           />
 
-          <Tabs defaultValue="overview" className="space-y-4">
+          <Tabs value={tabFromUrl} onValueChange={(v) => { const next = new URLSearchParams(searchParams); next.set("tab", v); setSearchParams(next, { replace: true }); }} className="space-y-4">
             <div className="flex items-center justify-between">
               <TabsList className="h-10 p-0.5" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
                 <TabsTrigger value="overview" className="text-sm px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
