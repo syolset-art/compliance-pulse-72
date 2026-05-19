@@ -126,15 +126,14 @@ export function SystemsPriorityChart() {
         aria-label={
           `Leverandører per prioritet: ` +
           orderedKeys
-            .map((k) => `${PRIO_META[k].label} ${buckets[k].total} (${buckets[k].critical} kritiske)`)
+            .map((k) => `${PRIO_META[k].label} ${buckets[k].total}`)
             .join(", ")
         }
       >
         {orderedKeys.map((k) => {
           const meta = PRIO_META[k];
-          const { total: t, critical } = buckets[k];
+          const t = buckets[k].total;
           const heightPct = (t / maxBar) * 100;
-          const critPct = t > 0 ? (critical / t) * 100 : 0;
           return (
             <div key={k} className="flex flex-col items-center justify-end h-full gap-2">
               {/* Count above bar */}
@@ -149,87 +148,19 @@ export function SystemsPriorityChart() {
                     meta.ring
                   )}
                   style={{ height: `${Math.max(heightPct, t > 0 ? 6 : 0)}%`, minHeight: t > 0 ? 6 : 0 }}
-                  title={`${t} leverandører · ${critical} kritiske`}
-                >
-                  {/* Critical-for-business segment */}
-                  {critical > 0 && (
-                    <div
-                      className={cn("absolute bottom-0 left-0 right-0", meta.barCritical)}
-                      style={{ height: `${critPct}%` }}
-                    />
-                  )}
-                </div>
+                  title={`${t} leverandører`}
+                />
               </div>
 
               {/* X-axis label */}
               <div className="text-center">
                 <p className="text-xs font-bold text-foreground tracking-wide">{k}</p>
                 <p className="text-[11px] text-muted-foreground leading-tight">{meta.helper}</p>
-                {critical > 0 && (
-                  <p className="text-[11px] text-destructive font-medium mt-0.5 tabular-nums">
-                    {critical} kritisk
-                  </p>
-                )}
               </div>
             </div>
           );
         })}
       </div>
-
-      {/* Legend */}
-      <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-border">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="h-2.5 w-2.5 rounded-sm bg-foreground/70" aria-hidden="true" />
-          Kritisk for virksomheten
-        </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="h-2.5 w-2.5 rounded-sm bg-muted ring-1 ring-border" aria-hidden="true" />
-          Øvrige
-        </div>
-      </div>
-
-      {/* Critical systems list */}
-      {criticalForBusiness.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-border">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <AlertTriangle className="h-3.5 w-3.5 text-destructive" aria-hidden="true" />
-              Kritisk for vår virksomhet
-            </h3>
-            <span className="text-xs text-muted-foreground tabular-nums">
-              {criticalForBusiness.length}
-            </span>
-          </div>
-          <div className="space-y-1">
-            {criticalForBusiness.slice(0, 4).map((s) => {
-              const p = toPriority(s);
-              return (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => navigate(`/assets/${s.id}`)}
-                  aria-label={`Åpne leverandør ${s.name}, prioritet ${p}`}
-                  className="w-full text-left flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
-                >
-                  <span
-                    className={cn(
-                      "inline-flex h-5 w-5 items-center justify-center rounded text-[11px] font-bold shrink-0",
-                      p === "A" ? "bg-destructive/15 text-destructive" :
-                      p === "B" ? "bg-warning/15 text-warning" :
-                      p === "C" ? "bg-primary/15 text-primary" :
-                      "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {p}
-                  </span>
-                  <span className="text-sm text-foreground truncate flex-1">{s.name}</span>
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" aria-hidden="true" />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </Card>
   );
 }
