@@ -258,6 +258,7 @@ export function VendorTableView({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-1.5 p-0" aria-label="Status" />
               <TableHead className="w-20">
                 <ColumnFilter
                   label="Land"
