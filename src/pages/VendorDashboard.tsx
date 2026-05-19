@@ -99,6 +99,7 @@ export default function VendorDashboard() {
               </span>
             </div>
             <div className="flex items-center gap-2">
+              <VendorPortfolioActions vendors={vendors} />
               <Button
                 onClick={() => {
                   if (!isPremium && vendors.length >= MAX_FREE_VENDORS) {
