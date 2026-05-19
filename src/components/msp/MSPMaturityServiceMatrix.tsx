@@ -180,6 +180,13 @@ const ONGOING: OngoingItem[] = [
   },
 ];
 
+export type LaraStep = string | { text: string; via?: string };
+
+export const getStepText = (s: LaraStep): string =>
+  typeof s === "string" ? s : s.text;
+export const getStepVia = (s: LaraStep): string | undefined =>
+  typeof s === "string" ? undefined : s.via;
+
 export interface DeliveryActivity {
   id: string;
   label: string;
@@ -191,7 +198,7 @@ export interface DeliveryActivity {
   note?: string;
   evidence?: EvidenceFileMeta[];
   sharedWithCustomer?: boolean;
-  laraSteps?: string[];
+  laraSteps?: LaraStep[];
   partnerSteps?: string[];
   laraDraft?: {
     title: string;
@@ -235,8 +242,14 @@ const DELIVERIES: DeliveryItem[] = [
             done: true,
             owner: "Partner",
             date: "12. feb",
-            laraSteps: ["Konfigurert phishing-mal", "Sendt til 142 mottakere", "Samlet klikk-statistikk"],
-            partnerSteps: ["Godkjent phishing-scenario før utsending", "Validert at HR-listen var fersk"],
+            laraSteps: [
+              { text: "Valgt phishing-mal «Microsoft 365 passordvarsel»", via: "KnowBe4" },
+              { text: "Bygget mottakerliste: 142 ansatte fra HR-synk", via: "Entra ID" },
+              { text: "Trigget kampanje, spredt utsending over 48 t", via: "KnowBe4" },
+              { text: "Samlet klikk- og rapporterings-statistikk i sanntid", via: "KnowBe4" },
+              { text: "Mappet baseline mot ISO 27001 A.6.3", via: "Lara" },
+            ],
+            partnerSteps: ["Godkjent phishing-scenario før utsending (etisk sjekk)", "Validert at HR-listen var fersk"],
           },
           {
             id: "a2",
@@ -244,7 +257,17 @@ const DELIVERIES: DeliveryItem[] = [
             done: true,
             owner: "Partner",
             date: "5. mar",
-            laraSteps: ["Generert deltakerliste fra HR", "Sendt invitasjon via Outlook", "Samlet gjennomføringsrapport"],
+            laraSteps: [
+              { text: "Generert deltakerliste fra HR (142 ansatte)", via: "Entra ID" },
+              { text: "Tildelt e-læringsmodul «Awareness Q1»", via: "Microsoft 365 Learning" },
+              { text: "Sendt invitasjon og 4 påminnelser", via: "Outlook" },
+              { text: "Samlet gjennomføringsdata: 138/142 (97 %)", via: "Microsoft 365 Learning" },
+              { text: "Generert PDF-rapport med snitt-score 86 %", via: "Lara" },
+            ],
+            partnerSteps: [
+              "Validere at e-læringsinnholdet er oppdatert",
+              "Følge opp 4 ansatte som krevde påminnelse",
+            ],
             laraDraft: {
               title: "Gjennomføringsrapport Q1 e-læring",
               fileName: "elearning-Q1-2025-rapport.pdf",
@@ -263,9 +286,10 @@ const DELIVERIES: DeliveryItem[] = [
             owner: "Partner",
             date: "20. mai",
             laraSteps: [
-              "Identifisert 8 personer i ledergruppen",
-              "Tilpasset innhold basert på rolle (CEO, CFO, CTO …)",
-              "Booking-utkast lagt i Outlook — venter på din godkjenning",
+              { text: "Identifisert 8 personer i ledergruppen via gruppe «Leadership»", via: "Entra ID" },
+              { text: "Tilpasset agenda per rolle (CEO, CFO, CTO …)", via: "Lara" },
+              { text: "Lagt møteinvitasjon i kalenderen — venter godkjenning", via: "Outlook" },
+              { text: "Pre-arbeid (10 min e-læring) tildelt deltakerne", via: "Microsoft 365 Learning" },
             ],
             partnerSteps: [
               "Bekrefte tidspunkt med CEO",
@@ -289,7 +313,30 @@ const DELIVERIES: DeliveryItem[] = [
             done: false,
             owner: "Partner",
             date: "15. jun",
-            laraSteps: ["Re-test planlagt i juni", "Måler effekt av Q1-opplæring"],
+            laraSteps: [
+              { text: "Hentet baseline fra Q1: 18 % klikk, 24 % rapportert", via: "KnowBe4" },
+              { text: "Valgt nytt scenario «DHL pakkesporing» (unngår gjenkjenning)", via: "KnowBe4" },
+              { text: "Bygget mottakerliste: 138 ansatte, eksklud. nyansatte <14 d", via: "Entra ID" },
+              { text: "Planlagt utsending tirs–ons (spredt over 48 t)", via: "KnowBe4" },
+              { text: "Samler klikk/rapportering i sanntid", via: "KnowBe4" },
+              { text: "Genererer trendrapport: forventet 18 % → 9 % klikk-rate", via: "Lara" },
+              { text: "Mapper resultat til ISO 27001 A.6.3", via: "Lara" },
+            ],
+            partnerSteps: [
+              "Godkjenne phishing-scenario før utsending (etisk sjekk)",
+              "1:1-samtale med repeat offenders fra Q1",
+              "Presentere trendrapport for kundens ledergruppe",
+            ],
+            laraDraft: {
+              title: "Phishing re-test Q2 — effektmåling",
+              fileName: "phishing-retest-Q2-2025-rapport.pdf",
+              summary: [
+                "Klikk-rate: 18 % (Q1) → 9 % (Q2) — 50 % forbedring",
+                "Rapporterings-rate: 24 % → 41 %",
+                "3 repeat offenders identifisert anonymisert",
+                "Foreslåtte tiltak per gruppe inkludert",
+              ],
+            },
           },
         ],
       },
@@ -305,7 +352,10 @@ const DELIVERIES: DeliveryItem[] = [
             done: true,
             owner: "Kunde",
             date: "18. apr",
-            laraSteps: ["Workshop avholdt", "Innspill samlet"],
+            laraSteps: [
+              { text: "Booket workshop og sendt agenda til 12 deltakere", via: "Outlook" },
+              { text: "Transkribert opptak og oppsummert innspill", via: "Lara" },
+            ],
           },
           {
             id: "b2",
@@ -314,9 +364,10 @@ const DELIVERIES: DeliveryItem[] = [
             owner: "Partner",
             date: "10. mai",
             laraSteps: [
-              "Skrevet utkast basert på ISO 27001 Annex A.5.10",
-              "Tilpasset kundens domene, roller og verktøy",
-              "Sjekket mot eksisterende personvernerklæring",
+              { text: "Skrevet policy-utkast basert på ISO 27001 Annex A.5.10", via: "Lara" },
+              { text: "Hentet kundens domene, roller og M365-verktøy", via: "Microsoft 365" },
+              { text: "Krysssjekket mot eksisterende personvernerklæring", via: "Lara" },
+              { text: "Lagret utkast i kundens dokumentbibliotek", via: "SharePoint" },
             ],
             partnerSteps: [
               "Kvalitetssjekke språk og tone mot kundens profil",
@@ -338,7 +389,10 @@ const DELIVERIES: DeliveryItem[] = [
             label: "Kommunisert til alle ansatte",
             done: false,
             owner: "Kunde",
-            laraSteps: ["Utkast til intranett-melding lagt klar", "E-postmal generert"],
+            laraSteps: [
+              { text: "Lagt intranett-melding klar for publisering", via: "SharePoint" },
+              { text: "Generert e-postmal til alle ansatte", via: "Outlook" },
+            ],
           },
         ],
       },
@@ -374,7 +428,11 @@ const DELIVERIES: DeliveryItem[] = [
             done: true,
             owner: "Kunde",
             date: "28. mar",
-            laraSteps: ["Hentet sårbarhetsrapport", "Mappet funn mot kontroller"],
+            laraSteps: [
+              { text: "Hentet kritiske CVE-funn og status", via: "Tenable" },
+              { text: "Verifisert at patch er rullet ut til 100 % av endepunkter", via: "Microsoft Defender" },
+              { text: "Mappet lukkede funn mot ISO 27001 A.8.8", via: "Lara" },
+            ],
           },
           {
             id: "v2",
@@ -382,7 +440,12 @@ const DELIVERIES: DeliveryItem[] = [
             done: false,
             owner: "Kunde",
             date: "15. mai",
-            laraSteps: ["6 middels funn identifisert", "Tiltaksforslag generert per funn"],
+            laraSteps: [
+              { text: "Identifisert 6 middels CVE-funn", via: "Tenable" },
+              { text: "Foreslått eier per funn basert på asset-tagging", via: "Lara" },
+              { text: "Opprettet oppfølgings-tickets med 30 d SLA", via: "Jira" },
+              { text: "Identifisert patche-vindu helg 18. mai", via: "Microsoft Defender" },
+            ],
             partnerSteps: ["Avklare patche-vindu med drift", "Følge opp eier per funn ukentlig"],
             laraDraft: {
               title: "Tiltaksplan — middels sårbarheter",

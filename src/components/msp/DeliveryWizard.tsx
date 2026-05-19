@@ -24,15 +24,18 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type {
-  DeliveryItem,
-  DeliveryControl,
-  DeliveryActivity,
+import {
+  type DeliveryItem,
+  type DeliveryControl,
+  type DeliveryActivity,
+  getStepText,
+  getStepVia,
 } from "./MSPMaturityServiceMatrix";
 import type { ConfirmPayload, EvidenceFileMeta } from "./ConfirmActivityDialog";
 import { ConfirmActivityDialog } from "./ConfirmActivityDialog";
 import { LaraDraftDialog } from "./LaraDraftDialog";
 import { DeliverySummaryDialog } from "./DeliverySummaryDialog";
+import { LaraMechanicsCallout } from "./LaraMechanicsCallout";
 import { getService } from "@/lib/serviceCatalog";
 import { toast } from "sonner";
 
@@ -166,6 +169,8 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
           </div>
         </div>
       </Card>
+
+      <LaraMechanicsCallout />
 
       {/* Lara-kort (eller suksess) */}
       {allDone ? (
@@ -334,15 +339,19 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
                         Lara utfører automatisk
                       </p>
                       <ul className="space-y-1.5">
-                        {step.activity.laraSteps.map((s, i) => (
-                          <li
-                            key={i}
-                            className="flex items-start gap-2 text-[12px] text-foreground"
-                          >
-                            <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0 mt-0.5" />
-                            <span>{s}</span>
-                          </li>
-                        ))}
+                        {step.activity.laraSteps.map((s, i) => {
+                          const via = getStepVia(s);
+                          return (
+                            <li
+                              key={i}
+                              className="flex items-start gap-2 text-[12px] text-foreground"
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0 mt-0.5" />
+                              <span className="flex-1">{getStepText(s)}</span>
+                              {via && <IntegrationBadge name={via} />}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   )}
@@ -595,6 +604,12 @@ const SummaryStat = ({ value, label }: { value: string; label: string }) => (
     <p className="text-lg font-semibold text-foreground tabular-nums">{value}</p>
     <p className="text-[11px] text-muted-foreground">{label}</p>
   </div>
+);
+
+export const IntegrationBadge = ({ name }: { name: string }) => (
+  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/15 shrink-0 leading-none flex items-center">
+    via {name}
+  </span>
 );
 
 interface ActionTileProps {

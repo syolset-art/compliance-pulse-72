@@ -1,99 +1,81 @@
-## Mål
-Gjøre fanen **«Pågående oppdrag»** mer dialog-/wizard-basert, der **Lara gjør jobben** og partner bare bekrefter eller laster opp ett bevis. Mindre lister, mer "neste handling".
+# Mer konkrete Lara-steg i «Pågående oppdrag»
 
-## Ny opplevelse
+Gjør demoen troverdig ved å vise *hva* Lara faktisk gjør (med hvilken integrasjon) og *hvor* grensen mot manuelt partnerarbeid går.
 
-Erstatt dagens lange liste av leveranser → kontrollpunkter → checkboxer med en **Lara-veileder per oppdrag** som driver én aktivitet av gangen.
+## Hva som endres
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ 🟣 Lara · Awareness-program 2025          [Levert 3/8]  │
-│                                                          │
-│ "Hei Truls! Neste steg er å bekrefte at e-læringen       │
-│  er rullet ut til ledergruppen. Jeg har allerede:        │
-│   ✓ Generert deltakerliste                               │
-│   ✓ Sendt invitasjon via Outlook                         │
-│   ✓ Utkast til gjennomføringsrapport ligger klar"        │
-│                                                          │
-│ Hva trenger du fra meg?                                  │
-│ ┌──────────────────┐  ┌──────────────────┐              │
-│ │ 📄 Se rapport-   │  │ ⬆ Last opp eget │              │
-│ │   utkast fra Lara│  │   bevis          │              │
-│ └──────────────────┘  └──────────────────┘              │
-│                                                          │
-│ [✓ Bekreft ferdig og berik Trust Profile]               │
-│ [Hopp over · Spør kunden i stedet]                       │
-└─────────────────────────────────────────────────────────┘
-              ●─○─○─○─○─○─○─○   (steg 3 av 8)
-```
+### 1. Datamodell — `DeliveryActivity`
+Utvider hvert Lara-steg fra `string` til objekt med valgfri integrasjon:
 
-### Strukturen
-
-1. **Oppdragvelger på toppen** — kompakt segmented control eller dropdown: «Awareness 2025», «Pentest Q1», «NIS2 …». Viser totalprogresjon som tynn linje.
-2. **Lara-kort i midten (eneste fokus)** — viser:
-   - Aktivt steg (kontrollpunkt-id + aktivitetstittel + framework-pill).
-   - **Lara-tråd** med bullet-liste over hva hun allerede har gjort (autonomous-handlinger).
-   - **Anbefalt handling**: tekst som forklarer hva som trengs nå.
-3. **To primære actions per steg**:
-   - **«Se utkast fra Lara»** — åpner dialog med ferdig generert rapport/dokument som partner kan akseptere som bevis (genereres on-demand fra Lovable AI for demo).
-   - **«Last opp eget bevis»** — åpner ConfirmActivityDialog (gjenbruker eksisterende komponent) — kun fil + ev. notat.
-4. **Bekreft-knapp** — primær: «Bekreft ferdig og berik Trust Profile». Etter klikk: kort sukkess-animasjon → automatisk neste steg.
-5. **Stepper** under kortet — visuell progress-prikker (●○○○) for alle aktiviteter i oppdraget. Klikkbare for å hoppe.
-6. **Når alle steg er ferdige**: kortet bytter til en grønn «Oppdrag levert»-tilstand med oppsummering (X kontrollpunkter oppfylt · Y bevis lagt ved · TP-økning +12 pp) og «Send leveranserapport til kunde»-CTA.
-
-### Lara gjør jobben — for hvert aktivitetstrinn
-
-Lara-tråden viser 1–4 punkter avhengig av aktivitetstype:
-- **Awareness**: «Generert deltakerliste», «Sendt påminnelser», «Samlet kvitteringer».
-- **Pentest**: «Hentet rapport fra leverandørportal», «Mappet funn mot kontroller».
-- **Policy**: «Skrevet utkast basert på ISO 27001 Annex A.5.10», «Tilpasset kundens domene og roller».
-- **Risikovurdering**: «Identifisert 12 trusler», «Foreslått tiltak».
-
-Hver linje har et lite ikon (Bot/Sparkles). Punktene er hardkodet per aktivitet i `DELIVERIES` (ny `laraSteps?: string[]` per `DeliveryActivity`) — ingen ekte AI-kall i denne iterasjonen, men strukturen er klar.
-
-### «Se utkast fra Lara»-dialog
-
-Enkelt mock-preview:
-- Header: filtype-ikon + foreslått navn («Gjennomføringsrapport-awareness-Q1.pdf»).
-- Body: kort innholdsblokk (overskrift, 3–5 punkter Lara har fylt ut, signaturlinje).
-- Footer: «Avvis», «Rediger», **«Bruk som bevis»** (primær — markerer aktivitet ferdig + legger til som bevis-fil med kilde «Generert av Lara»).
-
-### «Last opp eget bevis»
-
-Gjenbruker `ConfirmActivityDialog` uforandret.
-
-## Tekniske endringer (kun frontend)
-
-**Filer:**
-- `src/components/msp/MSPMaturityServiceMatrix.tsx` — bytt ut hele `<TabsContent value="deliveries">`-blokken med ny `<DeliveryWizard />`.
-- `src/components/msp/DeliveryWizard.tsx` (ny) — Lara-kortet, stepper, oppdragvelger, sukkess-tilstand.
-- `src/components/msp/LaraDraftDialog.tsx` (ny) — utkast-preview.
-
-**Datamodell-utvidelse** (i `MSPMaturityServiceMatrix.tsx`):
 ```ts
-interface DeliveryActivity {
-  // ... eksisterende felt
-  laraSteps?: string[];        // hva Lara har gjort autonomt
-  laraDraft?: {                // utkast Lara har klar
-    title: string;
-    fileName: string;
-    summary: string[];         // bullet-punkter for preview
-  };
-}
+type LaraStep = string | { text: string; via?: string };
+laraSteps?: LaraStep[];
 ```
-Seed `DELIVERIES` med disse feltene for demo-realisme.
 
-**Wizard-state** holdes lokalt i `DeliveryWizard`: `activeDeliveryId`, `activeActivityIndex`. Reduksjon-handlere (`confirmActivity`, `undoActivity`) flyttes ned som props eller via callback — eksisterende state og handler i `MSPMaturityServiceMatrix` beholdes som sannhetskilde.
+Bakoverkompatibel — strenger funker fortsatt.
 
-**Eksisterende fane-toggle**: «Pågående oppdrag»-fanen erstattes med wizard-visningen. Tittel og count-badge beholdes.
+### 2. Seed-data — stram opp alle aktiviteter i `MSPMaturityServiceMatrix.tsx`
 
-## Visuell stil
-- Lara-kort: subtil primær-tint (`bg-primary/5` + `border-primary/20`), runde hjørner, romslig padding.
-- Lara-avatar/ikon øverst venstre (Sparkles i sirkel) med liten "tenker"-puls når aktiv.
-- Stepper: små prikker, primær for ferdig, ring for aktiv, muted for kommende.
-- Knapper: én klar primær per steg. Sekundære som ghost.
-- Suksess-tilstand: grønn ring + konfetti-pulse (CSS, ingen lib).
+Eksempel «Re-test phishing og rapportering»:
 
-## Spørsmål
-1. Skal **Lara-utkastet** (knappen «Se utkast fra Lara») være hardkodet mock-innhold per aktivitet i denne runden, eller vil du at jeg kobler det til Lovable AI for å generere innholdet on-demand? Mock går raskest; AI gir wow-effekt men koster credits per visning.
-2. Skal det fortsatt være mulig å se **gammel listevisning** (kontrollpunkter + alle aktiviteter samlet) som en sekundær «Detaljer»-fane, eller fjerner vi den helt til fordel for wizard-en?
+```text
+Lara utfører automatisk
+- Hentet baseline fra Q1: 18 % klikk, 24 % rapportert      via KnowBe4
+- Valgt nytt scenario «DHL pakkesporing» (unngår gjenkjenning)  via KnowBe4
+- Bygget mottakerliste: 138 ansatte, eksklud. nyansatte    via Entra ID
+- Planlagt utsending tirs–ons (sprer 48 t)                 via KnowBe4
+- Samler klikk/rapportering i sanntid                      via KnowBe4
+- Genererer trendrapport: 18 % → 9 % klikk-rate            via Lara
+- Mapper resultat til ISO 27001 A.6.3                      via Lara
+
+Partner manuelt
+- Godkjenne phishing-scenario før utsending (etisk sjekk)
+- 1:1-samtale med 3 repeat offenders
+- Presentere rapport for kundens ledergruppe
+```
+
+Tilsvarende oppstramming for:
+- Baselinemåling phishing (samme stil)
+- Kvartalsvis e-læring (`via Microsoft 365 Learning`, `via HR-system`)
+- Målrettet opplæring ledergruppen (`via Outlook`, `via Entra ID`)
+- Penetrasjonstest aktivitetene (`via Tenable`, `via Jira`)
+- Sårbarhetshåndtering (`via Tenable`, `via Microsoft Defender`)
+- Policy-utkast (`via Lara`, `via Microsoft 365`)
+
+### 3. Visning av integrasjons-badge
+
+I `DeliveryWizard.tsx` (Lara utfører-kortet) og `DeliverySummaryDialog.tsx`:
+- Hvert steg rendres med tekst + liten badge `via {integration}` til høyre
+- Badge: `text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/15`
+- Hvis `via` mangler → ingen badge
+
+### 4. «Hvordan Lara jobber»-info-boks
+
+Ny komponent `LaraMechanicsCallout.tsx`, vises som collapsible boks øverst i wizarden (lukket som default):
+
+```text
+ⓘ Hvordan Lara jobber for deg
+Lara er koblet til kundens systemer via standard-integrasjoner (Microsoft 365,
+Entra ID, KnowBe4, Tenable, Jira m.fl.). Hun utfører rutineoppgaver automatisk
+— henting av data, kampanje-utsending, rapport-generering — og overlater 
+juridiske, etiske og relasjonsbaserte oppgaver til deg som partner.
+
+[Aktiverte integrasjoner: Microsoft 365, Entra ID, KnowBe4, Tenable, Outlook]
+```
+
+Plasseres rett under leveranse-velgeren, lagrer åpen/lukket-state i localStorage.
+
+## Tekniske detaljer
+
+**Filer som endres:**
+- `src/components/msp/MSPMaturityServiceMatrix.tsx` — type-utvidelse + seed
+- `src/components/msp/DeliveryWizard.tsx` — render badge på Lara-steg + plassere callout
+- `src/components/msp/DeliverySummaryDialog.tsx` — render badge på Lara-steg
+
+**Ny fil:**
+- `src/components/msp/LaraMechanicsCallout.tsx` — collapsible info-boks
+
+**Hjelper:**
+- Liten util `getStepText(step)` og `getStepVia(step)` for å håndtere både `string` og `{text, via}`-form
+
+Ingen endringer i RLS, edge functions eller backend — kun frontend + seed-data.

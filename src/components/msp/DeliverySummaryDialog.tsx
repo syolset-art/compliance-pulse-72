@@ -16,7 +16,13 @@ import {
   FileText,
   ShieldCheck,
 } from "lucide-react";
-import type { DeliveryItem } from "./MSPMaturityServiceMatrix";
+import {
+  type DeliveryItem,
+  type LaraStep,
+  getStepText,
+  getStepVia,
+} from "./MSPMaturityServiceMatrix";
+import { IntegrationBadge } from "./DeliveryWizard";
 
 interface Props {
   open: boolean;
@@ -197,7 +203,7 @@ const StepList = ({
   icon: React.ComponentType<{ className?: string }>;
   tone: "primary" | "muted";
   title: string;
-  steps?: string[];
+  steps?: Array<LaraStep | string>;
   emptyLabel: string;
 }) => {
   const isPrimary = tone === "primary";
@@ -221,15 +227,19 @@ const StepList = ({
       </p>
       {steps && steps.length > 0 ? (
         <ul className="space-y-1">
-          {steps.map((s, i) => (
-            <li
-              key={i}
-              className="text-[12px] text-foreground leading-snug flex gap-1.5"
-            >
-              <span className="text-muted-foreground">·</span>
-              <span>{s}</span>
-            </li>
-          ))}
+          {steps.map((s, i) => {
+            const via = isPrimary ? getStepVia(s as LaraStep) : undefined;
+            return (
+              <li
+                key={i}
+                className="text-[12px] text-foreground leading-snug flex items-start gap-1.5"
+              >
+                <span className="text-muted-foreground">·</span>
+                <span className="flex-1">{getStepText(s as LaraStep)}</span>
+                {via && <IntegrationBadge name={via} />}
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <p className="text-[12px] text-muted-foreground italic">{emptyLabel}</p>
