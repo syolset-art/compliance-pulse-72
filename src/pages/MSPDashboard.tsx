@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search } from "lucide-react";
+import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -41,6 +41,12 @@ const STATUS_TONE: Record<string, string> = {
   archived: "bg-muted text-muted-foreground border-border",
 };
 
+// Sort order for Status column: progression from draft to active to archived
+const STATUS_ORDER: Record<string, number> = { draft: 0, invited: 1, claimed: 2, archived: 3 };
+
+type SortKey = "customer_name" | "status" | "last_activity_at";
+type SortDir = "asc" | "desc";
+
 export default function MSPDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -48,6 +54,8 @@ export default function MSPDashboard() {
   const [view, setView] = useState<ViewMode>("cards");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [sortKey, setSortKey] = useState<SortKey>("customer_name");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const queryClient = useQueryClient();
 
   const { data: customers = [], refetch } = useQuery({
@@ -64,14 +72,50 @@ export default function MSPDashboard() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (customers as any[]).filter((c) => {
+    const list = (customers as any[]).filter((c) => {
       if (statusFilter !== "all" && c.status !== statusFilter) return false;
       if (!q) return true;
       return [c.customer_name, c.industry, c.org_number, c.contact_email]
         .filter(Boolean)
         .some((v: string) => v.toLowerCase().includes(q));
     });
-  }, [customers, search, statusFilter]);
+
+    const dir = sortDir === "asc" ? 1 : -1;
+    const sorted = [...list].sort((a, b) => {
+      if (sortKey === "customer_name") {
+        return (a.customer_name || "").localeCompare(b.customer_name || "", "nb") * dir;
+      }
+      if (sortKey === "status") {
+        const ao = STATUS_ORDER[deriveStatusKey(a)] ?? 99;
+        const bo = STATUS_ORDER[deriveStatusKey(b)] ?? 99;
+        return (ao - bo) * dir;
+      }
+      // last_activity_at — nulls always sorted last
+      const at = a.last_activity_at ? new Date(a.last_activity_at).getTime() : null;
+      const bt = b.last_activity_at ? new Date(b.last_activity_at).getTime() : null;
+      if (at === null && bt === null) return 0;
+      if (at === null) return 1;
+      if (bt === null) return -1;
+      return (at - bt) * dir;
+    });
+    return sorted;
+  }, [customers, search, statusFilter, sortKey, sortDir]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const SortIcon = ({ k }: { k: SortKey }) => {
+    if (sortKey !== k) return <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />;
+    return sortDir === "asc"
+      ? <ArrowUp className="h-3.5 w-3.5" />
+      : <ArrowDown className="h-3.5 w-3.5" />;
+  };
 
   const handleSeed = async () => {
     try {
@@ -194,12 +238,24 @@ export default function MSPDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Kunde</TableHead>
+                    <TableHead>
+                      <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                        Kunde <SortIcon k="customer_name" />
+                      </button>
+                    </TableHead>
                     <TableHead>Bransje</TableHead>
                     <TableHead>Org.nr</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>
+                      <button type="button" onClick={() => toggleSort("status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                        Status <SortIcon k="status" />
+                      </button>
+                    </TableHead>
                     <TableHead className="text-right">Modenhet</TableHead>
-                    <TableHead>Siste aktivitet</TableHead>
+                    <TableHead>
+                      <button type="button" onClick={() => toggleSort("last_activity_at")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                        Siste aktivitet <SortIcon k="last_activity_at" />
+                      </button>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
