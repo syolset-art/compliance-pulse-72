@@ -411,18 +411,18 @@ export default function MSPDashboard() {
                         </TableHead>
                         <TableHead>
                           <ColumnFilter
-                            label="Bransje"
-                            options={industryOptions.map((v) => ({ value: v, label: v }))}
-                            selected={industryFilter}
-                            onChange={setIndustryFilter}
-                          />
-                        </TableHead>
-                        <TableHead>
-                          <ColumnFilter
                             label="Landskode"
                             options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
                             selected={countryCodeFilter}
                             onChange={setCountryCodeFilter}
+                          />
+                        </TableHead>
+                        <TableHead>
+                          <ColumnFilter
+                            label="Bransje"
+                            options={industryOptions.map((v) => ({ value: v, label: v }))}
+                            selected={industryFilter}
+                            onChange={setIndustryFilter}
                           />
                         </TableHead>
                         <TableHead>
