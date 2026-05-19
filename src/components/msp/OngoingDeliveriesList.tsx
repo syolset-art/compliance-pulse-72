@@ -623,6 +623,18 @@ const ActivityRow = ({
         </div>
       </div>
       <div className="flex items-center gap-1 shrink-0">
+        {hasDetails && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 px-2 text-[11px] gap-1"
+            onClick={onView}
+            title={hasNote || evidenceCount > 0 ? "Se notat og vedlegg" : "Se detaljer"}
+          >
+            <FileText className="h-3 w-3" />
+            Vis
+          </Button>
+        )}
         {!done && (
           <Button
             size="sm"
@@ -635,28 +647,18 @@ const ActivityRow = ({
           </Button>
         )}
         {done && (
-          <>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 px-2 text-[11px] gap-1"
-              onClick={onView}
-            >
-              <FileText className="h-3 w-3" />
-              Vis
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 px-2 text-[11px] text-muted-foreground"
-              onClick={onToggleConfirm}
-              title="Angre"
-            >
-              <RotateCcw className="h-3 w-3" />
-            </Button>
-          </>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 px-2 text-[11px] text-muted-foreground"
+            onClick={onToggleConfirm}
+            title="Angre"
+          >
+            <RotateCcw className="h-3 w-3" />
+          </Button>
         )}
       </div>
+
     </div>
   );
 };
