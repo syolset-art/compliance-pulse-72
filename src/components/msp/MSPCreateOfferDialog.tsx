@@ -397,15 +397,59 @@ export function MSPCreateOfferDialog({
           </div>
         )}
 
+        {view === "saved" && (
+          <div className="flex-1 overflow-y-auto p-6 space-y-5">
+            <div className="flex flex-col items-center text-center gap-3 pt-2">
+              <div className="h-12 w-12 rounded-full bg-success/15 flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-success" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-semibold text-foreground">Tilbudet er lagret</h3>
+                <p className="text-[13px] text-muted-foreground max-w-sm">
+                  <span className="font-medium text-foreground">{offerNumber}</span> · {offerName} ·{" "}
+                  <span className="tabular-nums">{totalPrice.toLocaleString("nb-NO")} kr</span>
+                  {savedAt && <> · lagret {savedAt}</>}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border bg-muted/20 divide-y divide-border">
+              <div className="flex items-start gap-3 p-3">
+                <Inbox className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-medium text-foreground">Lagret på kundekortet</p>
+                  <p className="text-[12px] text-muted-foreground">Du finner det igjen under <span className="text-foreground font-medium">Tilbud</span>-fanen på {customerContactName}.</p>
+                </div>
+                <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-[10px] shrink-0">Utkast</Badge>
+              </div>
+              <div className="flex items-start gap-3 p-3">
+                <ClipboardList className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-medium text-foreground">Aktivitet opprettet for Lara</p>
+                  <p className="text-[12px] text-muted-foreground">Lara følger opp status og minner deg på oppfølging etter 7 dager.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3">
+                <Send className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-medium text-foreground">Ikke sendt til kunden ennå</p>
+                  <p className="text-[12px] text-muted-foreground">Last ned PDF og send fra ditt eget tilbudssystem når du er klar.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <DialogFooter className="p-4 border-t border-border bg-muted/20 sm:justify-between gap-2">
-          {view === "edit" ? (
+          {view === "edit" && (
             <>
               <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>Avbryt</Button>
               <Button size="sm" onClick={handleGenerate} className="gap-1.5">
                 <Eye className="h-3.5 w-3.5" /> Generer tilbud
               </Button>
             </>
-          ) : (
+          )}
+          {view === "preview" && (
             <>
               <Button variant="outline" size="sm" onClick={() => setView("edit")} className="gap-1.5">
                 <ArrowLeft className="h-3.5 w-3.5" /> Tilbake til redigering
@@ -420,8 +464,24 @@ export function MSPCreateOfferDialog({
               </div>
             </>
           )}
+          {view === "saved" && (
+            <>
+              <Button variant="outline" size="sm" onClick={() => setView("preview")} className="gap-1.5">
+                <ArrowLeft className="h-3.5 w-3.5" /> Tilbake
+              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleDownloadPdf} className="gap-1.5">
+                  <Download className="h-3.5 w-3.5" /> Last ned PDF
+                </Button>
+                <Button size="sm" onClick={() => onOpenChange(false)} className="gap-1.5">
+                  Ferdig
+                </Button>
+              </div>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
+
 
       <MSPGapAnalysisDialog
         open={gapPreviewOpen}
