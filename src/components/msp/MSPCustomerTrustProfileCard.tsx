@@ -154,60 +154,81 @@ export function MSPCustomerTrustProfileCard({
       </Card>
 
 
-      {/* Kontrollpunkter — 4 kjernedomener */}
-      <Card className="p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Kontrollpunkter</h3>
-          <span className="text-[11px] text-muted-foreground">Modenhet 0–4 · 4 kjernedomener</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {controlDomains.map(d => {
-            const tone = levelTone(d.level);
-            const pct = (d.level / 4) * 100;
-            const r = 26;
-            const c = 2 * Math.PI * r;
-            const dash = (pct / 100) * c;
-            return (
-              <div key={d.key} className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
-                <div className="relative h-16 w-16 shrink-0">
-                  <svg viewBox="0 0 64 64" className="h-16 w-16 -rotate-90">
+      {/* Kontrollområder per regelverk */}
+      {(() => {
+        const totalLevel = controlDomains.reduce((s, d) => s + d.level, 0);
+        const maxLevel = controlDomains.length * 4;
+        const trustScore = Math.round((totalLevel / maxLevel) * 100);
+        const scoreTone = levelTone(trustScore >= 75 ? 4 : trustScore >= 50 ? 2 : 1);
+        const r = 26;
+        const c = 2 * Math.PI * r;
+        const dash = (trustScore / 100) * c;
+        return (
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Kontrollområder per regelverk</h3>
+                <p className="text-[11px] text-muted-foreground">Modenhet 0–4 · 4 kjernedomener</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="text-right">
+                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">Trust score</p>
+                  <p className="text-[11px] text-muted-foreground">Snittet av områdene</p>
+                </div>
+                <div className="relative h-14 w-14 shrink-0">
+                  <svg viewBox="0 0 64 64" className="h-14 w-14 -rotate-90">
                     <circle cx="32" cy="32" r={r} className="fill-none stroke-muted" strokeWidth="6" />
                     <circle
                       cx="32" cy="32" r={r}
-                      className={`fill-none ${tone.text}`}
+                      className={`fill-none ${scoreTone.text}`}
                       stroke="currentColor"
                       strokeWidth="6"
                       strokeLinecap="round"
                       strokeDasharray={`${dash} ${c}`}
                     />
                   </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
-                    <span className={`text-base font-semibold ${tone.text}`}>{d.level}</span>
-                    <span className="text-[9px] text-muted-foreground">/ 4</span>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className={`text-sm font-semibold ${scoreTone.text}`}>{trustScore}%</span>
                   </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <d.Icon className="h-3.5 w-3.5 text-foreground/70 shrink-0" />
-                    <p className="text-[13px] font-medium text-foreground truncate">{d.name}</p>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{d.description}</p>
-                  {d.source === "lara" ? (
-                    <Badge variant="outline" className="mt-1.5 text-[10px] gap-1 px-1.5 py-0 bg-primary/5 text-primary border-primary/20">
-                      <Sparkles className="h-2.5 w-2.5" />
-                      Lara
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="mt-1.5 text-[10px] px-1.5 py-0 bg-muted text-muted-foreground border-border">
-                      Selvrapportert
-                    </Badge>
-                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </Card>
+            </div>
+            <div className="space-y-2.5">
+              {controlDomains.map(d => {
+                const tone = levelTone(d.level);
+                const pct = (d.level / 4) * 100;
+                return (
+                  <div key={d.key} className="rounded-lg border border-border/60 p-3">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <d.Icon className="h-3.5 w-3.5 text-foreground/70 shrink-0" />
+                        <p className="text-[13px] font-medium text-foreground truncate">{d.name}</p>
+                        {d.source === "lara" ? (
+                          <Badge variant="outline" className="text-[10px] gap-1 px-1.5 py-0 bg-primary/5 text-primary border-primary/20">
+                            <Sparkles className="h-2.5 w-2.5" />
+                            Lara
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-muted text-muted-foreground border-border">
+                            Selvrapportert
+                          </Badge>
+                        )}
+                      </div>
+                      <span className={`text-[13px] font-semibold ${tone.text} shrink-0`}>
+                        {d.level}<span className="text-muted-foreground font-normal">/4</span>
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-snug mb-1.5">{d.description}</p>
+                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                      <div className={`h-full ${tone.bar} rounded-full transition-all`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        );
+      })()}
 
       {/* Dokumenter og bevis */}
       <Card className="p-4 space-y-4">
