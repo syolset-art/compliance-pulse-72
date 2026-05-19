@@ -87,7 +87,27 @@ function deriveNeededServices(c: any): string[] {
   return services.slice(0, 3);
 }
 
-type SortKey = "customer_name" | "country_code" | "tp_status";
+function ScoreCircle({ score }: { score: number }) {
+  const r = 14;
+  const c = 2 * Math.PI * r;
+  const pct = Math.min(Math.max(score, 0), 100);
+  const dash = `${(pct / 100) * c} ${c}`;
+  const color =
+    pct >= 75 ? "text-success"
+    : pct >= 50 ? "text-warning"
+    : "text-destructive";
+  return (
+    <div className="relative inline-flex items-center justify-center" style={{ width: 36, height: 36 }}>
+      <svg width="36" height="36" className="-rotate-90">
+        <circle cx="18" cy="18" r={r} fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/30" />
+        <circle cx="18" cy="18" r={r} fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={dash} className={color} strokeLinecap="round" />
+      </svg>
+      <span className={cn("absolute text-[10px] font-semibold tabular-nums", color)}>{pct}%</span>
+    </div>
+  );
+}
+
+type SortKey = "customer_name" | "country_code" | "tp_status" | "compliance_score";
 type SortDir = "asc" | "desc";
 
 function ColumnFilter({
@@ -161,7 +181,7 @@ export default function MSPDashboard() {
   const [addOpen, setAddOpen] = useState(false);
   const [campaignOpen, setCampaignOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"customers" | "campaigns">("customers");
-  const [view, setView] = useState<ViewMode>("cards");
+  const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
   const [countryCodeFilter, setCountryCodeFilter] = useState<string[]>([]);
@@ -222,6 +242,9 @@ export default function MSPDashboard() {
       }
       if (sortKey === "country_code") {
         return (a.country_code || "NO").localeCompare(b.country_code || "NO", "nb") * dir;
+      }
+      if (sortKey === "compliance_score") {
+        return ((a.compliance_score || 0) - (b.compliance_score || 0)) * dir;
       }
       // tp_status
       const ao = TP_STATUS_ORDER[deriveTPStatus(a)] ?? 99;
@@ -436,7 +459,11 @@ export default function MSPDashboard() {
                             />
                           </div>
                         </TableHead>
-                        <TableHead className="text-right">Modenhet</TableHead>
+                        <TableHead className="text-right">
+                          <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                            Modenhet <SortIcon k="compliance_score" />
+                          </button>
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -485,8 +512,8 @@ export default function MSPDashboard() {
                                 {TP_STATUS_LABEL[tp]}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-right tabular-nums">
-                              {score > 0 ? `${score}%` : "—"}
+                            <TableCell className="text-right">
+                              {score > 0 ? <ScoreCircle score={score} /> : <span className="text-muted-foreground text-sm">—</span>}
                             </TableCell>
                           </TableRow>
                         );
