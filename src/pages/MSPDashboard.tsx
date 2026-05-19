@@ -392,6 +392,16 @@ export default function MSPDashboard() {
 
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
+        <CampaignWizardDialog
+          open={campaignOpen}
+          onOpenChange={setCampaignOpen}
+          onSend={(draft) => {
+            setCampaignOpen(false);
+            toast.success("Kampanje sendt", {
+              description: `"${draft.name || "Uten navn"}" sendt til ${draft.recipients.length} kunder.`,
+            });
+          }}
+        />
       </main>
     </div>
   );
