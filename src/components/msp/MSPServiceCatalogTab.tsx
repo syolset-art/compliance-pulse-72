@@ -392,44 +392,47 @@ export function MSPServiceCatalogTab() {
         </Card>
       )}
 
-      {/* Bibliotek */}
-      <ServiceLibraryBrowser
-        context={partnerContext}
-        adoptedIds={adoptedIds}
-        onAdopt={adoptTemplate}
-        hourlyRate={hourlyRate}
-      />
+      {/* Bibliotek + kalkulator vises kun i partnervisning */}
+      {viewMode === "partner" && (
+        <>
+          <ServiceLibraryBrowser
+            context={partnerContext}
+            adoptedIds={adoptedIds}
+            onAdopt={adoptTemplate}
+            hourlyRate={hourlyRate}
+          />
 
-      {/* Avansert: bygg fra regelverk */}
-      <div className="pt-2">
-        <button
-          type="button"
-          onClick={() => setShowCalculator((v) => !v)}
-          className="inline-flex items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <Settings2 className="h-3.5 w-3.5" />
-          Avansert: bygg fra regelverk og kontrollpunkter
-          {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        </button>
-        {showCalculator && (
-          <div className="space-y-2 mt-3">
-            <p className="text-[11px] text-muted-foreground italic">
-              Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
-            </p>
-            {FRAMEWORK_CATALOG.map((fw) => (
-              <FrameworkCoverageCard
-                key={fw.id}
-                framework={fw}
-                hourlyRate={hourlyRate}
-                selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
-                onSelectionChange={(next) =>
-                  setSelections((prev) => ({ ...prev, [fw.id]: next }))
-                }
-              />
-            ))}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => setShowCalculator((v) => !v)}
+              className="inline-flex items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Settings2 className="h-3.5 w-3.5" />
+              Avansert: bygg fra regelverk og kontrollpunkter
+              {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            </button>
+            {showCalculator && (
+              <div className="space-y-2 mt-3">
+                <p className="text-[11px] text-muted-foreground italic">
+                  Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
+                </p>
+                {FRAMEWORK_CATALOG.map((fw) => (
+                  <FrameworkCoverageCard
+                    key={fw.id}
+                    framework={fw}
+                    hourlyRate={hourlyRate}
+                    selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
+                    onSelectionChange={(next) =>
+                      setSelections((prev) => ({ ...prev, [fw.id]: next }))
+                    }
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
 
       <CustomServiceDialog
         open={manualOpen}
