@@ -82,8 +82,9 @@ export function DashboardLaraRecommendation() {
 
   if (dismissed) return null;
 
-  const count = missingDpaCount || 12;
-  const criticalCount = 8;
+  // Note: `missingDpaCount` is data from DB; selve planen viser kun de oppgavene
+  // Lara faktisk har laget. For å unngå at telleren spriker fra antall kort,
+  // bruker vi `total` (= tasks.length) i UI-tekstene.
 
   // Demo plan tasks (mix of severities and priorities — sorted by priority below)
   const rawTasks: PlanTask[] = [
