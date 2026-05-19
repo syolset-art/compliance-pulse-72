@@ -279,6 +279,8 @@ export function MSPCustomerMessagesTab() {
           </div>
         </Card>
       )}
+
+      <Tabs value={tab} onValueChange={setTab}>
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <TabsList className="bg-muted/50">
             <TabsTrigger value="sent" className="text-xs gap-1.5 data-[state=active]:bg-background">
