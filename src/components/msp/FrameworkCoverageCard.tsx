@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { ChevronDown, ChevronUp, Sparkles, Check } from "lucide-react";
+import { ChevronDown, ChevronUp, Sparkles, Check, Plus, X, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import {
@@ -20,7 +20,24 @@ export interface ControlSelection {
   hoursOverridden?: boolean;
 }
 
-export type FrameworkSelection = Record<string, ControlSelection>;
+export type CustomCostKind = "fixed" | "hourly";
+
+export interface CustomCost {
+  id: string;
+  label: string;
+  kind: CustomCostKind;
+  /** kr (fixed) eller kr/t (hourly) */
+  amount: number;
+  /** kun for hourly */
+  hours?: number;
+  /** Inkluderes i tilbud */
+  includeInOffer: boolean;
+}
+
+export interface FrameworkSelection {
+  controls: Record<string, ControlSelection>;
+  customCosts: CustomCost[];
+}
 
 interface Props {
   framework: FrameworkDefinition;
@@ -33,6 +50,17 @@ function formatNOK(n: number): string {
   return new Intl.NumberFormat("nb-NO").format(Math.round(n)) + " kr";
 }
 
+function genId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `cc_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+export function customCostAmount(c: CustomCost): number {
+  return c.kind === "fixed" ? c.amount : c.amount * (c.hours ?? 0);
+}
+
 export function FrameworkCoverageCard({
   framework,
   hourlyRate,
@@ -42,39 +70,64 @@ export function FrameworkCoverageCard({
   const theme = getFrameworkTheme(framework.id);
   const [expanded, setExpanded] = useState(false);
 
-  const { totalHours, totalPrice, enabledCount } = useMemo(() => {
+  const controls = selection.controls ?? {};
+  const customCosts = selection.customCosts ?? [];
+
+  const { controlHours, controlPrice, enabledCount, customPrice, includedCustomCount } = useMemo(() => {
     let h = 0;
     let n = 0;
     framework.controlPoints.forEach((cp) => {
-      const s = selection[cp.id];
+      const s = controls[cp.id];
       if (s?.enabled) {
         h += s.hours;
         n += 1;
       }
     });
-    return { totalHours: h, totalPrice: h * hourlyRate, enabledCount: n };
-  }, [framework, selection, hourlyRate]);
+    let cp = 0;
+    let cn = 0;
+    customCosts.forEach((c) => {
+      if (c.includeInOffer) {
+        cp += customCostAmount(c);
+        cn += 1;
+      }
+    });
+    return {
+      controlHours: h,
+      controlPrice: h * hourlyRate,
+      enabledCount: n,
+      customPrice: cp,
+      includedCustomCount: cn,
+    };
+  }, [framework, controls, customCosts, hourlyRate]);
 
+  const totalPrice = controlPrice + customPrice;
   const partnerDelivers = enabledCount > 0 || expanded;
+
+  const updateSelection = (patch: Partial<FrameworkSelection>) => {
+    onSelectionChange({
+      controls: selection.controls ?? {},
+      customCosts: selection.customCosts ?? [],
+      ...patch,
+    });
+  };
 
   const updateControl = (cpId: string, patch: Partial<ControlSelection>) => {
     const cp = framework.controlPoints.find((c) => c.id === cpId)!;
-    const current = selection[cpId] ?? {
+    const current = controls[cpId] ?? {
       enabled: false,
       level: "partial" as CoverageLevel,
       hours: cp.hoursByLevel.partial,
       hoursOverridden: false,
     };
     const merged: ControlSelection = { ...current, ...patch };
-    // Når nivå endres og brukeren ikke har overstyrt timer — bruk Lara-forslag
     if (patch.level && !merged.hoursOverridden) {
       merged.hours = cp.hoursByLevel[merged.level];
     }
-    onSelectionChange({ ...selection, [cpId]: merged });
+    updateSelection({ controls: { ...controls, [cpId]: merged } });
   };
 
   const toggleAll = (enabled: boolean) => {
-    const next: FrameworkSelection = { ...selection };
+    const next: Record<string, ControlSelection> = { ...controls };
     framework.controlPoints.forEach((cp) => {
       const current = next[cp.id];
       next[cp.id] = {
@@ -84,8 +137,31 @@ export function FrameworkCoverageCard({
         hoursOverridden: current?.hoursOverridden ?? false,
       };
     });
-    onSelectionChange(next);
+    updateSelection({ controls: next });
     if (enabled) setExpanded(true);
+  };
+
+  // --- Custom cost handlers ---
+  const addCustomCost = () => {
+    const c: CustomCost = {
+      id: genId(),
+      label: "",
+      kind: "fixed",
+      amount: 0,
+      hours: 0,
+      includeInOffer: true,
+    };
+    updateSelection({ customCosts: [...customCosts, c] });
+  };
+
+  const updateCustomCost = (id: string, patch: Partial<CustomCost>) => {
+    updateSelection({
+      customCosts: customCosts.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+    });
+  };
+
+  const removeCustomCost = (id: string) => {
+    updateSelection({ customCosts: customCosts.filter((c) => c.id !== id) });
   };
 
   return (
@@ -127,12 +203,17 @@ export function FrameworkCoverageCard({
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">KP valgt</div>
           <div className="text-sm font-semibold text-foreground tabular-nums">
             {enabledCount} / {framework.controlPoints.length}
+            {includedCustomCount > 0 && (
+              <span className="ml-1 text-[10px] font-medium text-muted-foreground">
+                + {includedCustomCount} tillegg
+              </span>
+            )}
           </div>
         </div>
 
         <div className="text-right">
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Timer</div>
-          <div className="text-sm font-semibold text-foreground tabular-nums">{totalHours} t</div>
+          <div className="text-sm font-semibold text-foreground tabular-nums">{controlHours} t</div>
         </div>
 
         <div className="text-right min-w-[110px]">
@@ -184,7 +265,7 @@ export function FrameworkCoverageCard({
 
           <ul className="space-y-1">
             {framework.controlPoints.map((cp) => {
-              const s = selection[cp.id];
+              const s = controls[cp.id];
               const enabled = !!s?.enabled;
               const level = s?.level ?? "partial";
               const hours = s?.hours ?? cp.hoursByLevel[level];
@@ -255,19 +336,194 @@ export function FrameworkCoverageCard({
             })}
           </ul>
 
+          {/* Egendefinerte kostnader */}
+          <div className="pt-3 mt-1 border-t border-border space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
+                <Tag className="h-3 w-3" />
+                Egendefinerte kostnader
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-[11px] text-primary"
+                onClick={addCustomCost}
+              >
+                <Plus className="h-3 w-3 mr-1" /> Legg til kostnad
+              </Button>
+            </div>
+
+            {customCosts.length === 0 ? (
+              <p className="text-[11px] text-muted-foreground italic px-2 py-2">
+                Legg til etableringsgebyr, drift, prosjektledelse e.l. — kunden velger om de skal med i tilbudet.
+              </p>
+            ) : (
+              <>
+                {/* Kolonneoverskrifter */}
+                <div className="grid items-center gap-2 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_140px_100px_70px_110px_auto]">
+                  <span className="w-4" />
+                  <span>Navn</span>
+                  <span>Type</span>
+                  <span className="text-right">Beløp</span>
+                  <span className="text-right">Timer</span>
+                  <span className="text-right">Sum</span>
+                  <span className="w-7" />
+                </div>
+                <ul className="space-y-1">
+                  {customCosts.map((c) => {
+                    const isHourly = c.kind === "hourly";
+                    const sum = customCostAmount(c);
+                    return (
+                      <li
+                        key={c.id}
+                        className={cn(
+                          "grid items-center gap-2 px-2 py-2 rounded-md border bg-background grid-cols-[auto_1fr_140px_100px_70px_110px_auto]",
+                          c.includeInOffer ? "border-border" : "border-border/40 opacity-70",
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={c.includeInOffer}
+                          onChange={(e) =>
+                            updateCustomCost(c.id, { includeInOffer: e.target.checked })
+                          }
+                          className="h-4 w-4 rounded border-border accent-primary"
+                          aria-label="Ta med i tilbud"
+                        />
+
+                        <Input
+                          type="text"
+                          value={c.label}
+                          placeholder="F.eks. Etableringsgebyr"
+                          onChange={(e) => updateCustomCost(c.id, { label: e.target.value })}
+                          className="h-7 px-2 text-[12px]"
+                        />
+
+                        {/* Type-toggle */}
+                        <div className="inline-flex rounded-md border border-border overflow-hidden h-7">
+                          <button
+                            type="button"
+                            onClick={() => updateCustomCost(c.id, { kind: "fixed" })}
+                            className={cn(
+                              "flex-1 text-[11px] px-2 transition-colors",
+                              !isHourly
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-background text-muted-foreground hover:bg-muted",
+                            )}
+                          >
+                            Fast
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => updateCustomCost(c.id, { kind: "hourly" })}
+                            className={cn(
+                              "flex-1 text-[11px] px-2 transition-colors border-l border-border",
+                              isHourly
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-background text-muted-foreground hover:bg-muted",
+                            )}
+                          >
+                            Pr time
+                          </button>
+                        </div>
+
+                        {/* Beløp */}
+                        <div className="flex items-center justify-end gap-1">
+                          <Input
+                            type="number"
+                            min={0}
+                            step={isHourly ? 50 : 100}
+                            value={c.amount}
+                            onChange={(e) =>
+                              updateCustomCost(c.id, {
+                                amount: Math.max(0, Number(e.target.value) || 0),
+                              })
+                            }
+                            className="h-7 w-20 px-1.5 text-[12px] text-right tabular-nums"
+                          />
+                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                            {isHourly ? "kr/t" : "kr"}
+                          </span>
+                        </div>
+
+                        {/* Timer (kun hourly) */}
+                        <div className="flex items-center justify-end gap-1">
+                          {isHourly ? (
+                            <>
+                              <Input
+                                type="number"
+                                min={0}
+                                step={1}
+                                value={c.hours ?? 0}
+                                onChange={(e) =>
+                                  updateCustomCost(c.id, {
+                                    hours: Math.max(0, Number(e.target.value) || 0),
+                                  })
+                                }
+                                className="h-7 w-12 px-1.5 text-[12px] text-right tabular-nums"
+                              />
+                              <span className="text-[10px] text-muted-foreground">t</span>
+                            </>
+                          ) : (
+                            <span className="text-[11px] text-muted-foreground">—</span>
+                          )}
+                        </div>
+
+                        {/* Sum */}
+                        <div className="text-right text-sm font-semibold text-foreground tabular-nums">
+                          {c.includeInOffer ? formatNOK(sum) : "—"}
+                        </div>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                          onClick={() => removeCustomCost(c.id)}
+                          aria-label="Fjern kostnad"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            )}
+          </div>
+
           {/* Sum */}
-          <div className="flex items-center justify-between pt-2 mt-2 border-t border-border">
-            <span className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-primary" />
-              Inntektspotensial for {framework.shortName}
-            </span>
-            <div className="flex items-center gap-6">
-              <span className="text-sm font-semibold text-foreground tabular-nums">
-                {totalHours} t
+          <div className="pt-3 mt-2 border-t border-border space-y-1.5">
+            {customPrice > 0 && (
+              <>
+                <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+                  <span>Kontrollpunkter</span>
+                  <div className="flex items-center gap-6">
+                    <span className="tabular-nums">{controlHours} t</span>
+                    <span className="tabular-nums w-28 text-right">{formatNOK(controlPrice)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+                  <span>Tillegg ({includedCustomCount})</span>
+                  <div className="flex items-center gap-6">
+                    <span className="tabular-nums" />
+                    <span className="tabular-nums w-28 text-right">{formatNOK(customPrice)}</span>
+                  </div>
+                </div>
+              </>
+            )}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
+                <Check className="h-3.5 w-3.5 text-primary" />
+                {customPrice > 0 ? "Totalt" : "Inntektspotensial"} for {framework.shortName}
               </span>
-              <span className="text-base font-bold text-foreground tabular-nums w-28 text-right">
-                {formatNOK(totalPrice)}
-              </span>
+              <div className="flex items-center gap-6">
+                <span className="text-sm font-semibold text-foreground tabular-nums">
+                  {controlHours} t
+                </span>
+                <span className="text-base font-bold text-foreground tabular-nums w-28 text-right">
+                  {formatNOK(totalPrice)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
