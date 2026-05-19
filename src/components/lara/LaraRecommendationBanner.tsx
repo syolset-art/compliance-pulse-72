@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Diamond, ChevronLeft, ChevronRight, Clock, X } from "lucide-react";
+import { Diamond, ChevronLeft, ChevronRight, Clock, X, LayoutList, Table as TableIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useLaraSuggestionStates, type LaraSuggestionContext } from "@/hooks/useLaraSuggestionStates";
 import { toast } from "sonner";
