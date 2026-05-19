@@ -41,6 +41,7 @@ export function MSPServiceCatalogTab() {
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>([]);
   const [showCalculator, setShowCalculator] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -92,7 +93,7 @@ export function MSPServiceCatalogTab() {
     }
     extras.forEach((e) => {
       h += e.hours;
-      p += e.fixedPrice ?? e.hours * hourlyRate;
+      p += e.hours * hourlyRate;
     });
     return { grandHours: h, grandPrice: p, frameworksActive: n };
   }, [selections, hourlyRate, extras, showCalculator]);
@@ -114,7 +115,18 @@ export function MSPServiceCatalogTab() {
 
   const adoptTemplate = (template: ServiceTemplate) => {
     if (adoptedIds.has(template.id)) return;
+    // Bygg aktiviteter fra malen. Hvis timer mangler, fordel snitt likt.
     const hoursAvg = Math.round((template.estimatedHours.min + template.estimatedHours.max) / 2);
+    const withHours = template.activities.filter((a) => typeof a.hours === "number");
+    const withoutHoursCount = template.activities.length - withHours.length;
+    const remainder = Math.max(0, hoursAvg - withHours.reduce((s, a) => s + (a.hours ?? 0), 0));
+    const perRemaining =
+      withoutHoursCount > 0 ? remainder / withoutHoursCount : 0;
+    const activities: ServiceActivity[] = template.activities.map((a) => ({
+      label: a.label,
+      hours: typeof a.hours === "number" ? a.hours : Math.max(0, perRemaining),
+    }));
+    const totalHours = activities.reduce((s, a) => s + a.hours, 0) || hoursAvg;
     const mappings: ServiceMapping[] = template.mappings.flatMap((m) => {
       const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
       return m.controlIds.map((cid) => {
@@ -131,8 +143,8 @@ export function MSPServiceCatalogTab() {
       id: `adopt-${template.id}-${Date.now()}`,
       name: template.name,
       description: template.shortDescription,
-      hours: hoursAvg,
-      // Ingen fastpris — pris beregnes alltid fra timer × partnerens timepris.
+      hours: totalHours,
+      activities,
       source: "library",
       templateCode: template.code,
       templateId: template.id,
@@ -141,17 +153,36 @@ export function MSPServiceCatalogTab() {
     };
     setExtras((prev) => [...prev, next]);
     toast.success(`${template.code} · ${template.name} adoptert`, {
-      description: "Justér timer og aktiviteter i selve tilbudet — pris beregnes fra timepris.",
+      description: "Rediger for å justere aktiviteter — pris beregnes fra timepris.",
     });
   };
 
   const handleManualSave = (draft: CustomServiceDraft) => {
+    if (editingId) {
+      setExtras((prev) =>
+        prev.map((e) =>
+          e.id === editingId
+            ? {
+                ...e,
+                name: draft.name,
+                description: draft.description,
+                hours: draft.hours,
+                activities: draft.activities,
+                mappings: draft.mappings,
+              }
+            : e,
+        ),
+      );
+      toast.success(`"${draft.name}" oppdatert`);
+      setEditingId(null);
+      return;
+    }
     const newService: ExtraService = {
       id: `manual-${Date.now()}`,
       name: draft.name,
       description: draft.description,
-      hours: draft.hours ?? 0,
-      fixedPrice: draft.fixedPrice,
+      hours: draft.hours,
+      activities: draft.activities,
       source: "manual",
       mappings: draft.mappings,
     };
@@ -162,6 +193,19 @@ export function MSPServiceCatalogTab() {
   const removeExtra = (id: string) => {
     setExtras((prev) => prev.filter((e) => e.id !== id));
   };
+
+  const editingService = editingId ? extras.find((e) => e.id === editingId) ?? null : null;
+  const editingDraft: CustomServiceDraft | undefined = editingService
+    ? {
+        name: editingService.name,
+        description: editingService.description,
+        hours: editingService.hours,
+        activities: editingService.activities,
+        mappings: editingService.mappings,
+      }
+    : undefined;
+
+
 
   return (
     <div className="space-y-4">
