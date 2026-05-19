@@ -610,12 +610,10 @@ const ActivityRow = ({
               Ikke relevant
             </Badge>
           )}
-          {activity.owner && (
-            <Badge variant="outline" className="text-[10px] gap-1 h-5">
-              <UserIcon className="h-2.5 w-2.5" />
-              {activity.owner}
-            </Badge>
-          )}
+          <Badge variant="outline" className="text-[10px] gap-1 h-5">
+            <UserIcon className="h-2.5 w-2.5" />
+            Partner
+          </Badge>
           {activity.date && (
             <span className="text-[11px] text-muted-foreground">
               {activity.date}
@@ -628,15 +626,6 @@ const ActivityRow = ({
             >
               <Paperclip className="h-2.5 w-2.5" />
               {evidenceCount}
-            </Badge>
-          )}
-          {activity.laraSteps && activity.laraSteps.length > 0 && (
-            <Badge
-              variant="outline"
-              className="text-[10px] gap-1 h-5 bg-primary/5 text-primary border-primary/20"
-            >
-              <Sparkles className="h-2.5 w-2.5" />
-              Lara: {activity.laraSteps.length} steg
             </Badge>
           )}
         </div>
