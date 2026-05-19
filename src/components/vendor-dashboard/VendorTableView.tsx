@@ -255,9 +255,6 @@ export function VendorTableView({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                Navn
-              </TableHead>
               <TableHead className="w-20">
                 <ColumnFilter
                   label="Land"
@@ -265,6 +262,9 @@ export function VendorTableView({
                   onChange={setCountryFilter}
                   options={countries.map(c => ({ value: c, label: c }))}
                 />
+              </TableHead>
+              <TableHead className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Navn
               </TableHead>
               <TableHead>
                 <ColumnFilter
