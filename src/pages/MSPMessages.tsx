@@ -461,6 +461,15 @@ export default function MSPMessages() {
             </DialogDescription>
           </DialogHeader>
 
+          <Link
+            to="/msp-settings"
+            onClick={() => setSettingsOpen(false)}
+            className="inline-flex items-center gap-1 text-[12px] text-primary hover:underline -mt-1"
+          >
+            Administrer i Innstillinger →
+          </Link>
+
+
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label htmlFor="inboxEmail" className="text-[13px]">Mottaks-e-post</Label>
