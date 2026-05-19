@@ -127,6 +127,8 @@ export function DashboardLaraRecommendation() {
   );
 
   const total = tasks.length;
+  const count = total;
+  const criticalCount = tasks.filter((t) => t.severity === "critical").length;
   const current = tasks[step];
 
   const severityChip = (sev: Severity) => {
