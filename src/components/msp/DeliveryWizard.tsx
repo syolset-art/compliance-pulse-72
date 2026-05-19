@@ -20,6 +20,8 @@ import {
   PartyPopper,
   Send,
   Undo2,
+  UserRound,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type {
@@ -30,6 +32,7 @@ import type {
 import type { ConfirmPayload, EvidenceFileMeta } from "./ConfirmActivityDialog";
 import { ConfirmActivityDialog } from "./ConfirmActivityDialog";
 import { LaraDraftDialog } from "./LaraDraftDialog";
+import { DeliverySummaryDialog } from "./DeliverySummaryDialog";
 import { getService } from "@/lib/serviceCatalog";
 import { toast } from "sonner";
 
