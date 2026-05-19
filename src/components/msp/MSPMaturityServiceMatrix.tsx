@@ -191,7 +191,7 @@ export interface DeliveryActivity {
   note?: string;
   evidence?: EvidenceFileMeta[];
   sharedWithCustomer?: boolean;
-  laraSteps?: string[];
+  laraSteps?: LaraStep[];
   partnerSteps?: string[];
   laraDraft?: {
     title: string;
