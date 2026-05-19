@@ -11,7 +11,34 @@ import {
   Check,
   AlertCircle,
   Lock,
+  ShieldCheck,
+  Activity,
+  Users,
+  Sparkles,
 } from "lucide-react";
+
+type ControlDomain = {
+  key: string;
+  name: string;
+  description: string;
+  level: number; // 0-4
+  source: "lara" | "self";
+  Icon: typeof ShieldCheck;
+};
+
+const controlDomains: ControlDomain[] = [
+  { key: "governance", name: "Styring", description: "Policy, roller og ledelsesforankring", level: 3, source: "lara", Icon: ShieldCheck },
+  { key: "operations", name: "Drift og sikkerhet", description: "Tilgang, logging, hendelseshåndtering", level: 4, source: "self", Icon: Activity },
+  { key: "privacy", name: "Personvern", description: "GDPR-etterlevelse og datahåndtering", level: 2, source: "lara", Icon: Lock },
+  { key: "third_party", name: "Tredjepart", description: "Leverandørstyring og verdikjede", level: 3, source: "lara", Icon: Users },
+];
+
+function levelTone(level: number) {
+  const pct = (level / 4) * 100;
+  if (pct >= 75) return { bar: "bg-success", text: "text-success", badge: "bg-success/10 text-success border-success/30" };
+  if (pct >= 50) return { bar: "bg-warning", text: "text-warning", badge: "bg-warning/10 text-warning border-warning/30" };
+  return { bar: "bg-destructive", text: "text-destructive", badge: "bg-destructive/10 text-destructive border-destructive/30" };
+}
 
 import { useState } from "react";
 import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
