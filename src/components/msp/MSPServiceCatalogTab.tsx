@@ -13,7 +13,7 @@ import {
   FrameworkCoverageCard,
   type FrameworkSelection,
 } from "./FrameworkCoverageCard";
-import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping } from "./CustomServiceDialog";
+import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping, type ServiceActivity } from "./CustomServiceDialog";
 import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import type { ServiceTemplate, PartnerContext } from "@/lib/serviceLibrary";
 
@@ -24,7 +24,7 @@ interface ExtraService {
   name: string;
   description?: string;
   hours: number;
-  fixedPrice?: number;
+  activities: ServiceActivity[];
   source: "library" | "manual";
   templateCode?: string;
   templateId?: string;
