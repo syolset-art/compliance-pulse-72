@@ -45,6 +45,7 @@ export function LaraRecommendationBanner({
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const [showPlan, setShowPlan] = useState(false);
   const [step, setStep] = useState(0);
+  const [viewMode, setViewMode] = useState<"single" | "table">("single");
   const { hiddenKeys, snooze, dismiss } = useLaraSuggestionStates();
 
   const visibleTasks = useMemo(
