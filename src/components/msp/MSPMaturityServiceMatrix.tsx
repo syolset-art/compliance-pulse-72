@@ -616,7 +616,7 @@ export function MSPMaturityServiceMatrix() {
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                       Kontrollpunkter og aktiviteter
                     </p>
-                    {d.controls.map(c => {
+                    {controls.map(c => {
                       const statusMap = {
                         missing: { Icon: Circle, cls: "text-destructive", bar: "bg-destructive", label: "Ikke startet" },
                         partial: { Icon: AlertCircle, cls: "text-warning", bar: "bg-warning", label: "Pågår" },
