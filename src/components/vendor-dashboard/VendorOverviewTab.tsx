@@ -465,3 +465,75 @@ function ComplianceDistribution({ vendors }: { vendors: Asset[] }) {
     </div>
   );
 }
+
+/**
+ * Kritisk for vår virksomhet — viser leverandører med kritikalitet "critical"
+ * eller "high". Følger samme pille-stil som tabellvisningen.
+ */
+function CriticalVendorsCard({
+  vendors, onOpen,
+}: { vendors: Asset[]; onOpen: (id: string) => void }) {
+  const critical = useMemo(() => {
+    const order: Record<string, number> = { critical: 0, high: 1 };
+    return vendors
+      .filter(v => v.criticality === "critical" || v.criticality === "high")
+      .sort((a, b) => (order[a.criticality!] ?? 9) - (order[b.criticality!] ?? 9))
+      .slice(0, 6);
+  }, [vendors]);
+
+  return (
+    <Card variant="flat" className="p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+          <AlertTriangle className="h-3.5 w-3.5 text-destructive" aria-hidden="true" />
+          Kritisk for vår virksomhet
+        </h2>
+        <Badge variant="outline" className="text-[13px]">{critical.length}</Badge>
+      </div>
+
+      {critical.length === 0 ? (
+        <p className="text-xs text-muted-foreground py-6 text-center">
+          Ingen leverandører er markert som kritiske ennå.
+        </p>
+      ) : (
+        <div className="space-y-1.5">
+          {critical.map(v => {
+            const isCritical = v.criticality === "critical";
+            return (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => onOpen(v.id)}
+                aria-label={`Åpne leverandør ${v.name}, kritikalitet ${v.criticality}`}
+                className="w-full text-left flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors"
+              >
+                <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Building2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
+                  {v.vendor_category && (
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {CATEGORY_LABELS[v.vendor_category] || v.vendor_category}
+                    </p>
+                  )}
+                </div>
+                <Badge
+                  variant="outline"
+                  className={`text-[11px] h-5 font-normal ${
+                    isCritical
+                      ? "bg-destructive/10 text-destructive border-destructive/30"
+                      : "bg-warning/15 text-warning border-warning/30"
+                  }`}
+                >
+                  {isCritical ? "Kritisk" : "Høy"}
+                </Badge>
+                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </Card>
+  );
+}
