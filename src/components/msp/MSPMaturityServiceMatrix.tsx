@@ -570,11 +570,10 @@ export function MSPMaturityServiceMatrix({
       evidence: payload.files,
       sharedWithCustomer: payload.sharedWithCustomer,
     }));
-    toast.success("Aktivitet bekreftet — Trust Profile oppdatert", {
-      description: payload.files.length > 0
-        ? `${payload.files.length} bevis lagt ved${payload.sharedWithCustomer ? " · Kunden varsles" : ""}`
-        : payload.sharedWithCustomer ? "Kunden varsles" : undefined,
+    toast.success("Aktivitet sendt til kunde", {
+      description: "Trust Profile oppdateres når kunden har godkjent rapporten.",
     });
+
   };
 
   const undoActivity = (deliveryId: string, controlId: string, activityId: string) => {
