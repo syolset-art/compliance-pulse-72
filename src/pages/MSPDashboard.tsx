@@ -55,6 +55,8 @@ export default function MSPDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [addOpen, setAddOpen] = useState(false);
+  const [campaignOpen, setCampaignOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"customers" | "campaigns">("customers");
   const [view, setView] = useState<ViewMode>("cards");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
