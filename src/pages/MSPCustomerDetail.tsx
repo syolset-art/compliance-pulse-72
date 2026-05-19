@@ -277,7 +277,10 @@ export default function MSPCustomerDetail() {
 
             {/* ── Vurdering ── */}
             <TabsContent value="assessment" className="mt-6 space-y-5">
-              <MSPMaturityServiceMatrix />
+              <MSPMaturityServiceMatrix
+                customerName={customer.name || "Kunden"}
+                customerEmail={customer.contact_email ?? undefined}
+              />
             </TabsContent>
 
             {/* ── Tjenester ── */}
