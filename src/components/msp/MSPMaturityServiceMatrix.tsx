@@ -643,7 +643,7 @@ export function MSPMaturityServiceMatrix({
           </TabsTrigger>
           <TabsTrigger value="ongoing" className="gap-2">
             Tilbud
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{ONGOING.length}</Badge>
+            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{savedOffers.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="deliveries" className="gap-2">
             Pågående oppdrag
