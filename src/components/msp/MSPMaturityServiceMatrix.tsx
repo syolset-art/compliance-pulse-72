@@ -318,6 +318,10 @@ const DELIVERIES: DeliveryItem[] = [
               "Tilpasset kundens domene, roller og verktøy",
               "Sjekket mot eksisterende personvernerklæring",
             ],
+            partnerSteps: [
+              "Kvalitetssjekke språk og tone mot kundens profil",
+              "Hente inn juridisk signatur fra kundens DPO",
+            ],
             laraDraft: {
               title: "Policy for akseptabel bruk",
               fileName: "policy-akseptabel-bruk-v1.pdf",
