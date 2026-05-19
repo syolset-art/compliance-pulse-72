@@ -48,6 +48,7 @@ import MSPPartnerDashboard from "./pages/MSPPartnerDashboard";
 import MSPCustomerDetail from "./pages/MSPCustomerDetail";
 import MSPCustomerPortal from "./pages/MSPCustomerPortal";
 import MSPBillingSettings from "./pages/MSPBillingSettings";
+import MSPPartnerSettings from "./pages/MSPPartnerSettings";
 import MSPLicenses from "./pages/MSPLicenses";
 import MSPInvoices from "./pages/MSPInvoices";
 import MSPMessages from "./pages/MSPMessages";
