@@ -164,6 +164,7 @@ export default function MSPDashboard() {
   const [view, setView] = useState<ViewMode>("cards");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
+  const [countryCodeFilter, setCountryCodeFilter] = useState<string[]>([]);
   const [criticalityFilter, setCriticalityFilter] = useState<string[]>([]);
   const [tpStatusFilter, setTpStatusFilter] = useState<TPStatusKey[]>([]);
   const [serviceFilter, setServiceFilter] = useState<string[]>([]);
