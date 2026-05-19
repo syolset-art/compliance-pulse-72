@@ -552,7 +552,10 @@ const ActivityRow = ({
 }) => {
   const done = activity.done;
   const evidenceCount = activity.evidence?.length ?? 0;
+  const hasNote = !!activity.note && activity.note.trim().length > 0;
+  const hasDetails = done || evidenceCount > 0 || hasNote;
   return (
+
     <div
       className={cn(
         "flex items-start gap-2 rounded-md border px-2.5 py-2 text-left transition-colors",
