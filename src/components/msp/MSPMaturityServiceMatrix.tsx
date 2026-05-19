@@ -700,36 +700,106 @@ export function MSPMaturityServiceMatrix() {
                             <div className={cn("h-full transition-all", s.bar)} style={{ width: `${c.progress}%` }} />
                           </div>
                           <div className="space-y-1 pt-1">
-                            {c.activities.map(a => (
-                              <label
-                                key={a.id}
-                                className="flex items-start gap-2.5 p-1.5 rounded-md hover:bg-background cursor-pointer"
-                              >
-                                <Checkbox
-                                  checked={a.done}
-                                  onCheckedChange={() => toggleActivity(d.id, c.id, a.id)}
-                                  className="mt-0.5"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <span
-                                    className={cn(
-                                      "text-[13px]",
-                                      a.done ? "text-muted-foreground line-through" : "text-foreground"
+                            {c.activities.map(a => {
+                              const evidenceCount = a.evidence?.length ?? 0;
+                              return (
+                                <div
+                                  key={a.id}
+                                  className="flex items-start gap-2.5 p-1.5 rounded-md hover:bg-background"
+                                >
+                                  <div className="mt-0.5 shrink-0">
+                                    {a.done ? (
+                                      <CheckCircle2 className="h-4 w-4 text-success" />
+                                    ) : (
+                                      <Circle className="h-4 w-4 text-muted-foreground" />
                                     )}
-                                  >
-                                    {a.label}
-                                  </span>
-                                  {(a.owner || a.date) && (
-                                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <span
+                                      className={cn(
+                                        "text-[13px]",
+                                        a.done ? "text-muted-foreground" : "text-foreground"
+                                      )}
+                                    >
+                                      {a.label}
+                                    </span>
+                                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5 flex-wrap">
                                       {a.owner && <span>{a.owner}</span>}
                                       {a.owner && a.date && <span>·</span>}
                                       {a.date && <span>{a.date}</span>}
+                                      {a.done && a.confirmedBy && (
+                                        <>
+                                          <span>·</span>
+                                          <span className="text-success">Bekreftet av {a.confirmedBy}</span>
+                                        </>
+                                      )}
+                                      {evidenceCount > 0 && (
+                                        <>
+                                          <span>·</span>
+                                          <span className="inline-flex items-center gap-1 text-primary">
+                                            <FileText className="h-3 w-3" />
+                                            {evidenceCount} bevis
+                                          </span>
+                                        </>
+                                      )}
                                     </div>
-                                  )}
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    {a.done ? (
+                                      <>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-7 px-2 text-[11px]"
+                                          onClick={() =>
+                                            setConfirmCtx({
+                                              open: true,
+                                              deliveryId: d.id,
+                                              controlId: c.id,
+                                              activityId: a.id,
+                                              readOnly: true,
+                                            })
+                                          }
+                                        >
+                                          Se bevis
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-7 px-2 text-[11px] text-muted-foreground hover:text-destructive"
+                                          onClick={() => undoActivity(d.id, c.id, a.id)}
+                                        >
+                                          Angre
+                                        </Button>
+                                      </>
+                                    ) : (
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 px-2.5 text-[11px] gap-1"
+                                        onClick={() =>
+                                          setConfirmCtx({
+                                            open: true,
+                                            deliveryId: d.id,
+                                            controlId: c.id,
+                                            activityId: a.id,
+                                            readOnly: false,
+                                          })
+                                        }
+                                      >
+                                        <CheckCircle2 className="h-3.5 w-3.5" />
+                                        Bekreft ferdig
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
-                              </label>
-                            ))}
+                              );
+                            })}
                           </div>
+
                         </Card>
                       );
                     })}
