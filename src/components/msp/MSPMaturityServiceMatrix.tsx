@@ -804,8 +804,8 @@ export function MSPMaturityServiceMatrix({
                               size="sm"
                               variant="ghost"
                               className="h-7 w-7 p-0"
-                              title="Del med kunde"
-                              onClick={() => toast.success(`Tilbud ${o.offerNumber} delt med kunden`)}
+                              title="Del tilbud"
+                              onClick={() => setShareCtx({ open: true, offerNumber: o.offerNumber, serviceTitle: o.serviceTitle })}
                             >
                               <Share2 className="h-3.5 w-3.5" />
                             </Button>
