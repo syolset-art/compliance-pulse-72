@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, X, CheckCircle2, ShieldCheck, Eye } from "lucide-react";
+import { Upload, FileText, X, CheckCircle2, ShieldCheck, Eye, Clock, MinusCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -22,10 +22,13 @@ export interface EvidenceFileMeta {
   uploadedAt: string;
 }
 
+export type ActivityStatus = "in_progress" | "not_relevant" | "done";
+
 export interface ConfirmPayload {
   note: string;
   files: EvidenceFileMeta[];
   sharedWithCustomer: boolean;
+  status: ActivityStatus;
 }
 
 interface Props {
