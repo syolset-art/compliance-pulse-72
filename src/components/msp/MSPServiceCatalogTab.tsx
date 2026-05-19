@@ -96,6 +96,18 @@ export function MSPServiceCatalogTab() {
   const handleLaraComplete = (suggestions: PartnerService[]) => {
     const imported: ExtraService[] = suggestions.map((s) => {
       const isFixed = s.priceModel === "fixed" || s.priceModel === "monthly";
+      const mappings: ServiceMapping[] = (s.frameworkMappings ?? []).flatMap((m) => {
+        const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
+        return m.controlIds.map((cid) => {
+          const cp = fw?.controlPoints.find((c) => c.id === cid);
+          return {
+            frameworkId: m.frameworkId,
+            frameworkShortName: fw?.shortName ?? m.frameworkLabel,
+            controlId: cid,
+            controlLabel: cp?.label ?? cid,
+          };
+        });
+      });
       return {
         id: s.id,
         name: s.name,
@@ -103,6 +115,7 @@ export function MSPServiceCatalogTab() {
         hours: s.priceModel === "hourly" && s.price ? s.price : 8,
         fixedPrice: isFixed ? s.price : undefined,
         source: "lara" as const,
+        mappings,
       };
     });
     setExtras((prev) => [...prev, ...imported]);
@@ -118,10 +131,12 @@ export function MSPServiceCatalogTab() {
       hours: draft.hours ?? 0,
       fixedPrice: draft.fixedPrice,
       source: "manual",
+      mappings: draft.mappings,
     };
     setExtras((prev) => [...prev, newService]);
     toast.success(`"${draft.name}" lagt til i katalogen`);
   };
+
 
   const removeExtra = (id: string) => {
     setExtras((prev) => prev.filter((e) => e.id !== id));
