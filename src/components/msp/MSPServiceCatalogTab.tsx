@@ -134,7 +134,7 @@ export function MSPServiceCatalogTab() {
             key={fw.id}
             framework={fw}
             hourlyRate={hourlyRate}
-            selection={selections[fw.id] ?? {}}
+            selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
             onSelectionChange={(next) =>
               setSelections((prev) => ({ ...prev, [fw.id]: next }))
             }
