@@ -177,10 +177,20 @@ const ONGOING: OngoingItem[] = [
   },
 ];
 
-interface ChecklistItem {
+interface DeliveryActivity {
   id: string;
   label: string;
   done: boolean;
+  owner?: TaskOwner;
+  date?: string;
+}
+
+interface DeliveryControl {
+  id: string; // f.eks. "A.6.3"
+  name: string;
+  status: "missing" | "partial" | "fulfilled";
+  progress: number; // 0-100
+  activities: DeliveryActivity[];
 }
 
 interface DeliveryItem {
@@ -188,15 +198,8 @@ interface DeliveryItem {
   title: string;
   meta: string;
   serviceId?: string;
-  checklist: ChecklistItem[];
+  controls: DeliveryControl[];
 }
-
-const buildChecklist = (items: string[], doneCount = 0): ChecklistItem[] =>
-  items.map((label, i) => ({
-    id: `c${i}`,
-    label,
-    done: i < doneCount,
-  }));
 
 const DELIVERIES: DeliveryItem[] = [
   {
@@ -204,14 +207,61 @@ const DELIVERIES: DeliveryItem[] = [
     title: "Awareness-program 2025",
     meta: "Løpende leveranse · Neste kampanje 20. mai",
     serviceId: "awareness",
-    checklist: buildChecklist(getService("awareness")!.defaultChecklist, 2),
+    controls: [
+      {
+        id: "A.6.3",
+        name: "Sikkerhetsbevissthet, opplæring og trening",
+        status: "partial",
+        progress: 60,
+        activities: [
+          { id: "a1", label: "Baselinemåling phishing-simulering", done: true, owner: "Partner", date: "12. feb" },
+          { id: "a2", label: "Kvartalsvis e-læring rullet ut (Q1)", done: true, owner: "Partner", date: "5. mar" },
+          { id: "a3", label: "Målrettet opplæring for ledergruppen", done: false, owner: "Partner", date: "20. mai" },
+          { id: "a4", label: "Re-test phishing og rapportering", done: false, owner: "Partner", date: "15. jun" },
+        ],
+      },
+      {
+        id: "A.5.10",
+        name: "Akseptabel bruk av informasjonsmidler",
+        status: "missing",
+        progress: 20,
+        activities: [
+          { id: "b1", label: "Workshop med kunde for å forankre policy", done: true, owner: "Kunde", date: "18. apr" },
+          { id: "b2", label: "Utkast til policy lagt frem", done: false, owner: "Partner", date: "10. mai" },
+          { id: "b3", label: "Kommunisert til alle ansatte", done: false, owner: "Kunde" },
+        ],
+      },
+    ],
   },
   {
     id: "d2",
     title: "Penetrasjonstest – Q1 2025",
     meta: "Levert 14. mars · Rapport sendt til Truls",
     serviceId: "pentest",
-    checklist: buildChecklist(getService("pentest")!.defaultChecklist, 5),
+    controls: [
+      {
+        id: "A.8.29",
+        name: "Sikkerhetstesting under utvikling og aksept",
+        status: "fulfilled",
+        progress: 100,
+        activities: [
+          { id: "p1", label: "Scoping og avtale signert", done: true, owner: "Partner", date: "20. jan" },
+          { id: "p2", label: "Ekstern penetrasjonstest gjennomført", done: true, owner: "Partner", date: "10. feb" },
+          { id: "p3", label: "Rapport levert med funn og tiltak", done: true, owner: "Partner", date: "14. mar" },
+          { id: "p4", label: "Gjennomgang med kundens ledelse", done: true, owner: "Partner", date: "21. mar" },
+        ],
+      },
+      {
+        id: "A.8.8",
+        name: "Sårbarhetshåndtering",
+        status: "partial",
+        progress: 50,
+        activities: [
+          { id: "v1", label: "Kritiske funn lukket innen SLA", done: true, owner: "Kunde", date: "28. mar" },
+          { id: "v2", label: "Middels funn under retting", done: false, owner: "Kunde", date: "15. mai" },
+        ],
+      },
+    ],
   },
 ];
 
@@ -233,18 +283,23 @@ export function MSPMaturityServiceMatrix() {
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
 
-  const toggleChecklistItem = (deliveryId: string, itemId: string) => {
+  const toggleActivity = (deliveryId: string, controlId: string, activityId: string) => {
     setDeliveries(prev =>
-      prev.map(d =>
-        d.id === deliveryId
-          ? {
-              ...d,
-              checklist: d.checklist.map(c =>
-                c.id === itemId ? { ...c, done: !c.done } : c,
-              ),
-            }
-          : d,
-      ),
+      prev.map(d => {
+        if (d.id !== deliveryId) return d;
+        const controls = d.controls.map(c => {
+          if (c.id !== controlId) return c;
+          const activities = c.activities.map(a =>
+            a.id === activityId ? { ...a, done: !a.done } : a,
+          );
+          const doneCount = activities.filter(a => a.done).length;
+          const progress = activities.length > 0 ? Math.round((doneCount / activities.length) * 100) : 0;
+          const status: DeliveryControl["status"] =
+            progress >= 100 ? "fulfilled" : progress > 0 ? "partial" : "missing";
+          return { ...c, activities, progress, status };
+        });
+        return { ...d, controls };
+      }),
     );
   };
 
@@ -486,12 +541,20 @@ export function MSPMaturityServiceMatrix() {
 
         <TabsContent value="deliveries" className="space-y-2 mt-0">
           {deliveries.map(d => {
-            const total = d.checklist.length;
-            const doneCount = d.checklist.filter(c => c.done).length;
-            const progress = total > 0 ? Math.round((doneCount / total) * 100) : 0;
-            const isCompleted = doneCount === total && total > 0;
+            const totalActivities = d.controls.reduce((s, c) => s + c.activities.length, 0);
+            const doneActivities = d.controls.reduce(
+              (s, c) => s + c.activities.filter(a => a.done).length,
+              0,
+            );
+            const progress = totalActivities > 0 ? Math.round((doneActivities / totalActivities) * 100) : 0;
+            const isCompleted = totalActivities > 0 && doneActivities === totalActivities;
             const isOpen = expandedDelivery === d.id;
             const service = d.serviceId ? getService(d.serviceId) : undefined;
+            const controlCounts = {
+              missing: d.controls.filter(c => c.status === "missing").length,
+              partial: d.controls.filter(c => c.status === "partial").length,
+              fulfilled: d.controls.filter(c => c.status === "fulfilled").length,
+            };
             return (
               <Card key={d.id} className="overflow-hidden hover:border-primary/30 transition-colors">
                 <button
@@ -518,6 +581,12 @@ export function MSPMaturityServiceMatrix() {
                       ))}
                     </div>
                     <p className="text-[12px] text-muted-foreground">{d.meta}</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {d.controls.length} kontrollpunkt
+                      {controlCounts.fulfilled > 0 && <> · <span className="text-success font-medium">{controlCounts.fulfilled} oppfylt</span></>}
+                      {controlCounts.partial > 0 && <> · <span className="text-warning font-medium">{controlCounts.partial} delvis</span></>}
+                      {controlCounts.missing > 0 && <> · <span className="text-destructive font-medium">{controlCounts.missing} ikke startet</span></>}
+                    </p>
                     <div className="mt-1.5 flex items-center gap-2">
                       <div className="h-1 flex-1 rounded-full bg-muted overflow-hidden">
                         <div
@@ -526,7 +595,7 @@ export function MSPMaturityServiceMatrix() {
                         />
                       </div>
                       <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                        {doneCount}/{total}
+                        {doneActivities}/{totalActivities} aktiviteter
                       </span>
                     </div>
                   </div>
@@ -542,32 +611,66 @@ export function MSPMaturityServiceMatrix() {
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-border bg-muted/20 p-3 space-y-2">
+                  <div className="border-t border-border bg-muted/20 p-3 space-y-3">
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                      Sjekkliste
+                      Kontrollpunkter og aktiviteter
                     </p>
-                    {d.checklist.map(item => (
-                      <label
-                        key={item.id}
-                        className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-background cursor-pointer"
-                      >
-                        <Checkbox
-                          checked={item.done}
-                          onCheckedChange={() => toggleChecklistItem(d.id, item.id)}
-                          className="mt-0.5"
-                        />
-                        <span
-                          className={cn(
-                            "text-[13px] flex-1",
-                            item.done ? "text-muted-foreground line-through" : "text-foreground"
-                          )}
-                        >
-                          {item.label}
-                        </span>
-                      </label>
-                    ))}
+                    {d.controls.map(c => {
+                      const statusMap = {
+                        missing: { Icon: Circle, cls: "text-destructive", bar: "bg-destructive", label: "Ikke startet" },
+                        partial: { Icon: AlertCircle, cls: "text-warning", bar: "bg-warning", label: "Pågår" },
+                        fulfilled: { Icon: CheckCircle2, cls: "text-success", bar: "bg-success", label: "Oppfylt" },
+                      } as const;
+                      const s = statusMap[c.status];
+                      const Icon = s.Icon;
+                      return (
+                        <Card key={c.id} className="p-3 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Icon className={cn("h-4 w-4 shrink-0", s.cls)} />
+                            <span className="text-xs font-mono text-muted-foreground">{c.id}</span>
+                            <span className="text-[13px] font-semibold text-foreground flex-1 min-w-0 truncate">{c.name}</span>
+                            <Badge variant="outline" className={cn("text-[10px]", s.cls)}>{s.label}</Badge>
+                            <span className="text-[11px] text-muted-foreground tabular-nums shrink-0 w-9 text-right">{c.progress}%</span>
+                          </div>
+                          <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+                            <div className={cn("h-full transition-all", s.bar)} style={{ width: `${c.progress}%` }} />
+                          </div>
+                          <div className="space-y-1 pt-1">
+                            {c.activities.map(a => (
+                              <label
+                                key={a.id}
+                                className="flex items-start gap-2.5 p-1.5 rounded-md hover:bg-background cursor-pointer"
+                              >
+                                <Checkbox
+                                  checked={a.done}
+                                  onCheckedChange={() => toggleActivity(d.id, c.id, a.id)}
+                                  className="mt-0.5"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <span
+                                    className={cn(
+                                      "text-[13px]",
+                                      a.done ? "text-muted-foreground line-through" : "text-foreground"
+                                    )}
+                                  >
+                                    {a.label}
+                                  </span>
+                                  {(a.owner || a.date) && (
+                                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                                      {a.owner && <span>{a.owner}</span>}
+                                      {a.owner && a.date && <span>·</span>}
+                                      {a.date && <span>{a.date}</span>}
+                                    </div>
+                                  )}
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                        </Card>
+                      );
+                    })}
                     {service && (
-                      <p className="text-[11px] text-muted-foreground pt-1 border-t border-border mt-2">
+                      <p className="text-[11px] text-muted-foreground pt-1 border-t border-border">
                         Mal hentet fra tjenestekatalogen — endringer her påvirker bare denne leveransen.
                       </p>
                     )}
