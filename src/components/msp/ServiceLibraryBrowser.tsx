@@ -34,7 +34,7 @@ const TIER_ORDER: ServiceTier[] = ["universal", "msp", "mssp", "regional"];
 const ALL_SCOPES: ServiceScope[] = ["global", "EU", "NO", "SE", "NL", "AU", "US"];
 const ALL_INDUSTRIES: ServiceIndustry[] = ["healthcare", "finance", "public", "critical-infrastructure"];
 
-export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt }: Props) {
+export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate }: Props) {
   const [search, setSearch] = useState("");
   const [partnerFilter, setPartnerFilter] = useState<ServicePartnerType | "any">(context.partnerType ?? "any");
   const [scopeFilter, setScopeFilter] = useState<ScopeFilter>("all");
