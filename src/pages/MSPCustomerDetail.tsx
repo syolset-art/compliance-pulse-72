@@ -221,6 +221,16 @@ export default function MSPCustomerDetail() {
                     nextDeadlineDays={14}
                     nextDeadlineLabel="NIS2 Art.23"
                     sourceLabel={realScore != null ? `${getQuestionnaire(completed!.questionnaireId).title} (kunde-svar)` : undefined}
+                    onCriticalGapsClick={() => {
+                      const el = document.getElementById("gap-list-anchor");
+                      if (el) {
+                        el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        el.classList.add("ring-2", "ring-destructive/40", "rounded-2xl");
+                        setTimeout(() => el.classList.remove("ring-2", "ring-destructive/40", "rounded-2xl"), 2000);
+                      }
+                    }}
+                    onHiddenIssuesClick={() => setHiddenIssuesOpen(true)}
+                    onNextDeadlineClick={() => setDeadlineOpen(true)}
                   />
                 );
               })()}
