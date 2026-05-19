@@ -861,17 +861,22 @@ export function deliveryLabel(d: ServiceDelivery): string {
   return d === "one-off" ? "Engangs" : "Løpende";
 }
 
-export function priceModelLabel(m: ServiceTemplate["recommendedPrice"]["model"]): string {
-  return { fixed: "fast pris", monthly: "per mnd", "per-questionnaire": "per skjema", quote: "tilbud" }[m];
-}
-
-export function formatPriceRange(p: ServiceTemplate["recommendedPrice"]): string {
-  const fmt = (n: number) => new Intl.NumberFormat("nb-NO").format(n);
-  const range = p.min === p.max ? `${fmt(p.min)} kr` : `${fmt(p.min)}–${fmt(p.max)} kr`;
-  return `${range} ${priceModelLabel(p.model)}`;
-}
-
 export function formatHoursRange(h: ServiceTemplate["estimatedHours"]): string {
   const range = h.min === h.max ? `${h.min} t` : `${h.min}–${h.max} t`;
   return h.cadenceNote ? `${range} (${h.cadenceNote})` : range;
+}
+
+/**
+ * Beregn estimert pris fra timer × kundens egen timepris.
+ * Vi setter ALDRI fastpris på maler — partneren bruker sin egen rate.
+ */
+export function formatEstimatedPrice(
+  h: ServiceTemplate["estimatedHours"],
+  hourlyRate: number,
+): string {
+  const fmt = (n: number) => new Intl.NumberFormat("nb-NO").format(Math.round(n));
+  const lo = h.min * hourlyRate;
+  const hi = h.max * hourlyRate;
+  const range = lo === hi ? `${fmt(lo)} kr` : `fra ${fmt(lo)}–${fmt(hi)} kr`;
+  return h.cadenceNote ? `${range} (${h.cadenceNote})` : `${range} est.`;
 }
