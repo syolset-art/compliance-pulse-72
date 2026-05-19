@@ -53,7 +53,7 @@ const TOTAL_STEPS = 6;
 const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter", "Synlighet"];
 
 export default function ActivateTrustProfileWizard({
-  open, onOpenChange, onCompleted, inline,
+  open, onOpenChange, onCompleted, inline, conversation,
   initialCompanyName, initialOrgNumber, initialDomain, initialMaturity,
 }: Props) {
   const queryClient = useQueryClient();
