@@ -326,7 +326,7 @@ export default function MSPDashboard() {
                   <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Søk på navn, bransje, org.nr eller e-post"
+                    placeholder="Søk på navn, bransje, landskode, org.nr eller e-post"
                     className="pl-9"
                   />
                 </div>
