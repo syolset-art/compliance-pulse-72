@@ -72,14 +72,50 @@ export default function MSPDashboard() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return (customers as any[]).filter((c) => {
+    const list = (customers as any[]).filter((c) => {
       if (statusFilter !== "all" && c.status !== statusFilter) return false;
       if (!q) return true;
       return [c.customer_name, c.industry, c.org_number, c.contact_email]
         .filter(Boolean)
         .some((v: string) => v.toLowerCase().includes(q));
     });
-  }, [customers, search, statusFilter]);
+
+    const dir = sortDir === "asc" ? 1 : -1;
+    const sorted = [...list].sort((a, b) => {
+      if (sortKey === "customer_name") {
+        return (a.customer_name || "").localeCompare(b.customer_name || "", "nb") * dir;
+      }
+      if (sortKey === "status") {
+        const ao = STATUS_ORDER[deriveStatusKey(a)] ?? 99;
+        const bo = STATUS_ORDER[deriveStatusKey(b)] ?? 99;
+        return (ao - bo) * dir;
+      }
+      // last_activity_at — nulls always sorted last
+      const at = a.last_activity_at ? new Date(a.last_activity_at).getTime() : null;
+      const bt = b.last_activity_at ? new Date(b.last_activity_at).getTime() : null;
+      if (at === null && bt === null) return 0;
+      if (at === null) return 1;
+      if (bt === null) return -1;
+      return (at - bt) * dir;
+    });
+    return sorted;
+  }, [customers, search, statusFilter, sortKey, sortDir]);
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const SortIcon = ({ k }: { k: SortKey }) => {
+    if (sortKey !== k) return <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />;
+    return sortDir === "asc"
+      ? <ArrowUp className="h-3.5 w-3.5" />
+      : <ArrowDown className="h-3.5 w-3.5" />;
+  };
 
   const handleSeed = async () => {
     try {
