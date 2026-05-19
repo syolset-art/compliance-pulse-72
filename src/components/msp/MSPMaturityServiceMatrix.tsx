@@ -286,9 +286,10 @@ const DELIVERIES: DeliveryItem[] = [
             owner: "Partner",
             date: "20. mai",
             laraSteps: [
-              "Identifisert 8 personer i ledergruppen",
-              "Tilpasset innhold basert på rolle (CEO, CFO, CTO …)",
-              "Booking-utkast lagt i Outlook — venter på din godkjenning",
+              { text: "Identifisert 8 personer i ledergruppen via gruppe «Leadership»", via: "Entra ID" },
+              { text: "Tilpasset agenda per rolle (CEO, CFO, CTO …)", via: "Lara" },
+              { text: "Lagt møteinvitasjon i kalenderen — venter godkjenning", via: "Outlook" },
+              { text: "Pre-arbeid (10 min e-læring) tildelt deltakerne", via: "Microsoft 365 Learning" },
             ],
             partnerSteps: [
               "Bekrefte tidspunkt med CEO",
