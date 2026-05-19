@@ -293,59 +293,76 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
                 </div>
               ) : (
                 <>
-                  <p className="text-[13px] text-muted-foreground">
-                    Hva trenger du fra meg?
-                  </p>
-                  <div className="grid sm:grid-cols-2 gap-2.5">
-                    {step.activity.laraDraft ? (
-                      <ActionTile
-                        icon={Sparkles}
-                        title="Se utkast fra Lara"
-                        desc={step.activity.laraDraft.fileName}
-                        accent
+                  <div className="rounded-lg border border-primary/20 bg-background/60 p-3.5 flex items-start gap-3">
+                    <FileText className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium text-foreground">
+                        Lara genererer leveranserapport automatisk
+                      </p>
+                      <p className="text-[12px] text-muted-foreground mt-0.5">
+                        Når du bekrefter ferdig, lager Lara{" "}
+                        <span className="font-mono text-foreground">
+                          {step.activity.laraDraft?.fileName ??
+                            `${step.control.id}-rapport.pdf`}
+                        </span>{" "}
+                        og legger den klar for sending til kunde.
+                      </p>
+                    </div>
+                    {step.activity.laraDraft && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
                         onClick={() => setDraftOpen(true)}
-                      />
-                    ) : (
-                      <ActionTile
-                        icon={Bot}
-                        title="Be Lara forberede utkast"
-                        desc="Lara genererer rapport på 30 sek"
-                        accent
-                        onClick={() =>
-                          toast.info("Lara forbereder utkast …", {
-                            description: "Funksjonen aktiveres i neste iterasjon.",
-                          })
-                        }
-                      />
+                        className="shrink-0 text-primary hover:text-primary"
+                      >
+                        Forhåndsvis
+                      </Button>
                     )}
-                    <ActionTile
-                      icon={Upload}
-                      title="Last opp eget bevis"
-                      desc="PDF, bilde eller dokument"
-                      onClick={() => setUploadOpen(true)}
-                    />
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     <Button
-                      onClick={() => setUploadOpen(true)}
+                      onClick={() => {
+                        const fileName =
+                          step.activity.laraDraft?.fileName ??
+                          `${step.control.id}-rapport.pdf`;
+                        const title =
+                          step.activity.laraDraft?.title ??
+                          `Leveranserapport: ${step.activity.label}`;
+                        const file: EvidenceFileMeta = {
+                          id: `lara-${Date.now()}`,
+                          name: fileName,
+                          size: 124_000,
+                          uploadedAt: new Date().toISOString(),
+                        };
+                        onConfirm(
+                          activeDelivery.id,
+                          step.control.id,
+                          step.activity.id,
+                          {
+                            note: `Autogenerert av Lara: ${title}`,
+                            files: [file],
+                            sharedWithCustomer: true,
+                          },
+                        );
+                        toast.success("Rapport generert og klar for sending", {
+                          description: fileName,
+                        });
+                        setTimeout(advance, 250);
+                      }}
                       className="gap-1.5"
                     >
-                      <CheckCircle2 className="h-4 w-4" />
-                      Bekreft ferdig og berik Trust Profile
+                      <Sparkles className="h-4 w-4" />
+                      Bekreft ferdig – generer rapport
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => {
-                        toast.info("Spørsmål sendt til kunden", {
-                          description: "Kunden får en oppgave i sin Meldinger-fane.",
-                        });
-                        advance();
-                      }}
-                      className="text-muted-foreground"
+                      onClick={() => setUploadOpen(true)}
+                      className="gap-1.5 text-muted-foreground"
                     >
-                      Spør kunden i stedet
+                      <Upload className="h-3.5 w-3.5" />
+                      Last opp eget bevis i stedet
                     </Button>
                   </div>
                 </>
