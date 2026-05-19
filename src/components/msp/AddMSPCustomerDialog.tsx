@@ -115,7 +115,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setBulkText("");
     setBulkRows([]);
     setBulkSavedCount(0);
-    setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis" });
+    setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis", country_code: "NO" });
   }, []);
 
   useEffect(() => {
