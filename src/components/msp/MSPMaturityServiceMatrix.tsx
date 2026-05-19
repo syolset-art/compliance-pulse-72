@@ -467,7 +467,15 @@ const DELIVERIES: DeliveryItem[] = [
   },
 ];
 
-export function MSPMaturityServiceMatrix() {
+interface MSPMaturityServiceMatrixProps {
+  customerName?: string;
+  customerEmail?: string;
+}
+
+export function MSPMaturityServiceMatrix({
+  customerName = "Kunden",
+  customerEmail,
+}: MSPMaturityServiceMatrixProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>(
     searchParams.get("service") ? "recommended" : "recommended",
