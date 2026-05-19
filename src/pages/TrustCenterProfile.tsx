@@ -118,6 +118,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [helpOpen, setHelpOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [showActivateWizard, setShowActivateWizard] = useState(false);
+  const [justActivated, setJustActivated] = useState(false);
   const [isActivated, setIsActivated] = useState<boolean>(() => {
     try { return localStorage.getItem("mynder.trustprofile.activated") === "1"; } catch { return false; }
   });
