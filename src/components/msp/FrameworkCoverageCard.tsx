@@ -18,6 +18,8 @@ export interface ControlSelection {
   hours: number;
   /** True = bruker har overstyrt timer manuelt */
   hoursOverridden?: boolean;
+  /** Partner-tillagte aktiviteter utover de typiske som ligger i katalogen. */
+  extraActivities?: string[];
 }
 
 export type CustomCostKind = "fixed" | "hourly";
