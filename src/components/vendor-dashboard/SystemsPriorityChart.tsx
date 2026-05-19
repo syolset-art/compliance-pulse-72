@@ -42,16 +42,16 @@ const PRIO_META: Record<Priority, { label: string; helper: string; bar: string; 
   C: {
     label: "Prioritet C",
     helper: "Medium",
-    bar: "bg-primary/20",
-    barCritical: "bg-primary",
-    ring: "ring-primary/30",
+    bar: "bg-success/15",
+    barCritical: "bg-success/70",
+    ring: "ring-success/20",
   },
   D: {
     label: "Prioritet D",
     helper: "Lav",
-    bar: "bg-muted",
-    barCritical: "bg-muted-foreground/70",
-    ring: "ring-border",
+    bar: "bg-success/25",
+    barCritical: "bg-success",
+    ring: "ring-success/30",
   },
 };
 
