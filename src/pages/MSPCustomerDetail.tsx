@@ -16,12 +16,8 @@ import { AcronisConnectDialog } from "@/components/msp/AcronisConnectDialog";
 import { SecurityServiceGapCard } from "@/components/msp/SecurityServiceGapCard";
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
 import type { LaraPlanTask } from "@/components/lara/types";
-import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
-import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
-import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCard";
 import { MSPCustomerSnapshotCard } from "@/components/msp/MSPCustomerSnapshotCard";
 import { MSPCustomerOpportunityCard } from "@/components/msp/MSPCustomerOpportunityCard";
-import { MSPMynderSignalsFeed } from "@/components/msp/MSPMynderSignalsFeed";
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
@@ -50,20 +46,6 @@ export default function MSPCustomerDetail() {
     enabled: !!customerId,
   });
 
-  const { data: frameworks = [] } = useQuery({
-    queryKey: ["selected-frameworks-active-msp"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("selected_frameworks")
-        .select("framework_id, framework_name")
-        .eq("is_selected", true);
-      if (error) return [];
-      return (data || []).map((fw: any) => ({
-        framework_id: fw.framework_id,
-        framework_name: fw.framework_name,
-      }));
-    },
-  });
 
   if (isLoading) {
     return (
@@ -223,36 +205,12 @@ export default function MSPCustomerDetail() {
                 );
               })()}
 
-              {/* 2) Modenhet per kontrollområde */}
-              {(() => {
-                const base = customer.initial_assessment_score || 0;
-                return (
-                  <MSPCustomerMaturityCard
-                    governanceScore={Math.min(100, Math.round(base * 0.9))}
-                    securityScore={Math.min(100, Math.round(base * 1.05))}
-                    privacyScore={Math.min(100, Math.round(base * 0.85))}
-                    thirdPartyScore={Math.min(100, Math.round(base * 1.1))}
-                  />
-                );
-              })()}
-
-              {/* 3) Modenhet per regelverk */}
-              {frameworks.length > 0 && (
-                <FrameworkMaturityGrid frameworks={frameworks} />
-              )}
-
-              {/* 4) Inntekts- og tjenestepotensial */}
+              {/* 2) Inntekts- og tjenestepotensial */}
               <MSPCustomerOpportunityCard
                 customerName={customer.name || "kunden"}
                 customerCoveragePct={Math.min(100, Math.round(customer.initial_assessment_score || 40))}
                 onCreateOffer={() => toast.info("Åpner tilbudsverktøy …")}
               />
-
-              {/* 5) Sikkerhets- og personverninnsikt */}
-              <VendorPrivacyAssessment vendorName={customer.name || "kunden"} />
-
-              {/* 6) Signaler fra Mynder — erstatter aktivitetslogg */}
-              <MSPMynderSignalsFeed customerName={customer.name || "kunden"} />
             </TabsContent>
 
             {/* ── Vurdering ── */}

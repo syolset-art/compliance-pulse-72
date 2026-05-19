@@ -1,64 +1,53 @@
-## Mål
+## Vurdering: hva er overflødig på "Veiledning fra Mynder"
 
-"Veiledning fra Mynder" på MSP-kundeprofil (`/msp-dashboard/:customerId`) er i dag nesten en kopi av det kunden ser i sin egen Trust Profile — inkludert full aktivitetslogg og aktivitetsdrevet modenhetsgraf. Det gir partnere som Hult IT og 7Security lite ekstra verdi. Vi tar bort aktivitetsdelen og bygger om innholdet til en **partner-vinklet analyse av kundens modenhet, risiko og tjenestepotensial** — ting kunden ikke ser i sin egen TP.
+Dagens fane viser 6 blokker. Mye av det overlapper, og noe gir lite reell verdi for en partner som Hult IT eller 7Security nå. Mål: behold det partneren faktisk handler på, fjern resten.
 
-## Hva fjernes
+### Behold (gir partnerverdi nå)
 
-På fanen `guidance` i `src/pages/MSPCustomerDetail.tsx`:
-- `<VendorActivityTab …>` (aktivitetslogg)
-- "Modenhetsutvikling drevet av aktiviteter"-kortet med `<MaturityHistoryChart>` (den henger på aktivitetsdata kunden eier)
-- `<DomainComplianceWidget hideHeader />` nederst (overlapper med modenhet per kontrollområde og hører hjemme på Trust Profile-fanen)
+1. **Lara-anbefalingsbanner** — konkrete to-do's partneren kan klikke på. Kjernen i fanen.
+2. **MSPCustomerSnapshotCard** — 4 nøkkeltall (modenhet, delta, kritiske gap, neste frist). Eneste sted partneren får et "én-skjerm-svar" på *hvor står kunden?*.
+3. **MSPCustomerOpportunityCard** — kr-potensial × rammeverk. Direkte salgsverdi, kobler til Tjenestekatalogen. Kjernen i partner-vinklingen.
 
-## Ny struktur på fanen (rekkefølge)
+### Fjern (overflødig eller for tynt nå)
 
-1. **Lara-anbefalingsbanner (beholdes)** — partner-handlinger, ikke kundens egne.
-2. **Kunde-snapshot for partner** (nytt kort, `MSPCustomerSnapshotCard`)
-   - Overall maturity (vektet) + delta siste 30 dager
-   - Risk posture: kritiske gap, åpne avvik kunden ikke vet om
-   - Compliance-press: hvilke krav/frister som nærmer seg
-   - "Hva kunden ser vs. hva partner ser" — kort tekst som forklarer forskjellen
-3. **Modenhet per kontrollområde** (beholdes — `MSPCustomerMaturityCard`)
-   - Behold 4-domene visning, men legg på partner-overlay: per domene vis "din dekning som partner" (fra aktiverte tjenester i Tjenestekatalog) sammenlignet med kundens egen modenhet → tydelig gap-bar.
-4. **Modenhet per regelverk — partner-perspektiv** (gjenbruker `FrameworkMaturityGrid` med ny prop `partnerView`)
-   - Per rammeverk: kundens dekning, partnerens dekning via aktiverte tjenester, restgap i prosent og estimerte timer (henter `hoursByLevel` fra `frameworkCoverageCatalog`).
-   - CTA per rad: "Lag tilbud på restgap" → MSPCreateOfferDialog forhåndsutfylt.
-5. **Inntekts- og tjenestepotensial** (nytt kort, `MSPCustomerOpportunityCard`)
-   - Aggregert: udekkede kontrollpunkter × timepris fra Tjenestekatalog = NOK-potensial.
-   - Topp 3 anbefalte neste tjenester (Lara-prioritert ut fra kundens høyeste risiko).
-6. **Sikkerhets- og personverninnsikt** (`VendorPrivacyAssessment` + `SecurityServiceGapCard` allerede tilgjengelig)
-   - Vises kompakt; viser ting kunden ikke har gjort selv (DPIA mangler, savnet TIA, åpne tredjepartsrisikoer).
-7. **Endringslogg fra Mynder** (lett erstatning for aktivitetsloggen)
-   - Kun automatiske signaler relevante for partner: "Lara har oppdaget X", "Modenhet i Privacy falt 8% fordi …", "Nytt dokument klassifisert", "Frist på X om 14 dager".
-   - Ikke kundens manuelle aktiviteter.
+1. **MSPCustomerMaturityCard** (modenhet per 4 kontrollområder)
+   - Tallene er avledet av samme `initial_assessment_score` som Snapshot-kortet allerede viser (×0.9, ×1.05 osv.) — det er ikke ekte data, bare en multiplikasjon. Partneren får ingen ny innsikt.
+   - Hører hjemme på kundens egen TP, hvor tallene faktisk kommer fra reelle vurderinger.
 
-## Hvorfor dette gir partnerverdi
+2. **FrameworkMaturityGrid** (modenhet per regelverk)
+   - Henter `useComplianceRequirements()` som er **partnerens egen org-data**, ikke kundens. På MSP-kundeprofil viser den feil tall.
+   - Opportunity-kortet dekker allerede "per rammeverk"-vinkelen, men med kr-tall som faktisk betyr noe for partner.
 
-- Partneren får én skjerm som svarer på: *hva sliter kunden med, hva dekker jeg allerede, hva kan jeg selge inn, hva må jeg gjøre nå?*
-- Innholdet er bevisst **forskjellig fra kundens egen TP**, så partner ser sin egen forretningsvinkel (gap-til-inntekt), ikke kundens daglige drift.
-- Aktivitetsloggen finnes fortsatt på kundens egen TP (uendret), og partneren får i stedet et Mynder-generert "signal-feed".
+3. **VendorPrivacyAssessment**
+   - Designet for leverandørprofil (vurdering av en *vendor*), gjenbrukt her uten å være tilpasset MSP-kunde-konteksten. Innholdet er generisk og duplikat med det kunden ser i sin egen TP.
+   - Kan komme tilbake senere som ekte "skjulte saker"-liste når vi har data, men ikke nå.
 
-## Tekniske endringer
+4. **MSPMynderSignalsFeed**
+   - Hele listen er hardkodet demo. Ingen logikk, ingen kobling til faktiske hendelser. Ser fint ut men gir 0 verdi før den er drevet av ekte signaler.
+   - Snapshot-kortet viser allerede "kritiske gap" og "neste frist" — det er det samme signalet i komprimert form.
+   - Tar tilbake når vi har en reell signal-pipeline (Lara-oppdagelser, dokumentklassifisering, fristmotor).
 
-Filer som endres:
-- `src/pages/MSPCustomerDetail.tsx` — fjerne 3 blokker, sette inn de nye kortene i ny rekkefølge.
+### Resultat: 3 blokker i stedet for 6
 
-Nye filer:
-- `src/components/msp/MSPCustomerSnapshotCard.tsx`
-- `src/components/msp/MSPCustomerOpportunityCard.tsx`
-- `src/components/msp/MSPMynderSignalsFeed.tsx`
+```text
+1. Lara-anbefalingsbanner       (tiltak)
+2. MSPCustomerSnapshotCard      (status)
+3. MSPCustomerOpportunityCard   (inntekt)
+```
 
-Endringer i eksisterende:
-- `MSPCustomerMaturityCard` — valgfri prop `partnerCoverageByDomain?: Record<Domain, number>` for sammenligningsbar.
-- `FrameworkMaturityGrid` — valgfri prop `partnerView?: boolean` som vis dekning/gap/CTA-kolonne; default uendret.
+Hver blokk svarer på ett tydelig spørsmål: *Hva må jeg gjøre? · Hvor står kunden? · Hva kan jeg selge?*
 
-Dataflyt:
-- Partnerdekning per domene/rammeverk hentes fra eksisterende `frameworkCoverageCatalog` + aktiverte tjenester (`useActivatedServices`).
-- Signaler hardkodes mot eksisterende demo-seed i første iterasjon (samme mønster som `MSPCustomerMessagesTab`).
+### Tekniske endringer
 
-Ingen schema- eller backend-endringer.
+Kun `src/pages/MSPCustomerDetail.tsx`:
+- Fjern import og bruk av `MSPCustomerMaturityCard`, `FrameworkMaturityGrid`, `VendorPrivacyAssessment`, `MSPMynderSignalsFeed`.
+- Fjern `frameworks`-query (brukes ikke lenger på denne fanen).
+- Fjern den unødvendige `(() => {...})()`-wrapperen rundt Maturity-kortet.
 
-## Ut av scope
+Filer ikke slettet (kan gjenbrukes senere): `MSPMynderSignalsFeed.tsx`, `MSPCustomerMaturityCard.tsx`. La ligge til vi vet om de skal tilbake med ekte data.
 
-- Endringer på kundens egen Trust Profile (`AssetTrustProfile`).
-- Endringer på fanene `Tjenester`, `Meldinger`, `Trust Profile` på MSP-kundeprofilen.
-- Nye Supabase-tabeller eller migrasjoner.
+### Ut av scope
+
+- Ingen endringer på fanene Tjenester / Meldinger / Trust Profile.
+- Ingen schema- eller backend-endringer.
+- Ingen endring på Snapshot- eller Opportunity-kortene selv.
