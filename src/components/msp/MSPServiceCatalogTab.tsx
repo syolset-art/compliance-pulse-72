@@ -252,9 +252,24 @@ export function MSPServiceCatalogTab() {
                     {e.description && (
                       <p className="text-[11px] text-muted-foreground truncate">{e.description}</p>
                     )}
-                    <p className="text-[11px] text-muted-foreground tabular-nums">
+                    {e.mappings.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1 mt-1">
+                        {e.mappings.map((m, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                            title={`${m.frameworkShortName} · ${m.controlId} ${m.controlLabel}`}
+                          >
+                            <span className="font-semibold text-foreground/70">{m.frameworkShortName}</span>
+                            <span>{m.controlId}</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-[11px] text-muted-foreground tabular-nums mt-1">
                       {e.fixedPrice ? "Fast pris" : `${e.hours} timer × ${hourlyRate.toLocaleString("nb-NO")} kr`}
                     </p>
+
                   </div>
                   <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
                     {formatNOK(price)}
