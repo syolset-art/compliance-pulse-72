@@ -172,7 +172,8 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
   const [riskFilter, setRiskFilter] = useState("");
   const [vendorCategoryFilter, setVendorCategoryFilter] = useState("");
   const [gdprRoleFilter, setGdprRoleFilter] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("");
+  const [searchParams] = useSearchParams();
+  const [priorityFilter, setPriorityFilter] = useState(searchParams.get("priority") || "");
   const [statusFilter, setStatusFilter] = useState("");
   const [countryFilter, setCountryFilter] = useState("");
   const [ownerFilter, setOwnerFilter] = useState("");
