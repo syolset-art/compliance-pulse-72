@@ -26,6 +26,7 @@ import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import { MSPServiceCatalogTab } from "./MSPServiceCatalogTab";
 import { ConfirmActivityDialog, type EvidenceFileMeta, type ConfirmPayload } from "./ConfirmActivityDialog";
+import { DeliveryWizard } from "./DeliveryWizard";
 import { toast } from "sonner";
 import { PARTNER_SERVICES, getService } from "@/lib/serviceCatalog";
 
@@ -179,7 +180,7 @@ const ONGOING: OngoingItem[] = [
   },
 ];
 
-interface DeliveryActivity {
+export interface DeliveryActivity {
   id: string;
   label: string;
   done: boolean;
@@ -190,9 +191,15 @@ interface DeliveryActivity {
   note?: string;
   evidence?: EvidenceFileMeta[];
   sharedWithCustomer?: boolean;
+  laraSteps?: string[];
+  laraDraft?: {
+    title: string;
+    fileName: string;
+    summary: string[];
+  };
 }
 
-interface DeliveryControl {
+export interface DeliveryControl {
   id: string; // f.eks. "A.6.3"
   name: string;
   status: "missing" | "partial" | "fulfilled";
@@ -200,7 +207,7 @@ interface DeliveryControl {
   activities: DeliveryActivity[];
 }
 
-interface DeliveryItem {
+export interface DeliveryItem {
   id: string;
   title: string;
   meta: string;
@@ -221,10 +228,62 @@ const DELIVERIES: DeliveryItem[] = [
         status: "partial",
         progress: 60,
         activities: [
-          { id: "a1", label: "Baselinemåling phishing-simulering", done: true, owner: "Partner", date: "12. feb" },
-          { id: "a2", label: "Kvartalsvis e-læring rullet ut (Q1)", done: true, owner: "Partner", date: "5. mar" },
-          { id: "a3", label: "Målrettet opplæring for ledergruppen", done: false, owner: "Partner", date: "20. mai" },
-          { id: "a4", label: "Re-test phishing og rapportering", done: false, owner: "Partner", date: "15. jun" },
+          {
+            id: "a1",
+            label: "Baselinemåling phishing-simulering",
+            done: true,
+            owner: "Partner",
+            date: "12. feb",
+            laraSteps: ["Konfigurert phishing-mal", "Sendt til 142 mottakere", "Samlet klikk-statistikk"],
+          },
+          {
+            id: "a2",
+            label: "Kvartalsvis e-læring rullet ut (Q1)",
+            done: true,
+            owner: "Partner",
+            date: "5. mar",
+            laraSteps: ["Generert deltakerliste fra HR", "Sendt invitasjon via Outlook", "Samlet gjennomføringsrapport"],
+            laraDraft: {
+              title: "Gjennomføringsrapport Q1 e-læring",
+              fileName: "elearning-Q1-2025-rapport.pdf",
+              summary: [
+                "138 av 142 ansatte fullført (97 %)",
+                "Snitt-score: 86 % korrekt",
+                "4 påminnelser sendt — alle besvart",
+                "Klart for kvittering i Trust Profile",
+              ],
+            },
+          },
+          {
+            id: "a3",
+            label: "Målrettet opplæring for ledergruppen",
+            done: false,
+            owner: "Partner",
+            date: "20. mai",
+            laraSteps: [
+              "Identifisert 8 personer i ledergruppen",
+              "Tilpasset innhold basert på rolle (CEO, CFO, CTO …)",
+              "Booking-utkast lagt i Outlook — venter på din godkjenning",
+            ],
+            laraDraft: {
+              title: "Workshop-agenda for ledergruppen",
+              fileName: "ledergruppe-awareness-mai-2025.pdf",
+              summary: [
+                "60 min workshop · 20. mai kl. 09:00",
+                "Tema: målrettede CEO-svindelforsøk + GDPR-ansvar",
+                "Pre-arbeid: 10 min e-læring",
+                "Etter: kort oppsummering signert av deltakerne",
+              ],
+            },
+          },
+          {
+            id: "a4",
+            label: "Re-test phishing og rapportering",
+            done: false,
+            owner: "Partner",
+            date: "15. jun",
+            laraSteps: ["Re-test planlagt i juni", "Måler effekt av Q1-opplæring"],
+          },
         ],
       },
       {
@@ -233,9 +292,43 @@ const DELIVERIES: DeliveryItem[] = [
         status: "missing",
         progress: 20,
         activities: [
-          { id: "b1", label: "Workshop med kunde for å forankre policy", done: true, owner: "Kunde", date: "18. apr" },
-          { id: "b2", label: "Utkast til policy lagt frem", done: false, owner: "Partner", date: "10. mai" },
-          { id: "b3", label: "Kommunisert til alle ansatte", done: false, owner: "Kunde" },
+          {
+            id: "b1",
+            label: "Workshop med kunde for å forankre policy",
+            done: true,
+            owner: "Kunde",
+            date: "18. apr",
+            laraSteps: ["Workshop avholdt", "Innspill samlet"],
+          },
+          {
+            id: "b2",
+            label: "Utkast til policy lagt frem",
+            done: false,
+            owner: "Partner",
+            date: "10. mai",
+            laraSteps: [
+              "Skrevet utkast basert på ISO 27001 Annex A.5.10",
+              "Tilpasset kundens domene, roller og verktøy",
+              "Sjekket mot eksisterende personvernerklæring",
+            ],
+            laraDraft: {
+              title: "Policy for akseptabel bruk",
+              fileName: "policy-akseptabel-bruk-v1.pdf",
+              summary: [
+                "Gjelder alle ansatte og innleide",
+                "Dekker e-post, internett, BYOD, AI-verktøy",
+                "Henvisning til varslingsrutine",
+                "Klar for kundens signatur",
+              ],
+            },
+          },
+          {
+            id: "b3",
+            label: "Kommunisert til alle ansatte",
+            done: false,
+            owner: "Kunde",
+            laraSteps: ["Utkast til intranett-melding lagt klar", "E-postmal generert"],
+          },
         ],
       },
     ],
@@ -264,8 +357,32 @@ const DELIVERIES: DeliveryItem[] = [
         status: "partial",
         progress: 50,
         activities: [
-          { id: "v1", label: "Kritiske funn lukket innen SLA", done: true, owner: "Kunde", date: "28. mar" },
-          { id: "v2", label: "Middels funn under retting", done: false, owner: "Kunde", date: "15. mai" },
+          {
+            id: "v1",
+            label: "Kritiske funn lukket innen SLA",
+            done: true,
+            owner: "Kunde",
+            date: "28. mar",
+            laraSteps: ["Hentet sårbarhetsrapport", "Mappet funn mot kontroller"],
+          },
+          {
+            id: "v2",
+            label: "Middels funn under retting",
+            done: false,
+            owner: "Kunde",
+            date: "15. mai",
+            laraSteps: ["6 middels funn identifisert", "Tiltaksforslag generert per funn"],
+            laraDraft: {
+              title: "Tiltaksplan — middels sårbarheter",
+              fileName: "tiltaksplan-middels-mai-2025.pdf",
+              summary: [
+                "6 funn med foreslått eier og frist",
+                "Patche-vindu identifisert (helg 18. mai)",
+                "SLA: 30 dager fra rapport",
+                "Klar for godkjenning av kunde",
+              ],
+            },
+          },
         ],
       },
     ],
@@ -602,217 +719,12 @@ export function MSPMaturityServiceMatrix() {
           })}
         </TabsContent>
 
-        <TabsContent value="deliveries" className="space-y-2 mt-0">
-          {deliveries.map(d => {
-            const controls = d.controls ?? [];
-            const totalActivities = controls.reduce((s, c) => s + (c.activities?.length ?? 0), 0);
-            const doneActivities = controls.reduce(
-              (s, c) => s + (c.activities?.filter(a => a.done).length ?? 0),
-              0,
-            );
-            const progress = totalActivities > 0 ? Math.round((doneActivities / totalActivities) * 100) : 0;
-            const isCompleted = totalActivities > 0 && doneActivities === totalActivities;
-            const isOpen = expandedDelivery === d.id;
-            const service = d.serviceId ? getService(d.serviceId) : undefined;
-            const controlCounts = {
-              missing: controls.filter(c => c.status === "missing").length,
-              partial: controls.filter(c => c.status === "partial").length,
-              fulfilled: controls.filter(c => c.status === "fulfilled").length,
-            };
-            return (
-              <Card key={d.id} className="overflow-hidden hover:border-primary/30 transition-colors">
-                <button
-                  type="button"
-                  onClick={() => setExpandedDelivery(isOpen ? null : d.id)}
-                  className="w-full flex items-center gap-3 p-3 text-left hover:bg-muted/30"
-                >
-                  <div className={cn(
-                    "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
-                    isCompleted ? "bg-success/10" : "bg-primary/10"
-                  )}>
-                    {isCompleted
-                      ? <CheckCircle2 className="h-4 w-4 text-success" />
-                      : <Package className="h-4 w-4 text-primary" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-foreground truncate">{d.title}</p>
-                      {service?.frameworkMappings.map(m => (
-                        <Badge key={m.frameworkId} variant="outline" className="text-[10px] gap-1">
-                          <FileText className="h-3 w-3" />
-                          {m.frameworkLabel}
-                        </Badge>
-                      ))}
-                    </div>
-                    <p className="text-[12px] text-muted-foreground">{d.meta}</p>
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      {d.controls.length} kontrollpunkt
-                      {controlCounts.fulfilled > 0 && <> · <span className="text-success font-medium">{controlCounts.fulfilled} oppfylt</span></>}
-                      {controlCounts.partial > 0 && <> · <span className="text-warning font-medium">{controlCounts.partial} delvis</span></>}
-                      {controlCounts.missing > 0 && <> · <span className="text-destructive font-medium">{controlCounts.missing} ikke startet</span></>}
-                    </p>
-                    <div className="mt-1.5 flex items-center gap-2">
-                      <div className="h-1 flex-1 rounded-full bg-muted overflow-hidden">
-                        <div
-                          className={cn("h-full transition-all", isCompleted ? "bg-success" : "bg-primary")}
-                          style={{ width: `${progress}%` }}
-                        />
-                      </div>
-                      <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                        {doneActivities}/{totalActivities} aktiviteter
-                      </span>
-                    </div>
-                  </div>
-                  <Badge variant="outline" className={cn(
-                    "text-[10px]",
-                    isCompleted
-                      ? "bg-success/10 text-success border-success/30"
-                      : "bg-primary/10 text-primary border-primary/30"
-                  )}>
-                    {isCompleted ? "Levert" : "Aktiv"}
-                  </Badge>
-                  <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", isOpen && "rotate-180")} />
-                </button>
-
-                {isOpen && (
-                  <div className="border-t border-border bg-muted/20 p-3 space-y-3">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                      Kontrollpunkter og aktiviteter
-                    </p>
-                    {controls.map(c => {
-                      const statusMap = {
-                        missing: { Icon: Circle, cls: "text-destructive", bar: "bg-destructive", label: "Ikke startet" },
-                        partial: { Icon: AlertCircle, cls: "text-warning", bar: "bg-warning", label: "Pågår" },
-                        fulfilled: { Icon: CheckCircle2, cls: "text-success", bar: "bg-success", label: "Oppfylt" },
-                      } as const;
-                      const s = statusMap[c.status];
-                      const Icon = s.Icon;
-                      return (
-                        <Card key={c.id} className="p-3 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Icon className={cn("h-4 w-4 shrink-0", s.cls)} />
-                            <span className="text-xs font-mono text-muted-foreground">{c.id}</span>
-                            <span className="text-[13px] font-semibold text-foreground flex-1 min-w-0 truncate">{c.name}</span>
-                            <Badge variant="outline" className={cn("text-[10px]", s.cls)}>{s.label}</Badge>
-                            <span className="text-[11px] text-muted-foreground tabular-nums shrink-0 w-9 text-right">{c.progress}%</span>
-                          </div>
-                          <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
-                            <div className={cn("h-full transition-all", s.bar)} style={{ width: `${c.progress}%` }} />
-                          </div>
-                          <div className="space-y-1 pt-1">
-                            {c.activities.map(a => {
-                              const evidenceCount = a.evidence?.length ?? 0;
-                              return (
-                                <div
-                                  key={a.id}
-                                  className="flex items-start gap-2.5 p-1.5 rounded-md hover:bg-background"
-                                >
-                                  <div className="mt-0.5 shrink-0">
-                                    {a.done ? (
-                                      <CheckCircle2 className="h-4 w-4 text-success" />
-                                    ) : (
-                                      <Circle className="h-4 w-4 text-muted-foreground" />
-                                    )}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <span
-                                      className={cn(
-                                        "text-[13px]",
-                                        a.done ? "text-muted-foreground" : "text-foreground"
-                                      )}
-                                    >
-                                      {a.label}
-                                    </span>
-                                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5 flex-wrap">
-                                      {a.owner && <span>{a.owner}</span>}
-                                      {a.owner && a.date && <span>·</span>}
-                                      {a.date && <span>{a.date}</span>}
-                                      {a.done && a.confirmedBy && (
-                                        <>
-                                          <span>·</span>
-                                          <span className="text-success">Bekreftet av {a.confirmedBy}</span>
-                                        </>
-                                      )}
-                                      {evidenceCount > 0 && (
-                                        <>
-                                          <span>·</span>
-                                          <span className="inline-flex items-center gap-1 text-primary">
-                                            <FileText className="h-3 w-3" />
-                                            {evidenceCount} bevis
-                                          </span>
-                                        </>
-                                      )}
-                                    </div>
-                                  </div>
-                                  <div className="flex items-center gap-1 shrink-0">
-                                    {a.done ? (
-                                      <>
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-7 px-2 text-[11px]"
-                                          onClick={() =>
-                                            setConfirmCtx({
-                                              open: true,
-                                              deliveryId: d.id,
-                                              controlId: c.id,
-                                              activityId: a.id,
-                                              readOnly: true,
-                                            })
-                                          }
-                                        >
-                                          Se bevis
-                                        </Button>
-                                        <Button
-                                          type="button"
-                                          variant="ghost"
-                                          size="sm"
-                                          className="h-7 px-2 text-[11px] text-muted-foreground hover:text-destructive"
-                                          onClick={() => undoActivity(d.id, c.id, a.id)}
-                                        >
-                                          Angre
-                                        </Button>
-                                      </>
-                                    ) : (
-                                      <Button
-                                        type="button"
-                                        size="sm"
-                                        variant="outline"
-                                        className="h-7 px-2.5 text-[11px] gap-1"
-                                        onClick={() =>
-                                          setConfirmCtx({
-                                            open: true,
-                                            deliveryId: d.id,
-                                            controlId: c.id,
-                                            activityId: a.id,
-                                            readOnly: false,
-                                          })
-                                        }
-                                      >
-                                        <CheckCircle2 className="h-3.5 w-3.5" />
-                                        Bekreft ferdig
-                                      </Button>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-
-                        </Card>
-                      );
-                    })}
-                    {service && (
-                      <p className="text-[11px] text-muted-foreground pt-1 border-t border-border">
-                        Mal hentet fra tjenestekatalogen — endringer her påvirker bare denne leveransen.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </Card>
-            );
-          })}
+        <TabsContent value="deliveries" className="mt-0">
+          <DeliveryWizard
+            deliveries={deliveries}
+            onConfirm={confirmActivity}
+            onUndo={undoActivity}
+          />
         </TabsContent>
 
       </Tabs>
