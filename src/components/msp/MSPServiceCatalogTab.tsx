@@ -257,20 +257,18 @@ export function MSPServiceCatalogTab() {
         </div>
       </Card>
 
-      {/* Handlingsrad: forhåndsvis e-post + legg til */}
+      {/* Handlingsrad: lag kampanje + legg til */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <p className="text-xs text-muted-foreground">
-          Tjenestene er <span className="font-medium text-foreground">interne</span> by default — kunden ser dem ikke før du sender en e-post.
+          Tjenestene er <span className="font-medium text-foreground">interne</span> by default — kunden ser dem først når du sender ut en kampanje.
         </p>
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
-            onClick={() => setEmailPreviewOpen(true)}
-            disabled={extras.length === 0}
+            onClick={() => navigate("/msp-messages?compose=campaign")}
             className="gap-2"
           >
-            <Mail className="h-4 w-4" />
-            Forhåndsvis e-post til kunde
+            <Megaphone className="h-4 w-4" />
+            Lag kampanje
           </Button>
           <Button variant="outline" onClick={() => setManualOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
@@ -278,6 +276,7 @@ export function MSPServiceCatalogTab() {
           </Button>
         </div>
       </div>
+
 
       {/* Partnervisning: adopterte / egne tjenester */}
       {extras.length > 0 && (
