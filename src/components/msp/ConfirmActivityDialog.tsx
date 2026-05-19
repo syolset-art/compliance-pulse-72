@@ -276,13 +276,17 @@ export const ConfirmActivityDialog = ({
               </Button>
               <Button
                 onClick={() => {
-                  onConfirm?.({ note, files, sharedWithCustomer: true });
+                  onConfirm?.({ note, files, sharedWithCustomer: shared, status });
                   onOpenChange(false);
                 }}
                 className="gap-1.5"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Send til kunde for godkjenning
+                {status === "done"
+                  ? "Lagre og send til kunde"
+                  : status === "not_relevant"
+                    ? "Lagre – ikke relevant"
+                    : "Lagre fremdrift"}
               </Button>
 
             </>
