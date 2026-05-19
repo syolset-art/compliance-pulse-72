@@ -14,8 +14,9 @@ import {
   type FrameworkSelection,
 } from "./FrameworkCoverageCard";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
-import { CustomServiceDialog, type CustomServiceDraft } from "./CustomServiceDialog";
+import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping } from "./CustomServiceDialog";
 import type { PartnerService } from "@/lib/serviceCatalog";
+import { FRAMEWORK_CATALOG } from "@/lib/frameworkCoverageCatalog";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -26,6 +27,7 @@ interface ExtraService {
   hours: number;
   fixedPrice?: number;
   source: "lara" | "manual";
+  mappings: ServiceMapping[];
 }
 
 function formatNOK(n: number): string {
