@@ -290,15 +290,26 @@ export function MSPMaturityServiceMatrix() {
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
 
-  const toggleActivity = (deliveryId: string, controlId: string, activityId: string) => {
+  const [confirmCtx, setConfirmCtx] = useState<{
+    open: boolean;
+    deliveryId?: string;
+    controlId?: string;
+    activityId?: string;
+    readOnly?: boolean;
+  }>({ open: false });
+
+  const applyActivityUpdate = (
+    deliveryId: string,
+    controlId: string,
+    activityId: string,
+    updater: (a: DeliveryActivity) => DeliveryActivity,
+  ) => {
     setDeliveries(prev =>
       prev.map(d => {
         if (d.id !== deliveryId) return d;
         const controls = d.controls.map(c => {
           if (c.id !== controlId) return c;
-          const activities = c.activities.map(a =>
-            a.id === activityId ? { ...a, done: !a.done } : a,
-          );
+          const activities = c.activities.map(a => (a.id === activityId ? updater(a) : a));
           const doneCount = activities.filter(a => a.done).length;
           const progress = activities.length > 0 ? Math.round((doneCount / activities.length) * 100) : 0;
           const status: DeliveryControl["status"] =
@@ -309,6 +320,51 @@ export function MSPMaturityServiceMatrix() {
       }),
     );
   };
+
+  const confirmActivity = (
+    deliveryId: string,
+    controlId: string,
+    activityId: string,
+    payload: ConfirmPayload,
+  ) => {
+    applyActivityUpdate(deliveryId, controlId, activityId, a => ({
+      ...a,
+      done: true,
+      confirmedAt: new Date().toISOString(),
+      confirmedBy: "Partner",
+      note: payload.note,
+      evidence: payload.files,
+      sharedWithCustomer: payload.sharedWithCustomer,
+    }));
+    toast.success("Aktivitet bekreftet — Trust Profile oppdatert", {
+      description: payload.files.length > 0
+        ? `${payload.files.length} bevis lagt ved${payload.sharedWithCustomer ? " · Kunden varsles" : ""}`
+        : payload.sharedWithCustomer ? "Kunden varsles" : undefined,
+    });
+  };
+
+  const undoActivity = (deliveryId: string, controlId: string, activityId: string) => {
+    applyActivityUpdate(deliveryId, controlId, activityId, a => ({
+      ...a,
+      done: false,
+      confirmedAt: undefined,
+      confirmedBy: undefined,
+      note: undefined,
+      evidence: undefined,
+      sharedWithCustomer: undefined,
+    }));
+    toast.info("Bekreftelse angret");
+  };
+
+  const confirmCtxActivity = (() => {
+    if (!confirmCtx.open) return null;
+    const d = deliveries.find(x => x.id === confirmCtx.deliveryId);
+    const c = d?.controls.find(x => x.id === confirmCtx.controlId);
+    const a = c?.activities.find(x => x.id === confirmCtx.activityId);
+    if (!d || !c || !a) return null;
+    const service = d.serviceId ? getService(d.serviceId) : undefined;
+    return { d, c, a, frameworkLabel: service?.frameworkMappings?.[0]?.frameworkLabel };
+  })();
 
   const openGap = (frameworkId?: string) => {
     setGapFrameworkId(frameworkId);
