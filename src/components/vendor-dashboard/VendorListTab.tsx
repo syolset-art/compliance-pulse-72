@@ -264,7 +264,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     return null;
   };
 
-  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter]
+  const activeFilterCount = [categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter, countryFilter, ownerFilter]
     .filter(f => f && f !== "all").length + (showAll ? 1 : 0);
 
   const clearAllFilters = () => {
@@ -274,6 +274,8 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     setGdprRoleFilter("");
     setPriorityFilter("");
     setStatusFilter("");
+    setCountryFilter("");
+    setOwnerFilter("");
     setShowAll(false);
   };
 
