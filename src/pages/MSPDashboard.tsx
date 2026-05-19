@@ -233,11 +233,12 @@ export default function MSPDashboard() {
 
   const clearAllFilters = () => {
     setIndustryFilter([]);
+    setCountryCodeFilter([]);
     setCriticalityFilter([]);
     setTpStatusFilter([]);
     setServiceFilter([]);
   };
-  const activeFilterCount = industryFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length;
+  const activeFilterCount = industryFilter.length + countryCodeFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
