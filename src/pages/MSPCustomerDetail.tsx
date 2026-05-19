@@ -46,20 +46,6 @@ export default function MSPCustomerDetail() {
     enabled: !!customerId,
   });
 
-  const { data: frameworks = [] } = useQuery({
-    queryKey: ["selected-frameworks-active-msp"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("selected_frameworks")
-        .select("framework_id, framework_name")
-        .eq("is_selected", true);
-      if (error) return [];
-      return (data || []).map((fw: any) => ({
-        framework_id: fw.framework_id,
-        framework_name: fw.framework_name,
-      }));
-    },
-  });
 
   if (isLoading) {
     return (
