@@ -91,7 +91,7 @@ export const ConfirmActivityDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-success" />
-            {readOnly ? "Bevis for aktivitet" : "Bekreft ferdig aktivitet"}
+            {readOnly ? "Bevis for aktivitet" : "Send aktivitet til kunde"}
           </DialogTitle>
           <DialogDescription className="space-y-1.5 pt-1">
             <span className="block text-foreground font-medium">{activityLabel}</span>
@@ -105,13 +105,18 @@ export const ConfirmActivityDialog = ({
                 </Badge>
               )}
             </span>
+            {!readOnly && (
+              <span className="block text-[11px] text-muted-foreground pt-1">
+                Kunden må godkjenne rapporten før aktiviteten kan berike Trust Profile.
+              </span>
+            )}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
-              Notat {readOnly ? "" : "(valgfritt)"}
+              Notat til kunde {readOnly ? "" : "(valgfritt)"}
             </label>
             <Textarea
               value={note}
@@ -124,8 +129,10 @@ export const ConfirmActivityDialog = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
-              Dokumentbevis {!readOnly && <span className="text-muted-foreground font-normal">— vedlegg som styrker Trust Profile</span>}
+              Dokumentbevis {!readOnly && <span className="text-muted-foreground font-normal">— vedlegg kunden får til godkjenning</span>}
             </label>
+
+
 
             {!readOnly && (
               <div
