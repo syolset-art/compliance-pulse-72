@@ -223,6 +223,9 @@ export default function MSPDashboard() {
       if (sortKey === "country_code") {
         return (a.country_code || "NO").localeCompare(b.country_code || "NO", "nb") * dir;
       }
+      if (sortKey === "compliance_score") {
+        return ((a.compliance_score || 0) - (b.compliance_score || 0)) * dir;
+      }
       // tp_status
       const ao = TP_STATUS_ORDER[deriveTPStatus(a)] ?? 99;
       const bo = TP_STATUS_ORDER[deriveTPStatus(b)] ?? 99;
