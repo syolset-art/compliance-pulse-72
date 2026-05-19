@@ -283,18 +283,23 @@ export function MSPMaturityServiceMatrix() {
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
 
-  const toggleChecklistItem = (deliveryId: string, itemId: string) => {
+  const toggleActivity = (deliveryId: string, controlId: string, activityId: string) => {
     setDeliveries(prev =>
-      prev.map(d =>
-        d.id === deliveryId
-          ? {
-              ...d,
-              checklist: d.checklist.map(c =>
-                c.id === itemId ? { ...c, done: !c.done } : c,
-              ),
-            }
-          : d,
-      ),
+      prev.map(d => {
+        if (d.id !== deliveryId) return d;
+        const controls = d.controls.map(c => {
+          if (c.id !== controlId) return c;
+          const activities = c.activities.map(a =>
+            a.id === activityId ? { ...a, done: !a.done } : a,
+          );
+          const doneCount = activities.filter(a => a.done).length;
+          const progress = activities.length > 0 ? Math.round((doneCount / activities.length) * 100) : 0;
+          const status: DeliveryControl["status"] =
+            progress >= 100 ? "fulfilled" : progress > 0 ? "partial" : "missing";
+          return { ...c, activities, progress, status };
+        });
+        return { ...d, controls };
+      }),
     );
   };
 
