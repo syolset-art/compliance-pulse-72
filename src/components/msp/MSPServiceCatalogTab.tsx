@@ -7,14 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone } from "lucide-react";
 import { toast } from "sonner";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
   FRAMEWORK_CATALOG,
   type CoverageLevel,
 } from "@/lib/frameworkCoverageCatalog";
