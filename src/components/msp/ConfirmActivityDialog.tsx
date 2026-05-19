@@ -96,7 +96,7 @@ export const ConfirmActivityDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-success" />
-            {readOnly ? "Bevis for aktivitet" : "Send aktivitet til kunde"}
+            {readOnly ? "Bevis for aktivitet" : "Registrer arbeid på aktivitet"}
           </DialogTitle>
           <DialogDescription className="space-y-1.5 pt-1">
             <span className="block text-foreground font-medium">{activityLabel}</span>
@@ -112,7 +112,7 @@ export const ConfirmActivityDialog = ({
             </span>
             {!readOnly && (
               <span className="block text-[11px] text-muted-foreground pt-1">
-                Kunden må godkjenne rapporten før aktiviteten kan berike Trust Profile.
+                Beskriv hva som er gjort og last opp dokument/bevis. Når alle aktiviteter er ferdige kan du generere sluttrapport til kunden.
               </span>
             )}
           </DialogDescription>
@@ -156,12 +156,12 @@ export const ConfirmActivityDialog = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
-              Notat til kunde {readOnly ? "" : "(valgfritt)"}
+              Hva er gjort? {readOnly ? "" : "(valgfritt)"}
             </label>
             <Textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Kort beskrivelse av hva som er gjort…"
+              placeholder="Beskriv hva som er utført på aktiviteten…"
               rows={3}
               disabled={readOnly}
             />
@@ -169,7 +169,7 @@ export const ConfirmActivityDialog = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
-              Dokumentbevis {!readOnly && <span className="text-muted-foreground font-normal">— vedlegg kunden får til godkjenning</span>}
+              Dokument / bevis {!readOnly && <span className="text-muted-foreground font-normal">— last opp filer som dokumenterer arbeidet</span>}
             </label>
 
 
@@ -251,15 +251,15 @@ export const ConfirmActivityDialog = ({
             )}
           </div>
 
-          {!readOnly && (
-            <div className="flex items-start gap-2.5 rounded-lg border border-primary/30 bg-primary/5 p-3">
-              <ShieldCheck className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          {!readOnly && status === "done" && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-success/30 bg-success/5 p-3">
+              <ShieldCheck className="h-4 w-4 text-success mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-foreground">
-                  Sendes til kunden for godkjenning
+                  Klar for sluttrapport
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Du kan ikke berike kundens Trust Profile direkte. Kunden mottar rapporten på melding og må godkjenne den før modenhetsscoren oppdateres.
+                  Når alle aktivitetene i tilbudet er ferdige, kan du generere en samlet sluttrapport til kunden.
                 </p>
               </div>
             </div>
@@ -283,7 +283,7 @@ export const ConfirmActivityDialog = ({
               >
                 <CheckCircle2 className="h-4 w-4" />
                 {status === "done"
-                  ? "Lagre og send til kunde"
+                  ? "Lagre som ferdig"
                   : status === "not_relevant"
                     ? "Lagre – ikke relevant"
                     : "Lagre fremdrift"}

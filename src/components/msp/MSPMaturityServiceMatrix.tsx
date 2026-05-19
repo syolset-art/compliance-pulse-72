@@ -578,7 +578,7 @@ export function MSPMaturityServiceMatrix({
     }));
     if (status === "done") {
       toast.success("Aktivitet markert som ferdig", {
-        description: "Trust Profile oppdateres når kunden har godkjent rapporten.",
+        description: "Generer sluttrapport når alle aktivitetene er ferdige.",
       });
     } else if (status === "not_relevant") {
       toast.success("Aktivitet markert som ikke relevant");
