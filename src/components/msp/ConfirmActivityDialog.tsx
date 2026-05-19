@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, X, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Upload, FileText, X, CheckCircle2, ShieldCheck, Eye } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export interface EvidenceFileMeta {
@@ -172,7 +173,17 @@ export const ConfirmActivityDialog = ({
                     <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
                       {formatSize(f.size)}
                     </span>
-                    {!readOnly && (
+                    {readOnly ? (
+                      <button
+                        type="button"
+                        onClick={() => toast.info(`Åpner ${f.name}`, { description: "Forhåndsvisning i demo." })}
+                        className="text-muted-foreground hover:text-primary"
+                        aria-label="Åpne fil"
+                        title="Åpne fil"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                      </button>
+                    ) : (
                       <button
                         type="button"
                         onClick={() => removeFile(f.id)}
@@ -182,6 +193,7 @@ export const ConfirmActivityDialog = ({
                         <X className="h-3.5 w-3.5" />
                       </button>
                     )}
+
                   </li>
                 ))}
               </ul>
