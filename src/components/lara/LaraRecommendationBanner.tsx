@@ -367,6 +367,8 @@ export function LaraRecommendationBanner({
           </button>
         )}
       </div>
+      </>)}
     </div>
+
   );
 }
