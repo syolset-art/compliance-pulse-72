@@ -32,6 +32,7 @@ interface Asset {
   asset_owner?: string | null;
   work_area_id?: string | null;
   lifecycle_status?: string | null;
+  metadata?: any;
 }
 
 interface Props {
