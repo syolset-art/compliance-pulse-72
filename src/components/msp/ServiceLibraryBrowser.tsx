@@ -12,7 +12,7 @@ import {
   scopeLabel,
   industryLabel,
   deliveryLabel,
-  formatPriceRange,
+  formatEstimatedPrice,
   formatHoursRange,
   type ServiceTemplate,
   type ServiceTier,
@@ -26,6 +26,8 @@ interface Props {
   context: PartnerContext;
   adoptedIds: Set<string>;
   onAdopt: (template: ServiceTemplate) => void;
+  /** Partnerens egen timepris — alle priser beregnes herfra. */
+  hourlyRate: number;
 }
 
 const TIER_ORDER: ServiceTier[] = ["universal", "msp", "mssp", "regional"];
