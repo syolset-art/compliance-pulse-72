@@ -389,7 +389,10 @@ const DELIVERIES: DeliveryItem[] = [
             label: "Kommunisert til alle ansatte",
             done: false,
             owner: "Kunde",
-            laraSteps: ["Utkast til intranett-melding lagt klar", "E-postmal generert"],
+            laraSteps: [
+              { text: "Lagt intranett-melding klar for publisering", via: "SharePoint" },
+              { text: "Generert e-postmal til alle ansatte", via: "Outlook" },
+            ],
           },
         ],
       },
