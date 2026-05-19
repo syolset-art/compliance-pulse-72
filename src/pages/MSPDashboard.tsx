@@ -438,7 +438,7 @@ export default function MSPDashboard() {
                             onChange={setCriticalityFilter}
                           />
                         </TableHead>
-                        <TableHead>
+                        <TableHead className="w-auto">
                           <ColumnFilter
                             label="Tjenester kunden trenger"
                             options={serviceOptions.map((v) => ({ value: v, label: v }))}
