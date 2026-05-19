@@ -569,6 +569,23 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
           }}
         />
       )}
+
+      <DeliverySummaryDialog
+        open={summaryOpen}
+        onOpenChange={setSummaryOpen}
+        delivery={activeDelivery}
+        onApprove={() => {
+          setApprovedDeliveries((prev) => {
+            const next = new Set(prev);
+            next.add(activeDelivery.id);
+            return next;
+          });
+          setSummaryOpen(false);
+          toast.success("Leveranserapport generert", {
+            description: "Klar for sending til kunde.",
+          });
+        }}
+      />
     </div>
   );
 };
