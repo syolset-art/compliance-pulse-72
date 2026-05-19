@@ -10,6 +10,8 @@ export interface FrameworkControlPoint {
     partial: number;
     full: number;
   };
+  /** Typiske aktiviteter partner utfører for å dekke punktet. Holdes kort — partner kan utvide selv. */
+  typicalActivities?: string[];
 }
 
 export interface FrameworkDefinition {
