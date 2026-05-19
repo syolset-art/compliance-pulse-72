@@ -9,6 +9,8 @@ interface Props {
   hiddenIssues: number; // ting partner ser, men kunden ikke
   nextDeadlineDays?: number;
   nextDeadlineLabel?: string;
+  /** Når satt: vises som lite kildemerke under "Samlet modenhet". */
+  sourceLabel?: string;
 }
 
 function colorFor(score: number) {
@@ -25,6 +27,7 @@ export function MSPCustomerSnapshotCard({
   hiddenIssues,
   nextDeadlineDays,
   nextDeadlineLabel,
+  sourceLabel,
 }: Props) {
   const TrendIcon = deltaPct >= 0 ? TrendingUp : TrendingDown;
   const trendColor = deltaPct >= 0 ? "text-success" : "text-destructive";
@@ -51,9 +54,14 @@ export function MSPCustomerSnapshotCard({
           value={`${overallMaturity}%`}
           valueClass={colorFor(overallMaturity)}
           sub={
-            <span className={cn("inline-flex items-center gap-1", trendColor)}>
-              <TrendIcon className="h-3 w-3" />
-              {deltaPct >= 0 ? "+" : ""}{deltaPct}% / 30d
+            <span className="space-y-0.5 block">
+              <span className={cn("inline-flex items-center gap-1", trendColor)}>
+                <TrendIcon className="h-3 w-3" />
+                {deltaPct >= 0 ? "+" : ""}{deltaPct}% / 30d
+              </span>
+              {sourceLabel && (
+                <span className="block text-[10px] text-primary truncate">{sourceLabel}</span>
+              )}
             </span>
           }
         />

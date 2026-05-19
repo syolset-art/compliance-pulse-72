@@ -22,6 +22,10 @@ import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMat
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
+import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
+import { QuestionnaireGapList } from "@/components/msp/QuestionnaireGapList";
+import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
+import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
 
 export default function MSPCustomerDetail() {
@@ -188,10 +192,17 @@ export default function MSPCustomerDetail() {
                 </Card>
               )}
 
-              {/* 1) Partner-snapshot — kun synlig for partner */}
+              {/* 1) Partner-snapshot — bruker reelle svar når kunden har fullført spørreskjema */}
               {(() => {
+                const { deliveries } = useQuestionnaireDeliveries();
+                const completed = deliveries
+                  .filter((d) => d.customerId === customerId && d.status === "completed")
+                  .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""))[0];
+                const realScore = completed
+                  ? scoreDelivery(completed, getQuestionnaire(completed.questionnaireId).totalQuestions)
+                  : null;
                 const base = customer.initial_assessment_score || 0;
-                const overall = Math.min(100, Math.round(base));
+                const overall = realScore ?? Math.min(100, Math.round(base));
                 return (
                   <MSPCustomerSnapshotCard
                     customerName={customer.name || "kunden"}
@@ -201,11 +212,28 @@ export default function MSPCustomerDetail() {
                     hiddenIssues={3}
                     nextDeadlineDays={14}
                     nextDeadlineLabel="NIS2 Art.23"
+                    sourceLabel={realScore != null ? `${getQuestionnaire(completed!.questionnaireId).title} (kunde-svar)` : undefined}
                   />
                 );
               })()}
 
-              {/* 2) Inntekts- og tjenestepotensial */}
+              {/* 2) Spørreskjema-tjenester — bestill kartlegging fra kunden */}
+              <QuestionnaireDispatchCard
+                customerId={customerId!}
+                customerName={customer.name || "kunden"}
+              />
+
+              {/* 3) Lara-gap fra siste fullførte skjema */}
+              <QuestionnaireGapList
+                customerId={customerId!}
+                onProposeService={(serviceId, source) =>
+                  toast.info(`Foreslår "${serviceId}" basert på ${source}`, {
+                    description: "Åpner tilbudsverktøy i neste iterasjon.",
+                  })
+                }
+              />
+
+              {/* 4) Inntekts- og tjenestepotensial */}
               <MSPCustomerOpportunityCard
                 customerName={customer.name || "kunden"}
                 customerCoveragePct={Math.min(100, Math.round(customer.initial_assessment_score || 40))}

@@ -11,6 +11,7 @@ import { Inbox, Send, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { OutboundRequestsTab } from "@/components/customer-requests/OutboundRequestsTab";
 import { UnifiedInboxContent } from "@/components/customer-requests/UnifiedInboxContent";
+import { PendingQuestionnaireCard } from "@/components/customer-requests/PendingQuestionnaireCard";
 
 const LEGACY_TABS = new Set(["lara", "inbound"]);
 
@@ -93,7 +94,8 @@ const CustomerRequests = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="inbox" className="mt-6">
+              <TabsContent value="inbox" className="mt-6 space-y-4">
+                <PendingQuestionnaireCard />
                 <UnifiedInboxContent />
               </TabsContent>
 
