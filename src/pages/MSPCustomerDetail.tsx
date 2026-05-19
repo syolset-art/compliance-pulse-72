@@ -242,14 +242,16 @@ export default function MSPCustomerDetail() {
               />
 
               {/* 3) Lara-gap fra siste fullførte skjema */}
-              <QuestionnaireGapList
-                customerId={customerId!}
-                onProposeService={(serviceId, source) =>
-                  toast.info(`Foreslår "${serviceId}" basert på ${source}`, {
-                    description: "Åpner tilbudsverktøy i neste iterasjon.",
-                  })
-                }
-              />
+              <div id="gap-list-anchor" className="scroll-mt-24 transition-all">
+                <QuestionnaireGapList
+                  customerId={customerId!}
+                  onProposeService={(serviceId, source) =>
+                    toast.info(`Foreslår "${serviceId}" basert på ${source}`, {
+                      description: "Åpner tilbudsverktøy i neste iterasjon.",
+                    })
+                  }
+                />
+              </div>
 
               {/* 4) Inntekts- og tjenestepotensial */}
               <MSPCustomerOpportunityCard
