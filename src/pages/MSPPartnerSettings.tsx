@@ -254,21 +254,6 @@ export default function MSPPartnerSettings() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-3 rounded-lg border border-border px-3 py-2.5">
-                <div>
-                  <p className="text-[13px] font-medium text-foreground">
-                    Daglig sammendrag i stedet for hver melding
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    Én e-post om dagen med alt nytt — mindre støy i innboksen.
-                  </p>
-                </div>
-                <Switch
-                  checked={form.dailyDigest}
-                  onCheckedChange={(v) => update("dailyDigest", v)}
-                  disabled={!form.forwardEnabled}
-                />
-              </div>
 
               <div className="flex items-start gap-2 rounded-lg bg-muted/40 border border-border p-3 text-[11px] text-muted-foreground">
                 <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
