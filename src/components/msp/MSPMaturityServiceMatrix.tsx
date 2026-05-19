@@ -527,6 +527,7 @@ export function MSPMaturityServiceMatrix({
 
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
+  const [shareCtx, setShareCtx] = useState<{ open: boolean; offerNumber?: string; serviceTitle?: string }>({ open: false });
 
   const [confirmCtx, setConfirmCtx] = useState<{
     open: boolean;
