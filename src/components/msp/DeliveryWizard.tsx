@@ -337,15 +337,19 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
                         Lara utfører automatisk
                       </p>
                       <ul className="space-y-1.5">
-                        {step.activity.laraSteps.map((s, i) => (
-                          <li
-                            key={i}
-                            className="flex items-start gap-2 text-[12px] text-foreground"
-                          >
-                            <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0 mt-0.5" />
-                            <span>{s}</span>
-                          </li>
-                        ))}
+                        {step.activity.laraSteps.map((s, i) => {
+                          const via = getStepVia(s);
+                          return (
+                            <li
+                              key={i}
+                              className="flex items-start gap-2 text-[12px] text-foreground"
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0 mt-0.5" />
+                              <span className="flex-1">{getStepText(s)}</span>
+                              {via && <IntegrationBadge name={via} />}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   )}
