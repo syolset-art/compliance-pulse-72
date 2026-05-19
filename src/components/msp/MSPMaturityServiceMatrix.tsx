@@ -792,11 +792,12 @@ export function MSPMaturityServiceMatrix({
                               size="sm"
                               variant="ghost"
                               className="h-7 w-7 p-0"
-                              title="Åpne tilbud"
-                              onClick={() => toast.info(`Åpner ${o.offerNumber}`, { description: o.serviceTitle })}
+                              title="Del med kunde"
+                              onClick={() => toast.success(`Tilbud ${o.offerNumber} delt med kunden`)}
                             >
-                              <Eye className="h-3.5 w-3.5" />
+                              <Share2 className="h-3.5 w-3.5" />
                             </Button>
+
                             <Button
                               size="sm"
                               variant="ghost"
