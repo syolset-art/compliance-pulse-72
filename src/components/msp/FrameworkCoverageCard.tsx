@@ -7,7 +7,6 @@ import { ChevronDown, ChevronUp, Sparkles, Check, Plus, X, Tag } from "lucide-re
 import { cn } from "@/lib/utils";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import {
-  COVERAGE_LEVELS,
   type CoverageLevel,
   type FrameworkDefinition,
 } from "@/lib/frameworkCoverageCatalog";
