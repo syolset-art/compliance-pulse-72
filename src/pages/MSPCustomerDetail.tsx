@@ -27,6 +27,8 @@ import { QuestionnaireGapList } from "@/components/msp/QuestionnaireGapList";
 import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
 import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { EyeOff, Clock as ClockIcon, ArrowRight } from "lucide-react";
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
@@ -35,6 +37,8 @@ export default function MSPCustomerDetail() {
   const [activeTab, setActiveTab] = useState("guidance");
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
+  const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
+  const [deadlineOpen, setDeadlineOpen] = useState(false);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
