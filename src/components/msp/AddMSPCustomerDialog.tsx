@@ -76,6 +76,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     contact_email: "",
     contact_company_role: "",
     subscription_plan: "Gratis",
+    country_code: "NO",
   });
 
   // License info
