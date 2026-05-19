@@ -214,6 +214,9 @@ export default function MSPDashboard() {
       if (sortKey === "customer_name") {
         return (a.customer_name || "").localeCompare(b.customer_name || "", "nb") * dir;
       }
+      if (sortKey === "country_code") {
+        return (a.country_code || "NO").localeCompare(b.country_code || "NO", "nb") * dir;
+      }
       // tp_status
       const ao = TP_STATUS_ORDER[deriveTPStatus(a)] ?? 99;
       const bo = TP_STATUS_ORDER[deriveTPStatus(b)] ?? 99;
