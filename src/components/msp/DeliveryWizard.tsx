@@ -382,6 +382,7 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
                   note: `Autogenerert av Lara: ${title}`,
                   files: [file],
                   sharedWithCustomer: true,
+                  status: "done",
                 });
                 toast.success("Steget er bekreftet ferdig", {
                   description: fileName,
@@ -416,6 +417,7 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
               note: `Generert av Lara: ${draft.title}`,
               files: [file],
               sharedWithCustomer: true,
+                  status: "done",
             });
             setTimeout(advance, 250);
           }}
