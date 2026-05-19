@@ -3,7 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Shield, Pencil, Tag, Eye, EyeOff, X } from "lucide-react";
+import { Shield, Pencil, Tag, Eye, EyeOff, X, ClipboardList, Clock } from "lucide-react";
+import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { cn } from "@/lib/utils";
 import {
   ServiceEvidenceSection,
@@ -95,6 +96,12 @@ export function ServiceCard({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-sm font-semibold text-foreground">{s.name}</span>
+                {s.deliveryType === "questionnaire" && (
+                  <Badge variant="outline" className="text-[10px] gap-1 bg-primary/10 text-primary border-primary/30">
+                    <ClipboardList className="h-3 w-3" />
+                    Spørreskjema
+                  </Badge>
+                )}
                 {(s.price != null || s.priceNote) && (
                   <Badge variant="outline" className="text-[10px] gap-1 bg-success/5 text-success border-success/30">
                     <Tag className="h-3 w-3" />
@@ -103,8 +110,19 @@ export function ServiceCard({
                 )}
               </div>
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                {s.defaultChecklist.length} leveransepunkter
-                {totalControls > 0 && <> · {totalControls} kontrollpunkter</>}
+                {s.deliveryType === "questionnaire" && s.questionnaireId ? (
+                  <>
+                    {getQuestionnaire(s.questionnaireId).totalQuestions} spørsmål
+                    {s.estimatedMinutes && (
+                      <> · <Clock className="h-3 w-3 inline-block -mt-0.5" /> ca. {s.estimatedMinutes} min</>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {s.defaultChecklist.length} leveransepunkter
+                    {totalControls > 0 && <> · {totalControls} kontrollpunkter</>}
+                  </>
+                )}
               </p>
             </div>
           </div>
