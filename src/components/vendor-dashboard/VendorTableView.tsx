@@ -314,12 +314,34 @@ export function VendorTableView({
               const score = v.compliance_score || 0;
               const owner = getOwnerName(v);
               const crit = getCriticality(v);
+              const status = deriveVendorStatus({
+                compliance_score: v.compliance_score,
+                risk_level: v.risk_level,
+                lifecycle_status: v.lifecycle_status,
+                metadata: v.metadata,
+              });
               return (
                 <TableRow
                   key={v.id}
-                  className="cursor-pointer"
+                  className="cursor-pointer group"
                   onClick={() => navigate(`/vendor/${v.id}`)}
                 >
+                  <TableCell className="w-1.5 p-0">
+                    <TooltipProvider delayDuration={200}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div
+                            className={cn("h-full w-1.5", status.stripeBg)}
+                            aria-label={status.label}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p className="text-xs font-medium">{status.label}</p>
+                          <p className="text-[11px] text-muted-foreground">{status.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
                   <TableCell className="text-xs font-mono text-muted-foreground uppercase">
                     {v.country || "—"}
                   </TableCell>
