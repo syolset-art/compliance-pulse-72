@@ -9,6 +9,13 @@ import { cn } from "@/lib/utils";
 
 type Priority = "A" | "B" | "C" | "D";
 
+const PRIO_TO_FILTER: Record<Priority, string> = {
+  A: "critical",
+  B: "high",
+  C: "medium",
+  D: "low",
+};
+
 interface SystemRow {
   id: string;
   name: string;
@@ -134,8 +141,21 @@ export function SystemsPriorityChart() {
           const meta = PRIO_META[k];
           const t = buckets[k].total;
           const heightPct = (t / maxBar) * 100;
+          const disabled = t === 0;
           return (
-            <div key={k} className="flex flex-col items-center justify-end h-full gap-2">
+            <button
+              type="button"
+              key={k}
+              disabled={disabled}
+              onClick={() => navigate(`/vendors?tab=all&priority=${PRIO_TO_FILTER[k]}`)}
+              className={cn(
+                "flex flex-col items-center justify-end h-full gap-2 rounded-md p-1 -m-1 transition-all text-left",
+                disabled
+                  ? "cursor-not-allowed opacity-60"
+                  : "hover:bg-muted/40 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              )}
+              aria-label={`Vis ${t} leverandører i ${meta.label}`}
+            >
               {/* Count above bar */}
               <span className="text-base font-bold text-foreground tabular-nums leading-none">{t}</span>
 
@@ -148,7 +168,7 @@ export function SystemsPriorityChart() {
                     meta.ring
                   )}
                   style={{ height: `${Math.max(heightPct, t > 0 ? 6 : 0)}%`, minHeight: t > 0 ? 6 : 0 }}
-                  title={`${t} leverandører`}
+                  title={`${t} leverandører – klikk for å se listen`}
                 />
               </div>
 
@@ -157,7 +177,7 @@ export function SystemsPriorityChart() {
                 <p className="text-xs font-bold text-foreground tracking-wide">{k}</p>
                 <p className="text-[11px] text-muted-foreground leading-tight">{meta.helper}</p>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>

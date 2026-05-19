@@ -3,7 +3,7 @@ import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { Handshake, FileText, Shield, HelpCircle, AlertTriangle, Upload, BarChart3, Send, Share2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,8 @@ export default function VendorDashboard() {
   usePageHelpListener(setHelpOpen);
   const [activateOpen, setActivateOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("vendor_premium_activated") === "true");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab") || "overview";
 
   const { data: vendors = [] } = useQuery({
     queryKey: ["vendor-assets"],
@@ -124,7 +126,7 @@ export default function VendorDashboard() {
             onActivate={() => setActivateOpen(true)}
           />
 
-          <Tabs defaultValue="overview" className="space-y-4">
+          <Tabs value={tabFromUrl} onValueChange={(v) => { const next = new URLSearchParams(searchParams); next.set("tab", v); setSearchParams(next, { replace: true }); }} className="space-y-4">
             <div className="flex items-center justify-between">
               <TabsList className="h-10 p-0.5" aria-label={t("vendorDashboard.tabs.overview", "Oversikt") + " – navigasjon"}>
                 <TabsTrigger value="overview" className="text-sm px-3">{t("vendorDashboard.tabs.overview", "Oversikt")}</TabsTrigger>
