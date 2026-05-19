@@ -38,12 +38,12 @@ function formatNOK(n: number): string {
 }
 
 export function MSPServiceCatalogTab() {
+  const navigate = useNavigate();
   const [hourlyRate, setHourlyRate] = useState<number>(1500);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [emailPreviewOpen, setEmailPreviewOpen] = useState(false);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
