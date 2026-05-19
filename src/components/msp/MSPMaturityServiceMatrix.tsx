@@ -541,9 +541,10 @@ export function MSPMaturityServiceMatrix() {
 
         <TabsContent value="deliveries" className="space-y-2 mt-0">
           {deliveries.map(d => {
-            const totalActivities = d.controls.reduce((s, c) => s + c.activities.length, 0);
-            const doneActivities = d.controls.reduce(
-              (s, c) => s + c.activities.filter(a => a.done).length,
+            const controls = d.controls ?? [];
+            const totalActivities = controls.reduce((s, c) => s + (c.activities?.length ?? 0), 0);
+            const doneActivities = controls.reduce(
+              (s, c) => s + (c.activities?.filter(a => a.done).length ?? 0),
               0,
             );
             const progress = totalActivities > 0 ? Math.round((doneActivities / totalActivities) * 100) : 0;
@@ -551,9 +552,9 @@ export function MSPMaturityServiceMatrix() {
             const isOpen = expandedDelivery === d.id;
             const service = d.serviceId ? getService(d.serviceId) : undefined;
             const controlCounts = {
-              missing: d.controls.filter(c => c.status === "missing").length,
-              partial: d.controls.filter(c => c.status === "partial").length,
-              fulfilled: d.controls.filter(c => c.status === "fulfilled").length,
+              missing: controls.filter(c => c.status === "missing").length,
+              partial: controls.filter(c => c.status === "partial").length,
+              fulfilled: controls.filter(c => c.status === "fulfilled").length,
             };
             return (
               <Card key={d.id} className="overflow-hidden hover:border-primary/30 transition-colors">
