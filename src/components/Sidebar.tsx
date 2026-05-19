@@ -26,7 +26,7 @@ import {
   Bell,
   Pencil,
   Briefcase,
-  
+  Settings as SettingsIcon,
   Sparkles
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
