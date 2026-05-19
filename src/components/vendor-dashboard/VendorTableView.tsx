@@ -316,10 +316,10 @@ export function VendorTableView({
                   className="cursor-pointer"
                   onClick={() => navigate(`/vendor/${v.id}`)}
                 >
-                  <TableCell className="font-medium text-sm">{v.name}</TableCell>
                   <TableCell className="text-xs font-mono text-muted-foreground uppercase">
                     {v.country || "—"}
                   </TableCell>
+                  <TableCell className="font-medium text-sm">{v.name}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {v.vendor_category ? VENDOR_CAT_LABEL[v.vendor_category] || v.vendor_category : "—"}
                   </TableCell>
@@ -340,8 +340,8 @@ export function VendorTableView({
                   <TableCell className="text-center">
                     <ScoreRing score={score} />
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground truncate max-w-[140px]">
-                    {owner || "—"}
+                  <TableCell>
+                    <OwnerCell assetId={v.id} ownerName={owner} options={owners} />
                   </TableCell>
                 </TableRow>
               );
