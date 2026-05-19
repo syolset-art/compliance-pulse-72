@@ -24,9 +24,9 @@ export function MSPServiceCatalogTab() {
     const init: AllSelections = {};
     const nis2 = FRAMEWORK_CATALOG.find((f) => f.id === "nis2");
     if (nis2) {
-      const s: FrameworkSelection = {};
+      const s: FrameworkSelection = { controls: {}, customCosts: [] };
       nis2.controlPoints.forEach((cp) => {
-        s[cp.id] = {
+        s.controls[cp.id] = {
           enabled: true,
           level: "partial" as CoverageLevel,
           hours: cp.hoursByLevel.partial,
@@ -39,23 +39,34 @@ export function MSPServiceCatalogTab() {
 
   const { grandHours, grandPrice, frameworksActive } = useMemo(() => {
     let h = 0;
+    let p = 0;
     let n = 0;
     FRAMEWORK_CATALOG.forEach((fw) => {
       const sel = selections[fw.id];
       if (!sel) return;
       let fwHours = 0;
+      let fwPrice = 0;
       let fwActive = false;
+      const controls = sel.controls ?? {};
       fw.controlPoints.forEach((cp) => {
-        const s = sel[cp.id];
+        const s = controls[cp.id];
         if (s?.enabled) {
           fwHours += s.hours;
+          fwPrice += s.hours * hourlyRate;
+          fwActive = true;
+        }
+      });
+      (sel.customCosts ?? []).forEach((c) => {
+        if (c.includeInOffer) {
+          fwPrice += c.kind === "fixed" ? c.amount : c.amount * (c.hours ?? 0);
           fwActive = true;
         }
       });
       h += fwHours;
+      p += fwPrice;
       if (fwActive) n += 1;
     });
-    return { grandHours: h, grandPrice: h * hourlyRate, frameworksActive: n };
+    return { grandHours: h, grandPrice: p, frameworksActive: n };
   }, [selections, hourlyRate]);
 
   return (
@@ -123,7 +134,7 @@ export function MSPServiceCatalogTab() {
             key={fw.id}
             framework={fw}
             hourlyRate={hourlyRate}
-            selection={selections[fw.id] ?? {}}
+            selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
             onSelectionChange={(next) =>
               setSelections((prev) => ({ ...prev, [fw.id]: next }))
             }
