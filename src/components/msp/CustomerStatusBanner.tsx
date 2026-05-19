@@ -43,8 +43,10 @@ const STATUS_MAP: Record<StatusKey, StatusMeta> = {
 
 function deriveStatus(c: CustomerLike): StatusMeta {
   if (c.status === "inactive") return STATUS_MAP.archived;
+  // Onboarding completed → kunden er claimet (aktiv), uavhengig av status-felt
+  if (c.onboarding_completed) return STATUS_MAP.claimed;
+  if (c.status === "active") return STATUS_MAP.claimed;
   if (c.status === "onboarding") return STATUS_MAP.invited;
-  if (c.status === "active" && c.onboarding_completed) return STATUS_MAP.claimed;
   return STATUS_MAP.draft;
 }
 
