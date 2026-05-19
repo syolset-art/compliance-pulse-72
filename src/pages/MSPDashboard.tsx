@@ -190,6 +190,7 @@ export default function MSPDashboard() {
   const [serviceFilter, setServiceFilter] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("customer_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [campaignView, setCampaignView] = useState<"all" | "framework" | "service">("all");
   const queryClient = useQueryClient();
 
   const { data: customers = [], refetch } = useQuery({
