@@ -204,7 +204,39 @@ export function MSPCustomerMessagesTab() {
   const sent = allOffers.filter(o => o.status === "pending");
   const approvedOffers = allOffers.filter(o => o.status === "approved");
   const closedOffers = allOffers.filter(o => o.status === "declined");
+export function MSPCustomerMessagesTab() {
+  const [tab, setTab] = useState("sent");
+  const [reports, setReports] = useState<DeliveryReport[]>(() => getDeliveryReports());
+
+  useEffect(() => {
+    return subscribeDeliveryReports(() => setReports(getDeliveryReports()));
+  }, []);
+
+  const allOffers = items.filter(i => i.type === "offer");
+  const sent = allOffers.filter(o => o.status === "pending");
+  const approvedOffers = allOffers.filter(o => o.status === "approved");
+  const closedOffers = allOffers.filter(o => o.status === "declined");
   const received = items.filter(i => i.type === "message" && !i.archived);
+
+  const pendingReports = reports.filter(r => r.status === "sent");
+  const approvedReports = reports.filter(r => r.status === "approved");
+
+  const handleApproveReport = (r: DeliveryReport) => {
+    updateDeliveryReport(r.id, {
+      status: "approved",
+      approvedAt: new Date().toISOString(),
+      approvedBy: r.customerName,
+    });
+    const delta = r.maturityDeltaPercent ?? 8;
+    toast.success(`${r.customerName} godkjente leveranserapporten`, {
+      description: `Modenhet på ${r.frameworkLabel ?? "berørte kontroller"} økte med +${delta} %. ${r.controlIds.length} kontrollpunkter ble beriket.`,
+    });
+  };
+
+  const handleDeclineReport = (r: DeliveryReport) => {
+    updateDeliveryReport(r.id, { status: "declined" });
+    toast.info("Rapport avvist av kunde");
+  };
 
   return (
     <div className="space-y-5">
@@ -216,15 +248,37 @@ export function MSPCustomerMessagesTab() {
         </Card>
         <Card className="p-3 bg-muted/30 border-border/60">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Godkjent</p>
-          <p className="text-2xl font-bold text-success mt-1">{approvedOffers.length}</p>
+          <p className="text-2xl font-bold text-success mt-1">{approvedOffers.length + approvedReports.length}</p>
         </Card>
         <Card className="p-3 bg-muted/30 border-border/60">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Avventer svar</p>
-          <p className="text-2xl font-bold text-warning mt-1">{sent.length}</p>
+          <p className="text-2xl font-bold text-warning mt-1">{sent.length + pendingReports.length}</p>
         </Card>
       </div>
 
-      <Tabs value={tab} onValueChange={setTab}>
+      {/* Delivery reports awaiting customer approval */}
+      {(pendingReports.length > 0 || approvedReports.length > 0) && (
+        <Card className="p-4 space-y-3 border-primary/30 bg-primary/[0.03]">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Leveranserapporter</h3>
+            <span className="text-[11px] text-muted-foreground">Sendt til kunde for godkjenning</span>
+          </div>
+          <div className="space-y-2">
+            {pendingReports.map(r => (
+              <DeliveryReportRow
+                key={r.id}
+                r={r}
+                onApprove={() => handleApproveReport(r)}
+                onDecline={() => handleDeclineReport(r)}
+              />
+            ))}
+            {approvedReports.map(r => (
+              <DeliveryReportRow key={r.id} r={r} />
+            ))}
+          </div>
+        </Card>
+      )}
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <TabsList className="bg-muted/50">
             <TabsTrigger value="sent" className="text-xs gap-1.5 data-[state=active]:bg-background">
