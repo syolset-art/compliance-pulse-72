@@ -173,7 +173,17 @@ export const ConfirmActivityDialog = ({
                     <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
                       {formatSize(f.size)}
                     </span>
-                    {!readOnly && (
+                    {readOnly ? (
+                      <button
+                        type="button"
+                        onClick={() => toast.info(`Åpner ${f.name}`, { description: "Forhåndsvisning i demo." })}
+                        className="text-muted-foreground hover:text-primary"
+                        aria-label="Åpne fil"
+                        title="Åpne fil"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                      </button>
+                    ) : (
                       <button
                         type="button"
                         onClick={() => removeFile(f.id)}
@@ -183,6 +193,7 @@ export const ConfirmActivityDialog = ({
                         <X className="h-3.5 w-3.5" />
                       </button>
                     )}
+
                   </li>
                 ))}
               </ul>
