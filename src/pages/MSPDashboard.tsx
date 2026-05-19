@@ -311,31 +311,57 @@ export default function MSPDashboard() {
                             Kunde <SortIcon k="customer_name" />
                           </button>
                         </TableHead>
-                        <TableHead>Bransje</TableHead>
-                        <TableHead>Kritikalitet</TableHead>
-                        <TableHead>Tjenester kunden trenger</TableHead>
                         <TableHead>
-                          <button type="button" onClick={() => toggleSort("status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
-                            Status <SortIcon k="status" />
-                          </button>
+                          <ColumnFilter
+                            label="Bransje"
+                            options={industryOptions.map((v) => ({ value: v, label: v }))}
+                            selected={industryFilter}
+                            onChange={setIndustryFilter}
+                          />
+                        </TableHead>
+                        <TableHead>
+                          <ColumnFilter
+                            label="Kritikalitet"
+                            options={[
+                              { value: "high", label: "Høy" },
+                              { value: "medium", label: "Medium" },
+                              { value: "low", label: "Lav" },
+                            ]}
+                            selected={criticalityFilter}
+                            onChange={setCriticalityFilter}
+                          />
+                        </TableHead>
+                        <TableHead>
+                          <ColumnFilter
+                            label="Tjenester kunden trenger"
+                            options={serviceOptions.map((v) => ({ value: v, label: v }))}
+                            selected={serviceFilter}
+                            onChange={setServiceFilter}
+                          />
+                        </TableHead>
+                        <TableHead>
+                          <div className="inline-flex items-center gap-1.5">
+                            <button type="button" onClick={() => toggleSort("tp_status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                              TP-status <SortIcon k="tp_status" />
+                            </button>
+                            <ColumnFilter
+                              iconOnly
+                              label="TP-status"
+                              options={(Object.keys(TP_STATUS_LABEL) as TPStatusKey[]).map((k) => ({ value: k, label: TP_STATUS_LABEL[k] }))}
+                              selected={tpStatusFilter}
+                              onChange={(v) => setTpStatusFilter(v as TPStatusKey[])}
+                            />
+                          </div>
                         </TableHead>
                         <TableHead className="text-right">Modenhet</TableHead>
-                        <TableHead>
-                          <button type="button" onClick={() => toggleSort("last_activity_at")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
-                            Siste aktivitet <SortIcon k="last_activity_at" />
-                          </button>
-                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filtered.map((c: any) => {
-                        const sk = deriveStatusKey(c);
+                        const tp = deriveTPStatus(c);
                         const score = c.compliance_score || 0;
                         const crit = deriveCriticality(c);
                         const services = deriveNeededServices(c);
-                        const last = c.last_activity_at
-                          ? new Date(c.last_activity_at).toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" })
-                          : "—";
                         return (
                           <TableRow
                             key={c.id}
@@ -363,14 +389,13 @@ export default function MSPDashboard() {
                               )}
                             </TableCell>
                             <TableCell>
-                              <Badge variant="outline" className={cn("font-normal", STATUS_TONE[sk])}>
-                                {STATUS_LABEL[sk]}
+                              <Badge variant="outline" className={cn("font-normal", TP_STATUS_TONE[tp])}>
+                                {TP_STATUS_LABEL[tp]}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right tabular-nums">
                               {score > 0 ? `${score}%` : "—"}
                             </TableCell>
-                            <TableCell className="text-muted-foreground">{last}</TableCell>
                           </TableRow>
                         );
                       })}
