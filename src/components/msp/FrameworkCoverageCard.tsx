@@ -257,23 +257,20 @@ export function FrameworkCoverageCard({
             </div>
           </div>
 
-          {/* Kolonneoverskrifter */}
-          <div className="grid items-center gap-3 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_90px_110px]">
-            <span className="w-4" />
-            <span>Kontrollpunkt</span>
-            <span className="text-right">Timer</span>
-            <span className="text-right">Inntekt</span>
+          {/* Lara-estimat info */}
+          <div className="flex items-start gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2">
+            <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Lara estimerer omfang basert på valgte kontrollpunkter og kompleksitet —
+              <span className="font-semibold text-foreground"> ~{controlHours} t × {hourlyRate.toLocaleString("nb-NO")} kr</span>.
+              Bruk dette som utgangspunkt; detaljér timer og pris i selve tilbudet til kunden.
+            </p>
           </div>
 
           <ul className="space-y-1">
             {framework.controlPoints.map((cp) => {
               const s = controls[cp.id];
               const enabled = !!s?.enabled;
-              const level = s?.level ?? "partial";
-              const hours = s?.hours ?? cp.hoursByLevel[level];
-              const price = hours * hourlyRate;
-              const suggested = cp.hoursByLevel[level];
-              const overridden = s?.hoursOverridden && hours !== suggested;
               const builtinActivities = cp.typicalActivities ?? [];
               const extraActivities = s?.extraActivities ?? [];
 
@@ -298,62 +295,25 @@ export function FrameworkCoverageCard({
                     enabled ? "border-border" : "border-border/40 opacity-70",
                   )}
                 >
-                  <div className="grid items-center gap-3 px-2 py-2 grid-cols-[auto_1fr_90px_110px]">
+                  <div className="flex items-center gap-3 px-2 py-2">
                     <input
                       type="checkbox"
                       checked={enabled}
                       onChange={(e) => updateControl(cp.id, { enabled: e.target.checked })}
-                      className="h-4 w-4 rounded border-border accent-primary"
+                      className="h-4 w-4 rounded border-border accent-primary flex-shrink-0"
                       aria-label={`Velg ${cp.id}`}
                     />
 
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="text-sm text-foreground truncate">
                         <span className="text-muted-foreground mr-1.5">{cp.id}</span>
                         {cp.label}
                       </div>
                     </div>
-
-                    {/* Timer */}
-                    <div className="flex items-center justify-end gap-1">
-                      <Input
-                        type="number"
-                        min={0}
-                        step={1}
-                        disabled={!enabled}
-                        value={hours}
-                        onChange={(e) =>
-                          updateControl(cp.id, {
-                            hours: Math.max(0, Number(e.target.value) || 0),
-                            hoursOverridden: true,
-                          })
-                        }
-                        className="h-7 w-14 px-1.5 text-[12px] text-right tabular-nums"
-                      />
-                      <span className="text-[10px] text-muted-foreground">t</span>
-                    </div>
-
-                    {/* Inntekt */}
-                    <div className="text-right">
-                      <div className="text-sm font-semibold text-foreground tabular-nums">
-                        {enabled ? formatNOK(price) : "—"}
-                      </div>
-                      {enabled && (
-                        <div className="text-[10px] text-muted-foreground inline-flex items-center gap-0.5 justify-end">
-                          {overridden ? (
-                            <>justert · Lara {suggested} t</>
-                          ) : (
-                            <>
-                              <Sparkles className="h-2.5 w-2.5" /> Lara-forslag
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </div>
                   </div>
 
                   {/* Typiske aktiviteter — kun synlig når KP er valgt */}
-                  {enabled && (builtinActivities.length > 0 || extraActivities.length > 0 || true) && (
+                  {enabled && (
                     <div className="px-2 pb-2 pl-8">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="text-[10px] uppercase tracking-wider text-muted-foreground mr-1">
@@ -391,6 +351,7 @@ export function FrameworkCoverageCard({
               );
             })}
           </ul>
+
 
 
           {/* Egendefinerte kostnader */}
