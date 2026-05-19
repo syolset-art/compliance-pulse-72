@@ -257,7 +257,17 @@ const DELIVERIES: DeliveryItem[] = [
             done: true,
             owner: "Partner",
             date: "5. mar",
-            laraSteps: ["Generert deltakerliste fra HR", "Sendt invitasjon via Outlook", "Samlet gjennomføringsrapport"],
+            laraSteps: [
+              { text: "Generert deltakerliste fra HR (142 ansatte)", via: "Entra ID" },
+              { text: "Tildelt e-læringsmodul «Awareness Q1»", via: "Microsoft 365 Learning" },
+              { text: "Sendt invitasjon og 4 påminnelser", via: "Outlook" },
+              { text: "Samlet gjennomføringsdata: 138/142 (97 %)", via: "Microsoft 365 Learning" },
+              { text: "Generert PDF-rapport med snitt-score 86 %", via: "Lara" },
+            ],
+            partnerSteps: [
+              "Validere at e-læringsinnholdet er oppdatert",
+              "Følge opp 4 ansatte som krevde påminnelse",
+            ],
             laraDraft: {
               title: "Gjennomføringsrapport Q1 e-læring",
               fileName: "elearning-Q1-2025-rapport.pdf",
