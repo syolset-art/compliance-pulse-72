@@ -25,6 +25,7 @@ import {
 import {
   LayoutGrid,
   List,
+  Table as TableIcon,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
@@ -36,6 +37,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { VendorTableView } from "./VendorTableView";
 
 export type ScoreDisplayMode = "percent" | "label";
 
