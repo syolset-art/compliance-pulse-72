@@ -55,6 +55,8 @@ interface Asset {
   gdpr_role?: string | null;
   work_area_id?: string | null;
   created_at?: string | null;
+  criticality?: string | null;
+  priority?: string | null;
 }
 
 interface VendorOverviewTabProps {
