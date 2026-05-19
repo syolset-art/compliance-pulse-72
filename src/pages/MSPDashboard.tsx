@@ -453,6 +453,7 @@ export default function MSPDashboard() {
                           >
                             <TableCell className="font-medium">{c.customer_name}</TableCell>
                             <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
+                            <TableCell className="text-muted-foreground tabular-nums">{c.country_code || "NO"}</TableCell>
                             <TableCell>
                               <Badge variant="outline" className={cn("font-normal", crit.tone)}>
                                 {crit.label}
