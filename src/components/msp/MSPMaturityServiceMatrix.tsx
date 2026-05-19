@@ -192,6 +192,7 @@ export interface DeliveryActivity {
   evidence?: EvidenceFileMeta[];
   sharedWithCustomer?: boolean;
   laraSteps?: string[];
+  partnerSteps?: string[];
   laraDraft?: {
     title: string;
     fileName: string;
