@@ -16,6 +16,7 @@ import {
   PartyPopper,
   RotateCcw,
   Paperclip,
+  MinusCircle,
   User as UserIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
