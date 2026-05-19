@@ -426,6 +426,30 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
           <span className="text-xs text-muted-foreground hidden sm:inline">{filtered.length} leverandører</span>
           <div className="flex border border-border rounded-lg">
             <Button
+              variant={viewMode === "card" ? "secondary" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode("card")}
+              title="Kortvisning"
+              aria-label="Kortvisning"
+              aria-pressed={viewMode === "card"}
+            >
+              <LayoutGrid className="h-3.5 w-3.5" aria-hidden="true" />
+            </Button>
+            <Button
+              variant={viewMode === "table" ? "secondary" : "ghost"}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode("table")}
+              title="Tabellvisning"
+              aria-label="Tabellvisning"
+              aria-pressed={viewMode === "table"}
+            >
+              <TableIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            </Button>
+          </div>
+          <div className="flex border border-border rounded-lg">
+            <Button
               variant={scoreDisplay === "percent" ? "secondary" : "ghost"}
               size="icon"
               className="h-8 w-8"
@@ -452,11 +476,33 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
       </div>
 
 
-      {/* Status row list */}
+      {/* Results */}
       {filtered.length === 0 ? (
         <div className="rounded-lg border border-border p-8 text-center text-muted-foreground">
           {t("assets.noAssets", "Ingen leverandører funnet")}
         </div>
+      ) : viewMode === "table" ? (
+        <VendorTableView
+          vendors={filtered as any}
+          expiredCounts={expiredCounts}
+          inboxCounts={inboxCounts}
+          getOwnerName={getOwnerName as any}
+          scoreDisplay={scoreDisplay}
+          countryFilter={countryFilter}
+          setCountryFilter={setCountryFilter}
+          vendorCategoryFilter={vendorCategoryFilter}
+          setVendorCategoryFilter={setVendorCategoryFilter}
+          gdprRoleFilter={gdprRoleFilter}
+          setGdprRoleFilter={setGdprRoleFilter}
+          priorityFilter={priorityFilter}
+          setPriorityFilter={setPriorityFilter}
+          riskFilter={riskFilter}
+          setRiskFilter={setRiskFilter}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          ownerFilter={ownerFilter}
+          setOwnerFilter={setOwnerFilter}
+        />
       ) : (
         <div className="space-y-2">
           {filtered.map(v => {
