@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, AlertTriangle, Clock, Eye, EyeOff } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, Clock, Eye, EyeOff, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -11,6 +11,9 @@ interface Props {
   nextDeadlineLabel?: string;
   /** Når satt: vises som lite kildemerke under "Samlet modenhet". */
   sourceLabel?: string;
+  onCriticalGapsClick?: () => void;
+  onHiddenIssuesClick?: () => void;
+  onNextDeadlineClick?: () => void;
 }
 
 function colorFor(score: number) {
