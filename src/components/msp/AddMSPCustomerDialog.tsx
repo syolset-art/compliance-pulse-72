@@ -715,6 +715,17 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 </Select>
               </div>
               <div>
+                <Label className="text-sm mb-2 block">Land</Label>
+                <Select value={form.country_code} onValueChange={(v) => setForm({ ...form, country_code: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {["NO", "SE", "DK", "FI", "DE", "GB", "NL", "FR", "US"].map((cc) => (
+                      <SelectItem key={cc} value={cc}>{cc}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label className="text-sm mb-2 block">Abonnement</Label>
                 <RadioGroup
                   value={form.subscription_plan}
