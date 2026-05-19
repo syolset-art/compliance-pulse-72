@@ -268,11 +268,11 @@ export function MSPServiceCatalogTab() {
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
-            <span className="text-[11px] text-muted-foreground">Tilpass pris og aktiviteter i selve tilbudet</span>
+            <span className="text-[11px] text-muted-foreground">Rediger aktiviteter, timer og koblinger per tjeneste</span>
           </div>
           <div className="space-y-2">
             {extras.map((e) => {
-              const price = e.fixedPrice ?? e.hours * hourlyRate;
+              const price = e.hours * hourlyRate;
               return (
                 <div key={e.id} className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2">
                   <div className="flex-1 min-w-0">
@@ -288,6 +288,11 @@ export function MSPServiceCatalogTab() {
                       </Badge>
                       {e.templateVersion && (
                         <span className="text-[10px] text-muted-foreground">v{e.templateVersion}</span>
+                      )}
+                      {e.activities.length > 0 && (
+                        <span className="text-[10px] text-muted-foreground">
+                          · {e.activities.length} aktivitet{e.activities.length === 1 ? "" : "er"}
+                        </span>
                       )}
                     </div>
                     {e.description && (
@@ -311,12 +316,21 @@ export function MSPServiceCatalogTab() {
                       </div>
                     )}
                     <p className="text-[11px] text-muted-foreground tabular-nums mt-1">
-                      {e.fixedPrice ? "Fast pris" : `${e.hours} timer × ${hourlyRate.toLocaleString("nb-NO")} kr`}
+                      {e.hours} timer × {hourlyRate.toLocaleString("nb-NO")} kr
                     </p>
                   </div>
                   <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
                     {formatNOK(price)}
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => { setEditingId(e.id); setManualOpen(true); }}
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    aria-label="Rediger tjeneste"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
