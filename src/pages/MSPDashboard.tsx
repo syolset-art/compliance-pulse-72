@@ -41,6 +41,12 @@ const STATUS_TONE: Record<string, string> = {
   archived: "bg-muted text-muted-foreground border-border",
 };
 
+// Sort order for Status column: progression from draft to active to archived
+const STATUS_ORDER: Record<string, number> = { draft: 0, invited: 1, claimed: 2, archived: 3 };
+
+type SortKey = "customer_name" | "status" | "last_activity_at";
+type SortDir = "asc" | "desc";
+
 export default function MSPDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
