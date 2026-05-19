@@ -73,7 +73,7 @@ export function suggestControlPoints(input: {
   FRAMEWORK_CATALOG.forEach((fw) => {
     fw.controlPoints.forEach((cp) => {
       const keywords = [
-        ...(EXTRA_KEYWORDS[cp.id] ?? []),
+        ...(EXTRA_KEYWORDS[`${fw.id}:${cp.id}`] ?? []),
         cp.label,
         ...(cp.typicalActivities ?? []),
       ].map(normalize);
