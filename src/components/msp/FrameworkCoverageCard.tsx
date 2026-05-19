@@ -18,6 +18,8 @@ export interface ControlSelection {
   hours: number;
   /** True = bruker har overstyrt timer manuelt */
   hoursOverridden?: boolean;
+  /** Partner-tillagte aktiviteter utover de typiske som ligger i katalogen. */
+  extraActivities?: string[];
 }
 
 export type CustomCostKind = "fixed" | "hourly";
@@ -272,69 +274,124 @@ export function FrameworkCoverageCard({
               const price = hours * hourlyRate;
               const suggested = cp.hoursByLevel[level];
               const overridden = s?.hoursOverridden && hours !== suggested;
+              const builtinActivities = cp.typicalActivities ?? [];
+              const extraActivities = s?.extraActivities ?? [];
+
+              const addActivity = (label: string) => {
+                const v = label.trim();
+                if (!v) return;
+                updateControl(cp.id, {
+                  extraActivities: [...extraActivities, v],
+                });
+              };
+              const removeExtra = (idx: number) => {
+                updateControl(cp.id, {
+                  extraActivities: extraActivities.filter((_, i) => i !== idx),
+                });
+              };
+
               return (
                 <li
                   key={cp.id}
                   className={cn(
-                    "grid items-center gap-3 px-2 py-2 rounded-md border bg-background grid-cols-[auto_1fr_90px_110px]",
+                    "rounded-md border bg-background",
                     enabled ? "border-border" : "border-border/40 opacity-70",
                   )}
                 >
-                  <input
-                    type="checkbox"
-                    checked={enabled}
-                    onChange={(e) => updateControl(cp.id, { enabled: e.target.checked })}
-                    className="h-4 w-4 rounded border-border accent-primary"
-                    aria-label={`Velg ${cp.id}`}
-                  />
-
-                  <div className="min-w-0">
-                    <div className="text-sm text-foreground truncate">
-                      <span className="text-muted-foreground mr-1.5">{cp.id}</span>
-                      {cp.label}
-                    </div>
-                  </div>
-
-                  {/* Timer */}
-                  <div className="flex items-center justify-end gap-1">
-                    <Input
-                      type="number"
-                      min={0}
-                      step={1}
-                      disabled={!enabled}
-                      value={hours}
-                      onChange={(e) =>
-                        updateControl(cp.id, {
-                          hours: Math.max(0, Number(e.target.value) || 0),
-                          hoursOverridden: true,
-                        })
-                      }
-                      className="h-7 w-14 px-1.5 text-[12px] text-right tabular-nums"
+                  <div className="grid items-center gap-3 px-2 py-2 grid-cols-[auto_1fr_90px_110px]">
+                    <input
+                      type="checkbox"
+                      checked={enabled}
+                      onChange={(e) => updateControl(cp.id, { enabled: e.target.checked })}
+                      className="h-4 w-4 rounded border-border accent-primary"
+                      aria-label={`Velg ${cp.id}`}
                     />
-                    <span className="text-[10px] text-muted-foreground">t</span>
+
+                    <div className="min-w-0">
+                      <div className="text-sm text-foreground truncate">
+                        <span className="text-muted-foreground mr-1.5">{cp.id}</span>
+                        {cp.label}
+                      </div>
+                    </div>
+
+                    {/* Timer */}
+                    <div className="flex items-center justify-end gap-1">
+                      <Input
+                        type="number"
+                        min={0}
+                        step={1}
+                        disabled={!enabled}
+                        value={hours}
+                        onChange={(e) =>
+                          updateControl(cp.id, {
+                            hours: Math.max(0, Number(e.target.value) || 0),
+                            hoursOverridden: true,
+                          })
+                        }
+                        className="h-7 w-14 px-1.5 text-[12px] text-right tabular-nums"
+                      />
+                      <span className="text-[10px] text-muted-foreground">t</span>
+                    </div>
+
+                    {/* Inntekt */}
+                    <div className="text-right">
+                      <div className="text-sm font-semibold text-foreground tabular-nums">
+                        {enabled ? formatNOK(price) : "—"}
+                      </div>
+                      {enabled && (
+                        <div className="text-[10px] text-muted-foreground inline-flex items-center gap-0.5 justify-end">
+                          {overridden ? (
+                            <>justert · Lara {suggested} t</>
+                          ) : (
+                            <>
+                              <Sparkles className="h-2.5 w-2.5" /> Lara-forslag
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Inntekt */}
-                  <div className="text-right">
-                    <div className="text-sm font-semibold text-foreground tabular-nums">
-                      {enabled ? formatNOK(price) : "—"}
-                    </div>
-                    {enabled && (
-                      <div className="text-[10px] text-muted-foreground inline-flex items-center gap-0.5 justify-end">
-                        {overridden ? (
-                          <>justert · Lara {suggested} t</>
-                        ) : (
-                          <>
-                            <Sparkles className="h-2.5 w-2.5" /> Lara-forslag
-                          </>
-                        )}
+                  {/* Typiske aktiviteter — kun synlig når KP er valgt */}
+                  {enabled && (builtinActivities.length > 0 || extraActivities.length > 0 || true) && (
+                    <div className="px-2 pb-2 pl-8">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground mr-1">
+                          Typiske aktiviteter
+                        </span>
+                        {builtinActivities.map((act, i) => (
+                          <span
+                            key={`b-${i}`}
+                            className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-foreground/80"
+                          >
+                            {act}
+                          </span>
+                        ))}
+                        {extraActivities.map((act, i) => (
+                          <span
+                            key={`e-${i}`}
+                            className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[11px]"
+                          >
+                            {act}
+                            <button
+                              type="button"
+                              onClick={() => removeExtra(i)}
+                              className="hover:text-destructive"
+                              aria-label={`Fjern ${act}`}
+                            >
+                              <X className="h-2.5 w-2.5" />
+                            </button>
+                          </span>
+                        ))}
+                        <AddActivityInline onAdd={addActivity} />
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </li>
               );
             })}
           </ul>
+
 
           {/* Egendefinerte kostnader */}
           <div className="pt-3 mt-1 border-t border-border space-y-2">
@@ -531,3 +588,51 @@ export function FrameworkCoverageCard({
     </Card>
   );
 }
+
+function AddActivityInline({ onAdd }: { onAdd: (label: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState("");
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+      >
+        <Plus className="h-2.5 w-2.5" /> Legg til aktivitet
+      </button>
+    );
+  }
+
+  const commit = () => {
+    const v = value.trim();
+    if (v) onAdd(v);
+    setValue("");
+    setEditing(false);
+  };
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <Input
+        autoFocus
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commit();
+          }
+          if (e.key === "Escape") {
+            setValue("");
+            setEditing(false);
+          }
+        }}
+        placeholder="F.eks. Månedlig statusmøte"
+        className="h-6 w-44 px-2 text-[11px]"
+      />
+    </span>
+  );
+}
+
