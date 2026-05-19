@@ -467,6 +467,35 @@ const DELIVERIES: DeliveryItem[] = [
 ];
 
 export function MSPMaturityServiceMatrix() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState<string>(
+    searchParams.get("service") ? "recommended" : "recommended",
+  );
+  const [highlightedTitle, setHighlightedTitle] = useState<string | null>(null);
+  const recCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    const svc = searchParams.get("service");
+    if (!svc) return;
+    setActiveTab("recommended");
+    // wait for tab render
+    const t = setTimeout(() => {
+      const el = recCardRefs.current[svc];
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setHighlightedTitle(svc);
+        setTimeout(() => setHighlightedTitle(null), 2400);
+      }
+      // clean param so navigation back doesn't re-trigger
+      const next = new URLSearchParams(searchParams);
+      next.delete("service");
+      setSearchParams(next, { replace: true });
+    }, 120);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
   const [dismissedBanner, setDismissedBanner] = useState(false);
   const [offerCtx, setOfferCtx] = useState<{
     open: boolean;
