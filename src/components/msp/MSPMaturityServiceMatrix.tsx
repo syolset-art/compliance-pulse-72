@@ -598,7 +598,7 @@ export function MSPMaturityServiceMatrix() {
       )}
 
       {/* Tabs: Anbefalt / Pågående */}
-      <Tabs defaultValue="recommended" className="space-y-3">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
         <TabsList>
           <TabsTrigger value="recommended" className="gap-2">
             Anbefalte tjenester
@@ -617,8 +617,17 @@ export function MSPMaturityServiceMatrix() {
         <TabsContent value="recommended" className="space-y-2 mt-0">
           {RECOMMENDATIONS.map(r => {
             const Icon = r.icon;
+            const isHighlighted = highlightedTitle === r.title;
             return (
-              <Card key={r.id} className="p-4 hover:border-primary/30 transition-colors">
+              <Card
+                key={r.id}
+                ref={(el) => { recCardRefs.current[r.title] = el; }}
+                className={cn(
+                  "p-4 hover:border-primary/30 transition-all",
+                  isHighlighted && "ring-2 ring-primary/50 border-primary/50 shadow-lg",
+                )}
+              >
+
                 <div className="flex items-start gap-3">
                   <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                     <Icon className="h-4 w-4 text-primary" />
