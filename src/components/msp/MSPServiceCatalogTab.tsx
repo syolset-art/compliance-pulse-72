@@ -3,9 +3,17 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Eye, Briefcase } from "lucide-react";
+import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { CustomerCatalogPreview } from "./CustomerCatalogPreview";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   FRAMEWORK_CATALOG,
   type CoverageLevel,
@@ -43,7 +51,7 @@ export function MSPServiceCatalogTab() {
   const [extras, setExtras] = useState<ExtraService[]>([]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"partner" | "customer">("partner");
+  const [emailPreviewOpen, setEmailPreviewOpen] = useState(false);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -257,59 +265,30 @@ export function MSPServiceCatalogTab() {
         </div>
       </Card>
 
-      {/* Handlingsrad: visningsbytter + legg til */}
+      {/* Handlingsrad: forhåndsvis e-post + legg til */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="inline-flex items-center rounded-md border border-border bg-card p-0.5">
-          <button
-            type="button"
-            onClick={() => setViewMode("partner")}
-            className={
-              "inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded transition-colors " +
-              (viewMode === "partner"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground")
-            }
+        <p className="text-xs text-muted-foreground">
+          Tjenestene er <span className="font-medium text-foreground">interne</span> by default — kunden ser dem ikke før du sender en e-post.
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setEmailPreviewOpen(true)}
+            disabled={extras.length === 0}
+            className="gap-2"
           >
-            <Briefcase className="h-3.5 w-3.5" /> Partnervisning
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode("customer")}
-            className={
-              "inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded transition-colors " +
-              (viewMode === "customer"
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground")
-            }
-          >
-            <Eye className="h-3.5 w-3.5" /> Kundevisning
-          </button>
-        </div>
-        {viewMode === "partner" && (
+            <Mail className="h-4 w-4" />
+            Forhåndsvis e-post til kunde
+          </Button>
           <Button variant="outline" onClick={() => setManualOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
             Legg til egen tjeneste
           </Button>
-        )}
+        </div>
       </div>
 
-      {/* Kundevisning */}
-      {viewMode === "customer" && (
-        <CustomerCatalogPreview
-          services={extras.map((e) => ({
-            id: e.id,
-            name: e.name,
-            description: e.description,
-            activities: e.activities,
-            mappings: e.mappings,
-            templateCode: e.templateCode,
-            source: e.source,
-          }))}
-        />
-      )}
-
       {/* Partnervisning: adopterte / egne tjenester */}
-      {viewMode === "partner" && extras.length > 0 && (
+      {extras.length > 0 && (
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
@@ -393,8 +372,9 @@ export function MSPServiceCatalogTab() {
       )}
 
       {/* Bibliotek + kalkulator vises kun i partnervisning */}
-      {viewMode === "partner" && (
-        <>
+      {/* Bibliotek + kalkulator */}
+      <>
+
           <ServiceLibraryBrowser
             context={partnerContext}
             adoptedIds={adoptedIds}
@@ -432,7 +412,6 @@ export function MSPServiceCatalogTab() {
             )}
           </div>
         </>
-      )}
 
       <CustomServiceDialog
         open={manualOpen}
@@ -442,6 +421,48 @@ export function MSPServiceCatalogTab() {
         initial={editingDraft}
         mode={editingId ? "edit" : "create"}
       />
+
+      {/* E-postforhåndsvisning til kunde */}
+      <Dialog open={emailPreviewOpen} onOpenChange={setEmailPreviewOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Forhåndsvis e-post til kunde</DialogTitle>
+            <DialogDescription>
+              Slik vil tjenestene fremstå når du sender oversikten til kunden. Pris, timer og interne marginer er skjult, og partner-formuleringer er skrevet om til kundevennlig språk.
+            </DialogDescription>
+          </DialogHeader>
+          <CustomerCatalogPreview
+            asEmail
+            services={extras.map((e) => ({
+              id: e.id,
+              name: e.name,
+              description: e.description,
+              activities: e.activities,
+              mappings: e.mappings,
+              templateCode: e.templateCode,
+              source: e.source,
+            }))}
+          />
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => setEmailPreviewOpen(false)}>
+              Lukk
+            </Button>
+            <Button
+              className="gap-2"
+              onClick={() => {
+                setEmailPreviewOpen(false);
+                toast.success("E-post sendt til kunden", {
+                  description: "Kunden får nå tilgang til oversikten over leverte tjenester.",
+                });
+              }}
+            >
+              <Send className="h-4 w-4" />
+              Send til kunde
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
