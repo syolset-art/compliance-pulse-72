@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, TrendingUp, Plus, Trash2, ChevronDown, ChevronUp, Settings2 } from "lucide-react";
+import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   FRAMEWORK_CATALOG,
@@ -13,7 +13,7 @@ import {
   FrameworkCoverageCard,
   type FrameworkSelection,
 } from "./FrameworkCoverageCard";
-import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping } from "./CustomServiceDialog";
+import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping, type ServiceActivity } from "./CustomServiceDialog";
 import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import type { ServiceTemplate, PartnerContext } from "@/lib/serviceLibrary";
 
@@ -24,7 +24,7 @@ interface ExtraService {
   name: string;
   description?: string;
   hours: number;
-  fixedPrice?: number;
+  activities: ServiceActivity[];
   source: "library" | "manual";
   templateCode?: string;
   templateId?: string;
@@ -41,6 +41,7 @@ export function MSPServiceCatalogTab() {
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>([]);
   const [showCalculator, setShowCalculator] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -92,7 +93,7 @@ export function MSPServiceCatalogTab() {
     }
     extras.forEach((e) => {
       h += e.hours;
-      p += e.fixedPrice ?? e.hours * hourlyRate;
+      p += e.hours * hourlyRate;
     });
     return { grandHours: h, grandPrice: p, frameworksActive: n };
   }, [selections, hourlyRate, extras, showCalculator]);
@@ -114,7 +115,18 @@ export function MSPServiceCatalogTab() {
 
   const adoptTemplate = (template: ServiceTemplate) => {
     if (adoptedIds.has(template.id)) return;
+    // Bygg aktiviteter fra malen. Hvis timer mangler, fordel snitt likt.
     const hoursAvg = Math.round((template.estimatedHours.min + template.estimatedHours.max) / 2);
+    const withHours = template.activities.filter((a) => typeof a.hours === "number");
+    const withoutHoursCount = template.activities.length - withHours.length;
+    const remainder = Math.max(0, hoursAvg - withHours.reduce((s, a) => s + (a.hours ?? 0), 0));
+    const perRemaining =
+      withoutHoursCount > 0 ? remainder / withoutHoursCount : 0;
+    const activities: ServiceActivity[] = template.activities.map((a) => ({
+      label: a.label,
+      hours: typeof a.hours === "number" ? a.hours : Math.max(0, perRemaining),
+    }));
+    const totalHours = activities.reduce((s, a) => s + a.hours, 0) || hoursAvg;
     const mappings: ServiceMapping[] = template.mappings.flatMap((m) => {
       const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
       return m.controlIds.map((cid) => {
@@ -131,8 +143,8 @@ export function MSPServiceCatalogTab() {
       id: `adopt-${template.id}-${Date.now()}`,
       name: template.name,
       description: template.shortDescription,
-      hours: hoursAvg,
-      // Ingen fastpris — pris beregnes alltid fra timer × partnerens timepris.
+      hours: totalHours,
+      activities,
       source: "library",
       templateCode: template.code,
       templateId: template.id,
@@ -141,17 +153,36 @@ export function MSPServiceCatalogTab() {
     };
     setExtras((prev) => [...prev, next]);
     toast.success(`${template.code} · ${template.name} adoptert`, {
-      description: "Justér timer og aktiviteter i selve tilbudet — pris beregnes fra timepris.",
+      description: "Rediger for å justere aktiviteter — pris beregnes fra timepris.",
     });
   };
 
   const handleManualSave = (draft: CustomServiceDraft) => {
+    if (editingId) {
+      setExtras((prev) =>
+        prev.map((e) =>
+          e.id === editingId
+            ? {
+                ...e,
+                name: draft.name,
+                description: draft.description,
+                hours: draft.hours,
+                activities: draft.activities,
+                mappings: draft.mappings,
+              }
+            : e,
+        ),
+      );
+      toast.success(`"${draft.name}" oppdatert`);
+      setEditingId(null);
+      return;
+    }
     const newService: ExtraService = {
       id: `manual-${Date.now()}`,
       name: draft.name,
       description: draft.description,
-      hours: draft.hours ?? 0,
-      fixedPrice: draft.fixedPrice,
+      hours: draft.hours,
+      activities: draft.activities,
       source: "manual",
       mappings: draft.mappings,
     };
@@ -162,6 +193,19 @@ export function MSPServiceCatalogTab() {
   const removeExtra = (id: string) => {
     setExtras((prev) => prev.filter((e) => e.id !== id));
   };
+
+  const editingService = editingId ? extras.find((e) => e.id === editingId) ?? null : null;
+  const editingDraft: CustomServiceDraft | undefined = editingService
+    ? {
+        name: editingService.name,
+        description: editingService.description,
+        hours: editingService.hours,
+        activities: editingService.activities,
+        mappings: editingService.mappings,
+      }
+    : undefined;
+
+
 
   return (
     <div className="space-y-4">
@@ -224,11 +268,11 @@ export function MSPServiceCatalogTab() {
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
-            <span className="text-[11px] text-muted-foreground">Tilpass pris og aktiviteter i selve tilbudet</span>
+            <span className="text-[11px] text-muted-foreground">Rediger aktiviteter, timer og koblinger per tjeneste</span>
           </div>
           <div className="space-y-2">
             {extras.map((e) => {
-              const price = e.fixedPrice ?? e.hours * hourlyRate;
+              const price = e.hours * hourlyRate;
               return (
                 <div key={e.id} className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2">
                   <div className="flex-1 min-w-0">
@@ -244,6 +288,11 @@ export function MSPServiceCatalogTab() {
                       </Badge>
                       {e.templateVersion && (
                         <span className="text-[10px] text-muted-foreground">v{e.templateVersion}</span>
+                      )}
+                      {e.activities.length > 0 && (
+                        <span className="text-[10px] text-muted-foreground">
+                          · {e.activities.length} aktivitet{e.activities.length === 1 ? "" : "er"}
+                        </span>
                       )}
                     </div>
                     {e.description && (
@@ -267,12 +316,21 @@ export function MSPServiceCatalogTab() {
                       </div>
                     )}
                     <p className="text-[11px] text-muted-foreground tabular-nums mt-1">
-                      {e.fixedPrice ? "Fast pris" : `${e.hours} timer × ${hourlyRate.toLocaleString("nb-NO")} kr`}
+                      {e.hours} timer × {hourlyRate.toLocaleString("nb-NO")} kr
                     </p>
                   </div>
                   <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
                     {formatNOK(price)}
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => { setEditingId(e.id); setManualOpen(true); }}
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    aria-label="Rediger tjeneste"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -330,9 +388,11 @@ export function MSPServiceCatalogTab() {
 
       <CustomServiceDialog
         open={manualOpen}
-        onOpenChange={setManualOpen}
+        onOpenChange={(o) => { setManualOpen(o); if (!o) setEditingId(null); }}
         onSave={handleManualSave}
         defaultHourlyRate={hourlyRate}
+        initial={editingDraft}
+        mode={editingId ? "edit" : "create"}
       />
     </div>
   );
