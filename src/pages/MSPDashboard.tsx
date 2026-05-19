@@ -402,10 +402,10 @@ export default function MSPDashboard() {
                 </div>
               ) : (
                 <div className="rounded-lg border border-border bg-card overflow-hidden">
-                  <Table>
+                  <Table className="table-fixed">
                     <TableHeader>
                       <TableRow>
-                        <TableHead>
+                        <TableHead className="w-[220px]">
                           <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
                             Kunde <SortIcon k="customer_name" />
                           </button>
@@ -438,7 +438,7 @@ export default function MSPDashboard() {
                             onChange={setCriticalityFilter}
                           />
                         </TableHead>
-                        <TableHead>
+                        <TableHead className="w-auto">
                           <ColumnFilter
                             label="Tjenester kunden trenger"
                             options={serviceOptions.map((v) => ({ value: v, label: v }))}
