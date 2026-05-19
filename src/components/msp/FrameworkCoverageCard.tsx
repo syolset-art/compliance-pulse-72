@@ -588,3 +588,51 @@ export function FrameworkCoverageCard({
     </Card>
   );
 }
+
+function AddActivityInline({ onAdd }: { onAdd: (label: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState("");
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        onClick={() => setEditing(true)}
+        className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+      >
+        <Plus className="h-2.5 w-2.5" /> Legg til aktivitet
+      </button>
+    );
+  }
+
+  const commit = () => {
+    const v = value.trim();
+    if (v) onAdd(v);
+    setValue("");
+    setEditing(false);
+  };
+
+  return (
+    <span className="inline-flex items-center gap-1">
+      <Input
+        autoFocus
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commit();
+          }
+          if (e.key === "Escape") {
+            setValue("");
+            setEditing(false);
+          }
+        }}
+        placeholder="F.eks. Månedlig statusmøte"
+        className="h-6 w-44 px-2 text-[11px]"
+      />
+    </span>
+  );
+}
+
