@@ -118,6 +118,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [helpOpen, setHelpOpen] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [showActivateWizard, setShowActivateWizard] = useState(false);
+  const [justActivated, setJustActivated] = useState(false);
   const [isActivated, setIsActivated] = useState<boolean>(() => {
     try { return localStorage.getItem("mynder.trustprofile.activated") === "1"; } catch { return false; }
   });
@@ -264,70 +265,48 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         <div className="flex min-h-screen w-full bg-background">
           <Sidebar />
           <main className="flex-1 p-6 pt-16">
-            <div className="max-w-2xl mx-auto mt-8">
-              <Card className="p-8 md:p-10 text-center bg-card border">
-                <div className="mx-auto h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
-                  <Shield className="h-7 w-7 text-primary" />
-                </div>
-                <h1 className="text-2xl font-semibold text-foreground mb-2">
+            <div className="max-w-3xl mx-auto mt-6 mb-4 flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-semibold text-foreground">
                   {isNb ? "Trust Profile" : "Trust Profile"}
                 </h1>
-                <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6 leading-relaxed">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {isNb
-                    ? "Din offentlige tillitsside — modenhet, dokumentasjon og sertifiseringer samlet ett sted. Du må aktivere profilen før noe vises eller deles."
-                    : "Your public trust page — maturity, documentation and certifications in one place. You need to activate the profile before anything is shown or shared."}
+                    ? "Lara hjelper deg å sette opp profilen — bare svar etterhvert."
+                    : "Lara will guide you through the setup — answer as you go."}
                 </p>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-xs text-muted-foreground mb-7">
-                  <div className="inline-flex items-center gap-2">
-                    <Lock className="h-3.5 w-3.5" />
-                    <span>{isNb ? "Ingen score er beregnet" : "No score calculated"}</span>
-                  </div>
-                  <span className="hidden sm:inline text-muted-foreground/40">•</span>
-                  <div className="inline-flex items-center gap-2">
-                    <Eye className="h-3.5 w-3.5" />
-                    <span>{isNb ? "Ingen informasjon er delt" : "No information shared"}</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
-                  <Button
-                    size="lg"
-                    onClick={() => setShowActivateWizard(true)}
-                    className="gap-2"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    {isNb ? "Aktiver Trust Profile" : "Activate Trust Profile"}
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="ghost"
-                    onClick={() => setHelpOpen(true)}
-                    className="gap-2"
-                  >
-                    <Info className="h-4 w-4" />
-                    {isNb ? "Les mer" : "Learn more"}
-                  </Button>
-                </div>
-              </Card>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setHelpOpen(true)}
+                className="gap-2"
+              >
+                <Info className="h-4 w-4" />
+                {isNb ? "Les mer" : "Learn more"}
+              </Button>
             </div>
 
-            {showActivateWizard && (
+            <div className={`transition-all duration-500 ${justActivated ? "opacity-0 -translate-y-2" : "opacity-100"}`}>
               <ActivateTrustProfileWizard
-                inline={false}
+                inline
+                conversation
                 initialCompanyName={companyProfile?.name || undefined}
                 initialOrgNumber={companyProfile?.org_number || undefined}
                 initialDomain={(companyProfile as any)?.domain || undefined}
                 initialMaturity={(asset as any)?.metadata?.maturity || undefined}
-                open={showActivateWizard}
-                onOpenChange={setShowActivateWizard}
+                open={true}
+                onOpenChange={() => { /* inline — no close */ }}
                 onCompleted={() => {
-                  setIsActivated(true);
-                  queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
-                  queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+                  setJustActivated(true);
+                  setTimeout(() => {
+                    setIsActivated(true);
+                    queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+                    queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+                  }, 700);
                 }}
               />
-            )}
+            </div>
 
             <ContextualHelpPanel
               open={helpOpen}
