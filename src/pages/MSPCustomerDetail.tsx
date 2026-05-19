@@ -18,10 +18,10 @@ import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBa
 import type { LaraPlanTask } from "@/components/lara/types";
 import { FrameworkMaturityGrid } from "@/components/system-profile/FrameworkMaturityGrid";
 import { VendorPrivacyAssessment } from "@/components/trust-controls/VendorPrivacyAssessment";
-import { AssetMaturityByDomainCard } from "@/components/asset-profile/AssetMaturityByDomainCard";
-import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
-import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivityTab";
 import { MSPCustomerMaturityCard } from "@/components/msp/MSPCustomerMaturityCard";
+import { MSPCustomerSnapshotCard } from "@/components/msp/MSPCustomerSnapshotCard";
+import { MSPCustomerOpportunityCard } from "@/components/msp/MSPCustomerOpportunityCard";
+import { MSPMynderSignalsFeed } from "@/components/msp/MSPMynderSignalsFeed";
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
