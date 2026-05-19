@@ -14,8 +14,9 @@ import {
   type FrameworkSelection,
 } from "./FrameworkCoverageCard";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
-import { CustomServiceDialog, type CustomServiceDraft } from "./CustomServiceDialog";
+import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping } from "./CustomServiceDialog";
 import type { PartnerService } from "@/lib/serviceCatalog";
+
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -26,6 +27,7 @@ interface ExtraService {
   hours: number;
   fixedPrice?: number;
   source: "lara" | "manual";
+  mappings: ServiceMapping[];
 }
 
 function formatNOK(n: number): string {
@@ -94,6 +96,18 @@ export function MSPServiceCatalogTab() {
   const handleLaraComplete = (suggestions: PartnerService[]) => {
     const imported: ExtraService[] = suggestions.map((s) => {
       const isFixed = s.priceModel === "fixed" || s.priceModel === "monthly";
+      const mappings: ServiceMapping[] = (s.frameworkMappings ?? []).flatMap((m) => {
+        const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
+        return m.controlIds.map((cid) => {
+          const cp = fw?.controlPoints.find((c) => c.id === cid);
+          return {
+            frameworkId: m.frameworkId,
+            frameworkShortName: fw?.shortName ?? m.frameworkLabel,
+            controlId: cid,
+            controlLabel: cp?.label ?? cid,
+          };
+        });
+      });
       return {
         id: s.id,
         name: s.name,
@@ -101,6 +115,7 @@ export function MSPServiceCatalogTab() {
         hours: s.priceModel === "hourly" && s.price ? s.price : 8,
         fixedPrice: isFixed ? s.price : undefined,
         source: "lara" as const,
+        mappings,
       };
     });
     setExtras((prev) => [...prev, ...imported]);
@@ -116,10 +131,12 @@ export function MSPServiceCatalogTab() {
       hours: draft.hours ?? 0,
       fixedPrice: draft.fixedPrice,
       source: "manual",
+      mappings: draft.mappings,
     };
     setExtras((prev) => [...prev, newService]);
     toast.success(`"${draft.name}" lagt til i katalogen`);
   };
+
 
   const removeExtra = (id: string) => {
     setExtras((prev) => prev.filter((e) => e.id !== id));
@@ -235,9 +252,24 @@ export function MSPServiceCatalogTab() {
                     {e.description && (
                       <p className="text-[11px] text-muted-foreground truncate">{e.description}</p>
                     )}
-                    <p className="text-[11px] text-muted-foreground tabular-nums">
+                    {e.mappings.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1 mt-1">
+                        {e.mappings.map((m, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
+                            title={`${m.frameworkShortName} · ${m.controlId} ${m.controlLabel}`}
+                          >
+                            <span className="font-semibold text-foreground/70">{m.frameworkShortName}</span>
+                            <span>{m.controlId}</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-[11px] text-muted-foreground tabular-nums mt-1">
                       {e.fixedPrice ? "Fast pris" : `${e.hours} timer × ${hourlyRate.toLocaleString("nb-NO")} kr`}
                     </p>
+
                   </div>
                   <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
                     {formatNOK(price)}

@@ -1,0 +1,117 @@
+import { FRAMEWORK_CATALOG } from "./frameworkCoverageCatalog";
+
+export interface ControlSuggestion {
+  frameworkId: string;
+  frameworkLabel: string;
+  frameworkShortName: string;
+  controlId: string;
+  controlLabel: string;
+  /** Hvor sterkt treff (høyere = bedre). */
+  score: number;
+  /** Hvilke nøkkelord traff. */
+  matchedTerms: string[];
+}
+
+/**
+ * Norske nøkkelord per [frameworkId, controlId]. Holdes kort og pragmatisk —
+ * matches mot tjenestenavn + beskrivelse for å foreslå mappinger.
+ * Suppleres automatisk med kontrollpunktets label + typiske aktiviteter.
+ */
+const EXTRA_KEYWORDS: Record<string, string[]> = {
+  // NIS2
+  "nis2:Art.20": ["styring", "ledelse", "opplæring", "awareness", "kurs"],
+  "nis2:Art.21": ["mfa", "patch", "sårbarhet", "kryptering", "tilgangskontroll", "endepunkt", "edr", "sikkerhetstiltak"],
+  "nis2:Art.23": ["hendelse", "incident", "varsling", "beredskap", "ir", "csirt"],
+  // ISO 27001
+  "iso27001:A.5.1": ["policy", "policyer", "retningslinjer"],
+  "iso27001:A.5.4": ["ledelse", "ledelsens", "gjennomgang", "styre"],
+  "iso27001:A.5.10": ["akseptabel bruk", "bruksregler", "instruks"],
+  "iso27001:A.5.15": ["tilgang", "rbac", "iam", "offboarding", "rolle"],
+  "iso27001:A.5.24": ["hendelse", "incident response", "ir-plan", "eskalering"],
+  "iso27001:A.6.3": ["phishing", "simulering", "awareness", "opplæring", "kurs", "e-læring", "training"],
+  "iso27001:A.8.7": ["malware", "skadevare", "antivirus", "edr", "endpoint"],
+  "iso27001:A.8.8": ["sårbarhet", "vulnerability", "tenable", "skann", "pentest", "patch"],
+  "iso27001:A.8.13": ["backup", "sikkerhetskopi", "restore", "veeam"],
+  "iso27001:A.8.16": ["siem", "overvåk", "logg", "soc", "mdr", "xdr", "alarm"],
+  // GDPR
+  "gdpr:Art.28": ["dpa", "databehandler", "leverandøravtale"],
+  "gdpr:Art.30": ["protokoll", "ropa", "behandlingsprotokoll", "behandlingsoversikt"],
+  "gdpr:Art.35": ["dpia", "personvernkonsekvens"],
+  "gdpr:Art.37": ["dpo", "personvernombud"],
+  // AI Act
+  "aiact:Art.4": ["ai-kurs", "ai opplæring", "ai litteracy", "ai-litteracy"],
+  "aiact:Art.9": ["ai risiko", "ai-risiko", "ai governance"],
+  "aiact:Art.10": ["datakvalitet", "treningsdata", "datasett"],
+  "aiact:Art.26": ["ai bruk", "ai-bruk", "promptlogg"],
+  // DORA
+  "dora:Art.5": ["ikt", "rammeverk", "dora"],
+  "dora:Art.17": ["hendelse", "major incident", "rapportering"],
+  "dora:Art.28": ["tredjepart", "leverandør", "outsourcing"],
+  // Åpenhetsloven
+  "transparency:§4": ["aktsomhet", "leverandørkjede", "due diligence"],
+  "transparency:§5": ["redegjørelse", "åpenhetsrapport"],
+};
+
+function normalize(s: string): string {
+  return s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ");
+}
+
+function tokenize(s: string): string[] {
+  return normalize(s).split(/\s+/).filter((t) => t.length >= 3);
+}
+
+export function suggestControlPoints(input: {
+  name: string;
+  description?: string;
+}): ControlSuggestion[] {
+  const haystack = normalize(`${input.name} ${input.description ?? ""}`);
+  const tokens = new Set(tokenize(`${input.name} ${input.description ?? ""}`));
+  if (haystack.trim().length < 2) return [];
+
+  const results: ControlSuggestion[] = [];
+
+  FRAMEWORK_CATALOG.forEach((fw) => {
+    fw.controlPoints.forEach((cp) => {
+      const keywords = [
+        ...(EXTRA_KEYWORDS[`${fw.id}:${cp.id}`] ?? []),
+        cp.label,
+        ...(cp.typicalActivities ?? []),
+      ].map(normalize);
+
+      const matched: string[] = [];
+      let score = 0;
+
+      keywords.forEach((kw) => {
+        if (!kw) return;
+        // Phrase match (sterkere)
+        if (kw.includes(" ") && haystack.includes(kw)) {
+          score += 3;
+          matched.push(kw);
+          return;
+        }
+        // Token match
+        if (tokens.has(kw)) {
+          score += 2;
+          matched.push(kw);
+        } else if (kw.length >= 4 && haystack.includes(kw)) {
+          score += 1;
+          matched.push(kw);
+        }
+      });
+
+      if (score > 0) {
+        results.push({
+          frameworkId: fw.id,
+          frameworkLabel: fw.label,
+          frameworkShortName: fw.shortName,
+          controlId: cp.id,
+          controlLabel: cp.label,
+          score,
+          matchedTerms: Array.from(new Set(matched)).slice(0, 3),
+        });
+      }
+    });
+  });
+
+  return results.sort((a, b) => b.score - a.score).slice(0, 8);
+}
