@@ -209,6 +209,51 @@ export default function MSPMessages() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [expandedCampaign, setExpandedCampaign] = useState<Record<string, boolean>>({});
 
+  // Inbox-/varslingsinnstillinger (persistert lokalt for nå)
+  const SETTINGS_KEY = "msp-messages-settings-v1";
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [inboxEmail, setInboxEmail] = useState("");
+  const [ccEmail, setCcEmail] = useState("");
+  const [replyToEmail, setReplyToEmail] = useState("");
+  const [forwardEnabled, setForwardEnabled] = useState(true);
+  const [dailyDigest, setDailyDigest] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      setInboxEmail(s.inboxEmail ?? "");
+      setCcEmail(s.ccEmail ?? "");
+      setReplyToEmail(s.replyToEmail ?? "");
+      setForwardEnabled(s.forwardEnabled ?? true);
+      setDailyDigest(s.dailyDigest ?? false);
+    } catch {}
+  }, []);
+
+  const handleSaveSettings = () => {
+    if (inboxEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inboxEmail)) {
+      toast.error("Ugyldig mottaks-e-post");
+      return;
+    }
+    if (ccEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ccEmail)) {
+      toast.error("Ugyldig kopi-e-post");
+      return;
+    }
+    if (replyToEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyToEmail)) {
+      toast.error("Ugyldig svar-til-e-post");
+      return;
+    }
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({ inboxEmail, ccEmail, replyToEmail, forwardEnabled, dailyDigest }),
+    );
+    setSettingsOpen(false);
+    toast.success("Innstillinger lagret", {
+      description: inboxEmail ? `E-post sendes til ${inboxEmail}` : undefined,
+    });
+  };
+
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
   const handleSendAll = () => {
