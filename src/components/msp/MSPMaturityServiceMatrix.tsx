@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import { MSPServiceCatalogTab } from "./MSPServiceCatalogTab";
@@ -129,58 +130,58 @@ const RECOMMENDATIONS: Recommendation[] = [
   },
 ];
 
-const ONGOING: OngoingItem[] = [
+interface SavedOffer {
+  id: string;
+  offerNumber: string;
+  serviceTitle: string;
+  frameworkLabel?: string;
+  createdAt: string; // ISO
+  createdBy: string;
+  taskCount: number;
+  totalHours: number;
+  totalPrice: number;
+  status: "not_started" | "in_progress";
+}
+
+const SAVED_OFFERS_SEED: SavedOffer[] = [
   {
-    id: "iso",
-    title: "ISO 27001-klargjøring",
-    status: "pending",
-    meta: "Tilbud sendt 28. april · Avventer svar",
+    id: "of-1",
+    offerNumber: "T-2026-1247",
+    serviceTitle: "ISO 27001-klargjøring",
+    frameworkLabel: "ISO 27001",
+    createdAt: "2026-05-12T09:20:00Z",
+    createdBy: "Truls Hansen",
+    taskCount: 6,
+    totalHours: 90,
+    totalPrice: 135000,
+    status: "in_progress",
   },
   {
-    id: "aware",
-    title: "Awareness-program",
-    status: "accepted",
-    meta: "Akseptert 12. april · Oppstart 15. mai",
-    frameworkId: "iso27001",
+    id: "of-2",
+    offerNumber: "T-2026-1231",
+    serviceTitle: "Awareness-program",
     frameworkLabel: "ISO 27001",
-    controls: [
-      {
-        id: "A.6.3",
-        name: "Sikkerhetsbevissthet, opplæring og trening",
-        desc: "Ansatte skal motta jevnlig opplæring i informasjonssikkerhet og oppdaterte trusler.",
-        status: "partial",
-        capability: "assisted",
-        progress: 60,
-        source: "Awareness-plattform",
-      },
-      {
-        id: "A.5.10",
-        name: "Akseptabel bruk av informasjonsmidler",
-        desc: "Etabler regler for akseptabel bruk og kommuniser dette til alle ansatte.",
-        status: "missing",
-        capability: "manual",
-        progress: 0,
-      },
-      {
-        id: "A.5.24",
-        name: "Planlegging og forberedelse av hendelseshåndtering",
-        desc: "Definer og kommuniser ansvar og rutiner for håndtering av sikkerhetshendelser.",
-        status: "missing",
-        capability: "assisted",
-        progress: 0,
-      },
-      {
-        id: "A.7.7",
-        name: "Tomt skrivebord og tom skjerm",
-        desc: "Etabler praksis for låsing av skjerm og rydding av sensitive papirer.",
-        status: "fulfilled",
-        capability: "auto",
-        progress: 100,
-        source: "Endpoint-policy",
-      },
-    ],
+    createdAt: "2026-04-28T13:05:00Z",
+    createdBy: "Truls Hansen",
+    taskCount: 4,
+    totalHours: 60,
+    totalPrice: 90000,
+    status: "not_started",
+  },
+  {
+    id: "of-3",
+    offerNumber: "T-2026-1198",
+    serviceTitle: "NIS2-klargjøring",
+    frameworkLabel: "NIS2",
+    createdAt: "2026-04-15T10:42:00Z",
+    createdBy: "Anita Berg",
+    taskCount: 5,
+    totalHours: 100,
+    totalPrice: 150000,
+    status: "not_started",
   },
 ];
+
 
 export type LaraStep = string | { text: string; via?: string };
 
@@ -516,8 +517,8 @@ export function MSPMaturityServiceMatrix({
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
-  const [expandedOngoing, setExpandedOngoing] = useState<string | null>("aware");
-  const [controlFilter, setControlFilter] = useState<"all" | "missing" | "partial" | "fulfilled">("all");
+  const [savedOffers, setSavedOffers] = useState<SavedOffer[]>(SAVED_OFFERS_SEED);
+
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
 
@@ -643,7 +644,7 @@ export function MSPMaturityServiceMatrix({
           </TabsTrigger>
           <TabsTrigger value="ongoing" className="gap-2">
             Tilbud
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{ONGOING.length}</Badge>
+            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{savedOffers.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="deliveries" className="gap-2">
             Pågående oppdrag
@@ -735,40 +736,28 @@ export function MSPMaturityServiceMatrix({
         </TabsContent>
 
         <TabsContent value="ongoing" className="space-y-2 mt-0">
-          {ONGOING.map(o => {
-            const isPending = o.status === "pending";
-            const isOpen = expandedOngoing === o.id;
-            const hasControls = !!o.controls && o.controls.length > 0;
-            const counts = {
-              all: o.controls?.length ?? 0,
-              missing: o.controls?.filter(c => c.status === "missing").length ?? 0,
-              partial: o.controls?.filter(c => c.status === "partial").length ?? 0,
-              fulfilled: o.controls?.filter(c => c.status === "fulfilled").length ?? 0,
-            };
-            const filtered = (o.controls ?? []).filter(c =>
-              controlFilter === "all" ? true : c.status === controlFilter
-            );
+          {savedOffers.length === 0 && (
+            <Card className="p-8 text-center text-sm text-muted-foreground">
+              Ingen tilbud er laget enda. Bruk "Lag tilbud" på en anbefalt tjeneste for å komme i gang.
+            </Card>
+          )}
+          {savedOffers.map(o => {
+            const inProgress = o.status === "in_progress";
+            const created = new Date(o.createdAt).toLocaleDateString("nb-NO", {
+              day: "numeric", month: "long", year: "numeric",
+            });
             return (
               <Card key={o.id} className="overflow-hidden hover:border-primary/30 transition-colors">
-                <button
-                  type="button"
-                  onClick={() => hasControls && setExpandedOngoing(isOpen ? null : o.id)}
-                  className={cn(
-                    "w-full flex items-center gap-3 p-3 text-left",
-                    hasControls && "hover:bg-muted/30 cursor-pointer"
-                  )}
-                >
+                <div className="flex items-center gap-3 p-3">
                   <div className={cn(
                     "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
-                    isPending ? "bg-warning/10" : "bg-success/10"
+                    inProgress ? "bg-warning/10" : "bg-muted"
                   )}>
-                    {isPending
-                      ? <Clock className="h-4 w-4 text-warning" />
-                      : <CheckCircle2 className="h-4 w-4 text-success" />}
+                    <FileText className={cn("h-4 w-4", inProgress ? "text-warning" : "text-muted-foreground")} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-foreground truncate">{o.title}</p>
+                      <p className="text-sm font-semibold text-foreground truncate">{o.serviceTitle}</p>
                       {o.frameworkLabel && (
                         <Badge variant="outline" className="text-[10px] gap-1">
                           <FileText className="h-3 w-3" />
@@ -776,71 +765,39 @@ export function MSPMaturityServiceMatrix({
                         </Badge>
                       )}
                     </div>
-                    <p className="text-[12px] text-muted-foreground">{o.meta}</p>
-                    {hasControls && (
-                      <p className="text-[11px] text-muted-foreground mt-1">
-                        {counts.all} kontrollpunkt · <span className="text-destructive font-medium">{counts.missing} mangler</span>
-                        {counts.partial > 0 && <> · <span className="text-warning font-medium">{counts.partial} delvis</span></>}
-                      </p>
-                    )}
+                    <p className="text-[12px] text-muted-foreground">
+                      {o.offerNumber} · Laget {created} av {o.createdBy}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      {o.taskCount} tiltak · {o.totalHours} timer · {o.totalPrice.toLocaleString("nb-NO")} kr
+                    </p>
                   </div>
-                  <Badge variant="outline" className={cn(
-                    "text-[10px]",
-                    isPending ? "bg-warning/10 text-warning border-warning/30" : "bg-success/10 text-success border-success/30"
-                  )}>
-                    {isPending ? "Venter" : "Akseptert"}
-                  </Badge>
-                  {hasControls ? (
-                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", isOpen && "rotate-180")} />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                  )}
-                </button>
-
-                {isOpen && hasControls && (
-                  <div className="border-t border-border bg-muted/20 p-3 space-y-3">
-                    {/* Filter pills */}
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {([
-                        { v: "all", label: "Alle", n: counts.all },
-                        { v: "missing", label: "Ikke oppfylt", n: counts.missing },
-                        { v: "partial", label: "Delvis", n: counts.partial },
-                        { v: "fulfilled", label: "Oppfylt", n: counts.fulfilled },
-                      ] as const).map(f => {
-                        const active = controlFilter === f.v;
-                        return (
-                          <button
-                            key={f.v}
-                            type="button"
-                            onClick={() => setControlFilter(f.v)}
-                            className={cn(
-                              "h-7 px-2.5 rounded-full text-[11px] border transition-colors",
-                              active
-                                ? "bg-primary/10 text-primary border-primary/40"
-                                : "bg-background text-muted-foreground border-border hover:text-foreground"
-                            )}
-                          >
-                            {f.label} <span className="tabular-nums">({f.n})</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Controls list */}
-                    <div className="space-y-2">
-                      {filtered.map(c => <ControlRow key={c.id} c={c} frameworkLabel={o.frameworkLabel} />)}
-                      {filtered.length === 0 && (
-                        <p className="text-[12px] text-muted-foreground text-center py-4">
-                          Ingen kontrollpunkter i denne visningen.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
+                  <Select
+                    value={o.status}
+                    onValueChange={(v) => {
+                      const next = v as SavedOffer["status"];
+                      setSavedOffers(prev => prev.map(s => s.id === o.id ? { ...s, status: next } : s));
+                      toast.success(`Status oppdatert til "${next === "in_progress" ? "Pågår" : "Ikke startet"}"`);
+                    }}
+                  >
+                    <SelectTrigger className={cn(
+                      "h-8 w-[140px] text-xs",
+                      inProgress && "border-warning/40 bg-warning/5 text-warning"
+                    )}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="not_started">Ikke startet</SelectItem>
+                      <SelectItem value="in_progress">Pågår</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </Card>
             );
           })}
         </TabsContent>
+
+
 
         <TabsContent value="deliveries" className="mt-0">
           <OngoingDeliveriesList

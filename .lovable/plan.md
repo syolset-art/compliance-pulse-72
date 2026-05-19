@@ -1,59 +1,37 @@
 ## Mål
-
-Gjøre fanen **Pågående oppdrag** lik **Tilbud**-fanen visuelt (samme kort + ekspanderbar sjekkliste) og gi kunden en komplett flyt: se aktiviteter → laste opp dokumenter → generere sluttrapport → sende til kunde → ved godkjenning øke modenhet og berike kontroller.
+"Tilbud"-arkfanen skal kun være en oversikt over tilbud brukeren har laget – ikke kontrollpunkter eller leveranse-detaljer. Brukeren skal se hva som er laget, når og av hvem, og kunne sette status (Ikke startet / Pågår).
 
 ## Endringer
 
-### 1. Pågående oppdrag — ny visning (likt Tilbud)
-Erstatt `DeliveryWizard` (én og én aktivitet) med en kortbasert liste som speiler `ONGOING`-kortene:
+### 1. Ny datamodell for lagrede tilbud
+I `MSPMaturityServiceMatrix.tsx`:
+- Erstatt `OngoingItem` (med controls/meta) med en enkel `SavedOffer`-type:
+  - `id`, `offerNumber` (T-2026-xxxx), `serviceTitle`, `frameworkLabel?`, `createdAt`, `createdBy`, `totalHours`, `totalPrice`, `status: "not_started" | "in_progress"`
+- Seed `SAVED_OFFERS` med 2–3 demo-tilbud (f.eks. ISO 27001-klargjøring, Awareness-program) – ingen kontrollpunkter.
+- Hold staten i `useState` slik at "Lag tilbud"-flyten kan legge til nye når dialogen lagrer (vi føyer på enkel `onSaved`-callback fra `MSPCreateOfferDialog` hvis det er trivielt – ellers bare seed-data nå, ny tilbud-tilføyelse kommer senere).
 
-- Ett kort per leveranse med ikon, tittel, framework-badge, fremdrift («3 av 7 aktiviteter fullført»), status-pille og chevron.
-- Klikk åpner kortet i en seksjon under med:
-  - **Filter-piller** øverst (Alle / Gjenstår / Fullført / Med dokument), samme stil som dagens kontrollfilter.
-  - **Hele sjekklisten synlig samtidig** — gruppert per kontrollpunkt (A.6.3 osv.), hver aktivitet som rad med:
-    - checkbox (sett som utført), tittel, eier (Partner/Kunde), dato, antall vedlegg.
-    - liten «Last opp dokument»-knapp på rader hvor det er relevant (åpner eksisterende `ConfirmActivityDialog` i upload-modus).
-    - liten Lara-streng som plassholder (forberedt for senere kobling) — vises bare hvis `laraSteps` finnes.
-- Footer i kortet: progress-bar + «Generer sluttrapport»-knapp (aktiveres når alle aktiviteter er bekreftet).
+### 2. Ny visning av "Tilbud"-fanen
+Erstatt eksisterende `TabsContent value="ongoing"`-blokk (linje ~737) med en kompakt liste:
 
-### 2. Last opp dokumenter per aktivitet
-Gjenbruk `ConfirmActivityDialog` (har allerede fil-opplasting + notat). Trigges direkte fra aktivitetsraden. Vedleggsantall vises som badge på raden.
+```
+[ikon] Tittel · framework-badge        [Status-velger ▾]
+       T-2026-1234 · Laget 12. mai av Truls Hansen
+       6 tiltak · 60 timer · 90 000 kr
+```
 
-### 3. Generer sluttrapport
-- «Generer sluttrapport» åpner eksisterende `DeliverySummaryDialog`.
-- Etter godkjenning lagres rapport-metadata på leveransen (`reportGeneratedAt`, `reportFileName`) lokalt i state.
-- Statusen på leverandørkortet bytter til «Rapport klar» (grønn pille).
+- Ikon: `FileText` i nøytral container (fargen reflekterer status: muted for "Ikke startet", warning for "Pågår").
+- `Select` til høyre med to valg: "Ikke startet" / "Pågår". Endring oppdaterer state + toast.
+- Klikk på kortet åpner `MSPCreateOfferDialog` i preview-modus (gjenbruk eksisterende dialog) – ingen expand/kontroll-liste lenger.
+- Fjern all logikk for `expandedOngoing`, `controlFilter`, og kontroll-rendering inne i denne fanen.
 
-### 4. Send rapport til kunde
-- Når rapport er generert, vises ny knapp **«Send til kunde»** på kortet.
-- Klikk åpner ny lett dialog `SendDeliveryReportDialog` (mønster lik `ShareVendorPortfolioDialog`):
-  - viser kunde-e-post + valgfri melding,
-  - sender via «Meldinger»-systemet (legger rapporten inn i `MSPCustomerMessagesTab` som ny innkommende rapport-melding hos kunden).
-- Etter sending: kortet får status «Sendt — venter godkjenning».
+### 3. Ingenting endres i "Pågående oppdrag"
+Den fanen beholdes som den er (egen `DELIVERIES`-flyt). "Pågår"-status på et tilbud flytter det IKKE automatisk dit – det er to separate konsepter inntil videre.
 
-### 5. Kundens godkjenning øker modenhet
-- I `MSPCustomerMessagesTab` legges en ny seksjon **«Leveranserapporter til godkjenning»** med Godkjenn-/Avvis-knapper.
-- Godkjenning fører til:
-  1. Aktivitetene merkes som «verifisert av kunde» i kontrollpunktene.
-  2. Kontrollpunktenes `progress` heves til 100 % og status settes til `fulfilled` på det aktuelle rammeverket.
-  3. Kundens modenhetsskår oppdateres (gjenbruk eksisterende beregning fra `useMaturityScore` / `msp_customer_assessments`).
-  4. Toast: «Kundens modenhet på {Framework} økte fra X → Y %».
-
-## Tekniske detaljer
-
-- Ny komponent: `src/components/msp/OngoingDeliveriesList.tsx` — erstatter `DeliveryWizard`-bruken inni `<TabsContent value="deliveries">`. Beholder `DeliveryWizard.tsx` urørt i denne omgang for å unngå større refaktorering; importeres bare ikke lenger fra matrix-fanen.
-- Ny dialog: `src/components/msp/SendDeliveryReportDialog.tsx` — speiler stilen til `ShareVendorPortfolioDialog`.
-- Utvid `DeliveryItem` (i `MSPMaturityServiceMatrix.tsx`) med valgfritt `reportGeneratedAt`, `reportFileName`, `sentToCustomerAt`, `customerApprovedAt`.
-- Berikelse av kontroller: hold dette presentasjonsmessig nå (oppdater lokale `controls`-data + visning) — kobles senere til faktisk `compliance_requirements`-skår. Hook-callback `onCustomerApprove(deliveryId)` forberedes så Lara senere kan plugges på.
-- Ingen DB-endringer i denne iterasjonen — alt drives av eksisterende seed-data og lokal state. Kommenteres tydelig i koden.
+### 4. Opprydding
+- Behold `OngoingItem`-typen kun hvis den brukes andre steder; ellers fjern.
+- Behold `expandedOngoing` / `controlFilter` kun hvis brukt i andre faner; ellers fjern.
 
 ## Filer som endres
-- `src/components/msp/MSPMaturityServiceMatrix.tsx` — bytter ut wizard-bruk, utvider typer, holder state for rapport-status.
-- `src/components/msp/OngoingDeliveriesList.tsx` *(ny)*
-- `src/components/msp/SendDeliveryReportDialog.tsx` *(ny)*
-- `src/components/msp/MSPCustomerMessagesTab.tsx` — ny seksjon «Leveranserapporter» med godkjenn-handling og modenhets-toast.
+- `src/components/msp/MSPMaturityServiceMatrix.tsx` (datamodell, tab-innhold, state-rydding)
 
-## Ikke i scope nå
-- Faktisk persistering av rapport/godkjenning i Supabase.
-- Reell Lara-kjøring (steg vises som forberedt placeholder).
-- E-postutsending av rapport utenfor appen.
+Ingen DB- eller backend-endringer. Ingen endringer i `MSPCreateOfferDialog`, "Anbefalte tjenester" eller "Pågående oppdrag".
