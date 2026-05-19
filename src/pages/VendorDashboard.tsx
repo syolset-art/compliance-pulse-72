@@ -36,6 +36,8 @@ export default function VendorDashboard() {
   usePageHelpListener(setHelpOpen);
   const [activateOpen, setActivateOpen] = useState(false);
   const [isPremium, setIsPremium] = useState(() => localStorage.getItem("vendor_premium_activated") === "true");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get("tab") || "overview";
 
   const { data: vendors = [] } = useQuery({
     queryKey: ["vendor-assets"],
