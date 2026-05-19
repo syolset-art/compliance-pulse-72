@@ -25,6 +25,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import { MSPServiceCatalogTab } from "./MSPServiceCatalogTab";
+import { ConfirmActivityDialog, type EvidenceFileMeta, type ConfirmPayload } from "./ConfirmActivityDialog";
+import { toast } from "sonner";
 import { PARTNER_SERVICES, getService } from "@/lib/serviceCatalog";
 
 export type TaskOwner = "Partner" | "Kunde";
@@ -183,6 +185,11 @@ interface DeliveryActivity {
   done: boolean;
   owner?: TaskOwner;
   date?: string;
+  confirmedAt?: string;
+  confirmedBy?: string;
+  note?: string;
+  evidence?: EvidenceFileMeta[];
+  sharedWithCustomer?: boolean;
 }
 
 interface DeliveryControl {
@@ -283,15 +290,26 @@ export function MSPMaturityServiceMatrix() {
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
 
-  const toggleActivity = (deliveryId: string, controlId: string, activityId: string) => {
+  const [confirmCtx, setConfirmCtx] = useState<{
+    open: boolean;
+    deliveryId?: string;
+    controlId?: string;
+    activityId?: string;
+    readOnly?: boolean;
+  }>({ open: false });
+
+  const applyActivityUpdate = (
+    deliveryId: string,
+    controlId: string,
+    activityId: string,
+    updater: (a: DeliveryActivity) => DeliveryActivity,
+  ) => {
     setDeliveries(prev =>
       prev.map(d => {
         if (d.id !== deliveryId) return d;
         const controls = d.controls.map(c => {
           if (c.id !== controlId) return c;
-          const activities = c.activities.map(a =>
-            a.id === activityId ? { ...a, done: !a.done } : a,
-          );
+          const activities = c.activities.map(a => (a.id === activityId ? updater(a) : a));
           const doneCount = activities.filter(a => a.done).length;
           const progress = activities.length > 0 ? Math.round((doneCount / activities.length) * 100) : 0;
           const status: DeliveryControl["status"] =
@@ -302,6 +320,51 @@ export function MSPMaturityServiceMatrix() {
       }),
     );
   };
+
+  const confirmActivity = (
+    deliveryId: string,
+    controlId: string,
+    activityId: string,
+    payload: ConfirmPayload,
+  ) => {
+    applyActivityUpdate(deliveryId, controlId, activityId, a => ({
+      ...a,
+      done: true,
+      confirmedAt: new Date().toISOString(),
+      confirmedBy: "Partner",
+      note: payload.note,
+      evidence: payload.files,
+      sharedWithCustomer: payload.sharedWithCustomer,
+    }));
+    toast.success("Aktivitet bekreftet — Trust Profile oppdatert", {
+      description: payload.files.length > 0
+        ? `${payload.files.length} bevis lagt ved${payload.sharedWithCustomer ? " · Kunden varsles" : ""}`
+        : payload.sharedWithCustomer ? "Kunden varsles" : undefined,
+    });
+  };
+
+  const undoActivity = (deliveryId: string, controlId: string, activityId: string) => {
+    applyActivityUpdate(deliveryId, controlId, activityId, a => ({
+      ...a,
+      done: false,
+      confirmedAt: undefined,
+      confirmedBy: undefined,
+      note: undefined,
+      evidence: undefined,
+      sharedWithCustomer: undefined,
+    }));
+    toast.info("Bekreftelse angret");
+  };
+
+  const confirmCtxActivity = (() => {
+    if (!confirmCtx.open) return null;
+    const d = deliveries.find(x => x.id === confirmCtx.deliveryId);
+    const c = d?.controls.find(x => x.id === confirmCtx.controlId);
+    const a = c?.activities.find(x => x.id === confirmCtx.activityId);
+    if (!d || !c || !a) return null;
+    const service = d.serviceId ? getService(d.serviceId) : undefined;
+    return { d, c, a, frameworkLabel: service?.frameworkMappings?.[0]?.frameworkLabel };
+  })();
 
   const openGap = (frameworkId?: string) => {
     setGapFrameworkId(frameworkId);
@@ -637,36 +700,106 @@ export function MSPMaturityServiceMatrix() {
                             <div className={cn("h-full transition-all", s.bar)} style={{ width: `${c.progress}%` }} />
                           </div>
                           <div className="space-y-1 pt-1">
-                            {c.activities.map(a => (
-                              <label
-                                key={a.id}
-                                className="flex items-start gap-2.5 p-1.5 rounded-md hover:bg-background cursor-pointer"
-                              >
-                                <Checkbox
-                                  checked={a.done}
-                                  onCheckedChange={() => toggleActivity(d.id, c.id, a.id)}
-                                  className="mt-0.5"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <span
-                                    className={cn(
-                                      "text-[13px]",
-                                      a.done ? "text-muted-foreground line-through" : "text-foreground"
+                            {c.activities.map(a => {
+                              const evidenceCount = a.evidence?.length ?? 0;
+                              return (
+                                <div
+                                  key={a.id}
+                                  className="flex items-start gap-2.5 p-1.5 rounded-md hover:bg-background"
+                                >
+                                  <div className="mt-0.5 shrink-0">
+                                    {a.done ? (
+                                      <CheckCircle2 className="h-4 w-4 text-success" />
+                                    ) : (
+                                      <Circle className="h-4 w-4 text-muted-foreground" />
                                     )}
-                                  >
-                                    {a.label}
-                                  </span>
-                                  {(a.owner || a.date) && (
-                                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <span
+                                      className={cn(
+                                        "text-[13px]",
+                                        a.done ? "text-muted-foreground" : "text-foreground"
+                                      )}
+                                    >
+                                      {a.label}
+                                    </span>
+                                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5 flex-wrap">
                                       {a.owner && <span>{a.owner}</span>}
                                       {a.owner && a.date && <span>·</span>}
                                       {a.date && <span>{a.date}</span>}
+                                      {a.done && a.confirmedBy && (
+                                        <>
+                                          <span>·</span>
+                                          <span className="text-success">Bekreftet av {a.confirmedBy}</span>
+                                        </>
+                                      )}
+                                      {evidenceCount > 0 && (
+                                        <>
+                                          <span>·</span>
+                                          <span className="inline-flex items-center gap-1 text-primary">
+                                            <FileText className="h-3 w-3" />
+                                            {evidenceCount} bevis
+                                          </span>
+                                        </>
+                                      )}
                                     </div>
-                                  )}
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    {a.done ? (
+                                      <>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-7 px-2 text-[11px]"
+                                          onClick={() =>
+                                            setConfirmCtx({
+                                              open: true,
+                                              deliveryId: d.id,
+                                              controlId: c.id,
+                                              activityId: a.id,
+                                              readOnly: true,
+                                            })
+                                          }
+                                        >
+                                          Se bevis
+                                        </Button>
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-7 px-2 text-[11px] text-muted-foreground hover:text-destructive"
+                                          onClick={() => undoActivity(d.id, c.id, a.id)}
+                                        >
+                                          Angre
+                                        </Button>
+                                      </>
+                                    ) : (
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 px-2.5 text-[11px] gap-1"
+                                        onClick={() =>
+                                          setConfirmCtx({
+                                            open: true,
+                                            deliveryId: d.id,
+                                            controlId: c.id,
+                                            activityId: a.id,
+                                            readOnly: false,
+                                          })
+                                        }
+                                      >
+                                        <CheckCircle2 className="h-3.5 w-3.5" />
+                                        Bekreft ferdig
+                                      </Button>
+                                    )}
+                                  </div>
                                 </div>
-                              </label>
-                            ))}
+                              );
+                            })}
                           </div>
+
                         </Card>
                       );
                     })}
@@ -712,7 +845,33 @@ export function MSPMaturityServiceMatrix() {
           });
         }}
       />
+
+      {confirmCtxActivity && (
+        <ConfirmActivityDialog
+          open={confirmCtx.open}
+          onOpenChange={(o) => setConfirmCtx((s) => ({ ...s, open: o }))}
+          activityLabel={confirmCtxActivity.a.label}
+          controlId={confirmCtxActivity.c.id}
+          controlName={confirmCtxActivity.c.name}
+          frameworkLabel={confirmCtxActivity.frameworkLabel}
+          readOnly={confirmCtx.readOnly}
+          initial={{
+            note: confirmCtxActivity.a.note,
+            files: confirmCtxActivity.a.evidence,
+            sharedWithCustomer: confirmCtxActivity.a.sharedWithCustomer,
+          }}
+          onConfirm={(payload) =>
+            confirmActivity(
+              confirmCtxActivity.d.id,
+              confirmCtxActivity.c.id,
+              confirmCtxActivity.a.id,
+              payload,
+            )
+          }
+        />
+      )}
     </div>
+
   );
 }
 
