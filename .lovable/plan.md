@@ -1,41 +1,59 @@
-# Inline Lara-aktivering av Trust Profile
+## Mål
 
-I dag åpnes `ActivateTrustProfileWizard` som modalt vindu over `/trust-center/profile`. Vi beholder all logikk i wizarden (org-oppslag, Lara-skann, bekreft, modenhet, dokumenter, synlighet, seeding), men endrer presentasjonen til en samtale-aktig Lara-flyt rett på siden, og lar profilen tone inn til slutt.
+Gjøre fanen **Pågående oppdrag** lik **Tilbud**-fanen visuelt (samme kort + ekspanderbar sjekkliste) og gi kunden en komplett flyt: se aktiviteter → laste opp dokumenter → generere sluttrapport → sende til kunde → ved godkjenning øke modenhet og berike kontroller.
 
 ## Endringer
 
-### 1. Ny inline-presentasjon i `ActivateTrustProfileWizard`
-- Legg til ny presentation-modus `presentation: "modal" | "conversation"` (default `modal` for bakoverkompatibilitet). `conversation` brukes fra Trust Profile-siden.
-- I `conversation`-modus rendres wizarden uten `Dialog`-wrapper, som en vertikal samtaletråd:
-  - Venstre: Lara-avatar + meldingsboble (`bg-muted/40`, deep purple aksent) med tekst som forklarer hva hun gjør i steget.
-  - Høyre: brukerens svar/skjema i en lysere boble (`bg-background border`), justert til høyre.
-  - Ett aktivt steg av gangen vises nederst. Tidligere steg kollapses til en kort oppsummerings-melding ("Bekreftet org.nr 123 456 789 — Acme AS") slik at samtalen vokser nedover.
-- Steg-overskrifter (`STEP_LABELS`) skrives som Lara-meldinger i samtaleform i stedet for wizard-header. Progress vises som diskret prikkrekke (6 prikker) øverst — ingen `Progress`-bar.
-- Knappene "Tilbake/Neste" rendres inline under det aktive svaret, i samtalens høyre kolonne.
-- Lara-skann-steget (steg 2) beholder eksisterende animasjon, men pakkes inn som en Lara-melding der hun viser hva hun finner mens den skanner.
+### 1. Pågående oppdrag — ny visning (likt Tilbud)
+Erstatt `DeliveryWizard` (én og én aktivitet) med en kortbasert liste som speiler `ONGOING`-kortene:
 
-### 2. Avslutning som faser inn profilen
-- Når siste steg fullføres, kall eksisterende `seedFromActivation` + `onCompleted` som i dag.
-- Vis en siste Lara-melding: "Klar! Her er Trust Profile-en din." med en grønn `CheckCircle2`.
-- Etter ~900 ms fader hele samtale-blokken ut (`opacity` + `translate-y`), og `TrustCenterProfile` rendrer den aktive profilen på samme side med en kort fade-in (`animate-in fade-in duration-500`). Ingen full sidelast eller navigasjon.
+- Ett kort per leveranse med ikon, tittel, framework-badge, fremdrift («3 av 7 aktiviteter fullført»), status-pille og chevron.
+- Klikk åpner kortet i en seksjon under med:
+  - **Filter-piller** øverst (Alle / Gjenstår / Fullført / Med dokument), samme stil som dagens kontrollfilter.
+  - **Hele sjekklisten synlig samtidig** — gruppert per kontrollpunkt (A.6.3 osv.), hver aktivitet som rad med:
+    - checkbox (sett som utført), tittel, eier (Partner/Kunde), dato, antall vedlegg.
+    - liten «Last opp dokument»-knapp på rader hvor det er relevant (åpner eksisterende `ConfirmActivityDialog` i upload-modus).
+    - liten Lara-streng som plassholder (forberedt for senere kobling) — vises bare hvis `laraSteps` finnes.
+- Footer i kortet: progress-bar + «Generer sluttrapport»-knapp (aktiveres når alle aktiviteter er bekreftet).
 
-### 3. Tilpasninger i `src/pages/TrustCenterProfile.tsx`
-- Fjern modal-åpning fra "locked landing"-tilstanden (linje 261–330). Erstatt CTA-kortet med en kompakt intro + `ActivateTrustProfileWizard` rendret inline (`presentation="conversation"`, `inline={true}`).
-- Behold "Les mer" / `ContextualHelpPanel`.
-- Behold `useEffect`-en som auto-åpner ved første besøk — i conversation-modus betyr det bare at flyten allerede er synlig (ingen modal å åpne); fjern `setShowActivateWizard(true)` der det ikke trengs.
-- Behold ekstern trigger `open-activate-trust-wizard` og `?activate=1` — scroll i stedet til samtaletråden.
-- Lokal state `justActivated` styrer overgangsanimasjonen: settes av `onCompleted`, brukes til å fade ut samtale-blokken før `isActivated` flippes.
+### 2. Last opp dokumenter per aktivitet
+Gjenbruk `ConfirmActivityDialog` (har allerede fil-opplasting + notat). Trigges direkte fra aktivitetsraden. Vedleggsantall vises som badge på raden.
 
-### 4. Holdes uendret
-- All datalogikk i `ActivateTrustProfileWizard` (Brreg-oppslag, scan-steg, modenhetsspørsmål, dokumentslots, synlighetsvalg, seeding).
-- Modal-bruken andre steder (om noen) — `presentation` defaulter til `modal`.
-- Trust Profile-innholdet etter aktivering.
+### 3. Generer sluttrapport
+- «Generer sluttrapport» åpner eksisterende `DeliverySummaryDialog`.
+- Etter godkjenning lagres rapport-metadata på leveransen (`reportGeneratedAt`, `reportFileName`) lokalt i state.
+- Statusen på leverandørkortet bytter til «Rapport klar» (grønn pille).
+
+### 4. Send rapport til kunde
+- Når rapport er generert, vises ny knapp **«Send til kunde»** på kortet.
+- Klikk åpner ny lett dialog `SendDeliveryReportDialog` (mønster lik `ShareVendorPortfolioDialog`):
+  - viser kunde-e-post + valgfri melding,
+  - sender via «Meldinger»-systemet (legger rapporten inn i `MSPCustomerMessagesTab` som ny innkommende rapport-melding hos kunden).
+- Etter sending: kortet får status «Sendt — venter godkjenning».
+
+### 5. Kundens godkjenning øker modenhet
+- I `MSPCustomerMessagesTab` legges en ny seksjon **«Leveranserapporter til godkjenning»** med Godkjenn-/Avvis-knapper.
+- Godkjenning fører til:
+  1. Aktivitetene merkes som «verifisert av kunde» i kontrollpunktene.
+  2. Kontrollpunktenes `progress` heves til 100 % og status settes til `fulfilled` på det aktuelle rammeverket.
+  3. Kundens modenhetsskår oppdateres (gjenbruk eksisterende beregning fra `useMaturityScore` / `msp_customer_assessments`).
+  4. Toast: «Kundens modenhet på {Framework} økte fra X → Y %».
 
 ## Tekniske detaljer
 
-- Filer som endres:
-  - `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx` — ny `presentation`-prop, conversation-renderer (ny intern komponent `ConversationShell` + `LaraMessage` / `UserReply` helpers), kollapset historikk for fullførte steg.
-  - `src/pages/TrustCenterProfile.tsx` — locked landing erstattes av inline samtale; fade-overgang ved `onCompleted`.
-- Styling bruker eksisterende design-tokens (`bg-muted`, `bg-primary/10`, `text-primary`, `border-border`) — ingen nye farger.
-- Animasjon via Tailwind `animate-in` / `transition-opacity`; ingen nye avhengigheter.
-- i18n: nye Lara-meldinger legges som inline NB/EN-strenger på samme måte som resten av filen (`isNb ? "…" : "…"`).
+- Ny komponent: `src/components/msp/OngoingDeliveriesList.tsx` — erstatter `DeliveryWizard`-bruken inni `<TabsContent value="deliveries">`. Beholder `DeliveryWizard.tsx` urørt i denne omgang for å unngå større refaktorering; importeres bare ikke lenger fra matrix-fanen.
+- Ny dialog: `src/components/msp/SendDeliveryReportDialog.tsx` — speiler stilen til `ShareVendorPortfolioDialog`.
+- Utvid `DeliveryItem` (i `MSPMaturityServiceMatrix.tsx`) med valgfritt `reportGeneratedAt`, `reportFileName`, `sentToCustomerAt`, `customerApprovedAt`.
+- Berikelse av kontroller: hold dette presentasjonsmessig nå (oppdater lokale `controls`-data + visning) — kobles senere til faktisk `compliance_requirements`-skår. Hook-callback `onCustomerApprove(deliveryId)` forberedes så Lara senere kan plugges på.
+- Ingen DB-endringer i denne iterasjonen — alt drives av eksisterende seed-data og lokal state. Kommenteres tydelig i koden.
+
+## Filer som endres
+- `src/components/msp/MSPMaturityServiceMatrix.tsx` — bytter ut wizard-bruk, utvider typer, holder state for rapport-status.
+- `src/components/msp/OngoingDeliveriesList.tsx` *(ny)*
+- `src/components/msp/SendDeliveryReportDialog.tsx` *(ny)*
+- `src/components/msp/MSPCustomerMessagesTab.tsx` — ny seksjon «Leveranserapporter» med godkjenn-handling og modenhets-toast.
+
+## Ikke i scope nå
+- Faktisk persistering av rapport/godkjenning i Supabase.
+- Reell Lara-kjøring (steg vises som forberedt placeholder).
+- E-postutsending av rapport utenfor appen.
