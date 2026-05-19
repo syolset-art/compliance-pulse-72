@@ -240,7 +240,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     }
 
     return result;
-  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter, expiredCounts, inboxCounts, sortColumn, sortDirection, newlyAddedId]);
+  }, [items, nameFilter, categoryFilter, riskFilter, vendorCategoryFilter, gdprRoleFilter, priorityFilter, statusFilter, countryFilter, ownerFilter, workAreas, expiredCounts, inboxCounts, sortColumn, sortDirection, newlyAddedId]);
 
   const handleSort = (col: string) => {
     if (sortColumn === col) setSortDirection(d => d === "asc" ? "desc" : "asc");
