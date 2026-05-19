@@ -1,5 +1,8 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -7,9 +10,10 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Filter, X } from "lucide-react";
+import { Filter, X, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getCriticality, CRITICALITY_META, type CriticalityKey } from "@/lib/criticality";
+import { PLATFORM_USERS } from "@/lib/platformUsers";
 import type { ScoreDisplayMode } from "./VendorListTab";
 
 interface Asset {
@@ -160,6 +164,65 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
+/** Inline owner-velger: vises som "Tilordne" når tomt, ellers som navn. */
+function OwnerCell({
+  assetId, ownerName, options,
+}: { assetId: string; ownerName: string | null; options: string[] }) {
+  const qc = useQueryClient();
+  const mutate = useMutation({
+    mutationFn: async (next: string) => {
+      const { error } = await supabase.from("assets")
+        .update({ asset_owner: next }).eq("id", assetId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["vendor-assets"] });
+      qc.invalidateQueries({ queryKey: ["assets"] });
+      toast.success("Eier oppdatert");
+    },
+    onError: () => toast.error("Kunne ikke oppdatere eier"),
+  });
+
+  const stop = (e: React.SyntheticEvent) => e.stopPropagation();
+  const suggestions = Array.from(new Set([
+    ...PLATFORM_USERS.map(u => u.name),
+    ...options,
+  ])).sort();
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild onClick={stop}>
+        {ownerName ? (
+          <button className="text-xs text-muted-foreground hover:text-foreground truncate max-w-[140px] text-left">
+            {ownerName}
+          </button>
+        ) : (
+          <button className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+            <UserPlus className="h-3 w-3" />
+            Tilordne
+          </button>
+        )}
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-56 p-1" onClick={stop}>
+        <div className="max-h-64 overflow-y-auto">
+          {suggestions.map(name => (
+            <button
+              key={name}
+              onClick={() => mutate.mutate(name)}
+              className={cn(
+                "w-full text-left text-xs px-2 py-1.5 rounded hover:bg-muted",
+                ownerName === name && "bg-muted font-medium"
+              )}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function VendorTableView({
   vendors,
   expiredCounts, inboxCounts, getOwnerName, scoreDisplay,
@@ -192,9 +255,6 @@ export function VendorTableView({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                Navn
-              </TableHead>
               <TableHead className="w-20">
                 <ColumnFilter
                   label="Land"
@@ -202,6 +262,9 @@ export function VendorTableView({
                   onChange={setCountryFilter}
                   options={countries.map(c => ({ value: c, label: c }))}
                 />
+              </TableHead>
+              <TableHead className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                Navn
               </TableHead>
               <TableHead>
                 <ColumnFilter
@@ -253,10 +316,10 @@ export function VendorTableView({
                   className="cursor-pointer"
                   onClick={() => navigate(`/vendor/${v.id}`)}
                 >
-                  <TableCell className="font-medium text-sm">{v.name}</TableCell>
                   <TableCell className="text-xs font-mono text-muted-foreground uppercase">
                     {v.country || "—"}
                   </TableCell>
+                  <TableCell className="font-medium text-sm">{v.name}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {v.vendor_category ? VENDOR_CAT_LABEL[v.vendor_category] || v.vendor_category : "—"}
                   </TableCell>
@@ -277,8 +340,8 @@ export function VendorTableView({
                   <TableCell className="text-center">
                     <ScoreRing score={score} />
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground truncate max-w-[140px]">
-                    {owner || "—"}
+                  <TableCell>
+                    <OwnerCell assetId={v.id} ownerName={owner} options={owners} />
                   </TableCell>
                 </TableRow>
               );
