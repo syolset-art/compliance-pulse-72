@@ -42,6 +42,77 @@ export interface PartnerService {
  * og Lara viser hvordan de treffer kontrollpunkter på tvers av rammeverk.
  */
 export const PARTNER_SERVICES: PartnerService[] = [
+  // ──────────────────────────────────────────────────────────────────────
+  // Spørreskjema-tjenester — partneren bestiller, kunden besvarer i sin
+  // egen Mynder, svarene flyter tilbake som modenhetsdata.
+  // ──────────────────────────────────────────────────────────────────────
+  {
+    id: "q-gdpr-maturity",
+    name: "GDPR-helsesjekk",
+    description:
+      "Strukturert spørreskjema som kartlegger GDPR-modenhet på styring, drift, personvern og tredjepart. Kunden besvarer 19 spørsmål — Lara genererer tiltaksliste og foreslår oppfølgingstjenester.",
+    defaultChecklist: [
+      "Send skjema til kundekontakt",
+      "Kunden besvarer 19 spørsmål",
+      "Lara identifiserer gap",
+      "Tiltaksrapport og forslag til oppfølging",
+    ],
+    frameworkMappings: [
+      { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.5", "Art.24", "Art.28", "Art.30", "Art.32"] },
+    ],
+    tags: ["gdpr", "questionnaire", "smb", "mid"],
+    price: 7500,
+    priceModel: "fixed",
+    deliveryType: "questionnaire",
+    questionnaireId: "gdpr_maturity",
+    estimatedMinutes: 15,
+    publishedToCustomers: true,
+  },
+  {
+    id: "q-nis2-scope",
+    name: "NIS2-scoping",
+    description:
+      "Kort skjema som avklarer om virksomheten er i scope for NIS2 og hvor styringsmessig moden den er. Brukes som grunnlag for tilbud om full NIS2-leveranse.",
+    defaultChecklist: [
+      "Send skjema til daglig leder / CISO",
+      "Kunden besvarer scoping-spørsmål",
+      "Lara avklarer NIS2-status",
+      "Forslag til neste steg",
+    ],
+    frameworkMappings: [
+      { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.2", "Art.20", "Art.21"] },
+    ],
+    tags: ["nis2", "questionnaire", "mid", "critical"],
+    price: 5000,
+    priceModel: "fixed",
+    deliveryType: "questionnaire",
+    questionnaireId: "nis2_scope",
+    estimatedMinutes: 8,
+    publishedToCustomers: true,
+  },
+  {
+    id: "q-iso-gap",
+    name: "ISO 27001 mini gap-analyse",
+    description:
+      "Komplett selvevaluering på tvers av styring, drift, personvern og tredjepart. Lara skårer modenhet og lager gap-rapport som forarbeid til full ISO-leveranse.",
+    defaultChecklist: [
+      "Send skjema til sikkerhetsansvarlig",
+      "Kunden besvarer alle kategorier",
+      "Gap-rapport generert",
+      "Anbefaling om full ISO-løp",
+    ],
+    frameworkMappings: [
+      { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.1", "A.6.1", "A.8.1", "A.15.1"] },
+    ],
+    tags: ["iso", "questionnaire", "security", "mid", "high"],
+    price: 15000,
+    priceModel: "fixed",
+    deliveryType: "questionnaire",
+    questionnaireId: "iso_gap",
+    estimatedMinutes: 20,
+    publishedToCustomers: true,
+  },
+
   {
     id: "nis2",
     name: "NIS2-vurdering",
