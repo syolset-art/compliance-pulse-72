@@ -198,7 +198,7 @@ export interface DeliveryActivity {
   };
 }
 
-interface DeliveryControl {
+export interface DeliveryControl {
   id: string; // f.eks. "A.6.3"
   name: string;
   status: "missing" | "partial" | "fulfilled";
@@ -206,7 +206,7 @@ interface DeliveryControl {
   activities: DeliveryActivity[];
 }
 
-interface DeliveryItem {
+export interface DeliveryItem {
   id: string;
   title: string;
   meta: string;
@@ -227,10 +227,62 @@ const DELIVERIES: DeliveryItem[] = [
         status: "partial",
         progress: 60,
         activities: [
-          { id: "a1", label: "Baselinemåling phishing-simulering", done: true, owner: "Partner", date: "12. feb" },
-          { id: "a2", label: "Kvartalsvis e-læring rullet ut (Q1)", done: true, owner: "Partner", date: "5. mar" },
-          { id: "a3", label: "Målrettet opplæring for ledergruppen", done: false, owner: "Partner", date: "20. mai" },
-          { id: "a4", label: "Re-test phishing og rapportering", done: false, owner: "Partner", date: "15. jun" },
+          {
+            id: "a1",
+            label: "Baselinemåling phishing-simulering",
+            done: true,
+            owner: "Partner",
+            date: "12. feb",
+            laraSteps: ["Konfigurert phishing-mal", "Sendt til 142 mottakere", "Samlet klikk-statistikk"],
+          },
+          {
+            id: "a2",
+            label: "Kvartalsvis e-læring rullet ut (Q1)",
+            done: true,
+            owner: "Partner",
+            date: "5. mar",
+            laraSteps: ["Generert deltakerliste fra HR", "Sendt invitasjon via Outlook", "Samlet gjennomføringsrapport"],
+            laraDraft: {
+              title: "Gjennomføringsrapport Q1 e-læring",
+              fileName: "elearning-Q1-2025-rapport.pdf",
+              summary: [
+                "138 av 142 ansatte fullført (97 %)",
+                "Snitt-score: 86 % korrekt",
+                "4 påminnelser sendt — alle besvart",
+                "Klart for kvittering i Trust Profile",
+              ],
+            },
+          },
+          {
+            id: "a3",
+            label: "Målrettet opplæring for ledergruppen",
+            done: false,
+            owner: "Partner",
+            date: "20. mai",
+            laraSteps: [
+              "Identifisert 8 personer i ledergruppen",
+              "Tilpasset innhold basert på rolle (CEO, CFO, CTO …)",
+              "Booking-utkast lagt i Outlook — venter på din godkjenning",
+            ],
+            laraDraft: {
+              title: "Workshop-agenda for ledergruppen",
+              fileName: "ledergruppe-awareness-mai-2025.pdf",
+              summary: [
+                "60 min workshop · 20. mai kl. 09:00",
+                "Tema: målrettede CEO-svindelforsøk + GDPR-ansvar",
+                "Pre-arbeid: 10 min e-læring",
+                "Etter: kort oppsummering signert av deltakerne",
+              ],
+            },
+          },
+          {
+            id: "a4",
+            label: "Re-test phishing og rapportering",
+            done: false,
+            owner: "Partner",
+            date: "15. jun",
+            laraSteps: ["Re-test planlagt i juni", "Måler effekt av Q1-opplæring"],
+          },
         ],
       },
       {
@@ -239,9 +291,43 @@ const DELIVERIES: DeliveryItem[] = [
         status: "missing",
         progress: 20,
         activities: [
-          { id: "b1", label: "Workshop med kunde for å forankre policy", done: true, owner: "Kunde", date: "18. apr" },
-          { id: "b2", label: "Utkast til policy lagt frem", done: false, owner: "Partner", date: "10. mai" },
-          { id: "b3", label: "Kommunisert til alle ansatte", done: false, owner: "Kunde" },
+          {
+            id: "b1",
+            label: "Workshop med kunde for å forankre policy",
+            done: true,
+            owner: "Kunde",
+            date: "18. apr",
+            laraSteps: ["Workshop avholdt", "Innspill samlet"],
+          },
+          {
+            id: "b2",
+            label: "Utkast til policy lagt frem",
+            done: false,
+            owner: "Partner",
+            date: "10. mai",
+            laraSteps: [
+              "Skrevet utkast basert på ISO 27001 Annex A.5.10",
+              "Tilpasset kundens domene, roller og verktøy",
+              "Sjekket mot eksisterende personvernerklæring",
+            ],
+            laraDraft: {
+              title: "Policy for akseptabel bruk",
+              fileName: "policy-akseptabel-bruk-v1.pdf",
+              summary: [
+                "Gjelder alle ansatte og innleide",
+                "Dekker e-post, internett, BYOD, AI-verktøy",
+                "Henvisning til varslingsrutine",
+                "Klar for kundens signatur",
+              ],
+            },
+          },
+          {
+            id: "b3",
+            label: "Kommunisert til alle ansatte",
+            done: false,
+            owner: "Kunde",
+            laraSteps: ["Utkast til intranett-melding lagt klar", "E-postmal generert"],
+          },
         ],
       },
     ],
