@@ -144,6 +144,25 @@ export function MSPServiceCatalogTab() {
 
   return (
     <div className="space-y-4">
+      {/* Handlingsknapper — øverst til høyre */}
+      <div className="flex justify-end gap-2">
+        <Button
+          onClick={() => setLaraOpen(true)}
+          className="gap-2 bg-gradient-to-r from-primary to-primary/80"
+        >
+          <Sparkles className="h-4 w-4" />
+          Forslag fra Lara
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => setManualOpen(true)}
+          className="gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Legg til egen tjeneste
+        </Button>
+      </div>
+
       {/* Toppkort: timepris + samlet inntektspotensial */}
       <Card className="p-5 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background">
         <div className="grid items-end gap-4 md:grid-cols-[260px_1fr_auto]">
@@ -199,28 +218,6 @@ export function MSPServiceCatalogTab() {
           </div>
         </div>
       </Card>
-
-      {/* Handlingsknapper */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          onClick={() => setLaraOpen(true)}
-          className="gap-2 bg-gradient-to-r from-primary to-primary/80"
-        >
-          <Sparkles className="h-4 w-4" />
-          Forslag fra Lara
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => setManualOpen(true)}
-          className="gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Legg til egen tjeneste
-        </Button>
-        <span className="text-[11px] text-muted-foreground ml-1">
-          La Lara foreslå et tjenestesett basert på din profil, eller legg til tjenester manuelt.
-        </span>
-      </div>
 
       {/* Egne / importerte tjenester */}
       {extras.length > 0 && (
