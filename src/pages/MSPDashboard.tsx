@@ -26,8 +26,9 @@ type StatusFilter = "all" | "draft" | "onboarding" | "active" | "inactive";
 
 function deriveStatusKey(c: any): "draft" | "invited" | "claimed" | "archived" {
   if (c.status === "inactive") return "archived";
+  if (c.onboarding_completed) return "claimed";
+  if (c.status === "active") return "claimed";
   if (c.status === "onboarding") return "invited";
-  if (c.status === "active" && c.onboarding_completed) return "claimed";
   return "draft";
 }
 
