@@ -170,6 +170,8 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
         </div>
       </Card>
 
+      <LaraMechanicsCallout />
+
       {/* Lara-kort (eller suksess) */}
       {allDone ? (
         approvedDeliveries.has(activeDelivery.id) ? (
