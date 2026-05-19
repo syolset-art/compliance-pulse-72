@@ -267,6 +267,11 @@ const DELIVERIES: DeliveryItem[] = [
               "Tilpasset innhold basert på rolle (CEO, CFO, CTO …)",
               "Booking-utkast lagt i Outlook — venter på din godkjenning",
             ],
+            partnerSteps: [
+              "Bekrefte tidspunkt med CEO",
+              "Lede selve workshopen (60 min)",
+              "Signere oppmøteliste etter gjennomføring",
+            ],
             laraDraft: {
               title: "Workshop-agenda for ledergruppen",
               fileName: "ledergruppe-awareness-mai-2025.pdf",
