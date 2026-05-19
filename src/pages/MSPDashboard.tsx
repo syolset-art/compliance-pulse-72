@@ -90,6 +90,71 @@ function deriveNeededServices(c: any): string[] {
 type SortKey = "customer_name" | "tp_status";
 type SortDir = "asc" | "desc";
 
+function ColumnFilter({
+  label,
+  options,
+  selected,
+  onChange,
+  iconOnly = false,
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  selected: string[];
+  onChange: (next: string[]) => void;
+  iconOnly?: boolean;
+}) {
+  const toggle = (v: string) => {
+    onChange(selected.includes(v) ? selected.filter((x) => x !== v) : [...selected, v]);
+  };
+  const active = selected.length > 0;
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded px-1 -mx-1 hover:text-foreground transition-colors",
+            active && "text-primary",
+          )}
+        >
+          {!iconOnly && <span>{label}</span>}
+          <Filter className={cn("h-3.5 w-3.5", active ? "opacity-100" : "opacity-40")} />
+          {active && (
+            <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[10px] font-medium h-4 min-w-4 px-1 tabular-nums">
+              {selected.length}
+            </span>
+          )}
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56 max-h-72 overflow-auto">
+        <DropdownMenuLabel className="text-xs">{label}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {options.length === 0 ? (
+          <div className="px-2 py-1.5 text-xs text-muted-foreground">Ingen valg</div>
+        ) : (
+          options.map((opt) => (
+            <DropdownMenuCheckboxItem
+              key={opt.value}
+              checked={selected.includes(opt.value)}
+              onSelect={(e) => { e.preventDefault(); toggle(opt.value); }}
+            >
+              {opt.label}
+            </DropdownMenuCheckboxItem>
+          ))
+        )}
+        {active && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); onChange([]); }} className="text-xs text-muted-foreground">
+              <X className="h-3 w-3 mr-1.5" /> Nullstill
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export default function MSPDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
