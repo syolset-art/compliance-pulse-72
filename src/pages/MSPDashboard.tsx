@@ -439,7 +439,11 @@ export default function MSPDashboard() {
                             />
                           </div>
                         </TableHead>
-                        <TableHead className="text-right">Modenhet</TableHead>
+                        <TableHead className="text-right">
+                          <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                            Modenhet <SortIcon k="compliance_score" />
+                          </button>
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
