@@ -352,7 +352,10 @@ const DELIVERIES: DeliveryItem[] = [
             done: true,
             owner: "Kunde",
             date: "18. apr",
-            laraSteps: ["Workshop avholdt", "Innspill samlet"],
+            laraSteps: [
+              { text: "Booket workshop og sendt agenda til 12 deltakere", via: "Outlook" },
+              { text: "Transkribert opptak og oppsummert innspill", via: "Lara" },
+            ],
           },
           {
             id: "b2",
