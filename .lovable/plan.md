@@ -1,76 +1,62 @@
 ## Mål
+Partner skal kunne markere en aktivitet (eller et helt kontrollpunkt) som ferdig via en eksplisitt **"Bekreft ferdig"-knapp**, laste opp ett eller flere dokumenter som bevis, og få en bekreftelse om at dette beriker kundens Trust Profile.
 
-Gi MSP-partneren mulighet til å definere egne kostnader (f.eks. etableringsgebyr, månedlig drift, prosjektledelse) koblet til hvert tjenesteområde/regelverk i Tjenestekatalogen. Hver kostnad kan være **fast beløp** eller **pr time**, og kunden kan velge om den skal tas med i hvert tilbud.
+Dagens checkbox toggles `a.done` umiddelbart uten bevis — det erstattes med en bevisst bekreftelse + bevisopplasting.
 
-## Endringer
+## UX-flyt (i `MSPMaturityServiceMatrix.tsx`, fanen "Pågående oppdrag")
 
-### 1. Datamodell (`FrameworkCoverageCard.tsx`)
-Utvid `FrameworkSelection` med en liste over egendefinerte kostnader:
+1. På hver aktivitetsrad i "Kontrollpunkter og aktiviteter":
+   - Checkbox erstattes/forsterkes med en liten **"Bekreft ferdig"-knapp** (ghost, ikon `CheckCircle2`) til høyre på raden når `!a.done`.
+   - Når `a.done`: vis grønn "Ferdig" pille + lenke "Se bevis" (åpner samme dialog i read-only) + "Angre" (åpner liten confirm).
+
+2. På kontrollpunkt-headeren (over progress-bar): tillegg **"Bekreft hele kontrollpunktet"** når alle aktiviteter er ferdige men status fortsatt `partial`/`missing` — én klikk setter status til `fulfilled` og åpner bevis-dialog for samlet leveransebevis.
+
+3. Klikk på "Bekreft ferdig" → ny **`ConfirmActivityDialog`**:
+   - Tittel: aktivitetens navn + kontrollpunkt-kontekst (id + navn + framework-badge).
+   - Felt:
+     - Notat/kommentar (valgfritt, textarea).
+     - Bevis-opplasting: dra-og-slipp + filvelger, multi-file, viser liste med navn/størrelse/X.
+     - Sjekkboks "Del med kunden som en del av Trust Profile" (default på).
+   - Footer: "Avbryt" + primær "Bekreft og berik Trust Profile".
+
+4. Etter bekreftelse:
+   - Aktivitet markeres `done`, bevis lagres i lokal state på leveransen (`a.evidence: EvidenceFile[]`, `a.confirmedAt`, `a.note`).
+   - Toast (sonner): "Aktivitet bekreftet — Trust Profile oppdatert" med sekundærtekst "N bevis lagt ved · Kunden varsles".
+   - Hvis alle aktiviteter i kontrollpunkt = done → status auto-flyttes til `fulfilled` og progress = 100.
+
+## Datamodell-endring (kun frontend-state i denne iterasjonen)
+
+I `MSPMaturityServiceMatrix.tsx`:
 
 ```ts
-export type CustomCostKind = "fixed" | "hourly";
-
-export interface CustomCost {
-  id: string;
-  label: string;        // f.eks. "Etableringsgebyr"
-  kind: CustomCostKind; // "fixed" eller "hourly"
-  amount: number;       // kr (fixed) eller kr/t (hourly)
-  hours?: number;       // kun for "hourly"
-  includeInOffer: boolean; // kunden/partner velger om den blir med
-}
-
-export interface FrameworkSelection {
-  controls: Record<string, ControlSelection>;
-  customCosts: CustomCost[];
+interface EvidenceFile { id: string; name: string; size: number; uploadedAt: string; }
+interface Activity {
+  id: string; label: string; done: boolean; owner?: string; date?: string;
+  // NYTT:
+  confirmedAt?: string;
+  confirmedBy?: string;     // "Partner" (hardkodet i demo)
+  note?: string;
+  evidence?: EvidenceFile[];
+  sharedWithCustomer?: boolean;
 }
 ```
 
-Migrer eksisterende bruk (catalog-tab + opportunity-kort) til ny struktur — bakoverkompatibel hjelper `getControls(sel)` der det trengs.
+`toggleActivity` brukes ikke lenger til å sette `done = true` — kun til "angre" (sette `done = false` og rydde bevis-felt). Ny handler `confirmActivity(deliveryId, controlId, activityId, payload)` skriver feltene.
 
-### 2. UI i `FrameworkCoverageCard`
-I den utvidede visningen, under kontrollpunkt-listen og før sum-linjen, legg til ny seksjon **"Egendefinerte kostnader"**:
+## Nye komponenter
 
-- Liste med eksisterende kostnader — hver rad har:
-  - Checkbox (`includeInOffer`) — "Ta med i tilbud"
-  - Inputfelt: navn (tekst)
-  - Toggle/segment: **Fast** | **Pr time**
-  - Beløp-input (kr) + ved "Pr time" også timer-input
-  - Beregnet sum til høyre (`amount` eller `amount × hours`)
-  - Sletteknapp (X)
-- Knapp nederst: **+ Legg til kostnad** (legger til en tom rad)
+- `src/components/msp/ConfirmActivityDialog.tsx` — Dialog (shadcn) med tekstfelt, fil-upload (input `type=file` med multiple, ingen ekte upload — kun lokal state med blob-metadata), checkbox, og knapp. Returnerer `{ note, files, sharedWithCustomer }` via `onConfirm`.
 
-Stilen følger eksisterende rad-design (grid, bg-background, border, h-7 inputs).
+## Filer som endres
 
-### 3. Sum-beregning
-Oppdater `totalPrice` i kortet og `grandPrice` i `MSPServiceCatalogTab`:
+- `src/components/msp/MSPMaturityServiceMatrix.tsx`
+  - Utvid Activity-typen, legg til `confirmActivity` og `undoActivity` handlere.
+  - Bytt checkbox-only raden med knapp/badge-mønsteret over.
+  - Render bevis-liste under aktiviteten når `confirmed`.
+- `src/components/msp/ConfirmActivityDialog.tsx` (ny).
 
-```
-controlPrice = Σ enabled controls (hours × hourlyRate)
-customPrice  = Σ customCosts where includeInOffer is true
-                 (kind=fixed → amount; kind=hourly → amount × hours)
-totalPrice   = controlPrice + customPrice
-```
+Ingen DB-endringer i denne iterasjonen — alt lever i lokal state slik resten av matrisen gjør. Når vi senere skal persistere, blir det en egen task (egen tabell `delivery_activity_evidence` + storage-bucket).
 
-Sum-linjen i kortet får en ekstra delsum-linje når det finnes inkluderte custom-kostnader:
-- "Kontrollpunkter: X t · Y kr"
-- "Tillegg: Z kr"
-- "Totalt: W kr"
-
-Topp-kortet ("Samlet potensial") viser kombinert total.
-
-### 4. Header-tall
-KPI-tellerne i kort-headeren (KP valgt / Timer / Inntekt) inkluderer custom-kostnader i Inntekt, men ikke i Timer (timer vises kun for kontrollpunkter for å bevare semantikk). Tooltip/hjelpetekst forklarer.
-
-### 5. Persistens i denne iterasjonen
-Lagres i samme `useState` som resten av seleksjonene — ingen DB-endringer nå. (Kan kobles til backend senere når tilbudsmodulen får sin egen tabell.)
-
-## Tekniske detaljer
-
-- Fil som endres: `src/components/msp/FrameworkCoverageCard.tsx`, `src/components/msp/MSPServiceCatalogTab.tsx` (oppdatert state-form), og evt. `MSPCustomerOpportunityCard.tsx` hvis den leser samme struktur.
-- Ingen nye dependencies.
-- `nanoid`/`crypto.randomUUID()` for `CustomCost.id`.
-- Semantiske tokens (`text-foreground`, `border-border`, `bg-muted/30`) — ingen hardkodede farger.
-
-## Spørsmål før implementasjon
-
-Ingen — flyt og UI er entydig nok. Sier ifra hvis du vil ha kostnadene synlige også når kortet er kollapset (f.eks. liten "+ N tillegg" chip i headeren).
+## Spørsmål før jeg bygger
+1. **Bevis-lagring nå:** OK å holde det i lokal state (demo) i denne runden, eller vil du at jeg samtidig setter opp `delivery_activity_evidence`-tabell + storage-bucket?
+2. **Kontrollpunkt-bevis:** Skal det også finnes en "Bekreft hele kontrollpunktet"-knapp (bulk-bekrefte alle aktiviteter med ett felles bevissett), eller kun per-aktivitet?
