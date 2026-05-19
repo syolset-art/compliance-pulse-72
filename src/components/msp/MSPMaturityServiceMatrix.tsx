@@ -236,6 +236,7 @@ const DELIVERIES: DeliveryItem[] = [
             owner: "Partner",
             date: "12. feb",
             laraSteps: ["Konfigurert phishing-mal", "Sendt til 142 mottakere", "Samlet klikk-statistikk"],
+            partnerSteps: ["Godkjent phishing-scenario før utsending", "Validert at HR-listen var fersk"],
           },
           {
             id: "a2",
