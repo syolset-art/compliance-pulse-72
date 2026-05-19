@@ -190,6 +190,7 @@ export default function MSPDashboard() {
   const [serviceFilter, setServiceFilter] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("customer_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [campaignView, setCampaignView] = useState<"all" | "framework" | "service">("all");
   const queryClient = useQueryClient();
 
   const { data: customers = [], refetch } = useQuery({
@@ -527,15 +528,25 @@ export default function MSPDashboard() {
             <TabsContent value="campaigns" className="mt-5 space-y-5">
               {(() => {
                 const pool = DEMO_CAMPAIGN_CUSTOMERS;
-                const segmentsWithMatches = CAMPAIGN_SEGMENTS
+                const allSegments = CAMPAIGN_SEGMENTS
                   .map((s) => ({ segment: s, matches: pool.filter((c) => s.predicate(c)) }))
                   .filter((x) => x.matches.length > 0)
                   .sort((a, b) => b.matches.length - a.matches.length);
+
+                const segmentsWithMatches = campaignView === "all"
+                  ? allSegments
+                  : allSegments.filter((x) => x.segment.category === campaignView);
 
                 const byCategory = segmentsWithMatches.reduce<Record<string, typeof segmentsWithMatches>>((acc, item) => {
                   (acc[item.segment.category] ??= []).push(item);
                   return acc;
                 }, {});
+
+                const viewOptions: { value: typeof campaignView; label: string; count: number }[] = [
+                  { value: "all", label: "Alle", count: allSegments.length },
+                  { value: "framework", label: "Regelverk", count: allSegments.filter((x) => x.segment.category === "framework").length },
+                  { value: "service", label: "Tjenester", count: allSegments.filter((x) => x.segment.category === "service").length },
+                ];
 
                 return (
                   <>
@@ -544,7 +555,7 @@ export default function MSPDashboard() {
                         <Sparkles className="h-4 w-4 text-primary" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground">Lara fant {segmentsWithMatches.length} aktuelle kampanjer</p>
+                        <p className="text-sm font-semibold text-foreground">Lara fant {allSegments.length} aktuelle kampanjer</p>
                         <p className="text-[13px] text-muted-foreground mt-0.5">
                           Basert på kundeporteføljen — gap, modenhet, tjenester og aktivitet. Klikk en kampanje for å starte utsendelsen.
                         </p>
@@ -553,6 +564,26 @@ export default function MSPDashboard() {
                         <Megaphone className="h-3.5 w-3.5" /> Ny kampanje
                       </Button>
                     </Card>
+
+                    <div className="inline-flex rounded-md border border-border bg-background overflow-hidden">
+                      {viewOptions.map((opt, i) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setCampaignView(opt.value)}
+                          className={cn(
+                            "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm transition-colors",
+                            i > 0 && "border-l border-border",
+                            campaignView === opt.value ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50",
+                          )}
+                          aria-pressed={campaignView === opt.value}
+                        >
+                          {opt.label}
+                          <span className="text-[11px] text-muted-foreground tabular-nums">({opt.count})</span>
+                        </button>
+                      ))}
+                    </div>
+
 
                     {Object.entries(byCategory).map(([cat, items]) => (
                       <div key={cat} className="space-y-2">
