@@ -50,6 +50,10 @@ export default function MSPCustomerDetail() {
     enabled: !!customerId,
   });
 
+  const { deliveries: questionnaireDeliveries } = useQuestionnaireDeliveries();
+
+
+
 
   if (isLoading) {
     return (
@@ -194,10 +198,10 @@ export default function MSPCustomerDetail() {
 
               {/* 1) Partner-snapshot — bruker reelle svar når kunden har fullført spørreskjema */}
               {(() => {
-                const { deliveries } = useQuestionnaireDeliveries();
-                const completed = deliveries
+                const completed = questionnaireDeliveries
                   .filter((d) => d.customerId === customerId && d.status === "completed")
                   .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? ""))[0];
+
                 const realScore = completed
                   ? scoreDelivery(completed, getQuestionnaire(completed.questionnaireId).totalQuestions)
                   : null;
