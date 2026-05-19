@@ -114,6 +114,26 @@ export default {
           foreground: "hsl(var(--system-owned-foreground))",
           soft: "hsl(var(--system-owned-soft))",
         },
+        "crit-low": {
+          DEFAULT: "hsl(var(--crit-low))",
+          soft: "hsl(var(--crit-low-soft))",
+          fg: "hsl(var(--crit-low-fg))",
+        },
+        "crit-moderate": {
+          DEFAULT: "hsl(var(--crit-moderate))",
+          soft: "hsl(var(--crit-moderate-soft))",
+          fg: "hsl(var(--crit-moderate-fg))",
+        },
+        "crit-high": {
+          DEFAULT: "hsl(var(--crit-high))",
+          soft: "hsl(var(--crit-high-soft))",
+          fg: "hsl(var(--crit-high-fg))",
+        },
+        "crit-critical": {
+          DEFAULT: "hsl(var(--crit-critical))",
+          soft: "hsl(var(--crit-critical-soft))",
+          fg: "hsl(var(--crit-critical-fg))",
+        },
         "system-phasing": {
           DEFAULT: "hsl(var(--system-phasing))",
           foreground: "hsl(var(--system-phasing-foreground))",
