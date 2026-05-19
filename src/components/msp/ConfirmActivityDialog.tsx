@@ -63,6 +63,7 @@ export const ConfirmActivityDialog = ({
   const [note, setNote] = useState("");
   const [files, setFiles] = useState<EvidenceFileMeta[]>([]);
   const [shared, setShared] = useState(true);
+  const [status, setStatus] = useState<ActivityStatus>("done");
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -71,6 +72,7 @@ export const ConfirmActivityDialog = ({
       setNote(initial?.note ?? "");
       setFiles(initial?.files ?? []);
       setShared(initial?.sharedWithCustomer ?? true);
+      setStatus(initial?.status ?? "in_progress");
     }
   }, [open, initial]);
 
