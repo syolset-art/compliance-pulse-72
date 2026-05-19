@@ -99,6 +99,7 @@ export default function VendorDashboard() {
               </span>
             </div>
             <div className="flex items-center gap-2">
+              <VendorPortfolioActions vendors={vendors} />
               <Button
                 onClick={() => {
                   if (!isPremium && vendors.length >= MAX_FREE_VENDORS) {
@@ -137,9 +138,6 @@ export default function VendorDashboard() {
                 <TabsTrigger value="supplyChain" className="text-sm px-3">{t("vendorDashboard.tabs.supplyChain")}</TabsTrigger>
                 <TabsTrigger value="compare" className="text-sm px-3">{t("vendorDashboard.tabs.compare")}</TabsTrigger>
               </TabsList>
-              <div className="flex items-center gap-2">
-                <VendorPortfolioActions vendors={vendors} />
-              </div>
             </div>
 
             <TabsContent value="overview">
