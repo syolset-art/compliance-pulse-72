@@ -255,18 +255,11 @@ export default function MSPDashboard() {
                     className="pl-9"
                   />
                 </div>
-                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-                  <SelectTrigger className="w-full md:w-[180px]">
-                    <SelectValue placeholder="Alle statuser" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Alle statuser</SelectItem>
-                    <SelectItem value="draft">Utkast</SelectItem>
-                    <SelectItem value="onboarding">Onboarding</SelectItem>
-                    <SelectItem value="active">Aktiv</SelectItem>
-                    <SelectItem value="inactive">Inaktiv</SelectItem>
-                  </SelectContent>
-                </Select>
+                {activeFilterCount > 0 && (
+                  <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1.5 text-muted-foreground">
+                    <X className="h-3.5 w-3.5" /> Nullstill filtre ({activeFilterCount})
+                  </Button>
+                )}
                 <div className="inline-flex rounded-md border border-border bg-background overflow-hidden md:ml-auto">
                   <button
                     type="button"
