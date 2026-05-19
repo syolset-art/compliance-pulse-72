@@ -119,6 +119,41 @@ export const ConfirmActivityDialog = ({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
+          {!readOnly && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Status</label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {([
+                  { v: "in_progress", label: "Pågår", Icon: Clock },
+                  { v: "not_relevant", label: "Ikke relevant", Icon: MinusCircle },
+                  { v: "done", label: "Ferdig", Icon: CheckCircle2 },
+                ] as const).map(({ v, label, Icon }) => {
+                  const active = status === v;
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setStatus(v)}
+                      className={cn(
+                        "h-9 rounded-md border text-xs font-medium flex items-center justify-center gap-1.5 transition-colors",
+                        active
+                          ? v === "done"
+                            ? "bg-success/10 text-success border-success/40"
+                            : v === "not_relevant"
+                              ? "bg-muted text-foreground border-border"
+                              : "bg-warning/10 text-warning border-warning/40"
+                          : "bg-background text-muted-foreground border-border hover:text-foreground",
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
               Notat til kunde {readOnly ? "" : "(valgfritt)"}
