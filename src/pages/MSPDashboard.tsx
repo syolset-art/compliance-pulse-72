@@ -202,6 +202,7 @@ export default function MSPDashboard() {
     const q = search.trim().toLowerCase();
     const list = (customers as any[]).filter((c) => {
       if (industryFilter.length && !industryFilter.includes(c.industry)) return false;
+      if (countryCodeFilter.length && !countryCodeFilter.includes(c.country_code || "NO")) return false;
       if (criticalityFilter.length && !criticalityFilter.includes(deriveCriticality(c).key)) return false;
       if (tpStatusFilter.length && !tpStatusFilter.includes(deriveTPStatus(c))) return false;
       if (serviceFilter.length) {
@@ -228,7 +229,7 @@ export default function MSPDashboard() {
       return (ao - bo) * dir;
     });
     return sorted;
-  }, [customers, search, industryFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir]);
+  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir]);
 
   const clearAllFilters = () => {
     setIndustryFilter([]);
