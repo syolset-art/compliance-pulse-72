@@ -183,6 +183,11 @@ interface DeliveryActivity {
   done: boolean;
   owner?: TaskOwner;
   date?: string;
+  confirmedAt?: string;
+  confirmedBy?: string;
+  note?: string;
+  evidence?: EvidenceFileMeta[];
+  sharedWithCustomer?: boolean;
 }
 
 interface DeliveryControl {
