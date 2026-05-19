@@ -251,15 +251,15 @@ export const ConfirmActivityDialog = ({
             )}
           </div>
 
-          {!readOnly && (
-            <div className="flex items-start gap-2.5 rounded-lg border border-primary/30 bg-primary/5 p-3">
-              <ShieldCheck className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          {!readOnly && status === "done" && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-success/30 bg-success/5 p-3">
+              <ShieldCheck className="h-4 w-4 text-success mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-foreground">
-                  Sendes til kunden for godkjenning
+                  Klar for sluttrapport
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Du kan ikke berike kundens Trust Profile direkte. Kunden mottar rapporten på melding og må godkjenne den før modenhetsscoren oppdateres.
+                  Når alle aktivitetene i tilbudet er ferdige, kan du generere en samlet sluttrapport til kunden.
                 </p>
               </div>
             </div>
