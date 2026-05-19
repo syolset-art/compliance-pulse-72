@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, TrendingUp, Plus, Trash2 } from "lucide-react";
+import { Sparkles, TrendingUp, Plus, Trash2, ChevronDown, ChevronUp, Settings2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   FRAMEWORK_CATALOG,
@@ -13,10 +13,9 @@ import {
   FrameworkCoverageCard,
   type FrameworkSelection,
 } from "./FrameworkCoverageCard";
-import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping } from "./CustomServiceDialog";
-import type { PartnerService } from "@/lib/serviceCatalog";
-
+import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
+import type { ServiceTemplate, PartnerContext } from "@/lib/serviceLibrary";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -26,7 +25,10 @@ interface ExtraService {
   description?: string;
   hours: number;
   fixedPrice?: number;
-  source: "lara" | "manual";
+  source: "library" | "manual";
+  templateCode?: string;
+  templateId?: string;
+  templateVersion?: string;
   mappings: ServiceMapping[];
 }
 
@@ -36,9 +38,9 @@ function formatNOK(n: number): string {
 
 export function MSPServiceCatalogTab() {
   const [hourlyRate, setHourlyRate] = useState<number>(1500);
-  const [laraOpen, setLaraOpen] = useState(false);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>([]);
+  const [showCalculator, setShowCalculator] = useState(false);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -61,66 +63,88 @@ export function MSPServiceCatalogTab() {
     let h = 0;
     let p = 0;
     let n = 0;
-    FRAMEWORK_CATALOG.forEach((fw) => {
-      const sel = selections[fw.id];
-      if (!sel) return;
-      let fwHours = 0;
-      let fwPrice = 0;
-      let fwActive = false;
-      const controls = sel.controls ?? {};
-      fw.controlPoints.forEach((cp) => {
-        const s = controls[cp.id];
-        if (s?.enabled) {
-          fwHours += s.hours;
-          fwPrice += s.hours * hourlyRate;
-          fwActive = true;
-        }
+    if (showCalculator) {
+      FRAMEWORK_CATALOG.forEach((fw) => {
+        const sel = selections[fw.id];
+        if (!sel) return;
+        let fwHours = 0;
+        let fwPrice = 0;
+        let fwActive = false;
+        const controls = sel.controls ?? {};
+        fw.controlPoints.forEach((cp) => {
+          const s = controls[cp.id];
+          if (s?.enabled) {
+            fwHours += s.hours;
+            fwPrice += s.hours * hourlyRate;
+            fwActive = true;
+          }
+        });
+        (sel.customCosts ?? []).forEach((c) => {
+          if (c.includeInOffer) {
+            fwPrice += c.kind === "fixed" ? c.amount : c.amount * (c.hours ?? 0);
+            fwActive = true;
+          }
+        });
+        h += fwHours;
+        p += fwPrice;
+        if (fwActive) n += 1;
       });
-      (sel.customCosts ?? []).forEach((c) => {
-        if (c.includeInOffer) {
-          fwPrice += c.kind === "fixed" ? c.amount : c.amount * (c.hours ?? 0);
-          fwActive = true;
-        }
-      });
-      h += fwHours;
-      p += fwPrice;
-      if (fwActive) n += 1;
-    });
+    }
     extras.forEach((e) => {
       h += e.hours;
       p += e.fixedPrice ?? e.hours * hourlyRate;
     });
     return { grandHours: h, grandPrice: p, frameworksActive: n };
-  }, [selections, hourlyRate, extras]);
+  }, [selections, hourlyRate, extras, showCalculator]);
 
-  const handleLaraComplete = (suggestions: PartnerService[]) => {
-    const imported: ExtraService[] = suggestions.map((s) => {
-      const isFixed = s.priceModel === "fixed" || s.priceModel === "monthly";
-      const mappings: ServiceMapping[] = (s.frameworkMappings ?? []).flatMap((m) => {
-        const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
-        return m.controlIds.map((cid) => {
-          const cp = fw?.controlPoints.find((c) => c.id === cid);
-          return {
-            frameworkId: m.frameworkId,
-            frameworkShortName: fw?.shortName ?? m.frameworkLabel,
-            controlId: cid,
-            controlLabel: cp?.label ?? cid,
-          };
-        });
+  const adoptedIds = useMemo(
+    () => new Set(extras.map((e) => e.templateId).filter(Boolean) as string[]),
+    [extras],
+  );
+
+  // Partner-kontekst for Lara-kuratering. Pr nå statisk;
+  // kan kobles til useMSPCustomers senere.
+  const partnerContext: PartnerContext = useMemo(
+    () => ({
+      partnerType: undefined,
+      activeScopes: ["NO", "EU", "global"],
+    }),
+    [],
+  );
+
+  const adoptTemplate = (template: ServiceTemplate) => {
+    if (adoptedIds.has(template.id)) return;
+    const hoursAvg = Math.round((template.estimatedHours.min + template.estimatedHours.max) / 2);
+    const priceAvg = Math.round((template.recommendedPrice.min + template.recommendedPrice.max) / 2);
+    const isFixed = template.recommendedPrice.model !== "quote";
+    const mappings: ServiceMapping[] = template.mappings.flatMap((m) => {
+      const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
+      return m.controlIds.map((cid) => {
+        const cp = fw?.controlPoints.find((c) => c.id === cid);
+        return {
+          frameworkId: m.frameworkId,
+          frameworkShortName: fw?.shortName ?? m.frameworkLabel,
+          controlId: cid,
+          controlLabel: cp?.label ?? cid,
+        };
       });
-      return {
-        id: s.id,
-        name: s.name,
-        description: s.description,
-        hours: s.priceModel === "hourly" && s.price ? s.price : 8,
-        fixedPrice: isFixed ? s.price : undefined,
-        source: "lara" as const,
-        mappings,
-      };
     });
-    setExtras((prev) => [...prev, ...imported]);
-    setLaraOpen(false);
-    toast.success(`${imported.length} tjenester importert fra Laras forslag`);
+    const next: ExtraService = {
+      id: `adopt-${template.id}-${Date.now()}`,
+      name: template.name,
+      description: template.shortDescription,
+      hours: hoursAvg,
+      fixedPrice: isFixed ? priceAvg : undefined,
+      source: "library",
+      templateCode: template.code,
+      templateId: template.id,
+      templateVersion: template.version,
+      mappings,
+    };
+    setExtras((prev) => [...prev, next]);
+    toast.success(`${template.code} · ${template.name} adoptert`, {
+      description: "Tilpass navn, pris og aktiviteter etter behov i tilbudet.",
+    });
   };
 
   const handleManualSave = (draft: CustomServiceDraft) => {
@@ -137,36 +161,15 @@ export function MSPServiceCatalogTab() {
     toast.success(`"${draft.name}" lagt til i katalogen`);
   };
 
-
   const removeExtra = (id: string) => {
     setExtras((prev) => prev.filter((e) => e.id !== id));
   };
 
   return (
     <div className="space-y-4">
-      {/* Handlingsknapper — øverst til høyre */}
-      <div className="flex justify-end gap-2">
-        <Button
-          onClick={() => setLaraOpen(true)}
-          className="gap-2 bg-gradient-to-r from-primary to-primary/80"
-        >
-          <Sparkles className="h-4 w-4" />
-          Forslag fra Lara
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => setManualOpen(true)}
-          className="gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          Legg til egen tjeneste
-        </Button>
-      </div>
-
       {/* Toppkort: timepris + samlet inntektspotensial */}
       <Card className="p-5 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background">
         <div className="grid items-end gap-4 md:grid-cols-[260px_1fr_auto]">
-          {/* Timepris */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               Din timepris
@@ -177,81 +180,80 @@ export function MSPServiceCatalogTab() {
                 min={0}
                 step={50}
                 value={hourlyRate}
-                onChange={(e) =>
-                  setHourlyRate(Math.max(0, Number(e.target.value) || 0))
-                }
+                onChange={(e) => setHourlyRate(Math.max(0, Number(e.target.value) || 0))}
                 className="h-11 text-lg font-semibold tabular-nums"
               />
               <span className="text-sm text-muted-foreground whitespace-nowrap">kr / time</span>
             </div>
-            <p className="text-[11px] text-muted-foreground">
-              Brukes som standard for alle regelverk under.
-            </p>
+            <p className="text-[11px] text-muted-foreground">Brukes som grunnlag i alle estimat under.</p>
           </div>
 
-          {/* Forklaring */}
           <div className="space-y-1">
             <p className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
               <Sparkles className="h-4 w-4 text-primary" />
-              Si hva dere leverer — Lara regner ut inntektspotensialet
+              Adopter ferdige tjenester fra Mynders bibliotek
             </p>
             <p className="text-[12px] text-muted-foreground leading-relaxed">
-              Slå på regelverkene dere leverer på, hak av kontrollpunkter, og velg dekningsnivå:
-              <span className="font-medium text-foreground"> Gap-analyse</span>,
-              <span className="font-medium text-foreground"> Delvis dekning</span> eller
-              <span className="font-medium text-foreground"> Full dekning</span>.
-              Lara foreslår timetall — du kan justere fritt.
+              19 kuraterte tjenester på tvers av <span className="font-medium text-foreground">universell basis</span>,
+              <span className="font-medium text-foreground"> MSP</span> og <span className="font-medium text-foreground">MSSP</span> — pluss
+              land-spesifikke for NO/SE/NL/AU. Lara sorterer etter partnertype og kundeportefølje. Du kan også legge til
+              egne tjenester.
             </p>
           </div>
 
-          {/* Totalt inntektspotensial */}
           <div className="text-right md:border-l md:border-border md:pl-4">
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1 justify-end">
               <TrendingUp className="h-3 w-3" /> Samlet potensial
             </div>
-            <div className="text-2xl font-bold text-foreground tabular-nums">
-              {formatNOK(grandPrice)}
-            </div>
+            <div className="text-2xl font-bold text-foreground tabular-nums">{formatNOK(grandPrice)}</div>
             <div className="text-[11px] text-muted-foreground tabular-nums">
-              {grandHours} timer · {frameworksActive} regelverk{extras.length > 0 ? ` · ${extras.length} egne` : ""}
+              {grandHours} timer · {extras.length} adoptert{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
             </div>
           </div>
         </div>
       </Card>
 
-      {/* Egne / importerte tjenester */}
+      {/* Handlingsknapper */}
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={() => setManualOpen(true)} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Legg til egen tjeneste
+        </Button>
+      </div>
+
+      {/* Adopterte / egne tjenester */}
       {extras.length > 0 && (
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground">
-              Egne tjenester ({extras.length})
-            </h3>
+            <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
+            <span className="text-[11px] text-muted-foreground">Tilpass pris og aktiviteter i selve tilbudet</span>
           </div>
           <div className="space-y-2">
             {extras.map((e) => {
               const price = e.fixedPrice ?? e.hours * hourlyRate;
               return (
-                <div
-                  key={e.id}
-                  className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2"
-                >
+                <div key={e.id} className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
+                      {e.templateCode && (
+                        <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                          {e.templateCode}
+                        </span>
+                      )}
                       <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
                       <Badge variant="secondary" className="text-[10px] gap-1 h-5">
-                        {e.source === "lara" ? (
-                          <><Sparkles className="h-3 w-3" /> Lara</>
-                        ) : (
-                          "Manuell"
-                        )}
+                        {e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Bibliotek</>) : "Manuell"}
                       </Badge>
+                      {e.templateVersion && (
+                        <span className="text-[10px] text-muted-foreground">v{e.templateVersion}</span>
+                      )}
                     </div>
                     {e.description && (
                       <p className="text-[11px] text-muted-foreground truncate">{e.description}</p>
                     )}
                     {e.mappings.length > 0 && (
                       <div className="flex flex-wrap items-center gap-1 mt-1">
-                        {e.mappings.map((m, i) => (
+                        {e.mappings.slice(0, 6).map((m, i) => (
                           <span
                             key={i}
                             className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground"
@@ -261,12 +263,14 @@ export function MSPServiceCatalogTab() {
                             <span>{m.controlId}</span>
                           </span>
                         ))}
+                        {e.mappings.length > 6 && (
+                          <span className="text-[10px] text-muted-foreground">+{e.mappings.length - 6}</span>
+                        )}
                       </div>
                     )}
                     <p className="text-[11px] text-muted-foreground tabular-nums mt-1">
                       {e.fixedPrice ? "Fast pris" : `${e.hours} timer × ${hourlyRate.toLocaleString("nb-NO")} kr`}
                     </p>
-
                   </div>
                   <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
                     {formatNOK(price)}
@@ -287,27 +291,43 @@ export function MSPServiceCatalogTab() {
         </Card>
       )}
 
-      {/* Regelverk-liste */}
-      <div className="space-y-2">
-        {FRAMEWORK_CATALOG.map((fw) => (
-          <FrameworkCoverageCard
-            key={fw.id}
-            framework={fw}
-            hourlyRate={hourlyRate}
-            selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
-            onSelectionChange={(next) =>
-              setSelections((prev) => ({ ...prev, [fw.id]: next }))
-            }
-          />
-        ))}
-      </div>
-
-      <MSPLaraServiceWizard
-        open={laraOpen}
-        onOpenChange={setLaraOpen}
-        onComplete={handleLaraComplete}
-        onSkip={() => setLaraOpen(false)}
+      {/* Bibliotek */}
+      <ServiceLibraryBrowser
+        context={partnerContext}
+        adoptedIds={adoptedIds}
+        onAdopt={adoptTemplate}
       />
+
+      {/* Avansert: bygg fra regelverk */}
+      <div className="pt-2">
+        <button
+          type="button"
+          onClick={() => setShowCalculator((v) => !v)}
+          className="inline-flex items-center gap-2 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <Settings2 className="h-3.5 w-3.5" />
+          Avansert: bygg fra regelverk og kontrollpunkter
+          {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+        </button>
+        {showCalculator && (
+          <div className="space-y-2 mt-3">
+            <p className="text-[11px] text-muted-foreground italic">
+              Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
+            </p>
+            {FRAMEWORK_CATALOG.map((fw) => (
+              <FrameworkCoverageCard
+                key={fw.id}
+                framework={fw}
+                hourlyRate={hourlyRate}
+                selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
+                onSelectionChange={(next) =>
+                  setSelections((prev) => ({ ...prev, [fw.id]: next }))
+                }
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <CustomServiceDialog
         open={manualOpen}
