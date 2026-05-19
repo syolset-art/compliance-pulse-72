@@ -189,7 +189,8 @@ export function MSPCreateOfferDialog({
   };
 
   const handleSaveOffer = () => {
-    onOpenChange(false);
+    setSavedAt(new Date().toLocaleString("nb-NO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }));
+    setView("saved");
     toast.success("Tilbud lagret", {
       description: `${offerNumber} er lagret under kundens tilbud.`,
     });
