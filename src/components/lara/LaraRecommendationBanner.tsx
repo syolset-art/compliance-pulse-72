@@ -170,13 +170,87 @@ export function LaraRecommendationBanner({
               : `${totalCount} task${totalCount === 1 ? "" : "s"} total — starting with the ${total} most critical · ~${total * 3} min`}
           </p>
         </div>
-        <button
-          onClick={() => setShowPlan(false)}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
-        >
-          {isNb ? "Lukk" : "Close"}
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          <div className="inline-flex items-center rounded-full border border-border bg-card p-0.5">
+            <button
+              onClick={() => setViewMode("single")}
+              className={cn(
+                "inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-xs transition-colors",
+                viewMode === "single" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              )}
+              title={isNb ? "Én og én" : "One by one"}
+            >
+              <LayoutList className="h-3.5 w-3.5" />
+              {isNb ? "Én og én" : "One by one"}
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={cn(
+                "inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-xs transition-colors",
+                viewMode === "table" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              )}
+              title={isNb ? "Tabell" : "Table"}
+            >
+              <TableIcon className="h-3.5 w-3.5" />
+              {isNb ? "Tabell" : "Table"}
+            </button>
+          </div>
+          <button
+            onClick={() => setShowPlan(false)}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors px-2"
+          >
+            {isNb ? "Lukk" : "Close"}
+          </button>
+        </div>
       </div>
+
+      {viewMode === "table" ? (
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">{isNb ? "Alvorlighet" : "Severity"}</TableHead>
+                <TableHead>{isNb ? "Anbefaling" : "Recommendation"}</TableHead>
+                <TableHead className="w-[160px]">{isNb ? "Kategori" : "Category"}</TableHead>
+                <TableHead className="w-[220px] text-right">{isNb ? "Handlinger" : "Actions"}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {visibleTasks.map((t) => {
+                const s = severityChip(t.severity);
+                return (
+                  <TableRow key={t.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        <span className={cn("h-2 w-2 rounded-full", s.dot)} />
+                        <span className={cn("text-[11px] font-bold tracking-wider", s.text)}>{s.label}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm font-medium text-foreground">{t.title}</div>
+                      <div className="text-[12px] text-muted-foreground mt-0.5 line-clamp-2">{t.insight}</div>
+                    </TableCell>
+                    <TableCell className="text-[12px] text-muted-foreground">{t.category ?? "—"}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                        <Button size="sm" className="h-7 rounded-full text-xs" onClick={() => onPrimaryAction(t)}>
+                          {isNb ? (t.primaryCtaLabelNb ?? "Be Lara håndtere") : (t.primaryCtaLabelEn ?? "Ask Lara")}
+                        </Button>
+                        {onSecondaryAction && (
+                          <Button size="sm" variant="outline" className="h-7 rounded-full text-xs" onClick={() => onSecondaryAction(t)}>
+                            {isNb ? (t.secondaryCtaLabelNb ?? "Åpne") : (t.secondaryCtaLabelEn ?? "Open")}
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (<>
+
 
       {/* Step dots */}
       <div className="flex items-center justify-center gap-1.5">
