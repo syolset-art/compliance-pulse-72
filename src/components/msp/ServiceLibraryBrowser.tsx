@@ -214,13 +214,14 @@ function FilterSelect({
 }
 
 function TemplateCard({
-  template, adopted, onAdopt, reasons, highlighted,
+  template, adopted, onAdopt, reasons, highlighted, hourlyRate,
 }: {
   template: ServiceTemplate;
   adopted: boolean;
   onAdopt: () => void;
   reasons?: string[];
   highlighted?: boolean;
+  hourlyRate: number;
 }) {
   return (
     <Card className={cn(
