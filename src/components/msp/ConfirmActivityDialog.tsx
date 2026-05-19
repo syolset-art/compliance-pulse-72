@@ -212,24 +212,17 @@ export const ConfirmActivityDialog = ({
           </div>
 
           {!readOnly && (
-            <label className="flex items-start gap-2.5 rounded-lg border border-border bg-muted/20 p-3 cursor-pointer">
-              <Checkbox
-                checked={shared}
-                onCheckedChange={(v) => setShared(v === true)}
-                className="mt-0.5"
-              />
+            <div className="flex items-start gap-2.5 rounded-lg border border-primary/30 bg-primary/5 p-3">
+              <ShieldCheck className="h-4 w-4 text-primary mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs font-medium text-foreground">
-                    Del med kunden som del av Trust Profile
-                  </span>
-                </div>
+                <p className="text-xs font-medium text-foreground">
+                  Sendes til kunden for godkjenning
+                </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  Bevisene blir synlige under «Dokumenter og bevis» og styrker modenhetsscoren.
+                  Du kan ikke berike kundens Trust Profile direkte. Kunden mottar rapporten på melding og må godkjenne den før modenhetsscoren oppdateres.
                 </p>
               </div>
-            </label>
+            </div>
           )}
         </div>
 
@@ -243,14 +236,15 @@ export const ConfirmActivityDialog = ({
               </Button>
               <Button
                 onClick={() => {
-                  onConfirm?.({ note, files, sharedWithCustomer: shared });
+                  onConfirm?.({ note, files, sharedWithCustomer: true });
                   onOpenChange(false);
                 }}
                 className="gap-1.5"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Bekreft og berik Trust Profile
+                Send til kunde for godkjenning
               </Button>
+
             </>
           )}
         </DialogFooter>
