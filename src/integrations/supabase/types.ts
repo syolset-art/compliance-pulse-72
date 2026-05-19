@@ -1970,6 +1970,7 @@ export type Database = {
           contact_compliance_role: string | null
           contact_email: string | null
           contact_person: string | null
+          country_code: string | null
           created_at: string | null
           customer_name: string
           employees: string | null
@@ -1993,6 +1994,7 @@ export type Database = {
           contact_compliance_role?: string | null
           contact_email?: string | null
           contact_person?: string | null
+          country_code?: string | null
           created_at?: string | null
           customer_name: string
           employees?: string | null
@@ -2016,6 +2018,7 @@ export type Database = {
           contact_compliance_role?: string | null
           contact_email?: string | null
           contact_person?: string | null
+          country_code?: string | null
           created_at?: string | null
           customer_name?: string
           employees?: string | null

@@ -2,15 +2,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { LICENSE_TIERS, getDiscountPercent } from "./mspLicenseUtils";
 
 const DEMO_CUSTOMERS = [
-  { customer_name: "Bergen Energi AS", industry: "Energi", employees: "51-200", compliance_score: 78, status: "active", subscription_plan: "Premium", org_number: "987654321", contact_person: "Erik Solheim", contact_email: "erik@bergenenergi.no" },
-  { customer_name: "Fjordtech Solutions", industry: "Teknologi", employees: "11-50", compliance_score: 92, status: "active", subscription_plan: "Basis", org_number: "912345678", contact_person: "Kari Fjord", contact_email: "kari@fjordtech.no" },
-  { customer_name: "Vest Helse Klinikk", industry: "Helse", employees: "11-50", compliance_score: 65, status: "active", subscription_plan: "Premium", org_number: "923456789", contact_person: "Maria Hansen", contact_email: "maria@vesthelse.no" },
-  { customer_name: "Kystbygg Entreprenør", industry: "Bygg og anlegg", employees: "201-500", compliance_score: 45, status: "onboarding", subscription_plan: "Basis", org_number: "934567890", contact_person: "Anders Berg", contact_email: "anders@kystbygg.no" },
-  { customer_name: "NordFinans Rådgivning", industry: "Finans", employees: "1-10", compliance_score: 88, status: "active", subscription_plan: "Premium", org_number: "945678901", contact_person: "Johan Nordahl", contact_email: "johan@nordfinans.no" },
-  { customer_name: "Stavanger Logistikk", industry: "Transport", employees: "51-200", compliance_score: 52, status: "active", subscription_plan: "Basis", org_number: "956789012", contact_person: "Lisa Strand", contact_email: "lisa@stavangerlogistikk.no" },
-  { customer_name: "Larvik Handel AS", industry: "Handel", employees: "11-50", compliance_score: 35, status: "inactive", subscription_plan: "Basis", org_number: "967890123", contact_person: "Thomas Larsen", contact_email: "thomas@larvikhandel.no" },
-  { customer_name: "Digitale Løsninger Nord", industry: "Teknologi", employees: "51-200", compliance_score: 85, status: "active", subscription_plan: "Premium", org_number: "978901234", contact_person: "Sarah Nilsen", contact_email: "sarah@dlnord.no" },
-  { customer_name: "Tromsø Utdanning", industry: "Utdanning", employees: "201-500", compliance_score: 71, status: "onboarding", subscription_plan: "Basis", org_number: "989012345", contact_person: "Ole Karlsen", contact_email: "ole@tromsoutdanning.no" },
+  { customer_name: "Bergen Energi AS", industry: "Energi", employees: "51-200", compliance_score: 78, status: "active", subscription_plan: "Premium", org_number: "987654321", contact_person: "Erik Solheim", contact_email: "erik@bergenenergi.no", country_code: "NO" },
+  { customer_name: "Fjordtech Solutions", industry: "Teknologi", employees: "11-50", compliance_score: 92, status: "active", subscription_plan: "Basis", org_number: "912345678", contact_person: "Kari Fjord", contact_email: "kari@fjordtech.no", country_code: "NO" },
+  { customer_name: "Vest Helse Klinikk", industry: "Helse", employees: "11-50", compliance_score: 65, status: "active", subscription_plan: "Premium", org_number: "923456789", contact_person: "Maria Hansen", contact_email: "maria@vesthelse.no", country_code: "NO" },
+  { customer_name: "Kystbygg Entreprenør", industry: "Bygg og anlegg", employees: "201-500", compliance_score: 45, status: "onboarding", subscription_plan: "Basis", org_number: "934567890", contact_person: "Anders Berg", contact_email: "anders@kystbygg.no", country_code: "NO" },
+  { customer_name: "NordFinans Rådgivning", industry: "Finans", employees: "1-10", compliance_score: 88, status: "active", subscription_plan: "Premium", org_number: "945678901", contact_person: "Johan Nordahl", contact_email: "johan@nordfinans.no", country_code: "SE" },
+  { customer_name: "Stavanger Logistikk", industry: "Transport", employees: "51-200", compliance_score: 52, status: "active", subscription_plan: "Basis", org_number: "956789012", contact_person: "Lisa Strand", contact_email: "lisa@stavangerlogistikk.no", country_code: "NO" },
+  { customer_name: "Larvik Handel AS", industry: "Handel", employees: "11-50", compliance_score: 35, status: "inactive", subscription_plan: "Basis", org_number: "967890123", contact_person: "Thomas Larsen", contact_email: "thomas@larvikhandel.no", country_code: "DK" },
+  { customer_name: "Digitale Løsninger Nord", industry: "Teknologi", employees: "51-200", compliance_score: 85, status: "active", subscription_plan: "Premium", org_number: "978901234", contact_person: "Sarah Nilsen", contact_email: "sarah@dlnord.no", country_code: "NO" },
+  { customer_name: "Tromsø Utdanning", industry: "Utdanning", employees: "201-500", compliance_score: 71, status: "onboarding", subscription_plan: "Basis", org_number: "989012345", contact_person: "Ole Karlsen", contact_email: "ole@tromsoutdanning.no", country_code: "NO" },
 ];
 
 const DEMO_USER_ID = "00000000-0000-0000-0000-000000000000";

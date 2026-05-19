@@ -87,7 +87,7 @@ function deriveNeededServices(c: any): string[] {
   return services.slice(0, 3);
 }
 
-type SortKey = "customer_name" | "tp_status";
+type SortKey = "customer_name" | "country_code" | "tp_status";
 type SortDir = "asc" | "desc";
 
 function ColumnFilter({
@@ -164,6 +164,7 @@ export default function MSPDashboard() {
   const [view, setView] = useState<ViewMode>("cards");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
+  const [countryCodeFilter, setCountryCodeFilter] = useState<string[]>([]);
   const [criticalityFilter, setCriticalityFilter] = useState<string[]>([]);
   const [tpStatusFilter, setTpStatusFilter] = useState<TPStatusKey[]>([]);
   const [serviceFilter, setServiceFilter] = useState<string[]>([]);
@@ -188,6 +189,10 @@ export default function MSPDashboard() {
     () => Array.from(new Set((customers as any[]).map((c) => c.industry).filter(Boolean))).sort(),
     [customers],
   );
+  const countryCodeOptions = useMemo(
+    () => Array.from(new Set((customers as any[]).map((c) => c.country_code || "NO").filter(Boolean))).sort(),
+    [customers],
+  );
   const serviceOptions = useMemo(
     () => Array.from(new Set((customers as any[]).flatMap((c) => deriveNeededServices(c)))).sort(),
     [customers],
@@ -197,6 +202,7 @@ export default function MSPDashboard() {
     const q = search.trim().toLowerCase();
     const list = (customers as any[]).filter((c) => {
       if (industryFilter.length && !industryFilter.includes(c.industry)) return false;
+      if (countryCodeFilter.length && !countryCodeFilter.includes(c.country_code || "NO")) return false;
       if (criticalityFilter.length && !criticalityFilter.includes(deriveCriticality(c).key)) return false;
       if (tpStatusFilter.length && !tpStatusFilter.includes(deriveTPStatus(c))) return false;
       if (serviceFilter.length) {
@@ -204,7 +210,7 @@ export default function MSPDashboard() {
         if (!serviceFilter.some((s) => svcs.includes(s))) return false;
       }
       if (!q) return true;
-      return [c.customer_name, c.industry, c.org_number, c.contact_email]
+      return [c.customer_name, c.industry, c.org_number, c.contact_email, c.country_code]
         .filter(Boolean)
         .some((v: string) => v.toLowerCase().includes(q));
     });
@@ -214,21 +220,25 @@ export default function MSPDashboard() {
       if (sortKey === "customer_name") {
         return (a.customer_name || "").localeCompare(b.customer_name || "", "nb") * dir;
       }
+      if (sortKey === "country_code") {
+        return (a.country_code || "NO").localeCompare(b.country_code || "NO", "nb") * dir;
+      }
       // tp_status
       const ao = TP_STATUS_ORDER[deriveTPStatus(a)] ?? 99;
       const bo = TP_STATUS_ORDER[deriveTPStatus(b)] ?? 99;
       return (ao - bo) * dir;
     });
     return sorted;
-  }, [customers, search, industryFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir]);
+  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir]);
 
   const clearAllFilters = () => {
     setIndustryFilter([]);
+    setCountryCodeFilter([]);
     setCriticalityFilter([]);
     setTpStatusFilter([]);
     setServiceFilter([]);
   };
-  const activeFilterCount = industryFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length;
+  const activeFilterCount = industryFilter.length + countryCodeFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -316,7 +326,7 @@ export default function MSPDashboard() {
                   <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Søk på navn, bransje, org.nr eller e-post"
+                    placeholder="Søk på navn, bransje, landskode, org.nr eller e-post"
                     className="pl-9"
                   />
                 </div>
@@ -386,6 +396,14 @@ export default function MSPDashboard() {
                         </TableHead>
                         <TableHead>
                           <ColumnFilter
+                            label="Landskode"
+                            options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
+                            selected={countryCodeFilter}
+                            onChange={setCountryCodeFilter}
+                          />
+                        </TableHead>
+                        <TableHead>
+                          <ColumnFilter
                             label="Kritikalitet"
                             options={[
                               { value: "high", label: "Høy" },
@@ -435,6 +453,7 @@ export default function MSPDashboard() {
                           >
                             <TableCell className="font-medium">{c.customer_name}</TableCell>
                             <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
+                            <TableCell className="text-muted-foreground tabular-nums">{c.country_code || "NO"}</TableCell>
                             <TableCell>
                               <Badge variant="outline" className={cn("font-normal", crit.tone)}>
                                 {crit.label}

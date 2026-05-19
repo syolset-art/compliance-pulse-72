@@ -76,6 +76,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     contact_email: "",
     contact_company_role: "",
     subscription_plan: "Gratis",
+    country_code: "NO",
   });
 
   // License info
@@ -114,7 +115,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setBulkText("");
     setBulkRows([]);
     setBulkSavedCount(0);
-    setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis" });
+    setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis", country_code: "NO" });
   }, []);
 
   useEffect(() => {
@@ -205,6 +206,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         contact_person: form.contact_person || null,
         contact_email: form.contact_email || null,
         contact_company_role: form.contact_company_role || null,
+        country_code: form.country_code || "NO",
         compliance_score: complianceScore,
         initial_assessment_score: complianceScore,
         status: "active",
@@ -709,6 +711,17 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   <SelectContent>
                     {COMPANY_ROLES.map((r) => (
                       <SelectItem key={r} value={r}>{r}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-sm mb-2 block">Land</Label>
+                <Select value={form.country_code} onValueChange={(v) => setForm({ ...form, country_code: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {["NO", "SE", "DK", "FI", "DE", "GB", "NL", "FR", "US"].map((cc) => (
+                      <SelectItem key={cc} value={cc}>{cc}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
