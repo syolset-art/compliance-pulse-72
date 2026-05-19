@@ -22,15 +22,36 @@ import { CAMPAIGN_SEGMENTS, SEGMENT_CATEGORY_LABEL, DEMO_CAMPAIGN_CUSTOMERS, typ
 import { toast } from "sonner";
 
 type ViewMode = "cards" | "table";
-type StatusFilter = "all" | "draft" | "onboarding" | "active" | "inactive";
 
-function deriveStatusKey(c: any): "draft" | "invited" | "claimed" | "archived" {
-  if (c.status === "inactive") return "archived";
-  if (c.onboarding_completed) return "claimed";
-  if (c.status === "active") return "claimed";
-  if (c.status === "onboarding") return "invited";
+// Trust Profile (TP) lifecycle status — what stage the customer's TP is in
+type TPStatusKey = "draft" | "onboarding" | "claimed" | "published";
+
+function deriveTPStatus(c: any): TPStatusKey {
+  // Explicit published flag wins
+  if (c.tp_published || c.is_published) return "published";
+  // Onboarded + decent maturity → treat as published in demo
+  if (c.onboarding_completed && (c.compliance_score || 0) >= 70) return "published";
+  // Onboarded but not yet published → customer has claimed/taken over the TP
+  if (c.onboarding_completed || c.status === "active") return "claimed";
+  if (c.status === "onboarding") return "onboarding";
   return "draft";
 }
+
+const TP_STATUS_LABEL: Record<TPStatusKey, string> = {
+  draft: "Utkast",
+  onboarding: "Onboarding",
+  claimed: "Claimet",
+  published: "Publisert",
+};
+
+const TP_STATUS_TONE: Record<TPStatusKey, string> = {
+  draft: "bg-muted text-muted-foreground border-border",
+  onboarding: "bg-warning/10 text-warning border-warning/20",
+  claimed: "bg-primary/10 text-primary border-primary/20",
+  published: "bg-success/10 text-success border-success/20",
+};
+
+const TP_STATUS_ORDER: Record<TPStatusKey, number> = { draft: 0, onboarding: 1, claimed: 2, published: 3 };
 
 // Derived criticality based on industry + size — purely presentational
 const HIGH_CRIT_INDUSTRIES = new Set(["Energi", "Helse", "Finans"]);
@@ -66,24 +87,7 @@ function deriveNeededServices(c: any): string[] {
   return services.slice(0, 3);
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  draft: "Utkast",
-  invited: "Onboarding",
-  claimed: "Aktiv",
-  archived: "Inaktiv",
-};
-
-const STATUS_TONE: Record<string, string> = {
-  draft: "bg-primary/10 text-primary border-primary/20",
-  invited: "bg-warning/10 text-warning border-warning/20",
-  claimed: "bg-success/10 text-success border-success/20",
-  archived: "bg-muted text-muted-foreground border-border",
-};
-
-// Sort order for Status column: progression from draft to active to archived
-const STATUS_ORDER: Record<string, number> = { draft: 0, invited: 1, claimed: 2, archived: 3 };
-
-type SortKey = "customer_name" | "status" | "last_activity_at";
+type SortKey = "customer_name" | "tp_status";
 type SortDir = "asc" | "desc";
 
 export default function MSPDashboard() {
