@@ -96,7 +96,7 @@ export const ConfirmActivityDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-success" />
-            {readOnly ? "Bevis for aktivitet" : "Send aktivitet til kunde"}
+            {readOnly ? "Bevis for aktivitet" : "Registrer arbeid på aktivitet"}
           </DialogTitle>
           <DialogDescription className="space-y-1.5 pt-1">
             <span className="block text-foreground font-medium">{activityLabel}</span>
@@ -112,7 +112,7 @@ export const ConfirmActivityDialog = ({
             </span>
             {!readOnly && (
               <span className="block text-[11px] text-muted-foreground pt-1">
-                Kunden må godkjenne rapporten før aktiviteten kan berike Trust Profile.
+                Beskriv hva som er gjort og last opp dokument/bevis. Når alle aktiviteter er ferdige kan du generere sluttrapport til kunden.
               </span>
             )}
           </DialogDescription>
