@@ -512,8 +512,8 @@ export default function MSPDashboard() {
                                 {TP_STATUS_LABEL[tp]}
                               </Badge>
                             </TableCell>
-                            <TableCell className="text-right tabular-nums">
-                              {score > 0 ? `${score}%` : "—"}
+                            <TableCell className="text-right">
+                              {score > 0 ? <ScoreCircle score={score} /> : <span className="text-muted-foreground text-sm">—</span>}
                             </TableCell>
                           </TableRow>
                         );
