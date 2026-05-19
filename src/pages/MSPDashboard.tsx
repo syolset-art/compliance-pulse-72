@@ -161,7 +161,7 @@ export default function MSPDashboard() {
   const [addOpen, setAddOpen] = useState(false);
   const [campaignOpen, setCampaignOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"customers" | "campaigns">("customers");
-  const [view, setView] = useState<ViewMode>("cards");
+  const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
   const [countryCodeFilter, setCountryCodeFilter] = useState<string[]>([]);
