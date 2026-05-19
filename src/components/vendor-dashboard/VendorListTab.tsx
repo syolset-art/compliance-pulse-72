@@ -165,7 +165,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     },
   });
 
-  const [viewMode, setViewMode] = useState<"card" | "table">("card");
+  const [viewMode, setViewMode] = useState<"card" | "table">("table");
   const [scoreDisplay, setScoreDisplay] = useState<ScoreDisplayMode>("percent");
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
