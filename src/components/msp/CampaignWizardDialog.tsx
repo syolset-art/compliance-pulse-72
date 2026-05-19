@@ -149,54 +149,74 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
     const segLabels = CAMPAIGN_SEGMENTS.filter((s) => selectedSegments.includes(s.id))
       .map((s) => s.label.toLowerCase())
       .join(", ");
+    const mentionsNis2 = /nis2/i.test(segLabels);
+    const topicLabel = segLabels || "endringer i regelverket";
     const auto =
       kind === "claim"
         ? {
             name: name || `Inviter til Trust-profil — ${segLabels || "alle kunder"}`,
-            subject: `Overta og signer Trust-profilen til {{kunde}}`,
+            subject: `Trust-profilen for {{kunde}} er klar — bekreft og publiser`,
             body:
               `Hei {{kontaktperson}},\n\n` +
-              `Vi har bygget opp en Trust-profil for {{kunde}} på vegne av dere — med sertifiseringer, policyer og dokumentasjon samlet på ett sted. ` +
-              `Profilen er klar til at dere kan overta den (claime den) og publisere den selv.\n\n` +
-              `Når dere claimer profilen får dere:\n` +
+              `Vi har satt opp en Trust-profil for {{kunde}} — med sertifiseringer, policyer og dokumentasjon samlet på ett sted. ` +
+              `Profilen ligger nå klar til at dere overtar eierskapet og publiserer den selv.\n\n` +
+              `Det gir dere:\n` +
               `• Full kontroll over hva som vises utad\n` +
-              `• Mulighet til å besvare innsynsforespørsler fra kunder og partnere direkte\n` +
+              `• Et profesjonelt svar på innsynsforespørsler fra kunder og partnere\n` +
               `• En offentlig Trust-side dere kan dele i salg og anbud\n\n` +
-              `Klikk lenken i e-posten for å signere og ta over profilen — det tar under 2 minutter. Vi beholder innsynet og hjelper dere videre.\n\n` +
+              `Det tar under 2 minutter å bekrefte og signere. Vi følger opp og hjelper dere videre.\n\n` +
               `Mvh\n{{partner}}`,
           }
         : kind === "offer" && selectedService
           ? {
               name: name || `${selectedService.name} — kampanje`,
-              subject: `Tilbud: ${selectedService.name} for {{kunde}}`,
+              subject: `Forslag til {{kunde}}: ${selectedService.name}`,
               body:
                 `Hei {{kontaktperson}},\n\n` +
-                `Basert på vår siste gjennomgang ser vi at {{kunde}} ${segLabels ? `treffer kriteriene "${segLabels}"` : "har behov i dette området"}. ` +
-                `Vi anbefaler vår leveranse "${selectedService.name}":\n\n` +
-                `${selectedService.description}\n\n` +
-                `Pris: ${selectedService.price ? `${selectedService.price.toLocaleString("nb-NO")} kr` : selectedService.priceNote || "etter avtale"}.\n\n` +
-                `Si fra om dere ønsker en kort gjennomgang før dere bestemmer dere.\n\n` +
+                `Basert på vår siste gjennomgang av {{kunde}} ${segLabels ? `(${segLabels})` : ""} anbefaler vi at vi setter i gang med "${selectedService.name}".\n\n` +
+                `Hva leveransen omfatter:\n${selectedService.description}\n\n` +
+                `Pris: ${selectedService.price ? `${selectedService.price.toLocaleString("nb-NO")} kr` : selectedService.priceNote || "etter avtale"}.\n` +
+                `Oppstart: innen 2 uker fra bestilling.\n\n` +
+                `Svar på denne e-posten hvis dere vil sette i gang, eller book en kort gjennomgang så går vi igjennom omfanget sammen.\n\n` +
                 `Mvh\n{{partner}}`,
             }
           : kind === "reminder"
             ? {
                 name: name || `Oppfølging — ${segLabels || "valgte kunder"}`,
-                subject: `Vennlig påminnelse til {{kunde}}`,
+                subject: `Kort oppfølging — venter på tilbakemelding fra {{kunde}}`,
                 body:
                   `Hei {{kontaktperson}},\n\n` +
-                  `Håper alt vel hos {{kunde}}. Jeg ville bare høre om dere har hatt anledning til å se nærmere på det vi snakket om sist.\n\n` +
-                  `Si gjerne fra om noe er uklart, eller om dere ønsker en kort prat.\n\n` +
+                  `Jeg følger opp saken vi snakket om sist. For å holde fremdrift trenger vi en kort tilbakemelding fra {{kunde}} — gjerne denne uken.\n\n` +
+                  `Det holder med et ja/nei eller et spørsmål om noe er uklart, så tar vi det videre derfra.\n\n` +
                   `Mvh\n{{partner}}`,
-              }
+                }
             : {
-                name: name || `Informasjon — ${segLabels || "valgte kunder"}`,
-                subject: `Viktig informasjon til {{kunde}}`,
-                body:
-                  `Hei {{kontaktperson}},\n\n` +
-                  `Vi ønsker å informere om at ${segLabels || "endringer i regelverket"} kan påvirke {{kunde}}. ` +
-                  `Vi har samlet en kort oversikt over hva dette betyr og hva dere bør gjøre nå.\n\n` +
-                  `Ta kontakt om dere ønsker en uforpliktende prat.\n\n` +
-                  `Mvh\n{{partner}}`,
+                name: name || (mentionsNis2 ? `NIS2-vurdering — ${segLabels}` : `Informasjon — ${segLabels || "valgte kunder"}`),
+                subject: mentionsNis2
+                  ? `NIS2 trer i kraft — {{kunde}} bør gjennomføre en vurdering`
+                  : `Viktig oppdatering for {{kunde}}: ${topicLabel}`,
+                body: mentionsNis2
+                  ? `Hei {{kontaktperson}},\n\n` +
+                    `NIS2-direktivet er nå tatt inn i norsk rett og stiller konkrete krav til styring, ` +
+                    `risikohåndtering, hendelsesrapportering og leverandørkontroll for virksomheter som leverer samfunnsviktige tjenester.\n\n` +
+                    `Basert på vår oversikt over {{kunde}} ser vi at dere sannsynligvis omfattes — enten direkte eller som leverandør til en virksomhet som gjør det. ` +
+                    `Det betyr at dere trenger en NIS2-vurdering for å avklare:\n\n` +
+                    `• Om {{kunde}} faller inn under loven, og i så fall som "viktig" eller "vesentlig" virksomhet\n` +
+                    `• Hvilke styrings- og sikkerhetstiltak som mangler i forhold til kravene\n` +
+                    `• Hva ledelsen er personlig ansvarlig for, og hvilke frister som gjelder\n` +
+                    `• Hvilke leverandøravtaler som må oppdateres\n\n` +
+                    `Vi tilbyr en strukturert NIS2-vurdering som gir dere en konkret tiltaksplan og dokumentasjon dere kan vise til både styret og tilsynsmyndighet. Vurderingen tar typisk 2–3 uker.\n\n` +
+                    `Svar på denne e-posten så booker vi et 20-minutters møte for å gå gjennom hva dette betyr for {{kunde}}.\n\n` +
+                    `Mvh\n{{partner}}`
+                  : `Hei {{kontaktperson}},\n\n` +
+                    `Vi ønsker å informere om at ${topicLabel} kan få direkte konsekvenser for {{kunde}}. ` +
+                    `Endringene berører blant annet styringskrav, dokumentasjon og leverandøroppfølging — og det er kort tid til de trer i kraft.\n\n` +
+                    `Vi anbefaler at dere:\n` +
+                    `• Får en oversikt over hvilke krav som gjelder for {{kunde}}\n` +
+                    `• Identifiserer gapet mellom dagens praksis og kravene\n` +
+                    `• Setter en konkret plan før fristen\n\n` +
+                    `Svar på denne e-posten så tar vi en kort, uforpliktende prat om hva dette betyr for dere.\n\n` +
+                    `Mvh\n{{partner}}`,
               };
     setName((prev) => prev || auto.name);
     setSubject(auto.subject);
