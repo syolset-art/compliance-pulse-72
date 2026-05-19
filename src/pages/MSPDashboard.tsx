@@ -60,9 +60,9 @@ function deriveCriticality(c: any): { key: "high" | "medium" | "low"; label: str
   const ind = c.industry || "";
   const emp = c.employees || "";
   const big = /201|500|1000|\+/.test(emp);
-  if (HIGH_CRIT_INDUSTRIES.has(ind) || big) return { key: "high", label: "Høy", tone: "bg-destructive/10 text-destructive border-destructive/20" };
-  if (MED_CRIT_INDUSTRIES.has(ind)) return { key: "medium", label: "Medium", tone: "bg-warning/10 text-warning border-warning/20" };
-  return { key: "low", label: "Lav", tone: "bg-muted text-muted-foreground border-border" };
+  if (HIGH_CRIT_INDUSTRIES.has(ind) || big) return { key: "high", label: "Høy", tone: "bg-crit-high-soft text-crit-high-fg border border-crit-high" };
+  if (MED_CRIT_INDUSTRIES.has(ind)) return { key: "medium", label: "Moderat", tone: "bg-crit-moderate-soft text-crit-moderate-fg border border-crit-moderate" };
+  return { key: "low", label: "Lav", tone: "bg-crit-low-soft text-crit-low-fg border border-crit-low" };
 }
 
 // Suggested services Lara recommends — MUST match titles used in MSPMaturityServiceMatrix
