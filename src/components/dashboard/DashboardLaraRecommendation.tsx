@@ -252,112 +252,196 @@ export function DashboardLaraRecommendation() {
         </div>
       </div>
 
-      {/* Step dots */}
-      <div className="flex items-center justify-center gap-1.5">
-        {tasks.map((_, i) => (
-          <span
-            key={i}
-            className={cn(
-              "h-1 rounded-full transition-all",
-              i === step ? "w-8 bg-primary" : "w-5 bg-muted"
-            )}
-          />
-        ))}
-      </div>
-
-      {/* Task card */}
-      <div className="rounded-xl bg-card border border-border p-4 sm:p-5 space-y-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Priority — neutral pill, drives ordering */}
-            <span
-              className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 px-2 py-0.5 text-[11px] font-semibold text-foreground"
-              title={isNb ? "Prioritet" : "Priority"}
-            >
-              <span className="text-foreground/60">{isNb ? "Prioritet" : "Priority"}</span>
-              <span className="font-bold tabular-nums">
-                {PRIORITY_META[current.priority].letter}
-              </span>
-            </span>
-            {/* Risk severity — status colour */}
-            <span className="inline-flex items-center gap-1.5">
-              <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
-              <span className={cn("text-xs font-bold tracking-wider", sev.text)}>
-                {sev.label}
-              </span>
-            </span>
+      {viewMode === "step" ? (
+        <>
+          {/* Step dots */}
+          <div className="flex items-center justify-center gap-1.5">
+            {tasks.map((_, i) => (
+              <span
+                key={i}
+                className={cn(
+                  "h-1 rounded-full transition-all",
+                  i === step ? "w-8 bg-primary" : "w-5 bg-muted"
+                )}
+              />
+            ))}
           </div>
-          <h4 className="text-lg sm:text-xl font-bold text-foreground break-words">{current.vendor}</h4>
-          <p className="text-sm text-foreground/70">{current.category}</p>
-        </div>
 
-        <div className="rounded-lg bg-muted/60 p-3 sm:p-4 space-y-1.5 border border-border/50">
-          <p className="text-xs font-bold text-foreground/60 tracking-wider">
-            {isNb ? "LARA SER" : "LARA SEES"}
-          </p>
-          <p className="text-sm text-foreground leading-relaxed">{current.insight}</p>
-        </div>
+          {/* Task card */}
+          <div className="rounded-xl bg-card border border-border p-4 sm:p-5 space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Priority — neutral pill, drives ordering */}
+                <span
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 px-2 py-0.5 text-[11px] font-semibold text-foreground"
+                  title={isNb ? "Prioritet" : "Priority"}
+                >
+                  <span className="text-foreground/60">{isNb ? "Prioritet" : "Priority"}</span>
+                  <span className="font-bold tabular-nums">
+                    {PRIORITY_META[current.priority].letter}
+                  </span>
+                </span>
+                {/* Risk severity — status colour */}
+                <span className="inline-flex items-center gap-1.5">
+                  <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
+                  <span className={cn("text-xs font-bold tracking-wider", sev.text)}>
+                    {sev.label}
+                  </span>
+                </span>
+              </div>
+              <h4 className="text-lg sm:text-xl font-bold text-foreground break-words">{current.vendor}</h4>
+              <p className="text-sm text-foreground/70">{current.category}</p>
+            </div>
 
-        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 pt-1">
-          <Button
-            className="rounded-full px-5 w-full sm:w-auto"
-            onClick={() => {
-              setPhase("working");
-              setDraftBody(
-                isNb
-                  ? `Hei Ola,\n\nI forbindelse med vår løpende kartlegging av databehandlere etter GDPR art. 28, ber vi om at det inngås databehandleravtale mellom Mynder AS og ${current.vendor}.\n\nVedlagt finner du vår standard databehandleravtale (Mynder Standard DPA v2.3). Den dekker formål, sikkerhetstiltak, underleverandører og tredjelandsoverføringer.\n\nVi setter pris på om du kan signere og returnere innen 14 dager. Hvis dere allerede har en gjeldende DPA dere ønsker å bruke, send den gjerne tilbake så vurderer vi den.\n\nTa kontakt om noe er uklart.\n\nVennlig hilsen,\nSynnøve Olset\nMynder AS`
-                  : `Hi,\n\nAs part of our ongoing data processor mapping under GDPR art. 28, we request a Data Processing Agreement between Mynder AS and ${current.vendor}.\n\nAttached is our standard DPA (Mynder Standard DPA v2.3), covering purpose, security measures, sub-processors and third-country transfers.\n\nWe'd appreciate it if you could sign and return within 14 days. If you have an existing DPA you'd prefer to use, please send it back for our review.\n\nLet us know if anything is unclear.\n\nKind regards,\nSynnøve Olset\nMynder AS`
-              );
-              setLaraModalOpen(true);
-            }}
-          >
-            {isNb ? "Be Lara håndtere det" : "Ask Lara to handle it"}
-          </Button>
-          <Button
-            variant="outline"
-            className="rounded-full px-5 w-full sm:w-auto"
-            onClick={() => navigate(current.vendorPath)}
-          >
-            {isNb ? "Åpne leverandøren" : "Open vendor"}
-          </Button>
-        </div>
-      </div>
+            <div className="rounded-lg bg-muted/60 p-3 sm:p-4 space-y-1.5 border border-border/50">
+              <p className="text-xs font-bold text-foreground/60 tracking-wider">
+                {isNb ? "LARA SER" : "LARA SEES"}
+              </p>
+              <p className="text-sm text-foreground leading-relaxed">{current.insight}</p>
+            </div>
 
-      {/* Footer navigation */}
-      <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            onClick={() => setStep(Math.max(0, step - 1))}
-            disabled={step === 0}
-            className="h-9 w-9 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            aria-label={isNb ? "Forrige" : "Previous"}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="text-sm text-muted-foreground tabular-nums">
-            {step + 1} {isNb ? "av" : "of"} {total}
-          </span>
-          <button
-            onClick={() => setStep(Math.min(total - 1, step + 1))}
-            disabled={step === total - 1}
-            className="h-9 w-9 rounded-full border border-primary/30 bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/15 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            aria-label={isNb ? "Neste" : "Next"}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 pt-1">
+              <Button
+                className="rounded-full px-5 w-full sm:w-auto"
+                onClick={() => {
+                  setPhase("working");
+                  setDraftBody(
+                    isNb
+                      ? `Hei Ola,\n\nI forbindelse med vår løpende kartlegging av databehandlere etter GDPR art. 28, ber vi om at det inngås databehandleravtale mellom Mynder AS og ${current.vendor}.\n\nVedlagt finner du vår standard databehandleravtale (Mynder Standard DPA v2.3). Den dekker formål, sikkerhetstiltak, underleverandører og tredjelandsoverføringer.\n\nVi setter pris på om du kan signere og returnere innen 14 dager. Hvis dere allerede har en gjeldende DPA dere ønsker å bruke, send den gjerne tilbake så vurderer vi den.\n\nTa kontakt om noe er uklart.\n\nVennlig hilsen,\nSynnøve Olset\nMynder AS`
+                      : `Hi,\n\nAs part of our ongoing data processor mapping under GDPR art. 28, we request a Data Processing Agreement between Mynder AS and ${current.vendor}.\n\nAttached is our standard DPA (Mynder Standard DPA v2.3), covering purpose, security measures, sub-processors and third-country transfers.\n\nWe'd appreciate it if you could sign and return within 14 days. If you have an existing DPA you'd prefer to use, please send it back for our review.\n\nLet us know if anything is unclear.\n\nKind regards,\nSynnøve Olset\nMynder AS`
+                  );
+                  setLaraModalOpen(true);
+                }}
+              >
+                {isNb ? "Be Lara håndtere det" : "Ask Lara to handle it"}
+              </Button>
+              <Button
+                variant="outline"
+                className="rounded-full px-5 w-full sm:w-auto"
+                onClick={() => navigate(current.vendorPath)}
+              >
+                {isNb ? "Åpne leverandøren" : "Open vendor"}
+              </Button>
+            </div>
+          </div>
 
-        <button
-          onClick={() => navigate("/tasks")}
-          className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-        >
-          <span className="hidden sm:inline">{isNb ? "Vis alle oppgaver" : "Show all tasks"}</span>
-          <span className="sm:hidden">{isNb ? "Alle" : "All"}</span>
-          <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-bold tabular-nums">
-            {count}
-          </span>
-        </button>
-      </div>
+          {/* Footer navigation */}
+          <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                onClick={() => setStep(Math.max(0, step - 1))}
+                disabled={step === 0}
+                className="h-9 w-9 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label={isNb ? "Forrige" : "Previous"}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="text-sm text-muted-foreground tabular-nums">
+                {step + 1} {isNb ? "av" : "of"} {total}
+              </span>
+              <button
+                onClick={() => setStep(Math.min(total - 1, step + 1))}
+                disabled={step === total - 1}
+                className="h-9 w-9 rounded-full border border-primary/30 bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/15 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label={isNb ? "Neste" : "Next"}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            <button
+              onClick={() => navigate("/tasks")}
+              className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              <span className="hidden sm:inline">{isNb ? "Vis alle oppgaver" : "Show all tasks"}</span>
+              <span className="sm:hidden">{isNb ? "Alle" : "All"}</span>
+              <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-bold tabular-nums">
+                {count}
+              </span>
+            </button>
+          </div>
+        </>
+      ) : (
+        /* ---- Tabellvisning: alle planlagte oppgaver ---- */
+        <div className="rounded-xl bg-card border border-border overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="text-left font-medium px-3 py-2 w-10">#</th>
+                  <th className="text-left font-medium px-3 py-2 w-16">
+                    {isNb ? "Prio" : "Prio"}
+                  </th>
+                  <th className="text-left font-medium px-3 py-2 w-20">
+                    {isNb ? "Risiko" : "Risk"}
+                  </th>
+                  <th className="text-left font-medium px-3 py-2">
+                    {isNb ? "Leverandør" : "Vendor"}
+                  </th>
+                  <th className="text-left font-medium px-3 py-2 hidden md:table-cell">
+                    {isNb ? "Hva Lara ser" : "What Lara sees"}
+                  </th>
+                  <th className="text-right font-medium px-3 py-2 w-32"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {tasks.map((tsk, i) => {
+                  const sevRow = severityChip(tsk.severity);
+                  return (
+                    <tr key={`${tsk.vendor}-${i}`} className="hover:bg-muted/30 transition-colors">
+                      <td className="px-3 py-2.5 text-xs text-muted-foreground tabular-nums">{i + 1}</td>
+                      <td className="px-3 py-2.5">
+                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full border border-border bg-muted/70 text-[11px] font-bold tabular-nums">
+                          {PRIORITY_META[tsk.priority].letter}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className={cn("h-2 w-2 rounded-full", sevRow.dot)} />
+                          <span className={cn("text-[11px] font-semibold tracking-wider", sevRow.text)}>
+                            {sevRow.label}
+                          </span>
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <p className="text-sm font-medium text-foreground truncate">{tsk.vendor}</p>
+                        <p className="text-xs text-muted-foreground truncate">{tsk.category}</p>
+                      </td>
+                      <td className="px-3 py-2.5 hidden md:table-cell text-xs text-foreground/80 max-w-xs">
+                        <p className="line-clamp-2">{tsk.insight}</p>
+                      </td>
+                      <td className="px-3 py-2.5 text-right">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="rounded-full h-7 px-3 text-xs"
+                          onClick={() => {
+                            setStep(i);
+                            setViewMode("step");
+                          }}
+                        >
+                          {isNb ? "Åpne" : "Open"}
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex items-center justify-between gap-3 px-3 py-2 border-t border-border bg-muted/20">
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {total} {isNb ? "planlagte oppgaver" : "planned tasks"}
+            </span>
+            <button
+              onClick={() => navigate("/tasks")}
+              className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              {isNb ? "Vis alle oppgaver →" : "Show all tasks →"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Lara handle-it modal */}
       <Dialog open={laraModalOpen} onOpenChange={setLaraModalOpen}>
