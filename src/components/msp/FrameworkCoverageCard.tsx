@@ -174,7 +174,7 @@ export function FrameworkCoverageCard({
       >
         <span
           className={cn(
-            "inline-flex items-center rounded px-2 py-1 text-[11px] font-semibold border",
+            "inline-flex items-center rounded px-2 py-1 text-xs font-semibold border",
             theme.chip,
           )}
         >
@@ -183,11 +183,11 @@ export function FrameworkCoverageCard({
 
         <div className="min-w-0">
           <div className="text-sm font-semibold text-foreground">{framework.label}</div>
-          <div className="text-[11px] text-muted-foreground truncate">{framework.summary}</div>
+          <div className="text-xs text-muted-foreground truncate">{framework.summary}</div>
         </div>
 
         <div
-          className="flex items-center gap-2 text-[11px] text-muted-foreground"
+          className="flex items-center gap-2 text-xs text-muted-foreground"
           onClick={(e) => e.stopPropagation()}
         >
           <span>Vi leverer</span>
@@ -201,11 +201,11 @@ export function FrameworkCoverageCard({
         </div>
 
         <div className="text-right">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">KP valgt</div>
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">KP valgt</div>
           <div className="text-sm font-semibold text-foreground tabular-nums">
             {enabledCount} / {framework.controlPoints.length}
             {includedCustomCount > 0 && (
-              <span className="ml-1 text-[10px] font-medium text-muted-foreground">
+              <span className="ml-1 text-xs font-medium text-muted-foreground">
                 + {includedCustomCount} tillegg
               </span>
             )}
@@ -213,12 +213,12 @@ export function FrameworkCoverageCard({
         </div>
 
         <div className="text-right">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Timer</div>
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Timer</div>
           <div className="text-sm font-semibold text-foreground tabular-nums">{controlHours} t</div>
         </div>
 
         <div className="text-right min-w-[110px]">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Inntekt</div>
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Inntekt</div>
           <div className="text-sm font-bold text-foreground tabular-nums">
             {formatNOK(totalPrice)}
           </div>
@@ -233,14 +233,14 @@ export function FrameworkCoverageCard({
       {expanded && (
         <div className="border-t border-border bg-muted/20 px-4 py-3 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               Velg kontrollpunkter dere leverer på
             </span>
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 px-2 text-[11px]"
+                className="h-7 px-2 text-xs"
                 onClick={() => toggleAll(true)}
               >
                 Velg alle
@@ -248,7 +248,7 @@ export function FrameworkCoverageCard({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 px-2 text-[11px] text-muted-foreground"
+                className="h-7 px-2 text-xs text-muted-foreground"
                 onClick={() => toggleAll(false)}
               >
                 Fjern alle
@@ -259,7 +259,7 @@ export function FrameworkCoverageCard({
           {/* Lara-estimat info */}
           <div className="flex items-start gap-2 rounded-md border border-primary/20 bg-primary/5 px-3 py-2">
             <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Lara estimerer omfang basert på valgte kontrollpunkter og kompleksitet —
               <span className="font-semibold text-foreground"> ~{controlHours} t × {hourlyRate.toLocaleString("nb-NO")} kr</span>.
               Bruk dette som utgangspunkt; detaljér timer og pris i selve tilbudet til kunden.
@@ -315,13 +315,13 @@ export function FrameworkCoverageCard({
                   {enabled && (
                     <div className="px-2 pb-2 pl-8">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground mr-1">
+                        <span className="text-[11px] uppercase tracking-wider text-muted-foreground mr-1">
                           Typiske aktiviteter
                         </span>
                         {builtinActivities.map((act, i) => (
                           <span
                             key={`b-${i}`}
-                            className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[11px] text-foreground/80"
+                            className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-foreground"
                           >
                             {act}
                           </span>
@@ -329,7 +329,7 @@ export function FrameworkCoverageCard({
                         {extraActivities.map((act, i) => (
                           <span
                             key={`e-${i}`}
-                            className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-[11px]"
+                            className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs"
                           >
                             {act}
                             <button
@@ -356,14 +356,14 @@ export function FrameworkCoverageCard({
           {/* Egendefinerte kostnader */}
           <div className="pt-3 mt-1 border-t border-border space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
                 <Tag className="h-3 w-3" />
                 Egendefinerte kostnader
               </span>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 px-2 text-[11px] text-primary"
+                className="h-7 px-2 text-xs text-primary"
                 onClick={addCustomCost}
               >
                 <Plus className="h-3 w-3 mr-1" /> Legg til kostnad
@@ -371,13 +371,13 @@ export function FrameworkCoverageCard({
             </div>
 
             {customCosts.length === 0 ? (
-              <p className="text-[11px] text-muted-foreground italic px-2 py-2">
+              <p className="text-xs text-muted-foreground italic px-2 py-2">
                 Legg til etableringsgebyr, drift, prosjektledelse e.l. — kunden velger om de skal med i tilbudet.
               </p>
             ) : (
               <>
                 {/* Kolonneoverskrifter */}
-                <div className="grid items-center gap-2 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_140px_100px_70px_110px_auto]">
+                <div className="grid items-center gap-2 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_140px_100px_70px_110px_auto]">
                   <span className="w-4" />
                   <span>Navn</span>
                   <span>Type</span>
@@ -413,7 +413,7 @@ export function FrameworkCoverageCard({
                           value={c.label}
                           placeholder="F.eks. Etableringsgebyr"
                           onChange={(e) => updateCustomCost(c.id, { label: e.target.value })}
-                          className="h-7 px-2 text-[12px]"
+                          className="h-7 px-2 text-xs"
                         />
 
                         {/* Type-toggle */}
@@ -422,7 +422,7 @@ export function FrameworkCoverageCard({
                             type="button"
                             onClick={() => updateCustomCost(c.id, { kind: "fixed" })}
                             className={cn(
-                              "flex-1 text-[11px] px-2 transition-colors",
+                              "flex-1 text-xs px-2 transition-colors",
                               !isHourly
                                 ? "bg-primary text-primary-foreground"
                                 : "bg-background text-muted-foreground hover:bg-muted",
@@ -434,7 +434,7 @@ export function FrameworkCoverageCard({
                             type="button"
                             onClick={() => updateCustomCost(c.id, { kind: "hourly" })}
                             className={cn(
-                              "flex-1 text-[11px] px-2 transition-colors border-l border-border",
+                              "flex-1 text-xs px-2 transition-colors border-l border-border",
                               isHourly
                                 ? "bg-primary text-primary-foreground"
                                 : "bg-background text-muted-foreground hover:bg-muted",
@@ -456,9 +456,9 @@ export function FrameworkCoverageCard({
                                 amount: Math.max(0, Number(e.target.value) || 0),
                               })
                             }
-                            className="h-7 w-20 px-1.5 text-[12px] text-right tabular-nums"
+                            className="h-7 w-20 px-1.5 text-xs text-right tabular-nums"
                           />
-                          <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
                             {isHourly ? "kr/t" : "kr"}
                           </span>
                         </div>
@@ -477,12 +477,12 @@ export function FrameworkCoverageCard({
                                     hours: Math.max(0, Number(e.target.value) || 0),
                                   })
                                 }
-                                className="h-7 w-12 px-1.5 text-[12px] text-right tabular-nums"
+                                className="h-7 w-12 px-1.5 text-xs text-right tabular-nums"
                               />
-                              <span className="text-[10px] text-muted-foreground">t</span>
+                              <span className="text-xs text-muted-foreground">t</span>
                             </>
                           ) : (
-                            <span className="text-[11px] text-muted-foreground">—</span>
+                            <span className="text-xs text-muted-foreground">—</span>
                           )}
                         </div>
 
@@ -512,14 +512,14 @@ export function FrameworkCoverageCard({
           <div className="pt-3 mt-2 border-t border-border space-y-1.5">
             {customPrice > 0 && (
               <>
-                <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>Kontrollpunkter</span>
                   <div className="flex items-center gap-6">
                     <span className="tabular-nums">{controlHours} t</span>
                     <span className="tabular-nums w-28 text-right">{formatNOK(controlPrice)}</span>
                   </div>
                 </div>
-                <div className="flex items-center justify-between text-[12px] text-muted-foreground">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span>Tillegg ({includedCustomCount})</span>
                   <div className="flex items-center gap-6">
                     <span className="tabular-nums" />
@@ -558,7 +558,7 @@ function AddActivityInline({ onAdd }: { onAdd: (label: string) => void }) {
       <button
         type="button"
         onClick={() => setEditing(true)}
-        className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+        className="inline-flex items-center gap-1 rounded-full border border-dashed border-border px-2 py-0.5 text-xs text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
       >
         <Plus className="h-2.5 w-2.5" /> Legg til aktivitet
       </button>
@@ -590,7 +590,7 @@ function AddActivityInline({ onAdd }: { onAdd: (label: string) => void }) {
           }
         }}
         placeholder="F.eks. Månedlig statusmøte"
-        className="h-6 w-44 px-2 text-[11px]"
+        className="h-6 w-44 px-2 text-xs"
       />
     </span>
   );
