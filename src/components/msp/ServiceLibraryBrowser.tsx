@@ -12,7 +12,7 @@ import {
   scopeLabel,
   industryLabel,
   deliveryLabel,
-  formatPriceRange,
+  formatEstimatedPrice,
   formatHoursRange,
   type ServiceTemplate,
   type ServiceTier,
@@ -26,13 +26,15 @@ interface Props {
   context: PartnerContext;
   adoptedIds: Set<string>;
   onAdopt: (template: ServiceTemplate) => void;
+  /** Partnerens egen timepris — alle priser beregnes herfra. */
+  hourlyRate: number;
 }
 
 const TIER_ORDER: ServiceTier[] = ["universal", "msp", "mssp", "regional"];
 const ALL_SCOPES: ServiceScope[] = ["global", "EU", "NO", "SE", "NL", "AU", "US"];
 const ALL_INDUSTRIES: ServiceIndustry[] = ["healthcare", "finance", "public", "critical-infrastructure"];
 
-export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt }: Props) {
+export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate }: Props) {
   const [search, setSearch] = useState("");
   const [partnerFilter, setPartnerFilter] = useState<ServicePartnerType | "any">(context.partnerType ?? "any");
   const [scopeFilter, setScopeFilter] = useState<ScopeFilter>("all");
@@ -144,6 +146,7 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt }: Props) {
                 onAdopt={() => onAdopt(template)}
                 reasons={reasons}
                 highlighted
+                hourlyRate={hourlyRate}
               />
             ))}
           </div>
@@ -167,6 +170,7 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt }: Props) {
                   template={template}
                   adopted={adoptedIds.has(template.id)}
                   onAdopt={() => onAdopt(template)}
+                  hourlyRate={hourlyRate}
                 />
               ))}
             </div>
@@ -210,13 +214,14 @@ function FilterSelect({
 }
 
 function TemplateCard({
-  template, adopted, onAdopt, reasons, highlighted,
+  template, adopted, onAdopt, reasons, highlighted, hourlyRate,
 }: {
   template: ServiceTemplate;
   adopted: boolean;
   onAdopt: () => void;
   reasons?: string[];
   highlighted?: boolean;
+  hourlyRate: number;
 }) {
   return (
     <Card className={cn(
@@ -287,7 +292,12 @@ function TemplateCard({
           <span className="text-muted-foreground inline-flex items-center gap-1">
             <Clock className="h-3 w-3" /> {formatHoursRange(template.estimatedHours)}
           </span>
-          <span className="font-semibold text-foreground tabular-nums">{formatPriceRange(template.recommendedPrice)}</span>
+          <span
+            className="font-semibold text-foreground tabular-nums"
+            title={`Beregnet fra ${formatHoursRange(template.estimatedHours)} × ${hourlyRate.toLocaleString("nb-NO")} kr/t`}
+          >
+            {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
+          </span>
         </div>
         <Button
           size="sm"

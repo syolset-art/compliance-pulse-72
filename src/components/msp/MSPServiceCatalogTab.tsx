@@ -115,8 +115,6 @@ export function MSPServiceCatalogTab() {
   const adoptTemplate = (template: ServiceTemplate) => {
     if (adoptedIds.has(template.id)) return;
     const hoursAvg = Math.round((template.estimatedHours.min + template.estimatedHours.max) / 2);
-    const priceAvg = Math.round((template.recommendedPrice.min + template.recommendedPrice.max) / 2);
-    const isFixed = template.recommendedPrice.model !== "quote";
     const mappings: ServiceMapping[] = template.mappings.flatMap((m) => {
       const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
       return m.controlIds.map((cid) => {
@@ -134,7 +132,7 @@ export function MSPServiceCatalogTab() {
       name: template.name,
       description: template.shortDescription,
       hours: hoursAvg,
-      fixedPrice: isFixed ? priceAvg : undefined,
+      // Ingen fastpris — pris beregnes alltid fra timer × partnerens timepris.
       source: "library",
       templateCode: template.code,
       templateId: template.id,
@@ -143,7 +141,7 @@ export function MSPServiceCatalogTab() {
     };
     setExtras((prev) => [...prev, next]);
     toast.success(`${template.code} · ${template.name} adoptert`, {
-      description: "Tilpass navn, pris og aktiviteter etter behov i tilbudet.",
+      description: "Justér timer og aktiviteter i selve tilbudet — pris beregnes fra timepris.",
     });
   };
 
@@ -296,6 +294,7 @@ export function MSPServiceCatalogTab() {
         context={partnerContext}
         adoptedIds={adoptedIds}
         onAdopt={adoptTemplate}
+        hourlyRate={hourlyRate}
       />
 
       {/* Avansert: bygg fra regelverk */}
