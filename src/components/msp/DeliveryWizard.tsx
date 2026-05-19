@@ -169,49 +169,120 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
 
       {/* Lara-kort (eller suksess) */}
       {allDone ? (
-        <Card className="p-6 border-success/30 bg-gradient-to-br from-success/10 via-success/5 to-transparent">
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-full bg-success/15 flex items-center justify-center shrink-0">
-              <PartyPopper className="h-6 w-6 text-success" />
+        approvedDeliveries.has(activeDelivery.id) ? (
+          <Card className="p-6 border-success/30 bg-gradient-to-br from-success/10 via-success/5 to-transparent">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+                <PartyPopper className="h-6 w-6 text-success" />
+              </div>
+              <div className="flex-1 min-w-0 space-y-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Leveranserapport generert
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Rapporten er klar for sending. Trust Profile er beriket med{" "}
+                    {steps.reduce(
+                      (s, st) => s + (st.activity.evidence?.length ?? 0),
+                      0,
+                    )}{" "}
+                    bevis.
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <SummaryStat
+                    value={activeDelivery.controls.length.toString()}
+                    label="Kontrollpunkter oppfylt"
+                  />
+                  <SummaryStat
+                    value={steps
+                      .reduce((s, st) => s + (st.activity.evidence?.length ?? 0), 0)
+                      .toString()}
+                    label="Bevis lagt ved"
+                  />
+                  <SummaryStat value="+12 pp" label="TP-økning" />
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() =>
+                      toast.success("Leveranserapport sendt til kunde", {
+                        description:
+                          "Kunden får varsel og kan signere kvittering.",
+                      })
+                    }
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    Send leveranserapport til kunde
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setSummaryOpen(true)}
+                    className="gap-1.5"
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    Se sammendrag
+                  </Button>
+                </div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0 space-y-3">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">Oppdrag levert</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Alle {steps.length} aktiviteter er bekreftet. Trust Profile er oppdatert.
-                </p>
+          </Card>
+        ) : (
+          <Card className="p-6 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                <ShieldCheck className="h-6 w-6 text-primary" />
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <SummaryStat
-                  value={activeDelivery.controls.length.toString()}
-                  label="Kontrollpunkter oppfylt"
-                />
-                <SummaryStat
-                  value={steps
-                    .reduce((s, st) => s + (st.activity.evidence?.length ?? 0), 0)
-                    .toString()}
-                  label="Bevis lagt ved"
-                />
-                <SummaryStat value="+12 pp" label="TP-økning" />
-              </div>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <Button size="sm" className="gap-1.5">
-                  <Send className="h-3.5 w-3.5" />
-                  Send leveranserapport til kunde
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setStepIndex(0)}
-                  className="gap-1.5"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  Tilbake til oversikt
-                </Button>
+              <div className="flex-1 min-w-0 space-y-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Klar for gjennomgang
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Alle {steps.length} aktiviteter er bekreftet. Åpne
+                    sammendraget for å se hva Lara har utført og hva du har gjort
+                    manuelt — godkjenn for å generere leveranserapport.
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <SummaryStat
+                    value={steps
+                      .reduce((s, st) => s + (st.activity.laraSteps?.length ?? 0), 0)
+                      .toString()}
+                    label="Steg utført av Lara"
+                  />
+                  <SummaryStat
+                    value={steps
+                      .reduce(
+                        (s, st) => s + (st.activity.partnerSteps?.length ?? 0),
+                        0,
+                      )
+                      .toString()}
+                    label="Steg utført manuelt"
+                  />
+                  <SummaryStat
+                    value={steps
+                      .reduce((s, st) => s + (st.activity.evidence?.length ?? 0), 0)
+                      .toString()}
+                    label="Bevis lagt ved"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    onClick={() => setSummaryOpen(true)}
+                    className="gap-1.5"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    Åpne gjennomgang og godkjenn
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )
       ) : step ? (
         <Card className="p-5 md:p-6 border-primary/20 bg-gradient-to-br from-primary/[0.04] via-card to-transparent">
           <div className="flex items-start gap-4">
