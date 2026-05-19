@@ -428,7 +428,11 @@ const DELIVERIES: DeliveryItem[] = [
             done: true,
             owner: "Kunde",
             date: "28. mar",
-            laraSteps: ["Hentet sårbarhetsrapport", "Mappet funn mot kontroller"],
+            laraSteps: [
+              { text: "Hentet kritiske CVE-funn og status", via: "Tenable" },
+              { text: "Verifisert at patch er rullet ut til 100 % av endepunkter", via: "Microsoft Defender" },
+              { text: "Mappet lukkede funn mot ISO 27001 A.8.8", via: "Lara" },
+            ],
           },
           {
             id: "v2",
