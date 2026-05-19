@@ -195,6 +195,11 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
       const matchesVendorCat = !vendorCategoryFilter || vendorCategoryFilter === "all" || a.vendor_category === vendorCategoryFilter;
       const matchesGdpr = !gdprRoleFilter || gdprRoleFilter === "all" || a.gdpr_role === gdprRoleFilter;
       const matchesPriority = !priorityFilter || priorityFilter === "all" || a.priority === priorityFilter;
+      const matchesCountry = !countryFilter || countryFilter === "all" || a.country === countryFilter;
+      const ownerName = a.asset_owner || (a.work_area_id
+        ? (workAreas.find((w: WorkArea) => w.id === a.work_area_id)?.name || "")
+        : "");
+      const matchesOwner = !ownerFilter || ownerFilter === "all" || ownerName === ownerFilter;
       const matchesStatus = !statusFilter || statusFilter === "all" || deriveVendorStatus({
         compliance_score: a.compliance_score,
         risk_level: a.risk_level,
@@ -202,7 +207,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
         expiredDocsCount: expiredCounts[a.id] || 0,
         inboxCount: inboxCounts[a.id] || 0,
       }).key === statusFilter;
-      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr && matchesPriority && matchesStatus;
+      return matchesName && matchesCat && matchesRisk && matchesVendorCat && matchesGdpr && matchesPriority && matchesStatus && matchesCountry && matchesOwner;
     });
 
     if (sortColumn) {
