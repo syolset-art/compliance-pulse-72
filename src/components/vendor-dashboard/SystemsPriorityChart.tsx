@@ -79,26 +79,21 @@ export function SystemsPriorityChart() {
     },
   });
 
-  const { buckets, total, criticalForBusiness } = useMemo(() => {
-    const b: Record<Priority, { total: number; critical: number; items: SystemRow[] }> = {
-      A: { total: 0, critical: 0, items: [] },
-      B: { total: 0, critical: 0, items: [] },
-      C: { total: 0, critical: 0, items: [] },
-      D: { total: 0, critical: 0, items: [] },
+  const { buckets, total } = useMemo(() => {
+    const b: Record<Priority, { total: number; items: SystemRow[] }> = {
+      A: { total: 0, items: [] },
+      B: { total: 0, items: [] },
+      C: { total: 0, items: [] },
+      D: { total: 0, items: [] },
     };
     systems.forEach((s) => {
       const p = toPriority(s);
       b[p].total += 1;
-      if ((s.criticality || "").toLowerCase() === "high") b[p].critical += 1;
       b[p].items.push(s);
     });
-    const critList = systems
-      .filter((s) => (s.criticality || "").toLowerCase() === "high")
-      .sort((a, b2) => (a.compliance_score ?? 100) - (b2.compliance_score ?? 100));
     return {
       buckets: b,
       total: systems.length,
-      criticalForBusiness: critList,
     };
   }, [systems]);
 
