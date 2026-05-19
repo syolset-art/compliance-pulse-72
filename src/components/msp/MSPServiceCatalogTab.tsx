@@ -388,9 +388,11 @@ export function MSPServiceCatalogTab() {
 
       <CustomServiceDialog
         open={manualOpen}
-        onOpenChange={setManualOpen}
+        onOpenChange={(o) => { setManualOpen(o); if (!o) setEditingId(null); }}
         onSave={handleManualSave}
         defaultHourlyRate={hourlyRate}
+        initial={editingDraft}
+        mode={editingId ? "edit" : "create"}
       />
     </div>
   );
