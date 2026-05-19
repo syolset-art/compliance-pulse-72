@@ -447,6 +447,83 @@ export default function MSPMessages() {
         onSend={handleCampaignSend}
       />
 
+      {/* Innstillinger – mottaks-e-post */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Innstillinger for meldinger
+            </DialogTitle>
+            <DialogDescription className="text-[13px]">
+              Velg hvor svar og varsler fra kunder skal mottas. Alle utgående kampanjer og tilbud sendes fortsatt fra Mynder, men kundens svar videresendes til adressen du oppgir her.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="inboxEmail" className="text-[13px]">Mottaks-e-post</Label>
+              <Input
+                id="inboxEmail"
+                type="email"
+                placeholder="navn@firma.no"
+                value={inboxEmail}
+                onChange={(e) => setInboxEmail(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">Hovedadressen som mottar kundens svar og notifikasjoner.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="ccEmail" className="text-[13px]">Kopi (CC)</Label>
+              <Input
+                id="ccEmail"
+                type="email"
+                placeholder="team@firma.no (valgfritt)"
+                value={ccEmail}
+                onChange={(e) => setCcEmail(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">Eks. en delt teampostkasse som skal være med på alle svar.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="replyTo" className="text-[13px]">Svar-til-adresse</Label>
+              <Input
+                id="replyTo"
+                type="email"
+                placeholder="Standard: mottaks-e-post"
+                value={replyToEmail}
+                onChange={(e) => setReplyToEmail(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">Brukes som «Reply-To» når kunden trykker svar i e-posten.</p>
+            </div>
+
+            <div className="rounded-md border border-border p-3 space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[13px] font-medium text-foreground">Videresend kundesvar</p>
+                  <p className="text-[11px] text-muted-foreground">Send kundens svar direkte til mottaks-e-posten din.</p>
+                </div>
+                <Switch checked={forwardEnabled} onCheckedChange={setForwardEnabled} />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[13px] font-medium text-foreground">Daglig sammendrag</p>
+                  <p className="text-[11px] text-muted-foreground">Få én daglig e-post med oversikt over nye svar og tilbud.</p>
+                </div>
+                <Switch checked={dailyDigest} onCheckedChange={setDailyDigest} />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSettingsOpen(false)}>Avbryt</Button>
+            <Button onClick={handleSaveSettings}>Lagre</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
+
       <Dialog open={proposalsOpen} onOpenChange={setProposalsOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
