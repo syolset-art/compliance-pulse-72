@@ -447,7 +447,7 @@ export default function MSPDashboard() {
                         </TableHead>
                         <TableHead className="w-auto">
                           <ColumnFilter
-                            label="Tjenester kunden trenger"
+                            label="Lara anbefaler"
                             options={serviceOptions.map((v) => ({ value: v, label: v }))}
                             selected={serviceFilter}
                             onChange={setServiceFilter}
