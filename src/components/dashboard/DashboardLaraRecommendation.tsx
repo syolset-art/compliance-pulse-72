@@ -35,6 +35,7 @@ export function DashboardLaraRecommendation() {
   const [dismissed, setDismissed] = useState(false);
   const [showPlan, setShowPlan] = useState(false);
   const [step, setStep] = useState(0);
+  const [viewMode, setViewMode] = useState<"step" | "table">("step");
   const [laraModalOpen, setLaraModalOpen] = useState(false);
   const [phase, setPhase] = useState<"working" | "draft" | "sent">("working");
   const [draftBody, setDraftBody] = useState("");
