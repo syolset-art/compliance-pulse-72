@@ -25,6 +25,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Download, Eye } from "lucide-react";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import { MSPServiceCatalogTab } from "./MSPServiceCatalogTab";
@@ -735,67 +737,88 @@ export function MSPMaturityServiceMatrix({
           })}
         </TabsContent>
 
-        <TabsContent value="ongoing" className="space-y-2 mt-0">
-          {savedOffers.length === 0 && (
+        <TabsContent value="ongoing" className="mt-0">
+          {savedOffers.length === 0 ? (
             <Card className="p-8 text-center text-sm text-muted-foreground">
-              Ingen tilbud er laget enda. Bruk "Lag tilbud" på en anbefalt tjeneste for å komme i gang.
+              Ingen tilbud er lagret enda. Bruk "Lag tilbud" på en anbefalt tjeneste for å komme i gang.
+            </Card>
+          ) : (
+            <Card className="overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[110px]">Tilbudsnr.</TableHead>
+                    <TableHead>Tjeneste</TableHead>
+                    <TableHead className="w-[120px]">Regelverk</TableHead>
+                    <TableHead className="w-[120px]">Laget</TableHead>
+                    <TableHead className="w-[140px]">Av</TableHead>
+                    <TableHead className="w-[140px] text-right">Sum</TableHead>
+                    <TableHead className="w-[100px] text-right">Handlinger</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {savedOffers.map(o => {
+                    const created = new Date(o.createdAt).toLocaleDateString("nb-NO", {
+                      day: "2-digit", month: "short", year: "numeric",
+                    });
+                    return (
+                      <TableRow key={o.id}>
+                        <TableCell className="font-mono text-[12px] text-muted-foreground">
+                          {o.offerNumber}
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium text-foreground text-sm">{o.serviceTitle}</div>
+                          <div className="text-[11px] text-muted-foreground">
+                            {o.taskCount} tiltak · {o.totalHours} timer
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {o.frameworkLabel ? (
+                            <Badge variant="outline" className="text-[10px] gap-1">
+                              <FileText className="h-3 w-3" />
+                              {o.frameworkLabel}
+                            </Badge>
+                          ) : (
+                            <span className="text-[12px] text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-[12px] text-muted-foreground">{created}</TableCell>
+                        <TableCell className="text-[12px] text-foreground">{o.createdBy}</TableCell>
+                        <TableCell className="text-right text-sm font-medium tabular-nums">
+                          {o.totalPrice.toLocaleString("nb-NO")} kr
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              title="Åpne tilbud"
+                              onClick={() => toast.info(`Åpner ${o.offerNumber}`, { description: o.serviceTitle })}
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0"
+                              title="Last ned PDF"
+                              onClick={() => toast.success(`Lastet ned ${o.offerNumber}.pdf`)}
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </Card>
           )}
-          {savedOffers.map(o => {
-            const inProgress = o.status === "in_progress";
-            const created = new Date(o.createdAt).toLocaleDateString("nb-NO", {
-              day: "numeric", month: "long", year: "numeric",
-            });
-            return (
-              <Card key={o.id} className="overflow-hidden hover:border-primary/30 transition-colors">
-                <div className="flex items-center gap-3 p-3">
-                  <div className={cn(
-                    "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
-                    inProgress ? "bg-warning/10" : "bg-muted"
-                  )}>
-                    <FileText className={cn("h-4 w-4", inProgress ? "text-warning" : "text-muted-foreground")} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-foreground truncate">{o.serviceTitle}</p>
-                      {o.frameworkLabel && (
-                        <Badge variant="outline" className="text-[10px] gap-1">
-                          <FileText className="h-3 w-3" />
-                          {o.frameworkLabel}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-[12px] text-muted-foreground">
-                      {o.offerNumber} · Laget {created} av {o.createdBy}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                      {o.taskCount} tiltak · {o.totalHours} timer · {o.totalPrice.toLocaleString("nb-NO")} kr
-                    </p>
-                  </div>
-                  <Select
-                    value={o.status}
-                    onValueChange={(v) => {
-                      const next = v as SavedOffer["status"];
-                      setSavedOffers(prev => prev.map(s => s.id === o.id ? { ...s, status: next } : s));
-                      toast.success(`Status oppdatert til "${next === "in_progress" ? "Pågår" : "Ikke startet"}"`);
-                    }}
-                  >
-                    <SelectTrigger className={cn(
-                      "h-8 w-[140px] text-xs",
-                      inProgress && "border-warning/40 bg-warning/5 text-warning"
-                    )}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="not_started">Ikke startet</SelectItem>
-                      <SelectItem value="in_progress">Pågår</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </Card>
-            );
-          })}
         </TabsContent>
+
+
 
 
 
