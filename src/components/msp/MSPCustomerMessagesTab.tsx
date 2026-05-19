@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send, ShieldCheck, Download, Inbox, Archive } from "lucide-react";
+import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send, ShieldCheck, Download, Inbox, Archive, Sparkles, ThumbsUp } from "lucide-react";
+import {
+  getDeliveryReports,
+  subscribeDeliveryReports,
+  updateDeliveryReport,
+  type DeliveryReport,
+} from "@/lib/deliveryReports";
+import { toast } from "sonner";
 
 type OfferStatus = "approved" | "pending" | "declined";
 type ItemType = "offer" | "message";
