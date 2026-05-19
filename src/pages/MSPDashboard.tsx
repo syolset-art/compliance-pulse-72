@@ -39,15 +39,15 @@ function deriveTPStatus(c: any): TPStatusKey {
 
 const TP_STATUS_LABEL: Record<TPStatusKey, string> = {
   draft: "Utkast",
-  onboarding: "Onboarding",
-  claimed: "Claimet",
+  onboarding: "Claimet",
+  claimed: "Utkast",
   published: "Publisert",
 };
 
 const TP_STATUS_TONE: Record<TPStatusKey, string> = {
   draft: "bg-muted text-muted-foreground border-border",
   onboarding: "bg-warning/10 text-warning border-warning/20",
-  claimed: "bg-primary/10 text-primary border-primary/20",
+  claimed: "bg-muted text-muted-foreground border-border",
   published: "bg-success/10 text-success border-success/20",
 };
 
