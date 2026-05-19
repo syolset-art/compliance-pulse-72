@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, AlertTriangle, Clock, Eye, EyeOff } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, Clock, Eye, EyeOff, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -11,6 +11,9 @@ interface Props {
   nextDeadlineLabel?: string;
   /** Når satt: vises som lite kildemerke under "Samlet modenhet". */
   sourceLabel?: string;
+  onCriticalGapsClick?: () => void;
+  onHiddenIssuesClick?: () => void;
+  onNextDeadlineClick?: () => void;
 }
 
 function colorFor(score: number) {
@@ -28,6 +31,9 @@ export function MSPCustomerSnapshotCard({
   nextDeadlineDays,
   nextDeadlineLabel,
   sourceLabel,
+  onCriticalGapsClick,
+  onHiddenIssuesClick,
+  onNextDeadlineClick,
 }: Props) {
   const TrendIcon = deltaPct >= 0 ? TrendingUp : TrendingDown;
   const trendColor = deltaPct >= 0 ? "text-success" : "text-destructive";
@@ -70,6 +76,8 @@ export function MSPCustomerSnapshotCard({
           value={String(criticalGaps)}
           valueClass={criticalGaps > 0 ? "text-destructive" : "text-success"}
           sub={<span className="inline-flex items-center gap-1"><AlertTriangle className="h-3 w-3" />krever tiltak</span>}
+          onClick={onCriticalGapsClick}
+          hint="Se gap-listen"
         />
         <Metric
           label="Skjulte saker"
@@ -81,12 +89,16 @@ export function MSPCustomerSnapshotCard({
               kun synlig for partner
             </span>
           }
+          onClick={onHiddenIssuesClick}
+          hint="Se sakene"
         />
         <Metric
           label="Neste frist"
           value={nextDeadlineDays != null ? `${nextDeadlineDays}d` : "—"}
           valueClass="text-foreground"
           sub={<span className="inline-flex items-center gap-1 truncate"><Clock className="h-3 w-3 shrink-0" />{nextDeadlineLabel ?? "ingen frist"}</span>}
+          onClick={onNextDeadlineClick}
+          hint="Åpne saker til fristen"
         />
       </div>
     </div>
@@ -94,13 +106,27 @@ export function MSPCustomerSnapshotCard({
 }
 
 function Metric({
-  label, value, valueClass, sub,
-}: { label: string; value: string; valueClass: string; sub: React.ReactNode }) {
+  label, value, valueClass, sub, onClick, hint,
+}: { label: string; value: string; valueClass: string; sub: React.ReactNode; onClick?: () => void; hint?: string }) {
+  const clickable = !!onClick;
+  const Comp: any = clickable ? "button" : "div";
   return (
-    <div className="rounded-xl border border-border bg-card/60 p-3">
+    <Comp
+      type={clickable ? "button" : undefined}
+      onClick={onClick}
+      className={cn(
+        "rounded-xl border border-border bg-card/60 p-3 text-left w-full transition-all",
+        clickable && "hover:border-primary/40 hover:bg-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer group",
+      )}
+    >
       <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</p>
       <p className={cn("text-2xl font-bold tabular-nums mt-1", valueClass)}>{value}</p>
       <p className="text-[12px] text-muted-foreground mt-0.5">{sub}</p>
-    </div>
+      {clickable && hint && (
+        <p className="mt-2 text-[11px] text-primary inline-flex items-center gap-0.5 opacity-80 group-hover:opacity-100">
+          {hint} <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+        </p>
+      )}
+    </Comp>
   );
 }

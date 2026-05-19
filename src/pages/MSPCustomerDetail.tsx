@@ -6,7 +6,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Server, Wifi, RefreshCw, Sparkles, AlertTriangle, CheckCircle2, ShieldCheck, Shield } from "lucide-react";
+import { ArrowLeft, Server, Wifi, RefreshCw, Sparkles, AlertTriangle, CheckCircle2, ShieldCheck, Shield, EyeOff, Clock as ClockIcon, ArrowRight } from "lucide-react";
 import { CustomerStatusBanner } from "@/components/msp/CustomerStatusBanner";
 import { StatusOverviewWidget } from "@/components/widgets/StatusOverviewWidget";
 import { CriticalTasksWidget } from "@/components/widgets/CriticalTasksWidget";
@@ -27,6 +27,8 @@ import { QuestionnaireGapList } from "@/components/msp/QuestionnaireGapList";
 import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
 import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+
 
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
@@ -35,6 +37,8 @@ export default function MSPCustomerDetail() {
   const [activeTab, setActiveTab] = useState("guidance");
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
+  const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
+  const [deadlineOpen, setDeadlineOpen] = useState(false);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
@@ -217,6 +221,16 @@ export default function MSPCustomerDetail() {
                     nextDeadlineDays={14}
                     nextDeadlineLabel="NIS2 Art.23"
                     sourceLabel={realScore != null ? `${getQuestionnaire(completed!.questionnaireId).title} (kunde-svar)` : undefined}
+                    onCriticalGapsClick={() => {
+                      const el = document.getElementById("gap-list-anchor");
+                      if (el) {
+                        el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        el.classList.add("ring-2", "ring-destructive/40", "rounded-2xl");
+                        setTimeout(() => el.classList.remove("ring-2", "ring-destructive/40", "rounded-2xl"), 2000);
+                      }
+                    }}
+                    onHiddenIssuesClick={() => setHiddenIssuesOpen(true)}
+                    onNextDeadlineClick={() => setDeadlineOpen(true)}
                   />
                 );
               })()}
@@ -228,14 +242,16 @@ export default function MSPCustomerDetail() {
               />
 
               {/* 3) Lara-gap fra siste fullførte skjema */}
-              <QuestionnaireGapList
-                customerId={customerId!}
-                onProposeService={(serviceId, source) =>
-                  toast.info(`Foreslår "${serviceId}" basert på ${source}`, {
-                    description: "Åpner tilbudsverktøy i neste iterasjon.",
-                  })
-                }
-              />
+              <div id="gap-list-anchor" className="scroll-mt-24 transition-all">
+                <QuestionnaireGapList
+                  customerId={customerId!}
+                  onProposeService={(serviceId, source) =>
+                    toast.info(`Foreslår "${serviceId}" basert på ${source}`, {
+                      description: "Åpner tilbudsverktøy i neste iterasjon.",
+                    })
+                  }
+                />
+              </div>
 
               {/* 4) Inntekts- og tjenestepotensial */}
               <MSPCustomerOpportunityCard
@@ -290,6 +306,75 @@ export default function MSPCustomerDetail() {
             });
           }}
         />
+
+        {/* Skjulte saker – kun synlig for partner */}
+        <Dialog open={hiddenIssuesOpen} onOpenChange={setHiddenIssuesOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <EyeOff className="h-4 w-4 text-warning" />
+                Skjulte saker – kun synlig for partner
+              </DialogTitle>
+              <DialogDescription className="text-[13px]">
+                Disse observasjonene har Mynder gjort på vegne av deg, men kunden ser dem ikke i sin egen Trust Profile. Bruk dem som grunnlag for veiledning eller nye tilbud.
+              </DialogDescription>
+            </DialogHeader>
+            <ul className="space-y-2.5 py-1">
+              {[
+                { title: "DKIM ikke konfigurert for hoveddomenet", desc: "Risiko for e-postforfalskning. Anbefal å aktivere DKIM + DMARC." },
+                { title: "Ingen MFA på admin-konto i Microsoft 365", desc: "Oppdaget via discovery 11. mai. Bør lukkes umiddelbart." },
+                { title: "Manglende databehandleravtale med 1 leverandør", desc: "Synes ikke i kundens vendor-liste – Mynder fant den via integrasjon." },
+              ].map((i, idx) => (
+                <li key={idx} className="rounded-lg border border-border p-3">
+                  <p className="text-[13px] font-medium text-foreground">{i.title}</p>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">{i.desc}</p>
+                </li>
+              ))}
+            </ul>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setHiddenIssuesOpen(false)}>Lukk</Button>
+              <Button onClick={() => { setHiddenIssuesOpen(false); navigate(`/msp-dashboard/${customerId}/trust-profile`); }} className="gap-1.5">
+                Åpne Trust Profile <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Saker knyttet til neste frist */}
+        <Dialog open={deadlineOpen} onOpenChange={setDeadlineOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-base">
+                <ClockIcon className="h-4 w-4 text-primary" />
+                Neste frist – NIS2 Art. 23
+              </DialogTitle>
+              <DialogDescription className="text-[13px]">
+                14 dager til frist. Disse sakene må være håndtert for at kunden skal være compliant.
+              </DialogDescription>
+            </DialogHeader>
+            <ul className="space-y-2.5 py-1">
+              {[
+                { title: "Dokumentert hendelsesrapporteringsrutine til myndigheter", ref: "Art. 23(1)" },
+                { title: "24-timers tidlig varsling-prosedyre", ref: "Art. 23(4)(a)" },
+                { title: "72-timers full hendelsesrapport-mal", ref: "Art. 23(4)(b)" },
+              ].map((g, idx) => (
+                <li key={idx} className="rounded-lg border border-border p-3 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-medium text-foreground">{g.title}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{g.ref}</p>
+                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wide text-destructive shrink-0">Åpen</span>
+                </li>
+              ))}
+            </ul>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeadlineOpen(false)}>Lukk</Button>
+              <Button onClick={() => { setDeadlineOpen(false); navigate(`/msp-dashboard/${customerId}/nis2`); }} className="gap-1.5">
+                Åpne NIS2-arbeidsområde <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
