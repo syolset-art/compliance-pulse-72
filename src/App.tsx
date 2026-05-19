@@ -161,6 +161,7 @@ const App = () => (
                   <Route path="/bli-partner" element={<BliPartner />} />
                   <Route path="/msp-customer-roi" element={<MSPCustomerROI />} />
                   <Route path="/msp-billing" element={<MSPBillingSettings />} />
+                  <Route path="/msp-settings" element={<MSPPartnerSettings />} />
                   <Route path="/mynder-me" element={<MynderMe />} />
                   <Route path="/developer/trust-profile-architecture" element={<TrustProfileArchitecture />} />
                   <Route path="/dashboard-v2" element={<DashboardV2 />} />
