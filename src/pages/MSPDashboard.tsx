@@ -401,8 +401,15 @@ export default function MSPDashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-border bg-card overflow-hidden">
-                  <Table className="table-fixed">
+                <>
+                  {/* Mobile/tablet fallback: cards (table is dense for small screens) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:hidden">
+                    {filtered.map((c: any) => (
+                      <MSPCustomerCard key={c.id} customer={c} />
+                    ))}
+                  </div>
+                <div className="hidden lg:block rounded-lg border border-border bg-card overflow-x-auto">
+                  <Table className="table-fixed min-w-[960px]">
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-[220px]">
