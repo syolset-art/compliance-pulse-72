@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, X, CheckCircle2, ShieldCheck, Eye } from "lucide-react";
+import { Upload, FileText, X, CheckCircle2, ShieldCheck, Eye, Clock, MinusCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -22,10 +22,13 @@ export interface EvidenceFileMeta {
   uploadedAt: string;
 }
 
+export type ActivityStatus = "in_progress" | "not_relevant" | "done";
+
 export interface ConfirmPayload {
   note: string;
   files: EvidenceFileMeta[];
   sharedWithCustomer: boolean;
+  status: ActivityStatus;
 }
 
 interface Props {
@@ -60,6 +63,7 @@ export const ConfirmActivityDialog = ({
   const [note, setNote] = useState("");
   const [files, setFiles] = useState<EvidenceFileMeta[]>([]);
   const [shared, setShared] = useState(true);
+  const [status, setStatus] = useState<ActivityStatus>("done");
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -68,6 +72,7 @@ export const ConfirmActivityDialog = ({
       setNote(initial?.note ?? "");
       setFiles(initial?.files ?? []);
       setShared(initial?.sharedWithCustomer ?? true);
+      setStatus(initial?.status ?? "in_progress");
     }
   }, [open, initial]);
 
@@ -114,6 +119,41 @@ export const ConfirmActivityDialog = ({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
+          {!readOnly && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-medium text-foreground">Status</label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {([
+                  { v: "in_progress", label: "Pågår", Icon: Clock },
+                  { v: "not_relevant", label: "Ikke relevant", Icon: MinusCircle },
+                  { v: "done", label: "Ferdig", Icon: CheckCircle2 },
+                ] as const).map(({ v, label, Icon }) => {
+                  const active = status === v;
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setStatus(v)}
+                      className={cn(
+                        "h-9 rounded-md border text-xs font-medium flex items-center justify-center gap-1.5 transition-colors",
+                        active
+                          ? v === "done"
+                            ? "bg-success/10 text-success border-success/40"
+                            : v === "not_relevant"
+                              ? "bg-muted text-foreground border-border"
+                              : "bg-warning/10 text-warning border-warning/40"
+                          : "bg-background text-muted-foreground border-border hover:text-foreground",
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-foreground">
               Notat til kunde {readOnly ? "" : "(valgfritt)"}
@@ -236,13 +276,17 @@ export const ConfirmActivityDialog = ({
               </Button>
               <Button
                 onClick={() => {
-                  onConfirm?.({ note, files, sharedWithCustomer: true });
+                  onConfirm?.({ note, files, sharedWithCustomer: shared, status });
                   onOpenChange(false);
                 }}
                 className="gap-1.5"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Send til kunde for godkjenning
+                {status === "done"
+                  ? "Lagre og send til kunde"
+                  : status === "not_relevant"
+                    ? "Lagre – ikke relevant"
+                    : "Lagre fremdrift"}
               </Button>
 
             </>

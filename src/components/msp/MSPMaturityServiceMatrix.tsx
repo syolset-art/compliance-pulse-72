@@ -192,10 +192,13 @@ export const getStepText = (s: LaraStep): string =>
 export const getStepVia = (s: LaraStep): string | undefined =>
   typeof s === "string" ? undefined : s.via;
 
+export type ActivityStatus = "in_progress" | "not_relevant" | "done";
+
 export interface DeliveryActivity {
   id: string;
   label: string;
   done: boolean;
+  status?: ActivityStatus;
   owner?: TaskOwner;
   date?: string;
   confirmedAt?: string;
@@ -561,25 +564,34 @@ export function MSPMaturityServiceMatrix({
     activityId: string,
     payload: ConfirmPayload,
   ) => {
+    const status = payload.status ?? "done";
+    const isResolved = status === "done" || status === "not_relevant";
     applyActivityUpdate(deliveryId, controlId, activityId, a => ({
       ...a,
-      done: true,
-      confirmedAt: new Date().toISOString(),
-      confirmedBy: "Partner",
+      status,
+      done: isResolved,
+      confirmedAt: isResolved ? new Date().toISOString() : undefined,
+      confirmedBy: isResolved ? "Partner" : undefined,
       note: payload.note,
       evidence: payload.files,
       sharedWithCustomer: payload.sharedWithCustomer,
     }));
-    toast.success("Aktivitet sendt til kunde", {
-      description: "Trust Profile oppdateres når kunden har godkjent rapporten.",
-    });
-
+    if (status === "done") {
+      toast.success("Aktivitet markert som ferdig", {
+        description: "Trust Profile oppdateres når kunden har godkjent rapporten.",
+      });
+    } else if (status === "not_relevant") {
+      toast.success("Aktivitet markert som ikke relevant");
+    } else {
+      toast.success("Aktivitet oppdatert", { description: "Status: pågår" });
+    }
   };
 
   const undoActivity = (deliveryId: string, controlId: string, activityId: string) => {
     applyActivityUpdate(deliveryId, controlId, activityId, a => ({
       ...a,
       done: false,
+      status: "in_progress",
       confirmedAt: undefined,
       confirmedBy: undefined,
       note: undefined,

@@ -16,6 +16,7 @@ import {
   PartyPopper,
   RotateCcw,
   Paperclip,
+  MinusCircle,
   User as UserIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -346,25 +347,14 @@ export const OngoingDeliveriesList = ({
                             <ActivityRow
                               key={a.id}
                               activity={a}
-                              onToggleConfirm={() => {
+                              onOpen={() => confirmActivity(d.id, c.id, a.id)}
+                              onQuickToggle={() => {
                                 if (a.done) {
                                   onUndo(d.id, c.id, a.id);
                                 } else {
                                   confirmActivity(d.id, c.id, a.id);
                                 }
                               }}
-                              onUpload={() =>
-                                confirmActivity(d.id, c.id, a.id)
-                              }
-                              onView={() =>
-                                setConfirmCtx({
-                                  open: true,
-                                  deliveryId: d.id,
-                                  controlId: c.id,
-                                  activityId: a.id,
-                                  readOnly: true,
-                                })
-                              }
                             />
                           ))}
                         </div>
@@ -541,37 +531,55 @@ function slug(s: string) {
 
 const ActivityRow = ({
   activity,
-  onToggleConfirm,
-  onUpload,
-  onView,
+  onOpen,
+  onQuickToggle,
 }: {
   activity: DeliveryActivity;
-  onToggleConfirm: () => void;
-  onUpload: () => void;
-  onView: () => void;
+  onOpen: () => void;
+  onQuickToggle: () => void;
 }) => {
   const done = activity.done;
+  const status = activity.status ?? (done ? "done" : "in_progress");
+  const notRelevant = status === "not_relevant";
   const evidenceCount = activity.evidence?.length ?? 0;
   const hasNote = !!activity.note && activity.note.trim().length > 0;
-  const hasDetails = done || evidenceCount > 0 || hasNote;
-  return (
 
+  return (
     <div
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
       className={cn(
-        "flex items-start gap-2 rounded-md border px-2.5 py-2 text-left transition-colors",
-        done
-          ? "bg-success/[0.04] border-success/20"
-          : "bg-background border-border hover:bg-muted/30",
+        "group flex items-start gap-2 rounded-md border px-2.5 py-2 text-left transition-colors cursor-pointer",
+        notRelevant
+          ? "bg-muted/40 border-border opacity-70"
+          : done
+            ? "bg-success/[0.04] border-success/20 hover:bg-success/[0.08]"
+            : "bg-background border-border hover:bg-muted/40 hover:border-primary/30",
       )}
     >
       <button
         type="button"
-        onClick={onToggleConfirm}
+        onClick={(e) => {
+          e.stopPropagation();
+          onQuickToggle();
+        }}
         className="mt-0.5 shrink-0"
-        aria-label={done ? "Angre bekreftelse" : "Bekreft aktivitet"}
+        aria-label={done ? "Angre" : "Marker som ferdig"}
+        title={done ? "Angre" : "Marker som ferdig"}
       >
         {done ? (
-          <CheckCircle2 className="h-4 w-4 text-success" />
+          notRelevant ? (
+            <MinusCircle className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <CheckCircle2 className="h-4 w-4 text-success" />
+          )
         ) : (
           <Circle className="h-4 w-4 text-muted-foreground hover:text-primary" />
         )}
@@ -588,11 +596,22 @@ const ActivityRow = ({
           >
             {activity.label}
           </span>
-          {activity.owner && (
+          {status === "in_progress" && (hasNote || evidenceCount > 0) && (
             <Badge
               variant="outline"
-              className="text-[10px] gap-1 h-5"
+              className="text-[10px] gap-1 h-5 bg-warning/10 text-warning border-warning/30"
             >
+              <Clock className="h-2.5 w-2.5" />
+              Pågår
+            </Badge>
+          )}
+          {notRelevant && (
+            <Badge variant="outline" className="text-[10px] h-5">
+              Ikke relevant
+            </Badge>
+          )}
+          {activity.owner && (
+            <Badge variant="outline" className="text-[10px] gap-1 h-5">
               <UserIcon className="h-2.5 w-2.5" />
               {activity.owner}
             </Badge>
@@ -621,44 +640,13 @@ const ActivityRow = ({
             </Badge>
           )}
         </div>
-      </div>
-      <div className="flex items-center gap-1 shrink-0">
-        {hasDetails && (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 px-2 text-[11px] gap-1"
-            onClick={onView}
-            title={hasNote || evidenceCount > 0 ? "Se notat og vedlegg" : "Se detaljer"}
-          >
-            <FileText className="h-3 w-3" />
-            Vis
-          </Button>
-        )}
-        {!done && (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 px-2 text-[11px] gap-1"
-            onClick={onUpload}
-          >
-            <Upload className="h-3 w-3" />
-            Last opp
-          </Button>
-        )}
-        {done && (
-          <Button
-            size="sm"
-            variant="ghost"
-            className="h-7 px-2 text-[11px] text-muted-foreground"
-            onClick={onToggleConfirm}
-            title="Angre"
-          >
-            <RotateCcw className="h-3 w-3" />
-          </Button>
+        {hasNote && (
+          <p className="text-[11px] text-muted-foreground mt-1 line-clamp-1">
+            {activity.note}
+          </p>
         )}
       </div>
-
+      <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground/60 group-hover:text-foreground shrink-0 mt-1" />
     </div>
   );
 };
