@@ -283,7 +283,7 @@ export const ConfirmActivityDialog = ({
               >
                 <CheckCircle2 className="h-4 w-4" />
                 {status === "done"
-                  ? "Lagre og send til kunde"
+                  ? "Lagre som ferdig"
                   : status === "not_relevant"
                     ? "Lagre – ikke relevant"
                     : "Lagre fremdrift"}
