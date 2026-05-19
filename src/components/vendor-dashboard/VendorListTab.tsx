@@ -165,7 +165,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     },
   });
 
-  const [viewMode, setViewMode] = useState<"list" | "card">("card");
+  const [viewMode, setViewMode] = useState<"card" | "table">("card");
   const [scoreDisplay, setScoreDisplay] = useState<ScoreDisplayMode>("percent");
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -174,6 +174,8 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
   const [gdprRoleFilter, setGdprRoleFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [countryFilter, setCountryFilter] = useState("");
+  const [ownerFilter, setOwnerFilter] = useState("");
   const [showAll, setShowAll] = useState(false);
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
