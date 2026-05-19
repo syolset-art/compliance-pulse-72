@@ -54,9 +54,14 @@ export function MSPCustomerSnapshotCard({
           value={`${overallMaturity}%`}
           valueClass={colorFor(overallMaturity)}
           sub={
-            <span className={cn("inline-flex items-center gap-1", trendColor)}>
-              <TrendIcon className="h-3 w-3" />
-              {deltaPct >= 0 ? "+" : ""}{deltaPct}% / 30d
+            <span className="space-y-0.5 block">
+              <span className={cn("inline-flex items-center gap-1", trendColor)}>
+                <TrendIcon className="h-3 w-3" />
+                {deltaPct >= 0 ? "+" : ""}{deltaPct}% / 30d
+              </span>
+              {sourceLabel && (
+                <span className="block text-[10px] text-primary truncate">{sourceLabel}</span>
+              )}
             </span>
           }
         />
