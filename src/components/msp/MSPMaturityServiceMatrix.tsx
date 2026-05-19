@@ -180,6 +180,13 @@ const ONGOING: OngoingItem[] = [
   },
 ];
 
+export type LaraStep = string | { text: string; via?: string };
+
+export const getStepText = (s: LaraStep): string =>
+  typeof s === "string" ? s : s.text;
+export const getStepVia = (s: LaraStep): string | undefined =>
+  typeof s === "string" ? undefined : s.via;
+
 export interface DeliveryActivity {
   id: string;
   label: string;
