@@ -346,25 +346,14 @@ export const OngoingDeliveriesList = ({
                             <ActivityRow
                               key={a.id}
                               activity={a}
-                              onToggleConfirm={() => {
+                              onOpen={() => confirmActivity(d.id, c.id, a.id)}
+                              onQuickToggle={() => {
                                 if (a.done) {
                                   onUndo(d.id, c.id, a.id);
                                 } else {
                                   confirmActivity(d.id, c.id, a.id);
                                 }
                               }}
-                              onUpload={() =>
-                                confirmActivity(d.id, c.id, a.id)
-                              }
-                              onView={() =>
-                                setConfirmCtx({
-                                  open: true,
-                                  deliveryId: d.id,
-                                  controlId: c.id,
-                                  activityId: a.id,
-                                  readOnly: true,
-                                })
-                              }
                             />
                           ))}
                         </div>
