@@ -322,24 +322,50 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
                 )}
               </div>
 
-              {/* Lara-tråd */}
-              {step.activity.laraSteps && step.activity.laraSteps.length > 0 && (
-                <div className="rounded-lg border border-primary/15 bg-background/60 p-3.5">
-                  <p className="text-[11px] font-medium text-primary uppercase tracking-wide flex items-center gap-1.5 mb-2">
-                    <Bot className="h-3 w-3" />
-                    Lara har allerede gjort:
-                  </p>
-                  <ul className="space-y-1.5">
-                    {step.activity.laraSteps.map((s, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-[13px] text-foreground"
-                      >
-                        <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0 mt-0.5" />
-                        <span>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
+              {/* Lara + Partner-tråd */}
+              {((step.activity.laraSteps && step.activity.laraSteps.length > 0) ||
+                (step.activity.partnerSteps &&
+                  step.activity.partnerSteps.length > 0)) && (
+                <div className="grid sm:grid-cols-2 gap-2.5">
+                  {step.activity.laraSteps && step.activity.laraSteps.length > 0 && (
+                    <div className="rounded-lg border border-primary/15 bg-primary/[0.04] p-3">
+                      <p className="text-[11px] font-medium text-primary uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                        <Bot className="h-3 w-3" />
+                        Lara utfører automatisk
+                      </p>
+                      <ul className="space-y-1.5">
+                        {step.activity.laraSteps.map((s, i) => (
+                          <li
+                            key={i}
+                            className="flex items-start gap-2 text-[12px] text-foreground"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0 mt-0.5" />
+                            <span>{s}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {step.activity.partnerSteps &&
+                    step.activity.partnerSteps.length > 0 && (
+                      <div className="rounded-lg border border-border bg-muted/30 p-3">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                          <UserRound className="h-3 w-3" />
+                          Du må gjøre manuelt
+                        </p>
+                        <ul className="space-y-1.5">
+                          {step.activity.partnerSteps.map((s, i) => (
+                            <li
+                              key={i}
+                              className="flex items-start gap-2 text-[12px] text-foreground"
+                            >
+                              <span className="text-muted-foreground mt-0.5">·</span>
+                              <span>{s}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                 </div>
               )}
 
