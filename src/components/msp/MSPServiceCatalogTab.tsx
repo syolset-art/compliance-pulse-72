@@ -16,7 +16,7 @@ import {
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping } from "./CustomServiceDialog";
 import type { PartnerService } from "@/lib/serviceCatalog";
-import { FRAMEWORK_CATALOG } from "@/lib/frameworkCoverageCatalog";
+
 
 type AllSelections = Record<string, FrameworkSelection>;
 
