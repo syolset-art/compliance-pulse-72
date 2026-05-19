@@ -16,7 +16,13 @@ import {
   FileText,
   ShieldCheck,
 } from "lucide-react";
-import type { DeliveryItem } from "./MSPMaturityServiceMatrix";
+import {
+  type DeliveryItem,
+  type LaraStep,
+  getStepText,
+  getStepVia,
+} from "./MSPMaturityServiceMatrix";
+import { IntegrationBadge } from "./DeliveryWizard";
 
 interface Props {
   open: boolean;
