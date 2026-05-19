@@ -24,15 +24,18 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type {
-  DeliveryItem,
-  DeliveryControl,
-  DeliveryActivity,
+import {
+  type DeliveryItem,
+  type DeliveryControl,
+  type DeliveryActivity,
+  getStepText,
+  getStepVia,
 } from "./MSPMaturityServiceMatrix";
 import type { ConfirmPayload, EvidenceFileMeta } from "./ConfirmActivityDialog";
 import { ConfirmActivityDialog } from "./ConfirmActivityDialog";
 import { LaraDraftDialog } from "./LaraDraftDialog";
 import { DeliverySummaryDialog } from "./DeliverySummaryDialog";
+import { LaraMechanicsCallout } from "./LaraMechanicsCallout";
 import { getService } from "@/lib/serviceCatalog";
 import { toast } from "sonner";
 
