@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
   Sparkles,
   ArrowDownLeft,
@@ -29,6 +32,7 @@ import {
   Megaphone,
   Users,
   Plus,
+  Settings,
 } from "lucide-react";
 import { toast } from "sonner";
 import { CampaignWizardDialog, type CampaignDraft } from "@/components/msp/CampaignWizardDialog";
@@ -205,6 +209,51 @@ export default function MSPMessages() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [expandedCampaign, setExpandedCampaign] = useState<Record<string, boolean>>({});
 
+  // Inbox-/varslingsinnstillinger (persistert lokalt for nå)
+  const SETTINGS_KEY = "msp-messages-settings-v1";
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [inboxEmail, setInboxEmail] = useState("");
+  const [ccEmail, setCcEmail] = useState("");
+  const [replyToEmail, setReplyToEmail] = useState("");
+  const [forwardEnabled, setForwardEnabled] = useState(true);
+  const [dailyDigest, setDailyDigest] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      setInboxEmail(s.inboxEmail ?? "");
+      setCcEmail(s.ccEmail ?? "");
+      setReplyToEmail(s.replyToEmail ?? "");
+      setForwardEnabled(s.forwardEnabled ?? true);
+      setDailyDigest(s.dailyDigest ?? false);
+    } catch {}
+  }, []);
+
+  const handleSaveSettings = () => {
+    if (inboxEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inboxEmail)) {
+      toast.error("Ugyldig mottaks-e-post");
+      return;
+    }
+    if (ccEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ccEmail)) {
+      toast.error("Ugyldig kopi-e-post");
+      return;
+    }
+    if (replyToEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyToEmail)) {
+      toast.error("Ugyldig svar-til-e-post");
+      return;
+    }
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({ inboxEmail, ccEmail, replyToEmail, forwardEnabled, dailyDigest }),
+    );
+    setSettingsOpen(false);
+    toast.success("Innstillinger lagret", {
+      description: inboxEmail ? `E-post sendes til ${inboxEmail}` : undefined,
+    });
+  };
+
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
   const handleSendAll = () => {
@@ -278,11 +327,23 @@ export default function MSPMessages() {
               <p className="text-[13px] text-muted-foreground mt-1">
                 Tilbud, svar og meldinger fra alle dine kunder samlet på ett sted.
               </p>
+              {inboxEmail && (
+                <p className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1.5">
+                  <Mail className="h-3 w-3" />
+                  Svar fra kunder videresendes til <span className="font-medium text-foreground">{inboxEmail}</span>
+                </p>
+              )}
             </div>
-            <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setWizardOpen(true)}>
-              <Megaphone className="h-3.5 w-3.5" />
-              Ny kampanje
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setSettingsOpen(true)}>
+                <Settings className="h-3.5 w-3.5" />
+                Innstillinger
+              </Button>
+              <Button size="sm" className="gap-1.5" onClick={() => setWizardOpen(true)}>
+                <Megaphone className="h-3.5 w-3.5" />
+                Ny kampanje
+              </Button>
+            </div>
           </div>
 
           {/* Lara banner */}
@@ -385,6 +446,83 @@ export default function MSPMessages() {
         onOpenChange={setWizardOpen}
         onSend={handleCampaignSend}
       />
+
+      {/* Innstillinger – mottaks-e-post */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-base flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Innstillinger for meldinger
+            </DialogTitle>
+            <DialogDescription className="text-[13px]">
+              Velg hvor svar og varsler fra kunder skal mottas. Alle utgående kampanjer og tilbud sendes fortsatt fra Mynder, men kundens svar videresendes til adressen du oppgir her.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="inboxEmail" className="text-[13px]">Mottaks-e-post</Label>
+              <Input
+                id="inboxEmail"
+                type="email"
+                placeholder="navn@firma.no"
+                value={inboxEmail}
+                onChange={(e) => setInboxEmail(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">Hovedadressen som mottar kundens svar og notifikasjoner.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="ccEmail" className="text-[13px]">Kopi (CC)</Label>
+              <Input
+                id="ccEmail"
+                type="email"
+                placeholder="team@firma.no (valgfritt)"
+                value={ccEmail}
+                onChange={(e) => setCcEmail(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">Eks. en delt teampostkasse som skal være med på alle svar.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="replyTo" className="text-[13px]">Svar-til-adresse</Label>
+              <Input
+                id="replyTo"
+                type="email"
+                placeholder="Standard: mottaks-e-post"
+                value={replyToEmail}
+                onChange={(e) => setReplyToEmail(e.target.value)}
+              />
+              <p className="text-[11px] text-muted-foreground">Brukes som «Reply-To» når kunden trykker svar i e-posten.</p>
+            </div>
+
+            <div className="rounded-md border border-border p-3 space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[13px] font-medium text-foreground">Videresend kundesvar</p>
+                  <p className="text-[11px] text-muted-foreground">Send kundens svar direkte til mottaks-e-posten din.</p>
+                </div>
+                <Switch checked={forwardEnabled} onCheckedChange={setForwardEnabled} />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[13px] font-medium text-foreground">Daglig sammendrag</p>
+                  <p className="text-[11px] text-muted-foreground">Få én daglig e-post med oversikt over nye svar og tilbud.</p>
+                </div>
+                <Switch checked={dailyDigest} onCheckedChange={setDailyDigest} />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSettingsOpen(false)}>Avbryt</Button>
+            <Button onClick={handleSaveSettings}>Lagre</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+
 
       <Dialog open={proposalsOpen} onOpenChange={setProposalsOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
