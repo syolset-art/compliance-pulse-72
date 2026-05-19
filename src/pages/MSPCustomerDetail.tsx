@@ -35,7 +35,20 @@ export default function MSPCustomerDetail() {
   const { customerId } = useParams();
   const navigate = useNavigate();
   const [acronisOpen, setAcronisOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("guidance");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "guidance";
+  const [activeTab, setActiveTab] = useState(initialTab);
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    if (t && t !== activeTab) setActiveTab(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+  const handleTabChange = (v: string) => {
+    setActiveTab(v);
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", v);
+    setSearchParams(next, { replace: true });
+  };
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
