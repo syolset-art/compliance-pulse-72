@@ -383,6 +383,7 @@ const DELIVERIES: DeliveryItem[] = [
             owner: "Kunde",
             date: "15. mai",
             laraSteps: ["6 middels funn identifisert", "Tiltaksforslag generert per funn"],
+            partnerSteps: ["Avklare patche-vindu med drift", "Følge opp eier per funn ukentlig"],
             laraDraft: {
               title: "Tiltaksplan — middels sårbarheter",
               fileName: "tiltaksplan-middels-mai-2025.pdf",
