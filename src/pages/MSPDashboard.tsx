@@ -440,15 +440,23 @@ export default function MSPDashboard() {
                                 {crit.label}
                               </Badge>
                             </TableCell>
-                            <TableCell>
+                            <TableCell onClick={(e) => e.stopPropagation()}>
                               {services.length === 0 ? (
                                 <span className="text-muted-foreground text-sm">—</span>
                               ) : (
                                 <div className="flex flex-wrap gap-1 max-w-[280px]">
                                   {services.map((s) => (
-                                    <Badge key={s} variant="outline" className="font-normal bg-primary/5 text-primary border-primary/20 text-[11px]">
-                                      {s}
-                                    </Badge>
+                                    <button
+                                      key={s}
+                                      type="button"
+                                      onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
+                                      className="inline-flex"
+                                      title={`Åpne tjenester for ${c.customer_name}`}
+                                    >
+                                      <Badge variant="outline" className="font-normal bg-primary/5 text-primary border-primary/20 text-[11px] cursor-pointer hover:bg-primary/10 transition-colors">
+                                        {s}
+                                      </Badge>
+                                    </button>
                                   ))}
                                 </div>
                               )}

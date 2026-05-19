@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
@@ -34,7 +35,20 @@ export default function MSPCustomerDetail() {
   const { customerId } = useParams();
   const navigate = useNavigate();
   const [acronisOpen, setAcronisOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("guidance");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "guidance";
+  const [activeTab, setActiveTab] = useState(initialTab);
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    if (t && t !== activeTab) setActiveTab(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+  const handleTabChange = (v: string) => {
+    setActiveTab(v);
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", v);
+    setSearchParams(next, { replace: true });
+  };
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
@@ -149,7 +163,7 @@ export default function MSPCustomerDetail() {
           <CustomerStatusBanner customer={customer} />
 
           {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full min-w-0">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full min-w-0">
             <nav aria-label="Kunde-faner" className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
               <TabsList className="flex bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5 min-w-0" role="tablist">
                 <TabsTrigger value="guidance" className="relative text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
