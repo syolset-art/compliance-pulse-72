@@ -129,58 +129,58 @@ const RECOMMENDATIONS: Recommendation[] = [
   },
 ];
 
-const ONGOING: OngoingItem[] = [
+interface SavedOffer {
+  id: string;
+  offerNumber: string;
+  serviceTitle: string;
+  frameworkLabel?: string;
+  createdAt: string; // ISO
+  createdBy: string;
+  taskCount: number;
+  totalHours: number;
+  totalPrice: number;
+  status: "not_started" | "in_progress";
+}
+
+const SAVED_OFFERS_SEED: SavedOffer[] = [
   {
-    id: "iso",
-    title: "ISO 27001-klargjøring",
-    status: "pending",
-    meta: "Tilbud sendt 28. april · Avventer svar",
+    id: "of-1",
+    offerNumber: "T-2026-1247",
+    serviceTitle: "ISO 27001-klargjøring",
+    frameworkLabel: "ISO 27001",
+    createdAt: "2026-05-12T09:20:00Z",
+    createdBy: "Truls Hansen",
+    taskCount: 6,
+    totalHours: 90,
+    totalPrice: 135000,
+    status: "in_progress",
   },
   {
-    id: "aware",
-    title: "Awareness-program",
-    status: "accepted",
-    meta: "Akseptert 12. april · Oppstart 15. mai",
-    frameworkId: "iso27001",
+    id: "of-2",
+    offerNumber: "T-2026-1231",
+    serviceTitle: "Awareness-program",
     frameworkLabel: "ISO 27001",
-    controls: [
-      {
-        id: "A.6.3",
-        name: "Sikkerhetsbevissthet, opplæring og trening",
-        desc: "Ansatte skal motta jevnlig opplæring i informasjonssikkerhet og oppdaterte trusler.",
-        status: "partial",
-        capability: "assisted",
-        progress: 60,
-        source: "Awareness-plattform",
-      },
-      {
-        id: "A.5.10",
-        name: "Akseptabel bruk av informasjonsmidler",
-        desc: "Etabler regler for akseptabel bruk og kommuniser dette til alle ansatte.",
-        status: "missing",
-        capability: "manual",
-        progress: 0,
-      },
-      {
-        id: "A.5.24",
-        name: "Planlegging og forberedelse av hendelseshåndtering",
-        desc: "Definer og kommuniser ansvar og rutiner for håndtering av sikkerhetshendelser.",
-        status: "missing",
-        capability: "assisted",
-        progress: 0,
-      },
-      {
-        id: "A.7.7",
-        name: "Tomt skrivebord og tom skjerm",
-        desc: "Etabler praksis for låsing av skjerm og rydding av sensitive papirer.",
-        status: "fulfilled",
-        capability: "auto",
-        progress: 100,
-        source: "Endpoint-policy",
-      },
-    ],
+    createdAt: "2026-04-28T13:05:00Z",
+    createdBy: "Truls Hansen",
+    taskCount: 4,
+    totalHours: 60,
+    totalPrice: 90000,
+    status: "not_started",
+  },
+  {
+    id: "of-3",
+    offerNumber: "T-2026-1198",
+    serviceTitle: "NIS2-klargjøring",
+    frameworkLabel: "NIS2",
+    createdAt: "2026-04-15T10:42:00Z",
+    createdBy: "Anita Berg",
+    taskCount: 5,
+    totalHours: 100,
+    totalPrice: 150000,
+    status: "not_started",
   },
 ];
+
 
 export type LaraStep = string | { text: string; via?: string };
 
