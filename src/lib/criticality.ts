@@ -12,10 +12,10 @@ export interface CriticalityMeta {
 }
 
 export const CRITICALITY_META: Record<CriticalityKey, CriticalityMeta> = {
-  low:      { key: "low",      labelNb: "Lav kritikalitet",      labelEn: "Low criticality",      pillClass: "bg-muted text-muted-foreground border-border",                       dotClass: "bg-muted-foreground/40" },
-  medium:   { key: "medium",   labelNb: "Middels kritikalitet",  labelEn: "Medium criticality",   pillClass: "bg-secondary text-secondary-foreground border-border",              dotClass: "bg-foreground/50" },
-  high:     { key: "high",     labelNb: "Høy kritikalitet",      labelEn: "High criticality",     pillClass: "bg-primary/10 text-primary border-primary/20",                      dotClass: "bg-primary" },
-  critical: { key: "critical", labelNb: "Kritisk",               labelEn: "Critical",             pillClass: "bg-primary/15 text-primary border-primary/30 font-semibold",        dotClass: "bg-primary" },
+  low:      { key: "low",      labelNb: "Lav",      labelEn: "Low",      pillClass: "bg-crit-low-soft text-crit-low-fg border border-crit-low",                            dotClass: "bg-crit-low" },
+  medium:   { key: "medium",   labelNb: "Moderat",  labelEn: "Moderate", pillClass: "bg-crit-moderate-soft text-crit-moderate-fg border border-crit-moderate",            dotClass: "bg-crit-moderate" },
+  high:     { key: "high",     labelNb: "Høy",      labelEn: "High",     pillClass: "bg-crit-high-soft text-crit-high-fg border border-crit-high",                        dotClass: "bg-crit-high" },
+  critical: { key: "critical", labelNb: "Kritisk",  labelEn: "Critical", pillClass: "bg-crit-critical-soft text-crit-critical-fg border border-crit-critical font-semibold", dotClass: "bg-crit-critical" },
 };
 
 /** Leser brukervalg uavhengig av om feltet heter `criticality` eller `risk_level` (legacy). */
