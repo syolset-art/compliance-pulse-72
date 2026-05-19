@@ -492,14 +492,11 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
           setCountryFilter={setCountryFilter}
           vendorCategoryFilter={vendorCategoryFilter}
           setVendorCategoryFilter={setVendorCategoryFilter}
-          gdprRoleFilter={gdprRoleFilter}
-          setGdprRoleFilter={setGdprRoleFilter}
           priorityFilter={priorityFilter}
           setPriorityFilter={setPriorityFilter}
-          riskFilter={riskFilter}
-          setRiskFilter={setRiskFilter}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
+          criticalityFilter={riskFilter}
+          setCriticalityFilter={setRiskFilter}
+
           ownerFilter={ownerFilter}
           setOwnerFilter={setOwnerFilter}
         />
