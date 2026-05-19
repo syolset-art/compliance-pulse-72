@@ -98,7 +98,10 @@ export default function MSPDashboard() {
   const [activeTab, setActiveTab] = useState<"customers" | "campaigns">("customers");
   const [view, setView] = useState<ViewMode>("cards");
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [industryFilter, setIndustryFilter] = useState<string[]>([]);
+  const [criticalityFilter, setCriticalityFilter] = useState<string[]>([]);
+  const [tpStatusFilter, setTpStatusFilter] = useState<TPStatusKey[]>([]);
+  const [serviceFilter, setServiceFilter] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("customer_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const queryClient = useQueryClient();
@@ -115,10 +118,26 @@ export default function MSPDashboard() {
     },
   });
 
+  // Distinct values for column filter menus
+  const industryOptions = useMemo(
+    () => Array.from(new Set((customers as any[]).map((c) => c.industry).filter(Boolean))).sort(),
+    [customers],
+  );
+  const serviceOptions = useMemo(
+    () => Array.from(new Set((customers as any[]).flatMap((c) => deriveNeededServices(c)))).sort(),
+    [customers],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const list = (customers as any[]).filter((c) => {
-      if (statusFilter !== "all" && c.status !== statusFilter) return false;
+      if (industryFilter.length && !industryFilter.includes(c.industry)) return false;
+      if (criticalityFilter.length && !criticalityFilter.includes(deriveCriticality(c).key)) return false;
+      if (tpStatusFilter.length && !tpStatusFilter.includes(deriveTPStatus(c))) return false;
+      if (serviceFilter.length) {
+        const svcs = deriveNeededServices(c);
+        if (!serviceFilter.some((s) => svcs.includes(s))) return false;
+      }
       if (!q) return true;
       return [c.customer_name, c.industry, c.org_number, c.contact_email]
         .filter(Boolean)
@@ -130,21 +149,21 @@ export default function MSPDashboard() {
       if (sortKey === "customer_name") {
         return (a.customer_name || "").localeCompare(b.customer_name || "", "nb") * dir;
       }
-      if (sortKey === "status") {
-        const ao = STATUS_ORDER[deriveStatusKey(a)] ?? 99;
-        const bo = STATUS_ORDER[deriveStatusKey(b)] ?? 99;
-        return (ao - bo) * dir;
-      }
-      // last_activity_at — nulls always sorted last
-      const at = a.last_activity_at ? new Date(a.last_activity_at).getTime() : null;
-      const bt = b.last_activity_at ? new Date(b.last_activity_at).getTime() : null;
-      if (at === null && bt === null) return 0;
-      if (at === null) return 1;
-      if (bt === null) return -1;
-      return (at - bt) * dir;
+      // tp_status
+      const ao = TP_STATUS_ORDER[deriveTPStatus(a)] ?? 99;
+      const bo = TP_STATUS_ORDER[deriveTPStatus(b)] ?? 99;
+      return (ao - bo) * dir;
     });
     return sorted;
-  }, [customers, search, statusFilter, sortKey, sortDir]);
+  }, [customers, search, industryFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir]);
+
+  const clearAllFilters = () => {
+    setIndustryFilter([]);
+    setCriticalityFilter([]);
+    setTpStatusFilter([]);
+    setServiceFilter([]);
+  };
+  const activeFilterCount = industryFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
