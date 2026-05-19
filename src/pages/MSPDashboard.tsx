@@ -87,7 +87,7 @@ function deriveNeededServices(c: any): string[] {
   return services.slice(0, 3);
 }
 
-type SortKey = "customer_name" | "country_code" | "tp_status";
+type SortKey = "customer_name" | "country_code" | "tp_status" | "compliance_score";
 type SortDir = "asc" | "desc";
 
 function ColumnFilter({
