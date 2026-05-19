@@ -146,6 +146,7 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
                 onAdopt={() => onAdopt(template)}
                 reasons={reasons}
                 highlighted
+                hourlyRate={hourlyRate}
               />
             ))}
           </div>
@@ -169,6 +170,7 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
                   template={template}
                   adopted={adoptedIds.has(template.id)}
                   onAdopt={() => onAdopt(template)}
+                  hourlyRate={hourlyRate}
                 />
               ))}
             </div>
