@@ -88,6 +88,20 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --system-archived: 52 4% 52%;       /* #888780 */
     --system-archived-foreground: 0 0% 100%;
     --system-archived-soft: 48 21% 93%;
+
+    /* Criticality palette (user-set business value, distinct from risk) */
+    --crit-low: 82 64% 36%;            /* #639922 border */
+    --crit-low-soft: 86 51% 91%;       /* #EAF3DE bg */
+    --crit-low-fg: 82 70% 22%;
+    --crit-moderate: 34 79% 41%;       /* #BA7517 border */
+    --crit-moderate-soft: 38 79% 92%;  /* #FAEEDA bg */
+    --crit-moderate-fg: 28 79% 30%;
+    --crit-high: 1 73% 59%;            /* #E24B4A border */
+    --crit-high-soft: 0 79% 96%;       /* #FCEBEB bg */
+    --crit-high-fg: 0 60% 30%;         /* #791F1F text */
+    --crit-critical: 0 58% 41%;        /* #A32D2D border */
+    --crit-critical-soft: 0 79% 96%;   /* #FCEBEB bg */
+    --crit-critical-fg: 0 60% 19%;     /* #501313 text */
   }
 
   .dark {
