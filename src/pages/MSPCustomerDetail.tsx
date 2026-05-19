@@ -219,36 +219,12 @@ export default function MSPCustomerDetail() {
                 );
               })()}
 
-              {/* 2) Modenhet per kontrollområde */}
-              {(() => {
-                const base = customer.initial_assessment_score || 0;
-                return (
-                  <MSPCustomerMaturityCard
-                    governanceScore={Math.min(100, Math.round(base * 0.9))}
-                    securityScore={Math.min(100, Math.round(base * 1.05))}
-                    privacyScore={Math.min(100, Math.round(base * 0.85))}
-                    thirdPartyScore={Math.min(100, Math.round(base * 1.1))}
-                  />
-                );
-              })()}
-
-              {/* 3) Modenhet per regelverk */}
-              {frameworks.length > 0 && (
-                <FrameworkMaturityGrid frameworks={frameworks} />
-              )}
-
-              {/* 4) Inntekts- og tjenestepotensial */}
+              {/* 2) Inntekts- og tjenestepotensial */}
               <MSPCustomerOpportunityCard
                 customerName={customer.name || "kunden"}
                 customerCoveragePct={Math.min(100, Math.round(customer.initial_assessment_score || 40))}
                 onCreateOffer={() => toast.info("Åpner tilbudsverktøy …")}
               />
-
-              {/* 5) Sikkerhets- og personverninnsikt */}
-              <VendorPrivacyAssessment vendorName={customer.name || "kunden"} />
-
-              {/* 6) Signaler fra Mynder — erstatter aktivitetslogg */}
-              <MSPMynderSignalsFeed customerName={customer.name || "kunden"} />
             </TabsContent>
 
             {/* ── Vurdering ── */}
