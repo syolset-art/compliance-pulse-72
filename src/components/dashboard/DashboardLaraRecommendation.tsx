@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Diamond, ChevronLeft, ChevronRight, X, Sparkles, Mail, FileSearch, CheckCircle2, Send, Loader2 } from "lucide-react";
+import { Diamond, ChevronLeft, ChevronRight, X, Sparkles, Mail, FileSearch, CheckCircle2, Send, Loader2, LayoutList, Table as TableIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
