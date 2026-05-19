@@ -28,7 +28,7 @@ import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import { MSPServiceCatalogTab } from "./MSPServiceCatalogTab";
 import { ConfirmActivityDialog, type EvidenceFileMeta, type ConfirmPayload } from "./ConfirmActivityDialog";
-import { DeliveryWizard } from "./DeliveryWizard";
+import { OngoingDeliveriesList } from "./OngoingDeliveriesList";
 import { toast } from "sonner";
 import { PARTNER_SERVICES, getService } from "@/lib/serviceCatalog";
 
@@ -466,7 +466,15 @@ const DELIVERIES: DeliveryItem[] = [
   },
 ];
 
-export function MSPMaturityServiceMatrix() {
+interface MSPMaturityServiceMatrixProps {
+  customerName?: string;
+  customerEmail?: string;
+}
+
+export function MSPMaturityServiceMatrix({
+  customerName = "Kunden",
+  customerEmail,
+}: MSPMaturityServiceMatrixProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>(
     searchParams.get("service") ? "recommended" : "recommended",
@@ -835,8 +843,10 @@ export function MSPMaturityServiceMatrix() {
         </TabsContent>
 
         <TabsContent value="deliveries" className="mt-0">
-          <DeliveryWizard
+          <OngoingDeliveriesList
             deliveries={deliveries}
+            customerName={customerName}
+            customerEmail={customerEmail}
             onConfirm={confirmActivity}
             onUndo={undoActivity}
           />

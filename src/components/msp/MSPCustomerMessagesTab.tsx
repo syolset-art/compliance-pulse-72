@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send, ShieldCheck, Download, Inbox, Archive } from "lucide-react";
+import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send, ShieldCheck, Download, Inbox, Archive, Sparkles, ThumbsUp } from "lucide-react";
+import {
+  getDeliveryReports,
+  subscribeDeliveryReports,
+  updateDeliveryReport,
+  type DeliveryReport,
+} from "@/lib/deliveryReports";
+import { toast } from "sonner";
 
 type OfferStatus = "approved" | "pending" | "declined";
 type ItemType = "offer" | "message";
@@ -192,12 +199,37 @@ function EmptyState({ icon: Icon, label }: { icon: any; label: string }) {
 
 export function MSPCustomerMessagesTab() {
   const [tab, setTab] = useState("sent");
+  const [reports, setReports] = useState<DeliveryReport[]>(() => getDeliveryReports());
+
+  useEffect(() => {
+    return subscribeDeliveryReports(() => setReports(getDeliveryReports()));
+  }, []);
 
   const allOffers = items.filter(i => i.type === "offer");
   const sent = allOffers.filter(o => o.status === "pending");
   const approvedOffers = allOffers.filter(o => o.status === "approved");
   const closedOffers = allOffers.filter(o => o.status === "declined");
   const received = items.filter(i => i.type === "message" && !i.archived);
+
+  const pendingReports = reports.filter(r => r.status === "sent");
+  const approvedReports = reports.filter(r => r.status === "approved");
+
+  const handleApproveReport = (r: DeliveryReport) => {
+    updateDeliveryReport(r.id, {
+      status: "approved",
+      approvedAt: new Date().toISOString(),
+      approvedBy: r.customerName,
+    });
+    const delta = r.maturityDeltaPercent ?? 8;
+    toast.success(`${r.customerName} godkjente leveranserapporten`, {
+      description: `Modenhet på ${r.frameworkLabel ?? "berørte kontroller"} økte med +${delta} %. ${r.controlIds.length} kontrollpunkter ble beriket.`,
+    });
+  };
+
+  const handleDeclineReport = (r: DeliveryReport) => {
+    updateDeliveryReport(r.id, { status: "declined" });
+    toast.info("Rapport avvist av kunde");
+  };
 
   return (
     <div className="space-y-5">
@@ -209,13 +241,37 @@ export function MSPCustomerMessagesTab() {
         </Card>
         <Card className="p-3 bg-muted/30 border-border/60">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Godkjent</p>
-          <p className="text-2xl font-bold text-success mt-1">{approvedOffers.length}</p>
+          <p className="text-2xl font-bold text-success mt-1">{approvedOffers.length + approvedReports.length}</p>
         </Card>
         <Card className="p-3 bg-muted/30 border-border/60">
           <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Avventer svar</p>
-          <p className="text-2xl font-bold text-warning mt-1">{sent.length}</p>
+          <p className="text-2xl font-bold text-warning mt-1">{sent.length + pendingReports.length}</p>
         </Card>
       </div>
+
+      {/* Delivery reports awaiting customer approval */}
+      {(pendingReports.length > 0 || approvedReports.length > 0) && (
+        <Card className="p-4 space-y-3 border-primary/30 bg-primary/[0.03]">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Leveranserapporter</h3>
+            <span className="text-[11px] text-muted-foreground">Sendt til kunde for godkjenning</span>
+          </div>
+          <div className="space-y-2">
+            {pendingReports.map(r => (
+              <DeliveryReportRow
+                key={r.id}
+                r={r}
+                onApprove={() => handleApproveReport(r)}
+                onDecline={() => handleDeclineReport(r)}
+              />
+            ))}
+            {approvedReports.map(r => (
+              <DeliveryReportRow key={r.id} r={r} />
+            ))}
+          </div>
+        </Card>
+      )}
 
       <Tabs value={tab} onValueChange={setTab}>
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -313,3 +369,90 @@ export function MSPCustomerMessagesTab() {
     </div>
   );
 }
+
+function DeliveryReportRow({
+  r,
+  onApprove,
+  onDecline,
+}: {
+  r: DeliveryReport;
+  onApprove?: () => void;
+  onDecline?: () => void;
+}) {
+  const approved = r.status === "approved";
+  const declined = r.status === "declined";
+  return (
+    <div className="rounded-lg border border-border bg-card p-3 space-y-2">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-2 min-w-0">
+          <FileText className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <p className="text-[13px] font-semibold text-foreground truncate">
+              {r.deliveryTitle}
+            </p>
+            <p className="text-[11px] text-muted-foreground truncate">
+              {r.fileName}
+            </p>
+          </div>
+        </div>
+        <Badge
+          variant="outline"
+          className={
+            approved
+              ? "text-[10px] bg-success/10 text-success border-success/30 gap-1"
+              : declined
+                ? "text-[10px] bg-destructive/10 text-destructive border-destructive/30 gap-1"
+                : "text-[10px] bg-warning/10 text-warning border-warning/30 gap-1"
+          }
+        >
+          {approved ? (
+            <><CheckCircle2 className="h-3 w-3" /> Godkjent</>
+          ) : declined ? (
+            <><XCircle className="h-3 w-3" /> Avvist</>
+          ) : (
+            <><Clock className="h-3 w-3" /> Avventer godkjenning</>
+          )}
+        </Badge>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+        {r.frameworkLabel && (
+          <Badge variant="outline" className="text-[10px]">{r.frameworkLabel}</Badge>
+        )}
+        <span>{r.controlIds.length} kontroller</span>
+        <span>·</span>
+        <span>{r.activitiesCount} aktiviteter</span>
+        <span>·</span>
+        <span>{r.evidenceCount} vedlegg</span>
+        <span className="ml-auto">Sendt {new Date(r.sentAt).toLocaleDateString("nb-NO")}</span>
+      </div>
+      {approved && r.approvedAt && (
+        <div className="flex items-center gap-1.5 text-[11px] text-success border-t border-success/20 pt-2">
+          <ShieldCheck className="h-3 w-3" />
+          Godkjent av {r.approvedBy} · {new Date(r.approvedAt).toLocaleString("nb-NO")} · Modenhet +{r.maturityDeltaPercent ?? 0} %
+        </div>
+      )}
+      {!approved && !declined && onApprove && (
+        <div className="flex items-center gap-2 pt-1 border-t border-border/60">
+          <Button size="sm" className="h-7 text-xs gap-1.5" onClick={onApprove}>
+            <ThumbsUp className="h-3 w-3" />
+            Simuler kundens godkjenning
+          </Button>
+          {onDecline && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs text-muted-foreground"
+              onClick={onDecline}
+            >
+              Avvis
+            </Button>
+          )}
+          <span className="ml-auto text-[11px] text-muted-foreground">
+            Ved godkjenning oppdateres modenheten automatisk
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
