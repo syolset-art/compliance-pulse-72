@@ -192,6 +192,7 @@ export interface DeliveryActivity {
   evidence?: EvidenceFileMeta[];
   sharedWithCustomer?: boolean;
   laraSteps?: string[];
+  partnerSteps?: string[];
   laraDraft?: {
     title: string;
     fileName: string;
@@ -235,6 +236,7 @@ const DELIVERIES: DeliveryItem[] = [
             owner: "Partner",
             date: "12. feb",
             laraSteps: ["Konfigurert phishing-mal", "Sendt til 142 mottakere", "Samlet klikk-statistikk"],
+            partnerSteps: ["Godkjent phishing-scenario før utsending", "Validert at HR-listen var fersk"],
           },
           {
             id: "a2",
@@ -264,6 +266,11 @@ const DELIVERIES: DeliveryItem[] = [
               "Identifisert 8 personer i ledergruppen",
               "Tilpasset innhold basert på rolle (CEO, CFO, CTO …)",
               "Booking-utkast lagt i Outlook — venter på din godkjenning",
+            ],
+            partnerSteps: [
+              "Bekrefte tidspunkt med CEO",
+              "Lede selve workshopen (60 min)",
+              "Signere oppmøteliste etter gjennomføring",
             ],
             laraDraft: {
               title: "Workshop-agenda for ledergruppen",
@@ -310,6 +317,10 @@ const DELIVERIES: DeliveryItem[] = [
               "Skrevet utkast basert på ISO 27001 Annex A.5.10",
               "Tilpasset kundens domene, roller og verktøy",
               "Sjekket mot eksisterende personvernerklæring",
+            ],
+            partnerSteps: [
+              "Kvalitetssjekke språk og tone mot kundens profil",
+              "Hente inn juridisk signatur fra kundens DPO",
             ],
             laraDraft: {
               title: "Policy for akseptabel bruk",
@@ -372,6 +383,7 @@ const DELIVERIES: DeliveryItem[] = [
             owner: "Kunde",
             date: "15. mai",
             laraSteps: ["6 middels funn identifisert", "Tiltaksforslag generert per funn"],
+            partnerSteps: ["Avklare patche-vindu med drift", "Følge opp eier per funn ukentlig"],
             laraDraft: {
               title: "Tiltaksplan — middels sårbarheter",
               fileName: "tiltaksplan-middels-mai-2025.pdf",

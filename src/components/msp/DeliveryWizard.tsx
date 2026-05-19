@@ -20,6 +20,8 @@ import {
   PartyPopper,
   Send,
   Undo2,
+  UserRound,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type {
@@ -30,6 +32,7 @@ import type {
 import type { ConfirmPayload, EvidenceFileMeta } from "./ConfirmActivityDialog";
 import { ConfirmActivityDialog } from "./ConfirmActivityDialog";
 import { LaraDraftDialog } from "./LaraDraftDialog";
+import { DeliverySummaryDialog } from "./DeliverySummaryDialog";
 import { getService } from "@/lib/serviceCatalog";
 import { toast } from "sonner";
 
@@ -62,6 +65,10 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [draftOpen, setDraftOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [approvedDeliveries, setApprovedDeliveries] = useState<Set<string>>(
+    new Set(),
+  );
 
   const activeDelivery =
     deliveries.find((d) => d.id === activeDeliveryId) ?? deliveries[0];
@@ -162,49 +169,120 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
 
       {/* Lara-kort (eller suksess) */}
       {allDone ? (
-        <Card className="p-6 border-success/30 bg-gradient-to-br from-success/10 via-success/5 to-transparent">
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-full bg-success/15 flex items-center justify-center shrink-0">
-              <PartyPopper className="h-6 w-6 text-success" />
+        approvedDeliveries.has(activeDelivery.id) ? (
+          <Card className="p-6 border-success/30 bg-gradient-to-br from-success/10 via-success/5 to-transparent">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-full bg-success/15 flex items-center justify-center shrink-0">
+                <PartyPopper className="h-6 w-6 text-success" />
+              </div>
+              <div className="flex-1 min-w-0 space-y-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Leveranserapport generert
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Rapporten er klar for sending. Trust Profile er beriket med{" "}
+                    {steps.reduce(
+                      (s, st) => s + (st.activity.evidence?.length ?? 0),
+                      0,
+                    )}{" "}
+                    bevis.
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <SummaryStat
+                    value={activeDelivery.controls.length.toString()}
+                    label="Kontrollpunkter oppfylt"
+                  />
+                  <SummaryStat
+                    value={steps
+                      .reduce((s, st) => s + (st.activity.evidence?.length ?? 0), 0)
+                      .toString()}
+                    label="Bevis lagt ved"
+                  />
+                  <SummaryStat value="+12 pp" label="TP-økning" />
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() =>
+                      toast.success("Leveranserapport sendt til kunde", {
+                        description:
+                          "Kunden får varsel og kan signere kvittering.",
+                      })
+                    }
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    Send leveranserapport til kunde
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setSummaryOpen(true)}
+                    className="gap-1.5"
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    Se sammendrag
+                  </Button>
+                </div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0 space-y-3">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">Oppdrag levert</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Alle {steps.length} aktiviteter er bekreftet. Trust Profile er oppdatert.
-                </p>
+          </Card>
+        ) : (
+          <Card className="p-6 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                <ShieldCheck className="h-6 w-6 text-primary" />
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <SummaryStat
-                  value={activeDelivery.controls.length.toString()}
-                  label="Kontrollpunkter oppfylt"
-                />
-                <SummaryStat
-                  value={steps
-                    .reduce((s, st) => s + (st.activity.evidence?.length ?? 0), 0)
-                    .toString()}
-                  label="Bevis lagt ved"
-                />
-                <SummaryStat value="+12 pp" label="TP-økning" />
-              </div>
-              <div className="flex flex-wrap gap-2 pt-1">
-                <Button size="sm" className="gap-1.5">
-                  <Send className="h-3.5 w-3.5" />
-                  Send leveranserapport til kunde
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setStepIndex(0)}
-                  className="gap-1.5"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  Tilbake til oversikt
-                </Button>
+              <div className="flex-1 min-w-0 space-y-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Klar for gjennomgang
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Alle {steps.length} aktiviteter er bekreftet. Åpne
+                    sammendraget for å se hva Lara har utført og hva du har gjort
+                    manuelt — godkjenn for å generere leveranserapport.
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <SummaryStat
+                    value={steps
+                      .reduce((s, st) => s + (st.activity.laraSteps?.length ?? 0), 0)
+                      .toString()}
+                    label="Steg utført av Lara"
+                  />
+                  <SummaryStat
+                    value={steps
+                      .reduce(
+                        (s, st) => s + (st.activity.partnerSteps?.length ?? 0),
+                        0,
+                      )
+                      .toString()}
+                    label="Steg utført manuelt"
+                  />
+                  <SummaryStat
+                    value={steps
+                      .reduce((s, st) => s + (st.activity.evidence?.length ?? 0), 0)
+                      .toString()}
+                    label="Bevis lagt ved"
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Button
+                    size="sm"
+                    onClick={() => setSummaryOpen(true)}
+                    className="gap-1.5"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    Åpne gjennomgang og godkjenn
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )
       ) : step ? (
         <Card className="p-5 md:p-6 border-primary/20 bg-gradient-to-br from-primary/[0.04] via-card to-transparent">
           <div className="flex items-start gap-4">
@@ -244,24 +322,50 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
                 )}
               </div>
 
-              {/* Lara-tråd */}
-              {step.activity.laraSteps && step.activity.laraSteps.length > 0 && (
-                <div className="rounded-lg border border-primary/15 bg-background/60 p-3.5">
-                  <p className="text-[11px] font-medium text-primary uppercase tracking-wide flex items-center gap-1.5 mb-2">
-                    <Bot className="h-3 w-3" />
-                    Lara har allerede gjort:
-                  </p>
-                  <ul className="space-y-1.5">
-                    {step.activity.laraSteps.map((s, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-[13px] text-foreground"
-                      >
-                        <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0 mt-0.5" />
-                        <span>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
+              {/* Lara + Partner-tråd */}
+              {((step.activity.laraSteps && step.activity.laraSteps.length > 0) ||
+                (step.activity.partnerSteps &&
+                  step.activity.partnerSteps.length > 0)) && (
+                <div className="grid sm:grid-cols-2 gap-2.5">
+                  {step.activity.laraSteps && step.activity.laraSteps.length > 0 && (
+                    <div className="rounded-lg border border-primary/15 bg-primary/[0.04] p-3">
+                      <p className="text-[11px] font-medium text-primary uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                        <Bot className="h-3 w-3" />
+                        Lara utfører automatisk
+                      </p>
+                      <ul className="space-y-1.5">
+                        {step.activity.laraSteps.map((s, i) => (
+                          <li
+                            key={i}
+                            className="flex items-start gap-2 text-[12px] text-foreground"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0 mt-0.5" />
+                            <span>{s}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {step.activity.partnerSteps &&
+                    step.activity.partnerSteps.length > 0 && (
+                      <div className="rounded-lg border border-border bg-muted/30 p-3">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                          <UserRound className="h-3 w-3" />
+                          Du må gjøre manuelt
+                        </p>
+                        <ul className="space-y-1.5">
+                          {step.activity.partnerSteps.map((s, i) => (
+                            <li
+                              key={i}
+                              className="flex items-start gap-2 text-[12px] text-foreground"
+                            >
+                              <span className="text-muted-foreground mt-0.5">·</span>
+                              <span>{s}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                 </div>
               )}
 
@@ -465,6 +569,23 @@ export const DeliveryWizard = ({ deliveries, onConfirm, onUndo }: Props) => {
           }}
         />
       )}
+
+      <DeliverySummaryDialog
+        open={summaryOpen}
+        onOpenChange={setSummaryOpen}
+        delivery={activeDelivery}
+        onApprove={() => {
+          setApprovedDeliveries((prev) => {
+            const next = new Set(prev);
+            next.add(activeDelivery.id);
+            return next;
+          });
+          setSummaryOpen(false);
+          toast.success("Leveranserapport generert", {
+            description: "Klar for sending til kunde.",
+          });
+        }}
+      />
     </div>
   );
 };
