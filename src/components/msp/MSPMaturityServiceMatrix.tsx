@@ -845,7 +845,33 @@ export function MSPMaturityServiceMatrix() {
           });
         }}
       />
+
+      {confirmCtxActivity && (
+        <ConfirmActivityDialog
+          open={confirmCtx.open}
+          onOpenChange={(o) => setConfirmCtx((s) => ({ ...s, open: o }))}
+          activityLabel={confirmCtxActivity.a.label}
+          controlId={confirmCtxActivity.c.id}
+          controlName={confirmCtxActivity.c.name}
+          frameworkLabel={confirmCtxActivity.frameworkLabel}
+          readOnly={confirmCtx.readOnly}
+          initial={{
+            note: confirmCtxActivity.a.note,
+            files: confirmCtxActivity.a.evidence,
+            sharedWithCustomer: confirmCtxActivity.a.sharedWithCustomer,
+          }}
+          onConfirm={(payload) =>
+            confirmActivity(
+              confirmCtxActivity.d.id,
+              confirmCtxActivity.c.id,
+              confirmCtxActivity.a.id,
+              payload,
+            )
+          }
+        />
+      )}
     </div>
+
   );
 }
 
