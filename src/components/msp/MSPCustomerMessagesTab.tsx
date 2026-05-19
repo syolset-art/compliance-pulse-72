@@ -199,13 +199,6 @@ function EmptyState({ icon: Icon, label }: { icon: any; label: string }) {
 
 export function MSPCustomerMessagesTab() {
   const [tab, setTab] = useState("sent");
-
-  const allOffers = items.filter(i => i.type === "offer");
-  const sent = allOffers.filter(o => o.status === "pending");
-  const approvedOffers = allOffers.filter(o => o.status === "approved");
-  const closedOffers = allOffers.filter(o => o.status === "declined");
-export function MSPCustomerMessagesTab() {
-  const [tab, setTab] = useState("sent");
   const [reports, setReports] = useState<DeliveryReport[]>(() => getDeliveryReports());
 
   useEffect(() => {
