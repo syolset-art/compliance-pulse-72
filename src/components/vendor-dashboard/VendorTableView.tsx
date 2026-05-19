@@ -164,6 +164,65 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
+/** Inline owner-velger: vises som "Tilordne" når tomt, ellers som navn. */
+function OwnerCell({
+  assetId, ownerName, options,
+}: { assetId: string; ownerName: string | null; options: string[] }) {
+  const qc = useQueryClient();
+  const mutate = useMutation({
+    mutationFn: async (next: string) => {
+      const { error } = await supabase.from("assets")
+        .update({ asset_owner: next }).eq("id", assetId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["vendor-assets"] });
+      qc.invalidateQueries({ queryKey: ["assets"] });
+      toast.success("Eier oppdatert");
+    },
+    onError: () => toast.error("Kunne ikke oppdatere eier"),
+  });
+
+  const stop = (e: React.SyntheticEvent) => e.stopPropagation();
+  const suggestions = Array.from(new Set([
+    ...PLATFORM_USERS.map(u => u.name),
+    ...options,
+  ])).sort();
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild onClick={stop}>
+        {ownerName ? (
+          <button className="text-xs text-muted-foreground hover:text-foreground truncate max-w-[140px] text-left">
+            {ownerName}
+          </button>
+        ) : (
+          <button className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
+            <UserPlus className="h-3 w-3" />
+            Tilordne
+          </button>
+        )}
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-56 p-1" onClick={stop}>
+        <div className="max-h-64 overflow-y-auto">
+          {suggestions.map(name => (
+            <button
+              key={name}
+              onClick={() => mutate.mutate(name)}
+              className={cn(
+                "w-full text-left text-xs px-2 py-1.5 rounded hover:bg-muted",
+                ownerName === name && "bg-muted font-medium"
+              )}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function VendorTableView({
   vendors,
   expiredCounts, inboxCounts, getOwnerName, scoreDisplay,
