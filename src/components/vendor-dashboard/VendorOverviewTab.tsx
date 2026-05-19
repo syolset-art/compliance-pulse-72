@@ -230,10 +230,16 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
       {/* Lara recommendation banner — replaces noisy KPI widgets */}
       <DashboardLaraRecommendation />
 
-      {/* Activity over time + Systems priority */}
+      {/* Aktiviteter — full bredde */}
+      <ComplianceActivityChart />
+
+      {/* Leverandører per prioritet + Kritisk for vår virksomhet */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ComplianceActivityChart />
         <SystemsPriorityChart />
+        <CriticalVendorsCard
+          vendors={vendors}
+          onOpen={(id) => navigate(`/vendor/${id}`)}
+        />
       </div>
 
       {/* Actionable Attention Section */}
