@@ -175,128 +175,221 @@ export default function MSPDashboard() {
             </div>
           </div>
 
-          {/* Toolbar: search + filter + view toggle */}
-          <div className="flex flex-col md:flex-row md:items-center gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Søk på navn, bransje, org.nr eller e-post"
-                className="pl-9"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Alle statuser" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle statuser</SelectItem>
-                <SelectItem value="draft">Utkast</SelectItem>
-                <SelectItem value="onboarding">Onboarding</SelectItem>
-                <SelectItem value="active">Aktiv</SelectItem>
-                <SelectItem value="inactive">Inaktiv</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="inline-flex rounded-md border border-border bg-background overflow-hidden md:ml-auto">
-              <button
-                type="button"
-                onClick={() => setView("cards")}
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-2 text-sm transition-colors",
-                  view === "cards" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
-                )}
-                aria-pressed={view === "cards"}
-              >
-                <LayoutGrid className="h-4 w-4" /> Kort
-              </button>
-              <button
-                type="button"
-                onClick={() => setView("table")}
-                className={cn(
-                  "inline-flex items-center gap-1.5 px-3 py-2 text-sm border-l border-border transition-colors",
-                  view === "table" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
-                )}
-                aria-pressed={view === "table"}
-              >
-                <Rows3 className="h-4 w-4" /> Tabell
-              </button>
-            </div>
-          </div>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "customers" | "campaigns")} className="w-full">
+            <TabsList className="bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5">
+              <TabsTrigger value="customers" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-1.5 text-sm gap-1.5">
+                <Users className="h-3.5 w-3.5" /> Kunder
+              </TabsTrigger>
+              <TabsTrigger value="campaigns" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-1.5 text-sm gap-1.5">
+                <Megaphone className="h-3.5 w-3.5" /> Aktuelle kampanjer
+              </TabsTrigger>
+            </TabsList>
 
-          {customers.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
-              <p className="text-lg">Ingen kunder registrert ennå</p>
-              <p className="text-sm mt-1">Klikk «Legg til kunde» for å komme i gang</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
-              <p className="text-sm">Ingen kunder matcher søket eller filteret</p>
-            </div>
-          ) : view === "cards" ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {filtered.map((c: any) => (
-                <MSPCustomerCard key={c.id} customer={c} />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-lg border border-border bg-card overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>
-                      <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
-                        Kunde <SortIcon k="customer_name" />
-                      </button>
-                    </TableHead>
-                    <TableHead>Bransje</TableHead>
-                    <TableHead>Org.nr</TableHead>
-                    <TableHead>
-                      <button type="button" onClick={() => toggleSort("status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
-                        Status <SortIcon k="status" />
-                      </button>
-                    </TableHead>
-                    <TableHead className="text-right">Modenhet</TableHead>
-                    <TableHead>
-                      <button type="button" onClick={() => toggleSort("last_activity_at")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
-                        Siste aktivitet <SortIcon k="last_activity_at" />
-                      </button>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((c: any) => {
-                    const sk = deriveStatusKey(c);
-                    const score = c.compliance_score || 0;
-                    const last = c.last_activity_at
-                      ? new Date(c.last_activity_at).toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" })
-                      : "—";
-                    return (
-                      <TableRow
-                        key={c.id}
-                        className="cursor-pointer"
-                        onClick={() => navigate(`/msp-dashboard/${c.id}`)}
-                      >
-                        <TableCell className="font-medium">{c.customer_name}</TableCell>
-                        <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
-                        <TableCell className="text-muted-foreground tabular-nums">{c.org_number || "—"}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={cn("font-normal", STATUS_TONE[sk])}>
-                            {STATUS_LABEL[sk]}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums">
-                          {score > 0 ? `${score}%` : "—"}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">{last}</TableCell>
+            <TabsContent value="customers" className="mt-5 space-y-5">
+              {/* Toolbar: search + filter + view toggle */}
+              <div className="flex flex-col md:flex-row md:items-center gap-3">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Søk på navn, bransje, org.nr eller e-post"
+                    className="pl-9"
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Alle statuser" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle statuser</SelectItem>
+                    <SelectItem value="draft">Utkast</SelectItem>
+                    <SelectItem value="onboarding">Onboarding</SelectItem>
+                    <SelectItem value="active">Aktiv</SelectItem>
+                    <SelectItem value="inactive">Inaktiv</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="inline-flex rounded-md border border-border bg-background overflow-hidden md:ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => setView("cards")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-2 text-sm transition-colors",
+                      view === "cards" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
+                    )}
+                    aria-pressed={view === "cards"}
+                  >
+                    <LayoutGrid className="h-4 w-4" /> Kort
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setView("table")}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-2 text-sm border-l border-border transition-colors",
+                      view === "table" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
+                    )}
+                    aria-pressed={view === "table"}
+                  >
+                    <Rows3 className="h-4 w-4" /> Tabell
+                  </button>
+                </div>
+              </div>
+
+              {customers.length === 0 ? (
+                <div className="text-center py-16 text-muted-foreground">
+                  <p className="text-lg">Ingen kunder registrert ennå</p>
+                  <p className="text-sm mt-1">Klikk «Legg til kunde» for å komme i gang</p>
+                </div>
+              ) : filtered.length === 0 ? (
+                <div className="text-center py-16 text-muted-foreground">
+                  <p className="text-sm">Ingen kunder matcher søket eller filteret</p>
+                </div>
+              ) : view === "cards" ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {filtered.map((c: any) => (
+                    <MSPCustomerCard key={c.id} customer={c} />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-lg border border-border bg-card overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>
+                          <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                            Kunde <SortIcon k="customer_name" />
+                          </button>
+                        </TableHead>
+                        <TableHead>Bransje</TableHead>
+                        <TableHead>Org.nr</TableHead>
+                        <TableHead>
+                          <button type="button" onClick={() => toggleSort("status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                            Status <SortIcon k="status" />
+                          </button>
+                        </TableHead>
+                        <TableHead className="text-right">Modenhet</TableHead>
+                        <TableHead>
+                          <button type="button" onClick={() => toggleSort("last_activity_at")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                            Siste aktivitet <SortIcon k="last_activity_at" />
+                          </button>
+                        </TableHead>
                       </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                    </TableHeader>
+                    <TableBody>
+                      {filtered.map((c: any) => {
+                        const sk = deriveStatusKey(c);
+                        const score = c.compliance_score || 0;
+                        const last = c.last_activity_at
+                          ? new Date(c.last_activity_at).toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" })
+                          : "—";
+                        return (
+                          <TableRow
+                            key={c.id}
+                            className="cursor-pointer"
+                            onClick={() => navigate(`/msp-dashboard/${c.id}`)}
+                          >
+                            <TableCell className="font-medium">{c.customer_name}</TableCell>
+                            <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
+                            <TableCell className="text-muted-foreground tabular-nums">{c.org_number || "—"}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={cn("font-normal", STATUS_TONE[sk])}>
+                                {STATUS_LABEL[sk]}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums">
+                              {score > 0 ? `${score}%` : "—"}
+                            </TableCell>
+                            <TableCell className="text-muted-foreground">{last}</TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="campaigns" className="mt-5 space-y-5">
+              {(() => {
+                const pool = DEMO_CAMPAIGN_CUSTOMERS;
+                const segmentsWithMatches = CAMPAIGN_SEGMENTS
+                  .map((s) => ({ segment: s, matches: pool.filter((c) => s.predicate(c)) }))
+                  .filter((x) => x.matches.length > 0)
+                  .sort((a, b) => b.matches.length - a.matches.length);
+
+                const byCategory = segmentsWithMatches.reduce<Record<string, typeof segmentsWithMatches>>((acc, item) => {
+                  (acc[item.segment.category] ??= []).push(item);
+                  return acc;
+                }, {});
+
+                return (
+                  <>
+                    <Card className="p-4 border-primary/20 bg-primary/5 flex items-start gap-3">
+                      <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-foreground">Lara fant {segmentsWithMatches.length} aktuelle kampanjer</p>
+                        <p className="text-[13px] text-muted-foreground mt-0.5">
+                          Basert på kundeporteføljen — gap, modenhet, tjenester og aktivitet. Klikk en kampanje for å starte utsendelsen.
+                        </p>
+                      </div>
+                      <Button size="sm" onClick={() => setCampaignOpen(true)} className="gap-1.5 shrink-0">
+                        <Megaphone className="h-3.5 w-3.5" /> Ny kampanje
+                      </Button>
+                    </Card>
+
+                    {Object.entries(byCategory).map(([cat, items]) => (
+                      <div key={cat} className="space-y-2">
+                        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          {SEGMENT_CATEGORY_LABEL[cat as CampaignSegment["category"]]}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {items.map(({ segment, matches }) => (
+                            <button
+                              key={segment.id}
+                              type="button"
+                              onClick={() => setCampaignOpen(true)}
+                              className="text-left rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-sm transition-all p-4 group"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-[14px] font-semibold text-foreground group-hover:text-primary transition-colors">
+                                    {segment.label}
+                                  </p>
+                                  <p className="text-[12px] text-muted-foreground mt-1 line-clamp-2">
+                                    {segment.description}
+                                  </p>
+                                </div>
+                                <Badge variant="outline" className="font-normal shrink-0 bg-primary/5 text-primary border-primary/20 tabular-nums">
+                                  {matches.length}
+                                </Badge>
+                              </div>
+                              <div className="mt-3 flex items-center justify-between">
+                                <p className="text-[11px] text-muted-foreground truncate">
+                                  {matches.slice(0, 3).map((m) => m.name).join(", ")}
+                                  {matches.length > 3 && ` +${matches.length - 3}`}
+                                </p>
+                                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-2" />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+
+                    {segmentsWithMatches.length === 0 && (
+                      <div className="text-center py-16 text-muted-foreground">
+                        <p className="text-sm">Ingen aktuelle kampanjer akkurat nå.</p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </TabsContent>
+          </Tabs>
         </div>
+
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
       </main>
