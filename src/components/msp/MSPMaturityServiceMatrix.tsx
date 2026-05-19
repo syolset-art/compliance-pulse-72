@@ -29,6 +29,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Download, Share2 } from "lucide-react";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
+import { ShareOfferDialog } from "./ShareOfferDialog";
 import { MSPServiceCatalogTab } from "./MSPServiceCatalogTab";
 import { ConfirmActivityDialog, type EvidenceFileMeta, type ConfirmPayload } from "./ConfirmActivityDialog";
 import { OngoingDeliveriesList } from "./OngoingDeliveriesList";
@@ -526,6 +527,7 @@ export function MSPMaturityServiceMatrix({
 
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
+  const [shareCtx, setShareCtx] = useState<{ open: boolean; offerNumber?: string; serviceTitle?: string }>({ open: false });
 
   const [confirmCtx, setConfirmCtx] = useState<{
     open: boolean;
@@ -804,8 +806,8 @@ export function MSPMaturityServiceMatrix({
                               size="sm"
                               variant="ghost"
                               className="h-7 w-7 p-0"
-                              title="Del med kunde"
-                              onClick={() => toast.success(`Tilbud ${o.offerNumber} delt med kunden`)}
+                              title="Del tilbud"
+                              onClick={() => setShareCtx({ open: true, offerNumber: o.offerNumber, serviceTitle: o.serviceTitle })}
                             >
                               <Share2 className="h-3.5 w-3.5" />
                             </Button>
@@ -856,6 +858,16 @@ export function MSPMaturityServiceMatrix({
         defaultTasks={offerCtx.defaultTasks}
         hourlyRate={offerCtx.hourlyRate}
       />
+
+      <ShareOfferDialog
+        open={shareCtx.open}
+        onOpenChange={(o) => setShareCtx(s => ({ ...s, open: o }))}
+        offerNumber={shareCtx.offerNumber ?? ""}
+        serviceTitle={shareCtx.serviceTitle}
+        customerName={customerName}
+        customerEmail={customerEmail}
+      />
+
 
       <MSPGapAnalysisDialog
         open={gapOpen}
