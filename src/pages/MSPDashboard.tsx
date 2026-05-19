@@ -396,6 +396,14 @@ export default function MSPDashboard() {
                         </TableHead>
                         <TableHead>
                           <ColumnFilter
+                            label="Landskode"
+                            options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
+                            selected={countryCodeFilter}
+                            onChange={setCountryCodeFilter}
+                          />
+                        </TableHead>
+                        <TableHead>
+                          <ColumnFilter
                             label="Kritikalitet"
                             options={[
                               { value: "high", label: "Høy" },
