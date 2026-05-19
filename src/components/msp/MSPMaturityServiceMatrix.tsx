@@ -179,7 +179,7 @@ const ONGOING: OngoingItem[] = [
   },
 ];
 
-interface DeliveryActivity {
+export interface DeliveryActivity {
   id: string;
   label: string;
   done: boolean;
@@ -190,6 +190,12 @@ interface DeliveryActivity {
   note?: string;
   evidence?: EvidenceFileMeta[];
   sharedWithCustomer?: boolean;
+  laraSteps?: string[];
+  laraDraft?: {
+    title: string;
+    fileName: string;
+    summary: string[];
+  };
 }
 
 interface DeliveryControl {
