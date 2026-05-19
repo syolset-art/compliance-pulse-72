@@ -29,6 +29,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Download, Share2 } from "lucide-react";
 import { MSPCreateOfferDialog } from "./MSPCreateOfferDialog";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
+import { ShareOfferDialog } from "./ShareOfferDialog";
 import { MSPServiceCatalogTab } from "./MSPServiceCatalogTab";
 import { ConfirmActivityDialog, type EvidenceFileMeta, type ConfirmPayload } from "./ConfirmActivityDialog";
 import { OngoingDeliveriesList } from "./OngoingDeliveriesList";
