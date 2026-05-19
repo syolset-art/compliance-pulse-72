@@ -257,16 +257,59 @@ export function MSPServiceCatalogTab() {
         </div>
       </Card>
 
-      {/* Handlingsknapper */}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={() => setManualOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Legg til egen tjeneste
-        </Button>
+      {/* Handlingsrad: visningsbytter + legg til */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <div className="inline-flex items-center rounded-md border border-border bg-card p-0.5">
+          <button
+            type="button"
+            onClick={() => setViewMode("partner")}
+            className={
+              "inline-flex items-center gap-1.5 px-3 h-8 text-[12px] font-medium rounded transition-colors " +
+              (viewMode === "partner"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            <Briefcase className="h-3.5 w-3.5" /> Partnervisning
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("customer")}
+            className={
+              "inline-flex items-center gap-1.5 px-3 h-8 text-[12px] font-medium rounded transition-colors " +
+              (viewMode === "customer"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            <Eye className="h-3.5 w-3.5" /> Kundevisning
+          </button>
+        </div>
+        {viewMode === "partner" && (
+          <Button variant="outline" onClick={() => setManualOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Legg til egen tjeneste
+          </Button>
+        )}
       </div>
 
-      {/* Adopterte / egne tjenester */}
-      {extras.length > 0 && (
+      {/* Kundevisning */}
+      {viewMode === "customer" && (
+        <CustomerCatalogPreview
+          services={extras.map((e) => ({
+            id: e.id,
+            name: e.name,
+            description: e.description,
+            activities: e.activities,
+            mappings: e.mappings,
+            templateCode: e.templateCode,
+            source: e.source,
+          }))}
+        />
+      )}
+
+      {/* Partnervisning: adopterte / egne tjenester */}
+      {viewMode === "partner" && extras.length > 0 && (
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
