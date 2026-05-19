@@ -10,7 +10,7 @@ import { ArrowLeft, Server, Wifi, RefreshCw, Sparkles, AlertTriangle, CheckCircl
 import { CustomerStatusBanner } from "@/components/msp/CustomerStatusBanner";
 import { StatusOverviewWidget } from "@/components/widgets/StatusOverviewWidget";
 import { CriticalTasksWidget } from "@/components/widgets/CriticalTasksWidget";
-import { DomainComplianceWidget } from "@/components/widgets/DomainComplianceWidget";
+
 import { MSPAssessmentCard } from "@/components/msp/MSPAssessmentCard";
 import { AcronisConnectDialog } from "@/components/msp/AcronisConnectDialog";
 import { SecurityServiceGapCard } from "@/components/msp/SecurityServiceGapCard";
