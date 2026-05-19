@@ -69,8 +69,8 @@ export function CustomerCatalogPreview({ services }: Props) {
                     </p>
                   )}
                 </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-success/10 text-success px-1.5 py-0.5 text-xs font-medium whitespace-nowrap">
-                  <CheckCircle2 className="h-2.5 w-2.5" /> Aktiv
+                <span className="inline-flex items-center gap-1 rounded-full bg-success text-success-foreground px-2 py-0.5 text-xs font-semibold whitespace-nowrap">
+                  <CheckCircle2 className="h-3 w-3" aria-hidden="true" /> Aktiv
                 </span>
               </div>
 
