@@ -364,9 +364,10 @@ const DELIVERIES: DeliveryItem[] = [
             owner: "Partner",
             date: "10. mai",
             laraSteps: [
-              "Skrevet utkast basert på ISO 27001 Annex A.5.10",
-              "Tilpasset kundens domene, roller og verktøy",
-              "Sjekket mot eksisterende personvernerklæring",
+              { text: "Skrevet policy-utkast basert på ISO 27001 Annex A.5.10", via: "Lara" },
+              { text: "Hentet kundens domene, roller og M365-verktøy", via: "Microsoft 365" },
+              { text: "Krysssjekket mot eksisterende personvernerklæring", via: "Lara" },
+              { text: "Lagret utkast i kundens dokumentbibliotek", via: "SharePoint" },
             ],
             partnerSteps: [
               "Kvalitetssjekke språk og tone mot kundens profil",
