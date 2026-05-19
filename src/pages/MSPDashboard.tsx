@@ -238,12 +238,24 @@ export default function MSPDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Kunde</TableHead>
+                    <TableHead>
+                      <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                        Kunde <SortIcon k="customer_name" />
+                      </button>
+                    </TableHead>
                     <TableHead>Bransje</TableHead>
                     <TableHead>Org.nr</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>
+                      <button type="button" onClick={() => toggleSort("status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                        Status <SortIcon k="status" />
+                      </button>
+                    </TableHead>
                     <TableHead className="text-right">Modenhet</TableHead>
-                    <TableHead>Siste aktivitet</TableHead>
+                    <TableHead>
+                      <button type="button" onClick={() => toggleSort("last_activity_at")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                        Siste aktivitet <SortIcon k="last_activity_at" />
+                      </button>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
