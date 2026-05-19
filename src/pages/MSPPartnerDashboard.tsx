@@ -123,6 +123,7 @@ const LIVE_SIGNALS = [
 // ---------- Components ----------
 
 function PartnerHeader() {
+  const navigate = useNavigate();
   return (
     <div className="flex items-start justify-between">
       <div>
@@ -131,24 +132,36 @@ function PartnerHeader() {
           Du har 7 nye meldinger og Lara har 3 forslag i dag
         </p>
       </div>
-      <div className="inline-flex rounded-lg border border-border bg-card p-1 text-sm">
-        {["I dag", "Uke", "Måned"].map((p, i) => (
-          <button
-            key={p}
-            className={
-              "px-3 py-1.5 rounded-md transition-colors " +
-              (i === 0
-                ? "bg-primary/10 text-primary font-medium"
-                : "text-muted-foreground hover:text-foreground")
-            }
-          >
-            {p}
-          </button>
-        ))}
+      <div className="flex items-center gap-2">
+        <div className="inline-flex rounded-lg border border-border bg-card p-1 text-sm">
+          {["I dag", "Uke", "Måned"].map((p, i) => (
+            <button
+              key={p}
+              className={
+                "px-3 py-1.5 rounded-md transition-colors " +
+                (i === 0
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-muted-foreground hover:text-foreground")
+              }
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="Innstillinger"
+          title="Innstillinger"
+          onClick={() => navigate("/msp-settings")}
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
 }
+
 
 function KpiCards() {
   return (
