@@ -294,6 +294,7 @@ export function MSPServiceCatalogTab() {
         context={partnerContext}
         adoptedIds={adoptedIds}
         onAdopt={adoptTemplate}
+        hourlyRate={hourlyRate}
       />
 
       {/* Avansert: bygg fra regelverk */}
