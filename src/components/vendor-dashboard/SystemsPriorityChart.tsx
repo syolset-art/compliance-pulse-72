@@ -9,6 +9,13 @@ import { cn } from "@/lib/utils";
 
 type Priority = "A" | "B" | "C" | "D";
 
+const PRIO_TO_FILTER: Record<Priority, string> = {
+  A: "critical",
+  B: "high",
+  C: "medium",
+  D: "low",
+};
+
 interface SystemRow {
   id: string;
   name: string;
