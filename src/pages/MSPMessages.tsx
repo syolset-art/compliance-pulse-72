@@ -327,11 +327,23 @@ export default function MSPMessages() {
               <p className="text-[13px] text-muted-foreground mt-1">
                 Tilbud, svar og meldinger fra alle dine kunder samlet på ett sted.
               </p>
+              {inboxEmail && (
+                <p className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1.5">
+                  <Mail className="h-3 w-3" />
+                  Svar fra kunder videresendes til <span className="font-medium text-foreground">{inboxEmail}</span>
+                </p>
+              )}
             </div>
-            <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setWizardOpen(true)}>
-              <Megaphone className="h-3.5 w-3.5" />
-              Ny kampanje
-            </Button>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setSettingsOpen(true)}>
+                <Settings className="h-3.5 w-3.5" />
+                Innstillinger
+              </Button>
+              <Button size="sm" className="gap-1.5" onClick={() => setWizardOpen(true)}>
+                <Megaphone className="h-3.5 w-3.5" />
+                Ny kampanje
+              </Button>
+            </div>
           </div>
 
           {/* Lara banner */}
