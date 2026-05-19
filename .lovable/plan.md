@@ -1,37 +1,38 @@
 ## Mål
-"Tilbud"-arkfanen skal kun være en oversikt over tilbud brukeren har laget – ikke kontrollpunkter eller leveranse-detaljer. Brukeren skal se hva som er laget, når og av hvem, og kunne sette status (Ikke startet / Pågår).
+Partner skal slippe å logge inn for å lese meldinger. På en egen Innstillinger-side under partnerdelen ser de hvor mange brukere som har tilgang, og kan slå på videresending av alle Mynder-meldinger til en valgfri e-postadresse.
 
-## Endringer
+## Ny side: `MSPPartnerSettings`
+Rute: `/msp-settings` (tilgjengelig fra Sidebar → "Innstillinger" og fra et tannhjul-ikon i MSPPartnerDashboard-headeren).
 
-### 1. Ny datamodell for lagrede tilbud
-I `MSPMaturityServiceMatrix.tsx`:
-- Erstatt `OngoingItem` (med controls/meta) med en enkel `SavedOffer`-type:
-  - `id`, `offerNumber` (T-2026-xxxx), `serviceTitle`, `frameworkLabel?`, `createdAt`, `createdBy`, `totalHours`, `totalPrice`, `status: "not_started" | "in_progress"`
-- Seed `SAVED_OFFERS` med 2–3 demo-tilbud (f.eks. ISO 27001-klargjøring, Awareness-program) – ingen kontrollpunkter.
-- Hold staten i `useState` slik at "Lag tilbud"-flyten kan legge til nye når dialogen lagrer (vi føyer på enkel `onSaved`-callback fra `MSPCreateOfferDialog` hvis det er trivielt – ellers bare seed-data nå, ny tilbud-tilføyelse kommer senere).
+Layout: standard MSP-side med Sidebar + `pt-16`, maks-bredde `max-w-4xl`, tre seksjoner som Card:
 
-### 2. Ny visning av "Tilbud"-fanen
-Erstatt eksisterende `TabsContent value="ongoing"`-blokk (linje ~737) med en kompakt liste:
+### 1. Team-tilgang
+- Header: "Brukere med tilgang til partnerdelen"
+- Stor tallvisning (f.eks. `3 brukere`) + kort beskrivelse
+- Liste med avatar, navn, e-post og rolle (Partner-admin / Partner-rådgiver). Henter fra `user_roles` join `profiles` (filtrerer på `msp_admin` + `msp_member`, faller tilbake til demo-data om tom).
+- Knapp "Inviter bruker" (åpner placeholder-toast i denne iterasjonen — invitasjonsflyt er ikke i scope).
 
-```
-[ikon] Tittel · framework-badge        [Status-velger ▾]
-       T-2026-1234 · Laget 12. mai av Truls Hansen
-       6 tiltak · 60 timer · 90 000 kr
-```
+### 2. E-postvideresending av meldinger
+- Toggle: "Videresend alle innkommende meldinger til e-post"
+- Input: "Mottaks-e-post" (valideres som e-post)
+- Valgfritt: "Kopi (CC)" og "Daglig sammendrag i stedet for hver melding"
+- Hjelpetekst: "Du får alt — kundesvar, aksepterte tilbud, påminnelser — i innboksen din. Du trenger ikke logge inn i Mynder for å holde deg oppdatert."
+- Lagre-knapp → persisteres i `localStorage` under nøkkelen som allerede brukes i `MSPMessages.tsx` (`msp-messages-settings-v1`) så innstillingene speiles begge steder.
 
-- Ikon: `FileText` i nøytral container (fargen reflekterer status: muted for "Ikke startet", warning for "Pågår").
-- `Select` til høyre med to valg: "Ikke startet" / "Pågår". Endring oppdaterer state + toast.
-- Klikk på kortet åpner `MSPCreateOfferDialog` i preview-modus (gjenbruk eksisterende dialog) – ingen expand/kontroll-liste lenger.
-- Fjern all logikk for `expandedOngoing`, `controlFilter`, og kontroll-rendering inne i denne fanen.
+### 3. (uendret) Lenke til Fakturering
+Liten kort-lenke "Fakturering og adresse →" som peker til eksisterende `/msp-billing`-side, så Innstillinger blir det naturlige inngangspunktet.
 
-### 3. Ingenting endres i "Pågående oppdrag"
-Den fanen beholdes som den er (egen `DELIVERIES`-flyt). "Pågår"-status på et tilbud flytter det IKKE automatisk dit – det er to separate konsepter inntil videre.
+## Endringer i eksisterende filer
+- **`src/App.tsx`**: ny route `/msp-settings → MSPPartnerSettings`.
+- **`src/components/Sidebar.tsx`** (MSP-seksjonen): legg til "Innstillinger" som nav-element nederst.
+- **`src/pages/MSPPartnerDashboard.tsx`**: tannhjul-knapp i header som lenker til `/msp-settings`.
+- **`src/pages/MSPMessages.tsx`**: behold eksisterende settings-dialog, men legg til en liten "Administrer i Innstillinger →"-lenke øverst i dialogen så det er én tydelig hovedplassering. Logikken og localStorage-nøkkelen deles.
 
-### 4. Opprydding
-- Behold `OngoingItem`-typen kun hvis den brukes andre steder; ellers fjern.
-- Behold `expandedOngoing` / `controlFilter` kun hvis brukt i andre faner; ellers fjern.
+## Datakilder
+- Brukere: `supabase.from("user_roles").select("user_id, role, profiles(full_name, email)").in("role", ["msp_admin","msp_member"])`. Hvis tomt → vis 3 demo-brukere (samme tone som annen demo-data) slik at siden ikke ser tom ut.
+- Forwarding-innstillinger: kun `localStorage` foreløpig (samme som dagens dialog). Ingen ny tabell i denne iterasjonen — kan flyttes til DB senere uten å endre UI.
 
-## Filer som endres
-- `src/components/msp/MSPMaturityServiceMatrix.tsx` (datamodell, tab-innhold, state-rydding)
-
-Ingen DB- eller backend-endringer. Ingen endringer i `MSPCreateOfferDialog`, "Anbefalte tjenester" eller "Pågående oppdrag".
+## Ute av scope
+- Faktisk e-postutsending fra backend (kun UI + lagrede preferanser).
+- Invitasjonsflyt for nye partner-brukere.
+- Rolleendring i UI.
