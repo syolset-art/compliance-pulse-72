@@ -36,6 +36,8 @@ interface Props {
   onCompleted?: () => void;
   /** Render inline (no modal). Use when embedded directly on the Trust Profile page. */
   inline?: boolean;
+  /** When true (and inline), render with a conversational Lara shell instead of a plain card. */
+  conversation?: boolean;
   /** Pre-known company name (e.g. from logged-in customer's company_profile). Skips Welcome and auto-searches Brreg. */
   initialCompanyName?: string;
   /** Pre-known org number. When set, Brreg lookup is skipped and the org block is shown as confirmed. */
