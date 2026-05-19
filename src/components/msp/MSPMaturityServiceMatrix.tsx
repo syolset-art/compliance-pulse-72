@@ -242,8 +242,14 @@ const DELIVERIES: DeliveryItem[] = [
             done: true,
             owner: "Partner",
             date: "12. feb",
-            laraSteps: ["Konfigurert phishing-mal", "Sendt til 142 mottakere", "Samlet klikk-statistikk"],
-            partnerSteps: ["Godkjent phishing-scenario før utsending", "Validert at HR-listen var fersk"],
+            laraSteps: [
+              { text: "Valgt phishing-mal «Microsoft 365 passordvarsel»", via: "KnowBe4" },
+              { text: "Bygget mottakerliste: 142 ansatte fra HR-synk", via: "Entra ID" },
+              { text: "Trigget kampanje, spredt utsending over 48 t", via: "KnowBe4" },
+              { text: "Samlet klikk- og rapporterings-statistikk i sanntid", via: "KnowBe4" },
+              { text: "Mappet baseline mot ISO 27001 A.6.3", via: "Lara" },
+            ],
+            partnerSteps: ["Godkjent phishing-scenario før utsending (etisk sjekk)", "Validert at HR-listen var fersk"],
           },
           {
             id: "a2",
