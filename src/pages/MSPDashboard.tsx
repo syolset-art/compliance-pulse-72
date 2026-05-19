@@ -6,12 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Megaphone, Users, Sparkles, ArrowRight } from "lucide-react";
+import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Megaphone, Users, Sparkles, ArrowRight, Filter, X } from "lucide-react";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { CampaignWizardDialog } from "@/components/msp/CampaignWizardDialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -22,15 +22,36 @@ import { CAMPAIGN_SEGMENTS, SEGMENT_CATEGORY_LABEL, DEMO_CAMPAIGN_CUSTOMERS, typ
 import { toast } from "sonner";
 
 type ViewMode = "cards" | "table";
-type StatusFilter = "all" | "draft" | "onboarding" | "active" | "inactive";
 
-function deriveStatusKey(c: any): "draft" | "invited" | "claimed" | "archived" {
-  if (c.status === "inactive") return "archived";
-  if (c.onboarding_completed) return "claimed";
-  if (c.status === "active") return "claimed";
-  if (c.status === "onboarding") return "invited";
+// Trust Profile (TP) lifecycle status — what stage the customer's TP is in
+type TPStatusKey = "draft" | "onboarding" | "claimed" | "published";
+
+function deriveTPStatus(c: any): TPStatusKey {
+  // Explicit published flag wins
+  if (c.tp_published || c.is_published) return "published";
+  // Onboarded + decent maturity → treat as published in demo
+  if (c.onboarding_completed && (c.compliance_score || 0) >= 70) return "published";
+  // Onboarded but not yet published → customer has claimed/taken over the TP
+  if (c.onboarding_completed || c.status === "active") return "claimed";
+  if (c.status === "onboarding") return "onboarding";
   return "draft";
 }
+
+const TP_STATUS_LABEL: Record<TPStatusKey, string> = {
+  draft: "Utkast",
+  onboarding: "Onboarding",
+  claimed: "Claimet",
+  published: "Publisert",
+};
+
+const TP_STATUS_TONE: Record<TPStatusKey, string> = {
+  draft: "bg-muted text-muted-foreground border-border",
+  onboarding: "bg-warning/10 text-warning border-warning/20",
+  claimed: "bg-primary/10 text-primary border-primary/20",
+  published: "bg-success/10 text-success border-success/20",
+};
+
+const TP_STATUS_ORDER: Record<TPStatusKey, number> = { draft: 0, onboarding: 1, claimed: 2, published: 3 };
 
 // Derived criticality based on industry + size — purely presentational
 const HIGH_CRIT_INDUSTRIES = new Set(["Energi", "Helse", "Finans"]);
@@ -66,25 +87,73 @@ function deriveNeededServices(c: any): string[] {
   return services.slice(0, 3);
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  draft: "Utkast",
-  invited: "Onboarding",
-  claimed: "Aktiv",
-  archived: "Inaktiv",
-};
-
-const STATUS_TONE: Record<string, string> = {
-  draft: "bg-primary/10 text-primary border-primary/20",
-  invited: "bg-warning/10 text-warning border-warning/20",
-  claimed: "bg-success/10 text-success border-success/20",
-  archived: "bg-muted text-muted-foreground border-border",
-};
-
-// Sort order for Status column: progression from draft to active to archived
-const STATUS_ORDER: Record<string, number> = { draft: 0, invited: 1, claimed: 2, archived: 3 };
-
-type SortKey = "customer_name" | "status" | "last_activity_at";
+type SortKey = "customer_name" | "tp_status";
 type SortDir = "asc" | "desc";
+
+function ColumnFilter({
+  label,
+  options,
+  selected,
+  onChange,
+  iconOnly = false,
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  selected: string[];
+  onChange: (next: string[]) => void;
+  iconOnly?: boolean;
+}) {
+  const toggle = (v: string) => {
+    onChange(selected.includes(v) ? selected.filter((x) => x !== v) : [...selected, v]);
+  };
+  const active = selected.length > 0;
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded px-1 -mx-1 hover:text-foreground transition-colors",
+            active && "text-primary",
+          )}
+        >
+          {!iconOnly && <span>{label}</span>}
+          <Filter className={cn("h-3.5 w-3.5", active ? "opacity-100" : "opacity-40")} />
+          {active && (
+            <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[10px] font-medium h-4 min-w-4 px-1 tabular-nums">
+              {selected.length}
+            </span>
+          )}
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56 max-h-72 overflow-auto">
+        <DropdownMenuLabel className="text-xs">{label}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {options.length === 0 ? (
+          <div className="px-2 py-1.5 text-xs text-muted-foreground">Ingen valg</div>
+        ) : (
+          options.map((opt) => (
+            <DropdownMenuCheckboxItem
+              key={opt.value}
+              checked={selected.includes(opt.value)}
+              onSelect={(e) => { e.preventDefault(); toggle(opt.value); }}
+            >
+              {opt.label}
+            </DropdownMenuCheckboxItem>
+          ))
+        )}
+        {active && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); onChange([]); }} className="text-xs text-muted-foreground">
+              <X className="h-3 w-3 mr-1.5" /> Nullstill
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export default function MSPDashboard() {
   const { user } = useAuth();
@@ -94,7 +163,10 @@ export default function MSPDashboard() {
   const [activeTab, setActiveTab] = useState<"customers" | "campaigns">("customers");
   const [view, setView] = useState<ViewMode>("cards");
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [industryFilter, setIndustryFilter] = useState<string[]>([]);
+  const [criticalityFilter, setCriticalityFilter] = useState<string[]>([]);
+  const [tpStatusFilter, setTpStatusFilter] = useState<TPStatusKey[]>([]);
+  const [serviceFilter, setServiceFilter] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("customer_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const queryClient = useQueryClient();
@@ -111,10 +183,26 @@ export default function MSPDashboard() {
     },
   });
 
+  // Distinct values for column filter menus
+  const industryOptions = useMemo(
+    () => Array.from(new Set((customers as any[]).map((c) => c.industry).filter(Boolean))).sort(),
+    [customers],
+  );
+  const serviceOptions = useMemo(
+    () => Array.from(new Set((customers as any[]).flatMap((c) => deriveNeededServices(c)))).sort(),
+    [customers],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const list = (customers as any[]).filter((c) => {
-      if (statusFilter !== "all" && c.status !== statusFilter) return false;
+      if (industryFilter.length && !industryFilter.includes(c.industry)) return false;
+      if (criticalityFilter.length && !criticalityFilter.includes(deriveCriticality(c).key)) return false;
+      if (tpStatusFilter.length && !tpStatusFilter.includes(deriveTPStatus(c))) return false;
+      if (serviceFilter.length) {
+        const svcs = deriveNeededServices(c);
+        if (!serviceFilter.some((s) => svcs.includes(s))) return false;
+      }
       if (!q) return true;
       return [c.customer_name, c.industry, c.org_number, c.contact_email]
         .filter(Boolean)
@@ -126,21 +214,21 @@ export default function MSPDashboard() {
       if (sortKey === "customer_name") {
         return (a.customer_name || "").localeCompare(b.customer_name || "", "nb") * dir;
       }
-      if (sortKey === "status") {
-        const ao = STATUS_ORDER[deriveStatusKey(a)] ?? 99;
-        const bo = STATUS_ORDER[deriveStatusKey(b)] ?? 99;
-        return (ao - bo) * dir;
-      }
-      // last_activity_at — nulls always sorted last
-      const at = a.last_activity_at ? new Date(a.last_activity_at).getTime() : null;
-      const bt = b.last_activity_at ? new Date(b.last_activity_at).getTime() : null;
-      if (at === null && bt === null) return 0;
-      if (at === null) return 1;
-      if (bt === null) return -1;
-      return (at - bt) * dir;
+      // tp_status
+      const ao = TP_STATUS_ORDER[deriveTPStatus(a)] ?? 99;
+      const bo = TP_STATUS_ORDER[deriveTPStatus(b)] ?? 99;
+      return (ao - bo) * dir;
     });
     return sorted;
-  }, [customers, search, statusFilter, sortKey, sortDir]);
+  }, [customers, search, industryFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir]);
+
+  const clearAllFilters = () => {
+    setIndustryFilter([]);
+    setCriticalityFilter([]);
+    setTpStatusFilter([]);
+    setServiceFilter([]);
+  };
+  const activeFilterCount = industryFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -232,18 +320,11 @@ export default function MSPDashboard() {
                     className="pl-9"
                   />
                 </div>
-                <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-                  <SelectTrigger className="w-full md:w-[180px]">
-                    <SelectValue placeholder="Alle statuser" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Alle statuser</SelectItem>
-                    <SelectItem value="draft">Utkast</SelectItem>
-                    <SelectItem value="onboarding">Onboarding</SelectItem>
-                    <SelectItem value="active">Aktiv</SelectItem>
-                    <SelectItem value="inactive">Inaktiv</SelectItem>
-                  </SelectContent>
-                </Select>
+                {activeFilterCount > 0 && (
+                  <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1.5 text-muted-foreground">
+                    <X className="h-3.5 w-3.5" /> Nullstill filtre ({activeFilterCount})
+                  </Button>
+                )}
                 <div className="inline-flex rounded-md border border-border bg-background overflow-hidden md:ml-auto">
                   <button
                     type="button"
@@ -295,31 +376,57 @@ export default function MSPDashboard() {
                             Kunde <SortIcon k="customer_name" />
                           </button>
                         </TableHead>
-                        <TableHead>Bransje</TableHead>
-                        <TableHead>Kritikalitet</TableHead>
-                        <TableHead>Tjenester kunden trenger</TableHead>
                         <TableHead>
-                          <button type="button" onClick={() => toggleSort("status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
-                            Status <SortIcon k="status" />
-                          </button>
+                          <ColumnFilter
+                            label="Bransje"
+                            options={industryOptions.map((v) => ({ value: v, label: v }))}
+                            selected={industryFilter}
+                            onChange={setIndustryFilter}
+                          />
+                        </TableHead>
+                        <TableHead>
+                          <ColumnFilter
+                            label="Kritikalitet"
+                            options={[
+                              { value: "high", label: "Høy" },
+                              { value: "medium", label: "Medium" },
+                              { value: "low", label: "Lav" },
+                            ]}
+                            selected={criticalityFilter}
+                            onChange={setCriticalityFilter}
+                          />
+                        </TableHead>
+                        <TableHead>
+                          <ColumnFilter
+                            label="Tjenester kunden trenger"
+                            options={serviceOptions.map((v) => ({ value: v, label: v }))}
+                            selected={serviceFilter}
+                            onChange={setServiceFilter}
+                          />
+                        </TableHead>
+                        <TableHead>
+                          <div className="inline-flex items-center gap-1.5">
+                            <button type="button" onClick={() => toggleSort("tp_status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                              TP-status <SortIcon k="tp_status" />
+                            </button>
+                            <ColumnFilter
+                              iconOnly
+                              label="TP-status"
+                              options={(Object.keys(TP_STATUS_LABEL) as TPStatusKey[]).map((k) => ({ value: k, label: TP_STATUS_LABEL[k] }))}
+                              selected={tpStatusFilter}
+                              onChange={(v) => setTpStatusFilter(v as TPStatusKey[])}
+                            />
+                          </div>
                         </TableHead>
                         <TableHead className="text-right">Modenhet</TableHead>
-                        <TableHead>
-                          <button type="button" onClick={() => toggleSort("last_activity_at")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
-                            Siste aktivitet <SortIcon k="last_activity_at" />
-                          </button>
-                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {filtered.map((c: any) => {
-                        const sk = deriveStatusKey(c);
+                        const tp = deriveTPStatus(c);
                         const score = c.compliance_score || 0;
                         const crit = deriveCriticality(c);
                         const services = deriveNeededServices(c);
-                        const last = c.last_activity_at
-                          ? new Date(c.last_activity_at).toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" })
-                          : "—";
                         return (
                           <TableRow
                             key={c.id}
@@ -347,14 +454,13 @@ export default function MSPDashboard() {
                               )}
                             </TableCell>
                             <TableCell>
-                              <Badge variant="outline" className={cn("font-normal", STATUS_TONE[sk])}>
-                                {STATUS_LABEL[sk]}
+                              <Badge variant="outline" className={cn("font-normal", TP_STATUS_TONE[tp])}>
+                                {TP_STATUS_LABEL[tp]}
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right tabular-nums">
                               {score > 0 ? `${score}%` : "—"}
                             </TableCell>
-                            <TableCell className="text-muted-foreground">{last}</TableCell>
                           </TableRow>
                         );
                       })}
