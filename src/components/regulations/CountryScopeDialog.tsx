@@ -269,29 +269,49 @@ function ModeCard({
   );
 }
 
-function YesNo({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
+function TriQuestion({
+  label,
+  hint,
+  value,
+  onChange,
+  unsureLabel = "Vurderer det",
+}: {
+  label: string;
+  hint?: string;
+  value: TriAnswer;
+  onChange: (v: TriAnswer) => void;
+  unsureLabel?: string;
+}) {
+  const opts: { v: TriAnswer; l: string }[] = [
+    { v: "yes", l: "Ja" },
+    { v: "no", l: "Nei" },
+    { v: "maybe", l: unsureLabel },
+  ];
   return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-sm text-foreground">{label}</span>
-      <div className="flex items-center gap-1.5">
-        <Button
-          type="button"
-          variant={value ? "default" : "outline"}
-          size="sm"
-          className="h-7 px-3 text-xs"
-          onClick={() => onChange(true)}
-        >
-          Ja
-        </Button>
-        <Button
-          type="button"
-          variant={!value ? "default" : "outline"}
-          size="sm"
-          className="h-7 px-3 text-xs"
-          onClick={() => onChange(false)}
-        >
-          Nei
-        </Button>
+    <div className="space-y-2">
+      <div className="space-y-0.5">
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {opts.map((o) => {
+          const active = value === o.v;
+          return (
+            <button
+              key={o.v}
+              type="button"
+              onClick={() => onChange(o.v)}
+              className={cn(
+                "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                active
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-background text-foreground hover:bg-muted"
+              )}
+            >
+              {o.l}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
