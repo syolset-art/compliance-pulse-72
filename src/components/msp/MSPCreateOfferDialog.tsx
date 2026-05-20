@@ -30,6 +30,8 @@ export interface CreateOfferDialogProps {
   defaultMessage?: string;
   attachGap?: boolean;
   gapFrameworkId?: string;
+  /** Hvilken visning dialogen åpner i. Default "edit". Bruk "preview" for å vise lagrede tilbud. */
+  initialView?: "edit" | "preview";
 }
 
 interface EditableTask extends TaskEstimate {
