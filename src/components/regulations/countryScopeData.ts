@@ -18,17 +18,24 @@ export const SUPPORTED_COUNTRIES: SupportedCountry[] = [
 
 export const DEFAULT_COUNTRY_CODE = "NO";
 
+export type TriAnswer = "yes" | "no" | "maybe";
+
 export interface ScopeAnswers {
-  health: boolean;
-  finance: boolean;
-  criticalInfra: boolean;
+  /** Leverer dere til helsesektoren? */
+  health: TriAnswer;
+  /** Leverer dere til finansforetak eller forsikring? */
+  finance: TriAnswer;
+  /** Leverer dere til kritisk infrastruktur eller offentlig sektor? */
+  criticalInfra: TriAnswer;
+  /** Lagrer dere kundedata utenfor EU/EØS? */
+  dataOutsideEU: TriAnswer;
 }
 
 export type ScopeMode = "single" | "multi";
 
 export interface CountryScope {
   mode: ScopeMode;
-  countries: string[]; // ISO codes
+  countries: string[];
   answers?: ScopeAnswers;
 }
 
@@ -52,20 +59,30 @@ export function getCountry(code: string): SupportedCountry | undefined {
   return SUPPORTED_COUNTRIES.find((c) => c.code === code);
 }
 
+/** "yes" = aktivér regelverk. "maybe" og "no" gir ikke automatisk aktivering. */
+const isActive = (a?: TriAnswer) => a === "yes";
+
 /** Compute suggested framework ids based on selected countries + answers. Only returns ids that exist in our catalog. */
 export function suggestFrameworks(countries: string[], answers?: ScopeAnswers): string[] {
   const set = new Set<string>();
   countries.forEach((code) => {
     getCountry(code)?.frameworkIds.forEach((id) => set.add(id));
   });
-  if (answers?.health) {
-    ["normen", "iso27701"].forEach((id) => set.add(id));
+  if (isActive(answers?.health)) {
+    // Databehandleravtale-krav + Pasientjournalloven-tilknytning
+    ["normen", "iso27701", "personopplysningsloven"].forEach((id) => set.add(id));
   }
-  if (answers?.finance) {
-    ["dora", "hvitvasking"].forEach((id) => set.add(id));
+  if (isActive(answers?.finance)) {
+    // DORA (EU) + Finanstilsynets IKT-forskrift
+    ["dora", "hvitvasking", "finanstilsynet-ikt"].forEach((id) => set.add(id));
   }
-  if (answers?.criticalInfra) {
+  if (isActive(answers?.criticalInfra)) {
+    // NIS2-tilknytning
     ["nis2", "cra"].forEach((id) => set.add(id));
+  }
+  if (isActive(answers?.dataOutsideEU)) {
+    // Overføringsmekanismer (SCC, adequacy)
+    ["gdpr", "scc-transfers"].forEach((id) => set.add(id));
   }
   const valid = new Set(frameworks.map((f) => f.id));
   return Array.from(set).filter((id) => valid.has(id));

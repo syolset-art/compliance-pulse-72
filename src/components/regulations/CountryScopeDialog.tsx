@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Plus, Check, ArrowRight, X, MessageCircle } from "lucide-react";
+import { Sparkles, Plus, Check, ArrowRight, X, MessageCircle, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   SUPPORTED_COUNTRIES,
@@ -10,6 +10,7 @@ import {
   type CountryScope,
   type ScopeAnswers,
   type ScopeMode,
+  type TriAnswer,
   suggestFrameworks,
 } from "./countryScopeData";
 import { frameworks } from "@/lib/frameworkDefinitions";
@@ -25,7 +26,7 @@ interface Props {
 
 type Step = 1 | 2 | 3;
 
-const DEFAULT_ANSWERS: ScopeAnswers = { health: false, finance: false, criticalInfra: false };
+const DEFAULT_ANSWERS: ScopeAnswers = { health: "no", finance: "no", criticalInfra: "no", dataOutsideEU: "no" };
 
 export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }: Props) {
   const [step, setStep] = useState<Step>(1);
@@ -159,22 +160,51 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
           )}
 
           {step === 3 && (
-            <div className="space-y-4">
-              <YesNo
-                label="Behandler dere helseopplysninger?"
-                value={answers.health}
-                onChange={(v) => setAnswers((a) => ({ ...a, health: v }))}
-              />
-              <YesNo
-                label="Betalingstjenester eller finansiell rådgivning?"
-                value={answers.finance}
-                onChange={(v) => setAnswers((a) => ({ ...a, finance: v }))}
-              />
-              <YesNo
-                label="Kritisk infrastruktur (energi, transport, telekom)?"
-                value={answers.criticalInfra}
-                onChange={(v) => setAnswers((a) => ({ ...a, criticalInfra: v }))}
-              />
+            <div className="space-y-5">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                  <Sparkles className="h-3 w-3" /> Lara spør
+                </div>
+                <h3 className="text-base font-semibold text-foreground">Hvem leverer dere til?</h3>
+                <p className="text-sm text-muted-foreground">
+                  Som programvareleverandør blir dere ofte indirekte underlagt kundens regelverk. Vi spør derfor om sektorene dere betjener.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <TriQuestion
+                  label="Leverer dere til helsesektoren?"
+                  hint="Aktiverer databehandleravtale-krav og Pasientjournalloven-tilknytning."
+                  value={answers.health}
+                  onChange={(v) => setAnswers((a) => ({ ...a, health: v }))}
+                />
+                <TriQuestion
+                  label="Leverer dere til finansforetak eller forsikring?"
+                  hint="Trigger DORA (EU) og Finanstilsynets IKT-forskrift."
+                  value={answers.finance}
+                  onChange={(v) => setAnswers((a) => ({ ...a, finance: v }))}
+                />
+                <TriQuestion
+                  label="Leverer dere til kritisk infrastruktur eller offentlig sektor?"
+                  hint="Energi, telekom, transport, vannforsyning, kommune/stat. Trigger NIS2-tilknytning."
+                  value={answers.criticalInfra}
+                  onChange={(v) => setAnswers((a) => ({ ...a, criticalInfra: v }))}
+                />
+                <TriQuestion
+                  label="Lagrer dere kundedata utenfor EU/EØS?"
+                  hint="Aktiverer kontroller for overføringsmekanismer (SCC, adequacy)."
+                  value={answers.dataOutsideEU}
+                  onChange={(v) => setAnswers((a) => ({ ...a, dataOutsideEU: v }))}
+                  unsureLabel="Usikker"
+                />
+              </div>
+
+              <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
+                <Lightbulb className="mt-0.5 h-4 w-4 text-primary shrink-0" />
+                <p className="text-foreground/80">
+                  <span className="font-medium text-foreground">Lara hopper over</span> spørsmål om barn under 16 (lite relevant for B2B-SaaS) og om dere driver kritisk infrastruktur selv (dere er IT-leverandør, ikke operatør). Kan utvides manuelt hvis aktuelt.
+                </p>
+              </div>
 
               {suggestedFrameworks.length > 0 && (
                 <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
@@ -239,29 +269,49 @@ function ModeCard({
   );
 }
 
-function YesNo({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
+function TriQuestion({
+  label,
+  hint,
+  value,
+  onChange,
+  unsureLabel = "Vurderer det",
+}: {
+  label: string;
+  hint?: string;
+  value: TriAnswer;
+  onChange: (v: TriAnswer) => void;
+  unsureLabel?: string;
+}) {
+  const opts: { v: TriAnswer; l: string }[] = [
+    { v: "yes", l: "Ja" },
+    { v: "no", l: "Nei" },
+    { v: "maybe", l: unsureLabel },
+  ];
   return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-sm text-foreground">{label}</span>
-      <div className="flex items-center gap-1.5">
-        <Button
-          type="button"
-          variant={value ? "default" : "outline"}
-          size="sm"
-          className="h-7 px-3 text-xs"
-          onClick={() => onChange(true)}
-        >
-          Ja
-        </Button>
-        <Button
-          type="button"
-          variant={!value ? "default" : "outline"}
-          size="sm"
-          className="h-7 px-3 text-xs"
-          onClick={() => onChange(false)}
-        >
-          Nei
-        </Button>
+    <div className="space-y-2">
+      <div className="space-y-0.5">
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {opts.map((o) => {
+          const active = value === o.v;
+          return (
+            <button
+              key={o.v}
+              type="button"
+              onClick={() => onChange(o.v)}
+              className={cn(
+                "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                active
+                  ? "border-foreground bg-foreground text-background"
+                  : "border-border bg-background text-foreground hover:bg-muted"
+              )}
+            >
+              {o.l}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
