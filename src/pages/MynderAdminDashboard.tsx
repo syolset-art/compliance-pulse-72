@@ -56,10 +56,10 @@ const customers: CustomerRow[] = [
 ];
 
 const planMeta: Record<PlanTier, { color: string; price: number }> = {
-  Starter: { color: "bg-muted text-foreground", price: 0 },
-  Pro: { color: "bg-secondary text-secondary-foreground", price: 1990 },
-  Business: { color: "bg-primary/10 text-primary", price: 4900 },
-  Enterprise: { color: "bg-primary text-primary-foreground", price: 9800 },
+  Starter: { color: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30", price: 0 },
+  Pro: { color: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30", price: 1990 },
+  Business: { color: "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/15 dark:text-fuchsia-300 dark:border-fuchsia-500/30", price: 4900 },
+  Enterprise: { color: "bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white border-transparent", price: 9800 },
 };
 
 const billingMeta: Record<BillingStatus, { label: string; className: string; icon: typeof CheckCircle2 }> = {
