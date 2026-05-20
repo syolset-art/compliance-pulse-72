@@ -90,6 +90,7 @@ import TrustCenterServiceProfile from "./pages/TrustCenterServiceProfile";
 import TrustCenterEditProfile from "./pages/TrustCenterEditProfile";
 import TrustEngine from "./pages/TrustEngine";
 import PublicTrustProfile from "./pages/PublicTrustProfile";
+import MynderAdminDashboard from "./pages/MynderAdminDashboard";
 
 const queryClient = new QueryClient();
 
