@@ -159,15 +159,6 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
         </p>
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard title={isNb ? "Totalt sendt" : "Total Sent"} value={totalSent} icon={Send} />
-        <MetricCard title={isNb ? "Avventer svar" : "Awaiting Response"} value={awaiting} icon={Clock} className="border-l-4 border-l-amber-400" />
-        <MetricCard title={isNb ? "Mottatt" : "Received"} value={received} icon={CheckCircle2} className="border-l-4 border-l-emerald-400" />
-        <MetricCard title={isNb ? "Forfalt" : "Overdue"} value={overdue} icon={AlertTriangle} className={overdue > 0 ? "border-l-4 border-l-destructive" : ""} />
-      </div>
-
-      {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
