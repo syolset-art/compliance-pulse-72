@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Lock, AlertTriangle, Search, X } from "lucide-react";
+import { Lock, AlertTriangle, Search, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
 import {
