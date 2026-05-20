@@ -404,3 +404,98 @@ function TriQuestion({
     </div>
   );
 }
+
+const CATEGORY_LABELS: Record<string, string> = {
+  privacy: "Personvern",
+  security: "Informasjonssikkerhet",
+  ai: "AI & etikk",
+  other: "Øvrige",
+};
+
+function FrameworkPicker({
+  suggestedIds,
+  chosenIds,
+  onToggle,
+}: {
+  suggestedIds: string[];
+  chosenIds: string[];
+  onToggle: (id: string) => void;
+}) {
+  const suggestedSet = new Set(suggestedIds);
+  const grouped = frameworks.reduce<Record<string, typeof frameworks>>((acc, f) => {
+    (acc[f.category] ||= []).push(f);
+    return acc;
+  }, {});
+  const categoryOrder = ["privacy", "security", "ai", "other"];
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
+        <Sparkles className="mt-0.5 h-4 w-4 text-primary shrink-0" aria-hidden />
+        <p className="text-foreground/80">
+          <span className="font-medium text-foreground">Lara foreslår {suggestedIds.length} regelverk</span> basert på land og svar. Du kan justere listen før du aktiverer.
+        </p>
+      </div>
+
+      <div className="space-y-5">
+        {categoryOrder.map((cat) => {
+          const list = grouped[cat];
+          if (!list?.length) return null;
+          return (
+            <section key={cat} aria-labelledby={`cat-${cat}`} className="space-y-2">
+              <h4 id={`cat-${cat}`} className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {CATEGORY_LABELS[cat] ?? cat}
+              </h4>
+              <ul className="space-y-1.5 list-none p-0 m-0">
+                {list.map((f) => {
+                  const isChecked = chosenIds.includes(f.id);
+                  const isSuggested = suggestedSet.has(f.id);
+                  return (
+                    <li key={f.id}>
+                      <label
+                        className={cn(
+                          "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                          "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background",
+                          isChecked
+                            ? "border-primary/40 bg-primary/5"
+                            : "border-border bg-background hover:bg-muted/50"
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => onToggle(f.id)}
+                          className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
+                          aria-describedby={`fw-${f.id}-desc`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium text-foreground">{f.name}</span>
+                            {isSuggested && (
+                              <Badge variant="outline" className="gap-1 text-[10px] uppercase tracking-wide border-primary/30 text-primary">
+                                <Sparkles className="h-2.5 w-2.5" aria-hidden />
+                                Foreslått
+                              </Badge>
+                            )}
+                            {f.isMandatory && (
+                              <Badge variant="outline" className="text-[10px] uppercase tracking-wide border-status-followup/40 text-status-followup">
+                                Påkrevd
+                              </Badge>
+                            )}
+                          </div>
+                          <p id={`fw-${f.id}-desc`} className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                            {f.description}
+                          </p>
+                        </div>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
