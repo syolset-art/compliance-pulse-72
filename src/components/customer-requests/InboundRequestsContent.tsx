@@ -1,14 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MetricCard } from "@/components/widgets/MetricCard";
 import { CustomerRequestCard } from "@/components/customer-requests/CustomerRequestCard";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Inbox, Clock, Send, AlertCircle, Search } from "lucide-react";
+import { Inbox, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useDemoSync } from "@/contexts/DemoSyncContext";
 
