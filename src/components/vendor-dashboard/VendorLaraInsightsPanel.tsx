@@ -68,7 +68,9 @@ export function VendorLaraInsightsPanel({
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [index, setIndex] = useState(0);
+  const [reviewOpen, setReviewOpen] = useState(false);
   const { hiddenKeys, snooze, dismiss } = useLaraSuggestionStates();
+  const { createTask } = useUserTasks();
 
   const snapshotFor = (task: Task): LaraSuggestionContext => ({
     title: task.vendor.name,
