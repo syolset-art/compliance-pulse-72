@@ -69,7 +69,44 @@ export default function MynderAdminDashboard() {
   const planCounts = (Object.keys(planMeta) as PlanTier[]).map((p) => ({
     plan: p,
     count: customers.filter((c) => c.plan === p).length,
+    mrr: customers.filter((c) => c.plan === p).reduce((s, c) => s + c.mrrNok, 0),
   }));
+
+  // Aggregated demo trends for graphical context
+  const mrrTrend = [
+    { month: "Jun", mrr: 28200 },
+    { month: "Jul", mrr: 31100 },
+    { month: "Aug", mrr: 34900 },
+    { month: "Sep", mrr: 38400 },
+    { month: "Okt", mrr: 41200 },
+    { month: "Nov", mrr: totalMrr },
+  ];
+
+  const industryCounts = Object.entries(
+    customers.reduce<Record<string, number>>((acc, c) => {
+      acc[c.industry] = (acc[c.industry] || 0) + 1;
+      return acc;
+    }, {})
+  ).map(([industry, count]) => ({ industry, count }));
+
+  // Use HSL semantic tokens via CSS variables
+  const planColorVar: Record<PlanTier, string> = {
+    Starter: "hsl(var(--muted-foreground))",
+    Pro: "hsl(var(--secondary-foreground))",
+    Business: "hsl(var(--primary) / 0.6)",
+    Enterprise: "hsl(var(--primary))",
+  };
+  const industryColors = [
+    "hsl(var(--primary))",
+    "hsl(var(--primary) / 0.75)",
+    "hsl(var(--primary) / 0.55)",
+    "hsl(var(--primary) / 0.4)",
+    "hsl(var(--primary) / 0.28)",
+    "hsl(var(--muted-foreground) / 0.5)",
+    "hsl(var(--muted-foreground) / 0.35)",
+    "hsl(var(--muted-foreground) / 0.25)",
+  ];
+  const maxPlanCount = Math.max(1, ...planCounts.map((p) => p.count));
 
   return (
     <div className="flex min-h-screen w-full bg-background">
