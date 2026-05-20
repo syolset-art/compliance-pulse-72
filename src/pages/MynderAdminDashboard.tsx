@@ -171,8 +171,12 @@ export default function MynderAdminDashboard() {
                   <AreaChart data={mrrTrend} margin={{ top: 6, right: 8, bottom: 0, left: 0 }}>
                     <defs>
                       <linearGradient id="mrrFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                        <stop offset="0%" stopColor="hsl(292 84% 60%)" stopOpacity={0.55} />
+                        <stop offset="100%" stopColor="hsl(262 83% 62%)" stopOpacity={0.05} />
+                      </linearGradient>
+                      <linearGradient id="mrrStroke" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="hsl(262 83% 62%)" />
+                        <stop offset="100%" stopColor="hsl(330 81% 60%)" />
                       </linearGradient>
                     </defs>
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
@@ -181,7 +185,8 @@ export default function MynderAdminDashboard() {
                       contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                       formatter={(v: number) => [`${v.toLocaleString("nb-NO")} kr`, "MRR"]}
                     />
-                    <Area type="monotone" dataKey="mrr" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#mrrFill)" />
+                    <Area type="monotone" dataKey="mrr" stroke="url(#mrrStroke)" strokeWidth={2.5} fill="url(#mrrFill)" />
+
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
