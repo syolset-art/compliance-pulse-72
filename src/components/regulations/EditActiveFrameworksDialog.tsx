@@ -216,7 +216,7 @@ export const EditActiveFrameworksDialog = ({
         <div className="mt-6 space-y-6">
           {visibleCategories.length === 0 && (
             <p className="text-sm text-muted-foreground py-8 text-center">
-              Ingen regelverk matcher søket.
+              Ingen regelverk matcher filtrene.
             </p>
           )}
           {visibleCategories.map(({ cat: category, items: categoryFrameworks }) => {
