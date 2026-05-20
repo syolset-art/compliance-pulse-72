@@ -38,11 +38,11 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
     const total = vendors.length;
     const scores = vendors.map((v) => v.compliance_score ?? 0);
     const avg = total > 0 ? Math.round(scores.reduce((s, n) => s + n, 0) / total) : 0;
-    const missingDpa = vendors.filter((v) => !v.has_dpa && (v.gdpr_role === "processor" || v.gdpr_role === "controller")).length || vendors.filter((v) => (v.compliance_score ?? 0) < 50).length;
+    const prioritized = vendors.filter((v) => v.priority === "critical" || v.priority === "high").length;
     const buckets = { low: 0, medium: 0, high: 0 };
     scores.forEach((s) => buckets[riskBucket(s)]++);
     const highRisk = buckets.high;
-    return { total, avg, missingDpa, buckets, highRisk };
+    return { total, avg, prioritized, buckets, highRisk };
   }, [vendors]);
 
   const sorted = useMemo(
@@ -169,8 +169,8 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
                 <p className={cn("text-lg font-bold tabular-nums", scoreColor(stats.avg))}>{stats.avg}%</p>
               </Card>
               <Card variant="flat" className="p-2.5">
-                <p className="text-[11px] text-muted-foreground">Mangler DPA</p>
-                <p className="text-lg font-bold text-foreground tabular-nums">{stats.missingDpa}</p>
+                <p className="text-[11px] text-muted-foreground">Prioritet</p>
+                <p className={cn("text-lg font-bold tabular-nums", stats.prioritized > 0 ? "text-destructive" : "text-foreground")}>{stats.prioritized}</p>
               </Card>
               <Card variant="flat" className="p-2.5">
                 <p className="text-[11px] text-muted-foreground">Høy risiko</p>
