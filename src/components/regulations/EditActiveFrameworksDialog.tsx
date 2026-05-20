@@ -40,7 +40,7 @@ export const EditActiveFrameworksDialog = ({
   const [requestOpen, setRequestOpen] = useState(false);
   const [jurExpanded, setJurExpanded] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("active");
 
   const q = search.trim().toLowerCase();
