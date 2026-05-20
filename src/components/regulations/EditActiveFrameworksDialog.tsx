@@ -51,9 +51,12 @@ export const EditActiveFrameworksDialog = ({
       (fw.id || "").toLowerCase().includes(q)
     )) return false;
     if (categoryFilter && fw.category !== categoryFilter) return false;
-    if (countryFilter) {
-      const ids = new Set(getCountry(countryFilter)?.frameworkIds ?? []);
-      if (!ids.has(fw.id)) return false;
+    if (countryFilter.length) {
+      const allowedIds = new Set<string>();
+      countryFilter.forEach((code) => {
+        getCountry(code)?.frameworkIds.forEach((id) => allowedIds.add(id));
+      });
+      if (!allowedIds.has(fw.id)) return false;
     }
     if (statusFilter === "active" && !activeFrameworkIds.has(fw.id)) return false;
     if (statusFilter === "inactive" && activeFrameworkIds.has(fw.id)) return false;
