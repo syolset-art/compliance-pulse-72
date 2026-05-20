@@ -48,6 +48,8 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
   const [scopeFilter, setScopeFilter] = useState<ScopeFilter>("all");
   const [industryFilter, setIndustryFilter] = useState<ServiceIndustry | "all">("all");
   const [tierFilter, setTierFilter] = useState<ServiceTier | "all">("all");
+  const [viewMode, setViewMode] = useState<"table" | "cards">("table");
+
 
   const ranked = useMemo(() => {
     const effectiveCtx: PartnerContext = {
