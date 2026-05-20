@@ -66,6 +66,13 @@ export const EditActiveFrameworksDialog = ({
           </SheetDescription>
         </SheetHeader>
 
+        {/* Country scope — styrer hvilke regelverk som vises */}
+        {countryScope && onEditCountries && (
+          <div className="mt-5">
+            <CountryScopeBar scope={countryScope} onEdit={onEditCountries} />
+          </div>
+        )}
+
         {/* Search */}
         <div className="mt-5 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
