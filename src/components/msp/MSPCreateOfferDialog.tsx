@@ -104,14 +104,30 @@ export function MSPCreateOfferDialog({
     const margin = 48;
     let y = margin;
 
-    // Header
+    // Header — logo + partnernavn + org.nr
+    let textLeftX = margin;
+    if (effectiveLogo) {
+      try {
+        const fmt = effectiveLogo.startsWith("data:image/jpeg") ? "JPEG" : "PNG";
+        doc.addImage(effectiveLogo, fmt, margin, y - 4, 36, 36);
+        textLeftX = margin + 44;
+      } catch {
+        /* ignore broken image */
+      }
+    }
+    doc.setFontSize(11);
+    doc.setTextColor(30);
+    doc.text(effectivePartnerName, textLeftX, y + 6);
+    if (effectiveOrgNumber) {
+      doc.setFontSize(9);
+      doc.setTextColor(130);
+      doc.text(`Org.nr ${effectiveOrgNumber}`, textLeftX, y + 20);
+    }
     doc.setFontSize(10);
     doc.setTextColor(120);
-    doc.text(partnerName, margin, y);
     doc.text(`Tilbud ${offerNumber}`, pageWidth - margin, y, { align: "right" });
-    y += 14;
-    doc.text(todayLabel, pageWidth - margin, y, { align: "right" });
-    y += 28;
+    doc.text(todayLabel, pageWidth - margin, y + 14, { align: "right" });
+    y += 48;
 
     // Title
     doc.setFontSize(20);
