@@ -41,7 +41,7 @@ export const EditActiveFrameworksDialog = ({
   const [jurExpanded, setJurExpanded] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [countryFilter, setCountryFilter] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("active");
 
   const q = search.trim().toLowerCase();
   const matches = (fw: Framework) => {
