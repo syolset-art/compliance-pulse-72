@@ -1,4 +1,4 @@
-import { Globe2 } from "lucide-react";
+import { Globe2, Plus } from "lucide-react";
 import { getCountry, type CountryScope } from "./countryScopeData";
 
 interface Props {
