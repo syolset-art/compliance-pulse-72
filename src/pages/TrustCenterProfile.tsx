@@ -265,26 +265,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         <div className="flex min-h-screen w-full bg-background">
           <Sidebar />
           <main className="flex-1 p-6 pt-16">
-            <div className="max-w-3xl mx-auto mt-6 mb-4 flex items-center justify-between">
-              <div>
-                <h1 className="text-xl font-semibold text-foreground">
-                  {isNb ? "Trust Profile" : "Trust Profile"}
-                </h1>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {isNb
-                    ? "Lara hjelper deg å sette opp profilen — bare svar etterhvert."
-                    : "Lara will guide you through the setup — answer as you go."}
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setHelpOpen(true)}
-                className="gap-2"
-              >
-                <Info className="h-4 w-4" />
-                {isNb ? "Les mer" : "Learn more"}
-              </Button>
+            <div className="max-w-3xl mx-auto mt-6 mb-4">
+              <h1 className="text-xl font-semibold text-foreground">
+                {isNb ? "Trust Profile" : "Trust Profile"}
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {isNb
+                  ? "Lara hjelper deg å sette opp profilen — bare svar etterhvert."
+                  : "Lara will guide you through the setup — answer as you go."}
+              </p>
             </div>
 
             <div className={`transition-all duration-500 ${justActivated ? "opacity-0 -translate-y-2" : "opacity-100"}`}>
