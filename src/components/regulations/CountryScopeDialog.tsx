@@ -25,13 +25,14 @@ interface Props {
   onApply: (scope: CountryScope, suggestedFrameworkIds: string[]) => void;
 }
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3;
 
 const DEFAULT_ANSWERS: ScopeAnswers = { health: "no", finance: "no", criticalInfra: "no", dataOutsideEU: "no" };
 
 export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }: Props) {
   const [step, setStep] = useState<Step>(1);
-  const [mode, setMode] = useState<ScopeMode>(initialScope.mode);
+  // Mode is always "multi" — users can pick one or several countries freely.
+  const mode: ScopeMode = "multi";
   const [selected, setSelected] = useState<string[]>(initialScope.countries);
   const [answers, setAnswers] = useState<ScopeAnswers>(initialScope.answers ?? DEFAULT_ANSWERS);
   const [chosenFrameworkIds, setChosenFrameworkIds] = useState<string[]>([]);
@@ -41,7 +42,6 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
   useEffect(() => {
     if (open) {
       setStep(1);
-      setMode(initialScope.mode);
       setSelected(initialScope.countries.length ? initialScope.countries : [DEFAULT_COUNTRY_CODE]);
       setAnswers(initialScope.answers ?? DEFAULT_ANSWERS);
       setChosenFrameworkIds([]);
@@ -49,20 +49,15 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
     }
   }, [open, initialScope]);
 
-  // Single mode: 1 mode → 2 countries → 3 review/pick.
-  // Multi mode:  1 mode → 2 countries → 3 questions → 4 review/pick.
-  const totalSteps = mode === "multi" ? 4 : 3;
-  const reviewStep: Step = mode === "multi" ? 4 : 3;
+  // 1 countries → 2 questions → 3 review/pick.
+  const totalSteps = 3;
+  const reviewStep: Step = 3;
 
   const toggleCountry = (code: string) => {
-    if (mode === "single") {
-      setSelected([code]);
-      return;
-    }
     setSelected((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
   };
 
-  const suggestedIds = suggestFrameworks(selected, mode === "multi" ? answers : undefined);
+  const suggestedIds = suggestFrameworks(selected, answers);
   const suggestedFrameworks = frameworks.filter((f) => suggestedIds.includes(f.id));
 
   // When entering review step, preselect Lara's suggestions.
@@ -81,7 +76,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
 
   const handleApply = () => {
     const finalIds = chosenFrameworkIds.length ? chosenFrameworkIds : suggestedIds;
-    onApply({ mode, countries: selected, answers: mode === "multi" ? answers : undefined }, finalIds);
+    onApply({ mode, countries: selected, answers }, finalIds);
     onOpenChange(false);
   };
 
