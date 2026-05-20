@@ -29,6 +29,8 @@ export interface ScopeAnswers {
   criticalInfra: TriAnswer;
   /** Lagrer dere kundedata utenfor EU/EØS? */
   dataOutsideEU: TriAnswer;
+  /** Spesifikke regelverk brukeren vet de må følge (fri tekst / egne tags). */
+  specificFrameworks?: string[];
 }
 
 export type ScopeMode = "single" | "multi";

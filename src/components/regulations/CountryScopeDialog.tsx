@@ -256,6 +256,11 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                   <span className="font-medium text-foreground">Lara hopper over</span> spørsmål om barn under 16 (lite relevant for B2B-SaaS) og om dere driver kritisk infrastruktur selv (dere er IT-leverandør, ikke operatør). Kan utvides manuelt hvis aktuelt.
                 </p>
               </div>
+
+              <SpecificFrameworksInput
+                values={answers.specificFrameworks ?? []}
+                onChange={(v) => setAnswers((a) => ({ ...a, specificFrameworks: v }))}
+              />
             </div>
           )}
 
@@ -264,6 +269,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
               suggestedIds={suggestedIds}
               chosenIds={chosenFrameworkIds}
               onToggle={toggleFramework}
+              customFrameworks={mode === "multi" ? answers.specificFrameworks ?? [] : []}
             />
           )}
           </div>
@@ -416,10 +422,12 @@ function FrameworkPicker({
   suggestedIds,
   chosenIds,
   onToggle,
+  customFrameworks = [],
 }: {
   suggestedIds: string[];
   chosenIds: string[];
   onToggle: (id: string) => void;
+  customFrameworks?: string[];
 }) {
   const suggestedSet = new Set(suggestedIds);
   const grouped = frameworks.reduce<Record<string, typeof frameworks>>((acc, f) => {
@@ -436,6 +444,26 @@ function FrameworkPicker({
           <span className="font-medium text-foreground">Lara foreslår {suggestedIds.length} regelverk</span> basert på land og svar. Du kan justere listen før du aktiverer.
         </p>
       </div>
+
+      {customFrameworks.length > 0 && (
+        <section aria-labelledby="cat-custom" className="space-y-2">
+          <h4 id="cat-custom" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Egne regelverk
+          </h4>
+          <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
+            <p className="text-xs text-muted-foreground">
+              Disse er ikke i vår katalog enda. Vi sender en støtteforespørsel til support — typisk levert på noen dager.
+            </p>
+            <ul className="flex flex-wrap gap-1.5 list-none p-0 m-0">
+              {customFrameworks.map((name) => (
+                <li key={name}>
+                  <Badge variant="secondary" className="font-normal">{name}</Badge>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       <div className="space-y-5">
         {categoryOrder.map((cat) => {
@@ -495,6 +523,86 @@ function FrameworkPicker({
             </section>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function SpecificFrameworksInput({
+  values,
+  onChange,
+}: {
+  values: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const [draft, setDraft] = useState("");
+  const inputId = "specific-frameworks-input";
+  const hintId = "specific-frameworks-hint";
+
+  const addDraft = () => {
+    const v = draft.trim();
+    if (!v) return;
+    if (values.includes(v)) {
+      setDraft("");
+      return;
+    }
+    onChange([...values, v]);
+    setDraft("");
+  };
+
+  const remove = (name: string) => onChange(values.filter((v) => v !== name));
+
+  return (
+    <div className="space-y-2 rounded-lg border border-border bg-background p-3">
+      <div className="space-y-0.5">
+        <label htmlFor={inputId} className="text-sm font-medium text-foreground">
+          Er det noen spesifikke regelverk dere allerede vet at dere må følge?
+        </label>
+        <p id={hintId} className="text-xs text-muted-foreground">
+          Valgfritt. Skriv navnet og trykk Enter — f.eks. «HIPAA», «PCI DSS» eller en lokal lov. Vi sjekker om vi støtter dem og kobler dem inn.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {values.map((name) => (
+          <span
+            key={name}
+            className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-xs"
+          >
+            {name}
+            <button
+              type="button"
+              onClick={() => remove(name)}
+              aria-label={`Fjern ${name}`}
+              className="rounded-full p-0.5 hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <X className="h-3 w-3" aria-hidden />
+            </button>
+          </span>
+        ))}
+        <div className="flex flex-1 min-w-[160px] items-center gap-1.5">
+          <input
+            id={inputId}
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                addDraft();
+              } else if (e.key === "Backspace" && !draft && values.length) {
+                onChange(values.slice(0, -1));
+              }
+            }}
+            placeholder="F.eks. HIPAA, PCI DSS…"
+            aria-describedby={hintId}
+            className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground py-1"
+          />
+          {draft.trim() && (
+            <Button type="button" size="sm" variant="ghost" onClick={addDraft} className="h-7 px-2 text-xs">
+              Legg til
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
