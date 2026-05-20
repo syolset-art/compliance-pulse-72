@@ -422,10 +422,12 @@ function FrameworkPicker({
   suggestedIds,
   chosenIds,
   onToggle,
+  customFrameworks = [],
 }: {
   suggestedIds: string[];
   chosenIds: string[];
   onToggle: (id: string) => void;
+  customFrameworks?: string[];
 }) {
   const suggestedSet = new Set(suggestedIds);
   const grouped = frameworks.reduce<Record<string, typeof frameworks>>((acc, f) => {
@@ -442,6 +444,26 @@ function FrameworkPicker({
           <span className="font-medium text-foreground">Lara foreslår {suggestedIds.length} regelverk</span> basert på land og svar. Du kan justere listen før du aktiverer.
         </p>
       </div>
+
+      {customFrameworks.length > 0 && (
+        <section aria-labelledby="cat-custom" className="space-y-2">
+          <h4 id="cat-custom" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Egne regelverk
+          </h4>
+          <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
+            <p className="text-xs text-muted-foreground">
+              Disse er ikke i vår katalog enda. Vi sender en støtteforespørsel til support — typisk levert på noen dager.
+            </p>
+            <ul className="flex flex-wrap gap-1.5 list-none p-0 m-0">
+              {customFrameworks.map((name) => (
+                <li key={name}>
+                  <Badge variant="secondary" className="font-normal">{name}</Badge>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       <div className="space-y-5">
         {categoryOrder.map((cat) => {
