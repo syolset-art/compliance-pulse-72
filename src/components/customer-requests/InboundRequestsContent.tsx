@@ -118,7 +118,8 @@ export function InboundRequestsContent() {
   const isNb = i18n.language === "nb";
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-  const [activeTab, setActiveTab] = useState("open");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [demoRequests, setDemoRequests] = useState(INITIAL_DEMO_REQUESTS);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { customerRequestDemo } = useDemoSync();
@@ -140,16 +141,26 @@ export function InboundRequestsContent() {
     ? [SPAREBANK_DEMO_REQUEST, ...baseRequests.filter((r: any) => r.id !== SPAREBANK_DEMO_REQUEST.id)]
     : baseRequests;
 
-  const filtered = requests.filter((r: any) =>
-    !search || r.customer_name.toLowerCase().includes(search.toLowerCase()) || r.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const isOverdue = (r: any) =>
+    r.due_date && new Date(r.due_date) < new Date() && r.status !== "responded" && r.status !== "archived";
 
-  const open = filtered.filter((r: any) => r.status === "new" || r.status === "read");
-  const responded = filtered.filter((r: any) => r.status === "responded");
-  const archived = filtered.filter((r: any) => r.status === "archived");
-  const overdue = filtered.filter((r: any) => r.due_date && new Date(r.due_date) < new Date() && r.status !== "responded" && r.status !== "archived");
-
-  const tabData: Record<string, any[]> = { open, responded, all: filtered, archived };
+  const filtered = useMemo(() => {
+    return requests.filter((r: any) => {
+      const matchesSearch = !search
+        || r.customer_name.toLowerCase().includes(search.toLowerCase())
+        || (r.title || "").toLowerCase().includes(search.toLowerCase());
+      const matchesType = typeFilter === "all" || r.request_type === typeFilter;
+      let matchesStatus = true;
+      if (statusFilter === "all") {
+        matchesStatus = r.status !== "archived";
+      } else if (statusFilter === "overdue") {
+        matchesStatus = isOverdue(r);
+      } else {
+        matchesStatus = r.status === statusFilter;
+      }
+      return matchesSearch && matchesType && matchesStatus;
+    });
+  }, [requests, search, typeFilter, statusFilter]);
 
   const handleArchive = (id: string) => {
     if (dbRequests.length > 0) {
@@ -194,58 +205,52 @@ export function InboundRequestsContent() {
   };
   return (
     <div className="space-y-6">
-      {/* Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard title={t("customerRequests.metrics.total", "Totale meldinger")} value={requests.length} icon={Inbox} />
-        <MetricCard title={t("customerRequests.metrics.new", "Nye")} value={requests.filter((r: any) => r.status === "new").length} icon={Clock} className="border-l-4 border-l-amber-400" />
-        <MetricCard title={t("customerRequests.metrics.responded", "Besvart")} value={responded.length} icon={Send} />
-        <MetricCard title={t("customerRequests.metrics.overdue", "Forfalt")} value={overdue.length} icon={AlertCircle} className={overdue.length > 0 ? "border-l-4 border-l-destructive" : ""} />
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder={isNb ? "Søk kunde eller tittel..." : "Search customer or title..."} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+        </div>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-[160px]"><SelectValue placeholder={isNb ? "Type" : "Type"} /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{isNb ? "Alle typer" : "All types"}</SelectItem>
+            <SelectItem value="vendor_assessment">{isNb ? "Leverandørvurdering" : "Vendor Assessment"}</SelectItem>
+            <SelectItem value="dpa">DPA</SelectItem>
+            <SelectItem value="iso_documentation">ISO 27001</SelectItem>
+            <SelectItem value="soc2">SOC 2</SelectItem>
+            <SelectItem value="gdpr_report">GDPR</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{isNb ? "Alle aktive" : "All active"}</SelectItem>
+            <SelectItem value="new">{isNb ? "Ny" : "New"}</SelectItem>
+            <SelectItem value="read">{isNb ? "Lest" : "Read"}</SelectItem>
+            <SelectItem value="responded">{isNb ? "Besvart" : "Responded"}</SelectItem>
+            <SelectItem value="overdue">{isNb ? "Forfalt" : "Overdue"}</SelectItem>
+            <SelectItem value="archived">{isNb ? "Arkivert" : "Archived"}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder={t("customerRequests.search", "Søk i forespørsler...")} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
-      </div>
-
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="open" className="gap-1.5">
-            {t("customerRequests.tabs.open", "Åpne")}
-            <Badge variant="secondary" className="text-[13px] px-1.5 py-0">{open.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="responded" className="gap-1.5">
-            {t("customerRequests.tabs.responded", "Besvart")}
-            <Badge variant="secondary" className="text-[13px] px-1.5 py-0">{responded.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="all" className="gap-1.5">
-            {t("customerRequests.tabs.all", "Alle")}
-            <Badge variant="secondary" className="text-[13px] px-1.5 py-0">{filtered.length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="archived">{t("customerRequests.tabs.archived", "Arkivert")}</TabsTrigger>
-        </TabsList>
-
-        {["open", "responded", "all", "archived"].map((tab) => (
-          <TabsContent key={tab} value={tab} className="space-y-3 mt-4">
-            {(tabData[tab] || []).length === 0 ? (
-              <div className="text-center py-16 text-muted-foreground">
-                <Inbox className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                <p className="text-sm font-medium">{t("customerRequests.empty", "Ingen forespørsler her")}</p>
-              </div>
-            ) : (
-              (tabData[tab] || []).map((req: any) => (
-                <div
-                  key={req.id}
-                  className={req.__isDemoHighlight ? "rounded-xl ring-2 ring-primary/40 animate-pulse" : ""}
-                >
-                  <CustomerRequestCard request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
-                </div>
-              ))
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
+      {filtered.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <Inbox className="h-12 w-12 mx-auto mb-3 opacity-40" />
+          <p className="text-sm font-medium">{t("customerRequests.empty", "Ingen forespørsler her")}</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((req: any) => (
+            <div
+              key={req.id}
+              className={req.__isDemoHighlight ? "rounded-xl ring-2 ring-primary/40 animate-pulse" : ""}
+            >
+              <CustomerRequestCard request={req} onDelete={handleDelete} onArchive={handleArchive} onToggleVisibility={handleToggleVisibility} />
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
