@@ -223,6 +223,8 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                   {mode === "multi" && " – neste steg stiller noen spørsmål for å filtrere ytterligere"}.
                 </p>
               </div>
+
+              <CommunityRequests />
             </div>
           )}
 
