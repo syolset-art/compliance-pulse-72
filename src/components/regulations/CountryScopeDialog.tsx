@@ -26,7 +26,7 @@ interface Props {
 
 type Step = 1 | 2 | 3;
 
-const DEFAULT_ANSWERS: ScopeAnswers = { health: false, finance: false, criticalInfra: false };
+const DEFAULT_ANSWERS: ScopeAnswers = { health: "no", finance: "no", criticalInfra: "no", dataOutsideEU: "no" };
 
 export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }: Props) {
   const [step, setStep] = useState<Step>(1);
