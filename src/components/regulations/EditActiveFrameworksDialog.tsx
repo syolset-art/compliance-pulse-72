@@ -133,84 +133,81 @@ export const EditActiveFrameworksDialog = ({
           </p>
         )}
 
-        {/* Filters */}
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mr-1">Filter</span>
-
+        {/* Filters — subtle */}
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
           {/* Status */}
-          {(["all", "active", "inactive"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setStatusFilter(s)}
-              className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
-                statusFilter === s
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-background hover:bg-muted"
-              }`}
-            >
-              {s === "all" ? "Alle" : s === "active" ? "Aktive" : "Ikke aktive"}
-            </button>
-          ))}
-
-          <span aria-hidden className="mx-1 h-4 w-px bg-border" />
-
-          {/* Categories */}
-          {categories.map((cat) => {
-            const active = categoryFilter === cat.id;
-            const Icon = cat.icon;
-            return (
+          <div className="flex items-center gap-2">
+            {(["all", "active", "inactive"] as const).map((s) => (
               <button
-                key={cat.id}
+                key={s}
                 type="button"
-                onClick={() => setCategoryFilter(active ? null : cat.id)}
-                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors ${
-                  active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-background hover:bg-muted"
+                onClick={() => setStatusFilter(s)}
+                className={`transition-colors hover:text-foreground ${
+                  statusFilter === s ? "text-foreground font-medium" : ""
                 }`}
               >
-                <Icon className="h-3 w-3" />
-                {cat.name}
+                {s === "all" ? "Alle" : s === "active" ? "Aktive" : "Ikke aktive"}
               </button>
-            );
-          })}
+            ))}
+          </div>
+
+          <span aria-hidden className="h-3 w-px bg-border" />
+
+          {/* Categories */}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            {categories.map((cat) => {
+              const active = categoryFilter === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategoryFilter(active ? null : cat.id)}
+                  className={`transition-colors hover:text-foreground ${
+                    active ? "text-foreground font-medium" : ""
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
 
           {availableCountries.length > 0 && (
-            <span aria-hidden className="mx-1 h-4 w-px bg-border" />
+            <span aria-hidden className="h-3 w-px bg-border" />
           )}
 
           {/* Countries */}
-          {availableCountries.map((c) => {
-            const active = countryFilter === c.code;
-            return (
-              <button
-                key={c.code}
-                type="button"
-                onClick={() => setCountryFilter(active ? null : c.code)}
-                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors ${
-                  active
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-background hover:bg-muted"
-                }`}
-              >
-                <span aria-hidden>{c.flag}</span>
-                {c.name}
-              </button>
-            );
-          })}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            {availableCountries.map((c) => {
+              const active = countryFilter === c.code;
+              return (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => setCountryFilter(active ? null : c.code)}
+                  className={`inline-flex items-center gap-1 transition-colors hover:text-foreground ${
+                    active ? "text-foreground font-medium" : ""
+                  }`}
+                >
+                  <span aria-hidden className="text-[11px]">{c.flag}</span>
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
 
           {hasActiveFilter && (
             <button
               type="button"
               onClick={() => { setCategoryFilter(null); setCountryFilter(null); setStatusFilter("all"); }}
-              className="ml-1 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted"
+              className="inline-flex items-center gap-1 text-muted-foreground/70 hover:text-foreground"
             >
               <X className="h-3 w-3" />
               Nullstill
             </button>
           )}
         </div>
+
 
 
         <div className="mt-6 space-y-6">
