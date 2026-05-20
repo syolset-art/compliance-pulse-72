@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { MetricCard } from "@/components/widgets/MetricCard";
 import { OutboundRequestCard, type OutboundRequest } from "./OutboundRequestCard";
 import { SendRequestWizard } from "./SendRequestWizard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Send, Clock, CheckCircle2, AlertTriangle, Search, Inbox, ShieldAlert } from "lucide-react";
+import { Search, Inbox, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+
 
 const STORAGE_KEY = "mynder_outbound_requests_v2";
 const AUTO_DELETE_DAYS = 180; // 6 months retention
@@ -99,10 +99,6 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
     });
   }, [requests, search, typeFilter, statusFilter]);
 
-  const totalSent = requests.length;
-  const awaiting = requests.filter((r) => r.status === "sent" || r.status === "awaiting").length;
-  const received = requests.filter((r) => r.status === "received").length;
-  const overdue = requests.filter((r) => r.status === "overdue").length;
 
   useEffect(() => {
     saveOutboundRequests(requests);
@@ -159,15 +155,6 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
         </p>
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard title={isNb ? "Totalt sendt" : "Total Sent"} value={totalSent} icon={Send} />
-        <MetricCard title={isNb ? "Avventer svar" : "Awaiting Response"} value={awaiting} icon={Clock} className="border-l-4 border-l-amber-400" />
-        <MetricCard title={isNb ? "Mottatt" : "Received"} value={received} icon={CheckCircle2} className="border-l-4 border-l-emerald-400" />
-        <MetricCard title={isNb ? "Forfalt" : "Overdue"} value={overdue} icon={AlertTriangle} className={overdue > 0 ? "border-l-4 border-l-destructive" : ""} />
-      </div>
-
-      {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
