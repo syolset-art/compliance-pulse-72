@@ -76,7 +76,7 @@ export const EditActiveFrameworksDialog = ({
   );
 
   const totalMatches = visibleCategories.reduce((s, c) => s + c.items.length, 0);
-  const hasActiveFilter = !!categoryFilter || !!countryFilter || statusFilter !== "all";
+  const hasActiveFilter = !!categoryFilter || countryFilter.length > 0 || statusFilter !== "all";
   const availableCountries = countryScope?.countries?.length
     ? SUPPORTED_COUNTRIES.filter((c) => countryScope.countries.includes(c.code))
     : SUPPORTED_COUNTRIES;
