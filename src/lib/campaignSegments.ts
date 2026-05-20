@@ -34,7 +34,7 @@ export interface CampaignSegment {
   label: string;
   description: string;
   /** Lara-tag — hvilken slags innsikt segmentet bygger på */
-  category: "framework" | "maturity" | "service" | "activity" | "criticality";
+  category: "framework" | "maturity" | "service" | "activity" | "criticality" | "product";
   predicate: (c: CampaignCustomer) => boolean;
 }
 
