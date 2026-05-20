@@ -415,9 +415,14 @@ export default function MSPDashboard() {
                   {/* Mobile/tablet: compact table-style row list */}
                   <div className="lg:hidden rounded-lg border border-border bg-card divide-y divide-border overflow-hidden">
                     {filtered.map((c: any) => {
-                      const tp = deriveTPStatus(c);
                       const score = c.compliance_score || 0;
-                      const crit = deriveCriticality(c);
+                      const radius = 18;
+                      const circ = 2 * Math.PI * radius;
+                      const dash = score > 0 ? (score / 100) * circ : 0;
+                      const stroke =
+                        score >= 75 ? "hsl(var(--success))" :
+                        score >= 50 ? "hsl(var(--warning))" :
+                        "hsl(var(--destructive))";
                       return (
                         <button
                           key={c.id}
@@ -426,30 +431,27 @@ export default function MSPDashboard() {
                           className="w-full text-left px-3 py-3 flex items-center gap-3 hover:bg-muted/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                         >
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-foreground truncate">{c.customer_name}</p>
-                              {score > 0 && (
-                                <span className={cn(
-                                  "text-[11px] font-semibold tabular-nums px-1.5 py-0.5 rounded shrink-0",
-                                  score >= 75 ? "bg-success/15 text-success" : score >= 50 ? "bg-warning/15 text-warning" : "bg-destructive/15 text-destructive"
-                                )}>
-                                  {score}%
-                                </span>
-                              )}
-                            </div>
-                            <div className="mt-1 flex items-center gap-1.5 flex-wrap text-[11px] text-muted-foreground">
-                              <span className="truncate">{c.industry || "—"}</span>
-                              <span aria-hidden>·</span>
-                              <span className="tabular-nums">{c.country_code || "NO"}</span>
-                              <Badge variant="outline" className={cn("font-normal text-[10px] py-0 px-1.5 h-4", crit.tone)}>
-                                {crit.label}
-                              </Badge>
-                              <Badge variant="outline" className={cn("font-normal text-[10px] py-0 px-1.5 h-4", TP_STATUS_TONE[tp])}>
-                                {TP_STATUS_LABEL[tp]}
-                              </Badge>
-                            </div>
+                            <p className="text-sm font-medium text-foreground truncate">{c.customer_name}</p>
+                            <p className="mt-0.5 text-[12px] text-muted-foreground truncate">{c.industry || "—"}</p>
                           </div>
-                          <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <div className="flex items-center gap-2">
+                            <div className="relative flex items-center justify-center" style={{ width: 40, height: 40 }}>
+                              <svg width="40" height="40" viewBox="0 0 40 40" className="-rotate-90">
+                                <circle cx="20" cy="20" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
+                                {score > 0 && (
+                                  <circle cx="20" cy="20" r={radius} fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round"
+                                    strokeDasharray={`${dash} ${circ}`} />
+                                )}
+                              </svg>
+                              <span className={cn(
+                                "absolute text-[10px] font-semibold tabular-nums leading-none",
+                                score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"
+                              )}>
+                                {score > 0 ? `${score}%` : "—"}
+                              </span>
+                            </div>
+                            <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                          </div>
                         </button>
                       );
                     })}
