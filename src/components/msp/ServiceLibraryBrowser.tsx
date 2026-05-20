@@ -365,3 +365,104 @@ function TemplateCard({
     </Card>
   );
 }
+
+function TemplateTable({
+  items,
+  adoptedIds,
+  onAdopt,
+  hourlyRate,
+  highlighted,
+}: {
+  items: { template: ServiceTemplate; reasons?: string[] }[];
+  adoptedIds: Set<string>;
+  onAdopt: (template: ServiceTemplate) => void;
+  hourlyRate: number;
+  highlighted?: boolean;
+}) {
+  return (
+    <Card className={cn("overflow-hidden", highlighted && "border-primary/30")}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[90px]">Kode</TableHead>
+            <TableHead>Tjeneste</TableHead>
+            <TableHead className="hidden lg:table-cell">Regelverk</TableHead>
+            <TableHead className="hidden md:table-cell">Marked</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Timer</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Pris</TableHead>
+            <TableHead className="w-[120px] text-right">Handling</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {items.map(({ template, reasons }) => {
+            const adopted = adoptedIds.has(template.id);
+            return (
+              <TableRow key={template.id} className={cn(adopted && "opacity-60")}>
+                <TableCell>
+                  <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                    {template.code}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-medium text-foreground text-sm">{template.name}</span>
+                    {template.partnerType !== "all" && (
+                      <Badge variant="secondary" className="text-xs h-5">{template.partnerType.toUpperCase()}</Badge>
+                    )}
+                    <Badge variant="outline" className="text-xs h-5">{deliveryLabel(template.delivery)}</Badge>
+                    {reasons && reasons.length > 0 && (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-primary">
+                        <Sparkles className="h-3 w-3" /> Lara
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{template.shortDescription}</p>
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  <div className="flex flex-wrap gap-1">
+                    {template.mappings.slice(0, 3).map((m, i) => (
+                      <span key={i} className="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                        <span className="font-semibold text-foreground">{m.frameworkLabel}</span>
+                      </span>
+                    ))}
+                    {template.mappings.length > 3 && (
+                      <span className="text-xs text-muted-foreground">+{template.mappings.length - 3}</span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <div className="flex flex-wrap gap-1">
+                    {template.scopes.slice(0, 3).map((s) => (
+                      <span key={s} className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-xs text-muted-foreground">
+                        <Globe className="h-2.5 w-2.5" /> {scopeLabel(s)}
+                      </span>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+                  <span className="inline-flex items-center gap-1 justify-end">
+                    <Clock className="h-3 w-3" /> {formatHoursRange(template.estimatedHours)}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right text-sm font-semibold tabular-nums whitespace-nowrap">
+                  {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    size="sm"
+                    variant={adopted ? "outline" : "default"}
+                    className="h-8 text-xs gap-1"
+                    onClick={() => onAdopt(template)}
+                    disabled={adopted}
+                  >
+                    {adopted ? <><Check className="h-3.5 w-3.5" /> Adoptert</> : <><Plus className="h-3.5 w-3.5" /> Adopter</>}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </Card>
+  );
+}
