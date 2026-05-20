@@ -24,7 +24,7 @@ interface Props {
   onApply: (scope: CountryScope, suggestedFrameworkIds: string[]) => void;
 }
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 const DEFAULT_ANSWERS: ScopeAnswers = { health: "no", finance: "no", criticalInfra: "no", dataOutsideEU: "no" };
 
@@ -33,6 +33,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
   const [mode, setMode] = useState<ScopeMode>(initialScope.mode);
   const [selected, setSelected] = useState<string[]>(initialScope.countries);
   const [answers, setAnswers] = useState<ScopeAnswers>(initialScope.answers ?? DEFAULT_ANSWERS);
+  const [chosenFrameworkIds, setChosenFrameworkIds] = useState<string[]>([]);
   const [supportOpen, setSupportOpen] = useState(false);
 
   useEffect(() => {
@@ -41,10 +42,14 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
       setMode(initialScope.mode);
       setSelected(initialScope.countries.length ? initialScope.countries : [DEFAULT_COUNTRY_CODE]);
       setAnswers(initialScope.answers ?? DEFAULT_ANSWERS);
+      setChosenFrameworkIds([]);
     }
   }, [open, initialScope]);
 
-  const totalSteps = mode === "multi" ? 3 : 2;
+  // Single mode: 1 mode → 2 countries → 3 review/pick.
+  // Multi mode:  1 mode → 2 countries → 3 questions → 4 review/pick.
+  const totalSteps = mode === "multi" ? 4 : 3;
+  const reviewStep: Step = mode === "multi" ? 4 : 3;
 
   const toggleCountry = (code: string) => {
     if (mode === "single") {
@@ -54,27 +59,39 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
     setSelected((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
   };
 
-  const handleApply = () => {
-    const suggested = suggestFrameworks(selected, mode === "multi" ? answers : undefined);
-    onApply({ mode, countries: selected, answers: mode === "multi" ? answers : undefined }, suggested);
-    onOpenChange(false);
-  };
-
   const suggestedIds = suggestFrameworks(selected, mode === "multi" ? answers : undefined);
   const suggestedFrameworks = frameworks.filter((f) => suggestedIds.includes(f.id));
 
-  const goNext = () => {
-    if (step === 1) {
-      setStep(mode === "multi" ? 2 : 2);
-    } else if (step === 2) {
-      if (mode === "multi") setStep(3);
-      else handleApply();
-    } else {
-      handleApply();
+  // When entering review step, preselect Lara's suggestions.
+  useEffect(() => {
+    if (step === reviewStep) {
+      setChosenFrameworkIds((prev) => (prev.length === 0 ? suggestedIds : prev));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, reviewStep]);
+
+  const toggleFramework = (id: string) => {
+    setChosenFrameworkIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleApply = () => {
+    const finalIds = chosenFrameworkIds.length ? chosenFrameworkIds : suggestedIds;
+    onApply({ mode, countries: selected, answers: mode === "multi" ? answers : undefined }, finalIds);
+    onOpenChange(false);
+  };
+
+  const goNext = () => {
+    if (step === reviewStep) {
+      handleApply();
+      return;
+    }
+    setStep((s) => ((s + 1) as Step));
   };
 
   const goBack = () => setStep((s) => (s > 1 ? ((s - 1) as Step) : s));
+
 
   return (
     <>
@@ -90,7 +107,8 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                 {mode === "multi" && <Badge variant="outline" className="text-[10px] uppercase tracking-wide">Ekspansjon</Badge>}
                 {step === 1 && "Hvilke land gjelder dette for?"}
                 {step === 2 && (mode === "multi" ? "Hvor opererer dere nå?" : "Velg land")}
-                {step === 3 && "Et par spørsmål for å filtrere"}
+                {step === 3 && mode === "multi" && "Et par spørsmål for å filtrere"}
+                {step === reviewStep && "Foreslåtte regelverk"}
               </DialogTitle>
               <span
                 className="text-xs text-muted-foreground whitespace-nowrap"
@@ -102,7 +120,8 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
             <DialogDescription id="country-scope-desc">
               {step === 1 && "Som standard viser vi regelverk for ett land. Velg flere hvis dere ekspanderer eller opererer på tvers."}
               {step === 2 && "Lara foreslår regelverk basert på valgene."}
-              {step === 3 && "Vi bruker svarene til å foreslå riktige regelverk."}
+              {step === 3 && mode === "multi" && "Vi bruker svarene til å foreslå riktige regelverk."}
+              {step === reviewStep && "Lara har forhåndsvalgt forslagene. Du kan legge til eller fjerne regelverk selv."}
             </DialogDescription>
           </DialogHeader>
 
@@ -187,7 +206,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
             </div>
           )}
 
-          {step === 3 && (
+          {step === 3 && mode === "multi" && (
             <div className="space-y-5">
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
@@ -237,31 +256,15 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                   <span className="font-medium text-foreground">Lara hopper over</span> spørsmål om barn under 16 (lite relevant for B2B-SaaS) og om dere driver kritisk infrastruktur selv (dere er IT-leverandør, ikke operatør). Kan utvides manuelt hvis aktuelt.
                 </p>
               </div>
-
-              <div
-                className="rounded-lg border bg-muted/30 p-3 space-y-2"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                {suggestedFrameworks.length > 0 ? (
-                  <>
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                      <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
-                      Foreslåtte regelverk ({suggestedFrameworks.length})
-                    </div>
-                    <ul className="flex flex-wrap gap-1.5 list-none p-0 m-0">
-                      {suggestedFrameworks.map((f) => (
-                        <li key={f.id}>
-                          <Badge variant="secondary" className="font-normal">{f.name}</Badge>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Ingen forslag enda — svar på spørsmålene over.</p>
-                )}
-              </div>
             </div>
+          )}
+
+          {step === reviewStep && (
+            <FrameworkPicker
+              suggestedIds={suggestedIds}
+              chosenIds={chosenFrameworkIds}
+              onToggle={toggleFramework}
+            />
           )}
           </div>
 
@@ -275,7 +278,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
               aria-describedby={step === 2 && selected.length === 0 ? "next-disabled-hint" : undefined}
               className="gap-1.5"
             >
-              {step === totalSteps ? "Vis forslag" : "Neste"}
+              {step === reviewStep ? `Aktiver ${chosenFrameworkIds.length} regelverk` : "Neste"}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden />
             </Button>
             {step === 2 && selected.length === 0 && (
@@ -395,6 +398,101 @@ function TriQuestion({
             >
               {o.l}
             </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  privacy: "Personvern",
+  security: "Informasjonssikkerhet",
+  ai: "AI & etikk",
+  other: "Øvrige",
+};
+
+function FrameworkPicker({
+  suggestedIds,
+  chosenIds,
+  onToggle,
+}: {
+  suggestedIds: string[];
+  chosenIds: string[];
+  onToggle: (id: string) => void;
+}) {
+  const suggestedSet = new Set(suggestedIds);
+  const grouped = frameworks.reduce<Record<string, typeof frameworks>>((acc, f) => {
+    (acc[f.category] ||= []).push(f);
+    return acc;
+  }, {});
+  const categoryOrder = ["privacy", "security", "ai", "other"];
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
+        <Sparkles className="mt-0.5 h-4 w-4 text-primary shrink-0" aria-hidden />
+        <p className="text-foreground/80">
+          <span className="font-medium text-foreground">Lara foreslår {suggestedIds.length} regelverk</span> basert på land og svar. Du kan justere listen før du aktiverer.
+        </p>
+      </div>
+
+      <div className="space-y-5">
+        {categoryOrder.map((cat) => {
+          const list = grouped[cat];
+          if (!list?.length) return null;
+          return (
+            <section key={cat} aria-labelledby={`cat-${cat}`} className="space-y-2">
+              <h4 id={`cat-${cat}`} className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                {CATEGORY_LABELS[cat] ?? cat}
+              </h4>
+              <ul className="space-y-1.5 list-none p-0 m-0">
+                {list.map((f) => {
+                  const isChecked = chosenIds.includes(f.id);
+                  const isSuggested = suggestedSet.has(f.id);
+                  return (
+                    <li key={f.id}>
+                      <label
+                        className={cn(
+                          "flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors",
+                          "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background",
+                          isChecked
+                            ? "border-primary/40 bg-primary/5"
+                            : "border-border bg-background hover:bg-muted/50"
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => onToggle(f.id)}
+                          className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
+                          aria-describedby={`fw-${f.id}-desc`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium text-foreground">{f.name}</span>
+                            {isSuggested && (
+                              <Badge variant="outline" className="gap-1 text-[10px] uppercase tracking-wide border-primary/30 text-primary">
+                                <Sparkles className="h-2.5 w-2.5" aria-hidden />
+                                Foreslått
+                              </Badge>
+                            )}
+                            {f.isMandatory && (
+                              <Badge variant="outline" className="text-[10px] uppercase tracking-wide border-status-followup/40 text-status-followup">
+                                Påkrevd
+                              </Badge>
+                            )}
+                          </div>
+                          <p id={`fw-${f.id}-desc`} className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                            {f.description}
+                          </p>
+                        </div>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
           );
         })}
       </div>
