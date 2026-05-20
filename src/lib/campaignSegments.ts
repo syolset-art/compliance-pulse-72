@@ -34,7 +34,7 @@ export interface CampaignSegment {
   label: string;
   description: string;
   /** Lara-tag — hvilken slags innsikt segmentet bygger på */
-  category: "framework" | "maturity" | "service" | "activity" | "criticality";
+  category: "framework" | "maturity" | "service" | "activity" | "criticality" | "product";
   predicate: (c: CampaignCustomer) => boolean;
 }
 
@@ -146,6 +146,22 @@ export const CAMPAIGN_SEGMENTS: CampaignSegment[] = [
     category: "criticality",
     predicate: (c) => c.criticality === "public",
   },
+
+  // Mynder-produkter — mersalg av plattform-moduler
+  {
+    id: "missing-mynder-core",
+    label: "Mangler Mynder Core – Styringssystem",
+    description: "Kunder uten det agentiske GRC-styringssystemet aktivert. Potensial for mersalg av Mynder Core.",
+    category: "product",
+    predicate: (c) => !(c.purchasedServices ?? []).includes("mynder-core"),
+  },
+  {
+    id: "missing-vendor-module",
+    label: "Mangler Leverandørmodul",
+    description: "Kunder uten Mynder Leverandørmodul. Aktuelt for alle med tredjepartsrisiko (DPA, NIS2, DORA).",
+    category: "product",
+    predicate: (c) => !(c.purchasedServices ?? []).includes("mynder-vendors"),
+  },
 ];
 
 export const SEGMENT_CATEGORY_LABEL: Record<CampaignSegment["category"], string> = {
@@ -154,6 +170,7 @@ export const SEGMENT_CATEGORY_LABEL: Record<CampaignSegment["category"], string>
   service: "Tjeneste-gap",
   activity: "Aktivitet",
   criticality: "Kritikalitet",
+  product: "Mynder-produkter",
 };
 
 /**
@@ -199,7 +216,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     maturity: 84,
     riskScore: 82,
     missingFrameworks: ["aiact"],
-    purchasedServices: ["pentest", "vciso"],
+    purchasedServices: ["pentest", "vciso", "mynder-core", "mynder-vendors"],
     trustProfileStatus: "complete",
     daysSinceContact: 4,
   },
@@ -213,7 +230,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     maturity: 76,
     riskScore: 78,
     missingFrameworks: ["dora"],
-    purchasedServices: ["awareness"],
+    purchasedServices: ["awareness", "mynder-core"],
     trustProfileStatus: "complete",
     daysSinceContact: 45,
   },
