@@ -114,7 +114,7 @@ const Index = () => {
 
   return (
     <div className="flex min-h-screen max-h-screen bg-gradient-mynder overflow-hidden">
-      <div className="w-64 flex-shrink-0"><Sidebar /></div>
+      <Sidebar />
       <main className="flex-1 h-screen overflow-y-auto pt-11 bg-background/95 backdrop-blur-sm">
         {contentView ? (
           <ContentViewer contentType={contentView.type} filter={contentView.filter}
