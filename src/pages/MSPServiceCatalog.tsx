@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/Sidebar";
 import { MSPServiceCatalogTab } from "@/components/msp/MSPServiceCatalogTab";
+import { PartnerBrandingCard } from "@/components/msp/PartnerBrandingCard";
 
 export default function MSPServiceCatalog() {
   return (
@@ -13,9 +14,11 @@ export default function MSPServiceCatalog() {
               Definer dine egne tjenester og se hvordan de treffer kontrollpunkter på tvers av regelverk.
             </p>
           </header>
+          <PartnerBrandingCard />
           <MSPServiceCatalogTab />
         </div>
       </main>
     </div>
   );
 }
+

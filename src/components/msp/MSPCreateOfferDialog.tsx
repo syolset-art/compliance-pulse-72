@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import jsPDF from "jspdf";
 import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
+import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 
 export interface CreateOfferDialogProps {
   open: boolean;
@@ -19,6 +20,10 @@ export interface CreateOfferDialogProps {
   serviceTitle?: string;
   variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
   partnerName?: string;
+  /** Overstyrer auto-hentet org.nr fra partnerbranding. */
+  partnerOrgNumber?: string;
+  /** Overstyrer auto-hentet logo (PNG/JPEG dataURL). */
+  partnerLogoDataUrl?: string;
   customerContactName?: string;
   defaultTasks?: TaskEstimate[];
   hourlyRate?: number;
@@ -37,7 +42,9 @@ export function MSPCreateOfferDialog({
   domainName = "tjenesten",
   serviceTitle,
   variant = "Tjeneste",
-  partnerName = "Dintero AS",
+  partnerName,
+  partnerOrgNumber,
+  partnerLogoDataUrl,
   customerContactName = "Truls",
   defaultTasks,
   hourlyRate = 1500,
@@ -45,6 +52,11 @@ export function MSPCreateOfferDialog({
   attachGap: attachGapProp = true,
   gapFrameworkId,
 }: CreateOfferDialogProps) {
+  const { branding } = usePartnerBranding();
+  const effectivePartnerName = partnerName ?? branding.name;
+  const effectiveOrgNumber = partnerOrgNumber ?? branding.orgNumber;
+  const effectiveLogo = partnerLogoDataUrl ?? branding.logoDataUrl ?? null;
+
   const [tasks, setTasks] = useState<EditableTask[]>(
     (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })),
   );
@@ -92,14 +104,30 @@ export function MSPCreateOfferDialog({
     const margin = 48;
     let y = margin;
 
-    // Header
+    // Header — logo + partnernavn + org.nr
+    let textLeftX = margin;
+    if (effectiveLogo) {
+      try {
+        const fmt = effectiveLogo.startsWith("data:image/jpeg") ? "JPEG" : "PNG";
+        doc.addImage(effectiveLogo, fmt, margin, y - 4, 36, 36);
+        textLeftX = margin + 44;
+      } catch {
+        /* ignore broken image */
+      }
+    }
+    doc.setFontSize(11);
+    doc.setTextColor(30);
+    doc.text(effectivePartnerName, textLeftX, y + 6);
+    if (effectiveOrgNumber) {
+      doc.setFontSize(9);
+      doc.setTextColor(130);
+      doc.text(`Org.nr ${effectiveOrgNumber}`, textLeftX, y + 20);
+    }
     doc.setFontSize(10);
     doc.setTextColor(120);
-    doc.text(partnerName, margin, y);
     doc.text(`Tilbud ${offerNumber}`, pageWidth - margin, y, { align: "right" });
-    y += 14;
-    doc.text(todayLabel, pageWidth - margin, y, { align: "right" });
-    y += 28;
+    doc.text(todayLabel, pageWidth - margin, y + 14, { align: "right" });
+    y += 48;
 
     // Title
     doc.setFontSize(20);
@@ -182,7 +210,10 @@ export function MSPCreateOfferDialog({
     // Footer
     doc.setFontSize(9);
     doc.setTextColor(150);
-    doc.text(`${partnerName} · Tilbud ${offerNumber} · ${todayLabel}`, margin, 820);
+    const footerParts = [effectivePartnerName];
+    if (effectiveOrgNumber) footerParts.push(`Org.nr ${effectiveOrgNumber}`);
+    footerParts.push(`Tilbud ${offerNumber}`, todayLabel);
+    doc.text(footerParts.join(" · "), margin, 820);
 
     doc.save(`Tilbud_${offerNumber}_${offerName.replace(/\s+/g, "_")}.pdf`);
     toast.success("Tilbud lastet ned", { description: `${offerNumber}.pdf` });
@@ -210,7 +241,7 @@ export function MSPCreateOfferDialog({
                 <Eye className="h-2.5 w-2.5" /> Forhåndsvisning · slik ser kunden tilbudet
               </Badge>
             )}
-            <span className="text-xs text-muted-foreground">{partnerName}</span>
+            <span className="text-xs text-muted-foreground">{effectivePartnerName}</span>
           </div>
           <DialogTitle className="text-lg">{offerName}</DialogTitle>
           <DialogDescription className="text-[13px]">
@@ -335,9 +366,19 @@ export function MSPCreateOfferDialog({
           <div className="flex-1 overflow-y-auto p-5 bg-muted/30">
             {/* Paper-like preview */}
             <div className="mx-auto bg-background border border-border rounded-md shadow-sm p-8 max-w-xl space-y-5">
-              <div className="flex items-start justify-between text-[11px] text-muted-foreground">
-                <span className="font-semibold text-foreground">{partnerName}</span>
-                <div className="text-right">
+              <div className="flex items-start justify-between gap-4 text-[11px] text-muted-foreground">
+                <div className="flex items-start gap-2.5 min-w-0">
+                  {effectiveLogo && (
+                    <img src={effectiveLogo} alt="" className="h-9 w-9 object-contain rounded shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-semibold text-foreground truncate">{effectivePartnerName}</div>
+                    {effectiveOrgNumber && (
+                      <div className="text-[10px] tabular-nums">Org.nr {effectiveOrgNumber}</div>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
                   <div>Tilbud <span className="tabular-nums">{offerNumber}</span></div>
                   <div>{todayLabel}</div>
                 </div>
@@ -391,7 +432,7 @@ export function MSPCreateOfferDialog({
               )}
 
               <p className="text-[10px] text-muted-foreground pt-4 border-t border-border">
-                {partnerName} · Tilbud {offerNumber} · {todayLabel}
+                {effectivePartnerName}{effectiveOrgNumber ? ` · Org.nr ${effectiveOrgNumber}` : ""} · Tilbud {offerNumber} · {todayLabel}
               </p>
             </div>
           </div>
