@@ -3,8 +3,21 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/widgets/MetricCard";
-import { Building2, Users, CreditCard, CheckCircle2, AlertCircle, Download, ShieldCheck } from "lucide-react";
+import { Building2, Users, CreditCard, CheckCircle2, AlertCircle, Download, ShieldCheck, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 type PlanTier = "Starter" | "Pro" | "Business" | "Enterprise";
 type BillingStatus = "ok" | "missing" | "pending";
