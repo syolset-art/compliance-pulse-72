@@ -312,10 +312,10 @@ const Regulations = () => {
                   {/* Category filter */}
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
-                      variant={categoryFilter === null ? "default" : "outline"}
+                      variant={categoryFilter === null && countryFilter === null ? "default" : "outline"}
                       size="sm"
                       className="text-xs h-8"
-                      onClick={() => setCategoryFilter(null)}
+                      onClick={() => { setCategoryFilter(null); setCountryFilter(null); }}
                     >
                       Alle ({allActiveFrameworks.length})
                     </Button>
