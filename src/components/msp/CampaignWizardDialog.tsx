@@ -71,6 +71,7 @@ const CATEGORY_ICON: Record<CampaignSegment["category"], typeof Shield> = {
   service: Tag,
   activity: Activity,
   criticality: Crown,
+  product: Sparkles,
 };
 
 const KIND_OPTIONS: { id: CampaignKind; label: string; hint: string; icon: typeof Mail }[] = [
