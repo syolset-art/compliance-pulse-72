@@ -18,7 +18,7 @@ import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCar
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
-import { CountryScopeBar } from "@/components/regulations/CountryScopeBar";
+
 import { CountryScopeDialog } from "@/components/regulations/CountryScopeDialog";
 import { loadCountryScope, saveCountryScope, type CountryScope } from "@/components/regulations/countryScopeData";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
