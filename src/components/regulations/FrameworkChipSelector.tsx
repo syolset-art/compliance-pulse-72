@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { getCategoryById, categories, type Framework } from "@/lib/frameworkDefinitions";
 import { ChevronDown, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FrameworkCountryTag } from "@/components/regulations/FrameworkCountryTag";
 
 interface FrameworkChipSelectorProps {
   frameworks: Framework[];
@@ -77,10 +78,11 @@ const CategorySection = ({
               <ProgressRing pct={pct} size={36} />
               <div className="flex-1 min-w-0">
                 <p className={cn(
-                  "text-sm font-medium truncate",
+                  "text-sm font-medium truncate flex items-center gap-1.5",
                   isSelected ? "text-primary" : "text-foreground"
                 )}>
-                  {fw.name}
+                  <FrameworkCountryTag frameworkId={fw.id} />
+                  <span className="truncate">{fw.name}</span>
                 </p>
                 <p className="text-[13px] text-muted-foreground">
                   {met} av {total} krav oppfylt

@@ -16,6 +16,7 @@ import {
 import { CountryScopeBar } from "./CountryScopeBar";
 import { RequestCountrySupportDialog } from "./RequestCountrySupportDialog";
 import { SUPPORTED_COUNTRIES, getCountry, type CountryScope } from "./countryScopeData";
+import { FrameworkCountryTag } from "./FrameworkCountryTag";
 
 interface EditActiveFrameworksDialogProps {
   open: boolean;
@@ -342,6 +343,7 @@ export const EditActiveFrameworksDialog = ({
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
+                            <FrameworkCountryTag frameworkId={fw.id} />
                             <span className={`font-medium text-sm ${isMandatoryButOff ? "text-destructive" : ""}`}>
                               {fw.name}
                             </span>
