@@ -18,8 +18,6 @@ const SEED: CommunityRequest[] = [
   { id: "de", country: "Tyskland", flag: "🇩🇪", frameworks: ["BDSG", "IT-Sicherheitsgesetz", "DSGVO-DE"], votes: 47, status: "planlagt", eta: "Q3 2026" },
   { id: "us", country: "USA", flag: "🇺🇸", frameworks: ["HIPAA", "CCPA", "SOC 2"], votes: 38, status: "under-vurdering" },
   { id: "dk", country: "Danmark", flag: "🇩🇰", frameworks: ["Databeskyttelsesloven"], votes: 24, status: "planlagt", eta: "Q2 2026" },
-  { id: "fr", country: "Frankrike", flag: "🇫🇷", frameworks: ["CNIL", "LPM"], votes: 19, status: "etterspurt" },
-  { id: "fi", country: "Finland", flag: "🇫🇮", frameworks: ["Tietosuojalaki"], votes: 12, status: "etterspurt" },
 ];
 
 const STATUS_META: Record<CommunityRequest["status"], { label: string; className: string }> = {
