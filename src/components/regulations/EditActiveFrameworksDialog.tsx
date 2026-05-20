@@ -162,14 +162,14 @@ export const EditActiveFrameworksDialog = ({
                 type="button"
                 aria-label="Flere filtre"
                 className={`relative inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 transition-colors hover:text-foreground hover:bg-muted ${
-                  categoryFilter || countryFilter ? "text-foreground" : ""
+                  categoryFilter || countryFilter.length ? "text-foreground" : ""
                 }`}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" />
                 Filtre
-                {(categoryFilter || countryFilter) && (
+                {(categoryFilter || countryFilter.length) && (
                   <span className="ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-                    {(categoryFilter ? 1 : 0) + (countryFilter ? 1 : 0)}
+                    {(categoryFilter ? 1 : 0) + countryFilter.length}
                   </span>
                 )}
               </button>
@@ -206,12 +206,16 @@ export const EditActiveFrameworksDialog = ({
                     <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Land</div>
                     <div className="flex flex-wrap gap-1.5">
                       {availableCountries.map((c) => {
-                        const active = countryFilter === c.code;
+                        const active = countryFilter.includes(c.code);
                         return (
                           <button
                             key={c.code}
                             type="button"
-                            onClick={() => setCountryFilter(active ? null : c.code)}
+                            onClick={() =>
+                              setCountryFilter((prev) =>
+                                active ? prev.filter((x) => x !== c.code) : [...prev, c.code]
+                              )
+                            }
                             className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] transition-colors ${
                               active
                                 ? "border-primary bg-primary text-primary-foreground"
@@ -227,10 +231,10 @@ export const EditActiveFrameworksDialog = ({
                   </div>
                 )}
 
-                {(categoryFilter || countryFilter) && (
+                {(categoryFilter || countryFilter.length) && (
                   <button
                     type="button"
-                    onClick={() => { setCategoryFilter(null); setCountryFilter(null); }}
+                    onClick={() => { setCategoryFilter(null); setCountryFilter([]); }}
                     className="inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground"
                   >
                     <X className="h-3 w-3" /> Nullstill filtre
