@@ -1330,7 +1330,7 @@ function VisibilityStep({
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-sm">{meta.labelNb}</h3>
-                  {level === "ecosystem" && (
+                  {level === "private" && (
                     <Badge variant="outline" className="text-[10px] border-[hsl(var(--mynder-blue))]/40 text-[hsl(var(--mynder-blue))]">
                       Anbefalt
                     </Badge>
