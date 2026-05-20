@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ThumbsUp, Users, Clock } from "lucide-react";
+import { ThumbsUp, Users, Clock, CalendarDays } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -11,13 +11,14 @@ export interface CommunityRequest {
   votes: number;
   status: "planlagt" | "under-vurdering" | "etterspurt";
   eta?: string;
+  requestedAt: string;
 }
 
 // Mock community-requested countries / frameworks. Replace with backend data later.
 const SEED: CommunityRequest[] = [
-  { id: "de", country: "Tyskland", flag: "🇩🇪", frameworks: ["BDSG", "IT-Sicherheitsgesetz", "DSGVO-DE"], votes: 47, status: "planlagt", eta: "Q3 2026" },
-  { id: "us", country: "USA", flag: "🇺🇸", frameworks: ["HIPAA", "CCPA", "SOC 2"], votes: 38, status: "under-vurdering" },
-  { id: "dk", country: "Danmark", flag: "🇩🇰", frameworks: ["Databeskyttelsesloven"], votes: 24, status: "planlagt", eta: "Q2 2026" },
+  { id: "de", country: "Tyskland", flag: "🇩🇪", frameworks: ["BDSG", "IT-Sicherheitsgesetz", "DSGVO-DE"], votes: 47, status: "planlagt", eta: "Q3 2026", requestedAt: "2026-05-10" },
+  { id: "us", country: "USA", flag: "🇺🇸", frameworks: ["HIPAA", "CCPA", "SOC 2"], votes: 38, status: "under-vurdering", requestedAt: "2026-05-12" },
+  { id: "dk", country: "Danmark", flag: "🇩🇰", frameworks: ["Databeskyttelsesloven"], votes: 24, status: "planlagt", eta: "Q2 2026", requestedAt: "2026-05-14" },
 ];
 
 const STATUS_META: Record<CommunityRequest["status"], { label: string; className: string }> = {
@@ -57,6 +58,9 @@ export function CommunityRequests() {
                   <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4", meta.className)}>
                     {meta.label}
                   </Badge>
+                  <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <CalendarDays className="h-3 w-3" aria-hidden /> Bestilt {r.requestedAt}
+                  </span>
                   {r.eta && (
                     <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                       <Clock className="h-3 w-3" aria-hidden /> {r.eta}
