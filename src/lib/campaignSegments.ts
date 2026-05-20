@@ -216,7 +216,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     maturity: 84,
     riskScore: 82,
     missingFrameworks: ["aiact"],
-    purchasedServices: ["pentest", "vciso"],
+    purchasedServices: ["pentest", "vciso", "mynder-core", "mynder-vendors"],
     trustProfileStatus: "complete",
     daysSinceContact: 4,
   },
