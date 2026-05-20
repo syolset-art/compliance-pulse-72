@@ -124,6 +124,23 @@ export default function MSPInvoices() {
                       </td>
                       <td className="px-4 py-3 text-right font-medium text-foreground">{c.users}</td>
                       <td className="px-4 py-3 text-right text-foreground">{c.monthlyKr.toLocaleString("nb-NO")}</td>
+                      <td className="px-4 py-3">
+                        {c.agreement ? (
+                          <button
+                            type="button"
+                            onClick={() => toast.success(`Åpner ${c.agreement!.name}`)}
+                            className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                            title={`Signert ${new Date(c.agreement.signedAt).toLocaleDateString("nb-NO")} av ${c.agreement.signedBy}`}
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                            <span className="truncate max-w-[180px]">{c.agreement.name}</span>
+                          </button>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs text-destructive">
+                            <AlertCircle className="h-3.5 w-3.5" /> Mangler
+                          </span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
