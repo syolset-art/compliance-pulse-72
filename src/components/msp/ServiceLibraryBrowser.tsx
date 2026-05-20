@@ -3,8 +3,16 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Check, Clock, Plus, Search, Globe } from "lucide-react";
+import { Sparkles, Check, Clock, Plus, Search, Globe, LayoutGrid, Rows3 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   SERVICE_LIBRARY,
   curateServiceLibrary,
@@ -40,6 +48,8 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
   const [scopeFilter, setScopeFilter] = useState<ScopeFilter>("all");
   const [industryFilter, setIndustryFilter] = useState<ServiceIndustry | "all">("all");
   const [tierFilter, setTierFilter] = useState<ServiceTier | "all">("all");
+  const [viewMode, setViewMode] = useState<"table" | "cards">("table");
+
 
   const ranked = useMemo(() => {
     const effectiveCtx: PartnerContext = {
@@ -125,6 +135,30 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
             ...TIER_ORDER.map((t) => ({ value: t, label: tierLabel(t) })),
           ]}
         />
+        <div className="ml-auto inline-flex items-center rounded-md border border-border bg-background p-0.5">
+          <button
+            type="button"
+            onClick={() => setViewMode("table")}
+            className={cn(
+              "inline-flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors",
+              viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
+            )}
+            aria-pressed={viewMode === "table"}
+          >
+            <Rows3 className="h-3.5 w-3.5" /> Tabell
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("cards")}
+            className={cn(
+              "inline-flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors",
+              viewMode === "cards" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
+            )}
+            aria-pressed={viewMode === "cards"}
+          >
+            <LayoutGrid className="h-3.5 w-3.5" /> Bokser
+          </button>
+        </div>
       </Card>
 
       {/* Lara top picks */}
@@ -137,19 +171,29 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
             <h3 className="text-sm font-semibold text-foreground">Lara anbefaler for deg</h3>
             <span className="text-xs text-muted-foreground">basert på partnertype og kundeportefølje</span>
           </div>
-          <div className="grid gap-3 md:grid-cols-3">
-            {topPicks.map(({ template, reasons }) => (
-              <TemplateCard
-                key={template.id}
-                template={template}
-                adopted={adoptedIds.has(template.id)}
-                onAdopt={() => onAdopt(template)}
-                reasons={reasons}
-                highlighted
-                hourlyRate={hourlyRate}
-              />
-            ))}
-          </div>
+          {viewMode === "cards" ? (
+            <div className="grid gap-3 md:grid-cols-3">
+              {topPicks.map(({ template, reasons }) => (
+                <TemplateCard
+                  key={template.id}
+                  template={template}
+                  adopted={adoptedIds.has(template.id)}
+                  onAdopt={() => onAdopt(template)}
+                  reasons={reasons}
+                  highlighted
+                  hourlyRate={hourlyRate}
+                />
+              ))}
+            </div>
+          ) : (
+            <TemplateTable
+              items={topPicks}
+              adoptedIds={adoptedIds}
+              onAdopt={onAdopt}
+              hourlyRate={hourlyRate}
+              highlighted
+            />
+          )}
         </section>
       )}
 
@@ -163,17 +207,26 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
               <h3 className="text-sm font-semibold text-foreground">{tierLabel(tier)}</h3>
               <span className="text-xs text-muted-foreground tabular-nums">{items.length} tjenester</span>
             </div>
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {items.map(({ template }) => (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  adopted={adoptedIds.has(template.id)}
-                  onAdopt={() => onAdopt(template)}
-                  hourlyRate={hourlyRate}
-                />
-              ))}
-            </div>
+            {viewMode === "cards" ? (
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {items.map(({ template }) => (
+                  <TemplateCard
+                    key={template.id}
+                    template={template}
+                    adopted={adoptedIds.has(template.id)}
+                    onAdopt={() => onAdopt(template)}
+                    hourlyRate={hourlyRate}
+                  />
+                ))}
+              </div>
+            ) : (
+              <TemplateTable
+                items={items}
+                adoptedIds={adoptedIds}
+                onAdopt={onAdopt}
+                hourlyRate={hourlyRate}
+              />
+            )}
           </section>
         );
       })}
@@ -309,6 +362,107 @@ function TemplateCard({
           {adopted ? <><Check className="h-3.5 w-3.5" /> Adoptert</> : <><Plus className="h-3.5 w-3.5" /> Adopter</>}
         </Button>
       </div>
+    </Card>
+  );
+}
+
+function TemplateTable({
+  items,
+  adoptedIds,
+  onAdopt,
+  hourlyRate,
+  highlighted,
+}: {
+  items: { template: ServiceTemplate; reasons?: string[] }[];
+  adoptedIds: Set<string>;
+  onAdopt: (template: ServiceTemplate) => void;
+  hourlyRate: number;
+  highlighted?: boolean;
+}) {
+  return (
+    <Card className={cn("overflow-hidden", highlighted && "border-primary/30")}>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[90px]">Kode</TableHead>
+            <TableHead>Tjeneste</TableHead>
+            <TableHead className="hidden lg:table-cell">Regelverk</TableHead>
+            <TableHead className="hidden md:table-cell">Marked</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Timer</TableHead>
+            <TableHead className="text-right whitespace-nowrap">Pris</TableHead>
+            <TableHead className="w-[120px] text-right">Handling</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {items.map(({ template, reasons }) => {
+            const adopted = adoptedIds.has(template.id);
+            return (
+              <TableRow key={template.id} className={cn(adopted && "opacity-60")}>
+                <TableCell>
+                  <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                    {template.code}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-medium text-foreground text-sm">{template.name}</span>
+                    {template.partnerType !== "all" && (
+                      <Badge variant="secondary" className="text-xs h-5">{template.partnerType.toUpperCase()}</Badge>
+                    )}
+                    <Badge variant="outline" className="text-xs h-5">{deliveryLabel(template.delivery)}</Badge>
+                    {reasons && reasons.length > 0 && (
+                      <span className="inline-flex items-center gap-1 text-[11px] text-primary">
+                        <Sparkles className="h-3 w-3" /> Lara
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{template.shortDescription}</p>
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  <div className="flex flex-wrap gap-1">
+                    {template.mappings.slice(0, 3).map((m, i) => (
+                      <span key={i} className="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                        <span className="font-semibold text-foreground">{m.frameworkLabel}</span>
+                      </span>
+                    ))}
+                    {template.mappings.length > 3 && (
+                      <span className="text-xs text-muted-foreground">+{template.mappings.length - 3}</span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <div className="flex flex-wrap gap-1">
+                    {template.scopes.slice(0, 3).map((s) => (
+                      <span key={s} className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-xs text-muted-foreground">
+                        <Globe className="h-2.5 w-2.5" /> {scopeLabel(s)}
+                      </span>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell className="text-right text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+                  <span className="inline-flex items-center gap-1 justify-end">
+                    <Clock className="h-3 w-3" /> {formatHoursRange(template.estimatedHours)}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right text-sm font-semibold tabular-nums whitespace-nowrap">
+                  {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button
+                    size="sm"
+                    variant={adopted ? "outline" : "default"}
+                    className="h-8 text-xs gap-1"
+                    onClick={() => onAdopt(template)}
+                    disabled={adopted}
+                  >
+                    {adopted ? <><Check className="h-3.5 w-3.5" /> Adoptert</> : <><Plus className="h-3.5 w-3.5" /> Adopter</>}
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </Card>
   );
 }
