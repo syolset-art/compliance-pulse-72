@@ -276,10 +276,6 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                 </p>
               </div>
 
-              <SpecificFrameworksInput
-                values={answers.specificFrameworks ?? []}
-                onChange={(v) => setAnswers((a) => ({ ...a, specificFrameworks: v }))}
-              />
             </div>
           )}
 
@@ -288,7 +284,10 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
               suggestedIds={suggestedIds}
               chosenIds={chosenFrameworkIds}
               onToggle={toggleFramework}
-              customFrameworks={mode === "multi" ? answers.specificFrameworks ?? [] : []}
+              customFrameworks={answers.specificFrameworks ?? []}
+              onCustomFrameworksChange={(v) =>
+                setAnswers((a) => ({ ...a, specificFrameworks: v }))
+              }
             />
           )}
           </div>
