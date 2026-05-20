@@ -557,6 +557,27 @@ function FrameworkPicker({
           );
         })}
       </div>
+
+      {onCustomFrameworksChange && (
+        <div className="space-y-2">
+          {!showRequest ? (
+            <button
+              type="button"
+              onClick={() => setShowRequest(true)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden />
+              Savner du et regelverk? Bestill det
+            </button>
+          ) : (
+            <SpecificFrameworksInput
+              values={customFrameworks}
+              onChange={onCustomFrameworksChange}
+              onClose={() => setShowRequest(false)}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
