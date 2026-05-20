@@ -85,7 +85,12 @@ const CategorySection = ({
                   "text-sm font-medium truncate flex items-center gap-1.5",
                   isSelected ? "text-primary" : "text-foreground"
                 )}>
-                  <FrameworkCountryTag frameworkId={fw.id} />
+                  {(() => {
+                    const codes = scopeCodesForFramework(fw.id);
+                    return codes.length > 0
+                      ? <FrameworkCountryTag codes={codes} />
+                      : <FrameworkCountryTag frameworkId={fw.id} />;
+                  })()}
                   <span className="truncate">{fw.name}</span>
                 </p>
                 <p className="text-[13px] text-muted-foreground">
