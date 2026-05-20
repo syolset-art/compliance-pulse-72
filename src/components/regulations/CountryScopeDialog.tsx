@@ -269,6 +269,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
               suggestedIds={suggestedIds}
               chosenIds={chosenFrameworkIds}
               onToggle={toggleFramework}
+              customFrameworks={mode === "multi" ? answers.specificFrameworks ?? [] : []}
             />
           )}
           </div>
