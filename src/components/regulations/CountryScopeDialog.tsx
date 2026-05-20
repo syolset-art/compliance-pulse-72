@@ -276,10 +276,6 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                 </p>
               </div>
 
-              <SpecificFrameworksInput
-                values={answers.specificFrameworks ?? []}
-                onChange={(v) => setAnswers((a) => ({ ...a, specificFrameworks: v }))}
-              />
             </div>
           )}
 
@@ -288,7 +284,10 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
               suggestedIds={suggestedIds}
               chosenIds={chosenFrameworkIds}
               onToggle={toggleFramework}
-              customFrameworks={mode === "multi" ? answers.specificFrameworks ?? [] : []}
+              customFrameworks={answers.specificFrameworks ?? []}
+              onCustomFrameworksChange={(v) =>
+                setAnswers((a) => ({ ...a, specificFrameworks: v }))
+              }
             />
           )}
           </div>
@@ -442,11 +441,13 @@ function FrameworkPicker({
   chosenIds,
   onToggle,
   customFrameworks = [],
+  onCustomFrameworksChange,
 }: {
   suggestedIds: string[];
   chosenIds: string[];
   onToggle: (id: string) => void;
   customFrameworks?: string[];
+  onCustomFrameworksChange?: (v: string[]) => void;
 }) {
   const suggestedSet = new Set(suggestedIds);
   const grouped = frameworks.reduce<Record<string, typeof frameworks>>((acc, f) => {
@@ -454,6 +455,7 @@ function FrameworkPicker({
     return acc;
   }, {});
   const categoryOrder = ["privacy", "security", "ai", "other"];
+  const [showRequest, setShowRequest] = useState(false);
 
   return (
     <div className="space-y-5">
@@ -467,16 +469,28 @@ function FrameworkPicker({
       {customFrameworks.length > 0 && (
         <section aria-labelledby="cat-custom" className="space-y-2">
           <h4 id="cat-custom" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Egne regelverk
+            Bestilte regelverk
           </h4>
           <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
             <p className="text-xs text-muted-foreground">
-              Disse er ikke i vår katalog enda. Vi sender en støtteforespørsel til support — typisk levert på noen dager.
+              Disse er ikke i vår katalog enda. Vi sender en støtteforespørsel — typisk levert på noen dager.
             </p>
             <ul className="flex flex-wrap gap-1.5 list-none p-0 m-0">
               {customFrameworks.map((name) => (
                 <li key={name}>
-                  <Badge variant="secondary" className="font-normal">{name}</Badge>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 text-xs">
+                    {name}
+                    {onCustomFrameworksChange && (
+                      <button
+                        type="button"
+                        onClick={() => onCustomFrameworksChange(customFrameworks.filter((v) => v !== name))}
+                        aria-label={`Fjern ${name}`}
+                        className="rounded-full p-0.5 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <X className="h-3 w-3" aria-hidden />
+                      </button>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -543,6 +557,27 @@ function FrameworkPicker({
           );
         })}
       </div>
+
+      {onCustomFrameworksChange && (
+        <div className="space-y-2">
+          {!showRequest ? (
+            <button
+              type="button"
+              onClick={() => setShowRequest(true)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden />
+              Savner du et regelverk? Bestill det
+            </button>
+          ) : (
+            <SpecificFrameworksInput
+              values={customFrameworks}
+              onChange={onCustomFrameworksChange}
+              onClose={() => setShowRequest(false)}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -550,9 +585,11 @@ function FrameworkPicker({
 function SpecificFrameworksInput({
   values,
   onChange,
+  onClose,
 }: {
   values: string[];
   onChange: (v: string[]) => void;
+  onClose?: () => void;
 }) {
   const [draft, setDraft] = useState("");
   const inputId = "specific-frameworks-input";
@@ -573,13 +610,25 @@ function SpecificFrameworksInput({
 
   return (
     <div className="space-y-2 rounded-lg border border-border bg-background p-3">
-      <div className="space-y-0.5">
-        <label htmlFor={inputId} className="text-sm font-medium text-foreground">
-          Er det noen spesifikke regelverk dere allerede vet at dere må følge?
-        </label>
-        <p id={hintId} className="text-xs text-muted-foreground">
-          Valgfritt. Skriv navnet og trykk Enter — f.eks. «HIPAA», «PCI DSS» eller en lokal lov. Vi sjekker om vi støtter dem og kobler dem inn.
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="space-y-0.5">
+          <label htmlFor={inputId} className="text-sm font-medium text-foreground">
+            Hvilket regelverk vil du bestille?
+          </label>
+          <p id={hintId} className="text-xs text-muted-foreground">
+            Skriv navnet og trykk Enter — f.eks. «HIPAA», «PCI DSS» eller en lokal lov. Vi sender forespørselen til support og legger det inn typisk på noen dager.
+          </p>
+        </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Lukk"
+            className="rounded-md p-1 text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden />
+          </button>
+        )}
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         {values.map((name) => (
