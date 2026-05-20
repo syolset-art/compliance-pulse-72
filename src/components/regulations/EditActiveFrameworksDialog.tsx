@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/tooltip";
 import { CountryScopeBar } from "./CountryScopeBar";
 import { RequestCountrySupportDialog } from "./RequestCountrySupportDialog";
-import type { CountryScope } from "./countryScopeData";
+import { SUPPORTED_COUNTRIES, getCountry, type CountryScope } from "./countryScopeData";
 
 interface EditActiveFrameworksDialogProps {
   open: boolean;
@@ -38,13 +38,26 @@ export const EditActiveFrameworksDialog = ({
   const [search, setSearch] = useState("");
   const [requestOpen, setRequestOpen] = useState(false);
   const [jurExpanded, setJurExpanded] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
 
   const q = search.trim().toLowerCase();
-  const matches = (fw: Framework) =>
-    !q ||
-    fw.name.toLowerCase().includes(q) ||
-    (fw.description || "").toLowerCase().includes(q) ||
-    (fw.id || "").toLowerCase().includes(q);
+  const matches = (fw: Framework) => {
+    if (q && !(
+      fw.name.toLowerCase().includes(q) ||
+      (fw.description || "").toLowerCase().includes(q) ||
+      (fw.id || "").toLowerCase().includes(q)
+    )) return false;
+    if (categoryFilter && fw.category !== categoryFilter) return false;
+    if (countryFilter) {
+      const ids = new Set(getCountry(countryFilter)?.frameworkIds ?? []);
+      if (!ids.has(fw.id)) return false;
+    }
+    if (statusFilter === "active" && !activeFrameworkIds.has(fw.id)) return false;
+    if (statusFilter === "inactive" && activeFrameworkIds.has(fw.id)) return false;
+    return true;
+  };
 
   const visibleCategories = useMemo(
     () =>
@@ -54,10 +67,15 @@ export const EditActiveFrameworksDialog = ({
           items: frameworks.filter((f) => f.category === cat.id && matches(f)),
         }))
         .filter((c) => c.items.length > 0),
-    [q]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q, categoryFilter, countryFilter, statusFilter, activeFrameworkIds]
   );
 
   const totalMatches = visibleCategories.reduce((s, c) => s + c.items.length, 0);
+  const hasActiveFilter = !!categoryFilter || !!countryFilter || statusFilter !== "all";
+  const availableCountries = countryScope?.countries?.length
+    ? SUPPORTED_COUNTRIES.filter((c) => countryScope.countries.includes(c.code))
+    : SUPPORTED_COUNTRIES;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -115,10 +133,90 @@ export const EditActiveFrameworksDialog = ({
           </p>
         )}
 
+        {/* Filters */}
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mr-1">Filter</span>
+
+          {/* Status */}
+          {(["all", "active", "inactive"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s)}
+              className={`rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                statusFilter === s
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-background hover:bg-muted"
+              }`}
+            >
+              {s === "all" ? "Alle" : s === "active" ? "Aktive" : "Ikke aktive"}
+            </button>
+          ))}
+
+          <span aria-hidden className="mx-1 h-4 w-px bg-border" />
+
+          {/* Categories */}
+          {categories.map((cat) => {
+            const active = categoryFilter === cat.id;
+            const Icon = cat.icon;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setCategoryFilter(active ? null : cat.id)}
+                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background hover:bg-muted"
+                }`}
+              >
+                <Icon className="h-3 w-3" />
+                {cat.name}
+              </button>
+            );
+          })}
+
+          {availableCountries.length > 0 && (
+            <span aria-hidden className="mx-1 h-4 w-px bg-border" />
+          )}
+
+          {/* Countries */}
+          {availableCountries.map((c) => {
+            const active = countryFilter === c.code;
+            return (
+              <button
+                key={c.code}
+                type="button"
+                onClick={() => setCountryFilter(active ? null : c.code)}
+                className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors ${
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background hover:bg-muted"
+                }`}
+              >
+                <span aria-hidden>{c.flag}</span>
+                {c.name}
+              </button>
+            );
+          })}
+
+          {hasActiveFilter && (
+            <button
+              type="button"
+              onClick={() => { setCategoryFilter(null); setCountryFilter(null); setStatusFilter("all"); }}
+              className="ml-1 inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted"
+            >
+              <X className="h-3 w-3" />
+              Nullstill
+            </button>
+          )}
+        </div>
+
+
         <div className="mt-6 space-y-6">
           {visibleCategories.length === 0 && (
             <p className="text-sm text-muted-foreground py-8 text-center">
-              Ingen regelverk matcher søket.
+              Ingen regelverk matcher filtrene.
             </p>
           )}
           {visibleCategories.map(({ cat: category, items: categoryFrameworks }) => {
