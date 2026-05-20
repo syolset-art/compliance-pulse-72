@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Diamond, ChevronLeft, ChevronRight, AlertTriangle, FileWarning, Inbox, ShieldCheck, Clock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLaraSuggestionStates, type LaraSuggestionContext } from "@/hooks/useLaraSuggestionStates";
+import { useUserTasks } from "@/hooks/useUserTasks";
+import { LaraPlanReviewDialog } from "./LaraPlanReviewDialog";
 import { toast } from "sonner";
 
 interface Asset {
@@ -66,7 +68,9 @@ export function VendorLaraInsightsPanel({
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [index, setIndex] = useState(0);
+  const [reviewOpen, setReviewOpen] = useState(false);
   const { hiddenKeys, snooze, dismiss } = useLaraSuggestionStates();
+  const { createTask } = useUserTasks();
 
   const snapshotFor = (task: Task): LaraSuggestionContext => ({
     title: task.vendor.name,
@@ -274,7 +278,14 @@ export function VendorLaraInsightsPanel({
           <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
           <span className={cn("text-[11px] font-bold tracking-wider", sev.text)}>{sev.label}</span>
         </div>
-        <h4 className="text-lg font-semibold text-foreground leading-tight">{current.vendor.name}</h4>
+        <h4 className="text-lg font-semibold text-foreground leading-tight">
+          <button
+            className="hover:text-primary hover:underline text-left"
+            onClick={() => navigate(`/assets/${current.vendor.id}`)}
+          >
+            {current.vendor.name}
+          </button>
+        </h4>
         {current.meta && <p className="text-[13px] text-muted-foreground mt-0.5">{current.meta}</p>}
 
         <div className="mt-3 rounded-lg bg-primary/[0.06] border border-primary/10 px-3 py-2.5">
@@ -292,8 +303,8 @@ export function VendorLaraInsightsPanel({
           >
             Be Lara håndtere det
           </Button>
-          <Button size="sm" variant="outline" onClick={() => navigate(`/assets/${current.vendor.id}`)}>
-            Åpne leverandøren
+          <Button size="sm" variant="outline" onClick={() => setReviewOpen(true)}>
+            Se gjennom planen
           </Button>
           <div className="flex-1" />
           <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={handleSnooze} title="Utsett 7 dager">
@@ -350,6 +361,38 @@ export function VendorLaraInsightsPanel({
           </span>
         </button>
       </div>
+
+      <LaraPlanReviewDialog
+        task={current}
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+        onApprove={() => {
+          onSendRequest?.([current.vendor.id], current.requestType, current.categoryKey);
+          setReviewOpen(false);
+          toast.success("Lara er i gang", {
+            description: `Følger opp «${current.vendor.name}». Du ser fremdriften i Lara-innboksen.`,
+          });
+        }}
+        onRejectManual={() => {
+          createTask.mutate(
+            {
+              title: `Manuell oppfølging: ${current.vendor.name}`,
+              description: `${current.laraSees}\n\nForeslått handling: håndter dette manuelt med leverandøren.`,
+              asset_id: current.vendor.id,
+            },
+            {
+              onSuccess: () => {
+                dismiss({ key: current.id, snapshot: snapshotFor(current) });
+                setReviewOpen(false);
+                toast.success("Lagt til som din egen aktivitet", {
+                  description: "Du finner oppgaven under Activity.",
+                });
+              },
+              onError: () => toast.error("Kunne ikke lagre aktivitet"),
+            }
+          );
+        }}
+      />
     </Card>
   );
 }
