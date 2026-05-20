@@ -40,7 +40,7 @@ export const EditActiveFrameworksDialog = ({
   const [requestOpen, setRequestOpen] = useState(false);
   const [jurExpanded, setJurExpanded] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
-  const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("active");
 
   const q = search.trim().toLowerCase();
@@ -51,9 +51,12 @@ export const EditActiveFrameworksDialog = ({
       (fw.id || "").toLowerCase().includes(q)
     )) return false;
     if (categoryFilter && fw.category !== categoryFilter) return false;
-    if (countryFilter) {
-      const ids = new Set(getCountry(countryFilter)?.frameworkIds ?? []);
-      if (!ids.has(fw.id)) return false;
+    if (countryFilter.length) {
+      const allowedIds = new Set<string>();
+      countryFilter.forEach((code) => {
+        getCountry(code)?.frameworkIds.forEach((id) => allowedIds.add(id));
+      });
+      if (!allowedIds.has(fw.id)) return false;
     }
     if (statusFilter === "active" && !activeFrameworkIds.has(fw.id)) return false;
     if (statusFilter === "inactive" && activeFrameworkIds.has(fw.id)) return false;
@@ -73,7 +76,7 @@ export const EditActiveFrameworksDialog = ({
   );
 
   const totalMatches = visibleCategories.reduce((s, c) => s + c.items.length, 0);
-  const hasActiveFilter = !!categoryFilter || !!countryFilter || statusFilter !== "all";
+  const hasActiveFilter = !!categoryFilter || countryFilter.length > 0 || statusFilter !== "all";
   const availableCountries = countryScope?.countries?.length
     ? SUPPORTED_COUNTRIES.filter((c) => countryScope.countries.includes(c.code))
     : SUPPORTED_COUNTRIES;
@@ -159,14 +162,14 @@ export const EditActiveFrameworksDialog = ({
                 type="button"
                 aria-label="Flere filtre"
                 className={`relative inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 transition-colors hover:text-foreground hover:bg-muted ${
-                  categoryFilter || countryFilter ? "text-foreground" : ""
+                  categoryFilter || countryFilter.length ? "text-foreground" : ""
                 }`}
               >
                 <SlidersHorizontal className="h-3.5 w-3.5" />
                 Filtre
-                {(categoryFilter || countryFilter) && (
+                {(categoryFilter || countryFilter.length) && (
                   <span className="ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-                    {(categoryFilter ? 1 : 0) + (countryFilter ? 1 : 0)}
+                    {(categoryFilter ? 1 : 0) + countryFilter.length}
                   </span>
                 )}
               </button>
@@ -203,12 +206,16 @@ export const EditActiveFrameworksDialog = ({
                     <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Land</div>
                     <div className="flex flex-wrap gap-1.5">
                       {availableCountries.map((c) => {
-                        const active = countryFilter === c.code;
+                        const active = countryFilter.includes(c.code);
                         return (
                           <button
                             key={c.code}
                             type="button"
-                            onClick={() => setCountryFilter(active ? null : c.code)}
+                            onClick={() =>
+                              setCountryFilter((prev) =>
+                                active ? prev.filter((x) => x !== c.code) : [...prev, c.code]
+                              )
+                            }
                             className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] transition-colors ${
                               active
                                 ? "border-primary bg-primary text-primary-foreground"
@@ -224,10 +231,10 @@ export const EditActiveFrameworksDialog = ({
                   </div>
                 )}
 
-                {(categoryFilter || countryFilter) && (
+                {(categoryFilter || countryFilter.length) && (
                   <button
                     type="button"
-                    onClick={() => { setCategoryFilter(null); setCountryFilter(null); }}
+                    onClick={() => { setCategoryFilter(null); setCountryFilter([]); }}
                     className="inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground"
                   >
                     <X className="h-3 w-3" /> Nullstill filtre
@@ -239,60 +246,64 @@ export const EditActiveFrameworksDialog = ({
         </div>
 
 
-        {/* Country detail panel — when a country filter is active */}
-        {countryFilter && (() => {
-          const c = getCountry(countryFilter);
-          if (!c) return null;
-          const ids = c.frameworkIds;
-          const inCatalog = frameworks.filter((f) => ids.includes(f.id));
-          const activeCount = inCatalog.filter((f) => activeFrameworkIds.has(f.id)).length;
-          return (
-            <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                    <span aria-hidden>{c.flag}</span>
-                    {c.name}
+        {/* Country detail panel — when one or more country filters are active */}
+        {countryFilter.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {countryFilter.map((code) => {
+              const c = getCountry(code);
+              if (!c) return null;
+              const ids = c.frameworkIds;
+              const inCatalog = frameworks.filter((f) => ids.includes(f.id));
+              const activeCount = inCatalog.filter((f) => activeFrameworkIds.has(f.id)).length;
+              return (
+                <div key={code} className="rounded-lg border border-border bg-muted/30 p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                        <span aria-hidden>{c.flag}</span>
+                        {c.name}
+                      </div>
+                      <p className="mt-0.5 text-[12px] text-muted-foreground">
+                        {inCatalog.length} regelverk i katalogen · {activeCount} aktive
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setRequestOpen(true)}
+                      className="shrink-0 text-[12px] font-medium text-primary hover:text-primary/80"
+                    >
+                      Bestill regelverk
+                    </button>
                   </div>
-                  <p className="mt-0.5 text-[12px] text-muted-foreground">
-                    {inCatalog.length} regelverk i katalogen · {activeCount} aktive
-                  </p>
+                  {inCatalog.length > 0 && (
+                    <ul className="mt-2 flex flex-wrap gap-1">
+                      {inCatalog.map((f) => {
+                        const on = activeFrameworkIds.has(f.id);
+                        return (
+                          <li
+                            key={f.id}
+                            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] ${
+                              on
+                                ? "border-primary/30 bg-primary/10 text-foreground"
+                                : "border-border bg-background text-muted-foreground"
+                            }`}
+                            title={on ? "Aktiv" : "Ikke aktiv"}
+                          >
+                            <span
+                              aria-hidden
+                              className={`h-1.5 w-1.5 rounded-full ${on ? "bg-primary" : "bg-muted-foreground/40"}`}
+                            />
+                            {f.name}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setRequestOpen(true)}
-                  className="shrink-0 text-[12px] font-medium text-primary hover:text-primary/80"
-                >
-                  Bestill regelverk
-                </button>
-              </div>
-              {inCatalog.length > 0 && (
-                <ul className="mt-2 flex flex-wrap gap-1">
-                  {inCatalog.map((f) => {
-                    const on = activeFrameworkIds.has(f.id);
-                    return (
-                      <li
-                        key={f.id}
-                        className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] ${
-                          on
-                            ? "border-primary/30 bg-primary/10 text-foreground"
-                            : "border-border bg-background text-muted-foreground"
-                        }`}
-                        title={on ? "Aktiv" : "Ikke aktiv"}
-                      >
-                        <span
-                          aria-hidden
-                          className={`h-1.5 w-1.5 rounded-full ${on ? "bg-primary" : "bg-muted-foreground/40"}`}
-                        />
-                        {f.name}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          );
-        })()}
+              );
+            })}
+          </div>
+        )}
 
         <div className="mt-6 space-y-6">
 
