@@ -819,7 +819,7 @@ export function MSPMaturityServiceMatrix({
                           {o.totalPrice.toLocaleString("nb-NO")} kr
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1">
+                          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                             <Button
                               size="sm"
                               variant="ghost"
@@ -875,6 +875,7 @@ export function MSPMaturityServiceMatrix({
         gapFrameworkId={offerCtx.gapFrameworkId}
         defaultTasks={offerCtx.defaultTasks}
         hourlyRate={offerCtx.hourlyRate}
+        initialView={offerCtx.initialView}
       />
 
       <ShareOfferDialog
