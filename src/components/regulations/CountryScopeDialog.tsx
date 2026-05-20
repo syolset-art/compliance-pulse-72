@@ -206,7 +206,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
             </div>
           )}
 
-          {step === 3 && (
+          {step === 3 && mode === "multi" && (
             <div className="space-y-5">
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
@@ -256,31 +256,15 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                   <span className="font-medium text-foreground">Lara hopper over</span> spørsmål om barn under 16 (lite relevant for B2B-SaaS) og om dere driver kritisk infrastruktur selv (dere er IT-leverandør, ikke operatør). Kan utvides manuelt hvis aktuelt.
                 </p>
               </div>
-
-              <div
-                className="rounded-lg border bg-muted/30 p-3 space-y-2"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                {suggestedFrameworks.length > 0 ? (
-                  <>
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                      <Sparkles className="h-3.5 w-3.5 text-primary" aria-hidden />
-                      Foreslåtte regelverk ({suggestedFrameworks.length})
-                    </div>
-                    <ul className="flex flex-wrap gap-1.5 list-none p-0 m-0">
-                      {suggestedFrameworks.map((f) => (
-                        <li key={f.id}>
-                          <Badge variant="secondary" className="font-normal">{f.name}</Badge>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Ingen forslag enda — svar på spørsmålene over.</p>
-                )}
-              </div>
             </div>
+          )}
+
+          {step === reviewStep && (
+            <FrameworkPicker
+              suggestedIds={suggestedIds}
+              chosenIds={chosenFrameworkIds}
+              onToggle={toggleFramework}
+            />
           )}
           </div>
 
