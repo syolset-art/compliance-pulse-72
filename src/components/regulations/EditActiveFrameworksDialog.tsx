@@ -31,6 +31,8 @@ export const EditActiveFrameworksDialog = ({
   activeFrameworkIds,
   onToggle,
   updatingId,
+  countryScope,
+  onEditCountries,
 }: EditActiveFrameworksDialogProps) => {
   const [search, setSearch] = useState("");
 
