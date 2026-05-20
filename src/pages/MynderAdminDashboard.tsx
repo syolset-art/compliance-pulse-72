@@ -56,10 +56,10 @@ const customers: CustomerRow[] = [
 ];
 
 const planMeta: Record<PlanTier, { color: string; price: number }> = {
-  Starter: { color: "bg-muted text-foreground", price: 0 },
-  Pro: { color: "bg-secondary text-secondary-foreground", price: 1990 },
-  Business: { color: "bg-primary/10 text-primary", price: 4900 },
-  Enterprise: { color: "bg-primary text-primary-foreground", price: 9800 },
+  Starter: { color: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30", price: 0 },
+  Pro: { color: "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/15 dark:text-violet-300 dark:border-violet-500/30", price: 1990 },
+  Business: { color: "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/15 dark:text-fuchsia-300 dark:border-fuchsia-500/30", price: 4900 },
+  Enterprise: { color: "bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white border-transparent", price: 9800 },
 };
 
 const billingMeta: Record<BillingStatus, { label: string; className: string; icon: typeof CheckCircle2 }> = {
@@ -98,22 +98,22 @@ export default function MynderAdminDashboard() {
     }, {})
   ).map(([industry, count]) => ({ industry, count }));
 
-  // Use HSL semantic tokens via CSS variables
+  // Vibrant chart palette — distinct hues for visual clarity
   const planColorVar: Record<PlanTier, string> = {
-    Starter: "hsl(var(--muted-foreground))",
-    Pro: "hsl(var(--secondary-foreground))",
-    Business: "hsl(var(--primary) / 0.6)",
-    Enterprise: "hsl(var(--primary))",
+    Starter: "hsl(199 89% 60%)",      // sky
+    Pro: "hsl(262 83% 62%)",          // violet
+    Business: "hsl(292 84% 60%)",     // fuchsia
+    Enterprise: "hsl(330 81% 60%)",   // pink/magenta
   };
   const industryColors = [
-    "hsl(var(--primary))",
-    "hsl(var(--primary) / 0.75)",
-    "hsl(var(--primary) / 0.55)",
-    "hsl(var(--primary) / 0.4)",
-    "hsl(var(--primary) / 0.28)",
-    "hsl(var(--muted-foreground) / 0.5)",
-    "hsl(var(--muted-foreground) / 0.35)",
-    "hsl(var(--muted-foreground) / 0.25)",
+    "hsl(262 83% 62%)",   // violet
+    "hsl(199 89% 60%)",   // sky
+    "hsl(160 84% 45%)",   // emerald
+    "hsl(38 92% 55%)",    // amber
+    "hsl(330 81% 62%)",   // pink
+    "hsl(15 90% 60%)",    // orange-red
+    "hsl(180 72% 48%)",   // teal
+    "hsl(280 70% 55%)",   // purple
   ];
   const maxPlanCount = Math.max(1, ...planCounts.map((p) => p.count));
 
@@ -171,8 +171,12 @@ export default function MynderAdminDashboard() {
                   <AreaChart data={mrrTrend} margin={{ top: 6, right: 8, bottom: 0, left: 0 }}>
                     <defs>
                       <linearGradient id="mrrFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
-                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                        <stop offset="0%" stopColor="hsl(292 84% 60%)" stopOpacity={0.55} />
+                        <stop offset="100%" stopColor="hsl(262 83% 62%)" stopOpacity={0.05} />
+                      </linearGradient>
+                      <linearGradient id="mrrStroke" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="hsl(262 83% 62%)" />
+                        <stop offset="100%" stopColor="hsl(330 81% 60%)" />
                       </linearGradient>
                     </defs>
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
@@ -181,7 +185,8 @@ export default function MynderAdminDashboard() {
                       contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                       formatter={(v: number) => [`${v.toLocaleString("nb-NO")} kr`, "MRR"]}
                     />
-                    <Area type="monotone" dataKey="mrr" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#mrrFill)" />
+                    <Area type="monotone" dataKey="mrr" stroke="url(#mrrStroke)" strokeWidth={2.5} fill="url(#mrrFill)" />
+
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
