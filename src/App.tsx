@@ -190,6 +190,8 @@ const App = () => (
                   <Route path="/admin/notifications" element={<AdminNotifications />} />
                   <Route path="/admin/access" element={<AdminAccessManagement />} />
                   <Route path="/risk" element={<BusinessRiskDetail />} />
+                  <Route path="/mynder-admin" element={<MynderAdminDashboard />} />
+                  <Route path="/mynder-admin/dashboard" element={<MynderAdminDashboard />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </GlobalChatProvider>
