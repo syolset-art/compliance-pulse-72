@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Lock, AlertTriangle, Search, X } from "lucide-react";
+import { Lock, AlertTriangle, Search, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
 import {
@@ -37,6 +37,7 @@ export const EditActiveFrameworksDialog = ({
 }: EditActiveFrameworksDialogProps) => {
   const [search, setSearch] = useState("");
   const [requestOpen, setRequestOpen] = useState(false);
+  const [jurExpanded, setJurExpanded] = useState(false);
 
   const q = search.trim().toLowerCase();
   const matches = (fw: Framework) =>
@@ -68,10 +69,22 @@ export const EditActiveFrameworksDialog = ({
           </SheetDescription>
         </SheetHeader>
 
-        {/* Country scope — styrer hvilke regelverk som vises */}
+        {/* Country scope — collapsed by default */}
         {countryScope && onEditCountries && (
-          <div className="mt-5">
-            <CountryScopeBar scope={countryScope} onEdit={onEditCountries} onRequest={() => setRequestOpen(true)} />
+          <div className="mt-5 border border-border/70 rounded-xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setJurExpanded((v) => !v)}
+              className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition-colors hover:bg-muted/50"
+            >
+              <span className="text-sm font-semibold text-foreground">Jurisdiksjon</span>
+              <ChevronDown className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${jurExpanded ? "rotate-180" : ""}`} aria-hidden />
+            </button>
+            {jurExpanded && (
+              <div className="border-t border-border/70 px-3 py-2.5">
+                <CountryScopeBar scope={countryScope} onEdit={onEditCountries} onRequest={() => setRequestOpen(true)} />
+              </div>
+            )}
           </div>
         )}
 
