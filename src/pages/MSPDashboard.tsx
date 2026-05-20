@@ -568,13 +568,26 @@ export default function MSPDashboard() {
                         const score = c.compliance_score || 0;
                         const crit = deriveCriticality(c);
                         const services = deriveNeededServices(c);
+                        const isNew = highlightIds.has(c.id);
                         return (
                           <TableRow
                             key={c.id}
-                            className="cursor-pointer"
+                            className={cn(
+                              "cursor-pointer transition-colors duration-1000",
+                              isNew && "bg-primary/10 hover:bg-primary/15 ring-1 ring-inset ring-primary/30 animate-fade-in",
+                            )}
                             onClick={() => navigate(`/msp-dashboard/${c.id}`)}
                           >
-                            <TableCell className="font-medium">{c.customer_name}</TableCell>
+                            <TableCell className="font-medium">
+                              <span className="inline-flex items-center gap-2">
+                                {c.customer_name}
+                                {isNew && (
+                                  <Badge variant="outline" className="bg-primary text-primary-foreground border-primary text-[10px] px-1.5 py-0 h-4 font-medium animate-pulse">
+                                    Ny
+                                  </Badge>
+                                )}
+                              </span>
+                            </TableCell>
                             <TableCell className="text-muted-foreground tabular-nums">{c.country_code || "NO"}</TableCell>
                             <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
                             <TableCell>
