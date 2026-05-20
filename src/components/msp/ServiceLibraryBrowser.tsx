@@ -3,8 +3,16 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Check, Clock, Plus, Search, Globe } from "lucide-react";
+import { Sparkles, Check, Clock, Plus, Search, Globe, LayoutGrid, Rows3 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   SERVICE_LIBRARY,
   curateServiceLibrary,
