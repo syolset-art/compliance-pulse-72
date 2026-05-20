@@ -294,8 +294,16 @@ export default function MSPDashboard() {
       const bo = TP_STATUS_ORDER[deriveTPStatus(b)] ?? 99;
       return (ao - bo) * dir;
     });
+    // Float newly added customers to the top while highlighted
+    if (highlightIds.size > 0) {
+      sorted.sort((a, b) => {
+        const ah = highlightIds.has(a.id) ? 0 : 1;
+        const bh = highlightIds.has(b.id) ? 0 : 1;
+        return ah - bh;
+      });
+    }
     return sorted;
-  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir]);
+  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir, highlightIds]);
 
   const clearAllFilters = () => {
     setIndustryFilter([]);
