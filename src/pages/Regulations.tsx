@@ -18,6 +18,9 @@ import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCar
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { CountryScopeBar } from "@/components/regulations/CountryScopeBar";
+import { CountryScopeDialog } from "@/components/regulations/CountryScopeDialog";
+import { loadCountryScope, saveCountryScope, type CountryScope } from "@/components/regulations/countryScopeData";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
 import { FrameworkPurchaseDialog } from "@/components/dialogs/FrameworkPurchaseDialog";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
@@ -73,6 +76,8 @@ const Regulations = () => {
   const [liveCounts, setLiveCounts] = useState<Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>>({});
   const [helpOpen, setHelpOpen] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
+  const [countryScope, setCountryScope] = useState<CountryScope>(() => loadCountryScope());
+  const [countryDialogOpen, setCountryDialogOpen] = useState(false);
   usePageHelpListener(setHelpOpen);
 
   // Fetch frameworks
@@ -285,6 +290,11 @@ const Regulations = () => {
             </Button>
           </div>
 
+          {/* Country scope */}
+          <div className="mb-4">
+            <CountryScopeBar scope={countryScope} onEdit={() => setCountryDialogOpen(true)} />
+          </div>
+
           {/* Active frameworks summary */}
           {allActiveFrameworks.length > 0 ? (
             <div className="space-y-4">
@@ -375,6 +385,30 @@ const Regulations = () => {
           )}
         </div>
       </main>
+
+      {/* Country scope dialog */}
+      <CountryScopeDialog
+        open={countryDialogOpen}
+        onOpenChange={setCountryDialogOpen}
+        initialScope={countryScope}
+        onApply={(scope, suggestedIds) => {
+          setCountryScope(scope);
+          saveCountryScope(scope);
+          const notAlreadyActive = suggestedIds.filter((id) => !activeFrameworkIds.has(id));
+          const names = notAlreadyActive
+            .map((id) => frameworks.find((f) => f.id === id)?.name)
+            .filter(Boolean) as string[];
+          if (names.length > 0) {
+            toast({
+              title: `${names.length} foreslåtte regelverk`,
+              description: names.slice(0, 4).join(", ") + (names.length > 4 ? ` +${names.length - 4} til` : ""),
+            });
+            setShowEditDialog(true);
+          } else {
+            toast({ title: "Jurisdiksjon oppdatert", description: `${scope.countries.length} land valgt.` });
+          }
+        }}
+      />
 
       {/* Edit frameworks sheet */}
       <EditActiveFrameworksDialog
