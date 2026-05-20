@@ -361,6 +361,38 @@ export function VendorLaraInsightsPanel({
           </span>
         </button>
       </div>
+
+      <LaraPlanReviewDialog
+        task={current}
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+        onApprove={() => {
+          onSendRequest?.([current.vendor.id], current.requestType, current.categoryKey);
+          setReviewOpen(false);
+          toast.success("Lara er i gang", {
+            description: `Følger opp «${current.vendor.name}». Du ser fremdriften i Lara-innboksen.`,
+          });
+        }}
+        onRejectManual={() => {
+          createTask.mutate(
+            {
+              title: `Manuell oppfølging: ${current.vendor.name}`,
+              description: `${current.laraSees}\n\nForeslått handling: håndter dette manuelt med leverandøren.`,
+              asset_id: current.vendor.id,
+            },
+            {
+              onSuccess: () => {
+                dismiss({ key: current.id, snapshot: snapshotFor(current) });
+                setReviewOpen(false);
+                toast.success("Lagt til som din egen aktivitet", {
+                  description: "Du finner oppgaven under Activity.",
+                });
+              },
+              onError: () => toast.error("Kunne ikke lagre aktivitet"),
+            }
+          );
+        }}
+      />
     </Card>
   );
 }
