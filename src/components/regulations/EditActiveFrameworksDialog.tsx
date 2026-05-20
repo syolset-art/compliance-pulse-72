@@ -258,23 +258,14 @@ export const EditActiveFrameworksDialog = ({
               const activeCount = inCatalog.filter((f) => activeFrameworkIds.has(f.id)).length;
               return (
                 <div key={code} className="rounded-lg border border-border bg-muted/30 p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-                        <span aria-hidden>{c.flag}</span>
-                        {c.name}
-                      </div>
-                      <p className="mt-0.5 text-[12px] text-muted-foreground">
-                        {inCatalog.length} regelverk i katalogen · {activeCount} aktive
-                      </p>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                      <span aria-hidden>{c.flag}</span>
+                      {c.name}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setRequestOpen(true)}
-                      className="shrink-0 text-[12px] font-medium text-primary hover:text-primary/80"
-                    >
-                      Bestill regelverk
-                    </button>
+                    <p className="mt-0.5 text-[12px] text-muted-foreground">
+                      {inCatalog.length} regelverk i katalogen · {activeCount} aktive
+                    </p>
                   </div>
                   {inCatalog.length > 0 && (
                     <ul className="mt-2 flex flex-wrap gap-1">
