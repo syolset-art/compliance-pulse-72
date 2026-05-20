@@ -58,6 +58,9 @@ export function CommunityRequests() {
                   <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4", meta.className)}>
                     {meta.label}
                   </Badge>
+                  <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <CalendarDays className="h-3 w-3" aria-hidden /> Bestilt {r.requestedAt}
+                  </span>
                   {r.eta && (
                     <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
                       <Clock className="h-3 w-3" aria-hidden /> {r.eta}
