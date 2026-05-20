@@ -112,7 +112,9 @@ export default function VisibilitySelector({ assetId, current, onChange, compact
         <PopoverContent className="w-80 p-2" align="end">
           <div className="px-2 py-1.5">
             <p className="text-xs font-semibold">Synlighet for Trust Profile</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">Velg hvem som kan se profilen din.</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              Profilen er privat som standard. Andre kan be om tilgang når de finner deg i Mynder.
+            </p>
           </div>
           <div className="space-y-1 mt-1">
             {ALL_VISIBILITY_LEVELS.map((level) => {
@@ -134,7 +136,7 @@ export default function VisibilitySelector({ assetId, current, onChange, compact
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-medium">{m.labelNb}</span>
-                      {level === "ecosystem" && (
+                      {level === "private" && (
                         <span className="text-[10px] text-[hsl(var(--mynder-blue))]">· Anbefalt</span>
                       )}
                     </div>
