@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Plus, Check, ArrowRight, X, MessageCircle, Lightbulb } from "lucide-react";
+import { Sparkles, Plus, Check, ArrowRight, X, MessageCircle, Lightbulb, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   SUPPORTED_COUNTRIES,
