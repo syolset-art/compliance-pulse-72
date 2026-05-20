@@ -215,6 +215,38 @@ export default function MSPDashboard() {
     },
   });
 
+  // Highlight newly added customers for a few seconds (visual nudge in the table)
+  const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
+  const seenIdsRef = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    const currentIds = new Set((customers as any[]).map((c) => c.id));
+    if (seenIdsRef.current === null) {
+      // First load — don't highlight existing rows
+      seenIdsRef.current = currentIds;
+      return;
+    }
+    const newOnes: string[] = [];
+    currentIds.forEach((id) => {
+      if (!seenIdsRef.current!.has(id)) newOnes.push(id);
+    });
+    seenIdsRef.current = currentIds;
+    if (newOnes.length === 0) return;
+
+    setHighlightIds((prev) => {
+      const next = new Set(prev);
+      newOnes.forEach((id) => next.add(id));
+      return next;
+    });
+    const timer = setTimeout(() => {
+      setHighlightIds((prev) => {
+        const next = new Set(prev);
+        newOnes.forEach((id) => next.delete(id));
+        return next;
+      });
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [customers]);
+
   // Distinct values for column filter menus
   const industryOptions = useMemo(
     () => Array.from(new Set((customers as any[]).map((c) => c.industry).filter(Boolean))).sort(),
