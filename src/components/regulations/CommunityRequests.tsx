@@ -11,13 +11,14 @@ export interface CommunityRequest {
   votes: number;
   status: "planlagt" | "under-vurdering" | "etterspurt";
   eta?: string;
+  requestedAt: string;
 }
 
 // Mock community-requested countries / frameworks. Replace with backend data later.
 const SEED: CommunityRequest[] = [
-  { id: "de", country: "Tyskland", flag: "🇩🇪", frameworks: ["BDSG", "IT-Sicherheitsgesetz", "DSGVO-DE"], votes: 47, status: "planlagt", eta: "Q3 2026" },
-  { id: "us", country: "USA", flag: "🇺🇸", frameworks: ["HIPAA", "CCPA", "SOC 2"], votes: 38, status: "under-vurdering" },
-  { id: "dk", country: "Danmark", flag: "🇩🇰", frameworks: ["Databeskyttelsesloven"], votes: 24, status: "planlagt", eta: "Q2 2026" },
+  { id: "de", country: "Tyskland", flag: "🇩🇪", frameworks: ["BDSG", "IT-Sicherheitsgesetz", "DSGVO-DE"], votes: 47, status: "planlagt", eta: "Q3 2026", requestedAt: "2026-05-10" },
+  { id: "us", country: "USA", flag: "🇺🇸", frameworks: ["HIPAA", "CCPA", "SOC 2"], votes: 38, status: "under-vurdering", requestedAt: "2026-05-12" },
+  { id: "dk", country: "Danmark", flag: "🇩🇰", frameworks: ["Databeskyttelsesloven"], votes: 24, status: "planlagt", eta: "Q2 2026", requestedAt: "2026-05-14" },
 ];
 
 const STATUS_META: Record<CommunityRequest["status"], { label: string; className: string }> = {
