@@ -146,6 +146,22 @@ export const CAMPAIGN_SEGMENTS: CampaignSegment[] = [
     category: "criticality",
     predicate: (c) => c.criticality === "public",
   },
+
+  // Mynder-produkter — mersalg av plattform-moduler
+  {
+    id: "missing-mynder-core",
+    label: "Mangler Mynder Core – Styringssystem",
+    description: "Kunder uten det agentiske GRC-styringssystemet aktivert. Potensial for mersalg av Mynder Core.",
+    category: "product",
+    predicate: (c) => !(c.purchasedServices ?? []).includes("mynder-core"),
+  },
+  {
+    id: "missing-vendor-module",
+    label: "Mangler Leverandørmodul",
+    description: "Kunder uten Mynder Leverandørmodul. Aktuelt for alle med tredjepartsrisiko (DPA, NIS2, DORA).",
+    category: "product",
+    predicate: (c) => !(c.purchasedServices ?? []).includes("mynder-vendors"),
+  },
 ];
 
 export const SEGMENT_CATEGORY_LABEL: Record<CampaignSegment["category"], string> = {
@@ -154,6 +170,7 @@ export const SEGMENT_CATEGORY_LABEL: Record<CampaignSegment["category"], string>
   service: "Tjeneste-gap",
   activity: "Aktivitet",
   criticality: "Kritikalitet",
+  product: "Mynder-produkter",
 };
 
 /**
