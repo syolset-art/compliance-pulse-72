@@ -54,6 +54,9 @@ const CategorySection = ({
   const cat = getCategoryById(categoryId);
   if (!cat) return null;
   const CatIcon = cat.icon;
+  const scope = loadCountryScope();
+  const scopeCodesForFramework = (fwId: string) =>
+    (scope.countries ?? []).filter((cc) => getCountry(cc)?.frameworkIds.includes(fwId));
 
   return (
     <div>
