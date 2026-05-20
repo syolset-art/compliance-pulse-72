@@ -489,7 +489,10 @@ export default function ActivateTrustProfileWizard({
             setShowOnProfile={setShowPartnerOnProfile}
           />
           <div className="border-t border-border pt-4">
-            <h3 className="text-sm font-semibold mb-3">Hvem skal se Trust Profilen?</h3>
+            <h3 className="text-sm font-semibold">Hvem skal se Trust Profilen?</h3>
+            <p className="text-xs text-muted-foreground mt-1 mb-3">
+              Profilen er privat som standard. Andre Mynder-brukere kan finne deg og be om tilgang — du godkjenner hver forespørsel.
+            </p>
             <VisibilityStep
               visibility={visibility}
               setVisibility={setVisibility}
