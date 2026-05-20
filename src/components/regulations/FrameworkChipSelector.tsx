@@ -3,6 +3,7 @@ import { getCategoryById, categories, type Framework } from "@/lib/frameworkDefi
 import { ChevronDown, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FrameworkCountryTag } from "@/components/regulations/FrameworkCountryTag";
+import { loadCountryScope, getCountry } from "@/components/regulations/countryScopeData";
 
 interface FrameworkChipSelectorProps {
   frameworks: Framework[];
