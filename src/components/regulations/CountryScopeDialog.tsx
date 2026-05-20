@@ -24,7 +24,7 @@ interface Props {
   onApply: (scope: CountryScope, suggestedFrameworkIds: string[]) => void;
 }
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
 
 const DEFAULT_ANSWERS: ScopeAnswers = { health: "no", finance: "no", criticalInfra: "no", dataOutsideEU: "no" };
 
@@ -33,6 +33,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
   const [mode, setMode] = useState<ScopeMode>(initialScope.mode);
   const [selected, setSelected] = useState<string[]>(initialScope.countries);
   const [answers, setAnswers] = useState<ScopeAnswers>(initialScope.answers ?? DEFAULT_ANSWERS);
+  const [chosenFrameworkIds, setChosenFrameworkIds] = useState<string[]>([]);
   const [supportOpen, setSupportOpen] = useState(false);
 
   useEffect(() => {
@@ -41,10 +42,14 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
       setMode(initialScope.mode);
       setSelected(initialScope.countries.length ? initialScope.countries : [DEFAULT_COUNTRY_CODE]);
       setAnswers(initialScope.answers ?? DEFAULT_ANSWERS);
+      setChosenFrameworkIds([]);
     }
   }, [open, initialScope]);
 
-  const totalSteps = mode === "multi" ? 3 : 2;
+  // Single mode: 1 mode → 2 countries → 3 review/pick.
+  // Multi mode:  1 mode → 2 countries → 3 questions → 4 review/pick.
+  const totalSteps = mode === "multi" ? 4 : 3;
+  const reviewStep: Step = mode === "multi" ? 4 : 3;
 
   const toggleCountry = (code: string) => {
     if (mode === "single") {
@@ -54,27 +59,39 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
     setSelected((prev) => (prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code]));
   };
 
-  const handleApply = () => {
-    const suggested = suggestFrameworks(selected, mode === "multi" ? answers : undefined);
-    onApply({ mode, countries: selected, answers: mode === "multi" ? answers : undefined }, suggested);
-    onOpenChange(false);
-  };
-
   const suggestedIds = suggestFrameworks(selected, mode === "multi" ? answers : undefined);
   const suggestedFrameworks = frameworks.filter((f) => suggestedIds.includes(f.id));
 
-  const goNext = () => {
-    if (step === 1) {
-      setStep(mode === "multi" ? 2 : 2);
-    } else if (step === 2) {
-      if (mode === "multi") setStep(3);
-      else handleApply();
-    } else {
-      handleApply();
+  // When entering review step, preselect Lara's suggestions.
+  useEffect(() => {
+    if (step === reviewStep) {
+      setChosenFrameworkIds((prev) => (prev.length === 0 ? suggestedIds : prev));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, reviewStep]);
+
+  const toggleFramework = (id: string) => {
+    setChosenFrameworkIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleApply = () => {
+    const finalIds = chosenFrameworkIds.length ? chosenFrameworkIds : suggestedIds;
+    onApply({ mode, countries: selected, answers: mode === "multi" ? answers : undefined }, finalIds);
+    onOpenChange(false);
+  };
+
+  const goNext = () => {
+    if (step === reviewStep) {
+      handleApply();
+      return;
+    }
+    setStep((s) => ((s + 1) as Step));
   };
 
   const goBack = () => setStep((s) => (s > 1 ? ((s - 1) as Step) : s));
+
 
   return (
     <>
