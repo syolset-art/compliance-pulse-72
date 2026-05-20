@@ -30,6 +30,7 @@ const STATUS_META: Record<CommunityRequest["status"], { label: string; className
 export function CommunityRequests() {
   const [voted, setVoted] = useState<Record<string, boolean>>({});
   const [bumps, setBumps] = useState<Record<string, number>>({});
+  const [collapsed, setCollapsed] = useState(true);
 
   const toggle = (id: string) => {
     setVoted((v) => ({ ...v, [id]: !v[id] }));
@@ -38,12 +39,16 @@ export function CommunityRequests() {
 
   return (
     <div className="space-y-2.5">
-      <div className="flex items-center justify-between">
+      <button
+        type="button"
+        onClick={() => setCollapsed((c) => !c)}
+        className="flex w-full items-center justify-between rounded-lg border bg-muted/20 px-3 py-2 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
         <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          <Users className="h-3 w-3" aria-hidden /> Etterspurt av fellesskapet
+          <Users className="h-3 w-3" aria-hidden /> Regelverk som kommer
         </div>
-        <span className="text-[11px] text-muted-foreground">Stem opp – vi prioriterer det mest etterspurte</span>
-      </div>
+        <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", !collapsed && "rotate-180")} aria-hidden />
+      </button>
       <ul className="divide-y divide-border rounded-lg border bg-muted/20">
         {SEED.map((r) => {
           const isVoted = !!voted[r.id];
