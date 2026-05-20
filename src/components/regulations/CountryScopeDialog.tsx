@@ -585,9 +585,11 @@ function FrameworkPicker({
 function SpecificFrameworksInput({
   values,
   onChange,
+  onClose,
 }: {
   values: string[];
   onChange: (v: string[]) => void;
+  onClose?: () => void;
 }) {
   const [draft, setDraft] = useState("");
   const inputId = "specific-frameworks-input";
@@ -608,13 +610,25 @@ function SpecificFrameworksInput({
 
   return (
     <div className="space-y-2 rounded-lg border border-border bg-background p-3">
-      <div className="space-y-0.5">
-        <label htmlFor={inputId} className="text-sm font-medium text-foreground">
-          Er det noen spesifikke regelverk dere allerede vet at dere må følge?
-        </label>
-        <p id={hintId} className="text-xs text-muted-foreground">
-          Valgfritt. Skriv navnet og trykk Enter — f.eks. «HIPAA», «PCI DSS» eller en lokal lov. Vi sjekker om vi støtter dem og kobler dem inn.
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="space-y-0.5">
+          <label htmlFor={inputId} className="text-sm font-medium text-foreground">
+            Hvilket regelverk vil du bestille?
+          </label>
+          <p id={hintId} className="text-xs text-muted-foreground">
+            Skriv navnet og trykk Enter — f.eks. «HIPAA», «PCI DSS» eller en lokal lov. Vi sender forespørselen til support og legger det inn typisk på noen dager.
+          </p>
+        </div>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Lukk"
+            className="rounded-md p-1 text-muted-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden />
+          </button>
+        )}
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         {values.map((name) => (
