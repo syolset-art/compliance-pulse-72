@@ -37,6 +37,7 @@ export const EditActiveFrameworksDialog = ({
 }: EditActiveFrameworksDialogProps) => {
   const [search, setSearch] = useState("");
   const [requestOpen, setRequestOpen] = useState(false);
+  const [jurExpanded, setJurExpanded] = useState(false);
 
   const q = search.trim().toLowerCase();
   const matches = (fw: Framework) =>
