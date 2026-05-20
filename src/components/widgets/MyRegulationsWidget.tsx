@@ -80,6 +80,7 @@ function FrameworkListSection({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 flex-wrap">
+                      <FrameworkCountryTag frameworkId={framework.framework_id} />
                       <span className="text-sm font-medium text-foreground truncate">
                         {framework.framework_name}
                       </span>
