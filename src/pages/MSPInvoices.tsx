@@ -152,6 +152,7 @@ export default function MSPInvoices() {
                     <td className="px-4 py-2.5 text-right font-semibold text-foreground">
                       {total.toLocaleString("nb-NO")} kr
                     </td>
+                    <td className="px-4 py-2.5" />
                   </tr>
                 </tfoot>
               </table>
