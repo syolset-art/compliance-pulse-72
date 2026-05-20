@@ -144,20 +144,104 @@ export default function MynderAdminDashboard() {
             />
           </div>
 
+          {/* Chart row: MRR trend + industry mix */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <Card className="p-4 md:col-span-2">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <h2 className="text-sm font-semibold text-foreground">MRR-utvikling</h2>
+                  <p className="text-xs text-muted-foreground">Siste 6 måneder · NOK</p>
+                </div>
+                <Badge variant="outline" className="gap-1 text-xs text-success border-success/30 bg-success/10">
+                  <TrendingUp className="h-3 w-3" />
+                  +{Math.round(((mrrTrend[5].mrr - mrrTrend[0].mrr) / mrrTrend[0].mrr) * 100)}%
+                </Badge>
+              </div>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={mrrTrend} margin={{ top: 6, right: 8, bottom: 0, left: 0 }}>
+                    <defs>
+                      <linearGradient id="mrrFill" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                    <YAxis hide tickFormatter={(v) => `${v / 1000}k`} />
+                    <Tooltip
+                      contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                      formatter={(v: number) => [`${v.toLocaleString("nb-NO")} kr`, "MRR"]}
+                    />
+                    <Area type="monotone" dataKey="mrr" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#mrrFill)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+
+            <Card className="p-4">
+              <h2 className="text-sm font-semibold text-foreground">Bransjefordeling</h2>
+              <p className="text-xs text-muted-foreground mb-2">Andel kunder per bransje</p>
+              <div className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Tooltip
+                      contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                      formatter={(v: number, _n, p: any) => [`${v} kunder`, p?.payload?.industry]}
+                    />
+                    <Pie data={industryCounts} dataKey="count" nameKey="industry" innerRadius={36} outerRadius={68} stroke="hsl(var(--background))" strokeWidth={2}>
+                      {industryCounts.map((_, i) => (
+                        <Cell key={i} fill={industryColors[i % industryColors.length]} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </div>
+
           {/* Plan distribution */}
           <Card className="p-4">
-            <h2 className="text-sm font-semibold text-foreground mb-3">Fordeling av planer</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-foreground">Fordeling av planer</h2>
+              <span className="text-xs text-muted-foreground">MRR per plan</span>
+            </div>
+            <div className="h-40 mb-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={planCounts} margin={{ top: 6, right: 8, bottom: 0, left: 0 }}>
+                  <XAxis dataKey="plan" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis hide />
+                  <Tooltip
+                    contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                    formatter={(v: number) => [`${v.toLocaleString("nb-NO")} kr`, "MRR"]}
+                  />
+                  <Bar dataKey="mrr" radius={[6, 6, 0, 0]}>
+                    {planCounts.map((p) => (
+                      <Cell key={p.plan} fill={planColorVar[p.plan]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {planCounts.map(({ plan, count }) => (
-                <div key={plan} className="rounded-lg border border-border p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <Badge variant="outline" className={cn("text-xs", planMeta[plan].color)}>{plan}</Badge>
-                    <span className="text-xs text-muted-foreground">{planMeta[plan].price.toLocaleString("nb-NO")} kr</span>
+              {planCounts.map(({ plan, count }) => {
+                const share = (count / totalCustomers) * 100;
+                return (
+                  <div key={plan} className="rounded-lg border border-border p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <Badge variant="outline" className={cn("text-xs", planMeta[plan].color)}>{plan}</Badge>
+                      <span className="text-xs text-muted-foreground">{planMeta[plan].price.toLocaleString("nb-NO")} kr</span>
+                    </div>
+                    <div className="text-2xl font-bold text-foreground">{count}</div>
+                    <div className="text-xs text-muted-foreground mb-2">kunder · {Math.round(share)}%</div>
+                    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full"
+                        style={{ width: `${(count / maxPlanCount) * 100}%`, background: planColorVar[plan] }}
+                      />
+                    </div>
                   </div>
-                  <div className="text-2xl font-bold text-foreground">{count}</div>
-                  <div className="text-xs text-muted-foreground">kunder</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </Card>
 
