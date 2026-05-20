@@ -18,7 +18,7 @@ import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCar
 import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
 import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
-import { CountryScopeBar } from "@/components/regulations/CountryScopeBar";
+
 import { CountryScopeDialog } from "@/components/regulations/CountryScopeDialog";
 import { loadCountryScope, saveCountryScope, type CountryScope } from "@/components/regulations/countryScopeData";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
@@ -290,10 +290,6 @@ const Regulations = () => {
             </Button>
           </div>
 
-          {/* Country scope */}
-          <div className="mb-4">
-            <CountryScopeBar scope={countryScope} onEdit={() => setCountryDialogOpen(true)} />
-          </div>
 
           {/* Active frameworks summary */}
           {allActiveFrameworks.length > 0 ? (
@@ -417,6 +413,8 @@ const Regulations = () => {
         activeFrameworkIds={activeFrameworkIds}
         onToggle={toggleFramework}
         updatingId={updating}
+        countryScope={countryScope}
+        onEditCountries={() => setCountryDialogOpen(true)}
       />
 
       {/* Framework purchase dialog */}

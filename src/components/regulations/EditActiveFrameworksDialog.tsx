@@ -12,6 +12,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { CountryScopeBar } from "./CountryScopeBar";
+import type { CountryScope } from "./countryScopeData";
 
 interface EditActiveFrameworksDialogProps {
   open: boolean;
@@ -19,6 +21,8 @@ interface EditActiveFrameworksDialogProps {
   activeFrameworkIds: Set<string>;
   onToggle: (frameworkId: string, currentlyActive: boolean) => void;
   updatingId: string | null;
+  countryScope?: CountryScope;
+  onEditCountries?: () => void;
 }
 
 export const EditActiveFrameworksDialog = ({
@@ -27,6 +31,8 @@ export const EditActiveFrameworksDialog = ({
   activeFrameworkIds,
   onToggle,
   updatingId,
+  countryScope,
+  onEditCountries,
 }: EditActiveFrameworksDialogProps) => {
   const [search, setSearch] = useState("");
 
@@ -59,6 +65,13 @@ export const EditActiveFrameworksDialog = ({
             Aktiver eller deaktiver regelverk og standarder for din virksomhet
           </SheetDescription>
         </SheetHeader>
+
+        {/* Country scope — styrer hvilke regelverk som vises */}
+        {countryScope && onEditCountries && (
+          <div className="mt-5">
+            <CountryScopeBar scope={countryScope} onEdit={onEditCountries} />
+          </div>
+        )}
 
         {/* Search */}
         <div className="mt-5 relative">
