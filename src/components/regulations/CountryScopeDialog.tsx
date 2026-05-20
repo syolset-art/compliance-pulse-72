@@ -256,6 +256,11 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                   <span className="font-medium text-foreground">Lara hopper over</span> spørsmål om barn under 16 (lite relevant for B2B-SaaS) og om dere driver kritisk infrastruktur selv (dere er IT-leverandør, ikke operatør). Kan utvides manuelt hvis aktuelt.
                 </p>
               </div>
+
+              <SpecificFrameworksInput
+                values={answers.specificFrameworks ?? []}
+                onChange={(v) => setAnswers((a) => ({ ...a, specificFrameworks: v }))}
+              />
             </div>
           )}
 
