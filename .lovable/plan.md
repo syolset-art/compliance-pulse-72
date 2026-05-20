@@ -1,33 +1,54 @@
-## Mål
+# Land/jurisdiksjon-velger på Regulations
 
-Rydde opp i tabellvisningen i tjenestebiblioteket på `/msp-services`. I dag har hver rad mange pills (partnertype, delivery, Lara-badge, ramme-pills, marked-pills) som gir et rotete inntrykk. Vi strammer inn til en tabell som ser ut som en ren liste — typografi gjør jobben, ikke chips.
+I dag vises regelverk for ett land (default). Vi lar brukeren utvide til flere land via en lett "Ekspansjon"-flyt, med støtte for et kuratert sett land. Andre land = support-forespørsel.
 
-## Endringer (kun `src/components/msp/ServiceLibraryBrowser.tsx` → `TemplateTable`)
+## Omfang
+- Side: `src/pages/Regulations.tsx`
+- Nye komponenter under `src/components/regulations/`:
+  - `CountryScopeBar.tsx` – chip-rad med aktive land + knapp "Endre land"
+  - `CountryScopeDialog.tsx` – dialog med 3 steg (modus → land → filterspørsmål → forslag)
+  - `RequestCountrySupportDialog.tsx` – sender forespørsel for ikke-støttede land
 
-### Layout
-- Strammere kolonner: `Kode · Tjeneste · Regelverk · Marked · Timer · Pris · ` (handling).
-- Faste kolonnebredder via `<colgroup>` så timer/pris alltid linjeres opp.
-- Komprimert radhøyde: `py-2` celler, `text-[13px]`, ingen `p-4` standard.
-- Tynnere skiller — `divide-y divide-border/60`, ingen ekstra rammer rundt celler.
-- Subtil hover (`hover:bg-muted/30`), ingen sterk markering.
+## Støttede land (fase 1)
+Norge (default), Sverige, Nederland, Australia, Storbritannia. Andre = "Be om støtte" (leveres på noen dager).
 
-### Innhold per celle
-- **Kode**: monospace, mindre kontrast (`text-muted-foreground`), ingen pill-bakgrunn.
-- **Tjeneste**: kun navn på én linje + kort beskrivelse i én klippet linje under (`line-clamp-1 text-[11px] text-muted-foreground`). Fjerner inline-badges (partnertype, delivery, Lara-pille). Lara-anbefalinger vises kun som et lite `Sparkles`-ikon foran navnet når relevant — én visuell hint, ikke en chip.
-- **Regelverk**: ren tekst, komma-separert (`ISO 27001, NIS2, GDPR …`), maks 3 + "+N". Ingen pill-bakgrunn.
-- **Marked**: små bokstavkoder uten globe-ikon (`NO · EU · SE`), `text-muted-foreground`.
-- **Timer**: høyrejustert, tabular-nums, uten ikon.
-- **Pris**: høyrejustert, tabular-nums, fet, uten valuta-suffiks-støy.
-- **Handling**: kompakt knapp `h-7`, ikon-only "Adopter" når adoptert blir det en grå `Check` uten tekst.
+## UX-flyt
+1. På Regulations vises en `CountryScopeBar` øverst:
+   - Chips: "🇳🇴 Norge" (default) + evt. lagt til land
+   - Knapp: "Endre land" → åpner `CountryScopeDialog`
+2. Dialog steg 1 – Modus:
+   - "Kun ett land" / "Flere land (ekspansjon)"
+3. Dialog steg 2 – Velg land:
+   - Chips for støttede land + "+ Legg til land" (åpner `RequestCountrySupportDialog` for ikke-støttede)
+   - Lara-hint: "Foreslår regelverk basert på valgene"
+4. Dialog steg 3 – Filterspørsmål (kun for "Flere land"):
+   - "Behandler dere helseopplysninger?" Ja/Nei
+   - "Betalingstjenester eller finansiell rådgivning?" Ja/Nei
+   - "Kritisk infrastruktur (energi, transport, telekom)?" Ja/Nei
+   - "Hopp over" og "Vis forslag →"
+5. Resultat: dialogen returnerer foreslåtte framework-id-er; eksisterende `FrameworkChipSelector`/aktiveringsflyt brukes for å skru dem på. Ingen endring i datamodell.
 
-### Header
-- `text-[10px] uppercase tracking-wide text-muted-foreground` (matcher resten av appen), `h-8` rader, ingen bakgrunn.
+## Forslagslogikk (frontend-only)
+Mapping land → framework-ids fra `frameworkDefinitions.ts`:
+- NO: gdpr, nis2, personopplysningsloven
+- SE: gdpr, nis2
+- NL: gdpr, nis2
+- UK: uk-gdpr, dpa-2018
+- AU: privacy-act, apra-cps234
++ alltid: iso27001, ai-act hvis allerede aktivt
+Boolske svar legger til: helse→hipaa-lignende/helseregister-krav, betaling→psd2/pci-dss, kritisk infra→nis2 (forsterket)
 
-### Top picks (Lara anbefaler)
-- Samme tabell, men venstre kantlinje i `border-l-2 border-primary/40` på `<Card>`-en for å markere at det er en anbefalt seksjon — ingen pills inni radene.
+Bruker eksisterende `frameworks` array; ukjente id-er filtreres bort.
 
-## Ikke i scope
+## Persistering
+- Lagres som user-preference i localStorage (`regulations.countryScope`), evt. senere i `profiles.metadata`. Ingen DB-migrasjon i denne iterasjonen.
 
-- Boks-/kort-visningen røres ikke.
-- Filter-/søkebaren over tabellen røres ikke.
-- Ingen endring i datamodell eller `serviceLibrary.ts`.
+## Ut av omfang
+- Faktisk endring av aktive frameworks (bruker eksisterende dialog)
+- Backend for support-request (logges via toast + console; eventuelt enkel `support_requests` insert kan legges til senere)
+- Endringer i andre sider enn Regulations
+
+## Designnoter
+- Apple-minimal, semantiske tokens, primær lilla
+- Landchips: liten flagg-emoji + ISO-kode badge
+- Dialog matcher stil i opplastet referansebilde (steg 2 av 3, "Vis forslag" CTA)
