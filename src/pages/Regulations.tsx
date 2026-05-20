@@ -413,6 +413,8 @@ const Regulations = () => {
         activeFrameworkIds={activeFrameworkIds}
         onToggle={toggleFramework}
         updatingId={updating}
+        countryScope={countryScope}
+        onEditCountries={() => setCountryDialogOpen(true)}
       />
 
       {/* Framework purchase dialog */}
