@@ -13,6 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CountryScopeBar } from "./CountryScopeBar";
+import { RequestCountrySupportDialog } from "./RequestCountrySupportDialog";
 import type { CountryScope } from "./countryScopeData";
 
 interface EditActiveFrameworksDialogProps {
