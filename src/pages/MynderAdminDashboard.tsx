@@ -98,22 +98,22 @@ export default function MynderAdminDashboard() {
     }, {})
   ).map(([industry, count]) => ({ industry, count }));
 
-  // Use HSL semantic tokens via CSS variables
+  // Vibrant chart palette — distinct hues for visual clarity
   const planColorVar: Record<PlanTier, string> = {
-    Starter: "hsl(var(--muted-foreground))",
-    Pro: "hsl(var(--secondary-foreground))",
-    Business: "hsl(var(--primary) / 0.6)",
-    Enterprise: "hsl(var(--primary))",
+    Starter: "hsl(199 89% 60%)",      // sky
+    Pro: "hsl(262 83% 62%)",          // violet
+    Business: "hsl(292 84% 60%)",     // fuchsia
+    Enterprise: "hsl(330 81% 60%)",   // pink/magenta
   };
   const industryColors = [
-    "hsl(var(--primary))",
-    "hsl(var(--primary) / 0.75)",
-    "hsl(var(--primary) / 0.55)",
-    "hsl(var(--primary) / 0.4)",
-    "hsl(var(--primary) / 0.28)",
-    "hsl(var(--muted-foreground) / 0.5)",
-    "hsl(var(--muted-foreground) / 0.35)",
-    "hsl(var(--muted-foreground) / 0.25)",
+    "hsl(262 83% 62%)",   // violet
+    "hsl(199 89% 60%)",   // sky
+    "hsl(160 84% 45%)",   // emerald
+    "hsl(38 92% 55%)",    // amber
+    "hsl(330 81% 62%)",   // pink
+    "hsl(15 90% 60%)",    // orange-red
+    "hsl(180 72% 48%)",   // teal
+    "hsl(280 70% 55%)",   // purple
   ];
   const maxPlanCount = Math.max(1, ...planCounts.map((p) => p.count));
 
