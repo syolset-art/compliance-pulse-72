@@ -350,6 +350,43 @@ const Regulations = () => {
                         </div>
                       </PopoverContent>
                     </Popover>
+
+                    {/* Country filter — only show countries the user has selected */}
+                    {countryScope.countries.length > 0 && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="sm" className="text-xs h-8 gap-1.5">
+                            <Filter className="h-3.5 w-3.5" />
+                            Land
+                            {countryFilter && (
+                              <Badge variant="default" className="ml-1 h-4 w-4 p-0 flex items-center justify-center text-[13px]">1</Badge>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-auto p-2">
+                          <div className="flex flex-col gap-1">
+                            {countryScope.countries.map((code) => {
+                              const c = getCountry(code);
+                              if (!c) return null;
+                              const ids = new Set(c.frameworkIds);
+                              const count = allActiveFrameworks.filter(fw => ids.has(fw.id)).length;
+                              return (
+                                <Button
+                                  key={code}
+                                  variant={countryFilter === code ? "default" : "ghost"}
+                                  size="sm"
+                                  className="text-xs h-8 gap-1.5 justify-start"
+                                  onClick={() => setCountryFilter(countryFilter === code ? null : code)}
+                                >
+                                  <span aria-hidden>{c.flag}</span>
+                                  {c.name} ({count})
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
                   </div>
 
                   {/* Framework chip selector */}
