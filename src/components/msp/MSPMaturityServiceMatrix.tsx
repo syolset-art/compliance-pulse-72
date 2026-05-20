@@ -520,6 +520,7 @@ export function MSPMaturityServiceMatrix({
     gapFrameworkId?: string;
     defaultTasks?: TaskEstimate[];
     hourlyRate?: number;
+    initialView?: "edit" | "preview";
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
@@ -775,7 +776,24 @@ export function MSPMaturityServiceMatrix({
                       day: "2-digit", month: "short", year: "numeric",
                     });
                     return (
-                      <TableRow key={o.id}>
+                      <TableRow
+                        key={o.id}
+                        className="cursor-pointer hover:bg-muted/40"
+                        onClick={() =>
+                          setOfferCtx({
+                            open: true,
+                            serviceTitle: o.serviceTitle,
+                            variant: "Tjeneste",
+                            attachGap: false,
+                            gapFrameworkId: undefined,
+                            hourlyRate: o.totalHours > 0 ? Math.round(o.totalPrice / o.totalHours) : 1500,
+                            defaultTasks: [
+                              { label: o.serviceTitle, hours: o.totalHours, owner: "Partner", weeks: "" },
+                            ],
+                            initialView: "preview",
+                          })
+                        }
+                      >
                         <TableCell className="font-mono text-[12px] text-muted-foreground">
                           {o.offerNumber}
                         </TableCell>
@@ -801,7 +819,7 @@ export function MSPMaturityServiceMatrix({
                           {o.totalPrice.toLocaleString("nb-NO")} kr
                         </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1">
+                          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                             <Button
                               size="sm"
                               variant="ghost"
@@ -857,6 +875,7 @@ export function MSPMaturityServiceMatrix({
         gapFrameworkId={offerCtx.gapFrameworkId}
         defaultTasks={offerCtx.defaultTasks}
         hourlyRate={offerCtx.hourlyRate}
+        initialView={offerCtx.initialView}
       />
 
       <ShareOfferDialog
