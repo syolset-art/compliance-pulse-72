@@ -44,6 +44,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
       setSelected(initialScope.countries.length ? initialScope.countries : [DEFAULT_COUNTRY_CODE]);
       setAnswers(initialScope.answers ?? DEFAULT_ANSWERS);
       setChosenFrameworkIds([]);
+      setCountrySearch("");
     }
   }, [open, initialScope]);
 
