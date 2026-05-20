@@ -56,7 +56,7 @@ export const FrameworkDetailCard = ({ framework, counts }: FrameworkDetailCardPr
                 </div>
               )}
               <div className="min-w-0">
-                <h2 className="text-lg font-bold text-foreground">{framework.name}</h2>
+                <h2 className="text-lg font-bold text-foreground flex items-center gap-2 flex-wrap"><FrameworkCountryTag frameworkId={framework.id} />{framework.name}</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">{framework.description}</p>
               </div>
             </div>
