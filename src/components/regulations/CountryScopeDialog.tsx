@@ -441,11 +441,13 @@ function FrameworkPicker({
   chosenIds,
   onToggle,
   customFrameworks = [],
+  onCustomFrameworksChange,
 }: {
   suggestedIds: string[];
   chosenIds: string[];
   onToggle: (id: string) => void;
   customFrameworks?: string[];
+  onCustomFrameworksChange?: (v: string[]) => void;
 }) {
   const suggestedSet = new Set(suggestedIds);
   const grouped = frameworks.reduce<Record<string, typeof frameworks>>((acc, f) => {
@@ -453,6 +455,7 @@ function FrameworkPicker({
     return acc;
   }, {});
   const categoryOrder = ["privacy", "security", "ai", "other"];
+  const [showRequest, setShowRequest] = useState(false);
 
   return (
     <div className="space-y-5">
@@ -466,16 +469,28 @@ function FrameworkPicker({
       {customFrameworks.length > 0 && (
         <section aria-labelledby="cat-custom" className="space-y-2">
           <h4 id="cat-custom" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Egne regelverk
+            Bestilte regelverk
           </h4>
           <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
             <p className="text-xs text-muted-foreground">
-              Disse er ikke i vår katalog enda. Vi sender en støtteforespørsel til support — typisk levert på noen dager.
+              Disse er ikke i vår katalog enda. Vi sender en støtteforespørsel — typisk levert på noen dager.
             </p>
             <ul className="flex flex-wrap gap-1.5 list-none p-0 m-0">
               {customFrameworks.map((name) => (
                 <li key={name}>
-                  <Badge variant="secondary" className="font-normal">{name}</Badge>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2 py-0.5 text-xs">
+                    {name}
+                    {onCustomFrameworksChange && (
+                      <button
+                        type="button"
+                        onClick={() => onCustomFrameworksChange(customFrameworks.filter((v) => v !== name))}
+                        aria-label={`Fjern ${name}`}
+                        className="rounded-full p-0.5 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <X className="h-3 w-3" aria-hidden />
+                      </button>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>
