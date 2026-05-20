@@ -160,22 +160,51 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
           )}
 
           {step === 3 && (
-            <div className="space-y-4">
-              <YesNo
-                label="Behandler dere helseopplysninger?"
-                value={answers.health}
-                onChange={(v) => setAnswers((a) => ({ ...a, health: v }))}
-              />
-              <YesNo
-                label="Betalingstjenester eller finansiell rådgivning?"
-                value={answers.finance}
-                onChange={(v) => setAnswers((a) => ({ ...a, finance: v }))}
-              />
-              <YesNo
-                label="Kritisk infrastruktur (energi, transport, telekom)?"
-                value={answers.criticalInfra}
-                onChange={(v) => setAnswers((a) => ({ ...a, criticalInfra: v }))}
-              />
+            <div className="space-y-5">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                  <Sparkles className="h-3 w-3" /> Lara spør
+                </div>
+                <h3 className="text-base font-semibold text-foreground">Hvem leverer dere til?</h3>
+                <p className="text-sm text-muted-foreground">
+                  Som programvareleverandør blir dere ofte indirekte underlagt kundens regelverk. Vi spør derfor om sektorene dere betjener.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <TriQuestion
+                  label="Leverer dere til helsesektoren?"
+                  hint="Aktiverer databehandleravtale-krav og Pasientjournalloven-tilknytning."
+                  value={answers.health}
+                  onChange={(v) => setAnswers((a) => ({ ...a, health: v }))}
+                />
+                <TriQuestion
+                  label="Leverer dere til finansforetak eller forsikring?"
+                  hint="Trigger DORA (EU) og Finanstilsynets IKT-forskrift."
+                  value={answers.finance}
+                  onChange={(v) => setAnswers((a) => ({ ...a, finance: v }))}
+                />
+                <TriQuestion
+                  label="Leverer dere til kritisk infrastruktur eller offentlig sektor?"
+                  hint="Energi, telekom, transport, vannforsyning, kommune/stat. Trigger NIS2-tilknytning."
+                  value={answers.criticalInfra}
+                  onChange={(v) => setAnswers((a) => ({ ...a, criticalInfra: v }))}
+                />
+                <TriQuestion
+                  label="Lagrer dere kundedata utenfor EU/EØS?"
+                  hint="Aktiverer kontroller for overføringsmekanismer (SCC, adequacy)."
+                  value={answers.dataOutsideEU}
+                  onChange={(v) => setAnswers((a) => ({ ...a, dataOutsideEU: v }))}
+                  unsureLabel="Usikker"
+                />
+              </div>
+
+              <div className="flex items-start gap-2 rounded-lg border border-primary/20 bg-primary/5 p-3 text-sm">
+                <Lightbulb className="mt-0.5 h-4 w-4 text-primary shrink-0" />
+                <p className="text-foreground/80">
+                  <span className="font-medium text-foreground">Lara hopper over</span> spørsmål om barn under 16 (lite relevant for B2B-SaaS) og om dere driver kritisk infrastruktur selv (dere er IT-leverandør, ikke operatør). Kan utvides manuelt hvis aktuelt.
+                </p>
+              </div>
 
               {suggestedFrameworks.length > 0 && (
                 <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
