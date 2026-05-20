@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/widgets/MetricCard";
-import { Building2, Users, CreditCard, CheckCircle2, AlertCircle, Download, ShieldCheck, TrendingUp } from "lucide-react";
+import { Building2, Users, CreditCard, CheckCircle2, AlertCircle, Download, ShieldCheck, TrendingUp, Handshake, Server, Truck, BookCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Area,
@@ -24,26 +24,35 @@ type BillingStatus = "ok" | "missing" | "pending";
 
 interface CustomerRow {
   id: string;
+  country: string; // ISO 3166-1 alpha-2
   name: string;
   industry: string;
   plan: PlanTier;
   modules: string[];
   users: number;
+  systems: number;
+  vendors: number;
+  frameworks: number;
+  isPartner: boolean;
+  partnerType?: string;
   mrrNok: number;
   billing: BillingStatus;
   since: string;
 }
 
+const countryFlag = (cc: string) =>
+  cc.toUpperCase().replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
+
 // Aggregated demo data — internal Mynder admin view of all tenants
 const customers: CustomerRow[] = [
-  { id: "1", name: "Nordic Energy AS", industry: "Energi", plan: "Enterprise", modules: ["Vendors", "Systems", "Assets"], users: 42, mrrNok: 9800, billing: "ok", since: "2024-01-15" },
-  { id: "2", name: "Fjord Helse", industry: "Helse", plan: "Business", modules: ["Vendors", "Systems"], users: 18, mrrNok: 4900, billing: "ok", since: "2024-03-02" },
-  { id: "3", name: "Bergen Logistikk", industry: "Logistikk", plan: "Pro", modules: ["Vendors"], users: 9, mrrNok: 1990, billing: "pending", since: "2024-05-21" },
-  { id: "4", name: "Oslo Advokatfirma", industry: "Juridisk", plan: "Business", modules: ["Vendors", "Assets"], users: 14, mrrNok: 4900, billing: "ok", since: "2024-02-11" },
-  { id: "5", name: "Tromsø Tech", industry: "IT", plan: "Starter", modules: ["Vendors"], users: 4, mrrNok: 0, billing: "missing", since: "2024-09-08" },
-  { id: "6", name: "Stavanger Industri", industry: "Industri", plan: "Pro", modules: ["Vendors", "Systems"], users: 11, mrrNok: 2490, billing: "ok", since: "2024-04-30" },
-  { id: "7", name: "Kystverket Maritim", industry: "Offentlig", plan: "Enterprise", modules: ["Vendors", "Systems", "Assets"], users: 67, mrrNok: 14800, billing: "ok", since: "2023-11-04" },
-  { id: "8", name: "Nordfjord Bank", industry: "Finans", plan: "Business", modules: ["Vendors", "Systems"], users: 22, mrrNok: 4900, billing: "missing", since: "2024-08-19" },
+  { id: "1", country: "NO", name: "Nordic Energy AS", industry: "Energi", plan: "Enterprise", modules: ["Vendors", "Systems", "Assets"], users: 42, systems: 86, vendors: 142, frameworks: 6, isPartner: false, mrrNok: 9800, billing: "ok", since: "2024-01-15" },
+  { id: "2", country: "NO", name: "Fjord Helse", industry: "Helse", plan: "Business", modules: ["Vendors", "Systems"], users: 18, systems: 34, vendors: 58, frameworks: 4, isPartner: false, mrrNok: 4900, billing: "ok", since: "2024-03-02" },
+  { id: "3", country: "NO", name: "Bergen Logistikk", industry: "Logistikk", plan: "Pro", modules: ["Vendors"], users: 9, systems: 12, vendors: 27, frameworks: 2, isPartner: false, mrrNok: 1990, billing: "pending", since: "2024-05-21" },
+  { id: "4", country: "NO", name: "Oslo Advokatfirma", industry: "Juridisk", plan: "Business", modules: ["Vendors", "Assets"], users: 14, systems: 22, vendors: 41, frameworks: 3, isPartner: true, partnerType: "Konsulent", mrrNok: 4900, billing: "ok", since: "2024-02-11" },
+  { id: "5", country: "NO", name: "Tromsø Tech", industry: "IT", plan: "Starter", modules: ["Vendors"], users: 4, systems: 6, vendors: 11, frameworks: 1, isPartner: true, partnerType: "MSP", mrrNok: 0, billing: "missing", since: "2024-09-08" },
+  { id: "6", country: "SE", name: "Stavanger Industri", industry: "Industri", plan: "Pro", modules: ["Vendors", "Systems"], users: 11, systems: 18, vendors: 33, frameworks: 2, isPartner: false, mrrNok: 2490, billing: "ok", since: "2024-04-30" },
+  { id: "7", country: "NO", name: "Kystverket Maritim", industry: "Offentlig", plan: "Enterprise", modules: ["Vendors", "Systems", "Assets"], users: 67, systems: 124, vendors: 198, frameworks: 7, isPartner: false, mrrNok: 14800, billing: "ok", since: "2023-11-04" },
+  { id: "8", country: "DK", name: "Nordfjord Bank", industry: "Finans", plan: "Business", modules: ["Vendors", "Systems"], users: 22, systems: 41, vendors: 67, frameworks: 5, isPartner: true, partnerType: "MSSP", mrrNok: 4900, billing: "missing", since: "2024-08-19" },
 ];
 
 const planMeta: Record<PlanTier, { color: string; price: number }> = {
@@ -255,11 +264,15 @@ export default function MynderAdminDashboard() {
               <table className="w-full text-sm">
                 <thead className="bg-muted/40 text-xs text-muted-foreground">
                   <tr>
+                    <th className="text-center font-medium px-3 py-2.5 w-12">Land</th>
                     <th className="text-left font-medium px-4 py-2.5">Kunde</th>
                     <th className="text-left font-medium px-4 py-2.5">Bransje</th>
                     <th className="text-left font-medium px-4 py-2.5">Plan</th>
                     <th className="text-left font-medium px-4 py-2.5">Moduler</th>
-                    <th className="text-right font-medium px-4 py-2.5">Brukere</th>
+                    <th className="text-right font-medium px-3 py-2.5" title="Systemer"><Server className="h-3.5 w-3.5 inline" /></th>
+                    <th className="text-right font-medium px-3 py-2.5" title="Leverandører"><Truck className="h-3.5 w-3.5 inline" /></th>
+                    <th className="text-right font-medium px-3 py-2.5" title="Aktive regelverk"><BookCheck className="h-3.5 w-3.5 inline" /></th>
+                    <th className="text-right font-medium px-3 py-2.5">Brukere</th>
                     <th className="text-right font-medium px-4 py-2.5">MRR (kr)</th>
                     <th className="text-left font-medium px-4 py-2.5">Fakturagrunnlag</th>
                   </tr>
@@ -269,9 +282,23 @@ export default function MynderAdminDashboard() {
                     const BillingIcon = billingMeta[c.billing].icon;
                     return (
                       <tr key={c.id} className="border-t border-border hover:bg-muted/20">
+                        <td className="px-3 py-2.5 text-center">
+                          <span className="text-lg leading-none" title={c.country}>{countryFlag(c.country)}</span>
+                          <div className="text-[10px] text-muted-foreground tracking-wider">{c.country}</div>
+                        </td>
                         <td className="px-4 py-2.5">
-                          <div className="font-medium text-foreground">{c.name}</div>
-                          <div className="text-xs text-muted-foreground">Siden {new Date(c.since).toLocaleDateString("nb-NO")}</div>
+                          <div className="flex items-center gap-2">
+                            <div>
+                              <div className="font-medium text-foreground">{c.name}</div>
+                              <div className="text-xs text-muted-foreground">Siden {new Date(c.since).toLocaleDateString("nb-NO")}</div>
+                            </div>
+                            {c.isPartner && (
+                              <Badge variant="outline" className="gap-1 text-[10px] border-primary/30 bg-primary/5 text-primary" title={c.partnerType ? `Partner · ${c.partnerType}` : "Partner"}>
+                                <Handshake className="h-3 w-3" />
+                                {c.partnerType || "Partner"}
+                              </Badge>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-2.5 text-muted-foreground">{c.industry}</td>
                         <td className="px-4 py-2.5">
@@ -284,7 +311,10 @@ export default function MynderAdminDashboard() {
                             ))}
                           </div>
                         </td>
-                        <td className="px-4 py-2.5 text-right font-medium text-foreground">{c.users}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-foreground">{c.systems}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-foreground">{c.vendors}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-foreground">{c.frameworks}</td>
+                        <td className="px-3 py-2.5 text-right font-medium text-foreground">{c.users}</td>
                         <td className="px-4 py-2.5 text-right text-foreground">{c.mrrNok.toLocaleString("nb-NO")}</td>
                         <td className="px-4 py-2.5">
                           <Badge variant="outline" className={cn("gap-1 text-xs", billingMeta[c.billing].className)}>
