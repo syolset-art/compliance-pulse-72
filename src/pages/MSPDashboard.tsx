@@ -412,11 +412,47 @@ export default function MSPDashboard() {
                 </div>
               ) : (
                 <>
-                  {/* Mobile/tablet fallback: cards (table is dense for small screens) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:hidden">
-                    {filtered.map((c: any) => (
-                      <MSPCustomerCard key={c.id} customer={c} />
-                    ))}
+                  {/* Mobile/tablet: compact table-style row list */}
+                  <div className="lg:hidden rounded-lg border border-border bg-card divide-y divide-border overflow-hidden">
+                    {filtered.map((c: any) => {
+                      const tp = deriveTPStatus(c);
+                      const score = c.compliance_score || 0;
+                      const crit = deriveCriticality(c);
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => navigate(`/msp-dashboard/${c.id}`)}
+                          className="w-full text-left px-3 py-3 flex items-center gap-3 hover:bg-muted/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-medium text-foreground truncate">{c.customer_name}</p>
+                              {score > 0 && (
+                                <span className={cn(
+                                  "text-[11px] font-semibold tabular-nums px-1.5 py-0.5 rounded shrink-0",
+                                  score >= 75 ? "bg-success/15 text-success" : score >= 50 ? "bg-warning/15 text-warning" : "bg-destructive/15 text-destructive"
+                                )}>
+                                  {score}%
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-1 flex items-center gap-1.5 flex-wrap text-[11px] text-muted-foreground">
+                              <span className="truncate">{c.industry || "—"}</span>
+                              <span aria-hidden>·</span>
+                              <span className="tabular-nums">{c.country_code || "NO"}</span>
+                              <Badge variant="outline" className={cn("font-normal text-[10px] py-0 px-1.5 h-4", crit.tone)}>
+                                {crit.label}
+                              </Badge>
+                              <Badge variant="outline" className={cn("font-normal text-[10px] py-0 px-1.5 h-4", TP_STATUS_TONE[tp])}>
+                                {TP_STATUS_LABEL[tp]}
+                              </Badge>
+                            </div>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                        </button>
+                      );
+                    })}
                   </div>
                 <div className="hidden lg:block rounded-lg border border-border bg-card overflow-x-auto">
                   <Table className="table-fixed min-w-[960px]">
