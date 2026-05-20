@@ -102,10 +102,8 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
           <DialogHeader className="px-6 pt-6 pb-3 border-b">
             <div className="flex items-center justify-between gap-3">
               <DialogTitle id="country-scope-title" className="flex items-center gap-2">
-                {mode === "multi" && <Badge variant="outline" className="text-[10px] uppercase tracking-wide">Ekspansjon</Badge>}
-                {step === 1 && "Hvilke land gjelder dette for?"}
-                {step === 2 && (mode === "multi" ? "Hvor opererer dere nå?" : "Velg land")}
-                {step === 3 && mode === "multi" && "Et par spørsmål for å filtrere"}
+                {step === 1 && "Hvor opererer dere?"}
+                {step === 2 && "Et par spørsmål for å filtrere"}
                 {step === reviewStep && "Foreslåtte regelverk"}
               </DialogTitle>
               <span
@@ -116,37 +114,14 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
               </span>
             </div>
             <DialogDescription id="country-scope-desc">
-              {step === 1 && "Som standard viser vi regelverk for ett land. Velg flere hvis dere ekspanderer eller opererer på tvers."}
-              {step === 2 && "Lara foreslår regelverk basert på valgene."}
-              {step === 3 && mode === "multi" && "Vi bruker svarene til å foreslå riktige regelverk."}
+              {step === 1 && "Velg ett eller flere land. Lara foreslår regelverk basert på valgene."}
+              {step === 2 && "Vi bruker svarene til å foreslå riktige regelverk."}
               {step === reviewStep && "Lara har forhåndsvalgt forslagene. Du kan legge til eller fjerne regelverk selv."}
             </DialogDescription>
           </DialogHeader>
 
           <div className="overflow-y-auto px-6 py-5 flex-1">
           {step === 1 && (
-            <div
-              role="radiogroup"
-              aria-label="Velg om du opererer i ett eller flere land"
-              className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-            >
-              <ModeCard
-                active={mode === "single"}
-                title="Kun ett land"
-                description="Default. Vis regelverk som gjelder ett primært marked."
-                onClick={() => setMode("single")}
-              />
-              <ModeCard
-                active={mode === "multi"}
-                title="Flere land"
-                description="For selskaper som ekspanderer eller opererer i flere markeder."
-                onClick={() => setMode("multi")}
-                accent
-              />
-            </div>
-          )}
-
-          {step === 2 && (
             <div className="space-y-3">
               {/* Country search */}
               <div className="relative">
@@ -162,8 +137,8 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
               </div>
 
               <div
-                role={mode === "single" ? "radiogroup" : "group"}
-                aria-label={mode === "single" ? "Velg ett land" : "Velg ett eller flere land"}
+                role="group"
+                aria-label="Velg ett eller flere land"
                 className="flex flex-wrap gap-2"
               >
                 {SUPPORTED_COUNTRIES.filter((c) => {
@@ -172,17 +147,13 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                   return c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q);
                 }).map((c) => {
                   const isSel = selected.includes(c.code);
-                  const commonProps =
-                    mode === "single"
-                      ? { role: "radio" as const, "aria-checked": isSel }
-                      : { "aria-pressed": isSel };
                   return (
                     <button
                       key={c.code}
                       type="button"
                       onClick={() => toggleCountry(c.code)}
                       aria-label={`${c.name} (${c.code})${isSel ? ", valgt" : ""}`}
-                      {...commonProps}
+                      aria-pressed={isSel}
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -194,8 +165,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                       <span aria-hidden>{c.flag}</span>
                       <span className="text-[10px] uppercase tracking-wide opacity-70" aria-hidden>{c.code}</span>
                       <span>{c.name}</span>
-                      {isSel && mode === "multi" && <X className="h-3 w-3 ml-0.5 opacity-70" aria-hidden />}
-                      {isSel && mode === "single" && <Check className="h-3 w-3 ml-0.5" aria-hidden />}
+                      {isSel && <X className="h-3 w-3 ml-0.5 opacity-70" aria-hidden />}
                     </button>
                   );
                 })}
@@ -214,14 +184,14 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
               <div className="flex items-start gap-2 rounded-lg border bg-muted/40 p-3 text-sm">
                 <MessageCircle className="mt-0.5 h-4 w-4 text-primary shrink-0" aria-hidden />
                 <p className="text-muted-foreground">
-                  Lara foreslår regelverk basert på valgte land
-                  {mode === "multi" && " – neste steg stiller noen spørsmål for å filtrere ytterligere"}.
+                  Lara foreslår regelverk basert på valgte land – neste steg stiller noen spørsmål for å filtrere ytterligere.
                 </p>
               </div>
 
               <CommunityRequests />
             </div>
           )}
+
 
           {step === 3 && mode === "multi" && (
             <div className="space-y-5">
