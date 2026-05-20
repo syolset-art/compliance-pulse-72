@@ -99,10 +99,6 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
     });
   }, [requests, search, typeFilter, statusFilter]);
 
-  const totalSent = requests.length;
-  const awaiting = requests.filter((r) => r.status === "sent" || r.status === "awaiting").length;
-  const received = requests.filter((r) => r.status === "received").length;
-  const overdue = requests.filter((r) => r.status === "overdue").length;
 
   useEffect(() => {
     saveOutboundRequests(requests);
