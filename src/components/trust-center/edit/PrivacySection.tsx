@@ -33,10 +33,10 @@ export function PrivacySection({ asset }: { asset: any }) {
           <Badge
             key={o}
             variant={active ? "default" : "outline"}
-            className={`cursor-pointer text-sm ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+            className={`cursor-pointer text-xs px-2 py-0.5 h-auto ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
             onClick={() => toggleArr(field, o)}
           >
-            {active && <Check className="h-3 w-3 mr-1" />}
+            {active && <Check className="h-3 w-3 mr-0.5" />}
             {o}
           </Badge>
         );
