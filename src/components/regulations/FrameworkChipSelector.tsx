@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { getCategoryById, categories, type Framework } from "@/lib/frameworkDefinitions";
 import { ChevronDown, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FrameworkCountryTag } from "@/components/regulations/FrameworkCountryTag";
 
 interface FrameworkChipSelectorProps {
   frameworks: Framework[];
