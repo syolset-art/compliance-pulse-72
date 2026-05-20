@@ -43,7 +43,7 @@ export function CountryScopeBar({ scope, onEdit, onRequest }: Props) {
             className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[12px] font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Plus className="h-3 w-3" aria-hidden />
-            Bestill
+            Nytt regelverk eller Send forespørsel
           </button>
         </div>
       )}
