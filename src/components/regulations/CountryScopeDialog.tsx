@@ -15,6 +15,7 @@ import {
 } from "./countryScopeData";
 import { frameworks } from "@/lib/frameworkDefinitions";
 import { RequestCountrySupportDialog } from "./RequestCountrySupportDialog";
+import { CommunityRequests } from "./CommunityRequests";
 
 interface Props {
   open: boolean;
