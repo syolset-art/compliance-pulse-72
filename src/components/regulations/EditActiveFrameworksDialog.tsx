@@ -38,13 +38,26 @@ export const EditActiveFrameworksDialog = ({
   const [search, setSearch] = useState("");
   const [requestOpen, setRequestOpen] = useState(false);
   const [jurExpanded, setJurExpanded] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [countryFilter, setCountryFilter] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
 
   const q = search.trim().toLowerCase();
-  const matches = (fw: Framework) =>
-    !q ||
-    fw.name.toLowerCase().includes(q) ||
-    (fw.description || "").toLowerCase().includes(q) ||
-    (fw.id || "").toLowerCase().includes(q);
+  const matches = (fw: Framework) => {
+    if (q && !(
+      fw.name.toLowerCase().includes(q) ||
+      (fw.description || "").toLowerCase().includes(q) ||
+      (fw.id || "").toLowerCase().includes(q)
+    )) return false;
+    if (categoryFilter && fw.category !== categoryFilter) return false;
+    if (countryFilter) {
+      const ids = new Set(getCountry(countryFilter)?.frameworkIds ?? []);
+      if (!ids.has(fw.id)) return false;
+    }
+    if (statusFilter === "active" && !activeFrameworkIds.has(fw.id)) return false;
+    if (statusFilter === "inactive" && activeFrameworkIds.has(fw.id)) return false;
+    return true;
+  };
 
   const visibleCategories = useMemo(
     () =>
@@ -54,10 +67,15 @@ export const EditActiveFrameworksDialog = ({
           items: frameworks.filter((f) => f.category === cat.id && matches(f)),
         }))
         .filter((c) => c.items.length > 0),
-    [q]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q, categoryFilter, countryFilter, statusFilter, activeFrameworkIds]
   );
 
   const totalMatches = visibleCategories.reduce((s, c) => s + c.items.length, 0);
+  const hasActiveFilter = !!categoryFilter || !!countryFilter || statusFilter !== "all";
+  const availableCountries = countryScope?.countries?.length
+    ? SUPPORTED_COUNTRIES.filter((c) => countryScope.countries.includes(c.code))
+    : SUPPORTED_COUNTRIES;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
