@@ -3,6 +3,7 @@ import { getCategoryById, categories, type Framework } from "@/lib/frameworkDefi
 import { ChevronDown, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FrameworkCountryTag } from "@/components/regulations/FrameworkCountryTag";
+import { loadCountryScope, getCountry } from "@/components/regulations/countryScopeData";
 
 interface FrameworkChipSelectorProps {
   frameworks: Framework[];
@@ -53,6 +54,9 @@ const CategorySection = ({
   const cat = getCategoryById(categoryId);
   if (!cat) return null;
   const CatIcon = cat.icon;
+  const scope = loadCountryScope();
+  const scopeCodesForFramework = (fwId: string) =>
+    (scope.countries ?? []).filter((cc) => getCountry(cc)?.frameworkIds.includes(fwId));
 
   return (
     <div>
@@ -81,7 +85,12 @@ const CategorySection = ({
                   "text-sm font-medium truncate flex items-center gap-1.5",
                   isSelected ? "text-primary" : "text-foreground"
                 )}>
-                  <FrameworkCountryTag frameworkId={fw.id} />
+                  {(() => {
+                    const codes = scopeCodesForFramework(fw.id);
+                    return codes.length > 0
+                      ? <FrameworkCountryTag codes={codes} />
+                      : <FrameworkCountryTag frameworkId={fw.id} />;
+                  })()}
                   <span className="truncate">{fw.name}</span>
                 </p>
                 <p className="text-[13px] text-muted-foreground">
@@ -101,6 +110,9 @@ const CategorySection = ({
 
 export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getStats, hideSummary = false }: FrameworkChipSelectorProps) => {
   const [expanded, setExpanded] = useState(false);
+  const scope = useMemo(() => loadCountryScope(), []);
+  const scopeCodesForFramework = (fwId: string) =>
+    (scope.countries ?? []).filter((cc) => getCountry(cc)?.frameworkIds.includes(fwId));
 
   const enriched = useMemo(
     () =>

@@ -343,7 +343,14 @@ export const EditActiveFrameworksDialog = ({
                       >
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <FrameworkCountryTag frameworkId={fw.id} />
+                            {(() => {
+                              const scopeCodes = (countryScope?.countries ?? []).filter((cc) =>
+                                getCountry(cc)?.frameworkIds.includes(fw.id)
+                              );
+                              return scopeCodes.length > 0
+                                ? <FrameworkCountryTag codes={scopeCodes} />
+                                : <FrameworkCountryTag frameworkId={fw.id} />;
+                            })()}
                             <span className={`font-medium text-sm ${isMandatoryButOff ? "text-destructive" : ""}`}>
                               {fw.name}
                             </span>
