@@ -35,6 +35,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
   const [answers, setAnswers] = useState<ScopeAnswers>(initialScope.answers ?? DEFAULT_ANSWERS);
   const [chosenFrameworkIds, setChosenFrameworkIds] = useState<string[]>([]);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
 
   useEffect(() => {
     if (open) {
