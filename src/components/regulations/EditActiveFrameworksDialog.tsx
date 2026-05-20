@@ -16,6 +16,7 @@ import {
 import { CountryScopeBar } from "./CountryScopeBar";
 import { RequestCountrySupportDialog } from "./RequestCountrySupportDialog";
 import { SUPPORTED_COUNTRIES, getCountry, type CountryScope } from "./countryScopeData";
+import { FrameworkCountryTag } from "./FrameworkCountryTag";
 
 interface EditActiveFrameworksDialogProps {
   open: boolean;
