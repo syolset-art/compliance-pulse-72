@@ -278,7 +278,14 @@ export function VendorLaraInsightsPanel({
           <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
           <span className={cn("text-[11px] font-bold tracking-wider", sev.text)}>{sev.label}</span>
         </div>
-        <h4 className="text-lg font-semibold text-foreground leading-tight">{current.vendor.name}</h4>
+        <h4 className="text-lg font-semibold text-foreground leading-tight">
+          <button
+            className="hover:text-primary hover:underline text-left"
+            onClick={() => navigate(`/assets/${current.vendor.id}`)}
+          >
+            {current.vendor.name}
+          </button>
+        </h4>
         {current.meta && <p className="text-[13px] text-muted-foreground mt-0.5">{current.meta}</p>}
 
         <div className="mt-3 rounded-lg bg-primary/[0.06] border border-primary/10 px-3 py-2.5">
@@ -296,8 +303,8 @@ export function VendorLaraInsightsPanel({
           >
             Be Lara håndtere det
           </Button>
-          <Button size="sm" variant="outline" onClick={() => navigate(`/assets/${current.vendor.id}`)}>
-            Åpne leverandøren
+          <Button size="sm" variant="outline" onClick={() => setReviewOpen(true)}>
+            Se gjennom planen
           </Button>
           <div className="flex-1" />
           <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={handleSnooze} title="Utsett 7 dager">
