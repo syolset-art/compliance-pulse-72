@@ -10,6 +10,7 @@ import {
   type CountryScope,
   type ScopeAnswers,
   type ScopeMode,
+  type TriAnswer,
   suggestFrameworks,
 } from "./countryScopeData";
 import { frameworks } from "@/lib/frameworkDefinitions";
