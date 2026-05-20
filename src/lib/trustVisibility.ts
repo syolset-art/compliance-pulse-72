@@ -3,7 +3,7 @@ import type { LucideIcon } from "lucide-react";
 
 export type TrustVisibility = "private" | "ecosystem" | "public";
 
-export const DEFAULT_VISIBILITY: TrustVisibility = "ecosystem";
+export const DEFAULT_VISIBILITY: TrustVisibility = "private";
 
 type Meta = {
   level: TrustVisibility;
@@ -24,8 +24,8 @@ export const VISIBILITY_META: Record<TrustVisibility, Meta> = {
     labelEn: "Private",
     shortNb: "Privat",
     shortEn: "Private",
-    descNb: "Kun du og personer du deler lenken med ser profilen.",
-    descEn: "Only you and people you share the link with can see the profile.",
+    descNb: "Profilen er privat. Andre Mynder-brukere kan finne deg og be om tilgang — du godkjenner hver forespørsel.",
+    descEn: "The profile is private. Other Mynder users can find you and request access — you approve each request.",
   },
   ecosystem: {
     level: "ecosystem",
@@ -34,8 +34,8 @@ export const VISIBILITY_META: Record<TrustVisibility, Meta> = {
     labelEn: "Mynder ecosystem",
     shortNb: "Økosystem",
     shortEn: "Ecosystem",
-    descNb: "Alle innloggede Mynder-brukere kan finne deg — kunder, partnere og leverandører i nettverket.",
-    descEn: "All signed-in Mynder users can discover you — customers, partners and vendors in the network.",
+    descNb: "Alle innloggede Mynder-brukere kan se profilen uten å be om tilgang — kunder, partnere og leverandører i nettverket.",
+    descEn: "All signed-in Mynder users can view the profile without requesting access — customers, partners and vendors in the network.",
   },
   public: {
     level: "public",
