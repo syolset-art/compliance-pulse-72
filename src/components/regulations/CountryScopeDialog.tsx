@@ -307,9 +307,12 @@ function ModeCard({
   return (
     <button
       type="button"
+      role="radio"
+      aria-checked={active}
       onClick={onClick}
       className={cn(
         "text-left rounded-lg border p-4 transition-all hover:shadow-sm",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         active ? "border-primary ring-2 ring-primary/20 bg-primary/5" : "border-border bg-background"
       )}
     >
@@ -323,12 +326,14 @@ function ModeCard({
 }
 
 function TriQuestion({
+  id,
   label,
   hint,
   value,
   onChange,
   unsureLabel = "Vurderer det",
 }: {
+  id: string;
   label: string;
   hint?: string;
   value: TriAnswer;
@@ -340,22 +345,49 @@ function TriQuestion({
     { v: "no", l: "Nei" },
     { v: "maybe", l: unsureLabel },
   ];
+  const labelId = `${id}-label`;
+  const hintId = hint ? `${id}-hint` : undefined;
+
+  const handleKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const order: TriAnswer[] = ["yes", "no", "maybe"];
+    const idx = order.indexOf(value);
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      onChange(order[(idx + 1) % order.length]);
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      onChange(order[(idx - 1 + order.length) % order.length]);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <div className="space-y-0.5">
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+        <p id={labelId} className="text-sm font-medium text-foreground">{label}</p>
+        {hint && (
+          <p id={hintId} className="text-xs text-muted-foreground">{hint}</p>
+        )}
       </div>
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div
+        role="radiogroup"
+        aria-labelledby={labelId}
+        aria-describedby={hintId}
+        onKeyDown={handleKey}
+        className="flex flex-wrap items-center gap-1.5"
+      >
         {opts.map((o) => {
           const active = value === o.v;
           return (
             <button
               key={o.v}
               type="button"
+              role="radio"
+              aria-checked={active}
+              tabIndex={active ? 0 : -1}
               onClick={() => onChange(o.v)}
               className={cn(
                 "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 active
                   ? "border-foreground bg-foreground text-background"
                   : "border-border bg-background text-foreground hover:bg-muted"
