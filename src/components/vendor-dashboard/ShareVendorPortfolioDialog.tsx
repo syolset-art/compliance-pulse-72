@@ -38,11 +38,11 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
     const total = vendors.length;
     const scores = vendors.map((v) => v.compliance_score ?? 0);
     const avg = total > 0 ? Math.round(scores.reduce((s, n) => s + n, 0) / total) : 0;
-    const missingDpa = vendors.filter((v) => !v.has_dpa && (v.gdpr_role === "processor" || v.gdpr_role === "controller")).length || vendors.filter((v) => (v.compliance_score ?? 0) < 50).length;
+    const prioritized = vendors.filter((v) => v.priority === "critical" || v.priority === "high").length;
     const buckets = { low: 0, medium: 0, high: 0 };
     scores.forEach((s) => buckets[riskBucket(s)]++);
     const highRisk = buckets.high;
-    return { total, avg, missingDpa, buckets, highRisk };
+    return { total, avg, prioritized, buckets, highRisk };
   }, [vendors]);
 
   const sorted = useMemo(
