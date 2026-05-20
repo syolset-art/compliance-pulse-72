@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -215,6 +215,38 @@ export default function MSPDashboard() {
     },
   });
 
+  // Highlight newly added customers for a few seconds (visual nudge in the table)
+  const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
+  const seenIdsRef = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    const currentIds = new Set((customers as any[]).map((c) => c.id));
+    if (seenIdsRef.current === null) {
+      // First load — don't highlight existing rows
+      seenIdsRef.current = currentIds;
+      return;
+    }
+    const newOnes: string[] = [];
+    currentIds.forEach((id) => {
+      if (!seenIdsRef.current!.has(id)) newOnes.push(id);
+    });
+    seenIdsRef.current = currentIds;
+    if (newOnes.length === 0) return;
+
+    setHighlightIds((prev) => {
+      const next = new Set(prev);
+      newOnes.forEach((id) => next.add(id));
+      return next;
+    });
+    const timer = setTimeout(() => {
+      setHighlightIds((prev) => {
+        const next = new Set(prev);
+        newOnes.forEach((id) => next.delete(id));
+        return next;
+      });
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [customers]);
+
   // Distinct values for column filter menus
   const industryOptions = useMemo(
     () => Array.from(new Set((customers as any[]).map((c) => c.industry).filter(Boolean))).sort(),
@@ -262,8 +294,16 @@ export default function MSPDashboard() {
       const bo = TP_STATUS_ORDER[deriveTPStatus(b)] ?? 99;
       return (ao - bo) * dir;
     });
+    // Float newly added customers to the top while highlighted
+    if (highlightIds.size > 0) {
+      sorted.sort((a, b) => {
+        const ah = highlightIds.has(a.id) ? 0 : 1;
+        const bh = highlightIds.has(b.id) ? 0 : 1;
+        return ah - bh;
+      });
+    }
     return sorted;
-  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir]);
+  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir, highlightIds]);
 
   const clearAllFilters = () => {
     setIndustryFilter([]);
@@ -528,13 +568,26 @@ export default function MSPDashboard() {
                         const score = c.compliance_score || 0;
                         const crit = deriveCriticality(c);
                         const services = deriveNeededServices(c);
+                        const isNew = highlightIds.has(c.id);
                         return (
                           <TableRow
                             key={c.id}
-                            className="cursor-pointer"
+                            className={cn(
+                              "cursor-pointer transition-colors duration-1000",
+                              isNew && "bg-primary/10 hover:bg-primary/15 ring-1 ring-inset ring-primary/30 animate-fade-in",
+                            )}
                             onClick={() => navigate(`/msp-dashboard/${c.id}`)}
                           >
-                            <TableCell className="font-medium">{c.customer_name}</TableCell>
+                            <TableCell className="font-medium">
+                              <span className="inline-flex items-center gap-2">
+                                {c.customer_name}
+                                {isNew && (
+                                  <Badge variant="outline" className="bg-primary text-primary-foreground border-primary text-[10px] px-1.5 py-0 h-4 font-medium animate-pulse">
+                                    Ny
+                                  </Badge>
+                                )}
+                              </span>
+                            </TableCell>
                             <TableCell className="text-muted-foreground tabular-nums">{c.country_code || "NO"}</TableCell>
                             <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
                             <TableCell>
