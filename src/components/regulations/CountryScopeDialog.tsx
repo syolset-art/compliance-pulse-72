@@ -278,7 +278,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
               aria-describedby={step === 2 && selected.length === 0 ? "next-disabled-hint" : undefined}
               className="gap-1.5"
             >
-              {step === totalSteps ? "Vis forslag" : "Neste"}
+              {step === reviewStep ? `Aktiver ${chosenFrameworkIds.length} regelverk` : "Neste"}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden />
             </Button>
             {step === 2 && selected.length === 0 && (
