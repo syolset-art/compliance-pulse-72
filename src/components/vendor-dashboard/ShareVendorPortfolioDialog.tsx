@@ -169,8 +169,8 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
                 <p className={cn("text-lg font-bold tabular-nums", scoreColor(stats.avg))}>{stats.avg}%</p>
               </Card>
               <Card variant="flat" className="p-2.5">
-                <p className="text-[11px] text-muted-foreground">Mangler DPA</p>
-                <p className="text-lg font-bold text-foreground tabular-nums">{stats.missingDpa}</p>
+                <p className="text-[11px] text-muted-foreground">Prioritet</p>
+                <p className={cn("text-lg font-bold tabular-nums", stats.prioritized > 0 ? "text-destructive" : "text-foreground")}>{stats.prioritized}</p>
               </Card>
               <Card variant="flat" className="p-2.5">
                 <p className="text-[11px] text-muted-foreground">Høy risiko</p>
