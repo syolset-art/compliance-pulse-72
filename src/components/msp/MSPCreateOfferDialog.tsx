@@ -241,7 +241,7 @@ export function MSPCreateOfferDialog({
                 <Eye className="h-2.5 w-2.5" /> Forhåndsvisning · slik ser kunden tilbudet
               </Badge>
             )}
-            <span className="text-xs text-muted-foreground">{partnerName}</span>
+            <span className="text-xs text-muted-foreground">{effectivePartnerName}</span>
           </div>
           <DialogTitle className="text-lg">{offerName}</DialogTitle>
           <DialogDescription className="text-[13px]">
@@ -366,9 +366,19 @@ export function MSPCreateOfferDialog({
           <div className="flex-1 overflow-y-auto p-5 bg-muted/30">
             {/* Paper-like preview */}
             <div className="mx-auto bg-background border border-border rounded-md shadow-sm p-8 max-w-xl space-y-5">
-              <div className="flex items-start justify-between text-[11px] text-muted-foreground">
-                <span className="font-semibold text-foreground">{partnerName}</span>
-                <div className="text-right">
+              <div className="flex items-start justify-between gap-4 text-[11px] text-muted-foreground">
+                <div className="flex items-start gap-2.5 min-w-0">
+                  {effectiveLogo && (
+                    <img src={effectiveLogo} alt="" className="h-9 w-9 object-contain rounded shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-semibold text-foreground truncate">{effectivePartnerName}</div>
+                    {effectiveOrgNumber && (
+                      <div className="text-[10px] tabular-nums">Org.nr {effectiveOrgNumber}</div>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
                   <div>Tilbud <span className="tabular-nums">{offerNumber}</span></div>
                   <div>{todayLabel}</div>
                 </div>
@@ -422,7 +432,7 @@ export function MSPCreateOfferDialog({
               )}
 
               <p className="text-[10px] text-muted-foreground pt-4 border-t border-border">
-                {partnerName} · Tilbud {offerNumber} · {todayLabel}
+                {effectivePartnerName}{effectiveOrgNumber ? ` · Org.nr ${effectiveOrgNumber}` : ""} · Tilbud {offerNumber} · {todayLabel}
               </p>
             </div>
           </div>
