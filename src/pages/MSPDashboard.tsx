@@ -653,6 +653,7 @@ export default function MSPDashboard() {
 
                 const viewOptions: { value: typeof campaignView; label: string; count: number }[] = [
                   { value: "all", label: "Alle", count: allSegments.length },
+                  { value: "product", label: "Mynder-produkter", count: allSegments.filter((x) => x.segment.category === "product").length },
                   { value: "framework", label: "Regelverk", count: allSegments.filter((x) => x.segment.category === "framework").length },
                   { value: "service", label: "Tjenester", count: allSegments.filter((x) => x.segment.category === "service").length },
                 ];
