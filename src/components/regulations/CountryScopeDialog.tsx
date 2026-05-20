@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Plus, Check, ArrowRight, X, MessageCircle, Lightbulb } from "lucide-react";
+import { Sparkles, Plus, Check, ArrowRight, X, MessageCircle, Lightbulb, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   SUPPORTED_COUNTRIES,
@@ -35,6 +35,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
   const [answers, setAnswers] = useState<ScopeAnswers>(initialScope.answers ?? DEFAULT_ANSWERS);
   const [chosenFrameworkIds, setChosenFrameworkIds] = useState<string[]>([]);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
 
   useEffect(() => {
     if (open) {
@@ -43,6 +44,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
       setSelected(initialScope.countries.length ? initialScope.countries : [DEFAULT_COUNTRY_CODE]);
       setAnswers(initialScope.answers ?? DEFAULT_ANSWERS);
       setChosenFrameworkIds([]);
+      setCountrySearch("");
     }
   }, [open, initialScope]);
 
@@ -150,12 +152,29 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
 
           {step === 2 && (
             <div className="space-y-3">
+              {/* Country search */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+                <input
+                  type="text"
+                  value={countrySearch}
+                  onChange={(e) => setCountrySearch(e.target.value)}
+                  placeholder="Søk etter land…"
+                  aria-label="Søk etter land"
+                  className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                />
+              </div>
+
               <div
                 role={mode === "single" ? "radiogroup" : "group"}
                 aria-label={mode === "single" ? "Velg ett land" : "Velg ett eller flere land"}
                 className="flex flex-wrap gap-2"
               >
-                {SUPPORTED_COUNTRIES.map((c) => {
+                {SUPPORTED_COUNTRIES.filter((c) => {
+                  const q = countrySearch.trim().toLowerCase();
+                  if (!q) return true;
+                  return c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q);
+                }).map((c) => {
                   const isSel = selected.includes(c.code);
                   const commonProps =
                     mode === "single"
