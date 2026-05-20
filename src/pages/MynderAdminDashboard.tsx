@@ -168,11 +168,116 @@ export default function MynderAdminDashboard() {
             </Button>
           </div>
 
+          {/* HERO: MRR (NOK) — flagship metric */}
+          <Card className="relative overflow-hidden border-0 p-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-pink-500" />
+            <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl" />
+            <div className="relative grid grid-cols-1 md:grid-cols-5 gap-6 p-6 text-white">
+              <div className="md:col-span-2 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="h-4 w-4" />
+                    <span className="text-[11px] uppercase tracking-[0.18em] font-medium text-white/85">MRR · November</span>
+                  </div>
+                  <div className="text-5xl md:text-6xl font-bold tracking-tight tabular-nums leading-none">
+                    {totalMrr.toLocaleString("nb-NO")}
+                    <span className="text-2xl font-medium text-white/75 ml-2">kr</span>
+                  </div>
+                  <p className="text-sm text-white/80 mt-2">Månedlig fakturering · alle kunder</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 mt-4">
+                  <Badge className="gap-1 bg-white/15 hover:bg-white/20 text-white border-white/20 backdrop-blur">
+                    <TrendingUp className="h-3 w-3" />
+                    +{Math.round(((mrrTrend[5].mrr - mrrTrend[0].mrr) / mrrTrend[0].mrr) * 100)}% siste 6 mnd
+                  </Badge>
+                  {currentBudget > 0 && (
+                    <Badge className={cn(
+                      "gap-1 border backdrop-blur",
+                      aboveBudget
+                        ? "bg-emerald-400/20 text-emerald-50 border-emerald-200/40"
+                        : "bg-amber-400/20 text-amber-50 border-amber-200/40"
+                    )}>
+                      <Target className="h-3 w-3" />
+                      {budgetPct}% av budsjett ({aboveBudget ? "+" : ""}{budgetDelta.toLocaleString("nb-NO")} kr)
+                    </Badge>
+                  )}
+                </div>
+              </div>
+
+              <div className="md:col-span-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <h2 className="text-sm font-semibold">MRR vs. budsjett</h2>
+                    <p className="text-xs text-white/70">Siste 6 måneder</p>
+                  </div>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button size="sm" variant="ghost" className="gap-1.5 h-7 px-2 text-white hover:bg-white/15 hover:text-white">
+                        <Pencil className="h-3 w-3" />
+                        <span className="text-xs">Rediger budsjett</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-72">
+                      <div className="space-y-3">
+                        <div>
+                          <h3 className="text-sm font-semibold">Planlagt budsjett (NOK)</h3>
+                          <p className="text-xs text-muted-foreground">Sett mål-MRR per måned.</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {MONTHS.map((m) => (
+                            <div key={m} className="space-y-1">
+                              <Label htmlFor={`b-${m}`} className="text-xs text-muted-foreground">{m}</Label>
+                              <Input
+                                id={`b-${m}`}
+                                type="number"
+                                inputMode="numeric"
+                                value={budgets[m] ?? 0}
+                                onChange={(e) => saveBudgets({ ...budgets, [m]: Number(e.target.value) || 0 })}
+                                className="h-8 text-sm"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <Button size="sm" variant="outline" className="w-full" onClick={() => saveBudgets(DEFAULT_BUDGETS)}>
+                          Tilbakestill
+                        </Button>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <div className="h-44">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={mrrTrend} margin={{ top: 6, right: 8, bottom: 0, left: 0 }}>
+                      <defs>
+                        <linearGradient id="mrrFillHero" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#ffffff" stopOpacity={0.55} />
+                          <stop offset="100%" stopColor="#ffffff" stopOpacity={0.05} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="month" tick={{ fontSize: 11, fill: "rgba(255,255,255,0.85)" }} axisLine={false} tickLine={false} />
+                      <YAxis hide />
+                      <Tooltip
+                        contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                        formatter={(v: number, n) => [`${v.toLocaleString("nb-NO")} kr`, n === "mrr" ? "Faktisk MRR" : "Budsjett"]}
+                      />
+                      <Area type="monotone" dataKey="mrr" stroke="#ffffff" strokeWidth={2.5} fill="url(#mrrFillHero)" />
+                      <Line type="monotone" dataKey="budget" stroke="hsl(38 100% 70%)" strokeWidth={2} strokeDasharray="5 4" dot={{ r: 3, fill: "hsl(38 100% 70%)" }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex items-center gap-4 mt-2 text-[11px] text-white/85">
+                  <div className="flex items-center gap-1.5"><span className="inline-block w-3 h-0.5 bg-white" /> Faktisk</div>
+                  <div className="flex items-center gap-1.5"><span className="inline-block w-3 h-0.5" style={{ background: "hsl(38 100% 70%)", borderTop: "2px dashed hsl(38 100% 70%)" }} /> Budsjett</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
           {/* KPI row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <MetricCard title="Kunder totalt" value={totalCustomers} icon={Building2} />
             <MetricCard title="Brukere totalt" value={totalUsers} subtitle={`Snitt ${Math.round(totalUsers / totalCustomers)} per kunde`} icon={Users} />
-            <MetricCard title="MRR (NOK)" value={totalMrr.toLocaleString("nb-NO")} subtitle="Månedlig fakturering" icon={CreditCard} />
             <MetricCard
               title="Fakturagrunnlag"
               value={`${billingOk}/${totalCustomers}`}
@@ -181,44 +286,9 @@ export default function MynderAdminDashboard() {
             />
           </div>
 
-          {/* Chart row: MRR trend + industry mix */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Card className="p-4 md:col-span-2">
-              <div className="flex items-center justify-between mb-2">
-                <div>
-                  <h2 className="text-sm font-semibold text-foreground">MRR-utvikling</h2>
-                  <p className="text-xs text-muted-foreground">Siste 6 måneder · NOK</p>
-                </div>
-                <Badge variant="outline" className="gap-1 text-xs text-success border-success/30 bg-success/10">
-                  <TrendingUp className="h-3 w-3" />
-                  +{Math.round(((mrrTrend[5].mrr - mrrTrend[0].mrr) / mrrTrend[0].mrr) * 100)}%
-                </Badge>
-              </div>
-              <div className="h-48">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={mrrTrend} margin={{ top: 6, right: 8, bottom: 0, left: 0 }}>
-                    <defs>
-                      <linearGradient id="mrrFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="hsl(292 84% 60%)" stopOpacity={0.55} />
-                        <stop offset="100%" stopColor="hsl(262 83% 62%)" stopOpacity={0.05} />
-                      </linearGradient>
-                      <linearGradient id="mrrStroke" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor="hsl(262 83% 62%)" />
-                        <stop offset="100%" stopColor="hsl(330 81% 60%)" />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-                    <YAxis hide tickFormatter={(v) => `${v / 1000}k`} />
-                    <Tooltip
-                      contentStyle={{ background: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
-                      formatter={(v: number) => [`${v.toLocaleString("nb-NO")} kr`, "MRR"]}
-                    />
-                    <Area type="monotone" dataKey="mrr" stroke="url(#mrrStroke)" strokeWidth={2.5} fill="url(#mrrFill)" />
+          {/* Chart row: industry mix */}
+          <div className="grid grid-cols-1 gap-3">
 
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
 
             <Card className="p-4">
               <h2 className="text-sm font-semibold text-foreground">Bransjefordeling</h2>
