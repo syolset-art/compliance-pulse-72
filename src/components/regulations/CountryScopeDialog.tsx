@@ -193,7 +193,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
           )}
 
 
-          {step === 3 && mode === "multi" && (
+          {step === 2 && (
             <div className="space-y-5">
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
@@ -266,14 +266,14 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
             </Button>
             <Button
               onClick={goNext}
-              disabled={step === 2 && selected.length === 0}
-              aria-describedby={step === 2 && selected.length === 0 ? "next-disabled-hint" : undefined}
+              disabled={step === 1 && selected.length === 0}
+              aria-describedby={step === 1 && selected.length === 0 ? "next-disabled-hint" : undefined}
               className="gap-1.5"
             >
               {step === reviewStep ? `Aktiver ${chosenFrameworkIds.length} regelverk` : "Neste"}
               <ArrowRight className="h-3.5 w-3.5" aria-hidden />
             </Button>
-            {step === 2 && selected.length === 0 && (
+            {step === 1 && selected.length === 0 && (
               <span id="next-disabled-hint" className="sr-only">
                 Velg minst ett land for å gå videre.
               </span>
