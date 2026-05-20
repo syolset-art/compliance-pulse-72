@@ -386,6 +386,30 @@ const Regulations = () => {
         </div>
       </main>
 
+      {/* Country scope dialog */}
+      <CountryScopeDialog
+        open={countryDialogOpen}
+        onOpenChange={setCountryDialogOpen}
+        initialScope={countryScope}
+        onApply={(scope, suggestedIds) => {
+          setCountryScope(scope);
+          saveCountryScope(scope);
+          const notAlreadyActive = suggestedIds.filter((id) => !activeFrameworkIds.has(id));
+          const names = notAlreadyActive
+            .map((id) => frameworks.find((f) => f.id === id)?.name)
+            .filter(Boolean) as string[];
+          if (names.length > 0) {
+            toast({
+              title: `${names.length} foreslåtte regelverk`,
+              description: names.slice(0, 4).join(", ") + (names.length > 4 ? ` +${names.length - 4} til` : ""),
+            });
+            setShowEditDialog(true);
+          } else {
+            toast({ title: "Jurisdiksjon oppdatert", description: `${scope.countries.length} land valgt.` });
+          }
+        }}
+      />
+
       {/* Edit frameworks sheet */}
       <EditActiveFrameworksDialog
         open={showEditDialog}
