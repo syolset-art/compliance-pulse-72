@@ -20,7 +20,7 @@ import { FrameworkRequirementsList } from "@/components/regulations/FrameworkReq
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
 
 import { CountryScopeDialog } from "@/components/regulations/CountryScopeDialog";
-import { loadCountryScope, saveCountryScope, type CountryScope } from "@/components/regulations/countryScopeData";
+import { loadCountryScope, saveCountryScope, SUPPORTED_COUNTRIES, getCountry, type CountryScope } from "@/components/regulations/countryScopeData";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
 import { FrameworkPurchaseDialog } from "@/components/dialogs/FrameworkPurchaseDialog";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
@@ -73,6 +73,7 @@ const Regulations = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [highlightReqId, setHighlightReqId] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [countryFilter, setCountryFilter] = useState<string | null>(null);
   const [liveCounts, setLiveCounts] = useState<Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>>({});
   const [helpOpen, setHelpOpen] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
@@ -143,10 +144,15 @@ const Regulations = () => {
     [isFrameworkActive]
   );
 
-  const activeFrameworks = useMemo(
-    () => categoryFilter ? allActiveFrameworks.filter((fw) => fw.category === categoryFilter) : allActiveFrameworks,
-    [allActiveFrameworks, categoryFilter]
-  );
+  const activeFrameworks = useMemo(() => {
+    let list = allActiveFrameworks;
+    if (categoryFilter) list = list.filter((fw) => fw.category === categoryFilter);
+    if (countryFilter) {
+      const ids = new Set(getCountry(countryFilter)?.frameworkIds ?? []);
+      list = list.filter((fw) => ids.has(fw.id));
+    }
+    return list;
+  }, [allActiveFrameworks, categoryFilter, countryFilter]);
 
   const activeFrameworkIds = useMemo(
     () => new Set(activeFrameworks.map((f) => f.id)),
@@ -306,10 +312,10 @@ const Regulations = () => {
                   {/* Category filter */}
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
-                      variant={categoryFilter === null ? "default" : "outline"}
+                      variant={categoryFilter === null && countryFilter === null ? "default" : "outline"}
                       size="sm"
                       className="text-xs h-8"
-                      onClick={() => setCategoryFilter(null)}
+                      onClick={() => { setCategoryFilter(null); setCountryFilter(null); }}
                     >
                       Alle ({allActiveFrameworks.length})
                     </Button>
@@ -344,6 +350,43 @@ const Regulations = () => {
                         </div>
                       </PopoverContent>
                     </Popover>
+
+                    {/* Country filter — only show countries the user has selected */}
+                    {countryScope.countries.length > 0 && (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="sm" className="text-xs h-8 gap-1.5">
+                            <Filter className="h-3.5 w-3.5" />
+                            Land
+                            {countryFilter && (
+                              <Badge variant="default" className="ml-1 h-4 w-4 p-0 flex items-center justify-center text-[13px]">1</Badge>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-auto p-2">
+                          <div className="flex flex-col gap-1">
+                            {countryScope.countries.map((code) => {
+                              const c = getCountry(code);
+                              if (!c) return null;
+                              const ids = new Set(c.frameworkIds);
+                              const count = allActiveFrameworks.filter(fw => ids.has(fw.id)).length;
+                              return (
+                                <Button
+                                  key={code}
+                                  variant={countryFilter === code ? "default" : "ghost"}
+                                  size="sm"
+                                  className="text-xs h-8 gap-1.5 justify-start"
+                                  onClick={() => setCountryFilter(countryFilter === code ? null : code)}
+                                >
+                                  <span aria-hidden>{c.flag}</span>
+                                  {c.name} ({count})
+                                </Button>
+                              );
+                            })}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
                   </div>
 
                   {/* Framework chip selector */}
