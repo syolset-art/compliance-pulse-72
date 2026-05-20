@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MetricCard } from "@/components/widgets/MetricCard";
-import { Building2, Users, CreditCard, CheckCircle2, AlertCircle, Download, ShieldCheck, TrendingUp, Handshake, Server, Truck, BookCheck, Target, Sparkles, Pencil } from "lucide-react";
+import { Building2, Users, CheckCircle2, AlertCircle, Download, ShieldCheck, TrendingUp, Handshake, Server, Truck, BookCheck, Target, Sparkles, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import {
