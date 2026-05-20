@@ -7,6 +7,7 @@ import { getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import { exportCompliancePdf } from "./ExportCompliancePdf";
 import { ShareReportDialog } from "./ShareReportDialog";
 import { supabase } from "@/integrations/supabase/client";
+import { FrameworkCountryTag } from "./FrameworkCountryTag";
 
 interface FrameworkDetailCardProps {
   framework: Framework;
