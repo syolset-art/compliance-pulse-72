@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import jsPDF from "jspdf";
 import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
+import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 
 export interface CreateOfferDialogProps {
   open: boolean;
@@ -19,6 +20,10 @@ export interface CreateOfferDialogProps {
   serviceTitle?: string;
   variant?: "Full leveranse" | "Co-delivery" | "Tjeneste";
   partnerName?: string;
+  /** Overstyrer auto-hentet org.nr fra partnerbranding. */
+  partnerOrgNumber?: string;
+  /** Overstyrer auto-hentet logo (PNG/JPEG dataURL). */
+  partnerLogoDataUrl?: string;
   customerContactName?: string;
   defaultTasks?: TaskEstimate[];
   hourlyRate?: number;
@@ -37,7 +42,9 @@ export function MSPCreateOfferDialog({
   domainName = "tjenesten",
   serviceTitle,
   variant = "Tjeneste",
-  partnerName = "Dintero AS",
+  partnerName,
+  partnerOrgNumber,
+  partnerLogoDataUrl,
   customerContactName = "Truls",
   defaultTasks,
   hourlyRate = 1500,
@@ -45,6 +52,11 @@ export function MSPCreateOfferDialog({
   attachGap: attachGapProp = true,
   gapFrameworkId,
 }: CreateOfferDialogProps) {
+  const { branding } = usePartnerBranding();
+  const effectivePartnerName = partnerName ?? branding.name;
+  const effectiveOrgNumber = partnerOrgNumber ?? branding.orgNumber;
+  const effectiveLogo = partnerLogoDataUrl ?? branding.logoDataUrl ?? null;
+
   const [tasks, setTasks] = useState<EditableTask[]>(
     (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })),
   );
