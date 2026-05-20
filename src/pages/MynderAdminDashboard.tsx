@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/widgets/MetricCard";
-import { Building2, Users, CreditCard, CheckCircle2, AlertCircle, Download, ShieldCheck, TrendingUp } from "lucide-react";
+import { Building2, Users, CreditCard, CheckCircle2, AlertCircle, Download, ShieldCheck, TrendingUp, Handshake, Server, Truck, BookCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Area,
