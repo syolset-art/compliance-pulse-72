@@ -210,7 +210,10 @@ export function MSPCreateOfferDialog({
     // Footer
     doc.setFontSize(9);
     doc.setTextColor(150);
-    doc.text(`${partnerName} · Tilbud ${offerNumber} · ${todayLabel}`, margin, 820);
+    const footerParts = [effectivePartnerName];
+    if (effectiveOrgNumber) footerParts.push(`Org.nr ${effectiveOrgNumber}`);
+    footerParts.push(`Tilbud ${offerNumber}`, todayLabel);
+    doc.text(footerParts.join(" · "), margin, 820);
 
     doc.save(`Tilbud_${offerNumber}_${offerName.replace(/\s+/g, "_")}.pdf`);
     toast.success("Tilbud lastet ned", { description: `${offerNumber}.pdf` });
