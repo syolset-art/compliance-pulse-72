@@ -102,6 +102,9 @@ const CategorySection = ({
 
 export const FrameworkChipSelector = ({ frameworks, selectedId, onSelect, getStats, hideSummary = false }: FrameworkChipSelectorProps) => {
   const [expanded, setExpanded] = useState(false);
+  const scope = useMemo(() => loadCountryScope(), []);
+  const scopeCodesForFramework = (fwId: string) =>
+    (scope.countries ?? []).filter((cc) => getCountry(cc)?.frameworkIds.includes(fwId));
 
   const enriched = useMemo(
     () =>
