@@ -2,7 +2,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Download, CheckCircle2, Minus } from "lucide-react";
+import { Settings, Download, CheckCircle2, Minus, FileText, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
