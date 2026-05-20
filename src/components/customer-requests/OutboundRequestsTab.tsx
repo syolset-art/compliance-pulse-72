@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { MetricCard } from "@/components/widgets/MetricCard";
 import { OutboundRequestCard, type OutboundRequest } from "./OutboundRequestCard";
 import { SendRequestWizard } from "./SendRequestWizard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Send, Clock, CheckCircle2, AlertTriangle, Search, Inbox, ShieldAlert } from "lucide-react";
+import { Search, Inbox, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+
 
 const STORAGE_KEY = "mynder_outbound_requests_v2";
 const AUTO_DELETE_DAYS = 180; // 6 months retention
