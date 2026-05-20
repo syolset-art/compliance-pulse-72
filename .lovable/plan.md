@@ -1,43 +1,33 @@
 ## Mål
 
-Tilbud generert fra Tjenesteområde skal automatisk ha med partnerens **navn, logo og organisasjonsnummer** — hentet fra det vi vet om dem, men redigerbart i en innstilling på Tjenesteområde.
+Rydde opp i tabellvisningen i tjenestebiblioteket på `/msp-services`. I dag har hver rad mange pills (partnertype, delivery, Lara-badge, ramme-pills, marked-pills) som gir et rotete inntrykk. Vi strammer inn til en tabell som ser ut som en ren liste — typografi gjør jobben, ikke chips.
 
-## Brukerflyt
+## Endringer (kun `src/components/msp/ServiceLibraryBrowser.tsx` → `TemplateTable`)
 
-1. På `/msp-services` (Tjenesteområde) vises et nytt kort **"Tilbudsmerking"** øverst.
-2. Feltene **Partnernavn**, **Organisasjonsnummer** og **Logo** er forhåndsutfylt fra `company_profile` (det vi allerede vet om partneren). De er markert som "Hentet automatisk".
-3. Brukeren kan overstyre hvert felt og laste opp en logo. Lagres lokalt (samme mønster som dagens partner-innstillinger) — overstyringer vinner over auto-data.
-4. Når en bruker genererer et tilbud (Lara fra modenhetsmatrise eller spørreundersøkelse), vises **logo + navn + orgnr** øverst i både forhåndsvisningen og den nedlastede PDF-en — uten ekstra steg.
+### Layout
+- Strammere kolonner: `Kode · Tjeneste · Regelverk · Marked · Timer · Pris · ` (handling).
+- Faste kolonnebredder via `<colgroup>` så timer/pris alltid linjeres opp.
+- Komprimert radhøyde: `py-2` celler, `text-[13px]`, ingen `p-4` standard.
+- Tynnere skiller — `divide-y divide-border/60`, ingen ekstra rammer rundt celler.
+- Subtil hover (`hover:bg-muted/30`), ingen sterk markering.
 
-## Endringer
+### Innhold per celle
+- **Kode**: monospace, mindre kontrast (`text-muted-foreground`), ingen pill-bakgrunn.
+- **Tjeneste**: kun navn på én linje + kort beskrivelse i én klippet linje under (`line-clamp-1 text-[11px] text-muted-foreground`). Fjerner inline-badges (partnertype, delivery, Lara-pille). Lara-anbefalinger vises kun som et lite `Sparkles`-ikon foran navnet når relevant — én visuell hint, ikke en chip.
+- **Regelverk**: ren tekst, komma-separert (`ISO 27001, NIS2, GDPR …`), maks 3 + "+N". Ingen pill-bakgrunn.
+- **Marked**: små bokstavkoder uten globe-ikon (`NO · EU · SE`), `text-muted-foreground`.
+- **Timer**: høyrejustert, tabular-nums, uten ikon.
+- **Pris**: høyrejustert, tabular-nums, fet, uten valuta-suffiks-støy.
+- **Handling**: kompakt knapp `h-7`, ikon-only "Adopter" når adoptert blir det en grå `Check` uten tekst.
 
-### Ny hook: `src/hooks/usePartnerBranding.ts`
-- Leser `company_profile` (name, org-felt) for å gi default `partnerName` + `orgNumber`.
-- Slår sammen med lokal overstyring fra `localStorage` (`msp-partner-branding-v1`): `{ name?, orgNumber?, logoDataUrl? }`.
-- Returnerer ferdig sammensatt `{ name, orgNumber, logoDataUrl, isAutoName, isAutoOrg }`.
+### Header
+- `text-[10px] uppercase tracking-wide text-muted-foreground` (matcher resten av appen), `h-8` rader, ingen bakgrunn.
 
-### Ny UI-komponent: `src/components/msp/PartnerBrandingCard.tsx`
-- Card med tre felter + logo-opploader (file → base64 dataURL, maks ~300 KB), "Tilbakestill til automatisk"-knapp per felt, og "Lagre"-knapp.
-- "Slik ser det ut i tilbudet"-mini-preview til høyre (logo + navn + orgnr i samme layout som PDF-headeren).
+### Top picks (Lara anbefaler)
+- Samme tabell, men venstre kantlinje i `border-l-2 border-primary/40` på `<Card>`-en for å markere at det er en anbefalt seksjon — ingen pills inni radene.
 
-### Oppdatering: `src/pages/MSPServiceCatalog.tsx`
-- Rendrer `PartnerBrandingCard` over `MSPServiceCatalogTab`, i en kollapsbar/diskré seksjon slik at det ikke stjeler fokus fra tjenestebiblioteket.
+## Ikke i scope
 
-### Oppdatering: `src/components/msp/MSPCreateOfferDialog.tsx`
-- Nye valgfrie props: `partnerOrgNumber?: string`, `partnerLogoDataUrl?: string`.
-- Hvis ikke sendt inn → bruk `usePartnerBranding()` internt som fallback (så alle eksisterende call sites virker uten endring).
-- **Forhåndsvisning**: header-rad får logo (h-8, venstrejustert) + `partnerName` + `Org.nr {orgNumber}` under navnet. Footer-linje får `· Org.nr {orgNumber}`.
-- **PDF (jsPDF)**: hvis `logoDataUrl` finnes, `doc.addImage(...)` i headeren (skaler til 36 pt høyde); orgnr printes på linjen under partnernavnet og i footeren.
-
-### Call sites
-- `MSPMaturityServiceMatrix.tsx` og `QuestionnaireDispatchCard.tsx` trenger ingen endring — dialogen henter brandingen selv via hooken når props ikke sendes inn.
-
-## Teknisk
-
-- Ingen DB-migrasjon — vi gjenbruker `company_profile` for auto-data og `localStorage` for overstyringer (konsistent med `MSPPartnerSettings`).
-- Logo lagres som base64 dataURL i localStorage for å unngå storage-bucket-oppsett i denne iterasjonen; klart skalerbart til Supabase Storage senere ved å bytte ut én funksjon i hooken.
-- jsPDF støtter `addImage` for PNG/JPEG dataURL direkte — ingen ekstra pakker.
-
-## Ikke i scope nå
-
-- Flere logoer per kunde, EHF-/fakturaoppsett, opplasting til Supabase Storage. Disse kan komme i neste runde uten å bryte denne strukturen.
+- Boks-/kort-visningen røres ikke.
+- Filter-/søkebaren over tabellen røres ikke.
+- Ingen endring i datamodell eller `serviceLibrary.ts`.

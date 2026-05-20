@@ -380,89 +380,98 @@ function TemplateTable({
   highlighted?: boolean;
 }) {
   return (
-    <Card className={cn("overflow-hidden", highlighted && "border-primary/30")}>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[90px]">Kode</TableHead>
-            <TableHead>Tjeneste</TableHead>
-            <TableHead className="hidden lg:table-cell">Regelverk</TableHead>
-            <TableHead className="hidden md:table-cell">Marked</TableHead>
-            <TableHead className="text-right whitespace-nowrap">Timer</TableHead>
-            <TableHead className="text-right whitespace-nowrap">Pris</TableHead>
-            <TableHead className="w-[120px] text-right">Handling</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+    <Card className={cn("overflow-hidden", highlighted && "border-l-2 border-l-primary/50")}>
+      <table className="w-full text-[13px]">
+        <colgroup>
+          <col className="w-[72px]" />
+          <col />
+          <col className="w-[220px]" />
+          <col className="w-[110px]" />
+          <col className="w-[70px]" />
+          <col className="w-[110px]" />
+          <col className="w-[110px]" />
+        </colgroup>
+        <thead>
+          <tr className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            <th className="h-8 px-3 text-left font-medium">Kode</th>
+            <th className="h-8 px-3 text-left font-medium">Tjeneste</th>
+            <th className="h-8 px-3 text-left font-medium hidden lg:table-cell">Regelverk</th>
+            <th className="h-8 px-3 text-left font-medium hidden md:table-cell">Marked</th>
+            <th className="h-8 px-3 text-right font-medium">Timer</th>
+            <th className="h-8 px-3 text-right font-medium">Pris</th>
+            <th className="h-8 px-3 text-right font-medium"></th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border/60">
           {items.map(({ template, reasons }) => {
             const adopted = adoptedIds.has(template.id);
+            const isLara = reasons && reasons.length > 0;
+            const frameworks = template.mappings.map((m) => m.frameworkLabel);
+            const fwShown = frameworks.slice(0, 3).join(", ");
+            const fwMore = frameworks.length > 3 ? ` +${frameworks.length - 3}` : "";
+            const scopes = template.scopes.slice(0, 3).map((s) => scopeLabel(s)).join(" · ");
             return (
-              <TableRow key={template.id} className={cn(adopted && "opacity-60")}>
-                <TableCell>
-                  <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
-                    {template.code}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-medium text-foreground text-sm">{template.name}</span>
-                    {template.partnerType !== "all" && (
-                      <Badge variant="secondary" className="text-xs h-5">{template.partnerType.toUpperCase()}</Badge>
+              <tr
+                key={template.id}
+                className={cn(
+                  "transition-colors hover:bg-muted/30",
+                  adopted && "opacity-50",
+                )}
+              >
+                <td className="px-3 py-2 align-top">
+                  <span className="font-mono text-[11px] text-muted-foreground">{template.code}</span>
+                </td>
+                <td className="px-3 py-2 align-top">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    {isLara && (
+                      <Sparkles
+                        className="h-3 w-3 text-primary shrink-0"
+                        aria-label="Lara anbefaler"
+                      />
                     )}
-                    <Badge variant="outline" className="text-xs h-5">{deliveryLabel(template.delivery)}</Badge>
-                    {reasons && reasons.length > 0 && (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-primary">
-                        <Sparkles className="h-3 w-3" /> Lara
-                      </span>
-                    )}
+                    <span className="font-medium text-foreground truncate">{template.name}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{template.shortDescription}</p>
-                </TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  <div className="flex flex-wrap gap-1">
-                    {template.mappings.slice(0, 3).map((m, i) => (
-                      <span key={i} className="inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-                        <span className="font-semibold text-foreground">{m.frameworkLabel}</span>
-                      </span>
-                    ))}
-                    {template.mappings.length > 3 && (
-                      <span className="text-xs text-muted-foreground">+{template.mappings.length - 3}</span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <div className="flex flex-wrap gap-1">
-                    {template.scopes.slice(0, 3).map((s) => (
-                      <span key={s} className="inline-flex items-center gap-0.5 rounded-full bg-muted/60 px-1.5 py-0.5 text-xs text-muted-foreground">
-                        <Globe className="h-2.5 w-2.5" /> {scopeLabel(s)}
-                      </span>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell className="text-right text-xs text-muted-foreground tabular-nums whitespace-nowrap">
-                  <span className="inline-flex items-center gap-1 justify-end">
-                    <Clock className="h-3 w-3" /> {formatHoursRange(template.estimatedHours)}
-                  </span>
-                </TableCell>
-                <TableCell className="text-right text-sm font-semibold tabular-nums whitespace-nowrap">
+                  <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                    {template.shortDescription}
+                  </p>
+                </td>
+                <td className="px-3 py-2 align-top hidden lg:table-cell text-[12px] text-muted-foreground">
+                  {fwShown || "—"}
+                  {fwMore && <span className="text-muted-foreground/70">{fwMore}</span>}
+                </td>
+                <td className="px-3 py-2 align-top hidden md:table-cell text-[12px] text-muted-foreground">
+                  {scopes || "—"}
+                </td>
+                <td className="px-3 py-2 align-top text-right tabular-nums text-muted-foreground">
+                  {formatHoursRange(template.estimatedHours)}
+                </td>
+                <td className="px-3 py-2 align-top text-right tabular-nums font-semibold text-foreground">
                   {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
-                </TableCell>
-                <TableCell className="text-right">
+                </td>
+                <td className="px-3 py-2 align-top text-right">
                   <Button
                     size="sm"
-                    variant={adopted ? "outline" : "default"}
-                    className="h-8 text-xs gap-1"
+                    variant={adopted ? "ghost" : "outline"}
+                    className="h-7 text-xs gap-1"
                     onClick={() => onAdopt(template)}
                     disabled={adopted}
+                    aria-label={adopted ? "Adoptert" : "Adopter tjeneste"}
                   >
-                    {adopted ? <><Check className="h-3.5 w-3.5" /> Adoptert</> : <><Plus className="h-3.5 w-3.5" /> Adopter</>}
+                    {adopted ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      <>
+                        <Plus className="h-3.5 w-3.5" /> Adopter
+                      </>
+                    )}
                   </Button>
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             );
           })}
-        </TableBody>
-      </Table>
+        </tbody>
+      </table>
     </Card>
   );
 }
+
