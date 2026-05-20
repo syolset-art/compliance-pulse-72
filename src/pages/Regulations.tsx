@@ -283,9 +283,19 @@ const Regulations = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                {t("nav.regulations")}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-foreground">
+                  {t("nav.regulations")}
+                </h1>
+                {allActiveFrameworks.length > 0 && (
+                  <span
+                    className="inline-flex items-center rounded-full border border-border bg-muted/60 px-2 py-0.5 text-xs font-medium text-muted-foreground"
+                    title="Aktive regelverk og standarder"
+                  >
+                    {allActiveFrameworks.length} aktive
+                  </span>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground mt-0.5">
                 Velg et regelverk eller en standard for å se status
               </p>
@@ -294,6 +304,7 @@ const Regulations = () => {
               <Settings2 className="h-4 w-4" />
               Endre regelverk
             </Button>
+
           </div>
 
 
