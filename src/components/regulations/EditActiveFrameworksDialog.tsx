@@ -13,6 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CountryScopeBar } from "./CountryScopeBar";
+import { RequestCountrySupportDialog } from "./RequestCountrySupportDialog";
 import type { CountryScope } from "./countryScopeData";
 
 interface EditActiveFrameworksDialogProps {
@@ -35,6 +36,7 @@ export const EditActiveFrameworksDialog = ({
   onEditCountries,
 }: EditActiveFrameworksDialogProps) => {
   const [search, setSearch] = useState("");
+  const [requestOpen, setRequestOpen] = useState(false);
 
   const q = search.trim().toLowerCase();
   const matches = (fw: Framework) =>
@@ -69,7 +71,7 @@ export const EditActiveFrameworksDialog = ({
         {/* Country scope — styrer hvilke regelverk som vises */}
         {countryScope && onEditCountries && (
           <div className="mt-5">
-            <CountryScopeBar scope={countryScope} onEdit={onEditCountries} />
+            <CountryScopeBar scope={countryScope} onEdit={onEditCountries} onRequest={() => setRequestOpen(true)} />
           </div>
         )}
 
@@ -195,6 +197,7 @@ export const EditActiveFrameworksDialog = ({
           })}
         </div>
       </SheetContent>
+      <RequestCountrySupportDialog open={requestOpen} onOpenChange={setRequestOpen} />
     </Sheet>
   );
 };
