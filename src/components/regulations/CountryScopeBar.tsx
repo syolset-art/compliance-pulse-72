@@ -54,14 +54,29 @@ export function CountryScopeBar({ scope, onEdit, onRequest }: Props) {
         </div>
       </div>
 
-      {/* Action */}
-      <button
-        type="button"
-        onClick={onEdit}
-        className="shrink-0 rounded-md px-1.5 py-1 text-[13px] font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      >
-        Endre land
-      </button>
+      {/* Actions */}
+      <div className="flex shrink-0 items-center gap-1">
+        <button
+          type="button"
+          onClick={onEdit}
+          className="rounded-md px-1.5 py-1 text-[13px] font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          Endre land
+        </button>
+        {onRequest && (
+          <>
+            <span aria-hidden className="text-muted-foreground/50">·</span>
+            <button
+              type="button"
+              onClick={onRequest}
+              className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[13px] font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden />
+              Bestill regelverk
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
