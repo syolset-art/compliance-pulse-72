@@ -208,9 +208,63 @@ export const EditActiveFrameworksDialog = ({
           )}
         </div>
 
-
+        {/* Country detail panel — when a country filter is active */}
+        {countryFilter && (() => {
+          const c = getCountry(countryFilter);
+          if (!c) return null;
+          const ids = c.frameworkIds;
+          const inCatalog = frameworks.filter((f) => ids.includes(f.id));
+          const activeCount = inCatalog.filter((f) => activeFrameworkIds.has(f.id)).length;
+          return (
+            <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+                    <span aria-hidden>{c.flag}</span>
+                    {c.name}
+                  </div>
+                  <p className="mt-0.5 text-[12px] text-muted-foreground">
+                    {inCatalog.length} regelverk i katalogen · {activeCount} aktive
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRequestOpen(true)}
+                  className="shrink-0 text-[12px] font-medium text-primary hover:text-primary/80"
+                >
+                  Bestill regelverk
+                </button>
+              </div>
+              {inCatalog.length > 0 && (
+                <ul className="mt-2 flex flex-wrap gap-1">
+                  {inCatalog.map((f) => {
+                    const on = activeFrameworkIds.has(f.id);
+                    return (
+                      <li
+                        key={f.id}
+                        className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] ${
+                          on
+                            ? "border-primary/30 bg-primary/10 text-foreground"
+                            : "border-border bg-background text-muted-foreground"
+                        }`}
+                        title={on ? "Aktiv" : "Ikke aktiv"}
+                      >
+                        <span
+                          aria-hidden
+                          className={`h-1.5 w-1.5 rounded-full ${on ? "bg-primary" : "bg-muted-foreground/40"}`}
+                        />
+                        {f.name}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })()}
 
         <div className="mt-6 space-y-6">
+
           {visibleCategories.length === 0 && (
             <p className="text-sm text-muted-foreground py-8 text-center">
               Ingen regelverk matcher filtrene.
