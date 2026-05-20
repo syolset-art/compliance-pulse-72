@@ -144,10 +144,15 @@ const Regulations = () => {
     [isFrameworkActive]
   );
 
-  const activeFrameworks = useMemo(
-    () => categoryFilter ? allActiveFrameworks.filter((fw) => fw.category === categoryFilter) : allActiveFrameworks,
-    [allActiveFrameworks, categoryFilter]
-  );
+  const activeFrameworks = useMemo(() => {
+    let list = allActiveFrameworks;
+    if (categoryFilter) list = list.filter((fw) => fw.category === categoryFilter);
+    if (countryFilter) {
+      const ids = new Set(getCountry(countryFilter)?.frameworkIds ?? []);
+      list = list.filter((fw) => ids.has(fw.id));
+    }
+    return list;
+  }, [allActiveFrameworks, categoryFilter, countryFilter]);
 
   const activeFrameworkIds = useMemo(
     () => new Set(activeFrameworks.map((f) => f.id)),
