@@ -290,6 +290,11 @@ const Regulations = () => {
             </Button>
           </div>
 
+          {/* Country scope */}
+          <div className="mb-4">
+            <CountryScopeBar scope={countryScope} onEdit={() => setCountryDialogOpen(true)} />
+          </div>
+
           {/* Active frameworks summary */}
           {allActiveFrameworks.length > 0 ? (
             <div className="space-y-4">
