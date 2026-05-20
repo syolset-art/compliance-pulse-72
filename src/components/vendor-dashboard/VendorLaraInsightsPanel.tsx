@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Diamond, ChevronLeft, ChevronRight, AlertTriangle, FileWarning, Inbox, ShieldCheck, Clock, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLaraSuggestionStates, type LaraSuggestionContext } from "@/hooks/useLaraSuggestionStates";
+import { useUserTasks } from "@/hooks/useUserTasks";
+import { LaraPlanReviewDialog } from "./LaraPlanReviewDialog";
 import { toast } from "sonner";
 
 interface Asset {
