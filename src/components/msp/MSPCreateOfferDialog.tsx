@@ -53,6 +53,7 @@ export function MSPCreateOfferDialog({
   defaultMessage,
   attachGap: attachGapProp = true,
   gapFrameworkId,
+  initialView = "edit",
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
   const effectivePartnerName = partnerName ?? branding.name;
@@ -65,7 +66,7 @@ export function MSPCreateOfferDialog({
   const [message, setMessage] = useState(defaultMessage || "");
   const [attachGap, setAttachGap] = useState(attachGapProp);
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
-  const [view, setView] = useState<"edit" | "preview" | "saved">("edit");
+  const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export function MSPCreateOfferDialog({
     setTasks((defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })));
     setMessage(defaultMessage || "");
     setAttachGap(attachGapProp);
-    setView("edit");
+    setView(initialView);
     setSavedAt(null);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
