@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/tooltip";
 import { CountryScopeBar } from "./CountryScopeBar";
 import { RequestCountrySupportDialog } from "./RequestCountrySupportDialog";
-import type { CountryScope } from "./countryScopeData";
+import { SUPPORTED_COUNTRIES, getCountry, type CountryScope } from "./countryScopeData";
 
 interface EditActiveFrameworksDialogProps {
   open: boolean;
