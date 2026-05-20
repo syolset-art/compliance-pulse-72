@@ -71,7 +71,7 @@ export const EditActiveFrameworksDialog = ({
         {/* Country scope — styrer hvilke regelverk som vises */}
         {countryScope && onEditCountries && (
           <div className="mt-5">
-            <CountryScopeBar scope={countryScope} onEdit={onEditCountries} />
+            <CountryScopeBar scope={countryScope} onEdit={onEditCountries} onRequest={() => setRequestOpen(true)} />
           </div>
         )}
 
