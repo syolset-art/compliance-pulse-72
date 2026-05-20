@@ -527,3 +527,83 @@ function FrameworkPicker({
     </div>
   );
 }
+
+function SpecificFrameworksInput({
+  values,
+  onChange,
+}: {
+  values: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const [draft, setDraft] = useState("");
+  const inputId = "specific-frameworks-input";
+  const hintId = "specific-frameworks-hint";
+
+  const addDraft = () => {
+    const v = draft.trim();
+    if (!v) return;
+    if (values.includes(v)) {
+      setDraft("");
+      return;
+    }
+    onChange([...values, v]);
+    setDraft("");
+  };
+
+  const remove = (name: string) => onChange(values.filter((v) => v !== name));
+
+  return (
+    <div className="space-y-2 rounded-lg border border-border bg-background p-3">
+      <div className="space-y-0.5">
+        <label htmlFor={inputId} className="text-sm font-medium text-foreground">
+          Er det noen spesifikke regelverk dere allerede vet at dere må følge?
+        </label>
+        <p id={hintId} className="text-xs text-muted-foreground">
+          Valgfritt. Skriv navnet og trykk Enter — f.eks. «HIPAA», «PCI DSS» eller en lokal lov. Vi sjekker om vi støtter dem og kobler dem inn.
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {values.map((name) => (
+          <span
+            key={name}
+            className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2 py-0.5 text-xs"
+          >
+            {name}
+            <button
+              type="button"
+              onClick={() => remove(name)}
+              aria-label={`Fjern ${name}`}
+              className="rounded-full p-0.5 hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <X className="h-3 w-3" aria-hidden />
+            </button>
+          </span>
+        ))}
+        <div className="flex flex-1 min-w-[160px] items-center gap-1.5">
+          <input
+            id={inputId}
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === ",") {
+                e.preventDefault();
+                addDraft();
+              } else if (e.key === "Backspace" && !draft && values.length) {
+                onChange(values.slice(0, -1));
+              }
+            }}
+            placeholder="F.eks. HIPAA, PCI DSS…"
+            aria-describedby={hintId}
+            className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground py-1"
+          />
+          {draft.trim() && (
+            <Button type="button" size="sm" variant="ghost" onClick={addDraft} className="h-7 px-2 text-xs">
+              Legg til
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
