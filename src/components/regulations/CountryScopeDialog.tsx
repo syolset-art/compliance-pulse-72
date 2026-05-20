@@ -107,7 +107,8 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                 {mode === "multi" && <Badge variant="outline" className="text-[10px] uppercase tracking-wide">Ekspansjon</Badge>}
                 {step === 1 && "Hvilke land gjelder dette for?"}
                 {step === 2 && (mode === "multi" ? "Hvor opererer dere nå?" : "Velg land")}
-                {step === 3 && "Et par spørsmål for å filtrere"}
+                {step === 3 && mode === "multi" && "Et par spørsmål for å filtrere"}
+                {step === reviewStep && "Foreslåtte regelverk"}
               </DialogTitle>
               <span
                 className="text-xs text-muted-foreground whitespace-nowrap"
@@ -119,7 +120,8 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
             <DialogDescription id="country-scope-desc">
               {step === 1 && "Som standard viser vi regelverk for ett land. Velg flere hvis dere ekspanderer eller opererer på tvers."}
               {step === 2 && "Lara foreslår regelverk basert på valgene."}
-              {step === 3 && "Vi bruker svarene til å foreslå riktige regelverk."}
+              {step === 3 && mode === "multi" && "Vi bruker svarene til å foreslå riktige regelverk."}
+              {step === reviewStep && "Lara har forhåndsvalgt forslagene. Du kan legge til eller fjerne regelverk selv."}
             </DialogDescription>
           </DialogHeader>
 
