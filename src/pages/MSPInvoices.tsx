@@ -85,6 +85,7 @@ export default function MSPInvoices() {
                     <th className="text-left font-medium px-4 py-2.5">Regelverk</th>
                     <th className="text-right font-medium px-4 py-2.5">Brukere</th>
                     <th className="text-right font-medium px-4 py-2.5">Kr/mnd</th>
+                    <th className="text-left font-medium px-4 py-2.5">Avtale</th>
                   </tr>
                 </thead>
                 <tbody>
