@@ -12,6 +12,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { CountryScopeBar } from "./CountryScopeBar";
+import type { CountryScope } from "./countryScopeData";
 
 interface EditActiveFrameworksDialogProps {
   open: boolean;
@@ -19,6 +21,8 @@ interface EditActiveFrameworksDialogProps {
   activeFrameworkIds: Set<string>;
   onToggle: (frameworkId: string, currentlyActive: boolean) => void;
   updatingId: string | null;
+  countryScope?: CountryScope;
+  onEditCountries?: () => void;
 }
 
 export const EditActiveFrameworksDialog = ({
