@@ -1,38 +1,40 @@
-## Mål
-Partner skal slippe å logge inn for å lese meldinger. På en egen Innstillinger-side under partnerdelen ser de hvor mange brukere som har tilgang, og kan slå på videresending av alle Mynder-meldinger til en valgfri e-postadresse.
+## Problem
 
-## Ny side: `MSPPartnerSettings`
-Rute: `/msp-settings` (tilgjengelig fra Sidebar → "Innstillinger" og fra et tannhjul-ikon i MSPPartnerDashboard-headeren).
+På `/msp-dashboard` har brukeren en visningsvelger «Kort / Tabell». På mobil viser begge valgene akkurat det samme — kort. Årsaken er at tabellen er gjemt bak `hidden lg:block`, og fallback under `lg` rendrer `MSPCustomerCard` i begge moduser.
 
-Layout: standard MSP-side med Sidebar + `pt-16`, maks-bredde `max-w-4xl`, tre seksjoner som Card:
+## Løsning
 
-### 1. Team-tilgang
-- Header: "Brukere med tilgang til partnerdelen"
-- Stor tallvisning (f.eks. `3 brukere`) + kort beskrivelse
-- Liste med avatar, navn, e-post og rolle (Partner-admin / Partner-rådgiver). Henter fra `user_roles` join `profiles` (filtrerer på `msp_admin` + `msp_member`, faller tilbake til demo-data om tom).
-- Knapp "Inviter bruker" (åpner placeholder-toast i denne iterasjonen — invitasjonsflyt er ikke i scope).
+Lag en kompakt, mobiltilpasset tabellvisning som vises når brukeren har valgt «Tabell» på små skjermer, slik at valget faktisk gir en annen visning.
 
-### 2. E-postvideresending av meldinger
-- Toggle: "Videresend alle innkommende meldinger til e-post"
-- Input: "Mottaks-e-post" (valideres som e-post)
-- Valgfritt: "Kopi (CC)" og "Daglig sammendrag i stedet for hver melding"
-- Hjelpetekst: "Du får alt — kundesvar, aksepterte tilbud, påminnelser — i innboksen din. Du trenger ikke logge inn i Mynder for å holde deg oppdatert."
-- Lagre-knapp → persisteres i `localStorage` under nøkkelen som allerede brukes i `MSPMessages.tsx` (`msp-messages-settings-v1`) så innstillingene speiles begge steder.
+### Endringer i `src/pages/MSPDashboard.tsx`
 
-### 3. (uendret) Lenke til Fakturering
-Liten kort-lenke "Fakturering og adresse →" som peker til eksisterende `/msp-billing`-side, så Innstillinger blir det naturlige inngangspunktet.
+1. Fjern `lg:hidden`-fallbacken som tvinger kortvisning under `lg` når `view === "table"`.
+2. Behold dagens fulle tabell (`hidden lg:block`) for desktop.
+3. Legg til ny `lg:hidden`-blokk med en **mobil-tabell** som rad-liste:
+   - Hver rad er en klikkbar `<button>` (navigerer til kunden, samme som desktop-tabellraden).
+   - Kompakt layout per rad:
+     - Linje 1: Kundenavn (font-medium, truncate) + chevron til høyre.
+     - Linje 2: Liten metadata-stripe — bransje · land · modenhets-badge (gjenbruk samme farge-logikk som tabellen: success/warning/destructive).
+     - Linje 3 (valgfri, kompakt): siste aktivitet/varsler-teller hvis tilgjengelig i samme felter som tabellen bruker.
+   - Tett radhøyde, `divide-y border-border`, `rounded-lg border bg-card` rundt hele listen.
+   - Sorteringen styres fortsatt av eksisterende `toggleSort` — på mobil legges en liten sorteringsknapp-rad over listen (Kunde / Modenhet / Sist aktiv) som speiler de viktigste kolonnene.
+4. Sortering og filtrering deler samme `filtered`-array, slik at mobil-tabellen og desktop-tabellen alltid viser samme data.
 
-## Endringer i eksisterende filer
-- **`src/App.tsx`**: ny route `/msp-settings → MSPPartnerSettings`.
-- **`src/components/Sidebar.tsx`** (MSP-seksjonen): legg til "Innstillinger" som nav-element nederst.
-- **`src/pages/MSPPartnerDashboard.tsx`**: tannhjul-knapp i header som lenker til `/msp-settings`.
-- **`src/pages/MSPMessages.tsx`**: behold eksisterende settings-dialog, men legg til en liten "Administrer i Innstillinger →"-lenke øverst i dialogen så det er én tydelig hovedplassering. Logikken og localStorage-nøkkelen deles.
+### Det vi ikke endrer
 
-## Datakilder
-- Brukere: `supabase.from("user_roles").select("user_id, role, profiles(full_name, email)").in("role", ["msp_admin","msp_member"])`. Hvis tomt → vis 3 demo-brukere (samme tone som annen demo-data) slik at siden ikke ser tom ut.
-- Forwarding-innstillinger: kun `localStorage` foreløpig (samme som dagens dialog). Ingen ny tabell i denne iterasjonen — kan flyttes til DB senere uten å endre UI.
+- Kortvisning (`view === "cards"`) er uendret på alle skjermstørrelser.
+- Ingen endringer i datakilder, sortering, filter eller `MSPCustomerCard`.
+- Ingen endringer i andre sider.
 
-## Ute av scope
-- Faktisk e-postutsending fra backend (kun UI + lagrede preferanser).
-- Invitasjonsflyt for nye partner-brukere.
-- Rolleendring i UI.
+### Tekniske detaljer
+
+- Bruk semantiske tokens (`text-foreground`, `text-muted-foreground`, `bg-card`, `border-border`, `bg-success/15 text-success` osv.) — ingen rå farger.
+- Risiko/modenhetsfarger følger prosjektets standard: ≥75 success, 50–74 warning, <50 destructive.
+- Rad-knappen får `focus-visible:ring-2 ring-primary/40` for tilgjengelighet.
+- Ingen ny avhengighet; ikke ny komponent — alt inline i `MSPDashboard.tsx` under det eksisterende table-grenet.
+
+### QA
+
+- 390 px viewport: «Kort» viser kortrutenett, «Tabell» viser tett radliste — synlig forskjell.
+- ≥ `lg`: «Tabell» viser dagens fulle tabell uendret.
+- Sortering/filter virker likt i begge breddene.
