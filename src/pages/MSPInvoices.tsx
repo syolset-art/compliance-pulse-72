@@ -2,11 +2,19 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Download, CheckCircle2, Minus } from "lucide-react";
+import { Settings, Download, CheckCircle2, Minus, FileText, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 type CoreTier = "Basic" | "Premium" | "Enterprise";
+
+interface PartnerAgreement {
+  id: string;
+  name: string; // file name
+  signedAt: string;
+  signedBy: string;
+}
 
 interface PartnerCustomer {
   id: string;
@@ -17,17 +25,18 @@ interface PartnerCustomer {
   frameworks: string[];
   users: number;
   monthlyKr: number;
+  agreement: PartnerAgreement | null;
 }
 
 // Demo data — customers created within the last month (invoice basis for partner)
 const customers: PartnerCustomer[] = [
-  { id: "1", name: "Nordic Energy AS", createdAt: "2026-04-28", coreTier: "Enterprise", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "NIS2"], users: 42, monthlyKr: 9800 },
-  { id: "2", name: "Fjord Helse", createdAt: "2026-05-02", coreTier: "Premium", vendorModule: true, frameworks: ["GDPR", "ISO 27001"], users: 18, monthlyKr: 4900 },
-  { id: "3", name: "Bergen Logistikk", createdAt: "2026-05-04", coreTier: "Basic", vendorModule: true, frameworks: ["GDPR"], users: 9, monthlyKr: 1990 },
-  { id: "4", name: "Oslo Advokatfirma", createdAt: "2026-05-08", coreTier: "Premium", vendorModule: false, frameworks: ["GDPR", "Åpenhetsloven"], users: 14, monthlyKr: 3900 },
-  { id: "5", name: "Tromsø Tech", createdAt: "2026-05-11", coreTier: "Basic", vendorModule: false, frameworks: ["GDPR"], users: 4, monthlyKr: 990 },
-  { id: "6", name: "Stavanger Industri", createdAt: "2026-05-14", coreTier: "Premium", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "NIS2"], users: 11, monthlyKr: 4900 },
-  { id: "7", name: "Nordfjord Bank", createdAt: "2026-05-17", coreTier: "Enterprise", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "DORA"], users: 22, monthlyKr: 9800 },
+  { id: "1", name: "Nordic Energy AS", createdAt: "2026-04-28", coreTier: "Enterprise", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "NIS2"], users: 42, monthlyKr: 9800, agreement: { id: "a1", name: "Avtale_NordicEnergy_v2.pdf", signedAt: "2026-04-28", signedBy: "Kari Nordmann" } },
+  { id: "2", name: "Fjord Helse", createdAt: "2026-05-02", coreTier: "Premium", vendorModule: true, frameworks: ["GDPR", "ISO 27001"], users: 18, monthlyKr: 4900, agreement: { id: "a2", name: "Avtale_FjordHelse.pdf", signedAt: "2026-05-02", signedBy: "Ola Hansen" } },
+  { id: "3", name: "Bergen Logistikk", createdAt: "2026-05-04", coreTier: "Basic", vendorModule: true, frameworks: ["GDPR"], users: 9, monthlyKr: 1990, agreement: { id: "a3", name: "Avtale_BergenLogistikk.pdf", signedAt: "2026-05-04", signedBy: "Per Berg" } },
+  { id: "4", name: "Oslo Advokatfirma", createdAt: "2026-05-08", coreTier: "Premium", vendorModule: false, frameworks: ["GDPR", "Åpenhetsloven"], users: 14, monthlyKr: 3900, agreement: { id: "a4", name: "Avtale_OsloAdvokat.pdf", signedAt: "2026-05-08", signedBy: "Anne Lie" } },
+  { id: "5", name: "Tromsø Tech", createdAt: "2026-05-11", coreTier: "Basic", vendorModule: false, frameworks: ["GDPR"], users: 4, monthlyKr: 990, agreement: null },
+  { id: "6", name: "Stavanger Industri", createdAt: "2026-05-14", coreTier: "Premium", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "NIS2"], users: 11, monthlyKr: 4900, agreement: { id: "a6", name: "Avtale_StavangerIndustri.pdf", signedAt: "2026-05-14", signedBy: "Tor Sand" } },
+  { id: "7", name: "Nordfjord Bank", createdAt: "2026-05-17", coreTier: "Enterprise", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "DORA"], users: 22, monthlyKr: 9800, agreement: { id: "a7", name: "Avtale_NordfjordBank_v3.pdf", signedAt: "2026-05-17", signedBy: "Lise Fjord" } },
 ];
 
 const tierMeta: Record<CoreTier, string> = {
@@ -76,6 +85,7 @@ export default function MSPInvoices() {
                     <th className="text-left font-medium px-4 py-2.5">Regelverk</th>
                     <th className="text-right font-medium px-4 py-2.5">Brukere</th>
                     <th className="text-right font-medium px-4 py-2.5">Kr/mnd</th>
+                    <th className="text-left font-medium px-4 py-2.5">Avtale</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -114,6 +124,23 @@ export default function MSPInvoices() {
                       </td>
                       <td className="px-4 py-3 text-right font-medium text-foreground">{c.users}</td>
                       <td className="px-4 py-3 text-right text-foreground">{c.monthlyKr.toLocaleString("nb-NO")}</td>
+                      <td className="px-4 py-3">
+                        {c.agreement ? (
+                          <button
+                            type="button"
+                            onClick={() => toast.success(`Åpner ${c.agreement!.name}`)}
+                            className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                            title={`Signert ${new Date(c.agreement.signedAt).toLocaleDateString("nb-NO")} av ${c.agreement.signedBy}`}
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                            <span className="truncate max-w-[180px]">{c.agreement.name}</span>
+                          </button>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-xs text-destructive">
+                            <AlertCircle className="h-3.5 w-3.5" /> Mangler
+                          </span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -125,6 +152,7 @@ export default function MSPInvoices() {
                     <td className="px-4 py-2.5 text-right font-semibold text-foreground">
                       {total.toLocaleString("nb-NO")} kr
                     </td>
+                    <td className="px-4 py-2.5" />
                   </tr>
                 </tfoot>
               </table>
