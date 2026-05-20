@@ -142,12 +142,22 @@ export const EditActiveFrameworksDialog = ({
                             {isMandatory && (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <Badge
-                                    className="text-[13px] px-2 py-0.5 gap-1 bg-status-followup text-white hover:bg-status-followup/90 uppercase tracking-wider rounded-pill border-transparent font-semibold"
-                                  >
-                                    <Lock className="h-2.5 w-2.5" />
-                                    Påkrevd ved lov
-                                  </Badge>
+                                  {countryScope?.mode === "multi" ? (
+                                    <span
+                                      className="inline-flex items-center gap-1 rounded-md border border-status-followup/30 bg-status-followup/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-status-followup"
+                                      aria-label="Påkrevd ved lov"
+                                    >
+                                      <Lock className="h-2.5 w-2.5" />
+                                      Påkrevd
+                                    </span>
+                                  ) : (
+                                    <Badge
+                                      className="text-[13px] px-2 py-0.5 gap-1 bg-status-followup text-white hover:bg-status-followup/90 uppercase tracking-wider rounded-pill border-transparent font-semibold"
+                                    >
+                                      <Lock className="h-2.5 w-2.5" />
+                                      Påkrevd ved lov
+                                    </Badge>
+                                  )}
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p className="text-xs">
