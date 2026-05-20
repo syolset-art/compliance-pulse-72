@@ -134,11 +134,10 @@ export const EditActiveFrameworksDialog = ({
           </p>
         )}
 
-        {/* Filters — subtle */}
+        {/* Filters — status inline, rest behind icon */}
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
-          {/* Status */}
           <div className="flex items-center gap-2">
-            {(["all", "active", "inactive"] as const).map((s) => (
+            {(["active", "inactive", "all"] as const).map((s) => (
               <button
                 key={s}
                 type="button"
@@ -154,60 +153,91 @@ export const EditActiveFrameworksDialog = ({
 
           <span aria-hidden className="h-3 w-px bg-border" />
 
-          {/* Categories */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            {categories.map((cat) => {
-              const active = categoryFilter === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setCategoryFilter(active ? null : cat.id)}
-                  className={`transition-colors hover:text-foreground ${
-                    active ? "text-foreground font-medium" : ""
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              );
-            })}
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                aria-label="Flere filtre"
+                className={`relative inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 transition-colors hover:text-foreground hover:bg-muted ${
+                  categoryFilter || countryFilter ? "text-foreground" : ""
+                }`}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                Filtre
+                {(categoryFilter || countryFilter) && (
+                  <span className="ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                    {(categoryFilter ? 1 : 0) + (countryFilter ? 1 : 0)}
+                  </span>
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-72 p-3">
+              <div className="space-y-3">
+                <div>
+                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Kategori</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {categories.map((cat) => {
+                      const active = categoryFilter === cat.id;
+                      const Icon = cat.icon;
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setCategoryFilter(active ? null : cat.id)}
+                          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] transition-colors ${
+                            active
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border bg-background hover:bg-muted"
+                          }`}
+                        >
+                          <Icon className="h-3 w-3" />
+                          {cat.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-          {availableCountries.length > 0 && (
-            <span aria-hidden className="h-3 w-px bg-border" />
-          )}
+                {availableCountries.length > 0 && (
+                  <div>
+                    <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Land</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {availableCountries.map((c) => {
+                        const active = countryFilter === c.code;
+                        return (
+                          <button
+                            key={c.code}
+                            type="button"
+                            onClick={() => setCountryFilter(active ? null : c.code)}
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] transition-colors ${
+                              active
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-border bg-background hover:bg-muted"
+                            }`}
+                          >
+                            <span aria-hidden>{c.flag}</span>
+                            {c.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
-          {/* Countries */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            {availableCountries.map((c) => {
-              const active = countryFilter === c.code;
-              return (
-                <button
-                  key={c.code}
-                  type="button"
-                  onClick={() => setCountryFilter(active ? null : c.code)}
-                  className={`inline-flex items-center gap-1 transition-colors hover:text-foreground ${
-                    active ? "text-foreground font-medium" : ""
-                  }`}
-                >
-                  <span aria-hidden className="text-[11px]">{c.flag}</span>
-                  {c.name}
-                </button>
-              );
-            })}
-          </div>
-
-          {hasActiveFilter && (
-            <button
-              type="button"
-              onClick={() => { setCategoryFilter(null); setCountryFilter(null); setStatusFilter("all"); }}
-              className="inline-flex items-center gap-1 text-muted-foreground/70 hover:text-foreground"
-            >
-              <X className="h-3 w-3" />
-              Nullstill
-            </button>
-          )}
+                {(categoryFilter || countryFilter) && (
+                  <button
+                    type="button"
+                    onClick={() => { setCategoryFilter(null); setCountryFilter(null); }}
+                    className="inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-3 w-3" /> Nullstill filtre
+                  </button>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
+
 
         {/* Country detail panel — when a country filter is active */}
         {countryFilter && (() => {
