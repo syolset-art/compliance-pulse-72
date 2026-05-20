@@ -74,12 +74,30 @@ const billingMeta: Record<BillingStatus, { label: string; className: string; ico
   missing: { label: "Mangler", className: "bg-destructive/10 text-destructive border-destructive/20", icon: AlertCircle },
 };
 
+const BUDGET_STORAGE_KEY = "mynder.mrr.budget.v1";
+const MONTHS = ["Jun", "Jul", "Aug", "Sep", "Okt", "Nov"] as const;
+const DEFAULT_BUDGETS: Record<string, number> = {
+  Jun: 30000, Jul: 33000, Aug: 36000, Sep: 39000, Okt: 42000, Nov: 45000,
+};
+
 export default function MynderAdminDashboard() {
   const totalCustomers = customers.length;
   const totalUsers = customers.reduce((s, c) => s + c.users, 0);
   const totalMrr = customers.reduce((s, c) => s + c.mrrNok, 0);
   const billingOk = customers.filter((c) => c.billing === "ok").length;
   const billingMissing = customers.filter((c) => c.billing !== "ok").length;
+
+  const [budgets, setBudgets] = useState<Record<string, number>>(DEFAULT_BUDGETS);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(BUDGET_STORAGE_KEY);
+      if (raw) setBudgets({ ...DEFAULT_BUDGETS, ...JSON.parse(raw) });
+    } catch {}
+  }, []);
+  const saveBudgets = (next: Record<string, number>) => {
+    setBudgets(next);
+    try { localStorage.setItem(BUDGET_STORAGE_KEY, JSON.stringify(next)); } catch {}
+  };
 
   const planCounts = (Object.keys(planMeta) as PlanTier[]).map((p) => ({
     plan: p,
@@ -88,14 +106,18 @@ export default function MynderAdminDashboard() {
   }));
 
   // Aggregated demo trends for graphical context
-  const mrrTrend = [
-    { month: "Jun", mrr: 28200 },
-    { month: "Jul", mrr: 31100 },
-    { month: "Aug", mrr: 34900 },
-    { month: "Sep", mrr: 38400 },
-    { month: "Okt", mrr: 41200 },
-    { month: "Nov", mrr: totalMrr },
-  ];
+  const actuals: Record<string, number> = {
+    Jun: 28200, Jul: 31100, Aug: 34900, Sep: 38400, Okt: 41200, Nov: totalMrr,
+  };
+  const mrrTrend = MONTHS.map((m) => ({
+    month: m,
+    mrr: actuals[m],
+    budget: budgets[m] ?? 0,
+  }));
+  const currentBudget = budgets["Nov"] ?? 0;
+  const budgetDelta = totalMrr - currentBudget;
+  const budgetPct = currentBudget > 0 ? Math.round((totalMrr / currentBudget) * 100) : 0;
+  const aboveBudget = budgetDelta >= 0;
 
   const industryCounts = Object.entries(
     customers.reduce<Record<string, number>>((acc, c) => {
