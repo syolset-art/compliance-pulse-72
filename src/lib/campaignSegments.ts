@@ -230,7 +230,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     maturity: 76,
     riskScore: 78,
     missingFrameworks: ["dora"],
-    purchasedServices: ["awareness"],
+    purchasedServices: ["awareness", "mynder-core"],
     trustProfileStatus: "complete",
     daysSinceContact: 45,
   },
