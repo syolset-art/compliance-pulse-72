@@ -870,6 +870,38 @@ function PortfolioSegmentation() {
   );
 }
 
+const TOP_SERVICES = [
+  { label: "GDPR / Personvern", count: 142, color: "bg-primary" },
+  { label: "ISO 27001-forberedelse", count: 118, color: "bg-purple-500" },
+  { label: "Risikovurdering leverandører", count: 96, color: "bg-fuchsia-500" },
+  { label: "DPA / Databehandleravtaler", count: 81, color: "bg-violet-400" },
+  { label: "Sikkerhetsopplæring", count: 64, color: "bg-indigo-400" },
+  { label: "Incident response-plan", count: 47, color: "bg-pink-400" },
+];
+
+function TopServicesWidget() {
+  const max = Math.max(...TOP_SERVICES.map((s) => s.count));
+  return (
+    <Card className="p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold text-foreground">Tjenester kundene trenger mest hjelp med</h3>
+        <span className="text-xs text-muted-foreground">på tvers av portefølje</span>
+      </div>
+      <div className="space-y-2.5">
+        {TOP_SERVICES.map((s) => (
+          <div key={s.label} className="flex items-center gap-3">
+            <div className="w-56 text-sm text-foreground truncate">{s.label}</div>
+            <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
+              <div className={"h-full rounded-full " + s.color} style={{ width: `${(s.count / max) * 100}%` }} />
+            </div>
+            <div className="w-12 text-right text-sm font-semibold tabular-nums">{s.count}</div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function LiveSignals() {
   return (
     <Card className="p-5">
@@ -945,30 +977,24 @@ function CampaignsWidget() {
         </Button>
       </div>
 
-      {/* Stat-rad */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="rounded-lg border p-3">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">
-            <Send className="h-3 w-3" /> Mottatt
-          </div>
-          <p className="text-2xl font-bold tabular-nums">{CAMPAIGN_STATS.totalReached}</p>
-          <p className="text-[11px] text-muted-foreground">{CAMPAIGN_STATS.opened} åpnet</p>
+      {/* Kompakt stat-linje */}
+      <div className="flex items-center gap-5 mb-5 text-sm">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-lg font-bold tabular-nums">{CAMPAIGN_STATS.totalReached}</span>
+          <span className="text-xs text-muted-foreground">mottatt</span>
         </div>
-        <div className="rounded-lg border p-3 bg-success/5 border-success/30">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-success font-semibold mb-1">
-            <ThumbsUp className="h-3 w-3" /> Godkjent
-          </div>
-          <p className="text-2xl font-bold tabular-nums text-success">{CAMPAIGN_STATS.accepted}</p>
-          <p className="text-[11px] text-muted-foreground">{acceptRate}% accept-rate</p>
+        <div className="h-4 w-px bg-border" />
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-lg font-bold tabular-nums text-success">{CAMPAIGN_STATS.accepted}</span>
+          <span className="text-xs text-muted-foreground">godkjent ({acceptRate}%)</span>
         </div>
-        <div className="rounded-lg border p-3">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">
-            <TrendingUp className="h-3 w-3" /> Verdi
-          </div>
-          <p className="text-2xl font-bold tabular-nums">{(CAMPAIGN_STATS.acceptedRevenue / 1000).toFixed(0)}k</p>
-          <p className="text-[11px] text-muted-foreground">aksepterte tilbud</p>
+        <div className="h-4 w-px bg-border" />
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-lg font-bold tabular-nums">{(CAMPAIGN_STATS.acceptedRevenue / 1000).toFixed(0)}k</span>
+          <span className="text-xs text-muted-foreground">verdi</span>
         </div>
       </div>
+
 
       {/* Lara-forslag */}
       <div>
@@ -1030,7 +1056,7 @@ export default function MSPPartnerDashboard() {
             <PortfolioSegmentation />
           </div>
 
-          <LiveSignals />
+          <TopServicesWidget />
 
           <CampaignsWidget />
 
