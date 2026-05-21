@@ -91,6 +91,7 @@ import TrustCenterEditProfile from "./pages/TrustCenterEditProfile";
 import TrustEngine from "./pages/TrustEngine";
 import PublicTrustProfile from "./pages/PublicTrustProfile";
 import MynderAdminDashboard from "./pages/MynderAdminDashboard";
+import BoardDashboard from "./pages/BoardDashboard";
 
 const queryClient = new QueryClient();
 
@@ -166,6 +167,8 @@ const App = () => (
                   <Route path="/mynder-me" element={<MynderMe />} />
                   <Route path="/developer/trust-profile-architecture" element={<TrustProfileArchitecture />} />
                   <Route path="/dashboard-v2" element={<DashboardV2 />} />
+                  <Route path="/board" element={<BoardDashboard />} />
+                  <Route path="/styrerom" element={<BoardDashboard />} />
                   <Route path="/resources/features/:slug" element={<FeatureGuide />} />
                   <Route path="/resources/maturity" element={<MaturityMethodology />} />
                   <Route path="/resources/controls" element={<MynderControls />} />
