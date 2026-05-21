@@ -250,16 +250,16 @@ const BoardDashboard = () => {
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <main className="flex-1 pt-16 px-6 pb-16 max-w-6xl mx-auto w-full">
+      <main className="flex-1 pt-16 px-6 pb-16 max-w-5xl mx-auto w-full">
         {/* Header */}
-        <header className="mb-6 flex items-center justify-between">
+        <header className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative p-2 rounded-xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 border border-cyan-500/20">
-              <Landmark className="h-5 w-5 text-cyan-500" />
+            <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 border border-cyan-500/20">
+              <Landmark className="h-4 w-4 text-cyan-500" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Styrerom</h1>
-              <p className="text-xs text-muted-foreground">Snapshot for styret · {currentPeriod()}</p>
+              <h1 className="text-xl font-semibold tracking-tight">Styrerom</h1>
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wider">{currentPeriod()}</p>
             </div>
           </div>
           <Button
@@ -268,215 +268,150 @@ const BoardDashboard = () => {
             className="border-cyan-500/30 hover:border-cyan-500/60 hover:bg-cyan-500/5"
             onClick={() => toast.success("Styrerapport generert (demo)")}
           >
-            <FileDown className="h-4 w-4 mr-2" /> Styrerapport
+            <FileDown className="h-4 w-4 mr-2" /> Rapport
           </Button>
         </header>
 
-        {/* Hero – snapshot only */}
-        <section className="mb-6">
+        {/* Hero – big numbers, minimal words */}
+        <section className="mb-4">
           <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950 text-white shadow-xl">
             <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" />
             <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-cyan-500/20 blur-3xl" />
-            <CardContent className="relative p-7">
-              <div className="grid md:grid-cols-2 gap-8 items-center">
+            <CardContent className="relative p-6">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/80 mb-3 font-medium">
-                    Aggregert modenhet
-                  </p>
-                  <div className="flex items-baseline gap-3 mb-3">
-                    <span className="text-6xl font-semibold bg-gradient-to-r from-emerald-300 to-cyan-300 bg-clip-text text-transparent tabular-nums">
-                      {overallScore}%
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-300/80 mb-2 font-medium">Modenhet</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-7xl font-bold bg-gradient-to-r from-emerald-300 to-cyan-300 bg-clip-text text-transparent tabular-nums leading-none">
+                      {overallScore}
                     </span>
-                    <TrendChip dir="up" value="+3 siste kvartal" />
+                    <span className="text-2xl text-slate-400 font-light">%</span>
                   </div>
-                  <p className="text-sm text-slate-300">
-                    På tvers av {frameworks.length} aktive regelverk styret hefter for.
-                  </p>
-                  <div className="mt-5 h-1.5 w-full max-w-md rounded-full bg-white/10 overflow-hidden">
+                  <div className="mt-3 h-1 w-full rounded-full bg-white/10 overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 transition-all duration-700"
+                      className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400"
                       style={{ width: `${overallScore}%` }}
                     />
                   </div>
                 </div>
-                <div className="md:border-l md:border-white/10 md:pl-8">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/80 mb-3 font-medium">
-                    Risikobilde
-                  </p>
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className={`h-2.5 w-2.5 rounded-full ${exposure.dot}`} />
-                    <span className="text-3xl font-semibold">{exposure.label}</span>
+                <div className="border-l border-white/10 pl-6">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-300/80 mb-2 font-medium">Risiko</p>
+                  <div className="flex items-center gap-3">
+                    <span className={`h-3 w-3 rounded-full ${exposure.dot}`} />
+                    <span className="text-5xl font-bold leading-none">{exposure.label}</span>
                   </div>
-                  <p className="text-sm text-slate-300">
-                    Basert på åpne hendelser, leverandøreksponering og kontrollmodenhet.
+                  <p className="mt-3 text-[11px] text-slate-400 uppercase tracking-wider">
+                    {incidents.length} åpne · {criticalIncidents.length} kritiske
                   </p>
-                  <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
-                    <Shield className="h-3.5 w-3.5" />
-                    Beredskapsplan sist øvet februar 2026
-                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </section>
 
-        {/* KPI snapshot row */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        {/* KPI snapshot – BIG numbers, tiny labels */}
+        <section className="grid grid-cols-3 gap-3 mb-5">
           <button onClick={() => setDrawer("compliance")} className="text-left group">
-            <Card className="h-full border-border/60 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-1.5 rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20">
-                    <Gavel className="h-3.5 w-3.5 text-emerald-500" />
-                  </div>
-                  <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-emerald-500 transition-all" />
-                </div>
-                <p className="text-xs text-muted-foreground mb-1.5 font-medium">Etterlevelse</p>
-                <p className="text-2xl font-semibold tabular-nums">
-                  {inControl}
-                  <span className="text-base text-muted-foreground font-normal"> / {frameworksWithScore.length}</span>
+            <Card className="h-full border-border/60 hover:border-emerald-500/40 hover:shadow-md transition-all">
+              <CardContent className="p-4">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Etterlevelse</p>
+                <p className="text-3xl font-bold tabular-nums leading-none">
+                  {inControl}<span className="text-lg text-muted-foreground font-normal">/{frameworksWithScore.length}</span>
                 </p>
-                <div className="mt-2"><TrendChip dir="up" value="+1 siste kvartal" /></div>
               </CardContent>
             </Card>
           </button>
 
           <button onClick={() => setDrawer("risk")} className="text-left group">
-            <Card className="h-full border-border/60 hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/5 transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-1.5 rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/20">
-                    <ActivitySquare className="h-3.5 w-3.5 text-cyan-500" />
-                  </div>
-                  <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-cyan-500 transition-all" />
-                </div>
-                <p className="text-xs text-muted-foreground mb-1.5 font-medium">Risikobilde</p>
-                <p className="text-2xl font-semibold">{exposure.label}</p>
-                <div className="mt-2"><TrendChip dir="flat" value="Stabilt" /></div>
+            <Card className="h-full border-border/60 hover:border-cyan-500/40 hover:shadow-md transition-all">
+              <CardContent className="p-4">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Hendelser</p>
+                <p className="text-3xl font-bold tabular-nums leading-none">{incidents.length}</p>
               </CardContent>
             </Card>
           </button>
 
           <button onClick={() => setDrawer("costs")} className="text-left group">
-            <Card className="h-full border-border/60 hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/5 transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-1.5 rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/20">
-                    <Wallet className="h-3.5 w-3.5 text-cyan-500" />
-                  </div>
-                  <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-cyan-500 transition-all" />
-                </div>
-                <p className="text-xs text-muted-foreground mb-1.5 font-medium">Kostnadsbase / mnd</p>
-                <p className="text-2xl font-semibold tabular-nums">{fmtNOK(totalMonthlyCost)}</p>
-                <div className="mt-2"><TrendChip dir="up" value="+4% siste kvartal" /></div>
+            <Card className="h-full border-border/60 hover:border-cyan-500/40 hover:shadow-md transition-all">
+              <CardContent className="p-4">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Kost/mnd</p>
+                <p className="text-3xl font-bold tabular-nums leading-none">
+                  {(totalMonthlyCost / 1000).toFixed(0)}<span className="text-lg text-muted-foreground font-normal">k</span>
+                </p>
               </CardContent>
             </Card>
           </button>
         </section>
 
-        {/* Beslutningskø */}
-        <section className="mb-6">
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <ScrollText className="h-3.5 w-3.5" /> Beslutningskø
+        {/* Beslutningskø – slim rows */}
+        <section className="mb-5">
+          <div className="flex items-baseline justify-between mb-2">
+            <h2 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              Beslutninger · {decisions.length}
             </h2>
-            <span className="text-xs text-muted-foreground">Neste styremøte: {NEXT_MEETING}</span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{NEXT_MEETING}</span>
           </div>
           <Card className="border-border/60">
             <CardContent className="p-0 divide-y divide-border/50">
               {decisions.length === 0 && (
-                <div className="p-8 text-center">
-                  <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-emerald-500/70" />
-                  <p className="text-sm text-muted-foreground">
-                    Ingen saker venter på styret. Neste styremøte: {NEXT_MEETING}.
-                  </p>
+                <div className="p-6 text-center">
+                  <CheckCircle2 className="h-6 w-6 mx-auto mb-1.5 text-emerald-500/70" />
+                  <p className="text-xs text-muted-foreground">Ingen åpne saker</p>
                 </div>
               )}
               {decisions.map((d) => (
-                <div key={d.id} className="p-5">
-                  <div className="flex items-start justify-between gap-4 mb-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
-                          {d.category}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> {d.meeting}
-                        </span>
-                      </div>
-                      <p className="font-medium text-sm leading-snug">{d.title}</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed mb-2">{d.context}</p>
-                  <div className="rounded-md bg-muted/40 border border-border/40 p-3 text-xs mb-3">
-                    <span className="font-medium text-foreground">Innstilling: </span>
-                    <span className="text-muted-foreground">{d.recommendation}</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => openDecision(d, "approve")}>
+                <div key={d.id} className="px-4 py-3 flex items-center gap-3">
+                  <Badge variant="outline" className="text-[9px] uppercase tracking-wider shrink-0">
+                    {d.category}
+                  </Badge>
+                  <p className="font-medium text-sm flex-1 min-w-0 truncate">{d.title}</p>
+                  <div className="flex gap-1 shrink-0">
+                    <Button size="sm" className="h-7 px-2.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => openDecision(d, "approve")}>
                       Godkjenn
                     </Button>
-                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => openDecision(d, "postpone")}>
+                    <Button size="sm" variant="outline" className="h-7 px-2.5 text-xs" onClick={() => openDecision(d, "postpone")}>
                       Utsett
-                    </Button>
-                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => openDecision(d, "delegate")}>
-                      Deleger
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => openDecision(d, "noted")}>
-                      Til orientering
                     </Button>
                   </div>
                 </div>
               ))}
             </CardContent>
           </Card>
-
           {processedToday.length > 0 && (
-            <div className="mt-3 text-xs text-muted-foreground">
-              <p className="font-medium mb-1">Behandlet i dag</p>
-              <ul className="space-y-1">
-                {processedToday.map((p) => (
-                  <li key={p.id} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                    <span className="truncate">{p.title}</span>
-                    <Badge variant="outline" className="text-[10px]">{p.verdict}</Badge>
-                  </li>
-                ))}
-              </ul>
+            <div className="mt-2 text-[11px] text-muted-foreground">
+              {processedToday.map((p) => (
+                <span key={p.id} className="inline-flex items-center gap-1 mr-3">
+                  <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                  <span className="truncate max-w-[200px]">{p.title}</span>
+                  <span className="opacity-70">· {p.verdict}</span>
+                </span>
+              ))}
             </div>
           )}
         </section>
 
-        {/* Regelverk snapshot */}
-        <section className="mb-6">
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Regelverk – snapshot</h2>
-            <span className="text-xs text-muted-foreground">{frameworksWithScore.length} aktive</span>
+        {/* Regelverk snapshot – slim rows */}
+        <section className="mb-5">
+          <div className="flex items-baseline justify-between mb-2">
+            <h2 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Regelverk</h2>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{frameworksWithScore.length} aktive</span>
           </div>
           <Card className="border-border/60">
             <CardContent className="p-0 divide-y divide-border/50">
               {frameworksWithScore.length === 0 && (
-                <div className="p-6 text-sm text-muted-foreground text-center">Ingen aktive regelverk</div>
+                <div className="p-4 text-xs text-muted-foreground text-center">Ingen aktive</div>
               )}
               {frameworksWithScore.map((fw) => {
                 const t = maturityTone(fw.score);
-                const trendDir = fw.trend > 0 ? "up" : fw.trend < 0 ? "down" : "flat";
-                const trendStr = fw.trend > 0 ? `+${fw.trend}` : `${fw.trend}`;
                 return (
-                  <div key={fw.framework_id} className="flex items-center gap-4 px-5 py-3.5">
+                  <div key={fw.framework_id} className="flex items-center gap-3 px-4 py-2.5">
                     <span className={`h-2 w-2 rounded-full ${t.dot}`} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-sm truncate">{fw.framework_name}</p>
-                        <FrameworkCountryTag frameworkId={fw.framework_id} />
-                      </div>
+                    <p className="font-medium text-sm flex-1 min-w-0 truncate">{fw.framework_name}</p>
+                    <div className="w-24 hidden sm:block h-1 rounded-full bg-muted overflow-hidden">
+                      <div className={`h-full ${t.bar}`} style={{ width: `${fw.score}%` }} />
                     </div>
-                    <div className="w-32 hidden sm:block h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className={`h-full ${t.bar} transition-all duration-500`} style={{ width: `${fw.score}%` }} />
-                    </div>
-                    <span className={`text-sm font-semibold w-12 text-right tabular-nums ${t.text}`}>{fw.score}%</span>
-                    <span className="hidden md:inline-flex w-20 justify-end">
-                      <TrendChip dir={trendDir as "up" | "down" | "flat"} value={trendStr} />
+                    <span className={`text-base font-bold w-14 text-right tabular-nums ${t.text}`}>
+                      {fw.score}<span className="text-[10px] font-normal">%</span>
                     </span>
                   </div>
                 );
@@ -484,44 +419,8 @@ const BoardDashboard = () => {
             </CardContent>
           </Card>
         </section>
-
-        {/* Risiko & beredskap snapshot */}
-        <section className="mb-6">
-          <div className="flex items-baseline justify-between mb-3">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Risiko & beredskap</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-3">
-            <Card className="border-border/60">
-              <CardContent className="p-5">
-                <p className="text-xs text-muted-foreground mb-1.5">Åpne hendelser</p>
-                <p className="text-2xl font-semibold tabular-nums">{incidents.length}</p>
-                <p className="text-xs text-muted-foreground mt-1">Til orientering – håndteres operativt.</p>
-              </CardContent>
-            </Card>
-            <Card className="border-border/60">
-              <CardContent className="p-5">
-                <p className="text-xs text-muted-foreground mb-1.5">Siste alvorlige hendelse</p>
-                <p className="text-sm font-medium truncate">{lastIncident?.title ?? "Ingen registrert"}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {lastIncident?.created_at ? new Date(lastIncident.created_at).toLocaleDateString("nb-NO") : "—"}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="border-border/60">
-              <CardContent className="p-5">
-                <p className="text-xs text-muted-foreground mb-1.5">Beredskap</p>
-                <p className="text-sm font-medium">Plan testet feb. 2026</p>
-                <p className="text-xs text-muted-foreground mt-1">Neste øvelse planlagt Q3.</p>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        <p className="text-[11px] text-muted-foreground/80 text-center max-w-2xl mx-auto">
-          <Info className="h-3 w-3 inline mr-1" />
-          Snapshot for styret. Tall hentes fra etterlevelsesplattformen og oppdateres løpende.
-        </p>
       </main>
+
 
       {/* Drill-down drawers (context only, no actions) */}
       <Sheet open={!!drawer} onOpenChange={(o) => !o && setDrawer(null)}>
