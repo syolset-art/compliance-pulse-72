@@ -216,70 +216,42 @@ function PortfolioWidget() {
   );
 }
 
-function SignalsWidget() {
-  const sigBars = [3, 6, 4, 7, 3];
-  const sigMax = Math.max(...sigBars);
-  return (
-    <Card className="p-5 flex items-center gap-4">
-      <div className="flex items-end gap-1 h-14 shrink-0">
-        {sigBars.map((v, i) => (
-          <div
-            key={i}
-            className="w-2.5 rounded-sm bg-primary"
-            style={{ height: `${(v / sigMax) * 100}%` }}
-          />
-        ))}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Salgssignaler</div>
-        <div className="text-4xl font-bold leading-none mt-1 tabular-nums">23</div>
-        <div className="text-xs text-muted-foreground mt-1.5">aktive nå</div>
-      </div>
-    </Card>
-  );
-}
-
-function WonThisMonthWidget() {
-  const spark = CLAIM_TREND.map((d) => d.value);
-  const sparkMax = Math.max(...spark);
-  const sparkW = 120;
-  const sparkH = 40;
-  const points = spark
-    .map((v, i) => {
-      const x = (i / (spark.length - 1)) * sparkW;
-      const y = sparkH - (v / sparkMax) * sparkH;
-      return `${x},${y}`;
-    })
-    .join(" ");
+function AvgTrustScoreWidget() {
+  const score = 78;
+  const delta = 4;
+  const r = 42;
+  const c = 2 * Math.PI * r;
+  const dash = (score / 100) * c;
+  const tone =
+    score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive";
+  const ring =
+    score >= 75 ? "stroke-success" : score >= 50 ? "stroke-warning" : "stroke-destructive";
 
   return (
     <Card className="p-5 flex items-center gap-4">
-      <div className="h-14 w-[120px] shrink-0 text-primary">
-        <svg viewBox={`0 0 ${sparkW} ${sparkH}`} preserveAspectRatio="none" className="h-full w-full overflow-visible">
-          <defs>
-            <linearGradient id="wonFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="currentColor" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="currentColor" stopOpacity={0.02} />
-            </linearGradient>
-          </defs>
-          <polyline
+      <div className="relative h-24 w-24 shrink-0">
+        <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+          <circle cx="50" cy="50" r={r} className="stroke-muted" strokeWidth="8" fill="none" />
+          <circle
+            cx="50" cy="50" r={r}
+            className={ring}
+            strokeWidth="8"
             fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
             strokeLinecap="round"
-            strokeLinejoin="round"
-            points={points}
-          />
-          <polygon
-            fill="url(#wonFill)"
-            points={`0,${sparkH} ${points} ${sparkW},${sparkH}`}
+            strokeDasharray={`${dash} ${c}`}
           />
         </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className={`text-2xl font-bold leading-none ${tone}`}>{score}</div>
+          <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">score</div>
+        </div>
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Vunnet i mnd</div>
-        <div className="text-4xl font-bold leading-none mt-1 tabular-nums">340<span className="text-lg font-medium text-muted-foreground">k</span></div>
-        <div className="text-xs text-muted-foreground mt-1.5">12 oppdrag</div>
+      <div className="min-w-0">
+        <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Trust score</div>
+        <div className="text-sm text-foreground mt-0.5">Snitt portefølje</div>
+        <div className="text-xs text-muted-foreground mt-1">
+          <span className="text-success font-semibold">+{delta}</span> siste 30 dager
+        </div>
       </div>
     </Card>
   );
@@ -1047,11 +1019,10 @@ export default function MSPPartnerDashboard() {
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-5">
           <PartnerHeader />
           <LaraSuggestions onSelect={setActiveSuggestion} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <ClaimRateWidget />
             <PortfolioWidget />
-            <SignalsWidget />
-            <WonThisMonthWidget />
+            <AvgTrustScoreWidget />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
