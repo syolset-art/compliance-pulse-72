@@ -1056,7 +1056,7 @@ export default function MSPPartnerDashboard() {
             <PortfolioSegmentation />
           </div>
 
-          <LiveSignals />
+          <TopServicesWidget />
 
           <CampaignsWidget />
 
