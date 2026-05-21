@@ -1065,8 +1065,9 @@ const NEWS_META: Record<NewsItem["kind"], { Icon: typeof Zap; label: string; cls
 };
 
 function NewsWidget() {
+  const navigate = useNavigate();
   return (
-    <Card className="p-5">
+    <Card onClick={() => navigate("/msp-partner/widget/news")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Newspaper className="h-4 w-4 text-primary" />
