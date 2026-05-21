@@ -896,8 +896,9 @@ function ClaimDevelopmentChart() {
 }
 
 function PortfolioSegmentation() {
+  const navigate = useNavigate();
   return (
-    <Card className="p-5">
+    <Card onClick={() => navigate("/msp-partner/widget/segmentation")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-foreground">Portefølje-segmentering</h3>
         <span className="text-xs text-muted-foreground">Lara · oppdatert i går</span>
