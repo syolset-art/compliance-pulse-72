@@ -947,33 +947,21 @@ const ACTIVE_CAMPAIGNS: ActiveCampaign[] = [
 
 function CampaignsWidget() {
   const navigate = useNavigate();
-  const horizonDays = 30;
   return (
     <Card className="p-5">
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Megaphone className="h-4 w-4 text-primary" />
           <h3 className="text-base font-semibold">Pågående kampanjer</h3>
-          <Badge variant="outline" className="text-[10px]">{ACTIVE_CAMPAIGNS.length} aktive</Badge>
         </div>
         <Button variant="ghost" size="sm" onClick={() => navigate("/msp-messages")} className="gap-1 text-xs h-7">
           Se alle <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>
 
-      {/* Tidslinje-akse */}
-      <div className="relative ml-44 mr-14 mb-2 h-4">
-        {[0, 7, 14, 21, 30].map((d) => (
-          <div key={d} className="absolute -translate-x-1/2 text-[10px] text-muted-foreground" style={{ left: `${(d / horizonDays) * 100}%` }}>
-            {d === 0 ? "i dag" : `+${d}d`}
-          </div>
-        ))}
-      </div>
-
-      <div className="space-y-3">
+      <div className="space-y-3.5">
         {ACTIVE_CAMPAIGNS.map((c) => {
           const acceptPct = Math.round((c.accepted / c.reach) * 100);
-          const widthPct = Math.min(100, (c.daysLeft / horizonDays) * 100);
           const urgent = c.daysLeft <= 5;
           const soon = c.daysLeft <= 14 && !urgent;
           const barColor = urgent ? "bg-destructive" : soon ? "bg-warning" : "bg-primary";
@@ -984,48 +972,19 @@ function CampaignsWidget() {
               key={c.id}
               type="button"
               onClick={() => navigate("/msp-messages")}
-              className="w-full text-left grid grid-cols-[176px_1fr_56px] items-center gap-3 hover:bg-muted/40 rounded-md p-1.5 -mx-1.5 transition-colors"
+              className="w-full text-left hover:bg-muted/40 rounded-md p-1.5 -mx-1.5 transition-colors"
             >
-              {/* Tittel + reach */}
-              <div className="min-w-0">
+              <div className="flex items-baseline justify-between gap-3 mb-1.5">
                 <p className="text-sm font-medium text-foreground truncate">{c.title}</p>
-                <p className="text-[11px] text-muted-foreground">
-                  {c.accepted}/{c.reach} svar · {acceptPct}%
-                </p>
+                <span className={`text-[11px] tabular-nums ${textColor}`}>{c.daysLeft}d igjen</span>
               </div>
-
-              {/* Tidslinje-bar */}
-              <div className="relative h-7">
-                <div className="absolute inset-y-0 left-0 right-0 bg-muted rounded-full" />
-                <div
-                  className={`absolute inset-y-0 left-0 ${barColor} rounded-full transition-all flex items-center px-2`}
-                  style={{ width: `${widthPct}%` }}
-                >
-                  {/* Accept-progresjon innenfor baren */}
-                  <div
-                    className="h-1.5 bg-white/70 rounded-full"
-                    style={{ width: `${Math.min(100, acceptPct)}%`, maxWidth: "60px" }}
-                  />
-                </div>
-                {/* "i dag"-marker */}
-                <div className="absolute -top-0.5 -bottom-0.5 left-0 w-0.5 bg-foreground/60 rounded-full" />
+              <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className={`absolute inset-y-0 left-0 ${barColor} rounded-full`} style={{ width: `${acceptPct}%` }} />
               </div>
-
-              {/* Dager igjen */}
-              <div className={`text-right ${textColor}`}>
-                <div className="text-lg font-bold leading-none tabular-nums">{c.daysLeft}</div>
-                <div className="text-[10px] uppercase tracking-wide">dager</div>
-              </div>
+              <p className="text-[11px] text-muted-foreground mt-1">{c.accepted} av {c.reach} svar · {acceptPct}%</p>
             </button>
           );
         })}
-      </div>
-
-      {/* Mini-legend */}
-      <div className="flex items-center gap-4 mt-4 pt-3 border-t text-[11px] text-muted-foreground">
-        <div className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-destructive" /> &le; 5 dager</div>
-        <div className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-warning" /> &le; 14 dager</div>
-        <div className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-primary" /> &gt; 14 dager</div>
       </div>
     </Card>
   );
