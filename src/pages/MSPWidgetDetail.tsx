@@ -268,13 +268,18 @@ function WidgetBody({ id }: { id: string }) {
         </>
       );
 
-    case "needs-follow-up":
+    case "needs-follow-up": {
+      const toneCls: Record<string, string> = {
+        destructive: "bg-destructive",
+        warning: "bg-warning",
+        primary: "bg-primary",
+      };
       return (
         <Section title="Kunder som krever oppfølging">
           <Card className="divide-y divide-border">
             {FOLLOW_UP_CUSTOMERS.map((c) => (
               <div key={c.name} className="flex items-center gap-3 p-4">
-                <div className={`h-2 w-2 rounded-full bg-${c.tone} shrink-0`} />
+                <div className={`h-2 w-2 rounded-full shrink-0 ${toneCls[c.tone]}`} />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-foreground">{c.name}</div>
                   <div className="text-xs text-muted-foreground">{c.reason}</div>
@@ -286,6 +291,7 @@ function WidgetBody({ id }: { id: string }) {
           </Card>
         </Section>
       );
+    }
 
     case "trust-score":
       return (
