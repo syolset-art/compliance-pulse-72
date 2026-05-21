@@ -945,30 +945,24 @@ function CampaignsWidget() {
         </Button>
       </div>
 
-      {/* Stat-rad */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="rounded-lg border p-3">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">
-            <Send className="h-3 w-3" /> Mottatt
-          </div>
-          <p className="text-2xl font-bold tabular-nums">{CAMPAIGN_STATS.totalReached}</p>
-          <p className="text-[11px] text-muted-foreground">{CAMPAIGN_STATS.opened} åpnet</p>
+      {/* Kompakt stat-linje */}
+      <div className="flex items-center gap-5 mb-5 text-sm">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-lg font-bold tabular-nums">{CAMPAIGN_STATS.totalReached}</span>
+          <span className="text-xs text-muted-foreground">mottatt</span>
         </div>
-        <div className="rounded-lg border p-3 bg-success/5 border-success/30">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-success font-semibold mb-1">
-            <ThumbsUp className="h-3 w-3" /> Godkjent
-          </div>
-          <p className="text-2xl font-bold tabular-nums text-success">{CAMPAIGN_STATS.accepted}</p>
-          <p className="text-[11px] text-muted-foreground">{acceptRate}% accept-rate</p>
+        <div className="h-4 w-px bg-border" />
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-lg font-bold tabular-nums text-success">{CAMPAIGN_STATS.accepted}</span>
+          <span className="text-xs text-muted-foreground">godkjent ({acceptRate}%)</span>
         </div>
-        <div className="rounded-lg border p-3">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1">
-            <TrendingUp className="h-3 w-3" /> Verdi
-          </div>
-          <p className="text-2xl font-bold tabular-nums">{(CAMPAIGN_STATS.acceptedRevenue / 1000).toFixed(0)}k</p>
-          <p className="text-[11px] text-muted-foreground">aksepterte tilbud</p>
+        <div className="h-4 w-px bg-border" />
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-lg font-bold tabular-nums">{(CAMPAIGN_STATS.acceptedRevenue / 1000).toFixed(0)}k</span>
+          <span className="text-xs text-muted-foreground">verdi</span>
         </div>
       </div>
+
 
       {/* Lara-forslag */}
       <div>
