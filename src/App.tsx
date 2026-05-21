@@ -45,6 +45,7 @@ import CustomerRequests from "./pages/CustomerRequests";
 import VendorResponseDemo from "./pages/VendorResponseDemo";
 import MSPDashboard from "./pages/MSPDashboard";
 import MSPPartnerDashboard from "./pages/MSPPartnerDashboard";
+import MSPWidgetDetail from "./pages/MSPWidgetDetail";
 import MSPCustomerDetail from "./pages/MSPCustomerDetail";
 import MSPCustomerPortal from "./pages/MSPCustomerPortal";
 import MSPBillingSettings from "./pages/MSPBillingSettings";
