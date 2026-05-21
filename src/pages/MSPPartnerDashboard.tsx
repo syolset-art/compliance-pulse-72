@@ -164,6 +164,7 @@ function PartnerHeader() {
 
 
 function ClaimRateWidget() {
+  const navigate = useNavigate();
   const claimPct = 12;
   const claimGoal = 40;
   const ringProgress = Math.min(100, (claimPct / claimGoal) * 100);
@@ -172,7 +173,10 @@ function ClaimRateWidget() {
   const dash = (ringProgress / 100) * c;
 
   return (
-    <Card className="relative overflow-hidden border-0 p-0">
+    <Card
+      onClick={() => navigate("/msp-partner/widget/claim-rate")}
+      className="relative overflow-hidden border-0 p-0 cursor-pointer group"
+    >
       <div className="absolute inset-0 bg-gradient-to-br from-primary via-purple-600 to-fuchsia-600" />
       <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
       <div className="relative flex items-center gap-4 p-5 text-white">
@@ -196,6 +200,7 @@ function ClaimRateWidget() {
           <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder</div>
           <div className="text-xs text-white/70 mt-1">Mål {claimGoal}% · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
         </div>
+        <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
       </div>
     </Card>
   );
@@ -213,7 +218,7 @@ function NeedsFollowUpWidget() {
 
   return (
     <Card
-      onClick={() => navigate("/msp-licenses?filter=needs_attention")}
+      onClick={() => navigate("/msp-partner/widget/needs-follow-up")}
       className="p-5 flex flex-col gap-3 cursor-pointer hover:border-warning/40 transition-colors group"
     >
       <div className="flex items-center gap-3">
@@ -245,6 +250,7 @@ function NeedsFollowUpWidget() {
 }
 
 function AvgTrustScoreWidget() {
+  const navigate = useNavigate();
   const score = 78;
   const delta = 4;
   const r = 42;
@@ -256,7 +262,10 @@ function AvgTrustScoreWidget() {
     score >= 75 ? "stroke-success" : score >= 50 ? "stroke-warning" : "stroke-destructive";
 
   return (
-    <Card className="p-5 flex items-center gap-4">
+    <Card
+      onClick={() => navigate("/msp-partner/widget/trust-score")}
+      className="p-5 flex items-center gap-4 cursor-pointer hover:border-primary/40 transition-colors group relative"
+    >
       <div className="relative h-24 w-24 shrink-0">
         <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
           <circle cx="50" cy="50" r={r} className="stroke-muted" strokeWidth="8" fill="none" />
@@ -796,12 +805,12 @@ function LaraSuggestionDialog({
 }
 
 function ClaimDevelopmentChart() {
-  // From image 2: smooth curve 6 -> 47, +167%, 8 in april, 12% portfolio, 40% target 2026
+  const navigate = useNavigate();
   const data = CLAIM_TREND;
   const last = data[data.length - 1];
 
   return (
-    <Card className="p-5">
+    <Card onClick={() => navigate("/msp-partner/widget/claim-development")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-start justify-between mb-1">
         <div>
           <h3 className="text-base font-semibold text-foreground">Claim-utvikling</h3>
@@ -887,8 +896,9 @@ function ClaimDevelopmentChart() {
 }
 
 function PortfolioSegmentation() {
+  const navigate = useNavigate();
   return (
-    <Card className="p-5">
+    <Card onClick={() => navigate("/msp-partner/widget/segmentation")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-foreground">Portefølje-segmentering</h3>
         <span className="text-xs text-muted-foreground">Lara · oppdatert i går</span>
@@ -921,9 +931,10 @@ const TOP_SERVICES = [
 ];
 
 function TopServicesWidget() {
+  const navigate = useNavigate();
   const max = Math.max(...TOP_SERVICES.map((s) => s.count));
   return (
-    <Card className="p-5">
+    <Card onClick={() => navigate("/msp-partner/widget/top-services")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-foreground">Tjenester kundene trenger mest hjelp med</h3>
         <span className="text-xs text-muted-foreground">på tvers av portefølje</span>
@@ -995,8 +1006,8 @@ function CampaignsWidget() {
           <Megaphone className="h-4 w-4 text-primary" />
           <h3 className="text-base font-semibold">Pågående kampanjer</h3>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => navigate("/msp-messages")} className="gap-1 text-xs h-7">
-          Se alle <ChevronRight className="h-3.5 w-3.5" />
+        <Button variant="ghost" size="sm" onClick={() => navigate("/msp-partner/widget/campaigns")} className="gap-1 text-xs h-7">
+          Lær mer <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>
 
@@ -1054,8 +1065,9 @@ const NEWS_META: Record<NewsItem["kind"], { Icon: typeof Zap; label: string; cls
 };
 
 function NewsWidget() {
+  const navigate = useNavigate();
   return (
-    <Card className="p-5">
+    <Card onClick={() => navigate("/msp-partner/widget/news")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Newspaper className="h-4 w-4 text-primary" />

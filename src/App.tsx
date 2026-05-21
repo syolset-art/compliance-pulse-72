@@ -45,6 +45,7 @@ import CustomerRequests from "./pages/CustomerRequests";
 import VendorResponseDemo from "./pages/VendorResponseDemo";
 import MSPDashboard from "./pages/MSPDashboard";
 import MSPPartnerDashboard from "./pages/MSPPartnerDashboard";
+import MSPWidgetDetail from "./pages/MSPWidgetDetail";
 import MSPCustomerDetail from "./pages/MSPCustomerDetail";
 import MSPCustomerPortal from "./pages/MSPCustomerPortal";
 import MSPBillingSettings from "./pages/MSPBillingSettings";
@@ -149,6 +150,7 @@ const App = () => (
                   <Route path="/systems/:id" element={<SystemTrustProfile />} />
                   <Route path="/vendor-response-demo" element={<VendorResponseDemo />} />
                   <Route path="/msp-partner" element={<MSPPartnerDashboard />} />
+                  <Route path="/msp-partner/widget/:widgetId" element={<MSPWidgetDetail />} />
                   <Route path="/msp-dashboard" element={<MSPDashboard />} />
                   <Route path="/msp-dashboard/:customerId" element={<MSPCustomerDetail />} />
                   <Route path="/msp-dashboard/:customerId/trust-profile" element={<MSPCustomerTrustProfile />} />
