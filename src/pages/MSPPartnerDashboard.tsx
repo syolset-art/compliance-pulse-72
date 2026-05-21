@@ -201,16 +201,44 @@ function ClaimRateWidget() {
   );
 }
 
-function PortfolioWidget() {
+function NeedsFollowUpWidget() {
+  const navigate = useNavigate();
+  const total = 23;
+  const breakdown = [
+    { label: "Utdaterte Trust Profiler", count: 11, tone: "bg-warning" },
+    { label: "Manglende DPA", count: 7, tone: "bg-primary" },
+    { label: "Kritiske avvik", count: 5, tone: "bg-destructive" },
+  ];
+  const max = Math.max(...breakdown.map((b) => b.count));
+
   return (
-    <Card className="p-5 flex items-center gap-4">
-      <div className="h-14 w-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-        <Users className="h-7 w-7" />
+    <Card
+      onClick={() => navigate("/msp-licenses?filter=needs_attention")}
+      className="p-5 flex flex-col gap-3 cursor-pointer hover:border-warning/40 transition-colors group"
+    >
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-warning/10 text-warning flex items-center justify-center shrink-0">
+          <Target className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Krever oppfølging</div>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-2xl font-bold leading-none tabular-nums">{total}</span>
+            <span className="text-xs text-muted-foreground">kunder</span>
+          </div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Portefølje</div>
-        <div className="text-4xl font-bold leading-none mt-1 tabular-nums">400</div>
-        <div className="text-xs text-muted-foreground mt-1.5">kunder aktiv</div>
+      <div className="space-y-1.5">
+        {breakdown.map((b) => (
+          <div key={b.label} className="flex items-center gap-2 text-[11px]">
+            <span className="text-muted-foreground flex-1 truncate">{b.label}</span>
+            <div className="h-1.5 w-16 rounded-full bg-muted overflow-hidden">
+              <div className={`h-full ${b.tone}`} style={{ width: `${(b.count / max) * 100}%` }} />
+            </div>
+            <span className="tabular-nums font-semibold w-5 text-right">{b.count}</span>
+          </div>
+        ))}
       </div>
     </Card>
   );
@@ -1076,7 +1104,7 @@ export default function MSPPartnerDashboard() {
           <LaraSuggestions onSelect={setActiveSuggestion} />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <ClaimRateWidget />
-            <PortfolioWidget />
+            <NeedsFollowUpWidget />            
             <AvgTrustScoreWidget />
           </div>
 
