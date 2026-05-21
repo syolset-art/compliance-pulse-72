@@ -929,105 +929,103 @@ function LiveSignals() {
 }
 
 // ---------- Campaigns widget ----------
-const CAMPAIGN_STATS = {
-  active: 3,
-  totalReached: 187,
-  opened: 142,
-  accepted: 24,
-  acceptedRevenue: 415000,
+type ActiveCampaign = {
+  id: string;
+  title: string;
+  reach: number;
+  accepted: number;
+  startedDaysAgo: number;
+  daysLeft: number;
+  totalDays: number;
 };
 
-const CAMPAIGN_SUGGESTIONS: { id: string; title: string; reach: number; reason: string; icon: typeof Megaphone }[] = [
-  {
-    id: "nis2",
-    title: "NIS2-vurdering til 12 berørte kunder",
-    reach: 12,
-    reason: "Mangler vurdering · frist nærmer seg",
-    icon: Target,
-  },
-  {
-    id: "transparency",
-    title: "Åpenhetsloven — redegjørelse før 30. juni",
-    reach: 8,
-    reason: "Ikke startet aktsomhetsvurdering",
-    icon: FileText,
-  },
-  {
-    id: "dpia",
-    title: "DPIA for kunder med AI-systemer",
-    reach: 6,
-    reason: "AI-system registrert uten DPIA",
-    icon: Sparkles,
-  },
+const ACTIVE_CAMPAIGNS: ActiveCampaign[] = [
+  { id: "nis2", title: "NIS2-vurdering", reach: 42, accepted: 11, startedDaysAgo: 18, daysLeft: 4, totalDays: 30 },
+  { id: "transparency", title: "Åpenhetsloven — redegjørelse", reach: 28, accepted: 9, startedDaysAgo: 12, daysLeft: 12, totalDays: 30 },
+  { id: "dpia", title: "DPIA for AI-systemer", reach: 22, accepted: 4, startedDaysAgo: 5, daysLeft: 21, totalDays: 30 },
 ];
 
 function CampaignsWidget() {
   const navigate = useNavigate();
-  const acceptRate = Math.round((CAMPAIGN_STATS.accepted / CAMPAIGN_STATS.totalReached) * 100);
+  const horizonDays = 30;
   return (
     <Card className="p-5">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <Megaphone className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold">Kampanjer</h3>
-          <Badge variant="outline" className="text-[10px]">{CAMPAIGN_STATS.active} aktive</Badge>
+          <h3 className="text-base font-semibold">Pågående kampanjer</h3>
+          <Badge variant="outline" className="text-[10px]">{ACTIVE_CAMPAIGNS.length} aktive</Badge>
         </div>
         <Button variant="ghost" size="sm" onClick={() => navigate("/msp-messages")} className="gap-1 text-xs h-7">
           Se alle <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>
 
-      {/* Kompakt stat-linje */}
-      <div className="flex items-center gap-5 mb-5 text-sm">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-lg font-bold tabular-nums">{CAMPAIGN_STATS.totalReached}</span>
-          <span className="text-xs text-muted-foreground">mottatt</span>
-        </div>
-        <div className="h-4 w-px bg-border" />
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-lg font-bold tabular-nums text-success">{CAMPAIGN_STATS.accepted}</span>
-          <span className="text-xs text-muted-foreground">godkjent ({acceptRate}%)</span>
-        </div>
-        <div className="h-4 w-px bg-border" />
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-lg font-bold tabular-nums">{(CAMPAIGN_STATS.acceptedRevenue / 1000).toFixed(0)}k</span>
-          <span className="text-xs text-muted-foreground">verdi</span>
-        </div>
+      {/* Tidslinje-akse */}
+      <div className="relative ml-44 mr-14 mb-2 h-4">
+        {[0, 7, 14, 21, 30].map((d) => (
+          <div key={d} className="absolute -translate-x-1/2 text-[10px] text-muted-foreground" style={{ left: `${(d / horizonDays) * 100}%` }}>
+            {d === 0 ? "i dag" : `+${d}d`}
+          </div>
+        ))}
       </div>
 
+      <div className="space-y-3">
+        {ACTIVE_CAMPAIGNS.map((c) => {
+          const acceptPct = Math.round((c.accepted / c.reach) * 100);
+          const widthPct = Math.min(100, (c.daysLeft / horizonDays) * 100);
+          const urgent = c.daysLeft <= 5;
+          const soon = c.daysLeft <= 14 && !urgent;
+          const barColor = urgent ? "bg-destructive" : soon ? "bg-warning" : "bg-primary";
+          const textColor = urgent ? "text-destructive" : soon ? "text-warning" : "text-muted-foreground";
 
-      {/* Lara-forslag */}
-      <div>
-        <div className="flex items-center gap-1.5 mb-2">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <p className="text-xs font-semibold text-foreground">Lara foreslår nye kampanjer</p>
-        </div>
-        <div className="space-y-1.5">
-          {CAMPAIGN_SUGGESTIONS.map((s) => {
-            const Icon = s.icon;
-            return (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => navigate("/msp-messages")}
-                className="w-full text-left flex items-center gap-3 p-2.5 rounded-lg border border-border bg-background hover:border-primary/40 hover:bg-primary/5 transition-colors"
-              >
-                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <Icon className="h-4 w-4 text-primary" />
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => navigate("/msp-messages")}
+              className="w-full text-left grid grid-cols-[176px_1fr_56px] items-center gap-3 hover:bg-muted/40 rounded-md p-1.5 -mx-1.5 transition-colors"
+            >
+              {/* Tittel + reach */}
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">{c.title}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {c.accepted}/{c.reach} svar · {acceptPct}%
+                </p>
+              </div>
+
+              {/* Tidslinje-bar */}
+              <div className="relative h-7">
+                <div className="absolute inset-y-0 left-0 right-0 bg-muted rounded-full" />
+                <div
+                  className={`absolute inset-y-0 left-0 ${barColor} rounded-full transition-all flex items-center px-2`}
+                  style={{ width: `${widthPct}%` }}
+                >
+                  {/* Accept-progresjon innenfor baren */}
+                  <div
+                    className="h-1.5 bg-white/70 rounded-full"
+                    style={{ width: `${Math.min(100, acceptPct)}%`, maxWidth: "60px" }}
+                  />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-foreground truncate">{s.title}</p>
-                  <p className="text-xs text-muted-foreground truncate">{s.reason}</p>
-                </div>
-                <Badge variant="secondary" className="shrink-0 text-[10px]">
-                  <Users className="h-3 w-3 mr-1" />
-                  {s.reach}
-                </Badge>
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-              </button>
-            );
-          })}
-        </div>
+                {/* "i dag"-marker */}
+                <div className="absolute -top-0.5 -bottom-0.5 left-0 w-0.5 bg-foreground/60 rounded-full" />
+              </div>
+
+              {/* Dager igjen */}
+              <div className={`text-right ${textColor}`}>
+                <div className="text-lg font-bold leading-none tabular-nums">{c.daysLeft}</div>
+                <div className="text-[10px] uppercase tracking-wide">dager</div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Mini-legend */}
+      <div className="flex items-center gap-4 mt-4 pt-3 border-t text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-destructive" /> &le; 5 dager</div>
+        <div className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-warning" /> &le; 14 dager</div>
+        <div className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-primary" /> &gt; 14 dager</div>
       </div>
     </Card>
   );
