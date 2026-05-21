@@ -27,7 +27,8 @@ import {
   Pencil,
   Briefcase,
   Settings as SettingsIcon,
-  Sparkles
+  Sparkles,
+  Landmark
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -65,6 +66,7 @@ const ModuleSkeletonRow = ({ label }: { label: string }) => (
 // Top-level dashboard link (single)
 const dashboardNav = [
   { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Styrerom", href: "/board", icon: Landmark },
 ];
 
 // Global nav (between Trust Center and Mynder Core)
