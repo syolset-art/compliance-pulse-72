@@ -224,33 +224,39 @@ function KpiCards() {
 }
 
 function LaraSuggestions({ onSelect }: { onSelect: (s: LaraSuggestion) => void }) {
+  const [dismissed, setDismissed] = useState(false);
+  if (dismissed) return null;
+
+  const total = LARA_SUGGESTIONS.length;
+  const critical = LARA_SUGGESTIONS.filter((s) => s.dot === "bg-status-followup").length;
+  const top = LARA_SUGGESTIONS[0];
+
   return (
     <Card className="p-4 bg-primary/5 border-primary/20">
-      <div className="flex items-center justify-between mb-3">
-        <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-          <Sparkles className="h-4 w-4" />
-          Lara har 3 forslag
+      <div className="flex items-center gap-4">
+        <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+          <Sparkles className="h-5 w-5 text-primary-foreground" />
         </div>
-        <button className="text-xs text-primary hover:underline inline-flex items-center gap-1">
-          Vis alle <ArrowUpRight className="h-3 w-3" />
-        </button>
-      </div>
-      <div className="space-y-2">
-        {LARA_SUGGESTIONS.map((s) => (
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-semibold text-foreground">Lara har en anbefaling til deg</div>
+          <div className="text-sm text-muted-foreground">
+            Du har {total} oppgaver som krever oppmerksomhet, hvorav {critical} er kritiske. Vil du starte en gjennomgang?
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Button size="sm" onClick={() => onSelect(top)}>Vis plan</Button>
           <button
-            key={s.id}
-            onClick={() => onSelect(s)}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-card hover:bg-accent/50 hover:border-primary/40 border border-border transition-colors text-left group"
+            onClick={() => setDismissed(true)}
+            className="text-sm text-muted-foreground hover:text-foreground px-2"
           >
-            <span className={"h-2 w-2 rounded-full flex-shrink-0 " + s.dot} />
-            <span className="text-sm text-foreground flex-1">{s.text}</span>
-            <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+            Ikke nå
           </button>
-        ))}
+        </div>
       </div>
     </Card>
   );
 }
+
 
 // Mock target customers for the NIS2 campaign preview
 const CAMPAIGN_TARGETS = [
