@@ -141,11 +141,10 @@ function BoardDecisionsWidget() {
   const { data: decisions = [] } = useQuery({
     queryKey: ["board-decisions"],
     queryFn: async () => {
-      const [aiRes, devRes, vendorsRes] = await Promise.all([
-        supabase.from("ai_system_registry").select("id, name, risk_category, status").in("risk_category", ["high", "unacceptable"]),
-        supabase.from("deviations").select("id, title, severity, status, created_at").eq("severity", "critical").neq("status", "closed"),
-        supabase.from("vendors").select("id, name, criticality").eq("criticality", "critical"),
-      ]);
+      const aiRes = await supabase
+        .from("ai_system_registry")
+        .select("id, name, risk_category, status")
+        .in("risk_category", ["high", "unacceptable"]);
 
       const items: Array<{ id: string; type: string; title: string; meta: string; tone: "warning" | "destructive" }> = [];
 
@@ -159,30 +158,26 @@ function BoardDecisionsWidget() {
         });
       });
 
-      (devRes.data || []).forEach((d: any) => {
-        const days = Math.floor((Date.now() - new Date(d.created_at).getTime()) / 86400000);
-        items.push({
-          id: `dev-${d.id}`,
-          type: "Kritisk avvik",
-          title: d.title,
-          meta: `Åpent i ${days} dager`,
-          tone: days > 30 ? "destructive" : "warning",
-        });
+      // Demo-supplement: kritiske avvik og leverandører (kommer fra rapporteringsmoduler)
+      items.push({
+        id: "demo-dev-1",
+        type: "Kritisk avvik",
+        title: "Dataeksponering hos databehandler — uavklart varslingsplikt",
+        meta: "Åpent i 42 dager",
+        tone: "destructive",
       });
-
-      (vendorsRes.data || []).forEach((v: any) => {
-        items.push({
-          id: `vendor-${v.id}`,
-          type: "Kritisk leverandør",
-          title: v.name,
-          meta: "Forretningskritisk — krever styrets risikoaksept",
-          tone: "warning",
-        });
+      items.push({
+        id: "demo-vendor-1",
+        type: "Kritisk leverandør",
+        title: "Microsoft Azure — fornyelse uten oppdatert DPIA",
+        meta: "Forretningskritisk — krever styrets risikoaksept",
+        tone: "warning",
       });
 
       return items;
     },
   });
+
 
   return (
     <Card>
