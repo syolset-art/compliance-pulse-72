@@ -12,7 +12,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone, Settings } from "lucide-react";
+import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone, Settings, Newspaper, Video, GraduationCap, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   ResponsiveContainer,
@@ -1003,6 +1003,65 @@ function CampaignsWidget() {
   );
 }
 
+// ---------- News widget ----------
+type NewsItem = {
+  id: string;
+  kind: "feature" | "course" | "webinar";
+  title: string;
+  meta: string;
+  when: string;
+};
+
+const NEWS_ITEMS: NewsItem[] = [
+  { id: "n1", kind: "feature", title: "Lara kan nå generere DPIA-utkast", meta: "Ny funksjon", when: "I dag" },
+  { id: "n2", kind: "webinar", title: "NIS2 i praksis for MSP-er", meta: "Webinar · 28. mai · 10:00", when: "Om 7 dager" },
+  { id: "n3", kind: "course", title: "Kurs: Trust Profile-salg for MSP", meta: "45 min · sertifisering", when: "Tilgjengelig" },
+  { id: "n4", kind: "feature", title: "Automatisk leverandørkartlegging", meta: "Ny funksjon · Beta", when: "Denne uken" },
+];
+
+const NEWS_META: Record<NewsItem["kind"], { Icon: typeof Zap; label: string; cls: string }> = {
+  feature: { Icon: Zap, label: "Nyhet", cls: "text-primary bg-primary/10" },
+  course: { Icon: GraduationCap, label: "Kurs", cls: "text-success bg-success/10" },
+  webinar: { Icon: Video, label: "Webinar", cls: "text-warning bg-warning/10" },
+};
+
+function NewsWidget() {
+  return (
+    <Card className="p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Newspaper className="h-4 w-4 text-primary" />
+          <h3 className="text-base font-semibold">Nyheter</h3>
+        </div>
+        <span className="text-[11px] text-muted-foreground">fra Mynder</span>
+      </div>
+
+      <ul className="space-y-2.5">
+        {NEWS_ITEMS.map((n) => {
+          const { Icon, cls } = NEWS_META[n.kind];
+          return (
+            <li
+              key={n.id}
+              className="flex gap-3 hover:bg-muted/40 rounded-md p-1.5 -mx-1.5 transition-colors cursor-pointer"
+            >
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${cls}`}>
+                <Icon className="h-4 w-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline justify-between gap-2">
+                  <p className="text-sm font-medium text-foreground truncate">{n.title}</p>
+                  <span className="text-[11px] text-muted-foreground shrink-0">{n.when}</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{n.meta}</p>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </Card>
+  );
+}
+
 
 export default function MSPPartnerDashboard() {
   const navigate = useNavigate();
@@ -1028,7 +1087,10 @@ export default function MSPPartnerDashboard() {
 
           <TopServicesWidget />
 
-          <CampaignsWidget />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <CampaignsWidget />
+            <NewsWidget />
+          </div>
 
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => navigate("/msp-dashboard")}>
