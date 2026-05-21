@@ -805,12 +805,12 @@ function LaraSuggestionDialog({
 }
 
 function ClaimDevelopmentChart() {
-  // From image 2: smooth curve 6 -> 47, +167%, 8 in april, 12% portfolio, 40% target 2026
+  const navigate = useNavigate();
   const data = CLAIM_TREND;
   const last = data[data.length - 1];
 
   return (
-    <Card className="p-5">
+    <Card onClick={() => navigate("/msp-partner/widget/claim-development")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-start justify-between mb-1">
         <div>
           <h3 className="text-base font-semibold text-foreground">Claim-utvikling</h3>
