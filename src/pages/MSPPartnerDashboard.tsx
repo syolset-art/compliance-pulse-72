@@ -1006,8 +1006,8 @@ function CampaignsWidget() {
           <Megaphone className="h-4 w-4 text-primary" />
           <h3 className="text-base font-semibold">Pågående kampanjer</h3>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => navigate("/msp-messages")} className="gap-1 text-xs h-7">
-          Se alle <ChevronRight className="h-3.5 w-3.5" />
+        <Button variant="ghost" size="sm" onClick={() => navigate("/msp-partner/widget/campaigns")} className="gap-1 text-xs h-7">
+          Lær mer <ChevronRight className="h-3.5 w-3.5" />
         </Button>
       </div>
 
