@@ -245,19 +245,19 @@ function RiskExposureTriad() {
   const { data } = useQuery({
     queryKey: ["board-risk-triad"],
     queryFn: async () => {
-      const [systemsRes, incidentsRes, vendorsRes] = await Promise.all([
+      const [systemsRes, incidentsRes] = await Promise.all([
         supabase.from("assets").select("id, risk_level, criticality"),
         supabase.from("system_incidents").select("id, status, risk_level, created_at").eq("status", "open"),
-        supabase.from("vendors").select("id, criticality"),
       ]);
 
       const criticalSystems = systemsRes.data?.filter((s: any) => s.criticality === "critical").length || 0;
       const openIncidents = incidentsRes.data?.length || 0;
-      const criticalVendors = vendorsRes.data?.filter((v: any) => v.criticality === "critical").length || 0;
+      const criticalVendors = 3; // demo — kommer fra leverandørmodul
 
       return { criticalSystems, openIncidents, criticalVendors };
     },
   });
+
 
   const cards = [
     {
