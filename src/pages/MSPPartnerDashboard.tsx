@@ -218,7 +218,7 @@ function NeedsFollowUpWidget() {
 
   return (
     <Card
-      onClick={() => navigate("/msp-licenses?filter=needs_attention")}
+      onClick={() => navigate("/msp-partner/widget/needs-follow-up")}
       className="p-5 flex flex-col gap-3 cursor-pointer hover:border-warning/40 transition-colors group"
     >
       <div className="flex items-center gap-3">
