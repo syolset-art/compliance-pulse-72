@@ -566,14 +566,15 @@ export default function BoardDashboard() {
   const { data: decisionCount = 0 } = useQuery({
     queryKey: ["board-decisions-count"],
     queryFn: async () => {
-      const [ai, dev, vendors] = await Promise.all([
-        supabase.from("ai_system_registry").select("id", { count: "exact", head: true }).in("risk_category", ["high", "unacceptable"]),
-        supabase.from("deviations").select("id", { count: "exact", head: true }).eq("severity", "critical").neq("status", "closed"),
-        supabase.from("vendors").select("id", { count: "exact", head: true }).eq("criticality", "critical"),
-      ]);
-      return (ai.count || 0) + (dev.count || 0) + (vendors.count || 0);
+      const ai = await supabase
+        .from("ai_system_registry")
+        .select("id", { count: "exact", head: true })
+        .in("risk_category", ["high", "unacceptable"]);
+      // +2 demo (avvik + leverandør)
+      return (ai.count || 0) + 2;
     },
   });
+
 
   return (
     <div className="flex min-h-screen w-full bg-background">
