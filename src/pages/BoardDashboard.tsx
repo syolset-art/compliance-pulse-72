@@ -420,16 +420,14 @@ function MaturityTrendChart({ currentScore }: { currentScore: number }) {
 
 // ---------- Role coverage ----------
 function RoleCoverageTable() {
-  const { data: roles = [] } = useQuery({
-    queryKey: ["board-key-personnel"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("key_personnel")
-        .select("id, role, name, email, updated_at")
-        .limit(20);
-      return data || [];
-    },
-  });
+  // Demo: nøkkelpersoner kommer fra organisasjonsprofil-modulen
+  const roles: Array<{ role: string; name: string; updated_at: string }> = [
+    { role: "ceo daglig", name: "Ingrid Bakke", updated_at: "2026-02-12" },
+    { role: "chair styreleder", name: "Per-Olav Wiken", updated_at: "2026-01-08" },
+    { role: "dpo personvernombud", name: "Lise Holm", updated_at: "2025-11-22" },
+    { role: "ciso sikkerhets", name: "Kjetil Aas", updated_at: "2026-03-04" },
+  ];
+
 
   const requiredRoles = [
     { key: "ceo", label: "Daglig leder" },
