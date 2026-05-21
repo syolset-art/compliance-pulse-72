@@ -12,7 +12,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone, Settings } from "lucide-react";
+import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   ResponsiveContainer,
@@ -316,6 +316,7 @@ function LaraSuggestionDialog({
   const [step, setStep] = useState<FlowStep>("review");
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [schedule, setSchedule] = useState<"now" | "tomorrow" | "monday">("now");
+  const [showSteps, setShowSteps] = useState(false);
 
   // Reset when dialog opens for a new suggestion
   const handleOpenChange = (o: boolean) => {
@@ -374,7 +375,7 @@ function LaraSuggestionDialog({
                 LARA-FORSLAG
               </Badge>
               <DialogTitle className="text-xl">{suggestion.title}</DialogTitle>
-              <DialogDescription className="mt-2 text-sm leading-relaxed">
+              <DialogDescription className="mt-2 text-sm leading-relaxed line-clamp-2">
                 {suggestion.summary}
               </DialogDescription>
             </div>
@@ -426,20 +427,32 @@ function LaraSuggestionDialog({
             </div>
 
             <div>
-              <div className="flex items-center gap-2 mb-3">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <h4 className="text-sm font-semibold text-foreground">Slik utfører Lara dette</h4>
-              </div>
-              <ol className="space-y-2">
-                {suggestion.steps.map((s, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm">
-                    <span className="flex-shrink-0 h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold inline-flex items-center justify-center mt-0.5">
-                      {i + 1}
-                    </span>
-                    <span className="text-foreground/90">{s}</span>
-                  </li>
-                ))}
-              </ol>
+              <button
+                type="button"
+                onClick={() => setShowSteps((v) => !v)}
+                className="w-full flex items-center justify-between gap-2 text-left py-2 group"
+              >
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  <h4 className="text-sm font-semibold text-foreground">Slik utfører Lara dette</h4>
+                  <Badge variant="outline" className="text-[10px]">{suggestion.steps.length} steg</Badge>
+                </div>
+                <ChevronDown
+                  className={`h-4 w-4 text-muted-foreground transition-transform ${showSteps ? "rotate-180" : ""}`}
+                />
+              </button>
+              {showSteps && (
+                <ol className="space-y-2 mt-2">
+                  {suggestion.steps.map((s, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm">
+                      <span className="flex-shrink-0 h-5 w-5 rounded-full bg-primary/10 text-primary text-xs font-semibold inline-flex items-center justify-center mt-0.5">
+                        {i + 1}
+                      </span>
+                      <span className="text-foreground/90">{s}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
           </div>
         )}
