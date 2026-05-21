@@ -375,7 +375,7 @@ function LaraSuggestionDialog({
                 LARA-FORSLAG
               </Badge>
               <DialogTitle className="text-xl">{suggestion.title}</DialogTitle>
-              <DialogDescription className="mt-2 text-sm leading-relaxed">
+              <DialogDescription className="mt-2 text-sm leading-relaxed line-clamp-2">
                 {suggestion.summary}
               </DialogDescription>
             </div>
