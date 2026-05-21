@@ -164,6 +164,7 @@ function PartnerHeader() {
 
 
 function ClaimRateWidget() {
+  const navigate = useNavigate();
   const claimPct = 12;
   const claimGoal = 40;
   const ringProgress = Math.min(100, (claimPct / claimGoal) * 100);
@@ -172,7 +173,10 @@ function ClaimRateWidget() {
   const dash = (ringProgress / 100) * c;
 
   return (
-    <Card className="relative overflow-hidden border-0 p-0">
+    <Card
+      onClick={() => navigate("/msp-partner/widget/claim-rate")}
+      className="relative overflow-hidden border-0 p-0 cursor-pointer group"
+    >
       <div className="absolute inset-0 bg-gradient-to-br from-primary via-purple-600 to-fuchsia-600" />
       <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
       <div className="relative flex items-center gap-4 p-5 text-white">
@@ -196,6 +200,7 @@ function ClaimRateWidget() {
           <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder</div>
           <div className="text-xs text-white/70 mt-1">Mål {claimGoal}% · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
         </div>
+        <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
       </div>
     </Card>
   );
