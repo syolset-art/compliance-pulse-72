@@ -163,8 +163,7 @@ function PartnerHeader() {
 }
 
 
-function KpiHeroWidget() {
-  // Claim rate ring (12% av mål 40%)
+function ClaimRateWidget() {
   const claimPct = 12;
   const claimGoal = 40;
   const ringProgress = Math.min(100, (claimPct / claimGoal) * 100);
@@ -172,11 +171,79 @@ function KpiHeroWidget() {
   const c = 2 * Math.PI * r;
   const dash = (ringProgress / 100) * c;
 
-  // Mini sparkline for claims trend (last 6 months)
+  return (
+    <Card className="relative overflow-hidden border-0 p-0">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary via-purple-600 to-fuchsia-600" />
+      <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+      <div className="relative flex items-center gap-4 p-5 text-white">
+        <div className="relative h-24 w-24 shrink-0">
+          <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+            <circle cx="50" cy="50" r={r} stroke="rgba(255,255,255,0.18)" strokeWidth="8" fill="none" />
+            <circle
+              cx="50" cy="50" r={r}
+              stroke="white" strokeWidth="8" fill="none"
+              strokeLinecap="round"
+              strokeDasharray={`${dash} ${c}`}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="text-2xl font-bold leading-none">{claimPct}%</div>
+            <div className="text-[9px] uppercase tracking-wider text-white/80 mt-0.5">claim</div>
+          </div>
+        </div>
+        <div className="min-w-0">
+          <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Claim-rate</div>
+          <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder</div>
+          <div className="text-xs text-white/70 mt-1">Mål {claimGoal}% · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function PortfolioWidget() {
+  return (
+    <Card className="p-5 flex items-center gap-4">
+      <div className="h-14 w-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+        <Users className="h-7 w-7" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Portefølje</div>
+        <div className="text-4xl font-bold leading-none mt-1 tabular-nums">400</div>
+        <div className="text-xs text-muted-foreground mt-1.5">kunder aktiv</div>
+      </div>
+    </Card>
+  );
+}
+
+function SignalsWidget() {
+  const sigBars = [3, 6, 4, 7, 3];
+  const sigMax = Math.max(...sigBars);
+  return (
+    <Card className="p-5 flex items-center gap-4">
+      <div className="flex items-end gap-1 h-14 shrink-0">
+        {sigBars.map((v, i) => (
+          <div
+            key={i}
+            className="w-2.5 rounded-sm bg-primary"
+            style={{ height: `${(v / sigMax) * 100}%` }}
+          />
+        ))}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Salgssignaler</div>
+        <div className="text-4xl font-bold leading-none mt-1 tabular-nums">23</div>
+        <div className="text-xs text-muted-foreground mt-1.5">aktive nå</div>
+      </div>
+    </Card>
+  );
+}
+
+function WonThisMonthWidget() {
   const spark = CLAIM_TREND.map((d) => d.value);
   const sparkMax = Math.max(...spark);
   const sparkW = 120;
-  const sparkH = 36;
+  const sparkH = 40;
   const points = spark
     .map((v, i) => {
       const x = (i / (spark.length - 1)) * sparkW;
@@ -185,105 +252,34 @@ function KpiHeroWidget() {
     })
     .join(" ");
 
-  // Mini bars for active signals (mocked distribution)
-  const sigBars = [3, 6, 4, 7, 3];
-  const sigMax = Math.max(...sigBars);
-
-  // Won-trend sparkbars
-  const wonBars = [180, 220, 260, 240, 310, 340];
-  const wonMax = Math.max(...wonBars);
-
   return (
-    <Card className="relative overflow-hidden border-0 p-0">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary via-purple-600 to-fuchsia-600" />
-      <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-      <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-fuchsia-300/20 blur-3xl" />
-
-      <div className="relative grid grid-cols-1 md:grid-cols-4 gap-5 p-5 text-white">
-        {/* Claim rate — flagship metric, ring */}
-        <div className="flex items-center gap-4 md:border-r md:border-white/15 md:pr-5">
-          <div className="relative h-24 w-24 shrink-0">
-            <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-              <circle cx="50" cy="50" r={r} stroke="rgba(255,255,255,0.18)" strokeWidth="8" fill="none" />
-              <circle
-                cx="50" cy="50" r={r}
-                stroke="white" strokeWidth="8" fill="none"
-                strokeLinecap="round"
-                strokeDasharray={`${dash} ${c}`}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-2xl font-bold leading-none">{claimPct}%</div>
-              <div className="text-[9px] uppercase tracking-wider text-white/80 mt-0.5">claim</div>
-            </div>
-          </div>
-          <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Claim-rate</div>
-            <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder</div>
-            <div className="text-xs text-white/70 mt-1">Mål {claimGoal}% · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
-          </div>
-        </div>
-
-        {/* Portefølje */}
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
-            <Users className="h-6 w-6" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Portefølje</div>
-            <div className="text-3xl font-bold leading-none mt-1">400</div>
-            <div className="text-xs text-white/70 mt-1">kunder aktiv</div>
-          </div>
-        </div>
-
-        {/* Salgssignaler — mini bars */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-end gap-1 h-12 shrink-0">
-            {sigBars.map((v, i) => (
-              <div
-                key={i}
-                className="w-2 rounded-sm bg-white/85"
-                style={{ height: `${(v / sigMax) * 100}%` }}
-              />
-            ))}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Salgssignaler</div>
-            <div className="text-3xl font-bold leading-none mt-1">23</div>
-            <div className="text-xs text-white/70 mt-1">aktive nå</div>
-          </div>
-        </div>
-
-        {/* Vunnet i mnd — sparkline */}
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-[120px] shrink-0">
-            <svg viewBox={`0 0 ${sparkW} ${sparkH}`} preserveAspectRatio="none" className="h-full w-full overflow-visible">
-              <defs>
-                <linearGradient id="wonFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ffffff" stopOpacity={0.55} />
-                  <stop offset="100%" stopColor="#ffffff" stopOpacity={0.05} />
-                </linearGradient>
-              </defs>
-              <polyline
-                fill="none"
-                stroke="white"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                points={points}
-              />
-              <polygon
-                fill="url(#wonFill)"
-                points={`0,${sparkH} ${points} ${sparkW},${sparkH}`}
-              />
-            </svg>
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Vunnet i mnd</div>
-            <div className="text-3xl font-bold leading-none mt-1">340<span className="text-base font-medium text-white/80">k</span></div>
-            <div className="text-xs text-white/70 mt-1">12 oppdrag</div>
-          </div>
-        </div>
+    <Card className="p-5 flex items-center gap-4">
+      <div className="h-14 w-[120px] shrink-0 text-primary">
+        <svg viewBox={`0 0 ${sparkW} ${sparkH}`} preserveAspectRatio="none" className="h-full w-full overflow-visible">
+          <defs>
+            <linearGradient id="wonFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="currentColor" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="currentColor" stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <polyline
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            points={points}
+          />
+          <polygon
+            fill="url(#wonFill)"
+            points={`0,${sparkH} ${points} ${sparkW},${sparkH}`}
+          />
+        </svg>
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Vunnet i mnd</div>
+        <div className="text-4xl font-bold leading-none mt-1 tabular-nums">340<span className="text-lg font-medium text-muted-foreground">k</span></div>
+        <div className="text-xs text-muted-foreground mt-1.5">12 oppdrag</div>
       </div>
     </Card>
   );
