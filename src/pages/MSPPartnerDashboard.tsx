@@ -250,6 +250,7 @@ function NeedsFollowUpWidget() {
 }
 
 function AvgTrustScoreWidget() {
+  const navigate = useNavigate();
   const score = 78;
   const delta = 4;
   const r = 42;
@@ -261,7 +262,10 @@ function AvgTrustScoreWidget() {
     score >= 75 ? "stroke-success" : score >= 50 ? "stroke-warning" : "stroke-destructive";
 
   return (
-    <Card className="p-5 flex items-center gap-4">
+    <Card
+      onClick={() => navigate("/msp-partner/widget/trust-score")}
+      className="p-5 flex items-center gap-4 cursor-pointer hover:border-primary/40 transition-colors group relative"
+    >
       <div className="relative h-24 w-24 shrink-0">
         <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
           <circle cx="50" cy="50" r={r} className="stroke-muted" strokeWidth="8" fill="none" />
