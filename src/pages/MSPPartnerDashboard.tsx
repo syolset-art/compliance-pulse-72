@@ -870,6 +870,38 @@ function PortfolioSegmentation() {
   );
 }
 
+const TOP_SERVICES = [
+  { label: "GDPR / Personvern", count: 142, color: "bg-primary" },
+  { label: "ISO 27001-forberedelse", count: 118, color: "bg-purple-500" },
+  { label: "Risikovurdering leverandører", count: 96, color: "bg-fuchsia-500" },
+  { label: "DPA / Databehandleravtaler", count: 81, color: "bg-violet-400" },
+  { label: "Sikkerhetsopplæring", count: 64, color: "bg-indigo-400" },
+  { label: "Incident response-plan", count: 47, color: "bg-pink-400" },
+];
+
+function TopServicesWidget() {
+  const max = Math.max(...TOP_SERVICES.map((s) => s.count));
+  return (
+    <Card className="p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold text-foreground">Tjenester kundene trenger mest hjelp med</h3>
+        <span className="text-xs text-muted-foreground">på tvers av portefølje</span>
+      </div>
+      <div className="space-y-2.5">
+        {TOP_SERVICES.map((s) => (
+          <div key={s.label} className="flex items-center gap-3">
+            <div className="w-56 text-sm text-foreground truncate">{s.label}</div>
+            <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
+              <div className={"h-full rounded-full " + s.color} style={{ width: `${(s.count / max) * 100}%` }} />
+            </div>
+            <div className="w-12 text-right text-sm font-semibold tabular-nums">{s.count}</div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
 function LiveSignals() {
   return (
     <Card className="p-5">
