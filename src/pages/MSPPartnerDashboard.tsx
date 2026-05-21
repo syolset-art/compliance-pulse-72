@@ -1047,7 +1047,12 @@ export default function MSPPartnerDashboard() {
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-5">
           <PartnerHeader />
           <LaraSuggestions onSelect={setActiveSuggestion} />
-          <KpiHeroWidget />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <ClaimRateWidget />
+            <PortfolioWidget />
+            <SignalsWidget />
+            <WonThisMonthWidget />
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <ClaimDevelopmentChart />
