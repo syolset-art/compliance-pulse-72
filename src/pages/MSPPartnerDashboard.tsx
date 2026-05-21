@@ -931,9 +931,10 @@ const TOP_SERVICES = [
 ];
 
 function TopServicesWidget() {
+  const navigate = useNavigate();
   const max = Math.max(...TOP_SERVICES.map((s) => s.count));
   return (
-    <Card className="p-5">
+    <Card onClick={() => navigate("/msp-partner/widget/top-services")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-foreground">Tjenester kundene trenger mest hjelp med</h3>
         <span className="text-xs text-muted-foreground">på tvers av portefølje</span>
