@@ -316,6 +316,7 @@ function LaraSuggestionDialog({
   const [step, setStep] = useState<FlowStep>("review");
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [schedule, setSchedule] = useState<"now" | "tomorrow" | "monday">("now");
+  const [showSteps, setShowSteps] = useState(false);
 
   // Reset when dialog opens for a new suggestion
   const handleOpenChange = (o: boolean) => {
