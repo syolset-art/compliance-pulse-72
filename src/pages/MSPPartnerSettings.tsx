@@ -173,12 +173,16 @@ export default function MSPPartnerSettings() {
               </Button>
             </div>
 
-            <div className="flex items-baseline gap-2 mb-3">
+            <div className="flex items-baseline gap-2 mb-2">
               <span className="text-3xl font-semibold text-foreground tabular-nums">{team.length}</span>
               <span className="text-[13px] text-muted-foreground">
                 {team.length === 1 ? "bruker" : "brukere"} har tilgang
               </span>
             </div>
+            <p className="text-[11px] text-muted-foreground mb-3">
+              Hver ekstra bruker koster <span className="font-medium text-foreground">{SEAT_PRICE_KR_PER_MONTH} kr/mnd</span> og legges på neste faktura. Du må godkjenne vilkårene før en ny invitasjon sendes.
+            </p>
+
 
             <div className="rounded-xl border border-border divide-y divide-border">
               {team.map((m) => (
