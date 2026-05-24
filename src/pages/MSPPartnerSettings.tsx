@@ -72,16 +72,15 @@ export default function MSPPartnerSettings() {
   const inviteValid = invite.name.trim().length > 0 && isValidEmail(invite.email);
 
   const handleSendInvite = () => {
-    if (!inviteValid || !inviteTerms) return;
+    if (!inviteValid) return;
     setInviteLoading(true);
     setTimeout(() => {
       setInviteLoading(false);
       setInviteOpen(false);
       toast.success(`Invitasjon sendt til ${invite.email}`, {
-        description: `Ny seat aktiveres ved aksept. Du faktureres ${SEAT_PRICE_KR_PER_MONTH} kr/mnd ekstra fra neste faktura.`,
+        description: "Brukeren får tilgang så snart invitasjonen aksepteres.",
       });
       setInvite({ name: "", email: "", role: "Partner-rådgiver" });
-      setInviteTerms(false);
     }, 600);
   };
 
