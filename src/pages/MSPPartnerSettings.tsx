@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-const SEAT_PRICE_KR_PER_MONTH = 490;
+const SEAT_PRICE_KR_PER_MONTH = 695;
 
 const SETTINGS_KEY = "msp-messages-settings-v1";
 
