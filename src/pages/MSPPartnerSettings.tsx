@@ -173,9 +173,6 @@ export default function MSPPartnerSettings() {
                 {team.length === 1 ? "bruker" : "brukere"} har tilgang
               </span>
             </div>
-            <p className="text-[11px] text-muted-foreground mb-3">
-              Hver ekstra bruker koster <span className="font-medium text-foreground">{SEAT_PRICE_KR_PER_MONTH} kr/mnd</span> og legges på neste faktura. Du må godkjenne vilkårene før en ny invitasjon sendes.
-            </p>
 
 
             <div className="rounded-xl border border-border divide-y divide-border">
@@ -318,33 +315,15 @@ export default function MSPPartnerSettings() {
       </main>
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Inviter ny bruker til partnerdelen</DialogTitle>
+            <DialogTitle>Legg til bruker</DialogTitle>
             <DialogDescription>
               Den nye brukeren får tilgang til kundeportefølje, tilbud og meldinger så snart invitasjonen aksepteres.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-1">
-            {/* Pris-boks – tydelig opp-front */}
-            <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-3">
-              <div className="flex items-baseline justify-between gap-3">
-                <div>
-                  <p className="text-[12px] font-medium text-foreground">Du legger til 1 ekstra bruker</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Faktureres månedlig, fra og med neste faktura.
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-lg font-semibold text-foreground tabular-nums">
-                    +{SEAT_PRICE_KR_PER_MONTH} kr
-                  </p>
-                  <p className="text-[10px] text-muted-foreground -mt-0.5">per måned</p>
-                </div>
-              </div>
-            </div>
-
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5 col-span-2">
                 <Label htmlFor="inv-name" className="text-[12px]">Navn</Label>
@@ -379,62 +358,11 @@ export default function MSPPartnerSettings() {
                 </Select>
               </div>
             </div>
-
-            {/* Hva skjer */}
-            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
-              <p className="text-[12px] font-medium text-foreground">Slik fungerer det:</p>
-              <ul className="space-y-1.5">
-                {[
-                  "Brukeren får e-post med invitasjonslenke.",
-                  `Seat aktiveres ved aksept — ${SEAT_PRICE_KR_PER_MONTH} kr/mnd fra neste faktura.`,
-                  "Fjern brukeren når som helst — fakturering stopper ved neste periode.",
-                ].map((line) => (
-                  <li key={line} className="flex items-start gap-2 text-[11px] text-muted-foreground">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Vilkår */}
-            <div className="space-y-2">
-              <Label className="text-[12px] font-medium">Vilkår for ekstra bruker</Label>
-              <ScrollArea className="h-28 rounded-lg border bg-muted/30 p-3">
-                <div className="text-[11px] text-muted-foreground space-y-2 pr-2">
-                  <p>
-                    Ved å invitere en ny bruker bekrefter du at partnerorganisasjonen aksepterer et månedlig
-                    tillegg på {SEAT_PRICE_KR_PER_MONTH} kr per aktiv seat. Beløpet legges automatisk på neste
-                    faktura og videreføres så lenge brukeren er aktiv.
-                  </p>
-                  <p>
-                    Prisene kan reguleres årlig i samsvar med konsumprisindeksen per 31. desember. Endringer
-                    varsles senest én måned før de trer i kraft.
-                  </p>
-                  <p>
-                    Fjerning av brukere stopper fakturering ved utløp av inneværende periode — ingen refusjon
-                    for delperioder.
-                  </p>
-                </div>
-              </ScrollArea>
-              <div className="flex items-start gap-2">
-                <Checkbox
-                  id="invite-terms"
-                  checked={inviteTerms}
-                  onCheckedChange={(c) => setInviteTerms(c === true)}
-                  className="mt-0.5"
-                />
-                <label htmlFor="invite-terms" className="text-[12px] cursor-pointer leading-snug">
-                  Jeg bekrefter at jeg har fullmakt til å legge til en ekstra bruker og godkjenner det
-                  månedlige tillegget på {SEAT_PRICE_KR_PER_MONTH} kr.
-                </label>
-              </div>
-            </div>
           </div>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setInviteOpen(false)}>Avbryt</Button>
-            <Button onClick={handleSendInvite} disabled={!inviteValid || !inviteTerms || inviteLoading}>
+            <Button onClick={handleSendInvite} disabled={!inviteValid || inviteLoading}>
               {inviteLoading ? "Sender..." : "Send invitasjon"}
             </Button>
           </DialogFooter>
