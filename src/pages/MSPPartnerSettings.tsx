@@ -167,11 +167,7 @@ export default function MSPPartnerSettings() {
                 size="sm"
                 variant="outline"
                 className="gap-1.5"
-                onClick={() =>
-                  toast.info("Invitasjonsflyt kommer", {
-                    description: "Vi kobler dette mot rolleadministrasjon i neste iterasjon.",
-                  })
-                }
+                onClick={() => setInviteOpen(true)}
               >
                 <UserPlus className="h-3.5 w-3.5" /> Inviter bruker
               </Button>
