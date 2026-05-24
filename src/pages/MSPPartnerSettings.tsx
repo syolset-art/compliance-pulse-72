@@ -324,7 +324,7 @@ export default function MSPPartnerSettings() {
       </main>
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Inviter ny bruker til partnerdelen</DialogTitle>
             <DialogDescription>
@@ -391,9 +391,9 @@ export default function MSPPartnerSettings() {
               <p className="text-[12px] font-medium text-foreground">Slik fungerer det:</p>
               <ul className="space-y-1.5">
                 {[
-                  "Brukeren får en e-post med invitasjonslenke og må sette passord.",
-                  `En ekstra seat (${SEAT_PRICE_KR_PER_MONTH} kr/mnd) aktiveres når invitasjonen aksepteres.`,
-                  "Du kan fjerne brukeren når som helst — fakturering stopper ved neste periode.",
+                  "Brukeren får e-post med invitasjonslenke.",
+                  `Seat aktiveres ved aksept — ${SEAT_PRICE_KR_PER_MONTH} kr/mnd fra neste faktura.`,
+                  "Fjern brukeren når som helst — fakturering stopper ved neste periode.",
                 ].map((line) => (
                   <li key={line} className="flex items-start gap-2 text-[11px] text-muted-foreground">
                     <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
