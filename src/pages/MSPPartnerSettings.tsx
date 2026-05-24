@@ -7,6 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import {
   ArrowLeft,
   Users,
@@ -17,8 +25,11 @@ import {
   ChevronRight,
   Save,
   Info,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
+
+const SEAT_PRICE_KR_PER_MONTH = 490;
 
 const SETTINGS_KEY = "msp-messages-settings-v1";
 
