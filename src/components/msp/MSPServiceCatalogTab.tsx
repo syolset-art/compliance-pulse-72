@@ -311,7 +311,7 @@ export function MSPServiceCatalogTab() {
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
-            <span className="text-xs text-muted-foreground">Rediger aktiviteter, timer og koblinger per tjeneste</span>
+            <span className="text-xs text-muted-foreground">Rediger aktiviteter og koblinger per tjeneste</span>
           </div>
           <div className="space-y-2">
             {extras.map((e) => {
