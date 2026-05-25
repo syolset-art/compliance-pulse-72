@@ -435,9 +435,6 @@ function TemplateTable({
                 <td className="px-3 py-2 align-top hidden md:table-cell text-[12px] text-muted-foreground">
                   {scopes || "—"}
                 </td>
-                <td className="px-3 py-2 align-top text-right tabular-nums text-muted-foreground">
-                  {formatHoursRange(template.estimatedHours)}
-                </td>
                 <td className="px-3 py-2 align-top text-right tabular-nums font-semibold text-foreground">
                   {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
                 </td>
