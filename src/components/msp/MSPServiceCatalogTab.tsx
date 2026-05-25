@@ -131,6 +131,7 @@ export function MSPServiceCatalogTab() {
       });
     }
     extras.forEach((e) => {
+      if (e.isMynder) return;
       h += e.hours;
       p += e.hours * hourlyRate;
     });
