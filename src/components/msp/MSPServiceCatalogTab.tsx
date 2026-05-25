@@ -260,18 +260,9 @@ export function MSPServiceCatalogTab() {
             <p className="text-xs text-muted-foreground">Brukes som grunnlag i alle estimat under.</p>
           </div>
 
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
-              <Sparkles className="h-4 w-4 text-primary" />
-              Adopter ferdige tjenester fra Mynders bibliotek
-            </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              19 kuraterte tjenester på tvers av <span className="font-medium text-foreground">universell basis</span>,
-              <span className="font-medium text-foreground"> MSP</span> og <span className="font-medium text-foreground">MSSP</span> — pluss
-              land-spesifikke for NO/SE/NL/AU. Lara sorterer etter partnertype og kundeportefølje. Du kan også legge til
-              egne tjenester.
-            </p>
-          </div>
+          <div className="hidden md:block" />
+
+
 
           <div className="text-right md:border-l md:border-border md:pl-4">
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1 justify-end">
