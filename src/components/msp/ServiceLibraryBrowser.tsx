@@ -339,16 +339,11 @@ function TemplateCard({
         </div>
       )}
 
-      {/* Footer: pris, timer, adopter */}
+      {/* Footer: pris, adopter */}
       <div className="mt-auto pt-2 border-t border-border space-y-1.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground inline-flex items-center gap-1">
-            <Clock className="h-3 w-3" /> {formatHoursRange(template.estimatedHours)}
-          </span>
-          <span
-            className="font-semibold text-foreground tabular-nums"
-            title={`Beregnet fra ${formatHoursRange(template.estimatedHours)} × ${hourlyRate.toLocaleString("nb-NO")} kr/t`}
-          >
+          <span className="text-muted-foreground">Estimert pris</span>
+          <span className="font-semibold text-foreground tabular-nums">
             {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
           </span>
         </div>
