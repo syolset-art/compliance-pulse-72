@@ -328,12 +328,12 @@ export function MSPServiceCatalogTab() {
                       )}
                       <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
                       <Badge variant="secondary" className="text-xs gap-1 h-5">
-                        {e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Bibliotek</>) : "Manuell"}
+                        {e.isMynder ? (<><Sparkles className="h-3 w-3" /> Mynder</>) : e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Bibliotek</>) : "Manuell"}
                       </Badge>
                       {e.templateVersion && (
                         <span className="text-xs text-muted-foreground">v{e.templateVersion}</span>
                       )}
-                      {e.activities.length > 0 && (
+                      {!e.isMynder && e.activities.length > 0 && (
                         <span className="text-xs text-muted-foreground">
                           · {e.activities.length} aktivitet{e.activities.length === 1 ? "" : "er"}
                         </span>
@@ -359,13 +359,35 @@ export function MSPServiceCatalogTab() {
                         )}
                       </div>
                     )}
-                    <p className="text-xs text-muted-foreground tabular-nums mt-1">
-                      Estimert pris
-                    </p>
+                    {!e.isMynder && (
+                      <p className="text-xs text-muted-foreground tabular-nums mt-1">
+                        Estimert pris
+                      </p>
+                    )}
                   </div>
-                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
-                    {formatNOK(price)}
-                  </div>
+                  {e.isMynder ? (
+                    <Select
+                      value={e.tier ?? "basic"}
+                      onValueChange={(val) =>
+                        setExtras((prev) =>
+                          prev.map((x) => (x.id === e.id ? { ...x, tier: val as MynderTier } : x)),
+                        )
+                      }
+                    >
+                      <SelectTrigger className="h-9 w-[150px]">
+                        <SelectValue placeholder="Velg pakke" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="basic">Basic</SelectItem>
+                        <SelectItem value="premium">Premium</SelectItem>
+                        <SelectItem value="enterprise">Enterprise</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
+                      {formatNOK(price)}
+                    </div>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
