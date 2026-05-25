@@ -382,7 +382,6 @@ function TemplateTable({
           <col />
           <col className="w-[220px]" />
           <col className="w-[110px]" />
-          <col className="w-[70px]" />
           <col className="w-[110px]" />
           <col className="w-[110px]" />
         </colgroup>
@@ -392,8 +391,7 @@ function TemplateTable({
             <th className="h-8 px-3 text-left font-medium">Tjeneste</th>
             <th className="h-8 px-3 text-left font-medium hidden lg:table-cell">Regelverk</th>
             <th className="h-8 px-3 text-left font-medium hidden md:table-cell">Marked</th>
-            <th className="h-8 px-3 text-right font-medium">Timer</th>
-            <th className="h-8 px-3 text-right font-medium">Pris</th>
+            <th className="h-8 px-3 text-right font-medium">Estimert pris</th>
             <th className="h-8 px-3 text-right font-medium"></th>
           </tr>
         </thead>
