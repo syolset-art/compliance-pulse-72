@@ -109,11 +109,8 @@ export default function MSPPartnerSettings() {
       toast.error("Ugyldig mottaks-e-post");
       return;
     }
-    if (form.ccEmail && !isValidEmail(form.ccEmail)) {
-      toast.error("Ugyldig kopi-e-post");
-      return;
-    }
     if (form.replyToEmail && !isValidEmail(form.replyToEmail)) {
+
       toast.error("Ugyldig svar-til-e-post");
       return;
     }
