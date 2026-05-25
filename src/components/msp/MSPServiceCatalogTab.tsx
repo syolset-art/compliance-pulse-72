@@ -359,7 +359,7 @@ export function MSPServiceCatalogTab() {
                       </div>
                     )}
                     <p className="text-xs text-muted-foreground tabular-nums mt-1">
-                      {e.hours} timer × {hourlyRate.toLocaleString("nb-NO")} kr
+                      Estimert pris
                     </p>
                   </div>
                   <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
