@@ -21,6 +21,8 @@ import type { ServiceTemplate, PartnerContext } from "@/lib/serviceLibrary";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
+type MynderTier = "basic" | "premium" | "enterprise";
+
 interface ExtraService {
   id: string;
   name: string;
@@ -32,6 +34,8 @@ interface ExtraService {
   templateId?: string;
   templateVersion?: string;
   mappings: ServiceMapping[];
+  isMynder?: boolean;
+  tier?: MynderTier;
 }
 
 function formatNOK(n: number): string {
