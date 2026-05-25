@@ -249,19 +249,6 @@ export default function MSPPartnerSettings() {
                   </p>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="cc" className="text-[12px]">
-                    Kopi (CC) <span className="text-muted-foreground font-normal">— valgfritt</span>
-                  </Label>
-                  <Input
-                    id="cc"
-                    type="email"
-                    placeholder="team@firma.no"
-                    value={form.ccEmail}
-                    onChange={(e) => update("ccEmail", e.target.value)}
-                    disabled={!form.forwardEnabled}
-                  />
-                </div>
-                <div className="space-y-1.5">
                   <Label htmlFor="reply" className="text-[12px]">
                     Svar-til <span className="text-muted-foreground font-normal">— valgfritt</span>
                   </Label>
@@ -274,6 +261,7 @@ export default function MSPPartnerSettings() {
                     disabled={!form.forwardEnabled}
                   />
                 </div>
+
               </div>
 
 
