@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   FRAMEWORK_CATALOG,
@@ -20,6 +21,8 @@ import type { ServiceTemplate, PartnerContext } from "@/lib/serviceLibrary";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
+type MynderTier = "basic" | "premium" | "enterprise";
+
 interface ExtraService {
   id: string;
   name: string;
@@ -31,6 +34,8 @@ interface ExtraService {
   templateId?: string;
   templateVersion?: string;
   mappings: ServiceMapping[];
+  isMynder?: boolean;
+  tier?: MynderTier;
 }
 
 function formatNOK(n: number): string {
@@ -55,6 +60,8 @@ export function MSPServiceCatalogTab() {
       ],
       source: "manual",
       mappings: [],
+      isMynder: true,
+      tier: "basic",
     },
     {
       id: "default-mynder-vendor",
@@ -68,6 +75,8 @@ export function MSPServiceCatalogTab() {
       ],
       source: "manual",
       mappings: [],
+      isMynder: true,
+      tier: "basic",
     },
   ]);
   const [showCalculator, setShowCalculator] = useState(false);
@@ -122,6 +131,7 @@ export function MSPServiceCatalogTab() {
       });
     }
     extras.forEach((e) => {
+      if (e.isMynder) return;
       h += e.hours;
       p += e.hours * hourlyRate;
     });
@@ -318,12 +328,12 @@ export function MSPServiceCatalogTab() {
                       )}
                       <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
                       <Badge variant="secondary" className="text-xs gap-1 h-5">
-                        {e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Bibliotek</>) : "Manuell"}
+                        {e.isMynder ? (<><Sparkles className="h-3 w-3" /> Mynder</>) : e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Bibliotek</>) : "Manuell"}
                       </Badge>
                       {e.templateVersion && (
                         <span className="text-xs text-muted-foreground">v{e.templateVersion}</span>
                       )}
-                      {e.activities.length > 0 && (
+                      {!e.isMynder && e.activities.length > 0 && (
                         <span className="text-xs text-muted-foreground">
                           · {e.activities.length} aktivitet{e.activities.length === 1 ? "" : "er"}
                         </span>
@@ -349,13 +359,35 @@ export function MSPServiceCatalogTab() {
                         )}
                       </div>
                     )}
-                    <p className="text-xs text-muted-foreground tabular-nums mt-1">
-                      Estimert pris
-                    </p>
+                    {!e.isMynder && (
+                      <p className="text-xs text-muted-foreground tabular-nums mt-1">
+                        Estimert pris
+                      </p>
+                    )}
                   </div>
-                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
-                    {formatNOK(price)}
-                  </div>
+                  {e.isMynder ? (
+                    <Select
+                      value={e.tier ?? "basic"}
+                      onValueChange={(val) =>
+                        setExtras((prev) =>
+                          prev.map((x) => (x.id === e.id ? { ...x, tier: val as MynderTier } : x)),
+                        )
+                      }
+                    >
+                      <SelectTrigger className="h-9 w-[150px]">
+                        <SelectValue placeholder="Velg pakke" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="basic">Basic</SelectItem>
+                        <SelectItem value="premium">Premium</SelectItem>
+                        <SelectItem value="enterprise">Enterprise</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
+                      {formatNOK(price)}
+                    </div>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
