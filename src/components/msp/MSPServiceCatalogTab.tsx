@@ -279,7 +279,7 @@ export function MSPServiceCatalogTab() {
             </div>
             <div className="text-2xl font-bold text-foreground tabular-nums">{formatNOK(grandPrice)}</div>
             <div className="text-xs text-muted-foreground tabular-nums">
-              {grandHours} timer · {extras.length} adoptert{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
+              {extras.length} adoptert{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
             </div>
           </div>
         </div>
