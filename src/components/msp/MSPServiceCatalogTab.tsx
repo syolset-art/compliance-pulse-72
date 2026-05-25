@@ -41,7 +41,35 @@ export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
   const [hourlyRate, setHourlyRate] = useState<number>(1500);
   const [manualOpen, setManualOpen] = useState(false);
-  const [extras, setExtras] = useState<ExtraService[]>([]);
+  const [extras, setExtras] = useState<ExtraService[]>(() => [
+    {
+      id: "default-mynder-core",
+      name: "Mynder Core",
+      description: "Grunnpakke for compliance, styring og rapportering — fundamentet alle kunder starter med.",
+      hours: 10,
+      activities: [
+        { label: "Oppsett av organisasjon og roller", hours: 2 },
+        { label: "Aktivering av compliance-rammeverk", hours: 3 },
+        { label: "Onboarding og opplæring", hours: 3 },
+        { label: "Løpende rådgivning første måned", hours: 2 },
+      ],
+      source: "manual",
+      mappings: [],
+    },
+    {
+      id: "default-mynder-vendor",
+      name: "Leverandørmodul (Mynder)",
+      description: "Helhetlig styring av tredjeparter: kartlegging, risikovurdering og oppfølging av leverandører.",
+      hours: 8,
+      activities: [
+        { label: "Import og kartlegging av leverandører", hours: 2 },
+        { label: "Risiko- og kritikalitetsvurdering", hours: 3 },
+        { label: "Dokument- og kontraktoppfølging", hours: 3 },
+      ],
+      source: "manual",
+      mappings: [],
+    },
+  ]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -251,7 +279,7 @@ export function MSPServiceCatalogTab() {
             </div>
             <div className="text-2xl font-bold text-foreground tabular-nums">{formatNOK(grandPrice)}</div>
             <div className="text-xs text-muted-foreground tabular-nums">
-              {grandHours} timer · {extras.length} adoptert{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
+              {extras.length} adoptert{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
             </div>
           </div>
         </div>
@@ -283,7 +311,7 @@ export function MSPServiceCatalogTab() {
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
-            <span className="text-xs text-muted-foreground">Rediger aktiviteter, timer og koblinger per tjeneste</span>
+            <span className="text-xs text-muted-foreground">Rediger aktiviteter og koblinger per tjeneste</span>
           </div>
           <div className="space-y-2">
             {extras.map((e) => {
@@ -331,7 +359,7 @@ export function MSPServiceCatalogTab() {
                       </div>
                     )}
                     <p className="text-xs text-muted-foreground tabular-nums mt-1">
-                      {e.hours} timer × {hourlyRate.toLocaleString("nb-NO")} kr
+                      Estimert pris
                     </p>
                   </div>
                   <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">

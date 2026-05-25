@@ -339,16 +339,11 @@ function TemplateCard({
         </div>
       )}
 
-      {/* Footer: pris, timer, adopter */}
+      {/* Footer: pris, adopter */}
       <div className="mt-auto pt-2 border-t border-border space-y-1.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground inline-flex items-center gap-1">
-            <Clock className="h-3 w-3" /> {formatHoursRange(template.estimatedHours)}
-          </span>
-          <span
-            className="font-semibold text-foreground tabular-nums"
-            title={`Beregnet fra ${formatHoursRange(template.estimatedHours)} × ${hourlyRate.toLocaleString("nb-NO")} kr/t`}
-          >
+          <span className="text-muted-foreground">Estimert pris</span>
+          <span className="font-semibold text-foreground tabular-nums">
             {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
           </span>
         </div>
@@ -387,7 +382,6 @@ function TemplateTable({
           <col />
           <col className="w-[220px]" />
           <col className="w-[110px]" />
-          <col className="w-[70px]" />
           <col className="w-[110px]" />
           <col className="w-[110px]" />
         </colgroup>
@@ -397,8 +391,7 @@ function TemplateTable({
             <th className="h-8 px-3 text-left font-medium">Tjeneste</th>
             <th className="h-8 px-3 text-left font-medium hidden lg:table-cell">Regelverk</th>
             <th className="h-8 px-3 text-left font-medium hidden md:table-cell">Marked</th>
-            <th className="h-8 px-3 text-right font-medium">Timer</th>
-            <th className="h-8 px-3 text-right font-medium">Pris</th>
+            <th className="h-8 px-3 text-right font-medium">Estimert pris</th>
             <th className="h-8 px-3 text-right font-medium"></th>
           </tr>
         </thead>
@@ -441,9 +434,6 @@ function TemplateTable({
                 </td>
                 <td className="px-3 py-2 align-top hidden md:table-cell text-[12px] text-muted-foreground">
                   {scopes || "—"}
-                </td>
-                <td className="px-3 py-2 align-top text-right tabular-nums text-muted-foreground">
-                  {formatHoursRange(template.estimatedHours)}
                 </td>
                 <td className="px-3 py-2 align-top text-right tabular-nums font-semibold text-foreground">
                   {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
