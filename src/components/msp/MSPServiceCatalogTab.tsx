@@ -399,7 +399,7 @@ export function MSPServiceCatalogTab() {
               );
             })}
           </div>
-        </Card>
+        </section>
       )}
 
       {/* Bibliotek + kalkulator vises kun i partnervisning */}
