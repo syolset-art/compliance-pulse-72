@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -9,9 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Search, Shield, ShieldCheck, Lock, CheckCircle2, Globe, Building2, ArrowRight, Loader2, User, Sparkles } from "lucide-react";
 import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
 import CreateTrustProfileModal from "@/components/trust-center/CreateTrustProfileModal";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function TrustEngine() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
@@ -88,10 +92,13 @@ export default function TrustEngine() {
               <p className="text-xs text-muted-foreground">Portable Trust</p>
             </div>
           </div>
-          <Badge variant="outline" className="text-sm gap-1.5 border-primary/30 text-primary dark:border-accent/40 dark:text-accent">
-            <Globe className="h-3.5 w-3.5" />
-            Open Database
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-sm gap-1.5 border-primary/30 text-primary dark:border-accent/40 dark:text-accent">
+              <Globe className="h-3.5 w-3.5" />
+              {isNb ? "Åpen database" : "Open Database"}
+            </Badge>
+            <LanguageSwitcher />
+          </div>
         </div>
       </header>
 
@@ -99,14 +106,15 @@ export default function TrustEngine() {
       <section className="py-16 md:py-24 px-6">
         <div className="container max-w-3xl mx-auto text-center space-y-6">
           <Badge className="bg-primary/10 text-primary border-primary/20 dark:bg-accent/15 dark:text-accent dark:border-accent/30 text-sm px-4 py-1.5">
-            The New European Standard
+            {isNb ? "Den nye europeiske standarden" : "The New European Standard"}
           </Badge>
           <h2 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight leading-tight">
             Mynder Trust Engine
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            En åpen database over verifiserte Trust Profiler. Søk blant organisasjoner og se deres
-            etterlevelse, sikkerhetstiltak og transparensdata — alt på ett sted.
+            {isNb
+              ? "En åpen database over verifiserte Trust Profiler. Søk blant organisasjoner og se deres etterlevelse, sikkerhetstiltak og transparensdata — alt på ett sted."
+              : "An open database of verified Trust Profiles. Search organizations and explore their compliance, security measures, and transparency data — all in one place."}
           </p>
 
           {/* Search */}
@@ -116,12 +124,12 @@ export default function TrustEngine() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Søk etter organisasjon..."
+                placeholder={isNb ? "Søk etter organisasjon..." : "Search for an organization..."}
                 className="pl-12 h-14 text-lg rounded-xl border-2 focus-visible:ring-primary"
               />
             </div>
             <Button type="submit" size="lg" className="h-14 px-8 rounded-xl text-base">
-              Søk
+              {isNb ? "Søk" : "Search"}
             </Button>
           </form>
 
@@ -129,15 +137,15 @@ export default function TrustEngine() {
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-8 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-success" />
-              Verifiserte profiler
+              {isNb ? "Verifiserte profiler" : "Verified profiles"}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Lock className="h-4 w-4 text-primary dark:text-accent" />
-              Kryptert og signert av eier
+              {isNb ? "Kryptert og signert av eier" : "Encrypted and signed by the owner"}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <CheckCircle2 className="h-4 w-4 text-primary dark:text-accent" />
-              Frivillig publisert av leverandøren
+              {isNb ? "Frivillig publisert av leverandøren" : "Voluntarily published by the vendor"}
             </span>
           </div>
 
@@ -150,7 +158,7 @@ export default function TrustEngine() {
               className="gap-2 rounded-xl"
             >
               <Sparkles className="h-4 w-4" />
-              Opprett din egen Trust Profile
+              {isNb ? "Opprett din egen Trust Profile" : "Create your own Trust Profile"}
             </Button>
           </div>
         </div>
@@ -161,45 +169,47 @@ export default function TrustEngine() {
         <div className="container max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Forhåndsvisning — slik ser siden ut når den er aktivert
+              {isNb
+                ? "Forhåndsvisning — slik ser siden ut når den er aktivert"
+                : "Preview — how the page looks once activated"}
             </p>
             <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
-              Kommer snart
+              {isNb ? "Kommer snart" : "Coming soon"}
             </Badge>
           </div>
           <Card variant="luxury" className="p-6 border-dashed bg-muted/20 space-y-5 pointer-events-none select-none opacity-90">
             {/* Filter row */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium text-muted-foreground mr-1">Filtre:</span>
-              <Badge className="bg-primary text-primary-foreground rounded-full px-3 py-1">Alle</Badge>
+              <span className="text-xs font-medium text-muted-foreground mr-1">{isNb ? "Filtre:" : "Filters:"}</span>
+              <Badge className="bg-primary text-primary-foreground rounded-full px-3 py-1">{isNb ? "Alle" : "All"}</Badge>
               <Badge variant="outline" className="rounded-full px-3 py-1 gap-1">
-                <Globe className="h-3 w-3" /> Land: Alle
+                <Globe className="h-3 w-3" /> {isNb ? "Land: Alle" : "Country: All"}
               </Badge>
               <Badge variant="outline" className="rounded-full px-3 py-1">SaaS</Badge>
-              <Badge variant="outline" className="rounded-full px-3 py-1">Konsulent</Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1">{isNb ? "Konsulent" : "Consultant"}</Badge>
               <Badge variant="outline" className="rounded-full px-3 py-1">ISO 27001</Badge>
               <Badge variant="outline" className="rounded-full px-3 py-1">GDPR</Badge>
-              <Badge variant="outline" className="rounded-full px-3 py-1 text-muted-foreground">+ Flere</Badge>
+              <Badge variant="outline" className="rounded-full px-3 py-1 text-muted-foreground">{isNb ? "+ Flere" : "+ More"}</Badge>
             </div>
 
             {/* Country picker mockup */}
             <div className="rounded-xl border border-border bg-card p-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                 <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/10 text-primary dark:text-accent font-medium">
-                  <Globe className="h-3.5 w-3.5" /> Alle land
+                  <Globe className="h-3.5 w-3.5" /> {isNb ? "Alle land" : "All countries"}
                 </div>
                 {[
-                  { c: "NO", n: "Norge", x: 3 },
-                  { c: "SE", n: "Sverige", x: 1 },
-                  { c: "DK", n: "Danmark", x: 1 },
-                  { c: "FI", n: "Finland", x: 0 },
-                  { c: "DE", n: "Tyskland", x: 0 },
-                  { c: "NL", n: "Nederland", x: 0 },
-                  { c: "ES", n: "Spania", x: 0 },
+                  { c: "NO", nNb: "Norge", nEn: "Norway", x: 3 },
+                  { c: "SE", nNb: "Sverige", nEn: "Sweden", x: 1 },
+                  { c: "DK", nNb: "Danmark", nEn: "Denmark", x: 1 },
+                  { c: "FI", nNb: "Finland", nEn: "Finland", x: 0 },
+                  { c: "DE", nNb: "Tyskland", nEn: "Germany", x: 0 },
+                  { c: "NL", nNb: "Nederland", nEn: "Netherlands", x: 0 },
+                  { c: "ES", nNb: "Spania", nEn: "Spain", x: 0 },
                 ].map((l) => (
                   <div key={l.c} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/40 text-foreground">
                     <span className="text-[10px] font-semibold text-muted-foreground">{l.c}</span>
-                    <span>{l.n}</span>
+                    <span>{isNb ? l.nNb : l.nEn}</span>
                     <span className="text-muted-foreground">({l.x})</span>
                   </div>
                 ))}
@@ -207,7 +217,9 @@ export default function TrustEngine() {
             </div>
 
             <p className="text-xs text-muted-foreground text-center">
-              Filtrering på land, bransje og rammeverk aktiveres når flere Trust Profiler publiseres.
+              {isNb
+                ? "Filtrering på land, bransje og rammeverk aktiveres når flere Trust Profiler publiseres."
+                : "Filtering by country, industry, and framework will be enabled as more Trust Profiles are published."}
             </p>
           </Card>
         </div>
@@ -225,15 +237,17 @@ export default function TrustEngine() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-[11px] font-semibold uppercase tracking-wider text-primary dark:text-accent">
-                      Min Trust Profile
+                      {isNb ? "Min Trust Profile" : "My Trust Profile"}
                     </p>
                     <h3 className="text-base font-semibold text-foreground truncate">
                       {myAsset.name}
                     </h3>
                     <p className="text-xs text-muted-foreground">
                       {myAssetPublished
-                        ? "Publisert i Trust Engine — alt samlet i ditt Trust Center"
-                        : "Ikke publisert ennå"}
+                        ? (isNb
+                            ? "Publisert i Trust Engine — alt samlet i ditt Trust Center"
+                            : "Published in Trust Engine — everything gathered in your Trust Center")
+                        : (isNb ? "Ikke publisert ennå" : "Not published yet")}
                     </p>
                   </div>
                 </div>
@@ -243,7 +257,7 @@ export default function TrustEngine() {
                       onClick={() => navigate(`/trust-engine/profile/${myAsset.id}`)}
                       className="gap-2"
                     >
-                      Åpne mitt Trust Center
+                      {isNb ? "Åpne mitt Trust Center" : "Open my Trust Center"}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   ) : (
@@ -251,7 +265,7 @@ export default function TrustEngine() {
                       onClick={() => navigate("/trust-center/profile")}
                       className="gap-2"
                     >
-                      Publiser Trust Profile
+                      {isNb ? "Publiser Trust Profile" : "Publish Trust Profile"}
                       <ArrowRight className="h-4 w-4" />
                     </Button>
                   )}
@@ -272,11 +286,15 @@ export default function TrustEngine() {
           ) : results && results.length > 0 ? (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground mb-2">
-                {results.length} organisasjon{results.length !== 1 ? "er" : ""} funnet
+                {isNb
+                  ? `${results.length} organisasjon${results.length !== 1 ? "er" : ""} funnet`
+                  : `${results.length} organization${results.length !== 1 ? "s" : ""} found`}
               </p>
               <p className="text-xs text-muted-foreground/80 mb-6 inline-flex items-center gap-1.5">
                 <ShieldCheck className="h-3.5 w-3.5 text-success" />
-                Alle organisasjoner her har selv valgt å publisere sin Trust Profile. Innholdet er kryptert og verifisert.
+                {isNb
+                  ? "Alle organisasjoner her har selv valgt å publisere sin Trust Profile. Innholdet er kryptert og verifisert."
+                  : "Every organization here has voluntarily chosen to publish its Trust Profile. The content is encrypted and verified."}
               </p>
               {results.map((asset) => (
                 <Card
@@ -295,7 +313,7 @@ export default function TrustEngine() {
                           {asset.name}
                         </h3>
                         <p className="text-sm text-muted-foreground truncate">
-                          {asset.description || asset.category || "Organisasjon"}
+                          {asset.description || asset.category || (isNb ? "Organisasjon" : "Organization")}
                         </p>
                       </div>
                     </div>
@@ -315,7 +333,11 @@ export default function TrustEngine() {
           ) : query ? (
             <div className="text-center py-16">
               <Shield className="h-12 w-12 mx-auto text-muted-foreground/40 mb-4" />
-              <p className="text-lg text-muted-foreground">Ingen organisasjoner funnet for «{query}»</p>
+              <p className="text-lg text-muted-foreground">
+                {isNb
+                  ? `Ingen organisasjoner funnet for «${query}»`
+                  : `No organizations found for "${query}"`}
+              </p>
             </div>
           ) : null}
         </div>
