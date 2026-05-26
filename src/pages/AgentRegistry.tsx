@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Bot, Plus, Download, ShieldCheck, Info } from "lucide-react";
 import { useAgents } from "@/hooks/useAgents";
 import { AgentTable } from "@/components/agents/AgentTable";
