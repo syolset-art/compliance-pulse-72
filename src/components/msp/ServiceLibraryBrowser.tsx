@@ -154,8 +154,8 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
               adoptedIds={adoptedIds}
               onAdopt={onAdopt}
               hourlyRate={hourlyRate}
-              laraIds={new Set(topPicks.map((p) => p.template.id))}
             />
+
 
           </section>
         );
