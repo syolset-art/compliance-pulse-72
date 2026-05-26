@@ -22,6 +22,7 @@ import { MSPCustomerOpportunityCard } from "@/components/msp/MSPCustomerOpportun
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
+import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulationsTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
 import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
 import { QuestionnaireGapList } from "@/components/msp/QuestionnaireGapList";
