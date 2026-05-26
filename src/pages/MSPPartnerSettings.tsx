@@ -147,7 +147,7 @@ export default function MSPPartnerSettings() {
           <Tabs defaultValue="generelt" className="space-y-4">
             <TabsList className="h-10">
               <TabsTrigger value="generelt" className="gap-1.5">
-                <SettingsIcon className="h-3.5 w-3.5" /> Generelt
+                <Settings className="h-3.5 w-3.5" /> Generelt
               </TabsTrigger>
               <TabsTrigger value="tilbudsmerking" className="gap-1.5">
                 <ImageIcon className="h-3.5 w-3.5" /> Tilbudsmerking
