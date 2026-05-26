@@ -274,7 +274,14 @@ export default function MSPCustomerDetail() {
             <TabsContent value="regulations" className="mt-6">
               <MSPCustomerRegulationsTab
                 customerId={customerId!}
-                customerName={customer.name || "Kunden"}
+                customerName={customer.name || customer.customer_name || "Kunden"}
+                customer={{
+                  industry: customer.industry,
+                  employees: customer.employees,
+                  country_code: customer.country_code,
+                  active_frameworks: customer.active_frameworks,
+                  compliance_score: customer.compliance_score,
+                }}
               />
             </TabsContent>
 
