@@ -320,7 +320,7 @@ const SidebarContent = () => {
   }, [isManagementActive]);
 
   // Registre: Systemer (følger Core) + Aktiva (følger Assets)
-  const showRegistries = showCoreNormal || showAssetsNormal;
+  const showRegistries = true;
   const registriesItems = [
     ...(showCoreNormal ? [systemsLink] : []),
     ...(showAssetsNormal ? [assetsLink] : []),
