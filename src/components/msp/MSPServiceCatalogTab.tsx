@@ -248,77 +248,66 @@ export function MSPServiceCatalogTab() {
 
 
   return (
-    <div className="space-y-4">
-      {/* Toppkort: timepris + samlet inntektspotensial */}
-      <Card className="p-5 border-primary/20 bg-gradient-to-br from-primary/5 via-background to-background">
-        <div className="grid items-end gap-4 md:grid-cols-[260px_1fr_auto]">
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Din timepris
+    <div className="space-y-6">
+      {/* Slank topplinje: timepris + samlet potensial + handlinger */}
+      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
+        <div className="flex items-end gap-6">
+          <div className="space-y-1">
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              Timepris
             </label>
-            <div className="flex items-center gap-2">
+            <div className="flex items-baseline gap-1.5">
               <Input
                 type="number"
                 min={0}
                 step={50}
                 value={hourlyRate}
                 onChange={(e) => setHourlyRate(Math.max(0, Number(e.target.value) || 0))}
-                className="h-11 text-lg font-semibold tabular-nums"
+                className="h-9 w-24 text-sm font-semibold tabular-nums"
               />
-              <span className="text-sm text-muted-foreground whitespace-nowrap">kr / time</span>
+              <span className="text-xs text-muted-foreground">kr/t</span>
             </div>
-            <p className="text-xs text-muted-foreground">Brukes som grunnlag i alle estimat under.</p>
           </div>
-
-          <div className="hidden md:block" />
-
-
-
-          <div className="text-right md:border-l md:border-border md:pl-4">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1 justify-end">
+          <div className="space-y-1">
+            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1">
               <TrendingUp className="h-3 w-3" /> Samlet potensial
             </div>
-            <div className="text-2xl font-bold text-foreground tabular-nums">{formatNOK(grandPrice)}</div>
-            <div className="text-xs text-muted-foreground tabular-nums">
-              {extras.length} adoptert{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
+            <div className="text-lg font-semibold text-foreground tabular-nums">
+              {formatNOK(grandPrice)}
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                {extras.length} tjenester{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
+              </span>
             </div>
           </div>
         </div>
-      </Card>
-
-      {/* Handlingsrad: lag kampanje + legg til */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <p className="text-xs text-muted-foreground">
-          Tjenestene er <span className="font-medium text-foreground">interne</span> by default — kunden ser dem først når du sender ut en kampanje.
-        </p>
         <div className="flex items-center gap-2">
-          <Button
-            onClick={() => navigate("/msp-messages?compose=campaign")}
-            className="gap-2"
-          >
-            <Megaphone className="h-4 w-4" />
-            Lag kampanje
+          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 h-9">
+            <Plus className="h-3.5 w-3.5" />
+            Egen tjeneste
           </Button>
-          <Button variant="outline" onClick={() => setManualOpen(true)} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Legg til egen tjeneste
+          <Button size="sm" onClick={() => navigate("/msp-messages?compose=campaign")} className="gap-1.5 h-9">
+            <Megaphone className="h-3.5 w-3.5" />
+            Lag kampanje
           </Button>
         </div>
       </div>
 
 
-      {/* Partnervisning: adopterte / egne tjenester */}
+
+
+      {/* Min katalog — flat seksjon */}
       {extras.length > 0 && (
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
-            <span className="text-xs text-muted-foreground">Rediger aktiviteter og koblinger per tjeneste</span>
+        <section className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Min katalog</h3>
+            <span className="text-xs text-muted-foreground">{extras.length} tjenester</span>
           </div>
-          <div className="space-y-2">
+          <div className="divide-y divide-border rounded-md border border-border bg-card">
+
             {extras.map((e) => {
               const price = e.hours * hourlyRate;
               return (
-                <div key={e.id} className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2">
+                <div key={e.id} className="flex items-center gap-3 px-3 py-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       {e.templateCode && (
@@ -359,12 +348,8 @@ export function MSPServiceCatalogTab() {
                         )}
                       </div>
                     )}
-                    {!e.isMynder && (
-                      <p className="text-xs text-muted-foreground tabular-nums mt-1">
-                        Estimert pris
-                      </p>
-                    )}
                   </div>
+
                   {e.isMynder ? (
                     <Select
                       value={e.tier ?? "basic"}
@@ -410,7 +395,7 @@ export function MSPServiceCatalogTab() {
               );
             })}
           </div>
-        </Card>
+        </section>
       )}
 
       {/* Bibliotek + kalkulator vises kun i partnervisning */}
