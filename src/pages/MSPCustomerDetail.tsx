@@ -22,6 +22,7 @@ import { MSPCustomerOpportunityCard } from "@/components/msp/MSPCustomerOpportun
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
+import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulationsTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
 import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
 import { QuestionnaireGapList } from "@/components/msp/QuestionnaireGapList";
@@ -184,6 +185,9 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="trust-profile" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
                   Trust Profile
                 </TabsTrigger>
+                <TabsTrigger value="regulations" className="text-xs data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-1.5">
+                  Regelverk
+                </TabsTrigger>
               </TabsList>
             </nav>
 
@@ -265,6 +269,13 @@ export default function MSPCustomerDetail() {
 
             <TabsContent value="messages" className="mt-6">
               <MSPCustomerMessagesTab />
+            </TabsContent>
+
+            <TabsContent value="regulations" className="mt-6">
+              <MSPCustomerRegulationsTab
+                customerId={customerId!}
+                customerName={customer.name || "Kunden"}
+              />
             </TabsContent>
 
           </Tabs>
