@@ -58,6 +58,12 @@ export default function MSPCustomerDetail() {
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
+  const [verifyContext, setVerifyContext] = useState<{
+    frameworkId: string;
+    frameworkName: string;
+    serviceId: string;
+  } | null>(null);
+  const startGapRef = useState<{ run: () => void }>({ run: () => {} })[0];
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
