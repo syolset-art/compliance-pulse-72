@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -23,8 +24,10 @@ import {
   ChevronRight,
   Save,
   Info,
+  ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { PartnerBrandingCard } from "@/components/msp/PartnerBrandingCard";
 
 const SETTINGS_KEY = "msp-messages-settings-v1";
 
