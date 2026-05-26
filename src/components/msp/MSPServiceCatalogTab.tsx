@@ -4,9 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone } from "lucide-react";
+import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, ShieldCheck, Building2, Bot, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import {
   FRAMEWORK_CATALOG,
   type CoverageLevel,
@@ -17,7 +18,7 @@ import {
 } from "./FrameworkCoverageCard";
 import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping, type ServiceActivity } from "./CustomServiceDialog";
 import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
-import type { ServiceTemplate, PartnerContext } from "@/lib/serviceLibrary";
+import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext } from "@/lib/serviceLibrary";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -42,6 +43,21 @@ function formatNOK(n: number): string {
   return new Intl.NumberFormat("nb-NO").format(Math.round(n)) + " kr";
 }
 
+const TEMPLATE_PICKS: Array<{
+  code: string;
+  label: string;
+  icon: typeof UserCog;
+  bg: string;
+  fg: string;
+}> = [
+  { code: "MSP4", label: "DPO-as-a-service", icon: UserCog, bg: "bg-primary/10", fg: "text-primary" },
+  { code: "MSSP7", label: "SOC 2 forberedelse", icon: Radar, bg: "bg-success/10", fg: "text-success" },
+  { code: "MSSP6", label: "Gap-analyse", icon: ClipboardCheck, bg: "bg-warning/10", fg: "text-warning" },
+  { code: "MSSP5", label: "Penetrasjonstest", icon: Bug, bg: "bg-secondary", fg: "text-secondary-foreground" },
+  { code: "MSSP8", label: "AI Act-kartlegging", icon: Cpu, bg: "bg-accent", fg: "text-accent-foreground" },
+  { code: "MSSP2", label: "ISO 27001-sertifisering", icon: Award, bg: "bg-success/10", fg: "text-success" },
+];
+
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
   const [hourlyRate, setHourlyRate] = useState<number>(1500);
@@ -65,13 +81,28 @@ export function MSPServiceCatalogTab() {
     },
     {
       id: "default-mynder-vendor",
-      name: "Leverandørmodul (Mynder)",
+      name: "Leverandørmodulen (Mynder)",
       description: "Helhetlig styring av tredjeparter: kartlegging, risikovurdering og oppfølging av leverandører.",
       hours: 8,
       activities: [
         { label: "Import og kartlegging av leverandører", hours: 2 },
         { label: "Risiko- og kritikalitetsvurdering", hours: 3 },
         { label: "Dokument- og kontraktoppfølging", hours: 3 },
+      ],
+      source: "manual",
+      mappings: [],
+      isMynder: true,
+      tier: "basic",
+    },
+    {
+      id: "default-mynder-agents",
+      name: "Agentstyring (Mynder)",
+      description: "Register, klassifisering og kontroll av AI-agenter — MACF-nivå, eierskap og løpende oppfølging.",
+      hours: 8,
+      activities: [
+        { label: "Aktivering av agentregister", hours: 2 },
+        { label: "MACF-klassifisering og eierskap", hours: 3 },
+        { label: "Risiko- og kontrolloppfølging", hours: 3 },
       ],
       source: "manual",
       mappings: [],
@@ -295,16 +326,64 @@ export function MSPServiceCatalogTab() {
 
 
 
-      {/* Min katalog — flat seksjon */}
-      {extras.length > 0 && (
+      {/* Mynder-tjenester — alltid inkludert */}
+      {extras.some((e) => e.isMynder) && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Min katalog</h3>
-            <span className="text-xs text-muted-foreground">{extras.length} tjenester</span>
+            <h3 className="text-sm font-semibold text-foreground">Mynder-tjenester</h3>
+            <span className="text-xs text-muted-foreground">Inkludert i alle leveranser</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {extras.filter((e) => e.isMynder).map((e) => {
+              const Icon = e.id.includes("vendor") ? Building2 : e.id.includes("agents") ? Bot : ShieldCheck;
+              return (
+                <Card key={e.id} className="p-4 space-y-3 border-border">
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{e.name}</p>
+                      {e.description && (
+                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{e.description}</p>
+                      )}
+                    </div>
+                  </div>
+                  <Select
+                    value={e.tier ?? "basic"}
+                    onValueChange={(val) =>
+                      setExtras((prev) =>
+                        prev.map((x) => (x.id === e.id ? { ...x, tier: val as MynderTier } : x)),
+                      )
+                    }
+                  >
+                    <SelectTrigger className="h-9 w-full">
+                      <SelectValue placeholder="Velg pakke" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="basic">Basic</SelectItem>
+                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="enterprise">Enterprise</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Card>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Mine egne tjenester */}
+      {extras.some((e) => !e.isMynder) && (
+        <section className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Mine tjenester</h3>
+            <span className="text-xs text-muted-foreground">
+              {extras.filter((e) => !e.isMynder).length} tjenester
+            </span>
           </div>
           <div className="divide-y divide-border rounded-md border border-border bg-card">
-
-            {extras.map((e) => {
+            {extras.filter((e) => !e.isMynder).map((e) => {
               const price = e.hours * hourlyRate;
               return (
                 <div key={e.id} className="flex items-center gap-3 px-3 py-2">
@@ -316,16 +395,10 @@ export function MSPServiceCatalogTab() {
                         </span>
                       )}
                       <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
-                      {!e.isMynder && (
-                        <Badge variant="secondary" className="text-xs gap-1 h-5">
-                          {e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Bibliotek</>) : "Manuell"}
-                        </Badge>
-                      )}
-
-                      {e.templateVersion && (
-                        <span className="text-xs text-muted-foreground">v{e.templateVersion}</span>
-                      )}
-                      {!e.isMynder && e.activities.length > 0 && (
+                      <Badge variant="secondary" className="text-xs gap-1 h-5">
+                        {e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Mal</>) : "Egen"}
+                      </Badge>
+                      {e.activities.length > 0 && (
                         <span className="text-xs text-muted-foreground">
                           · {e.activities.length} aktivitet{e.activities.length === 1 ? "" : "er"}
                         </span>
@@ -340,7 +413,6 @@ export function MSPServiceCatalogTab() {
                           <span
                             key={i}
                             className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
-                            title={`${m.frameworkShortName} · ${m.controlId} ${m.controlLabel}`}
                           >
                             <span className="font-semibold text-foreground">{m.frameworkShortName}</span>
                             <span>{m.controlId}</span>
@@ -352,30 +424,9 @@ export function MSPServiceCatalogTab() {
                       </div>
                     )}
                   </div>
-
-                  {e.isMynder ? (
-                    <Select
-                      value={e.tier ?? "basic"}
-                      onValueChange={(val) =>
-                        setExtras((prev) =>
-                          prev.map((x) => (x.id === e.id ? { ...x, tier: val as MynderTier } : x)),
-                        )
-                      }
-                    >
-                      <SelectTrigger className="h-9 w-[150px]">
-                        <SelectValue placeholder="Velg pakke" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="basic">Basic</SelectItem>
-                        <SelectItem value="premium">Premium</SelectItem>
-                        <SelectItem value="enterprise">Enterprise</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
-                      {formatNOK(price)}
-                    </div>
-                  )}
+                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
+                    {formatNOK(price)}
+                  </div>
                   <Button
                     variant="ghost"
                     size="icon"
@@ -401,47 +452,92 @@ export function MSPServiceCatalogTab() {
         </section>
       )}
 
-      {/* Bibliotek + kalkulator vises kun i partnervisning */}
-      {/* Bibliotek + kalkulator */}
-      <>
+      {/* Mal-velger — kompakt, à la wizard step 1 */}
+      <section className="space-y-3">
+        <div className="space-y-1">
+          <h3 className="text-sm font-semibold text-foreground">Legg til tjeneste</h3>
+          <p className="text-xs text-muted-foreground">
+            Velg en mal for å komme raskt i gang, eller bygg din egen.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {TEMPLATE_PICKS.map((pick) => {
+            const template = SERVICE_LIBRARY.find((t) => t.code === pick.code);
+            if (!template) return null;
+            const isAdopted = adoptedIds.has(template.id);
+            const Icon = pick.icon;
+            const frameworks = template.mappings.map((m) => m.frameworkLabel).slice(0, 3);
+            return (
+              <button
+                key={template.id}
+                type="button"
+                disabled={isAdopted}
+                onClick={() => adoptTemplate(template)}
+                className={cn(
+                  "group rounded-lg border border-border bg-card p-4 text-left transition-all",
+                  "hover:border-primary/50 hover:shadow-sm",
+                  isAdopted && "opacity-50 cursor-not-allowed",
+                )}
+              >
+                <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center mb-3", pick.bg)}>
+                  <Icon className={cn("h-5 w-5", pick.fg)} />
+                </div>
+                <p className="text-sm font-semibold text-foreground line-clamp-1">{pick.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                  {frameworks.length > 0 ? frameworks.join(" · ") : template.shortDescription}
+                </p>
+                {isAdopted && (
+                  <Badge variant="secondary" className="text-xs mt-2 h-5">Lagt til</Badge>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
+        <div className="flex items-center gap-2 pt-1">
+          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5">
+            <Plus className="h-3.5 w-3.5" />
+            Beskriv egen tjeneste
+          </Button>
+          <button
+            type="button"
+            onClick={() => setShowCalculator((v) => !v)}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto"
+          >
+            <Settings2 className="h-3.5 w-3.5" />
+            Avansert: hele biblioteket og regelverks-bygger
+            {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
+        </div>
+      </section>
+
+      {/* Avansert: hele biblioteket + framework-kalkulator */}
+      {showCalculator && (
+        <div className="space-y-4 pt-2">
           <ServiceLibraryBrowser
             context={partnerContext}
             adoptedIds={adoptedIds}
             onAdopt={adoptTemplate}
             hourlyRate={hourlyRate}
           />
-
-          <div className="pt-2">
-            <button
-              type="button"
-              onClick={() => setShowCalculator((v) => !v)}
-              className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <Settings2 className="h-3.5 w-3.5" />
-              Avansert: bygg fra regelverk og kontrollpunkter
-              {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-            </button>
-            {showCalculator && (
-              <div className="space-y-2 mt-3">
-                <p className="text-xs text-muted-foreground italic">
-                  Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
-                </p>
-                {FRAMEWORK_CATALOG.map((fw) => (
-                  <FrameworkCoverageCard
-                    key={fw.id}
-                    framework={fw}
-                    hourlyRate={hourlyRate}
-                    selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
-                    onSelectionChange={(next) =>
-                      setSelections((prev) => ({ ...prev, [fw.id]: next }))
-                    }
-                  />
-                ))}
-              </div>
-            )}
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground italic">
+              Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
+            </p>
+            {FRAMEWORK_CATALOG.map((fw) => (
+              <FrameworkCoverageCard
+                key={fw.id}
+                framework={fw}
+                hourlyRate={hourlyRate}
+                selection={selections[fw.id] ?? { controls: {}, customCosts: [] }}
+                onSelectionChange={(next) =>
+                  setSelections((prev) => ({ ...prev, [fw.id]: next }))
+                }
+              />
+            ))}
           </div>
-        </>
+        </div>
+      )}
 
       <CustomServiceDialog
         open={manualOpen}
