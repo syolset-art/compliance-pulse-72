@@ -187,7 +187,6 @@ export function FrameworkOrderConfirmDialog({
             <CollapsibleContent className="mt-2 text-xs text-muted-foreground space-y-1.5 pl-5">
               <p>Aktivering av regelverk faktureres iht. partneravtalen med Mynder.</p>
               <p>Som partner står du ansvarlig for at kunden har godkjent aktiveringen. Bekreftelsen lagres som dokumentasjon.</p>
-              <p>Etter bestilling hjelper Lara kunden i gang med å etablere baseline for regelverket.</p>
             </CollapsibleContent>
           </Collapsible>
         </div>
