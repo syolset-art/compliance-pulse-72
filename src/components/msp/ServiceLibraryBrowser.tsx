@@ -304,20 +304,25 @@ function TemplateTable({
   hourlyRate: number;
   highlighted?: boolean;
 }) {
+  const fmtPrice = (h: ServiceTemplate["estimatedHours"]) => {
+    const f = (n: number) => new Intl.NumberFormat("nb-NO").format(Math.round(n));
+    const lo = h.min * hourlyRate;
+    const hi = h.max * hourlyRate;
+    return lo === hi ? `${f(lo)} kr` : `${f(lo)}–${f(hi)} kr`;
+  };
+
   return (
-    <Card className={cn("overflow-hidden", highlighted && "border-l-2 border-l-primary/50")}>
+    <div className={cn("overflow-hidden rounded-md border border-border bg-card", highlighted && "border-l-2 border-l-primary/50")}>
       <table className="w-full text-[13px]">
         <colgroup>
-          <col className="w-[72px]" />
           <col />
-          <col className="w-[220px]" />
+          <col className="w-[180px]" />
           <col className="w-[110px]" />
-          <col className="w-[110px]" />
-          <col className="w-[110px]" />
+          <col className="w-[140px]" />
+          <col className="w-[90px]" />
         </colgroup>
         <thead>
-          <tr className="text-[10px] uppercase tracking-wide text-muted-foreground">
-            <th className="h-8 px-3 text-left font-medium">Kode</th>
+          <tr className="text-[10px] uppercase tracking-wide text-muted-foreground border-b border-border">
             <th className="h-8 px-3 text-left font-medium">Tjeneste</th>
             <th className="h-8 px-3 text-left font-medium hidden lg:table-cell">Regelverk</th>
             <th className="h-8 px-3 text-left font-medium hidden md:table-cell">Marked</th>
@@ -332,7 +337,7 @@ function TemplateTable({
             const frameworks = template.mappings.map((m) => m.frameworkLabel);
             const fwShown = frameworks.slice(0, 3).join(", ");
             const fwMore = frameworks.length > 3 ? ` +${frameworks.length - 3}` : "";
-            const scopes = template.scopes.slice(0, 3).map((s) => scopeLabel(s)).join(" · ");
+            const scopes = template.scopes.slice(0, 2).map((s) => scopeLabel(s)).join(" · ");
             return (
               <tr
                 key={template.id}
@@ -342,15 +347,9 @@ function TemplateTable({
                 )}
               >
                 <td className="px-3 py-2 align-top">
-                  <span className="font-mono text-[11px] text-muted-foreground">{template.code}</span>
-                </td>
-                <td className="px-3 py-2 align-top">
                   <div className="flex items-center gap-1.5 min-w-0">
                     {isLara && (
-                      <Sparkles
-                        className="h-3 w-3 text-primary shrink-0"
-                        aria-label="Lara anbefaler"
-                      />
+                      <Sparkles className="h-3 w-3 text-primary shrink-0" aria-label="Lara anbefaler" />
                     )}
                     <span className="font-medium text-foreground truncate">{template.name}</span>
                   </div>
@@ -365,8 +364,8 @@ function TemplateTable({
                 <td className="px-3 py-2 align-top hidden md:table-cell text-[12px] text-muted-foreground">
                   {scopes || "—"}
                 </td>
-                <td className="px-3 py-2 align-top text-right tabular-nums font-semibold text-foreground">
-                  {formatEstimatedPrice(template.estimatedHours, hourlyRate)}
+                <td className="px-3 py-2 align-top text-right tabular-nums font-semibold text-foreground whitespace-nowrap">
+                  {fmtPrice(template.estimatedHours)}
                 </td>
                 <td className="px-3 py-2 align-top text-right">
                   <Button
@@ -375,14 +374,12 @@ function TemplateTable({
                     className="h-7 text-xs gap-1"
                     onClick={() => onAdopt(template)}
                     disabled={adopted}
-                    aria-label={adopted ? "Adoptert" : "Adopter tjeneste"}
+                    aria-label={adopted ? "Lagt til" : "Legg til tjeneste"}
                   >
                     {adopted ? (
-                      <Check className="h-3.5 w-3.5" />
+                      <><Check className="h-3.5 w-3.5" /> Lagt til</>
                     ) : (
-                      <>
-                        <Plus className="h-3.5 w-3.5" /> Adopter
-                      </>
+                      <><Plus className="h-3.5 w-3.5" /> Legg til</>
                     )}
                   </Button>
                 </td>
@@ -391,7 +388,8 @@ function TemplateTable({
           })}
         </tbody>
       </table>
-    </Card>
+    </div>
   );
 }
+
 
