@@ -260,7 +260,6 @@ export default function MSPCustomerDetail() {
 
               {/* 1) Baseline-gate */}
               <BaselineReadinessCard
-                customerId={customerId!}
                 activeCount={activeFrameworkIds.length}
                 onGoToRegulations={() => handleTabChange("regulations")}
                 onStartGapAnalysis={() => startGapRef.current()}
