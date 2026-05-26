@@ -73,7 +73,6 @@ export function MSPServiceCatalogTab() {
       source: "manual",
       mappings: [],
       isMynder: true,
-      tier: "basic",
     },
     {
       id: "default-mynder-vendor",
@@ -88,7 +87,6 @@ export function MSPServiceCatalogTab() {
       source: "manual",
       mappings: [],
       isMynder: true,
-      tier: "basic",
     },
     {
       id: "default-mynder-agents",
@@ -103,7 +101,6 @@ export function MSPServiceCatalogTab() {
       source: "manual",
       mappings: [],
       isMynder: true,
-      tier: "basic",
     },
   ]);
   const [showCalculator, setShowCalculator] = useState(false);
