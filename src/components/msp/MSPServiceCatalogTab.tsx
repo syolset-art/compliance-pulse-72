@@ -295,14 +295,15 @@ export function MSPServiceCatalogTab() {
 
 
 
-      {/* Partnervisning: adopterte / egne tjenester */}
+      {/* Min katalog — flat seksjon */}
       {extras.length > 0 && (
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground">Min katalog ({extras.length})</h3>
-            <span className="text-xs text-muted-foreground">Rediger aktiviteter og koblinger per tjeneste</span>
+        <section className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Min katalog</h3>
+            <span className="text-xs text-muted-foreground">{extras.length} tjenester</span>
           </div>
-          <div className="space-y-2">
+          <div className="divide-y divide-border rounded-md border border-border bg-card">
+
             {extras.map((e) => {
               const price = e.hours * hourlyRate;
               return (
