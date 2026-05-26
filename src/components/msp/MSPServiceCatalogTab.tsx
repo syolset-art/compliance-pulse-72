@@ -344,10 +344,8 @@ export function MSPServiceCatalogTab() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">{e.name}</p>
-                      {e.description && (
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{e.description}</p>
-                      )}
                     </div>
+
                   </div>
                   <Select
                     value={e.tier ?? "basic"}
