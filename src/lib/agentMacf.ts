@@ -85,7 +85,7 @@ export const DEMO_AGENTS: AIAgent[] = [
   {
     id: "lara-vendor-review",
     name: "Lara — Leverandørgjennomgang",
-    subtitle: "Totto · audit-logging på",
+    subtitle: "Automatisk · audit-logging på",
     kind: "mynder",
     provider: "Mynder",
     owner_team: "Compliance",
@@ -102,7 +102,7 @@ export const DEMO_AGENTS: AIAgent[] = [
   {
     id: "lara-access-control",
     name: "Lara — Tilgangskontroll",
-    subtitle: "Totto · RBAC L2",
+    subtitle: "Automatisk · RBAC L2",
     kind: "mynder",
     provider: "Mynder",
     owner_team: "IT-sikkerhet",
@@ -119,7 +119,7 @@ export const DEMO_AGENTS: AIAgent[] = [
   {
     id: "lara-policy-agent",
     name: "Lara — Policy-agent",
-    subtitle: "Totto · venter utvidet tool-sett",
+    subtitle: "Automatisk · venter utvidet tool-sett",
     kind: "mynder",
     provider: "Mynder",
     owner_team: "Compliance",
