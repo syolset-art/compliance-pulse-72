@@ -57,25 +57,6 @@ export default function AgentRegistry() {
               </div>
             </div>
 
-            {/* KPI cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <Card><CardContent className="p-4">
-                <div className="text-2xl font-bold">{metrics.total}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">Totalt registrert</div>
-              </CardContent></Card>
-              <Card><CardContent className="p-4">
-                <div className="text-2xl font-bold text-success">{metrics.activeInProduction}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">Aktive i produksjon</div>
-              </CardContent></Card>
-              <Card><CardContent className="p-4">
-                <div className="text-2xl font-bold text-warning">{metrics.pendingMacf}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">Venter MACF-godkjenning</div>
-              </CardContent></Card>
-              <Card><CardContent className="p-4">
-                <div className="text-2xl font-bold">{metrics.byoa}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">BYOA-agenter</div>
-              </CardContent></Card>
-            </div>
 
             {/* Mynder Lara-flyter */}
             <AgentTable title="Mynder — Lara-flyter" icon="mynder" agents={mynder} />
