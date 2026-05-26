@@ -4,9 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone } from "lucide-react";
+import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, ShieldCheck, Building2, Bot, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import {
   FRAMEWORK_CATALOG,
   type CoverageLevel,
@@ -17,7 +18,7 @@ import {
 } from "./FrameworkCoverageCard";
 import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping, type ServiceActivity } from "./CustomServiceDialog";
 import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
-import type { ServiceTemplate, PartnerContext } from "@/lib/serviceLibrary";
+import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext } from "@/lib/serviceLibrary";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
