@@ -3,9 +3,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, Plus, Search, Shield, Sparkles, Lightbulb } from "lucide-react";
+import { CheckCircle2, Plus, Search, Shield, Sparkles, Lightbulb, Paperclip, FileText } from "lucide-react";
 import { frameworks, categories, getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import { toast } from "sonner";
+import { FrameworkOrderConfirmDialog, type FrameworkOrderResult } from "./FrameworkOrderConfirmDialog";
 
 interface Props {
   customerId: string;
@@ -20,6 +21,15 @@ interface Props {
 }
 
 const STORAGE_PREFIX = "msp.customer.activatedFrameworks.";
+
+interface ActivatedRecord {
+  id: string;
+  orderedAt: string;
+  method: "upload" | "declaration" | "legacy";
+  evidenceName?: string;
+  evidenceSize?: number;
+  declarationText?: string;
+}
 
 // Map free-text active_frameworks strings (e.g. "ISO 27001") to catalog ids
 function mapActiveFrameworkNames(names: string[] | null | undefined): string[] {
@@ -37,17 +47,35 @@ function mapActiveFrameworkNames(names: string[] | null | undefined): string[] {
   return ids;
 }
 
-function loadActivated(customerId: string, fallback: string[]): string[] {
+function loadActivated(customerId: string, fallbackIds: string[]): ActivatedRecord[] {
   try {
     const raw = localStorage.getItem(STORAGE_PREFIX + customerId);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        // Upgrade legacy string[] to ActivatedRecord[]
+        if (parsed.length === 0) return [];
+        if (typeof parsed[0] === "string") {
+          return (parsed as string[]).map((id) => ({
+            id,
+            orderedAt: new Date(0).toISOString(),
+            method: "legacy" as const,
+          }));
+        }
+        return parsed as ActivatedRecord[];
+      }
+    }
   } catch {}
-  return fallback;
+  return fallbackIds.map((id) => ({
+    id,
+    orderedAt: new Date(0).toISOString(),
+    method: "legacy" as const,
+  }));
 }
 
-function saveActivated(customerId: string, ids: string[]) {
+function saveActivated(customerId: string, records: ActivatedRecord[]) {
   try {
-    localStorage.setItem(STORAGE_PREFIX + customerId, JSON.stringify(ids));
+    localStorage.setItem(STORAGE_PREFIX + customerId, JSON.stringify(records));
   } catch {}
 }
 
@@ -62,7 +90,6 @@ function computeRecommendations(customer?: Props["customer"]): Recommendation[] 
     if (!recs.find((r) => r.id === id)) recs.push({ id, reason });
   };
 
-  // Universal baseline
   push("gdpr", "Gjelder alle som behandler personopplysninger");
   push("personopplysningsloven", "Norsk utfyllende lov til GDPR");
 
@@ -101,10 +128,7 @@ function computeRecommendations(customer?: Props["customer"]): Recommendation[] 
     push("normen", "Relevant ved behandling av elev-/studentopplysninger");
   }
 
-  // Size-based
-  if (empNum >= 50) {
-    push("apenhetsloven", "Virksomheter over 50 ansatte kan være omfattet");
-  }
+  if (empNum >= 50) push("apenhetsloven", "Virksomheter over 50 ansatte kan være omfattet");
   if (empNum >= 200) {
     push("csrd", "Store virksomheter omfattes av bærekraftsrapportering");
     push("iso14001", "Anbefalt miljøledelse for større organisasjoner");
@@ -114,28 +138,44 @@ function computeRecommendations(customer?: Props["customer"]): Recommendation[] 
     push("arbeidsmiljoloven", "Gjelder alle arbeidsgivere");
   }
 
-  // Mandatory baseline always relevant
   push("bokforingsloven", "Lovpålagt for alle registrerte virksomheter");
   push("hms", "Generell HMS-lovgivning gjelder alle arbeidsgivere");
 
   return recs;
 }
 
+function formatOrderedDate(iso: string) {
+  try {
+    const d = new Date(iso);
+    if (d.getTime() === 0) return null;
+    return d.toLocaleDateString("nb-NO", { day: "2-digit", month: "short", year: "numeric" });
+  } catch {
+    return null;
+  }
+}
+
 export function MSPCustomerRegulationsTab({ customerId, customerName, customer }: Props) {
-  // Initial active list = MSP override (localStorage) OR customer's reported active_frameworks
   const customerActiveIds = useMemo(
     () => mapActiveFrameworkNames(customer?.active_frameworks),
     [customer?.active_frameworks]
   );
-  const [activated, setActivated] = useState<string[]>(() =>
+  const [activated, setActivated] = useState<ActivatedRecord[]>(() =>
     loadActivated(customerId, customerActiveIds)
   );
   const [query, setQuery] = useState("");
   const [filterCat, setFilterCat] = useState<string | "all">("all");
+  const [pendingFramework, setPendingFramework] = useState<Framework | null>(null);
 
   useEffect(() => {
     setActivated(loadActivated(customerId, customerActiveIds));
   }, [customerId, customerActiveIds]);
+
+  const activatedIds = useMemo(() => new Set(activated.map((a) => a.id)), [activated]);
+  const activatedById = useMemo(() => {
+    const m = new Map<string, ActivatedRecord>();
+    activated.forEach((a) => m.set(a.id, a));
+    return m;
+  }, [activated]);
 
   const recommendations = useMemo(() => computeRecommendations(customer), [customer]);
   const recommendationMap = useMemo(() => {
@@ -144,14 +184,27 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
     return m;
   }, [recommendations]);
 
-  const handleActivate = (id: string, name: string) => {
-    if (activated.includes(id)) return;
-    const next = [...activated, id];
+  const handleConfirmOrder = (result: FrameworkOrderResult) => {
+    if (!pendingFramework) return;
+    if (activatedIds.has(pendingFramework.id)) {
+      setPendingFramework(null);
+      return;
+    }
+    const record: ActivatedRecord = {
+      id: pendingFramework.id,
+      orderedAt: new Date().toISOString(),
+      method: result.method,
+      evidenceName: result.evidenceName,
+      evidenceSize: result.evidenceSize,
+      declarationText: result.declarationText,
+    };
+    const next = [...activated, record];
     setActivated(next);
     saveActivated(customerId, next);
-    toast.success(`${name} aktivert for ${customerName}`, {
-      description: "Regelverket er nå en del av kundens compliance-portefølje.",
+    toast.success(`Bestilling registrert — ${pendingFramework.name}`, {
+      description: `Regelverket er nå aktivt hos ${customerName}. Faktureres iht. partneravtalen.`,
     });
+    setPendingFramework(null);
   };
 
   const matchesFilters = (f: Framework) => {
@@ -163,12 +216,12 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
     return true;
   };
 
-  const active = frameworks.filter((f) => activated.includes(f.id) && matchesFilters(f));
+  const active = frameworks.filter((f) => activatedIds.has(f.id) && matchesFilters(f));
   const recommended = frameworks.filter(
-    (f) => !activated.includes(f.id) && recommendationMap.has(f.id) && matchesFilters(f)
+    (f) => !activatedIds.has(f.id) && recommendationMap.has(f.id) && matchesFilters(f)
   );
   const other = frameworks.filter(
-    (f) => !activated.includes(f.id) && !recommendationMap.has(f.id) && matchesFilters(f)
+    (f) => !activatedIds.has(f.id) && !recommendationMap.has(f.id) && matchesFilters(f)
   );
 
   const renderFrameworkCard = (
@@ -179,6 +232,8 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
     const reason = recommendationMap.get(f.id);
     const isActive = variant === "active";
     const isRecommended = variant === "recommended";
+    const record = isActive ? activatedById.get(f.id) : undefined;
+    const orderedDate = record ? formatOrderedDate(record.orderedAt) : null;
 
     return (
       <Card
@@ -229,29 +284,46 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
               <span>{reason}</span>
             </p>
           )}
+          {isActive && record && record.method !== "legacy" && (
+            <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              {record.method === "upload" ? (
+                <>
+                  <Paperclip className="h-3 w-3 shrink-0" />
+                  <span className="truncate">
+                    Bestilt{orderedDate ? ` ${orderedDate}` : ""} · Vedlegg: {record.evidenceName}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <FileText className="h-3 w-3 shrink-0" />
+                  <span className="truncate">
+                    Bestilt{orderedDate ? ` ${orderedDate}` : ""} · Partnerbekreftelse
+                  </span>
+                </>
+              )}
+            </div>
+          )}
         </div>
         {!isActive && (
           <Button
             size="sm"
             variant={isRecommended ? "default" : "outline"}
             className="gap-1 shrink-0"
-            onClick={() => handleActivate(f.id, f.name)}
+            onClick={() => setPendingFramework(f)}
           >
             <Plus className="h-3.5 w-3.5" />
-            Aktiver
+            Bestill
           </Button>
         )}
       </Card>
     );
   };
 
-  // Counters for intro (ignore filters in the summary)
   const totalActive = activated.length;
-  const totalRecommendedOpen = recommendations.filter((r) => !activated.includes(r.id)).length;
+  const totalRecommendedOpen = recommendations.filter((r) => !activatedIds.has(r.id)).length;
 
   return (
     <div className="space-y-5">
-      {/* Intro with context */}
       <Card className="p-4 border-primary/20 bg-primary/5">
         <div className="flex items-start gap-3">
           <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
@@ -267,7 +339,7 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
                 {customer?.employees && <> og størrelse (<span className="font-medium">{customer.employees}</span> ansatte)</>}.
                 </>
               ) : (
-                <>Som partner kan du aktivere regelverk på vegne av kunden.</>
+                <>Som partner kan du bestille regelverk på vegne av kunden. Bestilling krever bekreftelse og faktureres iht. partneravtalen.</>
               )}
             </p>
             <div className="flex items-center gap-4 mt-2 text-xs">
@@ -277,14 +349,13 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-primary" />
-                <span className="text-muted-foreground">{totalRecommendedOpen} anbefalt å aktivere</span>
+                <span className="text-muted-foreground">{totalRecommendedOpen} anbefalt å bestille</span>
               </span>
             </div>
           </div>
         </div>
       </Card>
 
-      {/* Search + filter */}
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -316,7 +387,6 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
         </div>
       </div>
 
-      {/* Active */}
       <section className="space-y-2">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Aktivert hos kunden ({active.length})
@@ -324,7 +394,7 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
         {active.length === 0 ? (
           <Card className="p-4 text-center">
             <p className="text-sm text-muted-foreground">
-              Kunden har ikke aktivert noen regelverk ennå.
+              Kunden har ikke bestilt noen regelverk ennå.
             </p>
           </Card>
         ) : (
@@ -334,7 +404,6 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
         )}
       </section>
 
-      {/* Recommended */}
       {recommended.length > 0 && (
         <section className="space-y-2">
           <div className="flex items-center gap-2">
@@ -349,7 +418,6 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
         </section>
       )}
 
-      {/* Inactive — activatable */}
       <section className="space-y-2">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Øvrige tilgjengelige regelverk ({other.length})
@@ -366,6 +434,14 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
           </div>
         )}
       </section>
+
+      <FrameworkOrderConfirmDialog
+        open={!!pendingFramework}
+        onOpenChange={(o) => !o && setPendingFramework(null)}
+        framework={pendingFramework}
+        customerName={customerName}
+        onConfirm={handleConfirmOrder}
+      />
     </div>
   );
 }
