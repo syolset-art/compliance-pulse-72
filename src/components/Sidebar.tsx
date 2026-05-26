@@ -28,7 +28,8 @@ import {
   Briefcase,
   Settings as SettingsIcon,
   Sparkles,
-  Landmark
+  Landmark,
+  Bot
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -89,6 +90,7 @@ const coreNav = [
 const vendorLink = { name: "nav.vendors", href: "/vendors", icon: Building2 };
 const assetsLink = { name: "nav.assetsDevices", href: "/assets", icon: Package };
 const systemsLink = { name: "nav.systems", href: "/systems", icon: Cloud };
+const agentsLink = { name: "Agenter", href: "/agents", icon: Bot };
 
 // Innstillinger submenu (merged Admin + Company settings)
 const settingsMenu = [
