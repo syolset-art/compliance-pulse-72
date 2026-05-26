@@ -387,46 +387,21 @@ export function MSPServiceCatalogTab() {
               const price = e.hours * hourlyRate;
               return (
                 <div key={e.id} className="flex items-center gap-3 px-3 py-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {e.templateCode && (
-                        <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
-                          {e.templateCode}
-                        </span>
-                      )}
-                      <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
-                      <Badge variant="secondary" className="text-xs gap-1 h-5">
-                        {e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Mal</>) : "Egen"}
-                      </Badge>
-                      {e.activities.length > 0 && (
-                        <span className="text-xs text-muted-foreground">
-                          · {e.activities.length} aktivitet{e.activities.length === 1 ? "" : "er"}
-                        </span>
-                      )}
-                    </div>
-                    {e.description && (
-                      <p className="text-xs text-muted-foreground truncate">{e.description}</p>
+                  <div className="flex-1 min-w-0 flex items-center gap-2">
+                    {e.templateCode && (
+                      <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground shrink-0">
+                        {e.templateCode}
+                      </span>
                     )}
-                    {e.mappings.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-1 mt-1">
-                        {e.mappings.slice(0, 6).map((m, i) => (
-                          <span
-                            key={i}
-                            className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground"
-                          >
-                            <span className="font-semibold text-foreground">{m.frameworkShortName}</span>
-                            <span>{m.controlId}</span>
-                          </span>
-                        ))}
-                        {e.mappings.length > 6 && (
-                          <span className="text-xs text-muted-foreground">+{e.mappings.length - 6}</span>
-                        )}
-                      </div>
-                    )}
+                    <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
                   </div>
-                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap">
+                  <div className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+                    {e.hours} t
+                  </div>
+                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
                     {formatNOK(price)}
                   </div>
+
                   <Button
                     variant="ghost"
                     size="icon"
