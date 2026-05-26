@@ -114,16 +114,16 @@ export function FrameworkOrderConfirmDialog({
                       onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
                     />
                     {file ? (
-                      <div className="flex items-center gap-2 p-2 rounded-md bg-background border text-xs">
-                        <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />
+                      <div className="flex items-center gap-2 p-2 rounded-md bg-background border text-sm">
+                        <Paperclip className="h-4 w-4 text-muted-foreground" />
                         <span className="flex-1 truncate">{file.name}</span>
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-6 w-6 p-0"
+                          className="h-7 w-7 p-0"
                           onClick={() => setFile(null)}
                         >
-                          <X className="h-3.5 w-3.5" />
+                          <X className="h-4 w-4" />
                         </Button>
                       </div>
                     ) : (
@@ -157,8 +157,9 @@ export function FrameworkOrderConfirmDialog({
                       placeholder="Kort beskrivelse av godkjenningen…"
                       rows={2}
                       maxLength={500}
+                      className="text-sm"
                     />
-                    <p className={`text-[11px] mt-1 ${declaration.trim().length >= MIN_DECLARATION ? "text-muted-foreground" : "text-warning"}`}>
+                    <p className={`text-sm mt-1 ${declaration.trim().length >= MIN_DECLARATION ? "text-muted-foreground" : "text-warning"}`}>
                       {declaration.trim().length}/{MIN_DECLARATION}
                     </p>
                   </div>
@@ -174,21 +175,22 @@ export function FrameworkOrderConfirmDialog({
               onCheckedChange={(v) => setAccept(v === true)}
               className="mt-0.5"
             />
-            <Label htmlFor="accept" className="text-xs leading-relaxed cursor-pointer text-muted-foreground">
+            <Label htmlFor="accept" className="text-sm leading-relaxed cursor-pointer">
               Kunden har godkjent. Jeg er ansvarlig som partner.
             </Label>
           </div>
 
           <Collapsible>
-            <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
-              <Info className="h-3.5 w-3.5" />
+            <CollapsibleTrigger className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Info className="h-4 w-4" />
               Mer om bestilling og ansvar
             </CollapsibleTrigger>
-            <CollapsibleContent className="mt-2 text-xs text-muted-foreground space-y-1.5 pl-5">
+            <CollapsibleContent className="mt-2 text-sm text-muted-foreground space-y-1.5 pl-5">
               <p>Aktivering av regelverk faktureres iht. partneravtalen med Mynder.</p>
               <p>Som partner står du ansvarlig for at kunden har godkjent aktiveringen. Bekreftelsen lagres som dokumentasjon.</p>
             </CollapsibleContent>
           </Collapsible>
+
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
