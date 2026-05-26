@@ -320,10 +320,11 @@ const SidebarContent = () => {
   }, [isManagementActive]);
 
   // Registre: Systemer (følger Core) + Aktiva (følger Assets)
-  const showRegistries = showCoreNormal || showAssetsNormal;
+  const showRegistries = true;
   const registriesItems = [
     ...(showCoreNormal ? [systemsLink] : []),
     ...(showAssetsNormal ? [assetsLink] : []),
+    agentsLink,
   ];
   const isRegistriesActive = registriesItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
@@ -579,25 +580,6 @@ const SidebarContent = () => {
                   </div>
                 </div>
                 )}
-                {/* Agenter — på lik linje med leverandørmodulen */}
-                {(() => {
-                  const aActive = location.pathname.startsWith("/agents");
-                  return (
-                    <Link
-                      to={agentsLink.href}
-                      className={cn(
-                        "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200 relative",
-                        aActive
-                          ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
-                          : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-                      )}
-                    >
-                      {aActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
-                      <agentsLink.icon className="h-4 w-4" />
-                      {agentsLink.name}
-                    </Link>
-                  );
-                })()}
                 {link}
               </React.Fragment>
             );
