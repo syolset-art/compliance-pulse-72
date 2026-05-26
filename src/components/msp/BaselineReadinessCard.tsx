@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
 
 interface Props {
-  customerId: string;
   activeCount: number;
   onGoToRegulations: () => void;
   onStartGapAnalysis: () => void;
