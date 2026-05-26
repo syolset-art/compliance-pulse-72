@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,10 +26,14 @@ import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulatio
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
 import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
 import { QuestionnaireGapList } from "@/components/msp/QuestionnaireGapList";
+import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
+import { RegulationGapAnalysisCard } from "@/components/msp/RegulationGapAnalysisCard";
 import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
 import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { ClipboardCheck, X as XIcon } from "lucide-react";
+import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 
 
 export default function MSPCustomerDetail() {
@@ -54,6 +58,12 @@ export default function MSPCustomerDetail() {
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
+  const [verifyContext, setVerifyContext] = useState<{
+    frameworkId: string;
+    frameworkName: string;
+    serviceId: string;
+  } | null>(null);
+  const startGapRef = useRef<() => void>(() => {});
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
@@ -70,6 +80,36 @@ export default function MSPCustomerDetail() {
   });
 
   const { deliveries: questionnaireDeliveries } = useQuestionnaireDeliveries();
+
+  // Aktiverte regelverk for kunden — kombiner DB-felt og localStorage (Regelverk-fanen)
+  const activeFrameworkIds = useMemo(() => {
+    const fromDb = (customer?.active_frameworks || []) as string[];
+    const ids = new Set<string>();
+    for (const n of fromDb) {
+      const norm = String(n).toLowerCase().replace(/[\s/-]/g, "");
+      const match = ALL_FRAMEWORKS.find((f) => {
+        const fn = f.name.toLowerCase().replace(/[\s/-]/g, "");
+        const fid = f.id.toLowerCase().replace(/[\s/-]/g, "");
+        return fn.includes(norm) || norm.includes(fid) || fid === norm;
+      });
+      if (match) ids.add(match.id);
+    }
+    try {
+      const raw = customerId ? localStorage.getItem("msp.customer.activatedFrameworks." + customerId) : null;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          for (const item of parsed) {
+            const id = typeof item === "string" ? item : item?.id;
+            if (id) ids.add(id);
+          }
+        }
+      }
+    } catch {}
+    return Array.from(ids);
+  }, [customer?.active_frameworks, customerId]);
+
+
 
 
 
@@ -218,16 +258,54 @@ export default function MSPCustomerDetail() {
                 </Card>
               )}
 
-              {/* Partner-snapshot fjernet – overflødig informasjon */}
-
-
-              {/* 2) Spørreskjema-tjenester — bestill kartlegging fra kunden */}
-              <QuestionnaireDispatchCard
-                customerId={customerId!}
-                customerName={customer.name || "kunden"}
+              {/* 1) Baseline-gate */}
+              <BaselineReadinessCard
+                activeCount={activeFrameworkIds.length}
+                onGoToRegulations={() => handleTabChange("regulations")}
+                onStartGapAnalysis={() => startGapRef.current()}
               />
 
-              {/* 3) Lara-gap fra siste fullførte skjema */}
+              {/* 2) Gap-analyse pr regelverk — Lara */}
+              {activeFrameworkIds.length > 0 && (
+                <RegulationGapAnalysisCard
+                  customerId={customerId!}
+                  activeFrameworkIds={activeFrameworkIds}
+                  registerStartHandler={(h) => { startGapRef.current = h; }}
+                  onVerifyWithQuestionnaire={(frameworkId, frameworkName, serviceId) => {
+                    setVerifyContext({ frameworkId, frameworkName, serviceId });
+                    setTimeout(() => {
+                      document.getElementById("questionnaire-dispatch-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }, 80);
+                  }}
+                />
+              )}
+
+              {/* 3) Spørreskjema — verifiser Laras funn */}
+              <div id="questionnaire-dispatch-anchor" className="scroll-mt-24 space-y-3">
+                {verifyContext && (
+                  <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                    <ClipboardCheck className="h-4 w-4 text-primary shrink-0" />
+                    <p className="text-sm text-foreground flex-1">
+                      Verifiserer gap-analyse for <span className="font-medium">{verifyContext.frameworkName}</span> — bruk et spørreskjema for å bekrefte Laras funn hos kunden.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 shrink-0"
+                      onClick={() => setVerifyContext(null)}
+                      aria-label="Lukk verifiseringsmelding"
+                    >
+                      <XIcon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                <QuestionnaireDispatchCard
+                  customerId={customerId!}
+                  customerName={customer.name || "kunden"}
+                />
+              </div>
+
+              {/* 4) Lara-gap fra siste fullførte skjema */}
               <div id="gap-list-anchor" className="scroll-mt-24 transition-all">
                 <QuestionnaireGapList
                   customerId={customerId!}
@@ -238,6 +316,7 @@ export default function MSPCustomerDetail() {
                   }
                 />
               </div>
+
 
               {/* 4) Inntekts- og tjenestepotensial */}
               <MSPCustomerOpportunityCard
