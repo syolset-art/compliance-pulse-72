@@ -8,7 +8,7 @@ import { RegisterAgentDialog } from "@/components/agents/RegisterAgentDialog";
 import { toast } from "sonner";
 
 export default function AgentRegistry() {
-  const { agents, metrics, refresh } = useAgents();
+  const { agents, refresh } = useAgents();
   const [open, setOpen] = useState(false);
 
   const mynder = agents.filter((a) => a.kind === "mynder");
