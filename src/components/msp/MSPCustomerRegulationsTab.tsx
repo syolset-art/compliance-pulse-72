@@ -1,10 +1,11 @@
 import { useMemo, useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, Plus, Search, Shield, Sparkles, Lightbulb, Paperclip, FileText } from "lucide-react";
-import { frameworks, categories, getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { Search, X, SlidersHorizontal, Sparkles, Lock, CheckCircle2 } from "lucide-react";
+import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
 import { toast } from "sonner";
 import { FrameworkOrderConfirmDialog, type FrameworkOrderResult } from "./FrameworkOrderConfirmDialog";
 
@@ -31,7 +32,6 @@ interface ActivatedRecord {
   declarationText?: string;
 }
 
-// Map free-text active_frameworks strings (e.g. "ISO 27001") to catalog ids
 function mapActiveFrameworkNames(names: string[] | null | undefined): string[] {
   if (!names?.length) return [];
   const ids: string[] = [];
@@ -53,7 +53,6 @@ function loadActivated(customerId: string, fallbackIds: string[]): ActivatedReco
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        // Upgrade legacy string[] to ActivatedRecord[]
         if (parsed.length === 0) return [];
         if (typeof parsed[0] === "string") {
           return (parsed as string[]).map((id) => ({
@@ -163,7 +162,8 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
     loadActivated(customerId, customerActiveIds)
   );
   const [query, setQuery] = useState("");
-  const [filterCat, setFilterCat] = useState<string | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [pendingFramework, setPendingFramework] = useState<Framework | null>(null);
 
   useEffect(() => {
@@ -202,238 +202,245 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
     setActivated(next);
     saveActivated(customerId, next);
     toast.success(`Bestilling registrert — ${pendingFramework.name}`, {
-      description: `Regelverket er nå aktivt hos ${customerName}. Faktureres iht. partneravtalen.`,
+      description: `Regelverket er nå aktivt. Faktureres iht. partneravtalen.`,
     });
     setPendingFramework(null);
   };
 
-  const matchesFilters = (f: Framework) => {
-    if (filterCat !== "all" && f.category !== filterCat) return false;
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      return f.name.toLowerCase().includes(q) || f.description.toLowerCase().includes(q);
+  const q = query.trim().toLowerCase();
+  const matches = (f: Framework) => {
+    if (q && !(f.name.toLowerCase().includes(q) || (f.description || "").toLowerCase().includes(q))) {
+      return false;
     }
+    if (categoryFilter && f.category !== categoryFilter) return false;
+    const isActive = activatedIds.has(f.id);
+    if (statusFilter === "active" && !isActive) return false;
+    if (statusFilter === "inactive" && isActive) return false;
     return true;
   };
 
-  const active = frameworks.filter((f) => activatedIds.has(f.id) && matchesFilters(f));
-  const recommended = frameworks.filter(
-    (f) => !activatedIds.has(f.id) && recommendationMap.has(f.id) && matchesFilters(f)
+  const visibleCategories = useMemo(
+    () =>
+      categories
+        .map((cat) => ({
+          cat,
+          items: frameworks.filter((f) => f.category === cat.id && matches(f)),
+        }))
+        .filter((c) => c.items.length > 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [q, categoryFilter, statusFilter, activatedIds]
   );
-  const other = frameworks.filter(
-    (f) => !activatedIds.has(f.id) && !recommendationMap.has(f.id) && matchesFilters(f)
-  );
 
-  const renderFrameworkCard = (
-    f: Framework,
-    variant: "active" | "recommended" | "other"
-  ) => {
-    const cat = getCategoryById(f.category);
-    const reason = recommendationMap.get(f.id);
-    const isActive = variant === "active";
-    const isRecommended = variant === "recommended";
-    const record = isActive ? activatedById.get(f.id) : undefined;
-    const orderedDate = record ? formatOrderedDate(record.orderedAt) : null;
-
-    return (
-      <Card
-        key={f.id}
-        className={`p-3 flex items-start gap-3 transition-colors ${
-          isActive
-            ? "bg-muted/30"
-            : isRecommended
-            ? "border-primary/30 bg-primary/5 hover:border-primary/50"
-            : "hover:border-primary/40"
-        }`}
-      >
-        <div
-          className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${
-            isActive
-              ? "bg-success/15"
-              : isRecommended
-              ? "bg-primary/15"
-              : "bg-muted"
-          }`}
-        >
-          {isActive ? (
-            <CheckCircle2 className="h-4 w-4 text-success" />
-          ) : isRecommended ? (
-            <Lightbulb className="h-4 w-4 text-primary" />
-          ) : (
-            <Shield className="h-4 w-4 text-muted-foreground" />
-          )}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-sm font-medium text-foreground truncate">{f.name}</p>
-            {cat && (
-              <Badge variant="secondary" className="text-[10px]">
-                {cat.name}
-              </Badge>
-            )}
-            {f.isMandatory && (
-              <Badge variant="outline" className="text-[10px] border-warning/40 text-warning">
-                Obligatorisk
-              </Badge>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{f.description}</p>
-          {isRecommended && reason && (
-            <p className="text-[11px] text-primary mt-1.5 flex items-start gap-1">
-              <Sparkles className="h-3 w-3 mt-0.5 shrink-0" />
-              <span>{reason}</span>
-            </p>
-          )}
-          {isActive && record && record.method !== "legacy" && (
-            <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-              {record.method === "upload" ? (
-                <>
-                  <Paperclip className="h-3 w-3 shrink-0" />
-                  <span className="truncate">
-                    Bestilt{orderedDate ? ` ${orderedDate}` : ""} · Vedlegg: {record.evidenceName}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <FileText className="h-3 w-3 shrink-0" />
-                  <span className="truncate">
-                    Bestilt{orderedDate ? ` ${orderedDate}` : ""} · Partnerbekreftelse
-                  </span>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-        {!isActive && (
-          <Button
-            size="sm"
-            variant={isRecommended ? "default" : "outline"}
-            className="gap-1 shrink-0"
-            onClick={() => setPendingFramework(f)}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Bestill
-          </Button>
-        )}
-      </Card>
-    );
-  };
-
-  const totalActive = activated.length;
-  const totalRecommendedOpen = recommendations.filter((r) => !activatedIds.has(r.id)).length;
+  const totalMatches = visibleCategories.reduce((s, c) => s + c.items.length, 0);
 
   return (
-    <div className="space-y-5">
-      <Card className="p-4 border-primary/20 bg-primary/5">
-        <div className="flex items-start gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-            <Sparkles className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-sm font-semibold text-foreground">
-              Regelverk for {customerName}
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              {customer?.industry ? (
-                <>Anbefalinger er basert på bransje (<span className="font-medium">{customer.industry}</span>)
-                {customer?.employees && <> og størrelse (<span className="font-medium">{customer.employees}</span> ansatte)</>}.
-                </>
-              ) : (
-                <>Som partner kan du bestille regelverk på vegne av kunden. Bestilling krever bekreftelse og faktureres iht. partneravtalen.</>
-              )}
-            </p>
-            <div className="flex items-center gap-4 mt-2 text-xs">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-success" />
-                <span className="text-muted-foreground">{totalActive} aktivert</span>
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-primary" />
-                <span className="text-muted-foreground">{totalRecommendedOpen} anbefalt å bestille</span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Søk i regelverk…"
-            className="pl-9"
-          />
-        </div>
-        <div className="flex gap-1.5 flex-wrap">
+    <div>
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Søk regelverk eller standard…"
+          className="pl-9 pr-9 h-10 rounded-full"
+        />
+        {query && (
           <Button
-            variant={filterCat === "all" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilterCat("all")}
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setQuery("")}
+            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"
           >
-            Alle
+            <X className="h-4 w-4" />
           </Button>
-          {categories.map((c) => (
-            <Button
-              key={c.id}
-              variant={filterCat === c.id ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterCat(c.id)}
-            >
-              {c.name}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <section className="space-y-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Aktivert hos kunden ({active.length})
-        </h3>
-        {active.length === 0 ? (
-          <Card className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Kunden har ikke bestilt noen regelverk ennå.
-            </p>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {active.map((f) => renderFrameworkCard(f, "active"))}
-          </div>
         )}
-      </section>
-
-      {recommended.length > 0 && (
-        <section className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Lightbulb className="h-4 w-4 text-primary" />
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-primary">
-              Anbefalt for denne kunden ({recommended.length})
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {recommended.map((f) => renderFrameworkCard(f, "recommended"))}
-          </div>
-        </section>
+      </div>
+      {q && (
+        <p className="text-xs text-muted-foreground mt-2">
+          {totalMatches} treff for «{query}»
+        </p>
       )}
 
-      <section className="space-y-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Øvrige tilgjengelige regelverk ({other.length})
-        </h3>
-        {other.length === 0 ? (
-          <Card className="p-4 text-center">
-            <p className="text-sm text-muted-foreground">
-              Ingen flere regelverk tilgjengelig i dette filteret.
-            </p>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {other.map((f) => renderFrameworkCard(f, "other"))}
-          </div>
+      {/* Filters */}
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
+        <div className="flex items-center gap-2">
+          {(["active", "inactive", "all"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setStatusFilter(s)}
+              className={`transition-colors hover:text-foreground ${
+                statusFilter === s ? "text-foreground font-medium" : ""
+              }`}
+            >
+              {s === "all" ? "Alle" : s === "active" ? "Aktive" : "Ikke aktive"}
+            </button>
+          ))}
+        </div>
+
+        <span aria-hidden className="h-3 w-px bg-border" />
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label="Flere filtre"
+              className={`relative inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 transition-colors hover:text-foreground hover:bg-muted ${
+                categoryFilter ? "text-foreground" : ""
+              }`}
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              Filtre
+              {categoryFilter && (
+                <span className="ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                  1
+                </span>
+              )}
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="start" className="w-72 p-3">
+            <div className="space-y-3">
+              <div>
+                <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Kategori
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {categories.map((cat) => {
+                    const active = categoryFilter === cat.id;
+                    const Icon = cat.icon;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setCategoryFilter(active ? null : cat.id)}
+                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] transition-colors ${
+                          active
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-background hover:bg-muted"
+                        }`}
+                      >
+                        <Icon className="h-3 w-3" />
+                        {cat.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              {categoryFilter && (
+                <button
+                  type="button"
+                  onClick={() => setCategoryFilter(null)}
+                  className="inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-3 w-3" /> Nullstill filtre
+                </button>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      <div className="mt-6 space-y-6">
+        {visibleCategories.length === 0 && (
+          <p className="text-sm text-muted-foreground py-8 text-center">
+            Ingen regelverk matcher filtrene.
+          </p>
         )}
-      </section>
+        {visibleCategories.map(({ cat: category, items }) => {
+          const CategoryIcon = category.icon;
+          return (
+            <div key={category.id}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`p-1.5 rounded-lg ${category.bgColor}`}>
+                  <CategoryIcon className={`h-4 w-4 ${category.color}`} />
+                </div>
+                <h3 className="font-semibold text-sm text-foreground">{category.name}</h3>
+              </div>
+              <div className="space-y-2">
+                {items.map((f) => {
+                  const isActive = activatedIds.has(f.id);
+                  const isRecommended = !isActive && recommendationMap.has(f.id);
+                  const reason = recommendationMap.get(f.id);
+                  const record = isActive ? activatedById.get(f.id) : undefined;
+                  const orderedDate = record ? formatOrderedDate(record.orderedAt) : null;
+
+                  return (
+                    <div
+                      key={f.id}
+                      className={`flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors ${
+                        isActive
+                          ? "bg-primary/5 border-primary/20"
+                          : "bg-muted/30 border-border"
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium text-sm">{f.name}</span>
+                          {f.isMandatory && (
+                            <span className="inline-flex items-center gap-1 rounded-md border border-status-followup/30 bg-status-followup/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-status-followup">
+                              <Lock className="h-2.5 w-2.5" />
+                              Påkrevd
+                            </span>
+                          )}
+                          {isRecommended && reason && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                                  <Sparkles className="h-2.5 w-2.5" />
+                                  Anbefalt
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs max-w-[240px]">{reason}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                          {f.description}
+                        </p>
+                      </div>
+                      {isActive ? (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Badge
+                              variant="outline"
+                              className="gap-1 border-success/40 text-success bg-success/5 shrink-0"
+                            >
+                              <CheckCircle2 className="h-3 w-3" />
+                              Aktivert
+                            </Badge>
+                          </TooltipTrigger>
+                          {record && record.method !== "legacy" && (
+                            <TooltipContent>
+                              <p className="text-xs">
+                                {orderedDate && <>Bestilt {orderedDate}<br /></>}
+                                {record.method === "upload"
+                                  ? `Vedlegg: ${record.evidenceName}`
+                                  : "Partnerbekreftelse"}
+                              </p>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="shrink-0"
+                          onClick={() => setPendingFramework(f)}
+                        >
+                          Bestill
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       <FrameworkOrderConfirmDialog
         open={!!pendingFramework}
