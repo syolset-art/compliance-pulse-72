@@ -86,8 +86,8 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
 
   return (
     <div className="space-y-5">
-      {/* Filter / søk */}
-      <Card className="p-3 flex flex-wrap items-center gap-2">
+      {/* Slank filterrad — uten kort-boks */}
+      <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[220px]">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
@@ -135,67 +135,9 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
             ...TIER_ORDER.map((t) => ({ value: t, label: tierLabel(t) })),
           ]}
         />
-        <div className="ml-auto inline-flex items-center rounded-md border border-border bg-background p-0.5">
-          <button
-            type="button"
-            onClick={() => setViewMode("table")}
-            className={cn(
-              "inline-flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors",
-              viewMode === "table" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
-            )}
-            aria-pressed={viewMode === "table"}
-          >
-            <Rows3 className="h-3.5 w-3.5" /> Tabell
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode("cards")}
-            className={cn(
-              "inline-flex items-center gap-1 rounded px-2 py-1 text-xs transition-colors",
-              viewMode === "cards" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground",
-            )}
-            aria-pressed={viewMode === "cards"}
-          >
-            <LayoutGrid className="h-3.5 w-3.5" /> Bokser
-          </button>
-        </div>
-      </Card>
+      </div>
 
-      {/* Lara top picks */}
-      {topPicks.length > 0 && (search === "" && partnerFilter === (context.partnerType ?? "any") && scopeFilter === "all" && industryFilter === "all" && tierFilter === "all") && (
-        <section className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center">
-              <Sparkles className="h-3 w-3 text-primary" />
-            </span>
-            <h3 className="text-sm font-semibold text-foreground">Lara anbefaler for deg</h3>
-            <span className="text-xs text-muted-foreground">basert på partnertype og kundeportefølje</span>
-          </div>
-          {viewMode === "cards" ? (
-            <div className="grid gap-3 md:grid-cols-3">
-              {topPicks.map(({ template, reasons }) => (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  adopted={adoptedIds.has(template.id)}
-                  onAdopt={() => onAdopt(template)}
-                  reasons={reasons}
-                  highlighted
-                  hourlyRate={hourlyRate}
-                />
-              ))}
-            </div>
-          ) : (
-            <TemplateTable
-              items={topPicks}
-              adoptedIds={adoptedIds}
-              onAdopt={onAdopt}
-              hourlyRate={hourlyRate}
-              highlighted
-            />
-          )}
-        </section>
-      )}
+
 
       {/* Grupper per lag */}
       {TIER_ORDER.map((tier) => {
