@@ -4,8 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, ShieldCheck, Building2, Bot, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -22,8 +21,6 @@ import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext } from "@/li
 
 type AllSelections = Record<string, FrameworkSelection>;
 
-type MynderTier = "basic" | "premium" | "enterprise";
-
 interface ExtraService {
   id: string;
   name: string;
@@ -36,7 +33,6 @@ interface ExtraService {
   templateVersion?: string;
   mappings: ServiceMapping[];
   isMynder?: boolean;
-  tier?: MynderTier;
 }
 
 function formatNOK(n: number): string {
@@ -77,7 +73,6 @@ export function MSPServiceCatalogTab() {
       source: "manual",
       mappings: [],
       isMynder: true,
-      tier: "basic",
     },
     {
       id: "default-mynder-vendor",
@@ -92,7 +87,6 @@ export function MSPServiceCatalogTab() {
       source: "manual",
       mappings: [],
       isMynder: true,
-      tier: "basic",
     },
     {
       id: "default-mynder-agents",
@@ -107,7 +101,6 @@ export function MSPServiceCatalogTab() {
       source: "manual",
       mappings: [],
       isMynder: true,
-      tier: "basic",
     },
   ]);
   const [showCalculator, setShowCalculator] = useState(false);
@@ -162,7 +155,6 @@ export function MSPServiceCatalogTab() {
       });
     }
     extras.forEach((e) => {
-      if (e.isMynder) return;
       h += e.hours;
       p += e.hours * hourlyRate;
     });
@@ -333,38 +325,21 @@ export function MSPServiceCatalogTab() {
             <h3 className="text-sm font-semibold text-foreground">Mynder-tjenester</h3>
             <span className="text-xs text-muted-foreground">Inkludert i alle leveranser</span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="divide-y divide-border rounded-md border border-border bg-card">
             {extras.filter((e) => e.isMynder).map((e) => {
-              const Icon = e.id.includes("vendor") ? Building2 : e.id.includes("agents") ? Bot : ShieldCheck;
+              const price = e.hours * hourlyRate;
               return (
-                <Card key={e.id} className="p-4 space-y-3 border-border">
-                  <div className="flex items-start gap-3">
-                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Icon className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{e.name}</p>
-                    </div>
-
+                <div key={e.id} className="flex items-center gap-3 px-3 py-2">
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
                   </div>
-                  <Select
-                    value={e.tier ?? "basic"}
-                    onValueChange={(val) =>
-                      setExtras((prev) =>
-                        prev.map((x) => (x.id === e.id ? { ...x, tier: val as MynderTier } : x)),
-                      )
-                    }
-                  >
-                    <SelectTrigger className="h-9 w-full">
-                      <SelectValue placeholder="Velg pakke" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="basic">Basic</SelectItem>
-                      <SelectItem value="premium">Premium</SelectItem>
-                      <SelectItem value="enterprise">Enterprise</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Card>
+                  <div className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+                    {e.hours} t
+                  </div>
+                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
+                    {formatNOK(price)}
+                  </div>
+                </div>
               );
             })}
           </div>
