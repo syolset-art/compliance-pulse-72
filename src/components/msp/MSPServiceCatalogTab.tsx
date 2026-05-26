@@ -43,6 +43,21 @@ function formatNOK(n: number): string {
   return new Intl.NumberFormat("nb-NO").format(Math.round(n)) + " kr";
 }
 
+const TEMPLATE_PICKS: Array<{
+  code: string;
+  label: string;
+  icon: typeof UserCog;
+  bg: string;
+  fg: string;
+}> = [
+  { code: "MSP4", label: "DPO-as-a-service", icon: UserCog, bg: "bg-primary/10", fg: "text-primary" },
+  { code: "MSSP7", label: "SOC 2 forberedelse", icon: Radar, bg: "bg-success/10", fg: "text-success" },
+  { code: "MSSP6", label: "Gap-analyse", icon: ClipboardCheck, bg: "bg-warning/10", fg: "text-warning" },
+  { code: "MSSP5", label: "Penetrasjonstest", icon: Bug, bg: "bg-info/10", fg: "text-info" },
+  { code: "MSSP8", label: "AI Act-kartlegging", icon: Cpu, bg: "bg-accent", fg: "text-accent-foreground" },
+  { code: "MSSP2", label: "ISO 27001-sertifisering", icon: Award, bg: "bg-success/10", fg: "text-success" },
+];
+
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
   const [hourlyRate, setHourlyRate] = useState<number>(1500);
