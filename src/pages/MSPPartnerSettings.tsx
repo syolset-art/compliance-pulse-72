@@ -143,162 +143,176 @@ export default function MSPPartnerSettings() {
             </p>
           </div>
 
-          {/* 1. Team-tilgang */}
-          <Card className="p-5">
-            <div className="flex items-start justify-between gap-3 mb-4">
-              <div className="flex items-start gap-3">
-                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <Users className="h-4 w-4 text-primary" />
+          <Tabs defaultValue="generelt" className="space-y-4">
+            <TabsList className="h-10">
+              <TabsTrigger value="generelt" className="gap-1.5">
+                <SettingsIcon className="h-3.5 w-3.5" /> Generelt
+              </TabsTrigger>
+              <TabsTrigger value="tilbudsmerking" className="gap-1.5">
+                <ImageIcon className="h-3.5 w-3.5" /> Tilbudsmerking
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="generelt" className="space-y-4">
+              {/* 1. Team-tilgang */}
+              <Card className="p-5">
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Users className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-sm font-semibold text-foreground">Brukere med tilgang til partnerdelen</h2>
+                      <p className="text-[12px] text-muted-foreground mt-0.5">
+                        Disse brukerne kan se kundeporteføljen, sende tilbud og motta meldinger.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5"
+                    onClick={() => setInviteOpen(true)}
+                  >
+                    <UserPlus className="h-3.5 w-3.5" /> Inviter bruker
+                  </Button>
                 </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-foreground">Brukere med tilgang til partnerdelen</h2>
-                  <p className="text-[12px] text-muted-foreground mt-0.5">
-                    Disse brukerne kan se kundeporteføljen, sende tilbud og motta meldinger.
-                  </p>
+
+                <div className="flex items-baseline gap-2 mb-2">
+                  <span className="text-3xl font-semibold text-foreground tabular-nums">{team.length}</span>
+                  <span className="text-[13px] text-muted-foreground">
+                    {team.length === 1 ? "bruker" : "brukere"} har tilgang
+                  </span>
                 </div>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="gap-1.5"
-                onClick={() => setInviteOpen(true)}
-              >
-                <UserPlus className="h-3.5 w-3.5" /> Inviter bruker
-              </Button>
-            </div>
 
-            <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-3xl font-semibold text-foreground tabular-nums">{team.length}</span>
-              <span className="text-[13px] text-muted-foreground">
-                {team.length === 1 ? "bruker" : "brukere"} har tilgang
-              </span>
-            </div>
+                <div className="rounded-xl border border-border divide-y divide-border">
+                  {team.map((m) => (
+                    <div key={m.id} className="flex items-center gap-3 px-4 py-3">
+                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-[12px] font-medium text-foreground shrink-0">
+                        {m.initials}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-foreground truncate">{m.name}</p>
+                        <p className="text-[12px] text-muted-foreground truncate">{m.email}</p>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={
+                          m.role === "Partner-admin"
+                            ? "bg-primary/5 text-primary border-primary/30 text-[10px]"
+                            : "text-[10px]"
+                        }
+                      >
+                        <Shield className="h-3 w-3 mr-1" /> {m.role}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </Card>
 
+              {/* 2. E-postvideresending */}
+              <Card className="p-5">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Mail className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-sm font-semibold text-foreground">Videresend meldinger til e-post</h2>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">
+                      Du får alt — kundesvar, aksepterte tilbud, påminnelser — rett i innboksen din. Slipp å
+                      logge inn i Mynder for å holde deg oppdatert.
+                    </p>
+                  </div>
+                </div>
 
-            <div className="rounded-xl border border-border divide-y divide-border">
-              {team.map((m) => (
-                <div key={m.id} className="flex items-center gap-3 px-4 py-3">
-                  <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-[12px] font-medium text-foreground shrink-0">
-                    {m.initials}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
+                    <div>
+                      <p className="text-[13px] font-medium text-foreground">
+                        Videresend alle innkommende meldinger
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        Skru av for å bare lese meldinger inne i Mynder.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={form.forwardEnabled}
+                      onCheckedChange={(v) => update("forwardEnabled", v)}
+                    />
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="inbox" className="text-[12px]">
+                        Mottaks-e-post
+                      </Label>
+                      <Input
+                        id="inbox"
+                        type="email"
+                        placeholder="navn@firma.no"
+                        value={form.inboxEmail}
+                        onChange={(e) => update("inboxEmail", e.target.value)}
+                        disabled={!form.forwardEnabled}
+                      />
+                      <p className="text-[11px] text-muted-foreground">
+                        Alle nye meldinger sendes hit som e-post.
+                      </p>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="reply" className="text-[12px]">
+                        Svar-til <span className="text-muted-foreground font-normal">— valgfritt</span>
+                      </Label>
+                      <Input
+                        id="reply"
+                        type="email"
+                        placeholder="salg@firma.no"
+                        value={form.replyToEmail}
+                        onChange={(e) => update("replyToEmail", e.target.value)}
+                        disabled={!form.forwardEnabled}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2 rounded-lg bg-muted/40 border border-border p-3 text-[11px] text-muted-foreground">
+                    <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                    <span>
+                      Innstillingene gjelder for hele partner-organisasjonen og deles med alle meldingsfanene i
+                      Mynder.
+                    </span>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button onClick={handleSave} className="gap-1.5">
+                      <Save className="h-4 w-4" /> Lagre innstillinger
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+
+              {/* 3. Lenke til fakturering */}
+              <Card className="p-0 overflow-hidden">
+                <Link
+                  to="/msp-billing"
+                  className="flex items-center gap-3 p-4 hover:bg-muted/40 transition-colors"
+                >
+                  <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                    <CreditCard className="h-4 w-4 text-foreground/70" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-foreground truncate">{m.name}</p>
-                    <p className="text-[12px] text-muted-foreground truncate">{m.email}</p>
+                    <p className="text-[13px] font-medium text-foreground">Fakturering og adresse</p>
+                    <p className="text-[12px] text-muted-foreground">
+                      Faktura-e-post, EHF, organisasjonsnummer og betalingsmetode.
+                    </p>
                   </div>
-                  <Badge
-                    variant="outline"
-                    className={
-                      m.role === "Partner-admin"
-                        ? "bg-primary/5 text-primary border-primary/30 text-[10px]"
-                        : "text-[10px]"
-                    }
-                  >
-                    <Shield className="h-3 w-3 mr-1" /> {m.role}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </Card>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                </Link>
+              </Card>
+            </TabsContent>
 
-          {/* 2. E-postvideresending */}
-          <Card className="p-5">
-            <div className="flex items-start gap-3 mb-4">
-              <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <Mail className="h-4 w-4 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-sm font-semibold text-foreground">Videresend meldinger til e-post</h2>
-                <p className="text-[12px] text-muted-foreground mt-0.5">
-                  Du får alt — kundesvar, aksepterte tilbud, påminnelser — rett i innboksen din. Slipp å
-                  logge inn i Mynder for å holde deg oppdatert.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
-                <div>
-                  <p className="text-[13px] font-medium text-foreground">
-                    Videresend alle innkommende meldinger
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">
-                    Skru av for å bare lese meldinger inne i Mynder.
-                  </p>
-                </div>
-                <Switch
-                  checked={form.forwardEnabled}
-                  onCheckedChange={(v) => update("forwardEnabled", v)}
-                />
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="inbox" className="text-[12px]">
-                    Mottaks-e-post
-                  </Label>
-                  <Input
-                    id="inbox"
-                    type="email"
-                    placeholder="navn@firma.no"
-                    value={form.inboxEmail}
-                    onChange={(e) => update("inboxEmail", e.target.value)}
-                    disabled={!form.forwardEnabled}
-                  />
-                  <p className="text-[11px] text-muted-foreground">
-                    Alle nye meldinger sendes hit som e-post.
-                  </p>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="reply" className="text-[12px]">
-                    Svar-til <span className="text-muted-foreground font-normal">— valgfritt</span>
-                  </Label>
-                  <Input
-                    id="reply"
-                    type="email"
-                    placeholder="salg@firma.no"
-                    value={form.replyToEmail}
-                    onChange={(e) => update("replyToEmail", e.target.value)}
-                    disabled={!form.forwardEnabled}
-                  />
-                </div>
-
-              </div>
-
-
-              <div className="flex items-start gap-2 rounded-lg bg-muted/40 border border-border p-3 text-[11px] text-muted-foreground">
-                <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                <span>
-                  Innstillingene gjelder for hele partner-organisasjonen og deles med alle meldingsfanene i
-                  Mynder.
-                </span>
-              </div>
-
-              <div className="flex justify-end">
-                <Button onClick={handleSave} className="gap-1.5">
-                  <Save className="h-4 w-4" /> Lagre innstillinger
-                </Button>
-              </div>
-            </div>
-          </Card>
-
-          {/* 3. Lenke til fakturering */}
-          <Card className="p-0 overflow-hidden">
-            <Link
-              to="/msp-billing"
-              className="flex items-center gap-3 p-4 hover:bg-muted/40 transition-colors"
-            >
-              <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                <CreditCard className="h-4 w-4 text-foreground/70" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium text-foreground">Fakturering og adresse</p>
-                <p className="text-[12px] text-muted-foreground">
-                  Faktura-e-post, EHF, organisasjonsnummer og betalingsmetode.
-                </p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </Link>
-          </Card>
+            <TabsContent value="tilbudsmerking">
+              <PartnerBrandingCard />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
 
