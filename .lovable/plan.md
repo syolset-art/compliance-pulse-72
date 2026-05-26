@@ -1,51 +1,92 @@
 ## Mål
-Hver widget på MSP Partner-dashboardet (`/msp-partner`) skal kunne åpnes som en egen landingsside med detaljvisning, slik at partneren kan "lære mer" og bore seg ned i tallene.
 
-## Widgets som får detaljside
-Fra `src/pages/MSPPartnerDashboard.tsx`:
-1. `ClaimRateWidget` — Claim rate / aktivering
-2. `NeedsFollowUpWidget` — Krever oppfølging
-3. `AvgTrustScoreWidget` — Gjennomsnittlig trust score
-4. `ClaimDevelopmentChart` — Utvikling claim rate
-5. `PortfolioSegmentation` — Porteføljesegmentering
-6. `TopServicesWidget` — Mest brukte tjenester
-7. `CampaignsWidget` — Pågående kampanjer
-8. `NewsWidget` — Nyheter fra Mynder
+Et nytt selvstendig modul **Agentstyring** der virksomheten registrerer og styrer AI-agenter (egne Lara-flyter + BYOA som Copilot/GitHub Copilot) etter Mynders MACF-rammeverk. Lever på samme nivå som Leverandørmodulen: egen sidebar-seksjon, egen rute, eget register med KPI-er, tabellvisning og detaljside per agent.
 
-## Løsning
+## Scope (denne iterasjonen)
 
-### 1. Felles oppsett
-- Ny route-prefiks: `/msp-partner/widget/:widgetId` i `src/App.tsx`.
-- Én delt side-komponent `MSPWidgetDetail.tsx` som ruter videre til riktig detalj-innhold basert på `widgetId`.
-- Hver widget i `MSPPartnerDashboard.tsx` får et lite "Lær mer"-element i øvre høyre hjørne (ikon + tekstlink, diskret — i tråd med "less is more"-styringen), som navigerer til detaljsiden. Hele widget-kortet blir også klikkbart der det gir mening (klikker man tom flate → samme route).
+1. **Sidebar-oppføring** "Agenter" under hovednavigasjon, mellom Leverandører og Meldinger. Samme mønster som `vendorLink` (kollapsbar med Oversikt + Rapporter, klar for fremtidige under-sider).
+2. **Hovedside `/agents`** – AI-agentregister (matcher skjermbildet):
+   - Topp: tittel "AI-agenter", undertekst "Registrerte agenter tilknyttet din Trust Profile · MACF-styrt", knapper Eksporter + Registrer agent.
+   - 4 KPI-kort: Totalt registrert · Aktive i produksjon · Venter MACF-godkjenning · BYOA-agenter.
+   - To grupperte tabeller:
+     - **Mynder — Lara-flyter** (interne agenter)
+     - **BYOA — Bring your own agent** (eksterne)
+   - Kolonner: Agent (navn + undertittel) · Type-pille · Status · MACF-nivå · Tillit-score (mini-bar + tall) · Handling-knapp.
+   - "Mynders tilnærming"-infoboks nederst.
+   - Footer-merknad om hvordan Tillit-score beregnes.
+3. **Detaljside `/agents/:id`** – tab-basert profil (Oversikt, MACF, Risikovurdering, Audit-logg, Tilkoblinger). Første iterasjon: Oversikt + MACF synlige, øvrige tabs som tomme placeholders.
+4. **Registrer agent-dialog** – wizard med felt: navn, type (Mynder/BYOA), leverandør/team, beskrivelse, formål, datatilfang, tool-sett, MACF-mål-nivå. Lara-forslag for risikoklassifisering (matcher AI-philosophy memory).
+5. **Demo-data + seed** – `lib/demoSeedAgents.ts` med agentene fra skjermbildet (Lara Leverandørgjennomgang, Tilgangskontroll, Policy-agent, Copilot for M365, GitHub Copilot) slik at modulen ser levende ut umiddelbart, parallelt med leverandør-demo.
 
-### 2. Detaljside-struktur (samme layout for alle)
-Felles wrapper med `Sidebar`, tilbake-knapp ("Tilbake til dashboard"), og innhold delt i seksjoner:
-- **Hero**: widget-tittel, kort beskrivelse, nøkkeltall (samme tall som widget viser).
-- **Visualisering**: større versjon av widgetens graf/innhold (gjenbruker eksisterende sub-komponenter der mulig).
-- **Hva betyr dette?**: forklarende tekst om hvordan tallet beregnes og hvorfor det er viktig.
-- **Detaljer / nedbryting**: liste/tabell med underliggende data (f.eks. per kunde, per segment, per kampanje, per nyhetstype).
-- **Anbefalte handlinger**: CTAs til relevante sider (kundeoversikt, lisenser, kampanjeoppsett, osv.) — gjenbruker eksisterende lenker.
+## Datamodell (Supabase)
 
-### 3. Per-widget detaljinnhold (kort)
-- **claim-rate**: Trend siste 12 mnd, brytning per segment, topp 5 kunder med høyest/lavest aktivering.
-- **needs-follow-up**: Full liste over de 23 kundene gruppert i 3 kategorier (utdaterte TP, manglende DPA, kritiske avvik) med direkte lenker.
-- **avg-trust-score**: Histogram over scorefordeling, kundene som drar snittet ned, månedlig utvikling.
-- **claim-development**: Større graf + tabellvisning av månedstall, sammenligning mot mål.
-- **portfolio-segmentation**: Detaljert kakediagram, antall kunder per segment, ARR per segment.
-- **top-services**: Full rangering med antall kunder/inntekt per tjeneste, vekst siste kvartal.
-- **campaigns**: Liste over alle aktive + planlagte + avsluttede kampanjer, resultat per kampanje, opprett ny.
-- **news**: Full nyhetsfeed med filter på type (feature/kurs/webinar), arkiv.
+Ny tabell `ai_agents` med RLS:
 
-### 4. Tekniske detaljer
-- Filer som opprettes:
-  - `src/pages/MSPWidgetDetail.tsx` (router/switch på `widgetId`).
-  - `src/components/msp/widget-details/` med én komponent per widget (`ClaimRateDetail.tsx`, osv.).
-- Filer som endres:
-  - `src/App.tsx` — ny route.
-  - `src/pages/MSPPartnerDashboard.tsx` — legg til "Lær mer"-link/onClick på alle 8 widget-kortene; trekk ut delte data-konstanter (f.eks. `NEWS_ITEMS`, `CAMPAIGNS`) til `src/lib/mspPartnerDashboardData.ts` slik at både dashboard og detaljsidene kan bruke samme demo-data.
-- Ingen DB-endringer; alt er demo-data slik som widgetene allerede er i dag.
-- Design holder seg til eksisterende tokens (deep purple primary, status-farger for risiko).
+```text
+ai_agents
+├── id (uuid pk)
+├── organization_id (uuid)
+├── name (text)
+├── subtitle (text)               // "Totto · audit-logging på"
+├── kind (enum: mynder | byoa)
+├── provider (text)               // "Microsoft", "GitHub", "Mynder"
+├── owner_team (text)
+├── status (enum: active | review | inactive | pending)
+├── macf_level (enum: not_assessed | L1 | L2 | L3 | L3_pending)
+├── trust_score (int 0-100)       // avledet, lagres for visning
+├── risk_category (enum)          // gjenbruk samme verdier som AI-systemer
+├── purpose (text)
+├── data_scope (text[])
+├── tools (text[])
+├── audit_logging (bool)
+├── rbac_roles (text[])
+├── created_at / updated_at
+```
 
-## Resultat
-Partneren kan klikke seg fra hvilken som helst widget på dashboardet inn på en dedikert side som forklarer tallet, viser større visualisering, lar dem bore seg ned og foreslår neste handling — uten å tilføre støy på selve dashboardet.
+Tilleggstabell `agent_macf_assessments` for revisjonsspor (en rad per evaluering, lagrer score-komponenter + tidspunkt). RLS scoped på `organization_id` via samme helpers som `assets`.
+
+## Filplassering
+
+```text
+src/pages/AgentRegistry.tsx
+src/pages/AgentProfile.tsx
+src/components/agents/
+├── AgentTable.tsx          // én tabell, gjenbrukes for begge seksjoner
+├── AgentKpiRow.tsx
+├── AgentTrustBar.tsx       // mini-progress + score
+├── MacfLevelBadge.tsx
+├── RegisterAgentDialog.tsx
+├── AgentApproachCallout.tsx
+├── AgentScoreFootnote.tsx
+└── tabs/
+    ├── AgentOverviewTab.tsx
+    └── AgentMacfTab.tsx
+src/hooks/useAgents.ts
+src/hooks/useAgentMetrics.ts
+src/lib/agentMacf.ts         // MACF-nivåer, scoring, fargesystem
+src/lib/demoSeedAgents.ts
+```
+
+## Designtokens
+
+- Pillefarger: Mynder = primary/15 (deep purple), BYOA = warning/15.
+- MACF-nivåer: L1 muted, L2 success, L3 primary, "venter"/"ikke vurdert" = warning/muted med varseltrekant.
+- Tillit-score-bar bruker eksisterende risiko-fargeregel (>=75 success, 50–74 warning, <50 destructive) — i tråd med Core-memory.
+
+## i18n
+
+Alle strenger via nye `agents.*`-nøkler i `nb` og `en` (Agentstyring / Agent governance, Tillit-score / Trust score, BYOA, MACF-nivå, osv.).
+
+## Module-aktivering
+
+Hekt på samme soft-gate/aktiveringsmønster som Vendors (samme moduleActivationEvents-flyt). Default: vises for super_admin og når feature-flagget `agents` er aktivt; ellers skjult fra sidebar – akkurat som `showVendorsNormal`.
+
+## Ute av scope nå
+
+- Faktisk MACF-evaluering / runtime-gating av agenter.
+- BYOA-integrasjonsoppdagelse (Copilot-konnektorer).
+- Eksport-PDF (knappen finnes, men leverer kun CSV-stub i denne iterasjonen).
+
+## Åpent spørsmål før bygg
+
+Skal "Agenter" knyttes til **Trust Profile** (vises på offentlig profil med MACF-nivå og score) i denne iterasjonen, eller holdes internt først og publiseres i en oppfølging? Skjermbildets undertittel antyder Trust Profile-kobling, men det er en større endring som påvirker `trust_profile_sections` og publish-logikk.
