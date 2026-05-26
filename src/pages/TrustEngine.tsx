@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Shield, ShieldCheck, Lock, CheckCircle2, Globe, Building2, ArrowRight, Loader2, User, Sparkles } from "lucide-react";
+import { Search, Shield, ShieldCheck, Lock, CheckCircle2, Globe, Building2, ArrowRight, Loader2, User, Sparkles, Info, SearchX } from "lucide-react";
 import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
 import CreateTrustProfileModal from "@/components/trust-center/CreateTrustProfileModal";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -280,22 +280,45 @@ export default function TrustEngine() {
       <section className="pb-20 px-6">
         <div className="container max-w-4xl mx-auto">
           {isLoading ? (
-            <div className="flex justify-center py-12">
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                {isNb ? "Søker i Trust Engine..." : "Searching Trust Engine..."}
+              </p>
             </div>
           ) : results && results.length > 0 ? (
             <div className="space-y-4">
-              <p className="text-sm text-muted-foreground mb-2">
+              {/* Section header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">
+                    {query
+                      ? (isNb
+                          ? `Resultater for «${query}»`
+                          : `Results for "${query}"`)
+                      : (isNb
+                          ? "Tilgjengelige Trust Profiler"
+                          : "Available Trust Profiles")}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    {isNb
+                      ? `${results.length} organisasjon${results.length !== 1 ? "er" : ""} funnet`
+                      : `${results.length} organization${results.length !== 1 ? "s" : ""} found`}
+                  </p>
+                </div>
+                <Badge variant="outline" className="gap-1.5 text-xs">
+                  <ShieldCheck className="h-3.5 w-3.5 text-success" />
+                  {isNb ? "Verifisert" : "Verified"}
+                </Badge>
+              </div>
+
+              <p className="text-xs text-muted-foreground/80 inline-flex items-center gap-1.5">
+                <Info className="h-3.5 w-3.5" />
                 {isNb
-                  ? `${results.length} organisasjon${results.length !== 1 ? "er" : ""} funnet`
-                  : `${results.length} organization${results.length !== 1 ? "s" : ""} found`}
+                  ? "Alle organisasjoner her har selv valgt å publisere sin Trust Profile."
+                  : "Every organization here has voluntarily chosen to publish its Trust Profile."}
               </p>
-              <p className="text-xs text-muted-foreground/80 mb-6 inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-success" />
-                {isNb
-                  ? "Alle organisasjoner her har selv valgt å publisere sin Trust Profile. Innholdet er kryptert og verifisert."
-                  : "Every organization here has voluntarily chosen to publish its Trust Profile. The content is encrypted and verified."}
-              </p>
+
               {results.map((asset) => (
                 <Card
                   key={asset.id}
@@ -331,15 +354,59 @@ export default function TrustEngine() {
               ))}
             </div>
           ) : query ? (
-            <div className="text-center py-16">
-              <Shield className="h-12 w-12 mx-auto text-muted-foreground/40 mb-4" />
-              <p className="text-lg text-muted-foreground">
+            /* Active search with no results */
+            <Card variant="luxury" className="p-10 text-center border-dashed">
+              <SearchX className="h-12 w-12 mx-auto text-muted-foreground/40 mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-1">
                 {isNb
                   ? `Ingen organisasjoner funnet for «${query}»`
                   : `No organizations found for "${query}"`}
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+                {isNb
+                  ? "Selskapet har ennå ikke publisert sin Trust Profile i Mynder Trust Engine. Du kan be dem om å opprette en, eller opprette din egen."
+                  : "The company has not yet published its Trust Profile in Mynder Trust Engine. You can ask them to create one, or create your own."}
               </p>
-            </div>
-          ) : null}
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => { setSearch(""); setQuery(""); }}
+                  className="rounded-xl"
+                >
+                  {isNb ? "Tilbake til oversikt" : "Back to overview"}
+                </Button>
+                <Button
+                  onClick={() => setCreateOpen(true)}
+                  className="gap-2 rounded-xl"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {isNb ? "Opprett Trust Profile" : "Create Trust Profile"}
+                </Button>
+              </div>
+            </Card>
+          ) : (
+            /* No published profiles at all */
+            <Card variant="luxury" className="p-10 text-center border-dashed">
+              <Shield className="h-12 w-12 mx-auto text-muted-foreground/40 mb-4" />
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                {isNb
+                  ? "Ingen Trust Profiler publisert ennå"
+                  : "No Trust Profiles published yet"}
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+                {isNb
+                  ? "Det er ingen organisasjoner som har publisert sin Trust Profile i databasen ennå. Bli den første!"
+                  : "There are no organizations that have published their Trust Profile in the database yet. Be the first!"}
+              </p>
+              <Button
+                onClick={() => setCreateOpen(true)}
+                className="gap-2 rounded-xl"
+              >
+                <Sparkles className="h-4 w-4" />
+                {isNb ? "Opprett din Trust Profile" : "Create your Trust Profile"}
+              </Button>
+            </Card>
+          )}
         </div>
       </section>
 
