@@ -15,6 +15,8 @@ import Auth from "./pages/Auth";
 import SystemTrustProfile from "./pages/SystemTrustProfile";
 import AIAgentSetup from "./pages/AIAgentSetup";
 import AISystemRegistry from "./pages/AISystemRegistry";
+import AgentRegistry from "./pages/AgentRegistry";
+import AgentProfile from "./pages/AgentProfile";
 import Tasks from "./pages/Tasks";
 import Systems from "./pages/Systems";
 import Onboarding from "./pages/Onboarding";
@@ -114,6 +116,8 @@ const App = () => (
                   <Route path="/" element={<Index />} />
                   <Route path="/ai-setup" element={<AIAgentSetup />} />
                   <Route path="/ai-registry" element={<AISystemRegistry />} />
+                  <Route path="/agents" element={<AgentRegistry />} />
+                  <Route path="/agents/:id" element={<AgentProfile />} />
                   <Route path="/tasks" element={<Tasks />} />
                   <Route path="/onboarding" element={<Onboarding />} />
                   <Route path="/vendors" element={<VendorDashboard />} />
