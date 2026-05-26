@@ -95,7 +95,7 @@ export default function TrustEngine() {
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-sm gap-1.5 border-primary/30 text-primary dark:border-accent/40 dark:text-accent">
               <Globe className="h-3.5 w-3.5" />
-              {isNb ? "Åpen database" : "Open Database"}
+              {isNb ? "Portable Trust" : "Portable Trust"}
             </Badge>
             <LanguageSwitcher />
           </div>
