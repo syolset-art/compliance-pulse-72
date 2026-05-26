@@ -307,7 +307,7 @@ export function MSPServiceCatalogTab() {
             {extras.map((e) => {
               const price = e.hours * hourlyRate;
               return (
-                <div key={e.id} className="flex items-center gap-3 rounded-md border border-border bg-card px-3 py-2">
+                <div key={e.id} className="flex items-center gap-3 px-3 py-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       {e.templateCode && (
