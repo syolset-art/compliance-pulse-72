@@ -324,6 +324,7 @@ const SidebarContent = () => {
   const registriesItems = [
     ...(showCoreNormal ? [systemsLink] : []),
     ...(showAssetsNormal ? [assetsLink] : []),
+    agentsLink,
   ];
   const isRegistriesActive = registriesItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
