@@ -63,7 +63,7 @@ export default function MSPCustomerDetail() {
     frameworkName: string;
     serviceId: string;
   } | null>(null);
-  const startGapRef = useState<{ run: () => void }>({ run: () => {} })[0];
+  const startGapRef = { current: (() => {}) as () => void };
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
