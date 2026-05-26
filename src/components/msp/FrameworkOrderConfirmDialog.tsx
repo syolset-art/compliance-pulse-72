@@ -11,7 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { FileUp, Paperclip, X } from "lucide-react";
+import { FileUp, Paperclip, X, Info } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { type Framework } from "@/lib/frameworkDefinitions";
 import { toast } from "sonner";
 
@@ -177,6 +178,18 @@ export function FrameworkOrderConfirmDialog({
               Kunden har godkjent. Jeg er ansvarlig som partner.
             </Label>
           </div>
+
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+              <Info className="h-3.5 w-3.5" />
+              Mer om bestilling og ansvar
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2 text-xs text-muted-foreground space-y-1.5 pl-5">
+              <p>Aktivering av regelverk faktureres iht. partneravtalen med Mynder.</p>
+              <p>Som partner står du ansvarlig for at kunden har godkjent aktiveringen. Bekreftelsen lagres som dokumentasjon.</p>
+              <p>Etter bestilling hjelper Lara kunden i gang med å etablere baseline for regelverket.</p>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
