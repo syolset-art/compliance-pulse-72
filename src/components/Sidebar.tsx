@@ -337,6 +337,7 @@ const SidebarContent = () => {
   const exploreRegistryItems = [
     ...(!showVendorsNormal ? [vendorLink] : []),
     ...(!showAssetsNormal ? [assetsLink] : []),
+    agentsLink,
   ];
   const exploreItems = [...exploreCoreItems, ...exploreRegistryItems];
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
