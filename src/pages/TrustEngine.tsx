@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, Shield, ShieldCheck, Lock, CheckCircle2, Globe, Building2, ArrowRight, Loader2, User, Sparkles } from "lucide-react";
+import { Search, Shield, ShieldCheck, Lock, CheckCircle2, Globe, Building2, ArrowRight, Loader2, User, Sparkles, Info, SearchX } from "lucide-react";
 import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
 import CreateTrustProfileModal from "@/components/trust-center/CreateTrustProfileModal";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
