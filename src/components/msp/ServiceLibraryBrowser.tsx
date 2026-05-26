@@ -149,26 +149,14 @@ export function ServiceLibraryBrowser({ context, adoptedIds, onAdopt, hourlyRate
               <h3 className="text-sm font-semibold text-foreground">{tierLabel(tier)}</h3>
               <span className="text-xs text-muted-foreground tabular-nums">{items.length} tjenester</span>
             </div>
-            {viewMode === "cards" ? (
-              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                {items.map(({ template }) => (
-                  <TemplateCard
-                    key={template.id}
-                    template={template}
-                    adopted={adoptedIds.has(template.id)}
-                    onAdopt={() => onAdopt(template)}
-                    hourlyRate={hourlyRate}
-                  />
-                ))}
-              </div>
-            ) : (
-              <TemplateTable
-                items={items}
-                adoptedIds={adoptedIds}
-                onAdopt={onAdopt}
-                hourlyRate={hourlyRate}
-              />
-            )}
+            <TemplateTable
+              items={items}
+              adoptedIds={adoptedIds}
+              onAdopt={onAdopt}
+              hourlyRate={hourlyRate}
+              laraIds={new Set(topPicks.map((p) => p.template.id))}
+            />
+
           </section>
         );
       })}
