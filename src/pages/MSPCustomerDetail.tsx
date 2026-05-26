@@ -81,6 +81,36 @@ export default function MSPCustomerDetail() {
 
   const { deliveries: questionnaireDeliveries } = useQuestionnaireDeliveries();
 
+  // Aktiverte regelverk for kunden — kombiner DB-felt og localStorage (Regelverk-fanen)
+  const activeFrameworkIds = useMemo(() => {
+    const fromDb = (customer?.active_frameworks || []) as string[];
+    const ids = new Set<string>();
+    for (const n of fromDb) {
+      const norm = String(n).toLowerCase().replace(/[\s/-]/g, "");
+      const match = ALL_FRAMEWORKS.find((f) => {
+        const fn = f.name.toLowerCase().replace(/[\s/-]/g, "");
+        const fid = f.id.toLowerCase().replace(/[\s/-]/g, "");
+        return fn.includes(norm) || norm.includes(fid) || fid === norm;
+      });
+      if (match) ids.add(match.id);
+    }
+    try {
+      const raw = customerId ? localStorage.getItem("msp.customer.activatedFrameworks." + customerId) : null;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          for (const item of parsed) {
+            const id = typeof item === "string" ? item : item?.id;
+            if (id) ids.add(id);
+          }
+        }
+      }
+    } catch {}
+    return Array.from(ids);
+  }, [customer?.active_frameworks, customerId]);
+
+
+
 
 
 
