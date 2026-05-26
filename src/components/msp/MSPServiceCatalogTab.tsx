@@ -316,9 +316,12 @@ export function MSPServiceCatalogTab() {
                         </span>
                       )}
                       <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
-                      <Badge variant="secondary" className="text-xs gap-1 h-5">
-                        {e.isMynder ? (<><Sparkles className="h-3 w-3" /> Mynder</>) : e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Bibliotek</>) : "Manuell"}
-                      </Badge>
+                      {!e.isMynder && (
+                        <Badge variant="secondary" className="text-xs gap-1 h-5">
+                          {e.source === "library" ? (<><Sparkles className="h-3 w-3" /> Bibliotek</>) : "Manuell"}
+                        </Badge>
+                      )}
+
                       {e.templateVersion && (
                         <span className="text-xs text-muted-foreground">v{e.templateVersion}</span>
                       )}
