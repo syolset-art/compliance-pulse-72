@@ -348,12 +348,8 @@ export function MSPServiceCatalogTab() {
                         )}
                       </div>
                     )}
-                    {!e.isMynder && (
-                      <p className="text-xs text-muted-foreground tabular-nums mt-1">
-                        Estimert pris
-                      </p>
-                    )}
                   </div>
+
                   {e.isMynder ? (
                     <Select
                       value={e.tier ?? "basic"}
