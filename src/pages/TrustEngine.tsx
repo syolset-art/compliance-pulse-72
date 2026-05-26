@@ -95,7 +95,7 @@ export default function TrustEngine() {
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-sm gap-1.5 border-primary/30 text-primary dark:border-accent/40 dark:text-accent">
               <Globe className="h-3.5 w-3.5" />
-              {isNb ? "Åpen database" : "Open Database"}
+              {isNb ? "Portable Trust" : "Portable Trust"}
             </Badge>
             <LanguageSwitcher />
           </div>
@@ -113,8 +113,8 @@ export default function TrustEngine() {
           </h2>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             {isNb
-              ? "En åpen database over verifiserte Trust Profiler. Søk blant organisasjoner og se deres etterlevelse, sikkerhetstiltak og transparensdata — alt på ett sted."
-              : "An open database of verified Trust Profiles. Search organizations and explore their compliance, security measures, and transparency data — all in one place."}
+              ? "Søk blant organisasjoner og se deres etterlevelse, sikkerhetstiltak og transparensdata — alt på ett sted."
+              : "Search organizations and explore their compliance, security measures, and transparency data — all in one place."}
           </p>
 
           {/* Search */}
