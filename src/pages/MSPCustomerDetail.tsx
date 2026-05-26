@@ -271,6 +271,13 @@ export default function MSPCustomerDetail() {
               <MSPCustomerMessagesTab />
             </TabsContent>
 
+            <TabsContent value="regulations" className="mt-6">
+              <MSPCustomerRegulationsTab
+                customerId={customerId!}
+                customerName={customer.name || "Kunden"}
+              />
+            </TabsContent>
+
           </Tabs>
         </div>
 
