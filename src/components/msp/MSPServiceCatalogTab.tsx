@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award } from "lucide-react";
+import { TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -39,20 +39,30 @@ function formatNOK(n: number): string {
   return new Intl.NumberFormat("nb-NO").format(Math.round(n)) + " kr";
 }
 
+type PickTag = "recommended" | "popular" | "trending";
+
 const TEMPLATE_PICKS: Array<{
   code: string;
   label: string;
   icon: typeof UserCog;
   bg: string;
   fg: string;
+  tag?: PickTag;
+  tagReason?: string;
 }> = [
-  { code: "MSP4", label: "DPO-as-a-service", icon: UserCog, bg: "bg-primary/10", fg: "text-primary" },
-  { code: "MSSP7", label: "SOC 2 forberedelse", icon: Radar, bg: "bg-success/10", fg: "text-success" },
-  { code: "MSSP6", label: "Gap-analyse", icon: ClipboardCheck, bg: "bg-warning/10", fg: "text-warning" },
+  { code: "MSP4", label: "DPO-as-a-service", icon: UserCog, bg: "bg-primary/10", fg: "text-primary", tag: "recommended", tagReason: "Matcher din portefølje (GDPR-tunge kunder)" },
+  { code: "MSSP7", label: "SOC 2 forberedelse", icon: Radar, bg: "bg-success/10", fg: "text-success", tag: "trending", tagReason: "Etterspurt av SaaS-kunder denne måneden" },
+  { code: "MSSP6", label: "Gap-analyse", icon: ClipboardCheck, bg: "bg-warning/10", fg: "text-warning", tag: "popular", tagReason: "Brukt av 78 % av MSP-partnere" },
   { code: "MSSP5", label: "Penetrasjonstest", icon: Bug, bg: "bg-secondary", fg: "text-secondary-foreground" },
-  { code: "MSSP8", label: "AI Act-kartlegging", icon: Cpu, bg: "bg-accent", fg: "text-accent-foreground" },
-  { code: "MSSP2", label: "ISO 27001-sertifisering", icon: Award, bg: "bg-success/10", fg: "text-success" },
+  { code: "MSSP8", label: "AI Act-kartlegging", icon: Cpu, bg: "bg-accent", fg: "text-accent-foreground", tag: "trending", tagReason: "Sterk vekst etter EU AI Act ikrafttredelse" },
+  { code: "MSSP2", label: "ISO 27001-sertifisering", icon: Award, bg: "bg-success/10", fg: "text-success", tag: "popular", tagReason: "Klassisk topp-selger" },
 ];
+
+const TAG_META: Record<PickTag, { label: string; className: string }> = {
+  recommended: { label: "Anbefalt for deg", className: "bg-primary/10 text-primary border-primary/20" },
+  popular: { label: "Populært", className: "bg-success/10 text-success border-success/20" },
+  trending: { label: "Trender nå", className: "bg-warning/10 text-warning border-warning/20" },
+};
 
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
@@ -403,9 +413,14 @@ export function MSPServiceCatalogTab() {
       {/* Mal-velger — kompakt, à la wizard step 1 */}
       <section className="space-y-3">
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-foreground">Legg til tjeneste</h3>
+          <h3 className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
+            Legg til tjeneste
+            <Badge variant="outline" className="h-5 gap-1 border-primary/20 bg-primary/5 text-[10px] font-medium text-primary">
+              <Sparkles className="h-3 w-3" /> Kuratert av Lara
+            </Badge>
+          </h3>
           <p className="text-xs text-muted-foreground">
-            Velg en mal for å komme raskt i gang, eller bygg din egen.
+            Anbefalt basert på din partnerprofil og hva som er populært blant tilsvarende MSP-er nå.
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -415,18 +430,31 @@ export function MSPServiceCatalogTab() {
             const isAdopted = adoptedIds.has(template.id);
             const Icon = pick.icon;
             const frameworks = template.mappings.map((m) => m.frameworkLabel).slice(0, 3);
+            const tagMeta = pick.tag ? TAG_META[pick.tag] : null;
             return (
               <button
                 key={template.id}
                 type="button"
                 disabled={isAdopted}
                 onClick={() => adoptTemplate(template)}
+                title={pick.tagReason}
                 className={cn(
-                  "group rounded-lg border border-border bg-card p-4 text-left transition-all",
+                  "group relative rounded-lg border border-border bg-card p-4 text-left transition-all",
                   "hover:border-primary/50 hover:shadow-sm",
                   isAdopted && "opacity-50 cursor-not-allowed",
                 )}
               >
+                {tagMeta && !isAdopted && (
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "absolute right-2 top-2 h-5 px-1.5 text-[10px] font-medium",
+                      tagMeta.className,
+                    )}
+                  >
+                    {tagMeta.label}
+                  </Badge>
+                )}
                 <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center mb-3", pick.bg)}>
                   <Icon className={cn("h-5 w-5", pick.fg)} />
                 </div>
@@ -441,6 +469,7 @@ export function MSPServiceCatalogTab() {
             );
           })}
         </div>
+
 
         <div className="flex items-center gap-2 pt-1">
           <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5">
