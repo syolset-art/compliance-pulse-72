@@ -516,8 +516,9 @@ export default function Systems() {
         <div className="divide-y divide-border">
           {filteredSystems.map((system) => {
             const { icon: IconComponent, color } = getSystemIcon(system.name, system.vendor);
-            const maturity = getMaturityBadge(system.compliance_score || 0);
-            const risk = getRiskLabel(system.risk_level);
+            const maturity = getMaturityBadge(system.compliance_score || 0, isNb);
+            const risk = getRiskLabel(system.risk_level, isNb);
+
             const ownerWa = getOwnerWorkArea(system);
             const isArchived = system.status === "archived";
 
