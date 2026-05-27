@@ -580,15 +580,16 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Resultat fra nett-oppslag</span>
-                  {webResult.confidence === "high" && <Badge className="text-xs bg-status-closed/20 text-status-closed border-status-closed/30">Høy sikkerhet</Badge>}
-                  {webResult.confidence === "medium" && <Badge className="text-xs bg-warning/20 text-warning border-warning/30">Middels sikkerhet</Badge>}
-                  {webResult.confidence === "low" && <Badge className="text-xs bg-destructive/20 text-destructive border-destructive/30">Lav sikkerhet</Badge>}
+                  <span className="text-sm font-medium">{isNb ? "Resultat fra nett-oppslag" : "Web lookup result"}</span>
+                  {webResult.confidence === "high" && <Badge className="text-xs bg-status-closed/20 text-status-closed border-status-closed/30">{isNb ? "Høy sikkerhet" : "High confidence"}</Badge>}
+                  {webResult.confidence === "medium" && <Badge className="text-xs bg-warning/20 text-warning border-warning/30">{isNb ? "Middels sikkerhet" : "Medium confidence"}</Badge>}
+                  {webResult.confidence === "low" && <Badge className="text-xs bg-destructive/20 text-destructive border-destructive/30">{isNb ? "Lav sikkerhet" : "Low confidence"}</Badge>}
                 </div>
                 <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
                   <div>
                     <p className="font-medium text-lg">{webResult.official_name}</p>
-                    <p className="text-sm text-muted-foreground">av {webResult.vendor}</p>
+                    <p className="text-sm text-muted-foreground">{isNb ? "av" : "by"} {webResult.vendor}</p>
+
                   </div>
                   <p className="text-sm">{webResult.description}</p>
                   <div className="flex flex-wrap gap-2">
