@@ -181,9 +181,9 @@ function OwnerCell({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["vendor-assets"] });
       qc.invalidateQueries({ queryKey: ["assets"] });
-      toast.success("Eier oppdatert");
+      toast.success(t("vendorDashboard.list.ownerUpdated", "Eier oppdatert"));
     },
-    onError: () => toast.error("Kunne ikke oppdatere eier"),
+    onError: () => toast.error(t("vendorDashboard.list.ownerError", "Kunne ikke oppdatere eier")),
   });
 
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
@@ -202,7 +202,7 @@ function OwnerCell({
         ) : (
           <button className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
             <UserPlus className="h-3 w-3" />
-            Tilordne
+            {t("vendorDashboard.list.assign", "Tilordne")}
           </button>
         )}
       </PopoverTrigger>
