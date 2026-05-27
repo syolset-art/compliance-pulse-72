@@ -525,8 +525,9 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 <div>
-                  <p className="text-sm font-medium">Søker...</p>
-                  <p className="text-xs text-muted-foreground">Sjekker Trust Engine og gjør oppslag</p>
+                  <p className="text-sm font-medium">{isNb ? "Søker..." : "Searching..."}</p>
+                  <p className="text-xs text-muted-foreground">{isNb ? "Sjekker Trust Engine og gjør oppslag" : "Checking Trust Engine and looking up"}</p>
+
                 </div>
               </div>
             )}
