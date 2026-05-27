@@ -1046,33 +1046,33 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 border border-border">
               <User className="h-4 w-4 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">
-                Legg til kontaktperson hos leverandøren. Dette er nødvendig for å kunne sende forespørsler.
+                {isNb ? "Legg til kontaktperson hos leverandøren. Dette er nødvendig for å kunne sende forespørsler." : "Add a contact person at the vendor. This is needed to be able to send requests."}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact-person">Kontaktperson hos leverandør</Label>
+              <Label htmlFor="contact-person">{isNb ? "Kontaktperson hos leverandør" : "Contact person at vendor"}</Label>
               <Input
                 id="contact-person"
                 value={formData.contact_person}
                 onChange={(e) => setFormData(prev => ({ ...prev, contact_person: e.target.value }))}
-                placeholder="Navn på kontaktperson"
+                placeholder={isNb ? "Navn på kontaktperson" : "Name of contact person"}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact-email">Kontakt e-post</Label>
+              <Label htmlFor="contact-email">{isNb ? "Kontakt e-post" : "Contact email"}</Label>
               <Input
                 id="contact-email"
                 type="email"
                 value={formData.contact_email}
                 onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))}
-                placeholder="kontakt@leverandor.no"
+                placeholder={isNb ? "kontakt@leverandor.no" : "contact@vendor.com"}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="system-url">System-URL</Label>
+              <Label htmlFor="system-url">{isNb ? "System-URL" : "System URL"}</Label>
               <Input
                 id="system-url"
                 value={formData.url}
@@ -1085,20 +1085,20 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-2">
               <p className="text-sm font-medium flex items-center gap-2">
                 <Building className="h-4 w-4" />
-                Oppsummering
+                {isNb ? "Oppsummering" : "Summary"}
               </p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                <span className="text-muted-foreground">System:</span>
+                <span className="text-muted-foreground">{isNb ? "System:" : "System:"}</span>
                 <span className="font-medium">{formData.name}</span>
-                <span className="text-muted-foreground">Leverandør:</span>
+                <span className="text-muted-foreground">{isNb ? "Leverandør:" : "Vendor:"}</span>
                 <span>{formData.vendor || "—"}</span>
-                <span className="text-muted-foreground">Kategori:</span>
+                <span className="text-muted-foreground">{isNb ? "Kategori:" : "Category:"}</span>
                 <span>{CATEGORY_LABELS[formData.category] || formData.category || "—"}</span>
-                <span className="text-muted-foreground">Risikonivå:</span>
+                <span className="text-muted-foreground">{isNb ? "Risikonivå:" : "Risk level:"}</span>
                 <span className="capitalize">{formData.risk_level || "—"}</span>
                 {formData.contact_person && (
                   <>
-                    <span className="text-muted-foreground">Kontaktperson:</span>
+                    <span className="text-muted-foreground">{isNb ? "Kontaktperson:" : "Contact person:"}</span>
                     <span>{formData.contact_person}</span>
                   </>
                 )}
@@ -1107,16 +1107,17 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
 
             <div className="flex gap-2 justify-end pt-2">
               <Button variant="outline" onClick={() => setStep("risk")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
+                <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
               </Button>
               <Button onClick={handleSubmit} disabled={isSaving}>
                 {isSaving ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Lagrer...</>
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{isNb ? "Lagrer..." : "Saving..."}</>
                 ) : (
-                  <><CheckCircle2 className="h-4 w-4 mr-2" />Registrer system</>
+                  <><CheckCircle2 className="h-4 w-4 mr-2" />{isNb ? "Registrer system" : "Register system"}</>
                 )}
               </Button>
             </div>
+
           </div>
         )}
       </DialogContent>
