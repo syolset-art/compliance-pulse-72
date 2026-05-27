@@ -128,7 +128,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
       queryClient.invalidateQueries({ queryKey: ["assets"] });
-      toast.success("Leverandør arkivert");
+      toast.success(tl("vendorArchived"));
     },
   });
 
