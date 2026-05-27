@@ -55,9 +55,9 @@ interface Props {
   setOwnerFilter: (v: string) => void;
 }
 
-const PRIORITY_LABEL: Record<string, string> = {
-  critical: "Kritisk", high: "Høy", medium: "Medium", low: "Lav",
-};
+const getPriorityLabel = (isNb: boolean): Record<string, string> => isNb
+  ? { critical: "Kritisk", high: "Høy", medium: "Medium", low: "Lav" }
+  : { critical: "Critical", high: "High", medium: "Medium", low: "Low" };
 
 /** Pille-stil for prioritet — bruker semantiske tokens. */
 const PRIORITY_PILL: Record<string, string> = {
@@ -67,10 +67,9 @@ const PRIORITY_PILL: Record<string, string> = {
   low:      "bg-muted text-muted-foreground border-border",
 };
 
-const VENDOR_CAT_LABEL: Record<string, string> = {
-  saas: "SaaS", infrastructure: "Infrastruktur", consulting: "Rådgivning",
-  it_operations: "IT-drift", facilities: "Kontor", other: "Annet",
-};
+const getVendorCatLabel = (isNb: boolean): Record<string, string> => isNb
+  ? { saas: "SaaS", infrastructure: "Infrastruktur", consulting: "Rådgivning", it_operations: "IT-drift", facilities: "Kontor", other: "Annet" }
+  : { saas: "SaaS", infrastructure: "Infrastructure", consulting: "Consulting", it_operations: "IT operations", facilities: "Facilities", other: "Other" };
 
 function ColumnFilter({
   label, value, onChange, options,
