@@ -127,40 +127,40 @@ const getSystemIcon = (name: string, vendor: string | null): { icon: LucideIcon;
   return { icon: Cloud, color: "bg-primary/20 text-primary" };
 };
 
-const SYSTEM_STATUSES = [
-  { value: "in_use", label: "I bruk", badgeClass: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" },
-  { value: "evaluation", label: "Under evaluering", badgeClass: "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary" },
-  { value: "quarantined", label: "Karantene", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
-  { value: "phasing_out", label: "Fases ut", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
-  { value: "archived", label: "Arkivert", badgeClass: "bg-muted text-muted-foreground" },
-  { value: "rejected", label: "Avvist", badgeClass: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" },
+const getSystemStatuses = (isNb: boolean) => [
+  { value: "in_use", label: isNb ? "I bruk" : "In use", badgeClass: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" },
+  { value: "evaluation", label: isNb ? "Under evaluering" : "Under evaluation", badgeClass: "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary" },
+  { value: "quarantined", label: isNb ? "Karantene" : "Quarantined", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
+  { value: "phasing_out", label: isNb ? "Fases ut" : "Phasing out", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
+  { value: "archived", label: isNb ? "Arkivert" : "Archived", badgeClass: "bg-muted text-muted-foreground" },
+  { value: "rejected", label: isNb ? "Avvist" : "Rejected", badgeClass: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" },
 ];
 
-const getStatusBadge = (status: string | null) => {
-  return SYSTEM_STATUSES.find((s) => s.value === status) || SYSTEM_STATUSES[0];
+const getMaturityBadge = (score: number, isNb: boolean) => {
+  if (score >= 80) return { label: `${score}% - ${isNb ? "God dekning" : "Good coverage"}`, className: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" };
+  if (score >= 50) return { label: `${score}% - ${isNb ? "Under arbeid" : "In progress"}`, className: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" };
+  return { label: `${score}% - ${isNb ? "Lav dekning" : "Low coverage"}`, className: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" };
 };
 
-const getMaturityBadge = (score: number) => {
-  if (score >= 80) return { label: `${score}% - God dekning`, className: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" };
-  if (score >= 50) return { label: `${score}% - Under arbeid`, className: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" };
-  return { label: `${score}% - Lav dekning`, className: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" };
-};
-
-const getRiskLabel = (risk: string | null) => {
+const getRiskLabel = (risk: string | null, isNb: boolean) => {
   // Brukervalg: kritikalitet (tidligere kalt "risiko"). Skiller seg fra avledet risiko (Lara).
   switch (risk) {
-    case "critical": return { label: "Kritisk", dotClass: "bg-primary" };
-    case "high": return { label: "Høy kritikalitet", dotClass: "bg-primary" };
-    case "medium": return { label: "Middels kritikalitet", dotClass: "bg-foreground/50" };
-    case "low": return { label: "Lav kritikalitet", dotClass: "bg-muted-foreground/40" };
-    default: return { label: "Ikke satt", dotClass: "bg-muted-foreground/30" };
+    case "critical": return { label: isNb ? "Kritisk" : "Critical", dotClass: "bg-primary" };
+    case "high": return { label: isNb ? "Høy kritikalitet" : "High criticality", dotClass: "bg-primary" };
+    case "medium": return { label: isNb ? "Middels kritikalitet" : "Medium criticality", dotClass: "bg-foreground/50" };
+    case "low": return { label: isNb ? "Lav kritikalitet" : "Low criticality", dotClass: "bg-muted-foreground/40" };
+    default: return { label: isNb ? "Ikke satt" : "Not set", dotClass: "bg-muted-foreground/30" };
   }
 };
 
+
 export default function Systems() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const SYSTEM_STATUSES = useMemo(() => getSystemStatuses(isNb), [isNb]);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
 
   const [nameFilter, setNameFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -387,7 +387,8 @@ export default function Systems() {
               : "bg-background text-foreground border-border hover:bg-accent"
           }`}
         >
-          Alle
+          {isNb ? "Alle" : "All"}
+
           <span className="text-xs opacity-70">{filteredSystems.length}</span>
         </button>
         {entries.map(([cat, items]) => (
@@ -414,13 +415,14 @@ export default function Systems() {
       return (
         <div className="p-12 text-center">
           <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">Ingen systemer funnet</h3>
-          <p className="text-muted-foreground mb-4">Legg til systemer organisasjonen bruker for å holde oversikt.</p>
+          <h3 className="text-lg font-medium text-foreground mb-2">{isNb ? "Ingen systemer funnet" : "No systems found"}</h3>
+          <p className="text-muted-foreground mb-4">{isNb ? "Legg til systemer organisasjonen bruker for å holde oversikt." : "Add the systems your organization uses to keep an overview."}</p>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            Legg til system
+            {isNb ? "Legg til system" : "Add system"}
           </Button>
         </div>
+
       );
     }
 
@@ -450,7 +452,7 @@ export default function Systems() {
       return (
         <div className="p-8 text-center text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
-          Laster systemer...
+          {isNb ? "Laster systemer..." : "Loading systems..."}
         </div>
       );
     }
@@ -459,65 +461,68 @@ export default function Systems() {
       return (
         <div className="p-12 text-center">
           <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">Ingen systemer funnet</h3>
-          <p className="text-muted-foreground mb-4">Legg til systemer organisasjonen bruker for å holde oversikt.</p>
+          <h3 className="text-lg font-medium text-foreground mb-2">{isNb ? "Ingen systemer funnet" : "No systems found"}</h3>
+          <p className="text-muted-foreground mb-4">{isNb ? "Legg til systemer organisasjonen bruker for å holde oversikt." : "Add the systems your organization uses to keep an overview."}</p>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            Legg til system
+            {isNb ? "Legg til system" : "Add system"}
           </Button>
         </div>
       );
     }
 
+
     return (
       <div className="border border-border rounded-lg overflow-hidden bg-card">
         {/* Table header */}
         <div className="hidden sm:grid sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(110px,0.9fr)_minmax(160px,1.2fr)_60px] gap-x-4 px-4 py-2.5 border-b border-border bg-muted/40 text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
-          <span>System</span>
-          <span>Type</span>
+          <span>{isNb ? "System" : "System"}</span>
+          <span>{isNb ? "Type" : "Type"}</span>
           <span className="flex items-center gap-1">
-            Modenhet
+            {isNb ? "Modenhet" : "Maturity"}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3 w-3 cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent><p>Basert på dokumentasjon og kontrolldekning</p></TooltipContent>
+                <TooltipContent><p>{isNb ? "Basert på dokumentasjon og kontrolldekning" : "Based on documentation and control coverage"}</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </span>
           <span className="flex items-center gap-1">
-            Kritikalitet
+            {isNb ? "Kritikalitet" : "Criticality"}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3 w-3 cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent><p>Hvor kritisk dette systemet er for virksomheten — du setter dette selv. Risiko beregnes separat av Mynder.</p></TooltipContent>
+                <TooltipContent><p>{isNb ? "Hvor kritisk dette systemet er for virksomheten — du setter dette selv. Risiko beregnes separat av Mynder." : "How critical this system is for the organization — you set this yourself. Risk is calculated separately by Mynder."}</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </span>
           <span className="flex items-center gap-1">
-            Prioritet
+            {isNb ? "Prioritet" : "Priority"}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3 w-3 cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent><p>Lara foreslår basert på risiko og kritikalitet. Eier kan overstyre med begrunnelse.</p></TooltipContent>
+                <TooltipContent><p>{isNb ? "Lara foreslår basert på risiko og kritikalitet. Eier kan overstyre med begrunnelse." : "Lara suggests based on risk and criticality. The owner can override with a reason."}</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </span>
-          <span>Eier (Arbeidsområde)</span>
+          <span>{isNb ? "Eier (Arbeidsområde)" : "Owner (Work Area)"}</span>
           <span></span>
         </div>
+
 
         {/* Rows */}
         <div className="divide-y divide-border">
           {filteredSystems.map((system) => {
             const { icon: IconComponent, color } = getSystemIcon(system.name, system.vendor);
-            const maturity = getMaturityBadge(system.compliance_score || 0);
-            const risk = getRiskLabel(system.risk_level);
+            const maturity = getMaturityBadge(system.compliance_score || 0, isNb);
+            const risk = getRiskLabel(system.risk_level, isNb);
+
             const ownerWa = getOwnerWorkArea(system);
             const isArchived = system.status === "archived";
 
@@ -581,7 +586,7 @@ export default function Systems() {
                   ) : (
                     <Select value="" onValueChange={(waId) => assignOwner.mutate({ id: system.id, workAreaId: waId })}>
                       <SelectTrigger className="h-7 text-xs max-w-[160px] bg-background">
-                        <SelectValue placeholder="Ikke satt" />
+                        <SelectValue placeholder={isNb ? "Ikke satt" : "Not set"} />
                       </SelectTrigger>
                       <SelectContent>
                         {workAreas.map((area: WorkArea) => (
@@ -621,7 +626,7 @@ export default function Systems() {
       return (
         <div className="p-8 text-center text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
-          Laster systemer...
+          {isNb ? "Laster systemer..." : "Loading systems..."}
         </div>
       );
     }
@@ -630,21 +635,22 @@ export default function Systems() {
       return (
         <div className="p-12 text-center">
           <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">Ingen systemer funnet</h3>
-          <p className="text-muted-foreground mb-4">Legg til systemer organisasjonen bruker for å holde oversikt.</p>
+          <h3 className="text-lg font-medium text-foreground mb-2">{isNb ? "Ingen systemer funnet" : "No systems found"}</h3>
+          <p className="text-muted-foreground mb-4">{isNb ? "Legg til systemer organisasjonen bruker for å holde oversikt." : "Add the systems your organization uses to keep an overview."}</p>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            Legg til system
+            {isNb ? "Legg til system" : "Add system"}
           </Button>
         </div>
       );
     }
 
+
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredSystems.map((system) => {
           const maturityScore = system.compliance_score || 0;
-          const maturityLabel = maturityScore >= 80 ? "Sterk" : maturityScore >= 50 ? "Moderat" : "Svak";
+          const maturityLabel = maturityScore >= 80 ? (isNb ? "Sterk" : "Strong") : maturityScore >= 50 ? (isNb ? "Moderat" : "Moderate") : (isNb ? "Svak" : "Weak");
           const maturityColor = maturityScore >= 80 ? "text-success" : maturityScore >= 50 ? "text-warning" : "text-destructive";
           const maturityStroke = maturityScore >= 80 ? "hsl(var(--success))" : maturityScore >= 50 ? "hsl(var(--warning))" : "hsl(var(--destructive))";
           const initials = system.name.replace(/[^A-Za-zÆØÅæøå0-9]/g, " ").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
@@ -691,7 +697,7 @@ export default function Systems() {
                     <span className={`absolute text-[13px] font-bold ${maturityColor}`}>{maturityLabel}</span>
                   </div>
                 ) : (
-                  <span className="text-[13px] font-medium text-muted-foreground uppercase tracking-wide">Ikke scoret</span>
+                  <span className="text-[13px] font-medium text-muted-foreground uppercase tracking-wide">{isNb ? "Ikke scoret" : "Not scored"}</span>
                 )}
               </div>
 
@@ -743,7 +749,7 @@ export default function Systems() {
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" />
-                Legg til system
+                {isNb ? "Legg til system" : "Add system"}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -753,20 +759,21 @@ export default function Systems() {
                     ) : (
                       <Database className="h-4 w-4" />
                     )}
-                    Demo-data
+                    {isNb ? "Demo-data" : "Demo data"}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleSeedSystems} disabled={isSeeding}>
                     <Database className="h-4 w-4 mr-2" />
-                    Last inn demo-systemer
+                    {isNb ? "Last inn demo-systemer" : "Load demo systems"}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleDeleteSystems} disabled={isDeleting} className="text-destructive">
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Fjern demo-systemer
+                    {isNb ? "Fjern demo-systemer" : "Remove demo systems"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
             </div>
           </div>
 
@@ -781,17 +788,17 @@ export default function Systems() {
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Input
-              placeholder="Filtrer etter systemnavn"
+              placeholder={isNb ? "Filtrer etter systemnavn" : "Filter by system name"}
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
               className="bg-background border-border"
             />
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Filtrer etter systemtype" />
+                <SelectValue placeholder={isNb ? "Filtrer etter systemtype" : "Filter by system type"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle systemtyper</SelectItem>
+                <SelectItem value="all">{isNb ? "Alle systemtyper" : "All system types"}</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat || ""}>
                     {cat}
@@ -801,10 +808,10 @@ export default function Systems() {
             </Select>
             <Select value={ownerFilter} onValueChange={setOwnerFilter}>
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Filtrer etter Eier (Arbeidsområde)" />
+                <SelectValue placeholder={isNb ? "Filtrer etter Eier (Arbeidsområde)" : "Filter by Owner (Work Area)"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle eiere</SelectItem>
+                <SelectItem value="all">{isNb ? "Alle eiere" : "All owners"}</SelectItem>
                 {workAreas.map((area: WorkArea) => (
                   <SelectItem key={area.id} value={area.id}>
                     {area.name}
@@ -814,10 +821,10 @@ export default function Systems() {
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Filtrer etter status" />
+                <SelectValue placeholder={isNb ? "Filtrer etter status" : "Filter by status"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle statuser</SelectItem>
+                <SelectItem value="all">{isNb ? "Alle statuser" : "All statuses"}</SelectItem>
                 {SYSTEM_STATUSES.map((s) => (
                   <SelectItem key={s.value} value={s.value}>
                     {s.label}
@@ -826,6 +833,7 @@ export default function Systems() {
               </SelectContent>
             </Select>
           </div>
+
 
           {/* View toggle + category chips */}
           <div className="flex items-center justify-between gap-4">
@@ -836,19 +844,20 @@ export default function Systems() {
               onValueChange={(v) => { if (v) setViewMode(v as "grouped" | "list" | "cards"); }}
               className="shrink-0"
             >
-              <ToggleGroupItem value="list" aria-label="Listevisning" className="gap-1.5 text-xs">
+              <ToggleGroupItem value="list" aria-label={isNb ? "Listevisning" : "List view"} className="gap-1.5 text-xs">
                 <List className="h-4 w-4" />
-                Liste
+                {isNb ? "Liste" : "List"}
               </ToggleGroupItem>
-              <ToggleGroupItem value="cards" aria-label="Kortvisning" className="gap-1.5 text-xs">
+              <ToggleGroupItem value="cards" aria-label={isNb ? "Kortvisning" : "Card view"} className="gap-1.5 text-xs">
                 <LayoutGrid className="h-4 w-4" />
-                Kort
+                {isNb ? "Kort" : "Cards"}
               </ToggleGroupItem>
-              <ToggleGroupItem value="grouped" aria-label="Gruppert visning" className="gap-1.5 text-xs">
+              <ToggleGroupItem value="grouped" aria-label={isNb ? "Gruppert visning" : "Grouped view"} className="gap-1.5 text-xs">
                 <Server className="h-4 w-4" />
-                Gruppert
+                {isNb ? "Gruppert" : "Grouped"}
               </ToggleGroupItem>
             </ToggleGroup>
+
           </div>
 
           {/* System list */}
