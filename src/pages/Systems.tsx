@@ -387,7 +387,8 @@ export default function Systems() {
               : "bg-background text-foreground border-border hover:bg-accent"
           }`}
         >
-          Alle
+          {isNb ? "Alle" : "All"}
+
           <span className="text-xs opacity-70">{filteredSystems.length}</span>
         </button>
         {entries.map(([cat, items]) => (
