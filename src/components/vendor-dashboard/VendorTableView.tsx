@@ -172,6 +172,7 @@ function ScoreRing({ score }: { score: number }) {
 function OwnerCell({
   assetId, ownerName, options,
 }: { assetId: string; ownerName: string | null; options: string[] }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const mutate = useMutation({
     mutationFn: async (next: string) => {
