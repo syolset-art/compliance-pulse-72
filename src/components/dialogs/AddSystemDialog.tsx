@@ -512,7 +512,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Skriv inn systemnavn, f.eks. Salesforce, Visma..."
+                placeholder={isNb ? "Skriv inn systemnavn, f.eks. Salesforce, Visma..." : "Enter system name, e.g. Salesforce, Visma..."}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 autoFocus
               />
