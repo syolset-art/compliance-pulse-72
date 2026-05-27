@@ -842,19 +842,20 @@ export default function Systems() {
               onValueChange={(v) => { if (v) setViewMode(v as "grouped" | "list" | "cards"); }}
               className="shrink-0"
             >
-              <ToggleGroupItem value="list" aria-label="Listevisning" className="gap-1.5 text-xs">
+              <ToggleGroupItem value="list" aria-label={isNb ? "Listevisning" : "List view"} className="gap-1.5 text-xs">
                 <List className="h-4 w-4" />
-                Liste
+                {isNb ? "Liste" : "List"}
               </ToggleGroupItem>
-              <ToggleGroupItem value="cards" aria-label="Kortvisning" className="gap-1.5 text-xs">
+              <ToggleGroupItem value="cards" aria-label={isNb ? "Kortvisning" : "Card view"} className="gap-1.5 text-xs">
                 <LayoutGrid className="h-4 w-4" />
-                Kort
+                {isNb ? "Kort" : "Cards"}
               </ToggleGroupItem>
-              <ToggleGroupItem value="grouped" aria-label="Gruppert visning" className="gap-1.5 text-xs">
+              <ToggleGroupItem value="grouped" aria-label={isNb ? "Gruppert visning" : "Grouped view"} className="gap-1.5 text-xs">
                 <Server className="h-4 w-4" />
-                Gruppert
+                {isNb ? "Gruppert" : "Grouped"}
               </ToggleGroupItem>
             </ToggleGroup>
+
           </div>
 
           {/* System list */}
