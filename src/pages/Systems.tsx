@@ -648,7 +648,7 @@ export default function Systems() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredSystems.map((system) => {
           const maturityScore = system.compliance_score || 0;
-          const maturityLabel = maturityScore >= 80 ? "Sterk" : maturityScore >= 50 ? "Moderat" : "Svak";
+          const maturityLabel = maturityScore >= 80 ? (isNb ? "Sterk" : "Strong") : maturityScore >= 50 ? (isNb ? "Moderat" : "Moderate") : (isNb ? "Svak" : "Weak");
           const maturityColor = maturityScore >= 80 ? "text-success" : maturityScore >= 50 ? "text-warning" : "text-destructive";
           const maturityStroke = maturityScore >= 80 ? "hsl(var(--success))" : maturityScore >= 50 ? "hsl(var(--warning))" : "hsl(var(--destructive))";
           const initials = system.name.replace(/[^A-Za-zÆØÅæøå0-9]/g, " ").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
