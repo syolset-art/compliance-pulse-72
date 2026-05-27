@@ -874,7 +874,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 className="w-full gap-2 border-primary/30 text-primary hover:bg-primary/5"
               >
                 <Sparkles className="h-4 w-4" />
-                La Lara foreslå risikonivå for {formData.name}
+                {isNb ? `La Lara foreslå risikonivå for ${formData.name}` : `Let Lara suggest a risk level for ${formData.name}`}
               </Button>
             )}
 
@@ -882,8 +882,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 <div>
-                  <p className="text-sm font-medium">Lara analyserer systemet...</p>
-                  <p className="text-xs text-muted-foreground">Vurderer risiko basert på {formData.name}</p>
+                  <p className="text-sm font-medium">{isNb ? "Lara analyserer systemet..." : "Lara is analyzing the system..."}</p>
+                  <p className="text-xs text-muted-foreground">{isNb ? `Vurderer risiko basert på ${formData.name}` : `Assessing risk based on ${formData.name}`}</p>
                 </div>
               </div>
             )}
@@ -893,7 +893,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 <div className="flex items-start gap-2">
                   <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">Laras anbefaling</p>
+                    <p className="text-sm font-medium">{isNb ? "Laras anbefaling" : "Lara's recommendation"}</p>
                     <p className="text-sm text-muted-foreground">{riskSuggestion.reasoning}</p>
                   </div>
                 </div>
@@ -906,45 +906,48 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                   }}
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  Bruk foreslått nivå: {riskSuggestion.risk_level === "low" ? "Lav" : riskSuggestion.risk_level === "medium" ? "Middels" : riskSuggestion.risk_level === "high" ? "Høy" : "Kritisk"}
+                  {isNb ? "Bruk foreslått nivå" : "Use suggested level"}: {isNb
+                    ? (riskSuggestion.risk_level === "low" ? "Lav" : riskSuggestion.risk_level === "medium" ? "Middels" : riskSuggestion.risk_level === "high" ? "Høy" : "Kritisk")
+                    : (riskSuggestion.risk_level === "low" ? "Low" : riskSuggestion.risk_level === "medium" ? "Medium" : riskSuggestion.risk_level === "high" ? "High" : "Critical")}
                 </Button>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label>Risikonivå *</Label>
+              <Label>{isNb ? "Risikonivå *" : "Risk level *"}</Label>
               <Select value={formData.risk_level} onValueChange={(v) => setFormData(prev => ({ ...prev, risk_level: v }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg risikonivå" />
+                  <SelectValue placeholder={isNb ? "Velg risikonivå" : "Select risk level"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="low">
                     <span className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-status-closed" />
-                      Lav
+                      {isNb ? "Lav" : "Low"}
                     </span>
                   </SelectItem>
                   <SelectItem value="medium">
                     <span className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-warning" />
-                      Middels
+                      {isNb ? "Middels" : "Medium"}
                     </span>
                   </SelectItem>
                   <SelectItem value="high">
                     <span className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-warning" />
-                      Høy
+                      {isNb ? "Høy" : "High"}
                     </span>
                   </SelectItem>
                   <SelectItem value="critical">
                     <span className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
-                      Kritisk
+                      {isNb ? "Kritisk" : "Critical"}
                     </span>
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
 
             {formData.risk_level && (() => {
               const suggested = suggestPriority(formData.risk_level);
