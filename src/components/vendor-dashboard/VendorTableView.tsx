@@ -364,7 +364,7 @@ export function VendorTableView({
                   <TableCell>
                     {crit ? (
                       <Badge variant="outline" className={cn("font-normal text-[11px]", crit.pillClass)}>
-                        {crit.labelNb}
+                        {isNb ? crit.labelNb : crit.labelEn}
                       </Badge>
                     ) : <span className="text-xs text-muted-foreground">—</span>}
                   </TableCell>
