@@ -155,9 +155,12 @@ const getRiskLabel = (risk: string | null, isNb: boolean) => {
 
 
 export default function Systems() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const SYSTEM_STATUSES = useMemo(() => getSystemStatuses(isNb), [isNb]);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
 
   const [nameFilter, setNameFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
