@@ -63,7 +63,7 @@ interface WebLookupResult {
   confidence: string;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
+const getCategoryLabels = (isNb: boolean): Record<string, string> => isNb ? {
   crm: "CRM – Kundehåndtering",
   erp: "ERP – Økonomistyring og ressursplanlegging",
   hr: "HR – Personal og lønn",
@@ -79,28 +79,45 @@ const CATEGORY_LABELS: Record<string, string> = {
   development: "Utvikling og DevOps",
   analytics: "Analyse og BI",
   other: "Annet",
+} : {
+  crm: "CRM – Customer Relationship",
+  erp: "ERP – Resource Planning",
+  hr: "HR – Personnel and Payroll",
+  productivity: "Productivity and Office",
+  communication: "Communication and Collaboration",
+  storage: "File and Document Storage",
+  security: "Security and IAM",
+  monitoring: "Monitoring and Logging",
+  finance: "Finance and Accounting",
+  marketing: "Marketing and Campaigns",
+  "e-commerce": "E-commerce and Payments",
+  project_management: "Project and Task Management",
+  development: "Development and DevOps",
+  analytics: "Analytics and BI",
+  other: "Other",
 };
 
 type DeliveryModel = "saas" | "on_prem" | "hybrid" | "private_cloud" | "open_source" | "other";
 
-const DELIVERY_MODELS: { key: DeliveryModel; label: string; description: string; icon: typeof Database }[] = [
-  { key: "saas", label: "SaaS / Sky", description: "Multi-tenant, driftet av leverandør", icon: Cloud },
-  { key: "on_prem", label: "On-prem", description: "Installert i egen infrastruktur", icon: Server },
-  { key: "hybrid", label: "Hybrid", description: "Både sky og lokal komponent", icon: Activity },
-  { key: "private_cloud", label: "Privat sky", description: "Single-tenant hos leverandør", icon: Hash },
-  { key: "open_source", label: "Open source", description: "Selv-hostet, ingen leverandøravtale", icon: Globe },
-  { key: "other", label: "Annet", description: "Spesifiser", icon: HelpCircle },
+const getDeliveryModels = (isNb: boolean): { key: DeliveryModel; label: string; description: string; icon: typeof Database }[] => [
+  { key: "saas", label: isNb ? "SaaS / Sky" : "SaaS / Cloud", description: isNb ? "Multi-tenant, driftet av leverandør" : "Multi-tenant, hosted by vendor", icon: Cloud },
+  { key: "on_prem", label: "On-prem", description: isNb ? "Installert i egen infrastruktur" : "Installed in own infrastructure", icon: Server },
+  { key: "hybrid", label: isNb ? "Hybrid" : "Hybrid", description: isNb ? "Både sky og lokal komponent" : "Both cloud and local component", icon: Activity },
+  { key: "private_cloud", label: isNb ? "Privat sky" : "Private cloud", description: isNb ? "Single-tenant hos leverandør" : "Single-tenant at vendor", icon: Hash },
+  { key: "open_source", label: "Open source", description: isNb ? "Selv-hostet, ingen leverandøravtale" : "Self-hosted, no vendor contract", icon: Globe },
+  { key: "other", label: isNb ? "Annet" : "Other", description: isNb ? "Spesifiser" : "Specify", icon: HelpCircle },
 ];
 
 type VendorRole = "software" | "service" | "infrastructure" | "consultant" | "reseller";
 
-const VENDOR_ROLES: { key: VendorRole; label: string }[] = [
-  { key: "software", label: "Programvareleverandør" },
-  { key: "service", label: "Tjenesteleverandør" },
-  { key: "infrastructure", label: "Infrastrukturleverandør" },
-  { key: "consultant", label: "Konsulent / rådgiver" },
-  { key: "reseller", label: "Reseller / distributør" },
+const getVendorRoles = (isNb: boolean): { key: VendorRole; label: string }[] => [
+  { key: "software", label: isNb ? "Programvareleverandør" : "Software vendor" },
+  { key: "service", label: isNb ? "Tjenesteleverandør" : "Service provider" },
+  { key: "infrastructure", label: isNb ? "Infrastrukturleverandør" : "Infrastructure provider" },
+  { key: "consultant", label: isNb ? "Konsulent / rådgiver" : "Consultant / advisor" },
+  { key: "reseller", label: isNb ? "Reseller / distributør" : "Reseller / distributor" },
 ];
+
 
 const STEPS: { key: WizardStep; label: string }[] = [
   { key: "search", label: "Søk" },
