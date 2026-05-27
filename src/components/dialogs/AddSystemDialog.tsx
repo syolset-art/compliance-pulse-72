@@ -119,16 +119,22 @@ const getVendorRoles = (isNb: boolean): { key: VendorRole; label: string }[] => 
 ];
 
 
-const STEPS: { key: WizardStep; label: string }[] = [
-  { key: "search", label: "Søk" },
-  { key: "confirm", label: "Bekreft" },
-  { key: "vendor", label: "Leverandør" },
-  { key: "category", label: "Kategori" },
-  { key: "risk", label: "Risiko" },
-  { key: "contact", label: "Kontakt" },
+const getSteps = (isNb: boolean): { key: WizardStep; label: string }[] => [
+  { key: "search", label: isNb ? "Søk" : "Search" },
+  { key: "confirm", label: isNb ? "Bekreft" : "Confirm" },
+  { key: "vendor", label: isNb ? "Leverandør" : "Vendor" },
+  { key: "category", label: isNb ? "Kategori" : "Category" },
+  { key: "risk", label: isNb ? "Risiko" : "Risk" },
+  { key: "contact", label: isNb ? "Kontakt" : "Contact" },
 ];
 
 export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystemDialogProps) {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const STEPS = useMemo(() => getSteps(isNb), [isNb]);
+  const CATEGORY_LABELS = useMemo(() => getCategoryLabels(isNb), [isNb]);
+  const DELIVERY_MODELS = useMemo(() => getDeliveryModels(isNb), [isNb]);
+  const VENDOR_ROLES = useMemo(() => getVendorRoles(isNb), [isNb]);
   const [step, setStep] = useState<WizardStep>("search");
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -136,6 +142,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
   const [isSuggestingRisk, setIsSuggestingRisk] = useState(false);
   const [riskSuggestion, setRiskSuggestion] = useState<{ risk_level: string; reasoning: string } | null>(null);
   const { toast } = useToast();
+
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
