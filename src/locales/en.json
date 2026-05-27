@@ -1509,6 +1509,63 @@
       "euEea": "EU/EEA",
       "usa": "USA",
       "other": "Other"
+    },
+    "list": {
+      "filter": "Filter",
+      "reset": "Reset",
+      "showAllValues": "Show all values",
+      "status": "Status",
+      "allStatuses": "All statuses",
+      "risk": "Risk",
+      "allRisks": "All risk levels",
+      "type": "Type",
+      "allTypes": "All types",
+      "gdprRole": "GDPR role",
+      "allRoles": "All roles",
+      "priority": "Priority",
+      "allPriorities": "All priorities",
+      "category": "Category",
+      "allCategories": "All categories",
+      "country": "Country",
+      "owner": "Owner",
+      "name": "Name",
+      "score": "Score",
+      "criticality": "Criticality",
+      "assign": "Assign",
+      "all": "All",
+      "ownerSet": "Owner set",
+      "ownerUpdated": "Owner updated",
+      "ownerError": "Could not update owner",
+      "vendorArchived": "Vendor archived",
+      "riskHigh": "High",
+      "riskMedium": "Medium",
+      "riskLow": "Low",
+      "priorityCritical": "Critical",
+      "priorityHigh": "High",
+      "priorityMedium": "Medium",
+      "priorityLow": "Low",
+      "riskSuffix": "risk",
+      "prioritySuffix": "priority",
+      "gdpr": {
+        "databehandler": "Processor",
+        "underdatabehandler": "Sub-processor",
+        "ingen": "No personal data"
+      },
+      "vendorType": {
+        "saas": "SaaS",
+        "infrastructure": "Infrastructure",
+        "consulting": "Consulting",
+        "it_operations": "IT operations",
+        "facilities": "Facilities",
+        "other": "Other"
+      },
+      "notSet": "Priority not set",
+      "scoreLabel": {
+        "notAssessed": "Not assessed",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      }
     }
   },
   "addVendor": {
