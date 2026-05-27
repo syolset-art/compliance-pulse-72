@@ -483,7 +483,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
       {/* Results */}
       {filtered.length === 0 ? (
         <div className="rounded-lg border border-border p-8 text-center text-muted-foreground">
-          {t("assets.noAssets", "Ingen leverandører funnet")}
+          {t("assets.noAssets", isNb ? "Ingen leverandører funnet" : "No vendors found")}
         </div>
       ) : viewMode === "table" ? (
         <VendorTableView
