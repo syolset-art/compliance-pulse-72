@@ -477,17 +477,18 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            Legg til system
+            {isNb ? "Legg til system" : "Add system"}
           </DialogTitle>
           <DialogDescription>
-            {step === "search" && "Søk etter systemet i vårt bibliotek eller på nett."}
-            {step === "confirm" && "Bekreft at dette er riktig system."}
-            {step === "vendor" && "Vi har funnet leverandøren — vil du koble systemet?"}
-            {step === "category" && "Lara har foreslått klassifisering — juster om nødvendig."}
-            {step === "risk" && "Angi risikonivå og kritikalitet for systemet."}
-            {step === "contact" && "Legg til kontaktinformasjon (valgfritt)."}
+            {step === "search" && (isNb ? "Søk etter systemet i vårt bibliotek eller på nett." : "Search for the system in our library or on the web.")}
+            {step === "confirm" && (isNb ? "Bekreft at dette er riktig system." : "Confirm that this is the right system.")}
+            {step === "vendor" && (isNb ? "Vi har funnet leverandøren — vil du koble systemet?" : "We found the vendor — do you want to link the system?")}
+            {step === "category" && (isNb ? "Lara har foreslått klassifisering — juster om nødvendig." : "Lara has suggested a classification — adjust if needed.")}
+            {step === "risk" && (isNb ? "Angi risikonivå og kritikalitet for systemet." : "Set the risk level and criticality for the system.")}
+            {step === "contact" && (isNb ? "Legg til kontaktinformasjon (valgfritt)." : "Add contact information (optional).")}
           </DialogDescription>
         </DialogHeader>
+
 
         {/* Progress bar */}
         <div className="space-y-2">
