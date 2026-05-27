@@ -236,6 +236,11 @@ export function VendorTableView({
   ownerFilter, setOwnerFilter,
 }: Props) {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const tl = (k: string) => t(`vendorDashboard.list.${k}`);
+  const PRIORITY_LABEL = getPriorityLabel(isNb);
+  const VENDOR_CAT_LABEL = getVendorCatLabel(isNb);
 
   const countries = useMemo(() => {
     const set = new Set<string>();
@@ -258,50 +263,50 @@ export function VendorTableView({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-1.5 p-0" aria-label="Status" />
+              <TableHead className="w-1.5 p-0" aria-label={tl("status")} />
               <TableHead className="w-20">
                 <ColumnFilter
-                  label="Land"
+                  label={tl("country")}
                   value={countryFilter}
                   onChange={setCountryFilter}
                   options={countries.map(c => ({ value: c, label: c }))}
                 />
               </TableHead>
               <TableHead className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                Navn
+                {tl("name")}
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="Type"
+                  label={tl("type")}
                   value={vendorCategoryFilter}
                   onChange={setVendorCategoryFilter}
-                  options={Object.entries(VENDOR_CAT_LABEL).map(([v, l]) => ({ value: v, label: l }))}
+                  options={Object.entries(VENDOR_CAT_LABEL).map(([v, l]) => ({ value: v, label: l as string }))}
                 />
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="Prioritet"
+                  label={tl("priority")}
                   value={priorityFilter}
                   onChange={setPriorityFilter}
-                  options={Object.entries(PRIORITY_LABEL).map(([v, l]) => ({ value: v, label: l }))}
+                  options={Object.entries(PRIORITY_LABEL).map(([v, l]) => ({ value: v, label: l as string }))}
                 />
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="Kritikalitet"
+                  label={tl("criticality")}
                   value={criticalityFilter}
                   onChange={setCriticalityFilter}
                   options={(Object.keys(CRITICALITY_META) as CriticalityKey[]).map(k => ({
-                    value: k, label: CRITICALITY_META[k].labelNb,
+                    value: k, label: isNb ? CRITICALITY_META[k].labelNb : CRITICALITY_META[k].labelEn,
                   }))}
                 />
               </TableHead>
               <TableHead className="text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground w-16">
-                Score
+                {tl("score")}
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="Eier"
+                  label={tl("owner")}
                   value={ownerFilter}
                   onChange={setOwnerFilter}
                   options={owners.map(o => ({ value: o, label: o }))}
