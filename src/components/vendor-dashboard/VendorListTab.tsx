@@ -395,25 +395,25 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
           <div className="flex items-center gap-1.5 flex-wrap">
             {riskFilter && riskFilter !== "all" && (
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
-                {riskFilter === "high" ? "Høy" : riskFilter === "medium" ? "Medium" : "Lav"} risiko
+                {riskFilter === "high" ? tl("riskHigh") : riskFilter === "medium" ? tl("riskMedium") : tl("riskLow")} {tl("riskSuffix")}
                 <button onClick={() => setRiskFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {vendorCategoryFilter && vendorCategoryFilter !== "all" && (
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
-                {vendorCategoryFilter}
+                {tl(`vendorType.${vendorCategoryFilter}`)}
                 <button onClick={() => setVendorCategoryFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {gdprRoleFilter && gdprRoleFilter !== "all" && (
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
-                {gdprRoleFilter}
+                {tl(`gdpr.${gdprRoleFilter}`)}
                 <button onClick={() => setGdprRoleFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {priorityFilter && priorityFilter !== "all" && (
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
-                {priorityFilter === "critical" ? "Kritisk" : priorityFilter === "high" ? "Høy" : priorityFilter === "medium" ? "Medium" : "Lav"} prioritet
+                {priorityFilter === "critical" ? tl("priorityCritical") : priorityFilter === "high" ? tl("priorityHigh") : priorityFilter === "medium" ? tl("priorityMedium") : tl("priorityLow")} {tl("prioritySuffix")}
                 <button onClick={() => setPriorityFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
