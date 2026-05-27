@@ -758,8 +758,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             {/* Leveransemodell */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Leveransemodell</Label>
-                <span className="text-xs text-muted-foreground">Hvordan systemet driftes</span>
+                <Label className="text-sm font-medium">{isNb ? "Leveransemodell" : "Delivery model"}</Label>
+                <span className="text-xs text-muted-foreground">{isNb ? "Hvordan systemet driftes" : "How the system is operated"}</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {DELIVERY_MODELS.map(({ key, label, description, icon: Icon }) => {
@@ -786,15 +786,16 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 })}
               </div>
               <p className="text-xs text-muted-foreground">
-                Valget påvirker hvilke kontroller og dokumentasjonskrav som er relevante (DPA, datalokasjon, oppdateringspraksis).
+                {isNb ? "Valget påvirker hvilke kontroller og dokumentasjonskrav som er relevante (DPA, datalokasjon, oppdateringspraksis)." : "The choice affects which controls and documentation requirements are relevant (DPA, data location, update practices)."}
               </p>
             </div>
 
-            {/* Leverandørrolle */}
+            {/* Vendor role */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Leverandørrolle</Label>
-                <span className="text-xs text-muted-foreground">Velg én eller flere</span>
+                <Label className="text-sm font-medium">{isNb ? "Leverandørrolle" : "Vendor role"}</Label>
+                <span className="text-xs text-muted-foreground">{isNb ? "Velg én eller flere" : "Select one or more"}</span>
+
               </div>
               <div className="flex flex-wrap gap-2">
                 {VENDOR_ROLES.map(({ key, label }) => {
