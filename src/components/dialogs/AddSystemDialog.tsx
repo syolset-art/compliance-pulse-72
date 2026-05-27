@@ -722,27 +722,30 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-foreground">Lara</span>
                   <Badge variant="secondary" className="h-5 px-1.5 text-[10px] bg-primary/10 text-primary border-primary/20">
-                    Mynder-agent
+                    {isNb ? "Mynder-agent" : "Mynder agent"}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">· analyserte 4 kilder</span>
+                  <span className="text-xs text-muted-foreground">· {isNb ? "analyserte 4 kilder" : "analyzed 4 sources"}</span>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">
                   {webResult?.category_reason
                     ? webResult.category_reason
-                    : `${formData.name || "Systemet"} tilbyr et bredt spekter av forretningssystemer. Forslagene under er basert på offentlig tilgjengelig informasjon — juster om noe ikke stemmer.`}
+                    : (isNb
+                        ? `${formData.name || "Systemet"} tilbyr et bredt spekter av forretningssystemer. Forslagene under er basert på offentlig tilgjengelig informasjon — juster om noe ikke stemmer.`
+                        : `${formData.name || "The system"} offers a wide range of business systems. The suggestions below are based on publicly available information — adjust if anything is incorrect.`)}
                 </p>
               </div>
             </div>
 
-            {/* Funksjonell kategori */}
+            {/* Functional category */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Funksjonell kategori</Label>
-                <span className="text-xs text-muted-foreground">Hva systemet brukes til</span>
+                <Label className="text-sm font-medium">{isNb ? "Funksjonell kategori" : "Functional category"}</Label>
+                <span className="text-xs text-muted-foreground">{isNb ? "Hva systemet brukes til" : "What the system is used for"}</span>
               </div>
               <Select value={formData.category} onValueChange={(v) => setFormData(prev => ({ ...prev, category: v }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg kategori" />
+                  <SelectValue placeholder={isNb ? "Velg kategori" : "Select category"} />
+
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
