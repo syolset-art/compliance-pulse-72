@@ -747,7 +747,7 @@ export default function Systems() {
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" />
-                Legg til system
+                {isNb ? "Legg til system" : "Add system"}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -757,20 +757,21 @@ export default function Systems() {
                     ) : (
                       <Database className="h-4 w-4" />
                     )}
-                    Demo-data
+                    {isNb ? "Demo-data" : "Demo data"}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleSeedSystems} disabled={isSeeding}>
                     <Database className="h-4 w-4 mr-2" />
-                    Last inn demo-systemer
+                    {isNb ? "Last inn demo-systemer" : "Load demo systems"}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleDeleteSystems} disabled={isDeleting} className="text-destructive">
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Fjern demo-systemer
+                    {isNb ? "Fjern demo-systemer" : "Remove demo systems"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
             </div>
           </div>
 
