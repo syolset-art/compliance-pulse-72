@@ -63,28 +63,6 @@ export default function AgentRegistry() {
             {/* BYOA */}
             <AgentTable title="BYOA — Bring your own agent" icon="byoa" agents={byoa} />
 
-            {/* Mynders tilnærming callout */}
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm leading-relaxed">
-              <div className="flex gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-foreground/90">
-                  <span className="font-semibold text-primary">Mynders tilnærming:</span>{" "}
-                  Security by design, ikke add-on. Runtime-grenser (MAX_TURNS, timeout, context-budsjett),
-                  RBAC med 6 privilegerte roller, prompt injection-deteksjon og full audit-logging er
-                  bygget inn i agentarkitekturen — ikke et eksternt overvåkningslag. BYOA-agenter
-                  uten MACF-godkjenning vises som «ikke verifisert» på offentlig Trust Profile.
-                </p>
-              </div>
-            </div>
-
-            {/* Footer note */}
-            <div className="flex items-start gap-2 text-xs text-muted-foreground px-1">
-              <Info className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-              <p>
-                Tillit-score beregnes fra MACF-nivå, regelverksdekning og siste revisjonsdato.
-                Agenter som ikke er MACF-godkjent påvirker virksomhetens samlede Trust Profile-score.
-              </p>
-            </div>
           </div>
         </main>
       </div>
