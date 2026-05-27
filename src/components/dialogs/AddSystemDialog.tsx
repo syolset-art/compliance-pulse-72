@@ -830,17 +830,17 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                   onClick={() => { /* future: open custom role input */ }}
                 >
                   <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                  Legg til egen
+                  {isNb ? "Legg til egen" : "Add custom"}
                 </button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Samme leverandør kan ha flere roller (f.eks. Microsoft leverer både programvare og infrastruktur).
+                {isNb ? "Samme leverandør kan ha flere roller (f.eks. Microsoft leverer både programvare og infrastruktur)." : "The same vendor can have multiple roles (e.g. Microsoft provides both software and infrastructure)."}
               </p>
             </div>
 
             {webResult?.ai_features && (
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">AI-funksjoner identifisert</Label>
+                <Label className="text-xs text-muted-foreground">{isNb ? "AI-funksjoner identifisert" : "AI features identified"}</Label>
                 <p className="text-sm bg-muted/30 p-2 rounded">{webResult.ai_features}</p>
               </div>
             )}
@@ -848,14 +848,15 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             <div className="flex items-center justify-between pt-2 border-t border-border">
               <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="h-1.5 w-1.5 rounded-full bg-success" aria-hidden="true" />
-                Endringer lagres automatisk
+                {isNb ? "Endringer lagres automatisk" : "Changes are saved automatically"}
               </span>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setStep("vendor")}>
-                  <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
+                  <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
                 </Button>
                 <Button onClick={() => setStep("risk")} disabled={!formData.category}>
-                  Neste<ChevronRight className="h-4 w-4 ml-1" />
+                  {isNb ? "Neste" : "Next"}<ChevronRight className="h-4 w-4 ml-1" />
+
                 </Button>
               </div>
             </div>
