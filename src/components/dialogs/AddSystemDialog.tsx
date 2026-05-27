@@ -632,7 +632,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             {/* No results */}
             {searchPerformed && !isSearching && searchSource === "none" && (
               <div className="p-4 rounded-lg border border-border bg-muted/20 text-center space-y-3">
-                <p className="text-sm text-muted-foreground">Ingen treff. Du kan registrere systemet manuelt.</p>
+                <p className="text-sm text-muted-foreground">{isNb ? "Ingen treff. Du kan registrere systemet manuelt." : "No results. You can register the system manually."}</p>
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -640,7 +640,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                     setStep("category");
                   }}
                 >
-                  Registrer manuelt
+                  {isNb ? "Registrer manuelt" : "Register manually"}
+
                 </Button>
               </div>
             )}
