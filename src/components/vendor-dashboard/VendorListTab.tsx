@@ -427,7 +427,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-xs text-muted-foreground hidden sm:inline">{filtered.length} leverandører</span>
+          <span className="text-xs text-muted-foreground hidden sm:inline">{filtered.length} {t("nav.vendors", isNb ? "leverandører" : "vendors").toLowerCase()}</span>
           <div className="flex border border-border rounded-lg">
             <Button
               variant={viewMode === "card" ? "secondary" : "ghost"}
