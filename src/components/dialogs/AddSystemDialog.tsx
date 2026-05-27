@@ -570,7 +570,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 </div>
                 <Button variant="ghost" size="sm" onClick={handleWebSearch} disabled={isSearching} className="w-full text-muted-foreground">
                   <Globe className="h-4 w-4 mr-2" />
-                  Søk på nett i stedet
+                  {isNb ? "Søk på nett i stedet" : "Search the web instead"}
                 </Button>
               </div>
             )}
