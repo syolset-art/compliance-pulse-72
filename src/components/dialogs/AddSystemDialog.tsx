@@ -596,12 +596,13 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                     <Badge variant="outline">{CATEGORY_LABELS[webResult.suggested_category] || webResult.suggested_category}</Badge>
                     {webResult.has_ai && (
                       <Badge variant="secondary">
-                        <Sparkles className="h-3 w-3 mr-1" />AI-funksjoner
+                        <Sparkles className="h-3 w-3 mr-1" />{isNb ? "AI-funksjoner" : "AI features"}
                       </Badge>
                     )}
                     {webResult.is_data_processor && (
                       <Badge variant="outline" className="border-warning/30 text-warning">
-                        Databehandler
+                        {isNb ? "Databehandler" : "Data processor"}
+
                       </Badge>
                     )}
                     {webResult.vendor_country && (
