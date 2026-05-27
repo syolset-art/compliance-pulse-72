@@ -473,44 +473,45 @@ export default function Systems() {
       <div className="border border-border rounded-lg overflow-hidden bg-card">
         {/* Table header */}
         <div className="hidden sm:grid sm:grid-cols-[minmax(200px,2fr)_minmax(140px,1.5fr)_minmax(160px,1.2fr)_minmax(100px,0.8fr)_minmax(110px,0.9fr)_minmax(160px,1.2fr)_60px] gap-x-4 px-4 py-2.5 border-b border-border bg-muted/40 text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
-          <span>System</span>
-          <span>Type</span>
+          <span>{isNb ? "System" : "System"}</span>
+          <span>{isNb ? "Type" : "Type"}</span>
           <span className="flex items-center gap-1">
-            Modenhet
+            {isNb ? "Modenhet" : "Maturity"}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3 w-3 cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent><p>Basert på dokumentasjon og kontrolldekning</p></TooltipContent>
+                <TooltipContent><p>{isNb ? "Basert på dokumentasjon og kontrolldekning" : "Based on documentation and control coverage"}</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </span>
           <span className="flex items-center gap-1">
-            Kritikalitet
+            {isNb ? "Kritikalitet" : "Criticality"}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3 w-3 cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent><p>Hvor kritisk dette systemet er for virksomheten — du setter dette selv. Risiko beregnes separat av Mynder.</p></TooltipContent>
+                <TooltipContent><p>{isNb ? "Hvor kritisk dette systemet er for virksomheten — du setter dette selv. Risiko beregnes separat av Mynder." : "How critical this system is for the organization — you set this yourself. Risk is calculated separately by Mynder."}</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </span>
           <span className="flex items-center gap-1">
-            Prioritet
+            {isNb ? "Prioritet" : "Priority"}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-3 w-3 cursor-help" />
                 </TooltipTrigger>
-                <TooltipContent><p>Lara foreslår basert på risiko og kritikalitet. Eier kan overstyre med begrunnelse.</p></TooltipContent>
+                <TooltipContent><p>{isNb ? "Lara foreslår basert på risiko og kritikalitet. Eier kan overstyre med begrunnelse." : "Lara suggests based on risk and criticality. The owner can override with a reason."}</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </span>
-          <span>Eier (Arbeidsområde)</span>
+          <span>{isNb ? "Eier (Arbeidsområde)" : "Owner (Work Area)"}</span>
           <span></span>
         </div>
+
 
         {/* Rows */}
         <div className="divide-y divide-border">
