@@ -79,6 +79,7 @@ function ColumnFilter({
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
 }) {
+  const { t } = useTranslation();
   const active = !!value && value !== "all";
   return (
     <Popover>
