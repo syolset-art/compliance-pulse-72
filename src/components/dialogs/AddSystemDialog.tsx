@@ -959,11 +959,11 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                     <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                     <div className="space-y-0.5">
                       <p className="text-sm font-medium">
-                        Lara foreslår prioritet:{" "}
+                        {isNb ? "Lara foreslår prioritet:" : "Lara suggests priority:"}{" "}
                         <span className="text-primary">{priorityLabel(suggested)}</span>
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {suggestionRationale(formData.risk_level)}. Du kan overstyre.
+                        {suggestionRationale(formData.risk_level)}. {isNb ? "Du kan overstyre." : "You can override."}
                       </p>
                     </div>
                   </div>
@@ -996,13 +996,13 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                   {isOverride && (
                     <div className="space-y-1">
                       <Label className="text-xs">
-                        Begrunnelse for overstyring{" "}
-                        <span className="text-muted-foreground font-normal">(valgfritt, men anbefalt)</span>
+                        {isNb ? "Begrunnelse for overstyring" : "Reason for override"}{" "}
+                        <span className="text-muted-foreground font-normal">{isNb ? "(valgfritt, men anbefalt)" : "(optional, but recommended)"}</span>
                       </Label>
                       <Textarea
                         value={formData.priority_reason}
                         onChange={(e) => setFormData(prev => ({ ...prev, priority_reason: e.target.value }))}
-                        placeholder="F.eks. kompenserende kontroller, system under utfasing, klinisk kontekst"
+                        placeholder={isNb ? "F.eks. kompenserende kontroller, system under utfasing, klinisk kontekst" : "E.g. compensating controls, system being phased out, clinical context"}
                         rows={2}
                         className="text-xs resize-none bg-background"
                       />
@@ -1019,21 +1019,22 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="in_use">I bruk</SelectItem>
-                  <SelectItem value="evaluation">Under evaluering</SelectItem>
-                  <SelectItem value="quarantined">Karantene</SelectItem>
-                  <SelectItem value="phasing_out">Fases ut</SelectItem>
-                  <SelectItem value="rejected">Avvist</SelectItem>
+                  <SelectItem value="in_use">{isNb ? "I bruk" : "In use"}</SelectItem>
+                  <SelectItem value="evaluation">{isNb ? "Under evaluering" : "Under evaluation"}</SelectItem>
+                  <SelectItem value="quarantined">{isNb ? "Karantene" : "Quarantined"}</SelectItem>
+                  <SelectItem value="phasing_out">{isNb ? "Fases ut" : "Phasing out"}</SelectItem>
+                  <SelectItem value="rejected">{isNb ? "Avvist" : "Rejected"}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="flex gap-2 justify-end pt-2">
               <Button variant="outline" onClick={() => setStep("category")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
+                <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
               </Button>
               <Button onClick={() => setStep("contact")} disabled={!canProceedFromRisk}>
-                Neste<ChevronRight className="h-4 w-4 ml-1" />
+                {isNb ? "Neste" : "Next"}<ChevronRight className="h-4 w-4 ml-1" />
+
               </Button>
             </div>
           </div>
