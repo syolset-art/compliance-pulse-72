@@ -583,7 +583,7 @@ export default function Systems() {
                   ) : (
                     <Select value="" onValueChange={(waId) => assignOwner.mutate({ id: system.id, workAreaId: waId })}>
                       <SelectTrigger className="h-7 text-xs max-w-[160px] bg-background">
-                        <SelectValue placeholder="Ikke satt" />
+                        <SelectValue placeholder={isNb ? "Ikke satt" : "Not set"} />
                       </SelectTrigger>
                       <SelectContent>
                         {workAreas.map((area: WorkArea) => (
