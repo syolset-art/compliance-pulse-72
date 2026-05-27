@@ -127,35 +127,32 @@ const getSystemIcon = (name: string, vendor: string | null): { icon: LucideIcon;
   return { icon: Cloud, color: "bg-primary/20 text-primary" };
 };
 
-const SYSTEM_STATUSES = [
-  { value: "in_use", label: "I bruk", badgeClass: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" },
-  { value: "evaluation", label: "Under evaluering", badgeClass: "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary" },
-  { value: "quarantined", label: "Karantene", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
-  { value: "phasing_out", label: "Fases ut", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
-  { value: "archived", label: "Arkivert", badgeClass: "bg-muted text-muted-foreground" },
-  { value: "rejected", label: "Avvist", badgeClass: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" },
+const getSystemStatuses = (isNb: boolean) => [
+  { value: "in_use", label: isNb ? "I bruk" : "In use", badgeClass: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" },
+  { value: "evaluation", label: isNb ? "Under evaluering" : "Under evaluation", badgeClass: "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary" },
+  { value: "quarantined", label: isNb ? "Karantene" : "Quarantined", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
+  { value: "phasing_out", label: isNb ? "Fases ut" : "Phasing out", badgeClass: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" },
+  { value: "archived", label: isNb ? "Arkivert" : "Archived", badgeClass: "bg-muted text-muted-foreground" },
+  { value: "rejected", label: isNb ? "Avvist" : "Rejected", badgeClass: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" },
 ];
 
-const getStatusBadge = (status: string | null) => {
-  return SYSTEM_STATUSES.find((s) => s.value === status) || SYSTEM_STATUSES[0];
+const getMaturityBadge = (score: number, isNb: boolean) => {
+  if (score >= 80) return { label: `${score}% - ${isNb ? "God dekning" : "Good coverage"}`, className: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" };
+  if (score >= 50) return { label: `${score}% - ${isNb ? "Under arbeid" : "In progress"}`, className: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" };
+  return { label: `${score}% - ${isNb ? "Lav dekning" : "Low coverage"}`, className: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" };
 };
 
-const getMaturityBadge = (score: number) => {
-  if (score >= 80) return { label: `${score}% - God dekning`, className: "bg-status-closed/10 text-status-closed dark:bg-status-closed/20 dark:text-status-closed" };
-  if (score >= 50) return { label: `${score}% - Under arbeid`, className: "bg-warning/10 text-warning dark:bg-warning/20 dark:text-warning" };
-  return { label: `${score}% - Lav dekning`, className: "bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive" };
-};
-
-const getRiskLabel = (risk: string | null) => {
+const getRiskLabel = (risk: string | null, isNb: boolean) => {
   // Brukervalg: kritikalitet (tidligere kalt "risiko"). Skiller seg fra avledet risiko (Lara).
   switch (risk) {
-    case "critical": return { label: "Kritisk", dotClass: "bg-primary" };
-    case "high": return { label: "Høy kritikalitet", dotClass: "bg-primary" };
-    case "medium": return { label: "Middels kritikalitet", dotClass: "bg-foreground/50" };
-    case "low": return { label: "Lav kritikalitet", dotClass: "bg-muted-foreground/40" };
-    default: return { label: "Ikke satt", dotClass: "bg-muted-foreground/30" };
+    case "critical": return { label: isNb ? "Kritisk" : "Critical", dotClass: "bg-primary" };
+    case "high": return { label: isNb ? "Høy kritikalitet" : "High criticality", dotClass: "bg-primary" };
+    case "medium": return { label: isNb ? "Middels kritikalitet" : "Medium criticality", dotClass: "bg-foreground/50" };
+    case "low": return { label: isNb ? "Lav kritikalitet" : "Low criticality", dotClass: "bg-muted-foreground/40" };
+    default: return { label: isNb ? "Ikke satt" : "Not set", dotClass: "bg-muted-foreground/30" };
   }
 };
+
 
 export default function Systems() {
   const { t } = useTranslation();
