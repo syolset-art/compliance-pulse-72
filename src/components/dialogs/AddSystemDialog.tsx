@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import {
   ChevronRight, ChevronLeft, Sparkles, Shield, User, Building,
   Cloud, Server, Activity, Hash, HelpCircle, Plus, Circle, Check
 } from "lucide-react";
+
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Progress } from "@/components/ui/progress";
 import { useVendorMatch, type VendorMatchCandidate } from "@/hooks/useVendorMatch";
