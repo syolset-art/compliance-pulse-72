@@ -619,10 +619,11 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 <div className="flex gap-2">
                   <Button onClick={() => setStep("confirm")} className="flex-1">
                     <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Ja, dette er riktig
+                    {isNb ? "Ja, dette er riktig" : "Yes, this is correct"}
                   </Button>
                   <Button variant="outline" onClick={() => { setSearchSource("none"); setSearchPerformed(false); }} className="flex-1">
-                    Nei, søk igjen
+                    {isNb ? "Nei, søk igjen" : "No, search again"}
+
                   </Button>
                 </div>
               </div>
