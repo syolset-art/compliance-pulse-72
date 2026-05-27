@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import {
   ChevronRight, ChevronLeft, Sparkles, Shield, User, Building,
   Cloud, Server, Activity, Hash, HelpCircle, Plus, Circle, Check
 } from "lucide-react";
+
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Progress } from "@/components/ui/progress";
 import { useVendorMatch, type VendorMatchCandidate } from "@/hooks/useVendorMatch";
@@ -61,7 +63,7 @@ interface WebLookupResult {
   confidence: string;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
+const getCategoryLabels = (isNb: boolean): Record<string, string> => isNb ? {
   crm: "CRM – Kundehåndtering",
   erp: "ERP – Økonomistyring og ressursplanlegging",
   hr: "HR – Personal og lønn",
@@ -77,39 +79,62 @@ const CATEGORY_LABELS: Record<string, string> = {
   development: "Utvikling og DevOps",
   analytics: "Analyse og BI",
   other: "Annet",
+} : {
+  crm: "CRM – Customer Relationship",
+  erp: "ERP – Resource Planning",
+  hr: "HR – Personnel and Payroll",
+  productivity: "Productivity and Office",
+  communication: "Communication and Collaboration",
+  storage: "File and Document Storage",
+  security: "Security and IAM",
+  monitoring: "Monitoring and Logging",
+  finance: "Finance and Accounting",
+  marketing: "Marketing and Campaigns",
+  "e-commerce": "E-commerce and Payments",
+  project_management: "Project and Task Management",
+  development: "Development and DevOps",
+  analytics: "Analytics and BI",
+  other: "Other",
 };
 
 type DeliveryModel = "saas" | "on_prem" | "hybrid" | "private_cloud" | "open_source" | "other";
 
-const DELIVERY_MODELS: { key: DeliveryModel; label: string; description: string; icon: typeof Database }[] = [
-  { key: "saas", label: "SaaS / Sky", description: "Multi-tenant, driftet av leverandør", icon: Cloud },
-  { key: "on_prem", label: "On-prem", description: "Installert i egen infrastruktur", icon: Server },
-  { key: "hybrid", label: "Hybrid", description: "Både sky og lokal komponent", icon: Activity },
-  { key: "private_cloud", label: "Privat sky", description: "Single-tenant hos leverandør", icon: Hash },
-  { key: "open_source", label: "Open source", description: "Selv-hostet, ingen leverandøravtale", icon: Globe },
-  { key: "other", label: "Annet", description: "Spesifiser", icon: HelpCircle },
+const getDeliveryModels = (isNb: boolean): { key: DeliveryModel; label: string; description: string; icon: typeof Database }[] => [
+  { key: "saas", label: isNb ? "SaaS / Sky" : "SaaS / Cloud", description: isNb ? "Multi-tenant, driftet av leverandør" : "Multi-tenant, hosted by vendor", icon: Cloud },
+  { key: "on_prem", label: "On-prem", description: isNb ? "Installert i egen infrastruktur" : "Installed in own infrastructure", icon: Server },
+  { key: "hybrid", label: isNb ? "Hybrid" : "Hybrid", description: isNb ? "Både sky og lokal komponent" : "Both cloud and local component", icon: Activity },
+  { key: "private_cloud", label: isNb ? "Privat sky" : "Private cloud", description: isNb ? "Single-tenant hos leverandør" : "Single-tenant at vendor", icon: Hash },
+  { key: "open_source", label: "Open source", description: isNb ? "Selv-hostet, ingen leverandøravtale" : "Self-hosted, no vendor contract", icon: Globe },
+  { key: "other", label: isNb ? "Annet" : "Other", description: isNb ? "Spesifiser" : "Specify", icon: HelpCircle },
 ];
 
 type VendorRole = "software" | "service" | "infrastructure" | "consultant" | "reseller";
 
-const VENDOR_ROLES: { key: VendorRole; label: string }[] = [
-  { key: "software", label: "Programvareleverandør" },
-  { key: "service", label: "Tjenesteleverandør" },
-  { key: "infrastructure", label: "Infrastrukturleverandør" },
-  { key: "consultant", label: "Konsulent / rådgiver" },
-  { key: "reseller", label: "Reseller / distributør" },
+const getVendorRoles = (isNb: boolean): { key: VendorRole; label: string }[] => [
+  { key: "software", label: isNb ? "Programvareleverandør" : "Software vendor" },
+  { key: "service", label: isNb ? "Tjenesteleverandør" : "Service provider" },
+  { key: "infrastructure", label: isNb ? "Infrastrukturleverandør" : "Infrastructure provider" },
+  { key: "consultant", label: isNb ? "Konsulent / rådgiver" : "Consultant / advisor" },
+  { key: "reseller", label: isNb ? "Reseller / distributør" : "Reseller / distributor" },
 ];
 
-const STEPS: { key: WizardStep; label: string }[] = [
-  { key: "search", label: "Søk" },
-  { key: "confirm", label: "Bekreft" },
-  { key: "vendor", label: "Leverandør" },
-  { key: "category", label: "Kategori" },
-  { key: "risk", label: "Risiko" },
-  { key: "contact", label: "Kontakt" },
+
+const getSteps = (isNb: boolean): { key: WizardStep; label: string }[] => [
+  { key: "search", label: isNb ? "Søk" : "Search" },
+  { key: "confirm", label: isNb ? "Bekreft" : "Confirm" },
+  { key: "vendor", label: isNb ? "Leverandør" : "Vendor" },
+  { key: "category", label: isNb ? "Kategori" : "Category" },
+  { key: "risk", label: isNb ? "Risiko" : "Risk" },
+  { key: "contact", label: isNb ? "Kontakt" : "Contact" },
 ];
 
 export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystemDialogProps) {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const STEPS = useMemo(() => getSteps(isNb), [isNb]);
+  const CATEGORY_LABELS = useMemo(() => getCategoryLabels(isNb), [isNb]);
+  const DELIVERY_MODELS = useMemo(() => getDeliveryModels(isNb), [isNb]);
+  const VENDOR_ROLES = useMemo(() => getVendorRoles(isNb), [isNb]);
   const [step, setStep] = useState<WizardStep>("search");
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -117,6 +142,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
   const [isSuggestingRisk, setIsSuggestingRisk] = useState(false);
   const [riskSuggestion, setRiskSuggestion] = useState<{ risk_level: string; reasoning: string } | null>(null);
   const { toast } = useToast();
+
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -451,17 +477,18 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            Legg til system
+            {isNb ? "Legg til system" : "Add system"}
           </DialogTitle>
           <DialogDescription>
-            {step === "search" && "Søk etter systemet i vårt bibliotek eller på nett."}
-            {step === "confirm" && "Bekreft at dette er riktig system."}
-            {step === "vendor" && "Vi har funnet leverandøren — vil du koble systemet?"}
-            {step === "category" && "Lara har foreslått klassifisering — juster om nødvendig."}
-            {step === "risk" && "Angi risikonivå og kritikalitet for systemet."}
-            {step === "contact" && "Legg til kontaktinformasjon (valgfritt)."}
+            {step === "search" && (isNb ? "Søk etter systemet i vårt bibliotek eller på nett." : "Search for the system in our library or on the web.")}
+            {step === "confirm" && (isNb ? "Bekreft at dette er riktig system." : "Confirm that this is the right system.")}
+            {step === "vendor" && (isNb ? "Vi har funnet leverandøren — vil du koble systemet?" : "We found the vendor — do you want to link the system?")}
+            {step === "category" && (isNb ? "Lara har foreslått klassifisering — juster om nødvendig." : "Lara has suggested a classification — adjust if needed.")}
+            {step === "risk" && (isNb ? "Angi risikonivå og kritikalitet for systemet." : "Set the risk level and criticality for the system.")}
+            {step === "contact" && (isNb ? "Legg til kontaktinformasjon (valgfritt)." : "Add contact information (optional).")}
           </DialogDescription>
         </DialogHeader>
+
 
         {/* Progress bar */}
         <div className="space-y-2">
@@ -485,7 +512,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Skriv inn systemnavn, f.eks. Salesforce, Visma..."
+                placeholder={isNb ? "Skriv inn systemnavn, f.eks. Salesforce, Visma..." : "Enter system name, e.g. Salesforce, Visma..."}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                 autoFocus
               />
@@ -498,8 +525,9 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg">
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 <div>
-                  <p className="text-sm font-medium">Søker...</p>
-                  <p className="text-xs text-muted-foreground">Sjekker Trust Engine og gjør oppslag</p>
+                  <p className="text-sm font-medium">{isNb ? "Søker..." : "Searching..."}</p>
+                  <p className="text-xs text-muted-foreground">{isNb ? "Sjekker Trust Engine og gjør oppslag" : "Checking Trust Engine and looking up"}</p>
+
                 </div>
               </div>
             )}
@@ -509,8 +537,9 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Database className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Funnet i Trust Engine</span>
-                  <Badge variant="secondary" className="text-xs">Verifisert</Badge>
+                  <span className="text-sm font-medium">{isNb ? "Funnet i Trust Engine" : "Found in Trust Engine"}</span>
+                  <Badge variant="secondary" className="text-xs">{isNb ? "Verifisert" : "Verified"}</Badge>
+
                 </div>
                 <div className="space-y-2">
                   {trustResults.map((result, i) => (
@@ -541,7 +570,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 </div>
                 <Button variant="ghost" size="sm" onClick={handleWebSearch} disabled={isSearching} className="w-full text-muted-foreground">
                   <Globe className="h-4 w-4 mr-2" />
-                  Søk på nett i stedet
+                  {isNb ? "Søk på nett i stedet" : "Search the web instead"}
                 </Button>
               </div>
             )}
@@ -551,27 +580,29 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Resultat fra nett-oppslag</span>
-                  {webResult.confidence === "high" && <Badge className="text-xs bg-status-closed/20 text-status-closed border-status-closed/30">Høy sikkerhet</Badge>}
-                  {webResult.confidence === "medium" && <Badge className="text-xs bg-warning/20 text-warning border-warning/30">Middels sikkerhet</Badge>}
-                  {webResult.confidence === "low" && <Badge className="text-xs bg-destructive/20 text-destructive border-destructive/30">Lav sikkerhet</Badge>}
+                  <span className="text-sm font-medium">{isNb ? "Resultat fra nett-oppslag" : "Web lookup result"}</span>
+                  {webResult.confidence === "high" && <Badge className="text-xs bg-status-closed/20 text-status-closed border-status-closed/30">{isNb ? "Høy sikkerhet" : "High confidence"}</Badge>}
+                  {webResult.confidence === "medium" && <Badge className="text-xs bg-warning/20 text-warning border-warning/30">{isNb ? "Middels sikkerhet" : "Medium confidence"}</Badge>}
+                  {webResult.confidence === "low" && <Badge className="text-xs bg-destructive/20 text-destructive border-destructive/30">{isNb ? "Lav sikkerhet" : "Low confidence"}</Badge>}
                 </div>
                 <div className="p-4 rounded-lg border border-border bg-muted/20 space-y-3">
                   <div>
                     <p className="font-medium text-lg">{webResult.official_name}</p>
-                    <p className="text-sm text-muted-foreground">av {webResult.vendor}</p>
+                    <p className="text-sm text-muted-foreground">{isNb ? "av" : "by"} {webResult.vendor}</p>
+
                   </div>
                   <p className="text-sm">{webResult.description}</p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">{CATEGORY_LABELS[webResult.suggested_category] || webResult.suggested_category}</Badge>
                     {webResult.has_ai && (
                       <Badge variant="secondary">
-                        <Sparkles className="h-3 w-3 mr-1" />AI-funksjoner
+                        <Sparkles className="h-3 w-3 mr-1" />{isNb ? "AI-funksjoner" : "AI features"}
                       </Badge>
                     )}
                     {webResult.is_data_processor && (
                       <Badge variant="outline" className="border-warning/30 text-warning">
-                        Databehandler
+                        {isNb ? "Databehandler" : "Data processor"}
+
                       </Badge>
                     )}
                     {webResult.vendor_country && (
@@ -588,10 +619,11 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 <div className="flex gap-2">
                   <Button onClick={() => setStep("confirm")} className="flex-1">
                     <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Ja, dette er riktig
+                    {isNb ? "Ja, dette er riktig" : "Yes, this is correct"}
                   </Button>
                   <Button variant="outline" onClick={() => { setSearchSource("none"); setSearchPerformed(false); }} className="flex-1">
-                    Nei, søk igjen
+                    {isNb ? "Nei, søk igjen" : "No, search again"}
+
                   </Button>
                 </div>
               </div>
@@ -600,7 +632,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             {/* No results */}
             {searchPerformed && !isSearching && searchSource === "none" && (
               <div className="p-4 rounded-lg border border-border bg-muted/20 text-center space-y-3">
-                <p className="text-sm text-muted-foreground">Ingen treff. Du kan registrere systemet manuelt.</p>
+                <p className="text-sm text-muted-foreground">{isNb ? "Ingen treff. Du kan registrere systemet manuelt." : "No results. You can register the system manually."}</p>
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -608,7 +640,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                     setStep("category");
                   }}
                 >
-                  Registrer manuelt
+                  {isNb ? "Registrer manuelt" : "Register manually"}
+
                 </Button>
               </div>
             )}
@@ -619,7 +652,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         {step === "confirm" && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="confirm-name">Systemnavn</Label>
+              <Label htmlFor="confirm-name">{isNb ? "Systemnavn" : "System name"}</Label>
               <Input
                 id="confirm-name"
                 value={formData.name}
@@ -627,7 +660,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-vendor">Leverandør</Label>
+              <Label htmlFor="confirm-vendor">{isNb ? "Leverandør" : "Vendor"}</Label>
               <Input
                 id="confirm-vendor"
                 value={formData.vendor}
@@ -635,7 +668,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-desc">Beskrivelse</Label>
+              <Label htmlFor="confirm-desc">{isNb ? "Beskrivelse" : "Description"}</Label>
               <Textarea
                 id="confirm-desc"
                 value={formData.description}
@@ -646,7 +679,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
 
             {webResult?.data_types && webResult.data_types.length > 0 && (
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Data systemet behandler</Label>
+                <Label className="text-xs text-muted-foreground">{isNb ? "Data systemet behandler" : "Data the system processes"}</Label>
                 <div className="flex flex-wrap gap-1">
                   {webResult.data_types.map((dt, i) => (
                     <Badge key={i} variant="outline" className="text-xs">{dt}</Badge>
@@ -657,10 +690,11 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
 
             <div className="flex gap-2 justify-end pt-2">
               <Button variant="outline" onClick={() => setStep("search")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
+                <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
               </Button>
               <Button onClick={() => setStep("vendor")} disabled={!formData.name.trim()}>
-                Neste<ChevronRight className="h-4 w-4 ml-1" />
+                {isNb ? "Neste" : "Next"}<ChevronRight className="h-4 w-4 ml-1" />
+
               </Button>
             </div>
           </div>
@@ -688,27 +722,30 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-foreground">Lara</span>
                   <Badge variant="secondary" className="h-5 px-1.5 text-[10px] bg-primary/10 text-primary border-primary/20">
-                    Mynder-agent
+                    {isNb ? "Mynder-agent" : "Mynder agent"}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">· analyserte 4 kilder</span>
+                  <span className="text-xs text-muted-foreground">· {isNb ? "analyserte 4 kilder" : "analyzed 4 sources"}</span>
                 </div>
                 <p className="text-sm text-foreground leading-relaxed">
                   {webResult?.category_reason
                     ? webResult.category_reason
-                    : `${formData.name || "Systemet"} tilbyr et bredt spekter av forretningssystemer. Forslagene under er basert på offentlig tilgjengelig informasjon — juster om noe ikke stemmer.`}
+                    : (isNb
+                        ? `${formData.name || "Systemet"} tilbyr et bredt spekter av forretningssystemer. Forslagene under er basert på offentlig tilgjengelig informasjon — juster om noe ikke stemmer.`
+                        : `${formData.name || "The system"} offers a wide range of business systems. The suggestions below are based on publicly available information — adjust if anything is incorrect.`)}
                 </p>
               </div>
             </div>
 
-            {/* Funksjonell kategori */}
+            {/* Functional category */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Funksjonell kategori</Label>
-                <span className="text-xs text-muted-foreground">Hva systemet brukes til</span>
+                <Label className="text-sm font-medium">{isNb ? "Funksjonell kategori" : "Functional category"}</Label>
+                <span className="text-xs text-muted-foreground">{isNb ? "Hva systemet brukes til" : "What the system is used for"}</span>
               </div>
               <Select value={formData.category} onValueChange={(v) => setFormData(prev => ({ ...prev, category: v }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg kategori" />
+                  <SelectValue placeholder={isNb ? "Velg kategori" : "Select category"} />
+
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
@@ -721,8 +758,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             {/* Leveransemodell */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Leveransemodell</Label>
-                <span className="text-xs text-muted-foreground">Hvordan systemet driftes</span>
+                <Label className="text-sm font-medium">{isNb ? "Leveransemodell" : "Delivery model"}</Label>
+                <span className="text-xs text-muted-foreground">{isNb ? "Hvordan systemet driftes" : "How the system is operated"}</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {DELIVERY_MODELS.map(({ key, label, description, icon: Icon }) => {
@@ -749,15 +786,16 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 })}
               </div>
               <p className="text-xs text-muted-foreground">
-                Valget påvirker hvilke kontroller og dokumentasjonskrav som er relevante (DPA, datalokasjon, oppdateringspraksis).
+                {isNb ? "Valget påvirker hvilke kontroller og dokumentasjonskrav som er relevante (DPA, datalokasjon, oppdateringspraksis)." : "The choice affects which controls and documentation requirements are relevant (DPA, data location, update practices)."}
               </p>
             </div>
 
-            {/* Leverandørrolle */}
+            {/* Vendor role */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Leverandørrolle</Label>
-                <span className="text-xs text-muted-foreground">Velg én eller flere</span>
+                <Label className="text-sm font-medium">{isNb ? "Leverandørrolle" : "Vendor role"}</Label>
+                <span className="text-xs text-muted-foreground">{isNb ? "Velg én eller flere" : "Select one or more"}</span>
+
               </div>
               <div className="flex flex-wrap gap-2">
                 {VENDOR_ROLES.map(({ key, label }) => {
@@ -792,17 +830,17 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                   onClick={() => { /* future: open custom role input */ }}
                 >
                   <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                  Legg til egen
+                  {isNb ? "Legg til egen" : "Add custom"}
                 </button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Samme leverandør kan ha flere roller (f.eks. Microsoft leverer både programvare og infrastruktur).
+                {isNb ? "Samme leverandør kan ha flere roller (f.eks. Microsoft leverer både programvare og infrastruktur)." : "The same vendor can have multiple roles (e.g. Microsoft provides both software and infrastructure)."}
               </p>
             </div>
 
             {webResult?.ai_features && (
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">AI-funksjoner identifisert</Label>
+                <Label className="text-xs text-muted-foreground">{isNb ? "AI-funksjoner identifisert" : "AI features identified"}</Label>
                 <p className="text-sm bg-muted/30 p-2 rounded">{webResult.ai_features}</p>
               </div>
             )}
@@ -810,14 +848,15 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             <div className="flex items-center justify-between pt-2 border-t border-border">
               <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="h-1.5 w-1.5 rounded-full bg-success" aria-hidden="true" />
-                Endringer lagres automatisk
+                {isNb ? "Endringer lagres automatisk" : "Changes are saved automatically"}
               </span>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setStep("vendor")}>
-                  <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
+                  <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
                 </Button>
                 <Button onClick={() => setStep("risk")} disabled={!formData.category}>
-                  Neste<ChevronRight className="h-4 w-4 ml-1" />
+                  {isNb ? "Neste" : "Next"}<ChevronRight className="h-4 w-4 ml-1" />
+
                 </Button>
               </div>
             </div>
@@ -835,7 +874,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 className="w-full gap-2 border-primary/30 text-primary hover:bg-primary/5"
               >
                 <Sparkles className="h-4 w-4" />
-                La Lara foreslå risikonivå for {formData.name}
+                {isNb ? `La Lara foreslå risikonivå for ${formData.name}` : `Let Lara suggest a risk level for ${formData.name}`}
               </Button>
             )}
 
@@ -843,8 +882,8 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 <div>
-                  <p className="text-sm font-medium">Lara analyserer systemet...</p>
-                  <p className="text-xs text-muted-foreground">Vurderer risiko basert på {formData.name}</p>
+                  <p className="text-sm font-medium">{isNb ? "Lara analyserer systemet..." : "Lara is analyzing the system..."}</p>
+                  <p className="text-xs text-muted-foreground">{isNb ? `Vurderer risiko basert på ${formData.name}` : `Assessing risk based on ${formData.name}`}</p>
                 </div>
               </div>
             )}
@@ -854,7 +893,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                 <div className="flex items-start gap-2">
                   <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">Laras anbefaling</p>
+                    <p className="text-sm font-medium">{isNb ? "Laras anbefaling" : "Lara's recommendation"}</p>
                     <p className="text-sm text-muted-foreground">{riskSuggestion.reasoning}</p>
                   </div>
                 </div>
@@ -867,45 +906,48 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                   }}
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  Bruk foreslått nivå: {riskSuggestion.risk_level === "low" ? "Lav" : riskSuggestion.risk_level === "medium" ? "Middels" : riskSuggestion.risk_level === "high" ? "Høy" : "Kritisk"}
+                  {isNb ? "Bruk foreslått nivå" : "Use suggested level"}: {isNb
+                    ? (riskSuggestion.risk_level === "low" ? "Lav" : riskSuggestion.risk_level === "medium" ? "Middels" : riskSuggestion.risk_level === "high" ? "Høy" : "Kritisk")
+                    : (riskSuggestion.risk_level === "low" ? "Low" : riskSuggestion.risk_level === "medium" ? "Medium" : riskSuggestion.risk_level === "high" ? "High" : "Critical")}
                 </Button>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label>Risikonivå *</Label>
+              <Label>{isNb ? "Risikonivå *" : "Risk level *"}</Label>
               <Select value={formData.risk_level} onValueChange={(v) => setFormData(prev => ({ ...prev, risk_level: v }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Velg risikonivå" />
+                  <SelectValue placeholder={isNb ? "Velg risikonivå" : "Select risk level"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="low">
                     <span className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-status-closed" />
-                      Lav
+                      {isNb ? "Lav" : "Low"}
                     </span>
                   </SelectItem>
                   <SelectItem value="medium">
                     <span className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-warning" />
-                      Middels
+                      {isNb ? "Middels" : "Medium"}
                     </span>
                   </SelectItem>
                   <SelectItem value="high">
                     <span className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-warning" />
-                      Høy
+                      {isNb ? "Høy" : "High"}
                     </span>
                   </SelectItem>
                   <SelectItem value="critical">
                     <span className="flex items-center gap-2">
                       <span className="h-2.5 w-2.5 rounded-full bg-destructive" />
-                      Kritisk
+                      {isNb ? "Kritisk" : "Critical"}
                     </span>
                   </SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
 
             {formData.risk_level && (() => {
               const suggested = suggestPriority(formData.risk_level);
@@ -917,11 +959,11 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                     <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                     <div className="space-y-0.5">
                       <p className="text-sm font-medium">
-                        Lara foreslår prioritet:{" "}
+                        {isNb ? "Lara foreslår prioritet:" : "Lara suggests priority:"}{" "}
                         <span className="text-primary">{priorityLabel(suggested)}</span>
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {suggestionRationale(formData.risk_level)}. Du kan overstyre.
+                        {suggestionRationale(formData.risk_level)}. {isNb ? "Du kan overstyre." : "You can override."}
                       </p>
                     </div>
                   </div>
@@ -954,13 +996,13 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                   {isOverride && (
                     <div className="space-y-1">
                       <Label className="text-xs">
-                        Begrunnelse for overstyring{" "}
-                        <span className="text-muted-foreground font-normal">(valgfritt, men anbefalt)</span>
+                        {isNb ? "Begrunnelse for overstyring" : "Reason for override"}{" "}
+                        <span className="text-muted-foreground font-normal">{isNb ? "(valgfritt, men anbefalt)" : "(optional, but recommended)"}</span>
                       </Label>
                       <Textarea
                         value={formData.priority_reason}
                         onChange={(e) => setFormData(prev => ({ ...prev, priority_reason: e.target.value }))}
-                        placeholder="F.eks. kompenserende kontroller, system under utfasing, klinisk kontekst"
+                        placeholder={isNb ? "F.eks. kompenserende kontroller, system under utfasing, klinisk kontekst" : "E.g. compensating controls, system being phased out, clinical context"}
                         rows={2}
                         className="text-xs resize-none bg-background"
                       />
@@ -977,21 +1019,22 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="in_use">I bruk</SelectItem>
-                  <SelectItem value="evaluation">Under evaluering</SelectItem>
-                  <SelectItem value="quarantined">Karantene</SelectItem>
-                  <SelectItem value="phasing_out">Fases ut</SelectItem>
-                  <SelectItem value="rejected">Avvist</SelectItem>
+                  <SelectItem value="in_use">{isNb ? "I bruk" : "In use"}</SelectItem>
+                  <SelectItem value="evaluation">{isNb ? "Under evaluering" : "Under evaluation"}</SelectItem>
+                  <SelectItem value="quarantined">{isNb ? "Karantene" : "Quarantined"}</SelectItem>
+                  <SelectItem value="phasing_out">{isNb ? "Fases ut" : "Phasing out"}</SelectItem>
+                  <SelectItem value="rejected">{isNb ? "Avvist" : "Rejected"}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="flex gap-2 justify-end pt-2">
               <Button variant="outline" onClick={() => setStep("category")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
+                <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
               </Button>
               <Button onClick={() => setStep("contact")} disabled={!canProceedFromRisk}>
-                Neste<ChevronRight className="h-4 w-4 ml-1" />
+                {isNb ? "Neste" : "Next"}<ChevronRight className="h-4 w-4 ml-1" />
+
               </Button>
             </div>
           </div>
@@ -1003,33 +1046,33 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 border border-border">
               <User className="h-4 w-4 text-muted-foreground" />
               <p className="text-xs text-muted-foreground">
-                Legg til kontaktperson hos leverandøren. Dette er nødvendig for å kunne sende forespørsler.
+                {isNb ? "Legg til kontaktperson hos leverandøren. Dette er nødvendig for å kunne sende forespørsler." : "Add a contact person at the vendor. This is needed to be able to send requests."}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact-person">Kontaktperson hos leverandør</Label>
+              <Label htmlFor="contact-person">{isNb ? "Kontaktperson hos leverandør" : "Contact person at vendor"}</Label>
               <Input
                 id="contact-person"
                 value={formData.contact_person}
                 onChange={(e) => setFormData(prev => ({ ...prev, contact_person: e.target.value }))}
-                placeholder="Navn på kontaktperson"
+                placeholder={isNb ? "Navn på kontaktperson" : "Name of contact person"}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="contact-email">Kontakt e-post</Label>
+              <Label htmlFor="contact-email">{isNb ? "Kontakt e-post" : "Contact email"}</Label>
               <Input
                 id="contact-email"
                 type="email"
                 value={formData.contact_email}
                 onChange={(e) => setFormData(prev => ({ ...prev, contact_email: e.target.value }))}
-                placeholder="kontakt@leverandor.no"
+                placeholder={isNb ? "kontakt@leverandor.no" : "contact@vendor.com"}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="system-url">System-URL</Label>
+              <Label htmlFor="system-url">{isNb ? "System-URL" : "System URL"}</Label>
               <Input
                 id="system-url"
                 value={formData.url}
@@ -1042,20 +1085,20 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
             <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-2">
               <p className="text-sm font-medium flex items-center gap-2">
                 <Building className="h-4 w-4" />
-                Oppsummering
+                {isNb ? "Oppsummering" : "Summary"}
               </p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                <span className="text-muted-foreground">System:</span>
+                <span className="text-muted-foreground">{isNb ? "System:" : "System:"}</span>
                 <span className="font-medium">{formData.name}</span>
-                <span className="text-muted-foreground">Leverandør:</span>
+                <span className="text-muted-foreground">{isNb ? "Leverandør:" : "Vendor:"}</span>
                 <span>{formData.vendor || "—"}</span>
-                <span className="text-muted-foreground">Kategori:</span>
+                <span className="text-muted-foreground">{isNb ? "Kategori:" : "Category:"}</span>
                 <span>{CATEGORY_LABELS[formData.category] || formData.category || "—"}</span>
-                <span className="text-muted-foreground">Risikonivå:</span>
+                <span className="text-muted-foreground">{isNb ? "Risikonivå:" : "Risk level:"}</span>
                 <span className="capitalize">{formData.risk_level || "—"}</span>
                 {formData.contact_person && (
                   <>
-                    <span className="text-muted-foreground">Kontaktperson:</span>
+                    <span className="text-muted-foreground">{isNb ? "Kontaktperson:" : "Contact person:"}</span>
                     <span>{formData.contact_person}</span>
                   </>
                 )}
@@ -1064,16 +1107,17 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
 
             <div className="flex gap-2 justify-end pt-2">
               <Button variant="outline" onClick={() => setStep("risk")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
+                <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
               </Button>
               <Button onClick={handleSubmit} disabled={isSaving}>
                 {isSaving ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Lagrer...</>
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{isNb ? "Lagrer..." : "Saving..."}</>
                 ) : (
-                  <><CheckCircle2 className="h-4 w-4 mr-2" />Registrer system</>
+                  <><CheckCircle2 className="h-4 w-4 mr-2" />{isNb ? "Registrer system" : "Register system"}</>
                 )}
               </Button>
             </div>
+
           </div>
         )}
       </DialogContent>
