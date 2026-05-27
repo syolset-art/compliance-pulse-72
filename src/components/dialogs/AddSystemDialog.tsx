@@ -652,7 +652,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
         {step === "confirm" && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="confirm-name">Systemnavn</Label>
+              <Label htmlFor="confirm-name">{isNb ? "Systemnavn" : "System name"}</Label>
               <Input
                 id="confirm-name"
                 value={formData.name}
@@ -660,7 +660,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-vendor">Leverandør</Label>
+              <Label htmlFor="confirm-vendor">{isNb ? "Leverandør" : "Vendor"}</Label>
               <Input
                 id="confirm-vendor"
                 value={formData.vendor}
@@ -668,7 +668,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirm-desc">Beskrivelse</Label>
+              <Label htmlFor="confirm-desc">{isNb ? "Beskrivelse" : "Description"}</Label>
               <Textarea
                 id="confirm-desc"
                 value={formData.description}
@@ -679,7 +679,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
 
             {webResult?.data_types && webResult.data_types.length > 0 && (
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Data systemet behandler</Label>
+                <Label className="text-xs text-muted-foreground">{isNb ? "Data systemet behandler" : "Data the system processes"}</Label>
                 <div className="flex flex-wrap gap-1">
                   {webResult.data_types.map((dt, i) => (
                     <Badge key={i} variant="outline" className="text-xs">{dt}</Badge>
@@ -690,10 +690,11 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
 
             <div className="flex gap-2 justify-end pt-2">
               <Button variant="outline" onClick={() => setStep("search")}>
-                <ChevronLeft className="h-4 w-4 mr-1" />Tilbake
+                <ChevronLeft className="h-4 w-4 mr-1" />{isNb ? "Tilbake" : "Back"}
               </Button>
               <Button onClick={() => setStep("vendor")} disabled={!formData.name.trim()}>
-                Neste<ChevronRight className="h-4 w-4 ml-1" />
+                {isNb ? "Neste" : "Next"}<ChevronRight className="h-4 w-4 ml-1" />
+
               </Button>
             </div>
           </div>
