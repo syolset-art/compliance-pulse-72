@@ -89,7 +89,9 @@ interface VendorListTabProps {
 }
 
 export function VendorListTab({ vendors, allAssets, relationships, onDelete, newlyAddedId }: VendorListTabProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const tl = (k: string) => t(`vendorDashboard.list.${k}`);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -114,7 +116,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
       queryClient.invalidateQueries({ queryKey: ["assets"] });
-      toast.success("Eier satt");
+      toast.success(tl("ownerSet"));
     },
   });
 
@@ -126,7 +128,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["vendor-assets"] });
       queryClient.invalidateQueries({ queryKey: ["assets"] });
-      toast.success("Leverandør arkivert");
+      toast.success(tl("vendorArchived"));
     },
   });
 
@@ -304,18 +306,18 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
           </PopoverTrigger>
           <PopoverContent align="start" className="w-64 space-y-3 p-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Filtrer</span>
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{tl("filter")}</span>
               {activeFilterCount > 0 && (
-                <button onClick={clearAllFilters} className="text-xs text-primary hover:underline">Nullstill</button>
+                <button onClick={clearAllFilters} className="text-xs text-primary hover:underline">{tl("reset")}</button>
               )}
             </div>
             <div className="space-y-2">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={tl("status")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle statuser</SelectItem>
+                  <SelectItem value="all">{tl("allStatuses")}</SelectItem>
                   {ALL_VENDOR_STATUSES.map(s => (
                     <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
                   ))}
@@ -323,94 +325,95 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
               </Select>
               <Select value={riskFilter} onValueChange={setRiskFilter}>
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Risiko" />
+                  <SelectValue placeholder={tl("risk")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle risikonivåer</SelectItem>
-                  <SelectItem value="high">Høy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Lav</SelectItem>
+                  <SelectItem value="all">{tl("allRisks")}</SelectItem>
+                  <SelectItem value="high">{tl("riskHigh")}</SelectItem>
+                  <SelectItem value="medium">{tl("riskMedium")}</SelectItem>
+                  <SelectItem value="low">{tl("riskLow")}</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={vendorCategoryFilter} onValueChange={setVendorCategoryFilter}>
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Type" />
+                  <SelectValue placeholder={tl("type")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle typer</SelectItem>
-                  <SelectItem value="saas">SaaS</SelectItem>
-                  <SelectItem value="infrastructure">Infrastruktur</SelectItem>
-                  <SelectItem value="consulting">Rådgivning</SelectItem>
-                  <SelectItem value="it_operations">IT-drift</SelectItem>
-                  <SelectItem value="facilities">Kontor</SelectItem>
-                  <SelectItem value="other">Annet</SelectItem>
+                  <SelectItem value="all">{tl("allTypes")}</SelectItem>
+                  <SelectItem value="saas">{tl("vendorType.saas")}</SelectItem>
+                  <SelectItem value="infrastructure">{tl("vendorType.infrastructure")}</SelectItem>
+                  <SelectItem value="consulting">{tl("vendorType.consulting")}</SelectItem>
+                  <SelectItem value="it_operations">{tl("vendorType.it_operations")}</SelectItem>
+                  <SelectItem value="facilities">{tl("vendorType.facilities")}</SelectItem>
+                  <SelectItem value="other">{tl("vendorType.other")}</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={gdprRoleFilter} onValueChange={setGdprRoleFilter}>
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="GDPR-rolle" />
+                  <SelectValue placeholder={tl("gdprRole")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle roller</SelectItem>
-                  <SelectItem value="databehandler">Databehandler</SelectItem>
-                  <SelectItem value="underdatabehandler">Underdatabehandler</SelectItem>
-                  <SelectItem value="ingen">Ingen persondata</SelectItem>
+                  <SelectItem value="all">{tl("allRoles")}</SelectItem>
+                  <SelectItem value="databehandler">{tl("gdpr.databehandler")}</SelectItem>
+                  <SelectItem value="underdatabehandler">{tl("gdpr.underdatabehandler")}</SelectItem>
+                  <SelectItem value="ingen">{tl("gdpr.ingen")}</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Prioritet" />
+                  <SelectValue placeholder={tl("priority")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle prioriteter</SelectItem>
-                  <SelectItem value="critical">Kritisk</SelectItem>
-                  <SelectItem value="high">Høy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Lav</SelectItem>
+                  <SelectItem value="all">{tl("allPriorities")}</SelectItem>
+                  <SelectItem value="critical">{tl("priorityCritical")}</SelectItem>
+                  <SelectItem value="high">{tl("priorityHigh")}</SelectItem>
+                  <SelectItem value="medium">{tl("priorityMedium")}</SelectItem>
+                  <SelectItem value="low">{tl("priorityLow")}</SelectItem>
                 </SelectContent>
               </Select>
               {categories.length > 0 && (
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Kategori" />
+                    <SelectValue placeholder={tl("category")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Alle kategorier</SelectItem>
+                    <SelectItem value="all">{tl("allCategories")}</SelectItem>
                     {categories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                   </SelectContent>
                 </Select>
               )}
               <label className="flex items-center gap-2 text-xs text-muted-foreground pt-1">
                 <input type="checkbox" checked={showAll} onChange={e => setShowAll(e.target.checked)} className="rounded" />
-                Vis alle verdier
+                {tl("showAllValues")}
               </label>
             </div>
           </PopoverContent>
         </Popover>
 
+
         {activeFilterCount > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap">
             {riskFilter && riskFilter !== "all" && (
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
-                {riskFilter === "high" ? "Høy" : riskFilter === "medium" ? "Medium" : "Lav"} risiko
+                {riskFilter === "high" ? tl("riskHigh") : riskFilter === "medium" ? tl("riskMedium") : tl("riskLow")} {tl("riskSuffix")}
                 <button onClick={() => setRiskFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {vendorCategoryFilter && vendorCategoryFilter !== "all" && (
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
-                {vendorCategoryFilter}
+                {tl(`vendorType.${vendorCategoryFilter}`)}
                 <button onClick={() => setVendorCategoryFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {gdprRoleFilter && gdprRoleFilter !== "all" && (
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
-                {gdprRoleFilter}
+                {tl(`gdpr.${gdprRoleFilter}`)}
                 <button onClick={() => setGdprRoleFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
             {priorityFilter && priorityFilter !== "all" && (
               <Badge variant="secondary" className="text-[13px] gap-1 pl-2 pr-1 py-0.5">
-                {priorityFilter === "critical" ? "Kritisk" : priorityFilter === "high" ? "Høy" : priorityFilter === "medium" ? "Medium" : "Lav"} prioritet
+                {priorityFilter === "critical" ? tl("priorityCritical") : priorityFilter === "high" ? tl("priorityHigh") : priorityFilter === "medium" ? tl("priorityMedium") : tl("priorityLow")} {tl("prioritySuffix")}
                 <button onClick={() => setPriorityFilter("")}><X className="h-3 w-3" /></button>
               </Badge>
             )}
@@ -424,7 +427,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
         )}
 
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-xs text-muted-foreground hidden sm:inline">{filtered.length} leverandører</span>
+          <span className="text-xs text-muted-foreground hidden sm:inline">{filtered.length} {t("nav.vendors", isNb ? "leverandører" : "vendors").toLowerCase()}</span>
           <div className="flex border border-border rounded-lg">
             <Button
               variant={viewMode === "card" ? "secondary" : "ghost"}
@@ -480,7 +483,7 @@ export function VendorListTab({ vendors, allAssets, relationships, onDelete, new
       {/* Results */}
       {filtered.length === 0 ? (
         <div className="rounded-lg border border-border p-8 text-center text-muted-foreground">
-          {t("assets.noAssets", "Ingen leverandører funnet")}
+          {t("assets.noAssets", isNb ? "Ingen leverandører funnet" : "No vendors found")}
         </div>
       ) : viewMode === "table" ? (
         <VendorTableView

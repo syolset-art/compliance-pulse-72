@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
@@ -54,9 +55,9 @@ interface Props {
   setOwnerFilter: (v: string) => void;
 }
 
-const PRIORITY_LABEL: Record<string, string> = {
-  critical: "Kritisk", high: "Høy", medium: "Medium", low: "Lav",
-};
+const getPriorityLabel = (isNb: boolean): Record<string, string> => isNb
+  ? { critical: "Kritisk", high: "Høy", medium: "Medium", low: "Lav" }
+  : { critical: "Critical", high: "High", medium: "Medium", low: "Low" };
 
 /** Pille-stil for prioritet — bruker semantiske tokens. */
 const PRIORITY_PILL: Record<string, string> = {
@@ -66,10 +67,9 @@ const PRIORITY_PILL: Record<string, string> = {
   low:      "bg-muted text-muted-foreground border-border",
 };
 
-const VENDOR_CAT_LABEL: Record<string, string> = {
-  saas: "SaaS", infrastructure: "Infrastruktur", consulting: "Rådgivning",
-  it_operations: "IT-drift", facilities: "Kontor", other: "Annet",
-};
+const getVendorCatLabel = (isNb: boolean): Record<string, string> => isNb
+  ? { saas: "SaaS", infrastructure: "Infrastruktur", consulting: "Rådgivning", it_operations: "IT-drift", facilities: "Kontor", other: "Annet" }
+  : { saas: "SaaS", infrastructure: "Infrastructure", consulting: "Consulting", it_operations: "IT operations", facilities: "Facilities", other: "Other" };
 
 function ColumnFilter({
   label, value, onChange, options,
@@ -79,6 +79,7 @@ function ColumnFilter({
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
 }) {
+  const { t } = useTranslation();
   const active = !!value && value !== "all";
   return (
     <Popover>
@@ -171,6 +172,7 @@ function ScoreRing({ score }: { score: number }) {
 function OwnerCell({
   assetId, ownerName, options,
 }: { assetId: string; ownerName: string | null; options: string[] }) {
+  const { t } = useTranslation();
   const qc = useQueryClient();
   const mutate = useMutation({
     mutationFn: async (next: string) => {
@@ -181,9 +183,9 @@ function OwnerCell({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["vendor-assets"] });
       qc.invalidateQueries({ queryKey: ["assets"] });
-      toast.success("Eier oppdatert");
+      toast.success(t("vendorDashboard.list.ownerUpdated", "Eier oppdatert"));
     },
-    onError: () => toast.error("Kunne ikke oppdatere eier"),
+    onError: () => toast.error(t("vendorDashboard.list.ownerError", "Kunne ikke oppdatere eier")),
   });
 
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
@@ -202,7 +204,7 @@ function OwnerCell({
         ) : (
           <button className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
             <UserPlus className="h-3 w-3" />
-            Tilordne
+            {t("vendorDashboard.list.assign", "Tilordne")}
           </button>
         )}
       </PopoverTrigger>
@@ -236,6 +238,11 @@ export function VendorTableView({
   ownerFilter, setOwnerFilter,
 }: Props) {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const tl = (k: string) => t(`vendorDashboard.list.${k}`);
+  const PRIORITY_LABEL = getPriorityLabel(isNb);
+  const VENDOR_CAT_LABEL = getVendorCatLabel(isNb);
 
   const countries = useMemo(() => {
     const set = new Set<string>();
@@ -258,50 +265,50 @@ export function VendorTableView({
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-1.5 p-0" aria-label="Status" />
+              <TableHead className="w-1.5 p-0" aria-label={tl("status")} />
               <TableHead className="w-20">
                 <ColumnFilter
-                  label="Land"
+                  label={tl("country")}
                   value={countryFilter}
                   onChange={setCountryFilter}
                   options={countries.map(c => ({ value: c, label: c }))}
                 />
               </TableHead>
               <TableHead className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                Navn
+                {tl("name")}
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="Type"
+                  label={tl("type")}
                   value={vendorCategoryFilter}
                   onChange={setVendorCategoryFilter}
-                  options={Object.entries(VENDOR_CAT_LABEL).map(([v, l]) => ({ value: v, label: l }))}
+                  options={Object.entries(VENDOR_CAT_LABEL).map(([v, l]) => ({ value: v, label: l as string }))}
                 />
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="Prioritet"
+                  label={tl("priority")}
                   value={priorityFilter}
                   onChange={setPriorityFilter}
-                  options={Object.entries(PRIORITY_LABEL).map(([v, l]) => ({ value: v, label: l }))}
+                  options={Object.entries(PRIORITY_LABEL).map(([v, l]) => ({ value: v, label: l as string }))}
                 />
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="Kritikalitet"
+                  label={tl("criticality")}
                   value={criticalityFilter}
                   onChange={setCriticalityFilter}
                   options={(Object.keys(CRITICALITY_META) as CriticalityKey[]).map(k => ({
-                    value: k, label: CRITICALITY_META[k].labelNb,
+                    value: k, label: isNb ? CRITICALITY_META[k].labelNb : CRITICALITY_META[k].labelEn,
                   }))}
                 />
               </TableHead>
               <TableHead className="text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground w-16">
-                Score
+                {tl("score")}
               </TableHead>
               <TableHead>
                 <ColumnFilter
-                  label="Eier"
+                  label={tl("owner")}
                   value={ownerFilter}
                   onChange={setOwnerFilter}
                   options={owners.map(o => ({ value: o, label: o }))}
@@ -359,7 +366,7 @@ export function VendorTableView({
                   <TableCell>
                     {crit ? (
                       <Badge variant="outline" className={cn("font-normal text-[11px]", crit.pillClass)}>
-                        {crit.labelNb}
+                        {isNb ? crit.labelNb : crit.labelEn}
                       </Badge>
                     ) : <span className="text-xs text-muted-foreground">—</span>}
                   </TableCell>
