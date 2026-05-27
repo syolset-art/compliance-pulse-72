@@ -537,8 +537,9 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Database className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Funnet i Trust Engine</span>
-                  <Badge variant="secondary" className="text-xs">Verifisert</Badge>
+                  <span className="text-sm font-medium">{isNb ? "Funnet i Trust Engine" : "Found in Trust Engine"}</span>
+                  <Badge variant="secondary" className="text-xs">{isNb ? "Verifisert" : "Verified"}</Badge>
+
                 </div>
                 <div className="space-y-2">
                   {trustResults.map((result, i) => (
