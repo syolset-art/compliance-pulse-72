@@ -624,7 +624,7 @@ export default function Systems() {
       return (
         <div className="p-8 text-center text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
-          Laster systemer...
+          {isNb ? "Laster systemer..." : "Loading systems..."}
         </div>
       );
     }
@@ -633,15 +633,16 @@ export default function Systems() {
       return (
         <div className="p-12 text-center">
           <Server className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">Ingen systemer funnet</h3>
-          <p className="text-muted-foreground mb-4">Legg til systemer organisasjonen bruker for å holde oversikt.</p>
+          <h3 className="text-lg font-medium text-foreground mb-2">{isNb ? "Ingen systemer funnet" : "No systems found"}</h3>
+          <p className="text-muted-foreground mb-4">{isNb ? "Legg til systemer organisasjonen bruker for å holde oversikt." : "Add the systems your organization uses to keep an overview."}</p>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            Legg til system
+            {isNb ? "Legg til system" : "Add system"}
           </Button>
         </div>
       );
     }
+
 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
