@@ -89,7 +89,9 @@ interface VendorListTabProps {
 }
 
 export function VendorListTab({ vendors, allAssets, relationships, onDelete, newlyAddedId }: VendorListTabProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+  const tl = (k: string) => t(`vendorDashboard.list.${k}`);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
