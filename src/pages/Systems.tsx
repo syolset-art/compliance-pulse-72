@@ -695,7 +695,7 @@ export default function Systems() {
                     <span className={`absolute text-[13px] font-bold ${maturityColor}`}>{maturityLabel}</span>
                   </div>
                 ) : (
-                  <span className="text-[13px] font-medium text-muted-foreground uppercase tracking-wide">Ikke scoret</span>
+                  <span className="text-[13px] font-medium text-muted-foreground uppercase tracking-wide">{isNb ? "Ikke scoret" : "Not scored"}</span>
                 )}
               </div>
 
