@@ -786,17 +786,17 @@ export default function Systems() {
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Input
-              placeholder="Filtrer etter systemnavn"
+              placeholder={isNb ? "Filtrer etter systemnavn" : "Filter by system name"}
               value={nameFilter}
               onChange={(e) => setNameFilter(e.target.value)}
               className="bg-background border-border"
             />
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Filtrer etter systemtype" />
+                <SelectValue placeholder={isNb ? "Filtrer etter systemtype" : "Filter by system type"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle systemtyper</SelectItem>
+                <SelectItem value="all">{isNb ? "Alle systemtyper" : "All system types"}</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat || ""}>
                     {cat}
@@ -806,10 +806,10 @@ export default function Systems() {
             </Select>
             <Select value={ownerFilter} onValueChange={setOwnerFilter}>
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Filtrer etter Eier (Arbeidsområde)" />
+                <SelectValue placeholder={isNb ? "Filtrer etter Eier (Arbeidsområde)" : "Filter by Owner (Work Area)"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle eiere</SelectItem>
+                <SelectItem value="all">{isNb ? "Alle eiere" : "All owners"}</SelectItem>
                 {workAreas.map((area: WorkArea) => (
                   <SelectItem key={area.id} value={area.id}>
                     {area.name}
@@ -819,10 +819,10 @@ export default function Systems() {
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="bg-background border-border">
-                <SelectValue placeholder="Filtrer etter status" />
+                <SelectValue placeholder={isNb ? "Filtrer etter status" : "Filter by status"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Alle statuser</SelectItem>
+                <SelectItem value="all">{isNb ? "Alle statuser" : "All statuses"}</SelectItem>
                 {SYSTEM_STATUSES.map((s) => (
                   <SelectItem key={s.value} value={s.value}>
                     {s.label}
@@ -831,6 +831,7 @@ export default function Systems() {
               </SelectContent>
             </Select>
           </div>
+
 
           {/* View toggle + category chips */}
           <div className="flex items-center justify-between gap-4">
