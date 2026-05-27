@@ -1510,6 +1510,63 @@
       "euEea": "EU/EØS",
       "usa": "USA",
       "other": "Annet"
+    },
+    "list": {
+      "filter": "Filtrer",
+      "reset": "Nullstill",
+      "showAllValues": "Vis alle verdier",
+      "status": "Status",
+      "allStatuses": "Alle statuser",
+      "risk": "Risiko",
+      "allRisks": "Alle risikonivåer",
+      "type": "Type",
+      "allTypes": "Alle typer",
+      "gdprRole": "GDPR-rolle",
+      "allRoles": "Alle roller",
+      "priority": "Prioritet",
+      "allPriorities": "Alle prioriteter",
+      "category": "Kategori",
+      "allCategories": "Alle kategorier",
+      "country": "Land",
+      "owner": "Eier",
+      "name": "Navn",
+      "score": "Score",
+      "criticality": "Kritikalitet",
+      "assign": "Tilordne",
+      "all": "Alle",
+      "ownerSet": "Eier satt",
+      "ownerUpdated": "Eier oppdatert",
+      "ownerError": "Kunne ikke oppdatere eier",
+      "vendorArchived": "Leverandør arkivert",
+      "riskHigh": "Høy",
+      "riskMedium": "Medium",
+      "riskLow": "Lav",
+      "priorityCritical": "Kritisk",
+      "priorityHigh": "Høy",
+      "priorityMedium": "Medium",
+      "priorityLow": "Lav",
+      "riskSuffix": "risiko",
+      "prioritySuffix": "prioritet",
+      "gdpr": {
+        "databehandler": "Databehandler",
+        "underdatabehandler": "Underdatabehandler",
+        "ingen": "Ingen persondata"
+      },
+      "vendorType": {
+        "saas": "SaaS",
+        "infrastructure": "Infrastruktur",
+        "consulting": "Rådgivning",
+        "it_operations": "IT-drift",
+        "facilities": "Kontor",
+        "other": "Annet"
+      },
+      "notSet": "Ikke satt prioritet",
+      "scoreLabel": {
+        "notAssessed": "Ikke vurdert",
+        "high": "Høy",
+        "medium": "Middels",
+        "low": "Lav"
+      }
     }
   },
   "addVendor": {
