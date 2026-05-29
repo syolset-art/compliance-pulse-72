@@ -443,7 +443,7 @@ const AdminAccessManagement = () => {
                       { role: "ciso", icon: Lock, nb: "CISO / Sikkerhetsansvarlig", en: "CISO / Security Officer", descNb: "Ansvarlig for informasjonssikkerhet", descEn: "Responsible for information security" },
                     ].map(r => {
                       const Icon = r.icon;
-                      const assigned = members.filter(m => m.role === r.role && m.status !== "deactivated");
+                      const assigned = members.filter(m => m.roles.includes(r.role) && m.status !== "deactivated");
                       return (
                         <div key={r.role} className="flex items-center justify-between p-2.5 rounded-lg border border-border/50 bg-background/60">
                           <div className="flex items-center gap-2.5 min-w-0">
@@ -484,7 +484,7 @@ const AdminAccessManagement = () => {
                       { role: "member", icon: User, nb: "Medlem", en: "Member", descNb: "Standard lesetilgang til leverandørprofiler", descEn: "Default read access to vendor profiles" },
                     ].map(r => {
                       const Icon = r.icon;
-                      const assigned = members.filter(m => m.role === r.role && m.status !== "deactivated");
+                      const assigned = members.filter(m => m.roles.includes(r.role) && m.status !== "deactivated");
                       return (
                         <div key={r.role} className="flex items-center justify-between p-2.5 rounded-lg border border-border/50 bg-background/60">
                           <div className="flex items-center gap-2.5 min-w-0">
