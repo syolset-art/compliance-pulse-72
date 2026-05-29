@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -18,7 +21,7 @@ import {
 import {
   Users, UserPlus, Shield, Mail, Clock, CheckCircle2, Crown, Eye, Settings, Pencil,
   AlertTriangle, Bot, Leaf, ClipboardCheck, MonitorCog, GraduationCap, Truck, FileSearch,
-  Lock, User, Trash2,
+  Lock, User, Trash2, Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +30,7 @@ interface TeamMember {
   id: string;
   name: string;
   email: string;
-  role: string;
+  roles: string[];
   status: "active" | "invited" | "deactivated";
   lastSeen?: string;
 }
@@ -51,13 +54,13 @@ const ALL_ROLES = [
 ];
 
 const DEMO_MEMBERS: TeamMember[] = [
-  { id: "1", name: "Kari Nordmann", email: "kari@acme.no", role: "admin", status: "active", lastSeen: "I dag" },
-  { id: "2", name: "Synne Olsetten", email: "synne@acme.no", role: "compliance_officer", status: "active", lastSeen: "I går" },
-  { id: "3", name: "Sebastian Hernandez", email: "sebastian@acme.no", role: "ciso", status: "active", lastSeen: "3 dager siden" },
-  { id: "4", name: "Samti Ahmed", email: "samti@acme.no", role: "dpo", status: "active", lastSeen: "I dag" },
-  { id: "5", name: "Truls Kristoffersen", email: "truls@acme.no", role: "data_controller", status: "active", lastSeen: "2 dager siden" },
-  { id: "6", name: "Synnøve Olset", email: "synnove@acme.no", role: "it_manager", status: "active", lastSeen: "I dag" },
-  { id: "7", name: "Line Berg", email: "line@acme.no", role: "member", status: "invited" },
+  { id: "1", name: "Kari Nordmann", email: "kari@acme.no", roles: ["admin"], status: "active", lastSeen: "I dag" },
+  { id: "2", name: "Synne Olsetten", email: "synne@acme.no", roles: ["compliance_officer", "internal_auditor"], status: "active", lastSeen: "I går" },
+  { id: "3", name: "Sebastian Hernandez", email: "sebastian@acme.no", roles: ["ciso", "incident_manager"], status: "active", lastSeen: "3 dager siden" },
+  { id: "4", name: "Samti Ahmed", email: "samti@acme.no", roles: ["dpo"], status: "active", lastSeen: "I dag" },
+  { id: "5", name: "Truls Kristoffersen", email: "truls@acme.no", roles: ["data_controller", "vendor_manager"], status: "active", lastSeen: "2 dager siden" },
+  { id: "6", name: "Synnøve Olset", email: "synnove@acme.no", roles: ["it_manager"], status: "active", lastSeen: "I dag" },
+  { id: "7", name: "Line Berg", email: "line@acme.no", roles: ["member"], status: "invited" },
 ];
 
 const AdminAccessManagement = () => {
@@ -67,7 +70,7 @@ const AdminAccessManagement = () => {
   const [manageRolesOpen, setManageRolesOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
-  const [inviteRole, setInviteRole] = useState("member");
+  const [inviteRoles, setInviteRoles] = useState<string[]>(["member"]);
   const [members, setMembers] = useState<TeamMember[]>(DEMO_MEMBERS);
   const [activeRoles, setActiveRoles] = useState<string[]>([]);
   const [savingRoles, setSavingRoles] = useState(false);
@@ -133,11 +136,23 @@ const AdminAccessManagement = () => {
       toast.error(isNb ? "E-post er påkrevd" : "Email is required");
       return;
     }
+    if (inviteRoles.length === 0) {
+      toast.error(isNb ? "Velg minst én rolle" : "Select at least one role");
+      return;
+    }
+    const newMember: TeamMember = {
+      id: `inv-${Date.now()}`,
+      name: inviteName || inviteEmail.split("@")[0],
+      email: inviteEmail,
+      roles: inviteRoles,
+      status: "invited",
+    };
+    setMembers(prev => [...prev, newMember]);
     toast.success(isNb ? `Invitasjon sendt til ${inviteEmail}` : `Invitation sent to ${inviteEmail}`);
     setInviteOpen(false);
     setInviteEmail("");
     setInviteName("");
-    setInviteRole("member");
+    setInviteRoles(["member"]);
   };
 
   return (
@@ -181,7 +196,7 @@ const AdminAccessManagement = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {visibleRoles.map(role => {
-                    const assigned = members.filter(m => m.role === role.key && m.status !== "deactivated");
+                    const assigned = members.filter(m => m.roles.includes(role.key) && m.status !== "deactivated");
                     const Icon = role.icon;
                     return (
                       <div
@@ -216,127 +231,192 @@ const AdminAccessManagement = () => {
             {/* Team members */}
             <Card>
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                    {isNb ? "Teammedlemmer" : "Team Members"}
-                  </CardTitle>
-                  <Badge variant="secondary" className="text-xs">{members.length} {isNb ? "brukere" : "users"}</Badge>
-                </div>
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                  {isNb ? "Teammedlemmer" : "Team Members"}
+                </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="divide-y divide-border">
-                  {members.map(member => {
-                    const roleDef = getRoleDef(member.role);
-                    return (
-                      <div key={member.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-muted/20 transition-colors">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
-                            {member.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                <Tabs defaultValue="active" className="w-full">
+                  <div className="px-5 pb-3">
+                    <TabsList>
+                      <TabsTrigger value="active" className="gap-2">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        {isNb ? "Aktive" : "Active"}
+                        <Badge variant="secondary" className="ml-1 text-[11px]">
+                          {members.filter(m => m.status === "active").length}
+                        </Badge>
+                      </TabsTrigger>
+                      <TabsTrigger value="invited" className="gap-2">
+                        <Clock className="h-3.5 w-3.5" />
+                        {isNb ? "Inviterte" : "Invited"}
+                        <Badge variant="secondary" className="ml-1 text-[11px]">
+                          {members.filter(m => m.status === "invited").length}
+                        </Badge>
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+
+                  {(["active", "invited"] as const).map(tab => (
+                    <TabsContent key={tab} value={tab} className="mt-0">
+                      <div className="divide-y divide-border border-t border-border">
+                        {members.filter(m => m.status === tab).length === 0 && (
+                          <div className="px-5 py-8 text-center text-sm text-muted-foreground">
+                            {tab === "invited"
+                              ? (isNb ? "Ingen ventende invitasjoner." : "No pending invitations.")
+                              : (isNb ? "Ingen aktive brukere." : "No active users.")}
                           </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-foreground truncate">{member.name}</span>
-                              {member.status === "invited" && (
-                                <Badge variant="outline" className="text-[13px] gap-1 text-warning border-warning/30">
-                                  <Clock className="h-2.5 w-2.5" />
-                                  {isNb ? "Invitert" : "Invited"}
-                                </Badge>
-                              )}
-                              {member.status === "active" && (
-                                <Badge variant="outline" className="text-[13px] gap-1 text-success border-success/30">
-                                  <CheckCircle2 className="h-2.5 w-2.5" />
-                                  {isNb ? "Aktiv" : "Active"}
-                                </Badge>
-                              )}
+                        )}
+                        {members.filter(m => m.status === tab).map(member => (
+                          <div key={member.id} className="flex items-center justify-between px-5 py-3.5 hover:bg-muted/20 transition-colors gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
+                                {member.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                              </div>
+                              <div className="min-w-0">
+                                <span className="text-sm font-medium text-foreground truncate block">{member.name}</span>
+                                <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+                              </div>
                             </div>
-                            <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              {/* Role chips + multi-select popover */}
+                              <div className="flex flex-wrap items-center gap-1.5 justify-end max-w-[420px]">
+                                {member.roles.map(rk => {
+                                  const def = getRoleDef(rk);
+                                  const RIcon = def.icon;
+                                  return (
+                                    <Badge
+                                      key={rk}
+                                      variant="secondary"
+                                      className="gap-1 text-[12px] font-medium pl-1.5 pr-2 py-0.5"
+                                    >
+                                      <RIcon className="h-3 w-3 text-primary" />
+                                      {isNb ? def.labelNb : def.labelEn}
+                                    </Badge>
+                                  );
+                                })}
+                                {member.roles.length === 0 && (
+                                  <span className="text-[12px] text-muted-foreground italic">
+                                    {isNb ? "Ingen rolle" : "No role"}
+                                  </span>
+                                )}
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 px-2 text-[12px] text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50"
+                                    >
+                                      <Plus className="h-3 w-3 mr-1" />
+                                      {isNb ? "Endre" : "Edit"}
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent align="end" className="w-72 p-2">
+                                    <div className="px-2 py-1.5">
+                                      <p className="text-xs font-semibold text-foreground">
+                                        {isNb ? "Roller for" : "Roles for"} {member.name}
+                                      </p>
+                                      <p className="text-[11px] text-muted-foreground">
+                                        {isNb ? "En bruker kan ha flere roller." : "A user can hold multiple roles."}
+                                      </p>
+                                    </div>
+                                    <div className="max-h-72 overflow-y-auto pt-1">
+                                      {visibleRoles.map(r => {
+                                        const checked = member.roles.includes(r.key);
+                                        return (
+                                          <label
+                                            key={r.key}
+                                            className="flex items-start gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 cursor-pointer"
+                                          >
+                                            <Checkbox
+                                              checked={checked}
+                                              onCheckedChange={(v) => {
+                                                const next = v
+                                                  ? [...member.roles, r.key]
+                                                  : member.roles.filter(x => x !== r.key);
+                                                setMembers(prev => prev.map(m => m.id === member.id ? { ...m, roles: next } : m));
+                                                if (v && r.key === "admin") {
+                                                  toast.warning(
+                                                    isNb
+                                                      ? `${member.name} har nå Administrator — full tilgang.`
+                                                      : `${member.name} is now Administrator — full access.`
+                                                  );
+                                                } else {
+                                                  toast.success(
+                                                    isNb
+                                                      ? `Roller oppdatert for ${member.name}`
+                                                      : `Roles updated for ${member.name}`
+                                                  );
+                                                }
+                                              }}
+                                              className="mt-0.5"
+                                            />
+                                            <div className="min-w-0">
+                                              <p className="text-xs font-medium leading-tight">
+                                                {isNb ? r.labelNb : r.labelEn}
+                                              </p>
+                                              <p className="text-[11px] text-muted-foreground leading-snug">
+                                                {isNb ? r.descNb : r.descEn}
+                                              </p>
+                                            </div>
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    aria-label={isNb ? "Slett bruker" : "Delete user"}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      {isNb ? `Slett ${member.name}?` : `Delete ${member.name}?`}
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      {isNb
+                                        ? `Brukeren mister umiddelbart tilgang til organisasjonen. Tildelte oppgaver og data beholdes, men må reallokeres. Dette kan ikke angres.`
+                                        : `The user immediately loses access to the organization. Assigned tasks and data are retained but must be reassigned. This cannot be undone.`}
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>{isNb ? "Avbryt" : "Cancel"}</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      onClick={() => {
+                                        setMembers(prev => prev.filter(m => m.id !== member.id));
+                                        toast.success(
+                                          isNb
+                                            ? `${member.name} er fjernet fra organisasjonen`
+                                            : `${member.name} has been removed from the organization`
+                                        );
+                                      }}
+                                    >
+                                      {isNb ? "Slett bruker" : "Delete user"}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-3 shrink-0">
-                          <Select
-                            value={member.role}
-                            onValueChange={(newRole) => {
-                              if (newRole === member.role) return;
-                              setMembers(prev => prev.map(m => m.id === member.id ? { ...m, role: newRole } : m));
-                              const newLabel = isNb ? getRoleDef(newRole).labelNb : getRoleDef(newRole).labelEn;
-                              if (newRole === "admin" && member.role !== "admin") {
-                                toast.warning(
-                                  isNb
-                                    ? `${member.name} har nå Administrator — full tilgang til alle moduler og data.`
-                                    : `${member.name} is now Administrator — full access to all modules and data.`
-                                );
-                              } else {
-                                toast.success(
-                                  isNb
-                                    ? `${member.name} har nå rollen ${newLabel}`
-                                    : `${member.name} now has the role ${newLabel}`
-                                );
-                              }
-                            }}
-                          >
-                            <SelectTrigger className="h-7 w-auto min-w-[180px] text-xs border-dashed hover:border-primary/50 hover:bg-muted/40 transition-colors">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent align="end">
-                              {visibleRoles.map(r => (
-                                <SelectItem key={r.key} value={r.key} className="text-xs">
-                                  {isNb ? r.labelNb : r.labelEn}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {member.lastSeen && (
-                            <span className="text-[13px] text-muted-foreground hidden md:inline">
-                              {member.lastSeen}
-                            </span>
-                          )}
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                aria-label={isNb ? "Slett bruker" : "Delete user"}
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  {isNb ? `Slett ${member.name}?` : `Delete ${member.name}?`}
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  {isNb
-                                    ? `Brukeren mister umiddelbart tilgang til organisasjonen. Tildelte oppgaver og data beholdes, men må reallokeres. Dette kan ikke angres.`
-                                    : `The user immediately loses access to the organization. Assigned tasks and data are retained but must be reassigned. This cannot be undone.`}
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>{isNb ? "Avbryt" : "Cancel"}</AlertDialogCancel>
-                                <AlertDialogAction
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  onClick={() => {
-                                    setMembers(prev => prev.filter(m => m.id !== member.id));
-                                    toast.success(
-                                      isNb
-                                        ? `${member.name} er fjernet fra organisasjonen`
-                                        : `${member.name} has been removed from the organization`
-                                    );
-                                  }}
-                                >
-                                  {isNb ? "Slett bruker" : "Delete user"}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
+                        ))}
                       </div>
-                    );
-                  })}
-                </div>
+                    </TabsContent>
+                  ))}
+                </Tabs>
               </CardContent>
             </Card>
+
 
             {/* Vendor Management Access Section */}
             <Card>
@@ -375,7 +455,7 @@ const AdminAccessManagement = () => {
                       { role: "ciso", icon: Lock, nb: "CISO / Sikkerhetsansvarlig", en: "CISO / Security Officer", descNb: "Ansvarlig for informasjonssikkerhet", descEn: "Responsible for information security" },
                     ].map(r => {
                       const Icon = r.icon;
-                      const assigned = members.filter(m => m.role === r.role && m.status !== "deactivated");
+                      const assigned = members.filter(m => m.roles.includes(r.role) && m.status !== "deactivated");
                       return (
                         <div key={r.role} className="flex items-center justify-between p-2.5 rounded-lg border border-border/50 bg-background/60">
                           <div className="flex items-center gap-2.5 min-w-0">
@@ -416,7 +496,7 @@ const AdminAccessManagement = () => {
                       { role: "member", icon: User, nb: "Medlem", en: "Member", descNb: "Standard lesetilgang til leverandørprofiler", descEn: "Default read access to vendor profiles" },
                     ].map(r => {
                       const Icon = r.icon;
-                      const assigned = members.filter(m => m.role === r.role && m.status !== "deactivated");
+                      const assigned = members.filter(m => m.roles.includes(r.role) && m.status !== "deactivated");
                       return (
                         <div key={r.role} className="flex items-center justify-between p-2.5 rounded-lg border border-border/50 bg-background/60">
                           <div className="flex items-center gap-2.5 min-w-0">
@@ -475,26 +555,37 @@ const AdminAccessManagement = () => {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-foreground">{isNb ? "Rolle" : "Role"}</label>
-              <Select value={inviteRole} onValueChange={setInviteRole}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {visibleRoles.map(role => (
-                    <SelectItem key={role.key} value={role.key}>
-                      <div className="flex items-center gap-2">
-                        <span>{isNb ? role.labelNb : role.labelEn}</span>
+              <label className="text-xs font-medium text-foreground">
+                {isNb ? "Roller" : "Roles"}
+                <span className="text-muted-foreground font-normal ml-1">
+                  ({isNb ? "én eller flere" : "one or more"})
+                </span>
+              </label>
+              <div className="max-h-56 overflow-y-auto rounded-md border border-border p-1">
+                {visibleRoles.map(role => {
+                  const checked = inviteRoles.includes(role.key);
+                  return (
+                    <label
+                      key={role.key}
+                      className="flex items-start gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(v) => {
+                          setInviteRoles(prev =>
+                            v ? [...prev, role.key] : prev.filter(r => r !== role.key)
+                          );
+                        }}
+                        className="mt-0.5"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium leading-tight">{isNb ? role.labelNb : role.labelEn}</p>
+                        <p className="text-[11px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
                       </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-[13px] text-muted-foreground">
-                {isNb
-                  ? getRoleDef(inviteRole).descNb
-                  : getRoleDef(inviteRole).descEn}
-              </p>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
           </div>
           <DialogFooter>
