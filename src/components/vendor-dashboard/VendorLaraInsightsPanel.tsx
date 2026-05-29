@@ -6,7 +6,7 @@ import { Diamond, ChevronLeft, ChevronRight, AlertTriangle, FileWarning, Inbox, 
 import { cn } from "@/lib/utils";
 import { useLaraSuggestionStates, type LaraSuggestionContext } from "@/hooks/useLaraSuggestionStates";
 import { useUserTasks } from "@/hooks/useUserTasks";
-import { LaraPlanReviewDialog } from "./LaraPlanReviewDialog";
+import { LaraPlanInline } from "./LaraPlanInline";
 import { toast } from "sonner";
 
 interface Asset {
