@@ -430,7 +430,6 @@ export function MSPServiceCatalogTab() {
                 <th className="text-left font-medium px-3 py-2 w-12"></th>
                 <th className="text-left font-medium px-3 py-2">Tjeneste</th>
                 <th className="text-left font-medium px-3 py-2">Regelverk</th>
-                <th className="text-left font-medium px-3 py-2">Merknad</th>
                 <th className="text-right font-medium px-3 py-2 w-32"></th>
               </tr>
             </thead>
@@ -473,19 +472,6 @@ export function MSPServiceCatalogTab() {
                           <span className="text-xs text-muted-foreground">—</span>
                         )}
                       </div>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      {tagMeta ? (
-                        <Badge
-                          variant="outline"
-                          className={cn("h-5 px-1.5 text-[10px] font-medium", tagMeta.className)}
-                          title={pick.tagReason}
-                        >
-                          {tagMeta.label}
-                        </Badge>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
                     </td>
                     <td className="px-3 py-2.5 text-right">
                       {isAdopted ? (
