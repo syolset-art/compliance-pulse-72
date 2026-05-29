@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -600,21 +601,22 @@ const AdminAccessManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Manage Roles dialog */}
-      <Dialog open={manageRolesOpen} onOpenChange={setManageRolesOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      {/* Manage Roles side sheet */}
+      <Sheet open={manageRolesOpen} onOpenChange={setManageRolesOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col p-0">
+          <SheetHeader className="px-6 pt-6 pb-4 border-b border-border">
+            <SheetTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5 text-primary" />
               {isNb ? "Administrer roller" : "Manage Roles"}
-            </DialogTitle>
-            <DialogDescription>
+            </SheetTitle>
+            <SheetDescription>
               {isNb
                 ? "Aktiver eller deaktiver roller som er tilgjengelige i organisasjonen. Deaktiverte roller vises ikke ved invitasjon."
                 : "Enable or disable roles available in your organization. Disabled roles won't appear during invitation."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-1 py-2">
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-1.5">
             {ALL_ROLES.map(role => {
               const Icon = role.icon;
               const active = isRoleActive(role.key);
@@ -626,7 +628,7 @@ const AdminAccessManagement = () => {
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="p-1.5 rounded-lg bg-primary/10">
+                    <div className="p-1.5 rounded-lg bg-primary/10 shrink-0">
                       <Icon className="h-4 w-4 text-primary" />
                     </div>
                     <div className="min-w-0">
@@ -643,7 +645,8 @@ const AdminAccessManagement = () => {
               );
             })}
           </div>
-          <DialogFooter>
+
+          <SheetFooter className="px-6 py-4 border-t border-border bg-background">
             <Button variant="outline" onClick={() => setManageRolesOpen(false)}>
               {isNb ? "Avbryt" : "Cancel"}
             </Button>
@@ -652,9 +655,9 @@ const AdminAccessManagement = () => {
                 ? (isNb ? "Lagrer..." : "Saving...")
                 : (isNb ? "Lagre endringer" : "Save changes")}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
     </SidebarProvider>
   );
