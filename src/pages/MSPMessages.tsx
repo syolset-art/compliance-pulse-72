@@ -177,7 +177,7 @@ function KindIcon({ kind, customer }: { kind: ItemKind; customer: string }) {
 }
 
 export default function MSPMessages() {
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("in");
   const [dismissedBanner, setDismissedBanner] = useState(false);
   const [proposalsOpen, setProposalsOpen] = useState(false);
   const [selected, setSelected] = useState<Record<string, boolean>>(
