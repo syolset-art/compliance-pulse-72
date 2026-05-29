@@ -6,7 +6,7 @@ import { Diamond, ChevronLeft, ChevronRight, AlertTriangle, FileWarning, Inbox, 
 import { cn } from "@/lib/utils";
 import { useLaraSuggestionStates, type LaraSuggestionContext } from "@/hooks/useLaraSuggestionStates";
 import { useUserTasks } from "@/hooks/useUserTasks";
-import { LaraPlanReviewDialog } from "./LaraPlanReviewDialog";
+import { LaraPlanInline } from "./LaraPlanInline";
 import { toast } from "sonner";
 
 interface Asset {
@@ -303,8 +303,8 @@ export function VendorLaraInsightsPanel({
           >
             Be Lara håndtere det
           </Button>
-          <Button size="sm" variant="outline" onClick={() => setReviewOpen(true)}>
-            Se gjennom planen
+          <Button size="sm" variant="outline" onClick={() => setReviewOpen((v) => !v)}>
+            {reviewOpen ? "Skjul plan" : "Se gjennom planen"}
           </Button>
           <div className="flex-1" />
           <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={handleSnooze} title="Utsett 7 dager">
@@ -321,6 +321,38 @@ export function VendorLaraInsightsPanel({
             <X className="h-4 w-4" />
           </Button>
         </div>
+        {reviewOpen && (
+          <LaraPlanInline
+            task={current}
+            onClose={() => setReviewOpen(false)}
+            onApprove={() => {
+              onSendRequest?.([current.vendor.id], current.requestType, current.categoryKey);
+              setReviewOpen(false);
+              toast.success("Lara er i gang", {
+                description: `Følger opp «${current.vendor.name}». Du ser fremdriften i Lara-innboksen.`,
+              });
+            }}
+            onRejectManual={() => {
+              createTask.mutate(
+                {
+                  title: `Manuell oppfølging: ${current.vendor.name}`,
+                  description: `${current.laraSees}\n\nForeslått handling: håndter dette manuelt med leverandøren.`,
+                  asset_id: current.vendor.id,
+                },
+                {
+                  onSuccess: () => {
+                    dismiss({ key: current.id, snapshot: snapshotFor(current) });
+                    setReviewOpen(false);
+                    toast.success("Lagt til som din egen aktivitet", {
+                      description: "Du finner oppgaven under Activity.",
+                    });
+                  },
+                  onError: () => toast.error("Kunne ikke lagre aktivitet"),
+                }
+              );
+            }}
+          />
+        )}
         <p className="text-[11px] text-muted-foreground mt-2">
           Utsatte og avviste forslag finner du i <button className="text-primary hover:underline" onClick={() => navigate("/lara-inbox")}>Lara-innboksen</button>.
         </p>
@@ -361,38 +393,6 @@ export function VendorLaraInsightsPanel({
           </span>
         </button>
       </div>
-
-      <LaraPlanReviewDialog
-        task={current}
-        open={reviewOpen}
-        onOpenChange={setReviewOpen}
-        onApprove={() => {
-          onSendRequest?.([current.vendor.id], current.requestType, current.categoryKey);
-          setReviewOpen(false);
-          toast.success("Lara er i gang", {
-            description: `Følger opp «${current.vendor.name}». Du ser fremdriften i Lara-innboksen.`,
-          });
-        }}
-        onRejectManual={() => {
-          createTask.mutate(
-            {
-              title: `Manuell oppfølging: ${current.vendor.name}`,
-              description: `${current.laraSees}\n\nForeslått handling: håndter dette manuelt med leverandøren.`,
-              asset_id: current.vendor.id,
-            },
-            {
-              onSuccess: () => {
-                dismiss({ key: current.id, snapshot: snapshotFor(current) });
-                setReviewOpen(false);
-                toast.success("Lagt til som din egen aktivitet", {
-                  description: "Du finner oppgaven under Activity.",
-                });
-              },
-              onError: () => toast.error("Kunne ikke lagre aktivitet"),
-            }
-          );
-        }}
-      />
     </Card>
   );
 }
