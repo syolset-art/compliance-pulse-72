@@ -1106,7 +1106,16 @@ function NewsWidget() {
 
 export default function MSPPartnerDashboard() {
   const navigate = useNavigate();
+  const { mode } = useWorkspaceMode();
   const [activeSuggestion, setActiveSuggestion] = useState<LaraSuggestion | null>(null);
+
+  // Partner-dashbordet skal kun vises i Partner-modus. I "Min virksomhet"
+  // sendes brukeren tilbake til hoveddashbordet for å unngå at partner-
+  // navigasjon (ROI-kalkulator, Salgsguide osv.) blir synlig.
+  if (mode === "compliance") {
+    return <Navigate to="/" replace />;
+  }
+
 
   return (
     <div className="flex min-h-screen w-full bg-background">
