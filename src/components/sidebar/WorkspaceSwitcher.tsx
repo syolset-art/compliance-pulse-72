@@ -42,37 +42,37 @@ export function WorkspaceSwitcher() {
   };
 
   return (
-    <div className="px-3 py-2">
+    <div className="px-3 py-2.5">
       <button
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex w-full items-center justify-between rounded-lg px-3 py-2.5 transition-colors border",
+          "flex w-full items-center justify-between rounded-xl px-3 py-3 transition-all border",
           isPartner
-            ? "bg-accent/10 border-accent/30 hover:bg-accent/15"
-            : "bg-primary/5 border-primary/15 hover:bg-primary/10"
+            ? "bg-accent/10 border-accent/25 hover:bg-accent/15 shadow-sm"
+            : "bg-primary/5 border-primary/15 hover:bg-primary/10 shadow-sm"
         )}
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className={cn(
-            "h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0",
-            isPartner ? "bg-accent/20" : "bg-primary/10"
+            "h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0",
+            isPartner ? "bg-accent/20" : "bg-primary/15"
           )}>
-            <Icon className={cn("h-4 w-4", isPartner ? "text-accent-foreground" : "text-primary")} />
+            <Icon className={cn("h-[18px] w-[18px]", isPartner ? "text-accent" : "text-primary")} />
           </div>
           <div className="min-w-0 flex-1 text-left">
             <div className={cn(
-              "text-[11px] font-semibold uppercase tracking-wide",
-              isPartner ? "text-accent-foreground/80" : "text-primary"
+              "text-[13px] font-semibold leading-tight",
+              isPartner ? "text-accent" : "text-primary"
             )}>
               {label}
             </div>
-            <div className="text-sm font-medium text-sidebar-foreground truncate">
+            <div className="text-[12px] text-sidebar-foreground/70 truncate mt-0.5">
               {subtitle}
             </div>
           </div>
         </div>
         {canSwitch && (
-          <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/50 transition-transform flex-shrink-0", open && "rotate-180")} />
+          <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/40 transition-transform flex-shrink-0 ml-2", open && "rotate-180")} />
         )}
       </button>
 
