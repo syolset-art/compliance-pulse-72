@@ -221,12 +221,6 @@ const PartnerNav = () => {
 
   return (
     <nav className="flex-1 space-y-0.5 px-3 py-4 overflow-y-auto">
-      <div className="px-3 pb-2">
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-foreground/80">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          {isNb ? "Partner-arbeidsflate" : "Partner workspace"}
-        </div>
-      </div>
       {items.map((item) => {
         const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
         return (
