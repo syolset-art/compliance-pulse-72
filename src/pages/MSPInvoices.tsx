@@ -116,7 +116,7 @@ export default function MSPInvoices() {
 
             {grouped.map((g) => (
               <Card key={g.key} className="overflow-hidden">
-                <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-border bg-muted/30">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-b border-border bg-muted/30">
                   <div>
                     <div className="text-sm font-semibold text-foreground capitalize">{g.label}</div>
                     <div className="text-xs text-muted-foreground">
@@ -126,7 +126,7 @@ export default function MSPInvoices() {
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-6 text-right">
+                  <div className="flex gap-6 sm:text-right">
                     <div>
                       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Til Mynder</div>
                       <div className="text-sm font-semibold text-foreground">{fmt(g.mynderTotal)} kr/mnd</div>
