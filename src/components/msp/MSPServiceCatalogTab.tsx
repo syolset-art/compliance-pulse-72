@@ -225,7 +225,7 @@ export function MSPServiceCatalogTab() {
       mappings,
     };
     setExtras((prev) => [...prev, next]);
-    toast.success(`${template.code} · ${template.name} adoptert`, {
+    toast.success(`${template.name} adoptert`, {
       description: "Rediger for å justere aktiviteter — pris beregnes fra timepris.",
     });
   };
