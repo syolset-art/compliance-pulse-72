@@ -44,7 +44,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
@@ -221,7 +221,6 @@ const PartnerNav = () => {
     { name: isNb ? "Faktura" : "Invoices", href: "/msp-invoices", icon: FileText },
     { name: isNb ? "Lisenser" : "Licenses", href: "/msp-licenses", icon: CreditCard },
     { name: isNb ? "Innstillinger" : "Settings", href: "/msp-settings", icon: SettingsIcon },
-    { name: isNb ? "Bli Partner" : "Become a partner", href: "/bli-partner", icon: Sparkles },
   ];
 
   return (
@@ -268,6 +267,20 @@ const SidebarContent = () => {
   const { allRoles: _adminRoles } = useUserRole();
   const isMynderAdmin = _adminRoles.includes("super_admin") || _adminRoles.includes("daglig_leder");
   const { mode: workspaceMode } = useWorkspaceMode();
+
+  // Check if the current company is already an MSP partner
+  const { data: companyProfile } = useQuery({
+    queryKey: ["sidebar-company-profile"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("company_profile")
+        .select("is_msp_partner")
+        .limit(1)
+        .maybeSingle();
+      return data as { is_msp_partner: boolean } | null;
+    },
+  });
+  const isPartner = companyProfile?.is_msp_partner === true;
 
   // Optimistic activation skeletons — cleared as soon as the underlying
   // subscription/activated-services queries confirm access (or as a final
@@ -766,6 +779,22 @@ const SidebarContent = () => {
           </>
         )}
 
+        {/* Bli Partner — kun synlig for de som ikke er partner enda */}
+        {!isPartner && (
+          <Link
+            to="/bli-partner"
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
+              location.pathname === "/bli-partner"
+                ? "bg-gradient-to-r from-accent/10 to-transparent text-accent border-l-2 border-accent"
+                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+            )}
+          >
+            {location.pathname === "/bli-partner" && <span className="h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />}
+            <Sparkles className="h-4 w-4 text-accent" />
+            {isNb ? "Bli Partner" : "Become a partner"}
+          </Link>
+        )}
 
         {/* Demoer (inside scrollable nav so Innstillinger stays locked at bottom) */}
         <div className="mt-2">
