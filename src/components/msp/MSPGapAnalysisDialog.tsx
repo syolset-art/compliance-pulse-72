@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Shield, Lock, Brain, Server, FileCheck, Scale,
   Download, FileText, ChevronDown, ArrowRight,
+  Sparkles, Loader2, Check, BookOpen, Database, GitCompare, AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
