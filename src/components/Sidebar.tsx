@@ -44,7 +44,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
