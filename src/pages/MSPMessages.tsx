@@ -613,7 +613,7 @@ function Row({ item }: { item: InboxItem }) {
         onClick={() => toast.info(item.title, { description: item.customer })}
         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors text-left"
       >
-        <KindIcon kind={item.kind} status={item.status} customer={item.customer} />
+        <KindIcon kind={item.kind} customer={item.customer} />
 
         <div className="flex-1 min-w-0">
           <p className="text-sm text-foreground">
@@ -622,7 +622,6 @@ function Row({ item }: { item: InboxItem }) {
           </p>
           <p className="text-[12px] text-muted-foreground truncate">{item.meta}</p>
         </div>
-        {statusBadge(item.status)}
       </button>
       {item.laraSuggestion && (
         <div className="flex items-start gap-2.5 px-4 py-2.5 bg-primary/5 border-t border-primary/20">
