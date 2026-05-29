@@ -743,61 +743,61 @@ function LaraSuggestionInline({
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:gap-2">
-          {step === "review" && (
-            <>
-              <Button variant="outline" onClick={onClose}>
-                Avbryt
-              </Button>
-              <Button onClick={() => setStep("audience")} className="gap-2">
-                Sett opp kampanje
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-          {step === "audience" && (
-            <>
-              <Button variant="outline" onClick={() => setStep("review")}>
-                Tilbake
-              </Button>
-              <Button
-                onClick={() => setStep("preview")}
-                disabled={includedCount === 0}
-                className="gap-2"
-              >
-                Se e-post ({includedCount}) <ChevronRight className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-          {step === "preview" && (
-            <>
-              <Button variant="outline" onClick={() => setStep("audience")}>
-                Tilbake
-              </Button>
-              <Button onClick={() => setStep("schedule")} className="gap-2">
-                Velg tidspunkt <ChevronRight className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-          {step === "schedule" && (
-            <>
-              <Button variant="outline" onClick={() => setStep("preview")}>
-                Tilbake
-              </Button>
-              <Button onClick={handleActivate} className="gap-2">
-                <CtaIcon className="h-4 w-4" />
-                Aktiver kampanje
-              </Button>
-            </>
-          )}
-          {step === "activated" && (
-            <Button onClick={() => handleOpenChange(false)} className="w-full sm:w-auto">
-              Ferdig
+      <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-border/40">
+        {step === "review" && (
+          <>
+            <Button variant="outline" onClick={handleClose}>
+              Avbryt
             </Button>
-          )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <Button onClick={() => setStep("audience")} className="gap-2">
+              Sett opp kampanje
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </>
+        )}
+        {step === "audience" && (
+          <>
+            <Button variant="outline" onClick={() => setStep("review")}>
+              Tilbake
+            </Button>
+            <Button
+              onClick={() => setStep("preview")}
+              disabled={includedCount === 0}
+              className="gap-2"
+            >
+              Se e-post ({includedCount}) <ChevronRight className="h-4 w-4" />
+            </Button>
+          </>
+        )}
+        {step === "preview" && (
+          <>
+            <Button variant="outline" onClick={() => setStep("audience")}>
+              Tilbake
+            </Button>
+            <Button onClick={() => setStep("schedule")} className="gap-2">
+              Velg tidspunkt <ChevronRight className="h-4 w-4" />
+            </Button>
+          </>
+        )}
+        {step === "schedule" && (
+          <>
+            <Button variant="outline" onClick={() => setStep("preview")}>
+              Tilbake
+            </Button>
+            <Button onClick={handleActivate} className="gap-2">
+              <CtaIcon className="h-4 w-4" />
+              Aktiver kampanje
+            </Button>
+          </>
+        )}
+        {step === "activated" && (
+          <Button onClick={handleClose} className="w-full sm:w-auto">
+            Ferdig
+          </Button>
+        )}
+      </div>
+    </Card>
+
   );
 }
 
