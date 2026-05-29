@@ -268,34 +268,19 @@ export default function MSPMessages() {
   };
 
   const filtered = ITEMS.filter(i => {
-    if (filter === "all") return true;
     if (filter === "in") return i.kind === "in";
     if (filter === "out") return i.kind === "out";
-    if (filter === "pending") return i.status === "pending";
-    if (filter === "accepted") return i.status === "accepted";
-    if (filter === "rejected") return i.status === "rejected";
-    if (filter === "campaigns") return false; // kampanjer rendres separat
+    if (filter === "activated") return i.status === "accepted";
     return true;
   });
 
-  const today = filter === "campaigns" ? [] : filtered.filter(i => i.group === "today");
-  const earlier = filter === "campaigns" ? [] : filtered.filter(i => i.group === "earlier");
-
-  const stats = {
-    pending: ITEMS.filter(i => i.status === "pending").length,
-    accepted: ITEMS.filter(i => i.status === "accepted").length,
-    rejected: ITEMS.filter(i => i.status === "rejected").length,
-    unread: ITEMS.filter(i => i.unread).length,
-  };
+  const today = filtered.filter(i => i.group === "today");
+  const earlier = filtered.filter(i => i.group === "earlier");
 
   const filters: { value: Filter; label: string; icon?: any; count: number }[] = [
-    { value: "all", label: "Alle", count: ITEMS.length },
     { value: "in", label: "Innkommende", icon: ArrowDownLeft, count: ITEMS.filter(i => i.kind === "in").length },
-    { value: "out", label: "Utgående", icon: ArrowUpRight, count: ITEMS.filter(i => i.kind === "out").length },
-    { value: "pending", label: "Tilbud venter", count: stats.pending },
-    { value: "accepted", label: "Akseptert", count: stats.accepted },
-    { value: "rejected", label: "Avvist", count: stats.rejected },
-    { value: "campaigns", label: "Kampanjer", icon: Megaphone, count: campaigns.length },
+    { value: "out", label: "Utgående", icon: ArrowUpRight, count: ITEMS.filter(i => i.kind === "out").length + campaigns.length },
+    { value: "activated", label: "Aktivert", icon: CheckCircle2, count: ITEMS.filter(i => i.status === "accepted").length },
   ];
 
   return (
