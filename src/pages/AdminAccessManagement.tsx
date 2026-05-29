@@ -12,9 +12,13 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Users, UserPlus, Shield, Mail, Clock, CheckCircle2, Crown, Eye, Settings, Pencil,
   AlertTriangle, Bot, Leaf, ClipboardCheck, MonitorCog, GraduationCap, Truck, FileSearch,
-  Lock, User,
+  Lock, User, Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -286,6 +290,46 @@ const AdminAccessManagement = () => {
                               {member.lastSeen}
                             </span>
                           )}
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                aria-label={isNb ? "Slett bruker" : "Delete user"}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  {isNb ? `Slett ${member.name}?` : `Delete ${member.name}?`}
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  {isNb
+                                    ? `Brukeren mister umiddelbart tilgang til organisasjonen. Tildelte oppgaver og data beholdes, men må reallokeres. Dette kan ikke angres.`
+                                    : `The user immediately loses access to the organization. Assigned tasks and data are retained but must be reassigned. This cannot be undone.`}
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>{isNb ? "Avbryt" : "Cancel"}</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  onClick={() => {
+                                    setMembers(prev => prev.filter(m => m.id !== member.id));
+                                    toast.success(
+                                      isNb
+                                        ? `${member.name} er fjernet fra organisasjonen`
+                                        : `${member.name} has been removed from the organization`
+                                    );
+                                  }}
+                                >
+                                  {isNb ? "Slett bruker" : "Delete user"}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </div>
                     );
