@@ -184,7 +184,7 @@ const AdminAccessManagement = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {visibleRoles.map(role => {
-                    const assigned = members.filter(m => m.role === role.key && m.status !== "deactivated");
+                    const assigned = members.filter(m => m.roles.includes(role.key) && m.status !== "deactivated");
                     const Icon = role.icon;
                     return (
                       <div
