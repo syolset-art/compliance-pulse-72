@@ -90,17 +90,17 @@ export default function MSPInvoices() {
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
         <main className="flex-1 overflow-auto pt-11">
-          <div className="container max-w-6xl mx-auto py-8 px-4 md:px-8 space-y-6">
-            <div className="flex items-start justify-between gap-4">
+          <div className="container max-w-6xl mx-auto py-6 md:py-8 px-4 md:px-8 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
+                <h1 className="text-xl md:text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Kunder partneren har lagt til — gruppert per måned · {customers.length} kunder ·{" "}
                   <span className="text-foreground font-medium">{fmt(mynderGrandTotal)} kr/mnd</span> til Mynder ·{" "}
                   <span className="text-foreground font-medium">{fmt(offerGrandTotal)} kr/mnd</span> tilbudt sluttkunde
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button variant="outline" size="sm" className="gap-2" onClick={() => toast.success("Eksporterer fakturagrunnlag…")}>
                   <Download className="h-4 w-4" />
                   Eksporter
