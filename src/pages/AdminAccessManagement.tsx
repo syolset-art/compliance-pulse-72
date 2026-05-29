@@ -136,11 +136,23 @@ const AdminAccessManagement = () => {
       toast.error(isNb ? "E-post er påkrevd" : "Email is required");
       return;
     }
+    if (inviteRoles.length === 0) {
+      toast.error(isNb ? "Velg minst én rolle" : "Select at least one role");
+      return;
+    }
+    const newMember: TeamMember = {
+      id: `inv-${Date.now()}`,
+      name: inviteName || inviteEmail.split("@")[0],
+      email: inviteEmail,
+      roles: inviteRoles,
+      status: "invited",
+    };
+    setMembers(prev => [...prev, newMember]);
     toast.success(isNb ? `Invitasjon sendt til ${inviteEmail}` : `Invitation sent to ${inviteEmail}`);
     setInviteOpen(false);
     setInviteEmail("");
     setInviteName("");
-    setInviteRole("member");
+    setInviteRoles(["member"]);
   };
 
   return (
