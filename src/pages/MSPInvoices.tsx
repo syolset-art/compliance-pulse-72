@@ -227,23 +227,31 @@ export default function MSPInvoices() {
                             </td>
                             <td className="px-4 py-3">
                               {c.offerDoc ? (
-                                <button
-                                  type="button"
-                                  onClick={() => toast.success(`Åpner ${c.offerDoc!.name}`)}
-                                  className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
-                                >
-                                  <FileText className="h-3.5 w-3.5" />
-                                  <span className="truncate max-w-[180px]">{c.offerDoc.name}</span>
-                                </button>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      onClick={() => toast.success("Åpner tilbud…")}
+                                      className="inline-flex items-center text-primary hover:opacity-80"
+                                    >
+                                      <FileText className="h-4 w-4" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs">Se tilbud</TooltipContent>
+                                </Tooltip>
                               ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => toast.info("Last opp tilbudsdokument (demo)")}
-                                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-                                >
-                                  <Upload className="h-3.5 w-3.5" />
-                                  Last opp tilbud
-                                </button>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      onClick={() => toast.info("Last opp tilbudsdokument (demo)")}
+                                      className="inline-flex items-center text-muted-foreground hover:text-foreground"
+                                    >
+                                      <Upload className="h-4 w-4" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs">Last opp tilbud</TooltipContent>
+                                </Tooltip>
                               )}
                             </td>
                           </tr>
