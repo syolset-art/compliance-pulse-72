@@ -375,7 +375,7 @@ export default function MSPMessages() {
 
           {/* List */}
           <Card className="overflow-hidden">
-            {campaigns.length > 0 && (filter === "all" || filter === "campaigns" || filter === "out") && (
+            {campaigns.length > 0 && filter === "out" && (
               <>
                 <GroupHeader label="Kampanjer" />
                 {campaigns.map((c) => (
@@ -394,12 +394,7 @@ export default function MSPMessages() {
             {today.map(item => <Row key={item.id} item={item} />)}
             {earlier.length > 0 && <GroupHeader label="Tidligere" />}
             {earlier.map(item => <Row key={item.id} item={item} />)}
-            {filter === "campaigns" && campaigns.length === 0 && (
-              <div className="py-12 text-center text-sm text-muted-foreground">
-                Ingen kampanjer sendt ennå. Klikk «Ny kampanje» for å starte.
-              </div>
-            )}
-            {filter !== "campaigns" && filtered.length === 0 && (
+            {filtered.length === 0 && campaigns.length === 0 && (
               <div className="py-12 text-center text-sm text-muted-foreground">
                 Ingen meldinger i denne visningen.
               </div>
