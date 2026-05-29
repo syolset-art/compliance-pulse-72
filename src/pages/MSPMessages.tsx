@@ -70,7 +70,7 @@ const LARA_PROPOSALS: LaraProposal[] = [
   },
 ];
 
-type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected" | "campaigns";
+type Filter = "in" | "out" | "activated";
 
 interface SentCampaign {
   id: string;
@@ -161,36 +161,17 @@ const ITEMS: InboxItem[] = [
   },
 ];
 
-function statusBadge(s: ItemStatus) {
-  const map: Record<ItemStatus, { label: string; cls: string }> = {
-    accepted: { label: "Akseptert", cls: "bg-success/10 text-success border-success/30" },
-    rejected: { label: "Avvist", cls: "bg-muted text-muted-foreground border-border" },
-    pending: { label: "Venter", cls: "bg-warning/10 text-warning border-warning/30" },
-    message: { label: "Melding", cls: "bg-primary/10 text-primary border-primary/30" },
-  };
-  const m = map[s];
-  return (
-    <Badge variant="outline" className={cn("text-[10px]", m.cls)}>
-      {m.label}
-    </Badge>
-  );
-}
-
-function KindIcon({ kind, status, customer }: { kind: ItemKind; status: ItemStatus; customer: string }) {
-  if (status === "message") {
+function KindIcon({ kind, customer }: { kind: ItemKind; customer: string }) {
+  if (kind === "in") {
     return (
       <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-semibold shrink-0">
         {customer.charAt(0)}
       </div>
     );
   }
-  let Icon = Clock;
-  let cls = "bg-warning/10 text-warning";
-  if (status === "accepted") { Icon = CheckCircle2; cls = "bg-success/10 text-success"; }
-  else if (status === "rejected") { Icon = XCircle; cls = "bg-muted text-muted-foreground"; }
   return (
-    <div className={cn("h-7 w-7 rounded-full flex items-center justify-center shrink-0", cls)}>
-      <Icon className="h-3.5 w-3.5" />
+    <div className="h-7 w-7 rounded-full bg-muted text-muted-foreground flex items-center justify-center shrink-0">
+      <ArrowUpRight className="h-3.5 w-3.5" />
     </div>
   );
 }
