@@ -27,12 +27,13 @@ const COMMISSION_BULK = 0.50;
 
 export default function MSPROICalculator() {
   const { mode } = useWorkspaceMode();
-  if (mode === "compliance") return <Navigate to="/" replace />;
   const [customers, setCustomers] = useState(5);
   const [customerSize, setCustomerSize] = useState<CustomerSize>("S");
   const [selectedTierId, setSelectedTierId] = useState(LICENSE_TIERS[0].id);
   const [salesModel, setSalesModel] = useState<SalesModel>("bulk");
   const [hourlyRate, setHourlyRate] = useState(1200);
+
+  if (mode === "compliance") return <Navigate to="/" replace />;
 
   const tier = LICENSE_TIERS.find(t => t.id === selectedTierId) ?? LICENSE_TIERS[0];
   const isBulk = salesModel === "bulk";
