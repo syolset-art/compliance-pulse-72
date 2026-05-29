@@ -13,7 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone, Settings, Newspaper, Video, GraduationCap, Zap } from "lucide-react";
+import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone, Settings, Newspaper, Video, GraduationCap, Zap, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   ResponsiveContainer,
@@ -343,7 +343,7 @@ const CAMPAIGN_TARGETS = [
 
 type FlowStep = "review" | "audience" | "preview" | "schedule" | "activated";
 
-function LaraSuggestionDialog({
+function LaraSuggestionInline({
   suggestion,
   onClose,
 }: {
@@ -356,16 +356,13 @@ function LaraSuggestionDialog({
   const [schedule, setSchedule] = useState<"now" | "tomorrow" | "monday">("now");
   const [showSteps, setShowSteps] = useState(false);
 
-  // Reset when dialog opens for a new suggestion
-  const handleOpenChange = (o: boolean) => {
-    if (!o) {
-      onClose();
-      setTimeout(() => {
-        setStep("review");
-        setExcluded(new Set());
-        setSchedule("now");
-      }, 200);
-    }
+  const handleClose = () => {
+    onClose();
+    setTimeout(() => {
+      setStep("review");
+      setExcluded(new Set());
+      setSchedule("now");
+    }, 200);
   };
 
   if (!suggestion) return null;
@@ -389,7 +386,6 @@ function LaraSuggestionDialog({
     });
   };
 
-  // Step indicator labels
   const STEPS: { key: FlowStep; label: string }[] = [
     { key: "review", label: "Gjennomgå" },
     { key: "audience", label: "Målgruppe" },
@@ -400,25 +396,25 @@ function LaraSuggestionDialog({
   const stepIndex = STEPS.findIndex((s) => s.key === step);
 
   return (
-    <Dialog open={!!suggestion} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-              <Icon className="h-5 w-5" />
-            </div>
-            <div className="flex-1">
-              <Badge className="mb-2 bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[10px] tracking-wider">
-                <Sparkles className="h-3 w-3 mr-1" />
-                LARA-FORSLAG
-              </Badge>
-              <DialogTitle className="text-xl">{suggestion.title}</DialogTitle>
-              <DialogDescription className="mt-2 text-sm leading-relaxed line-clamp-2">
-                {suggestion.summary}
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
+    <Card className="p-5 border-primary/20 bg-primary/[0.03] animate-in fade-in slide-in-from-top-2 duration-200 space-y-4">
+      <div className="flex items-start gap-3">
+        <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <Badge className="mb-2 bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[10px] tracking-wider">
+            <Sparkles className="h-3 w-3 mr-1" />
+            LARA-FORSLAG
+          </Badge>
+          <h3 className="text-xl font-semibold text-foreground">{suggestion.title}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {suggestion.summary}
+          </p>
+        </div>
+        <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={handleClose}>
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
 
         {/* Progress indicator */}
         {step !== "activated" && (
@@ -747,61 +743,61 @@ function LaraSuggestionDialog({
           </div>
         )}
 
-        <DialogFooter className="gap-2 sm:gap-2">
-          {step === "review" && (
-            <>
-              <Button variant="outline" onClick={onClose}>
-                Avbryt
-              </Button>
-              <Button onClick={() => setStep("audience")} className="gap-2">
-                Sett opp kampanje
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-          {step === "audience" && (
-            <>
-              <Button variant="outline" onClick={() => setStep("review")}>
-                Tilbake
-              </Button>
-              <Button
-                onClick={() => setStep("preview")}
-                disabled={includedCount === 0}
-                className="gap-2"
-              >
-                Se e-post ({includedCount}) <ChevronRight className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-          {step === "preview" && (
-            <>
-              <Button variant="outline" onClick={() => setStep("audience")}>
-                Tilbake
-              </Button>
-              <Button onClick={() => setStep("schedule")} className="gap-2">
-                Velg tidspunkt <ChevronRight className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-          {step === "schedule" && (
-            <>
-              <Button variant="outline" onClick={() => setStep("preview")}>
-                Tilbake
-              </Button>
-              <Button onClick={handleActivate} className="gap-2">
-                <CtaIcon className="h-4 w-4" />
-                Aktiver kampanje
-              </Button>
-            </>
-          )}
-          {step === "activated" && (
-            <Button onClick={() => handleOpenChange(false)} className="w-full sm:w-auto">
-              Ferdig
+      <div className="flex flex-wrap justify-end gap-2 pt-3 border-t border-border/40">
+        {step === "review" && (
+          <>
+            <Button variant="outline" onClick={handleClose}>
+              Avbryt
             </Button>
-          )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <Button onClick={() => setStep("audience")} className="gap-2">
+              Sett opp kampanje
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </>
+        )}
+        {step === "audience" && (
+          <>
+            <Button variant="outline" onClick={() => setStep("review")}>
+              Tilbake
+            </Button>
+            <Button
+              onClick={() => setStep("preview")}
+              disabled={includedCount === 0}
+              className="gap-2"
+            >
+              Se e-post ({includedCount}) <ChevronRight className="h-4 w-4" />
+            </Button>
+          </>
+        )}
+        {step === "preview" && (
+          <>
+            <Button variant="outline" onClick={() => setStep("audience")}>
+              Tilbake
+            </Button>
+            <Button onClick={() => setStep("schedule")} className="gap-2">
+              Velg tidspunkt <ChevronRight className="h-4 w-4" />
+            </Button>
+          </>
+        )}
+        {step === "schedule" && (
+          <>
+            <Button variant="outline" onClick={() => setStep("preview")}>
+              Tilbake
+            </Button>
+            <Button onClick={handleActivate} className="gap-2">
+              <CtaIcon className="h-4 w-4" />
+              Aktiver kampanje
+            </Button>
+          </>
+        )}
+        {step === "activated" && (
+          <Button onClick={handleClose} className="w-full sm:w-auto">
+            Ferdig
+          </Button>
+        )}
+      </div>
+    </Card>
+
   );
 }
 
@@ -1123,7 +1119,13 @@ export default function MSPPartnerDashboard() {
       <main className="flex-1 overflow-auto pt-11">
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-5">
           <PartnerHeader />
-          <LaraSuggestions onSelect={setActiveSuggestion} />
+          {!activeSuggestion && <LaraSuggestions onSelect={setActiveSuggestion} />}
+          {activeSuggestion && (
+            <LaraSuggestionInline
+              suggestion={activeSuggestion}
+              onClose={() => setActiveSuggestion(null)}
+            />
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <ClaimRateWidget />
             <NeedsFollowUpWidget />            
@@ -1150,10 +1152,6 @@ export default function MSPPartnerDashboard() {
         </div>
       </main>
 
-      <LaraSuggestionDialog
-        suggestion={activeSuggestion}
-        onClose={() => setActiveSuggestion(null)}
-      />
     </div>
   );
 }
