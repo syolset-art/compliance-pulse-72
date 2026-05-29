@@ -180,7 +180,12 @@ export default function MSPInvoices() {
                         return (
                           <tr key={c.id} className="border-t border-border hover:bg-muted/20 align-top">
                             <td className="px-4 py-3">
-                              <div className="font-medium text-foreground">{c.name}</div>
+                              <Link
+                                to={`/msp-dashboard/${c.id}`}
+                                className="font-medium text-foreground hover:text-primary hover:underline underline-offset-2"
+                              >
+                                {c.name}
+                              </Link>
                               <div className="text-xs text-muted-foreground">
                                 Lagt til {new Date(c.createdAt).toLocaleDateString("nb-NO")}
                               </div>
