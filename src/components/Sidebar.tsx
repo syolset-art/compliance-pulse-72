@@ -436,8 +436,17 @@ const SidebarContent = () => {
         </div>
       </div>
 
+      {/* Workspace switcher (Min virksomhet ↔ Partner) */}
+      <div className="border-b border-sidebar-border/60">
+        <WorkspaceSwitcher />
+      </div>
+
       {/* Navigation */}
+      {workspaceMode === "partner" ? (
+        <PartnerNav />
+      ) : (
       <nav className="flex-1 space-y-0.5 px-3 py-4 overflow-y-auto">
+
         {/* Dashboard */}
         {dashboardNav.map((item) => {
           const isActive = location.pathname === item.href;
