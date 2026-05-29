@@ -354,7 +354,7 @@ const SidebarContent = () => {
   const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-") || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions");
-  const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
+  // partnerOpen fjernet — Partner ligger nå i workspace-bryteren øverst
   const [loggingOut, setLoggingOut] = useState(false);
   const { activeOrg } = useActiveOrganization();
   // Fallback to demo company name so the sidebar never shows "Ikke registrert"
