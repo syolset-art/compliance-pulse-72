@@ -3,42 +3,43 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Download, CheckCircle2, Minus, FileText, AlertCircle, Send } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Settings, Download, CheckCircle2, Minus, FileText, Upload, Info, Clock, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 type CoreTier = "Basic" | "Premium" | "Enterprise";
+type OfferStatus = "accepted" | "pending" | "missing";
 
-interface PartnerAgreement {
+interface OfferDoc {
   id: string;
   name: string;
-  signedAt: string;
-  signedBy: string;
 }
 
 interface PartnerCustomer {
   id: string;
   name: string;
-  createdAt: string; // ISO — date customer was added by partner
+  createdAt: string; // ISO
   coreTier: CoreTier;
   vendorModule: boolean;
   frameworks: string[];
   users: number;
-  monthlyKr: number;
-  offersSent: number; // number of offers sent to this customer
-  agreement: PartnerAgreement | null;
+  mynderKr: number; // det Mynder fakturerer partneren (Core + modul + regelverk)
+  offerPriceKr: number | null; // partnerens tilbudspris til sluttkunden
+  offerStatus: OfferStatus;
+  offerDoc: OfferDoc | null;
 }
 
-// Demo data — customers added by partner, grouped by month
+// Demo data
 const customers: PartnerCustomer[] = [
-  { id: "1", name: "Nordic Energy AS", createdAt: "2026-04-08", coreTier: "Enterprise", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "NIS2"], users: 42, monthlyKr: 9800, offersSent: 3, agreement: { id: "a1", name: "Avtale_NordicEnergy_v2.pdf", signedAt: "2026-04-12", signedBy: "Kari Nordmann" } },
-  { id: "2", name: "Fjord Helse", createdAt: "2026-04-22", coreTier: "Premium", vendorModule: true, frameworks: ["GDPR", "ISO 27001"], users: 18, monthlyKr: 4900, offersSent: 2, agreement: { id: "a2", name: "Avtale_FjordHelse.pdf", signedAt: "2026-04-28", signedBy: "Ola Hansen" } },
-  { id: "3", name: "Bergen Logistikk", createdAt: "2026-05-04", coreTier: "Basic", vendorModule: true, frameworks: ["GDPR"], users: 9, monthlyKr: 1990, offersSent: 1, agreement: { id: "a3", name: "Avtale_BergenLogistikk.pdf", signedAt: "2026-05-04", signedBy: "Per Berg" } },
-  { id: "4", name: "Oslo Advokatfirma", createdAt: "2026-05-08", coreTier: "Premium", vendorModule: false, frameworks: ["GDPR", "Åpenhetsloven"], users: 14, monthlyKr: 3900, offersSent: 2, agreement: { id: "a4", name: "Avtale_OsloAdvokat.pdf", signedAt: "2026-05-08", signedBy: "Anne Lie" } },
-  { id: "5", name: "Tromsø Tech", createdAt: "2026-05-11", coreTier: "Basic", vendorModule: false, frameworks: ["GDPR"], users: 4, monthlyKr: 990, offersSent: 1, agreement: null },
-  { id: "6", name: "Stavanger Industri", createdAt: "2026-05-14", coreTier: "Premium", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "NIS2"], users: 11, monthlyKr: 4900, offersSent: 4, agreement: { id: "a6", name: "Avtale_StavangerIndustri.pdf", signedAt: "2026-05-14", signedBy: "Tor Sand" } },
-  { id: "7", name: "Nordfjord Bank", createdAt: "2026-05-17", coreTier: "Enterprise", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "DORA"], users: 22, monthlyKr: 9800, offersSent: 5, agreement: { id: "a7", name: "Avtale_NordfjordBank_v3.pdf", signedAt: "2026-05-17", signedBy: "Lise Fjord" } },
+  { id: "1", name: "Nordic Energy AS", createdAt: "2026-04-08", coreTier: "Enterprise", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "NIS2"], users: 42, mynderKr: 9800, offerPriceKr: 14500, offerStatus: "accepted", offerDoc: { id: "a1", name: "Tilbud_NordicEnergy_v2.pdf" } },
+  { id: "2", name: "Fjord Helse", createdAt: "2026-04-22", coreTier: "Premium", vendorModule: true, frameworks: ["GDPR", "ISO 27001"], users: 18, mynderKr: 4900, offerPriceKr: 7200, offerStatus: "accepted", offerDoc: { id: "a2", name: "Tilbud_FjordHelse.pdf" } },
+  { id: "3", name: "Bergen Logistikk", createdAt: "2026-05-04", coreTier: "Basic", vendorModule: true, frameworks: ["GDPR"], users: 9, mynderKr: 1990, offerPriceKr: 3200, offerStatus: "pending", offerDoc: { id: "a3", name: "Tilbud_BergenLogistikk.pdf" } },
+  { id: "4", name: "Oslo Advokatfirma", createdAt: "2026-05-08", coreTier: "Premium", vendorModule: false, frameworks: ["GDPR", "Åpenhetsloven"], users: 14, mynderKr: 3900, offerPriceKr: 5500, offerStatus: "accepted", offerDoc: { id: "a4", name: "Tilbud_OsloAdvokat.pdf" } },
+  { id: "5", name: "Tromsø Tech", createdAt: "2026-05-11", coreTier: "Basic", vendorModule: false, frameworks: ["GDPR"], users: 4, mynderKr: 990, offerPriceKr: null, offerStatus: "missing", offerDoc: null },
+  { id: "6", name: "Stavanger Industri", createdAt: "2026-05-14", coreTier: "Premium", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "NIS2"], users: 11, mynderKr: 4900, offerPriceKr: 6800, offerStatus: "pending", offerDoc: { id: "a6", name: "Tilbud_StavangerIndustri.pdf" } },
+  { id: "7", name: "Nordfjord Bank", createdAt: "2026-05-17", coreTier: "Enterprise", vendorModule: true, frameworks: ["GDPR", "ISO 27001", "DORA"], users: 22, mynderKr: 9800, offerPriceKr: 15900, offerStatus: "accepted", offerDoc: { id: "a7", name: "Tilbud_NordfjordBank_v3.pdf" } },
 ];
 
 const tierMeta: Record<CoreTier, string> = {
@@ -47,11 +48,19 @@ const tierMeta: Record<CoreTier, string> = {
   Enterprise: "bg-primary text-primary-foreground",
 };
 
-const monthKey = (iso: string) => iso.slice(0, 7); // YYYY-MM
+const offerStatusMeta: Record<OfferStatus, { label: string; cls: string; Icon: typeof CheckCircle2 }> = {
+  accepted: { label: "Akseptert", cls: "bg-success/10 text-success border-success/20", Icon: CheckCircle2 },
+  pending: { label: "Sendt — venter", cls: "bg-muted text-muted-foreground border-border", Icon: Clock },
+  missing: { label: "Ikke registrert", cls: "bg-warning/10 text-warning border-warning/20", Icon: AlertTriangle },
+};
+
+const monthKey = (iso: string) => iso.slice(0, 7);
 const monthLabel = (key: string) => {
   const [y, m] = key.split("-").map(Number);
   return new Date(y, m - 1, 1).toLocaleDateString("nb-NO", { month: "long", year: "numeric" });
 };
+
+const fmt = (n: number) => n.toLocaleString("nb-NO");
 
 export default function MSPInvoices() {
   const grouped = useMemo(() => {
@@ -67,135 +76,187 @@ export default function MSPInvoices() {
         key,
         label: monthLabel(key),
         rows: rows.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1)),
-        monthlyTotal: rows.reduce((s, c) => s + c.monthlyKr, 0),
-        offersTotal: rows.reduce((s, c) => s + c.offersSent, 0),
+        mynderTotal: rows.reduce((s, c) => s + c.mynderKr, 0),
+        offerTotal: rows.reduce((s, c) => s + (c.offerPriceKr ?? 0), 0),
+        missingOffers: rows.filter((c) => c.offerStatus === "missing").length,
       }));
   }, []);
 
-  const total = customers.reduce((s, c) => s + c.monthlyKr, 0);
+  const mynderGrandTotal = customers.reduce((s, c) => s + c.mynderKr, 0);
+  const offerGrandTotal = customers.reduce((s, c) => s + (c.offerPriceKr ?? 0), 0);
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      <Sidebar />
-      <main className="flex-1 overflow-auto pt-11">
-        <div className="container max-w-6xl mx-auto py-8 px-4 md:px-8 space-y-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Kunder partneren har lagt til — gruppert per måned · {customers.length} kunder · {total.toLocaleString("nb-NO")} kr/mnd totalt
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => toast.success("Eksporterer fakturagrunnlag…")}>
-                <Download className="h-4 w-4" />
-                Eksporter
-              </Button>
-              <Link to="/msp-billing">
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Settings className="h-4 w-4" />
-                  Innstillinger
+    <TooltipProvider delayDuration={200}>
+      <div className="flex min-h-screen w-full bg-background">
+        <Sidebar />
+        <main className="flex-1 overflow-auto pt-11">
+          <div className="container max-w-6xl mx-auto py-8 px-4 md:px-8 space-y-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Kunder partneren har lagt til — gruppert per måned · {customers.length} kunder ·{" "}
+                  <span className="text-foreground font-medium">{fmt(mynderGrandTotal)} kr/mnd</span> til Mynder ·{" "}
+                  <span className="text-foreground font-medium">{fmt(offerGrandTotal)} kr/mnd</span> tilbudt sluttkunde
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="gap-2" onClick={() => toast.success("Eksporterer fakturagrunnlag…")}>
+                  <Download className="h-4 w-4" />
+                  Eksporter
                 </Button>
-              </Link>
+                <Link to="/msp-billing">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Settings className="h-4 w-4" />
+                    Innstillinger
+                  </Button>
+                </Link>
+              </div>
             </div>
-          </div>
 
-          {grouped.map((g) => (
-            <Card key={g.key} className="overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
-                <div>
-                  <div className="text-sm font-semibold text-foreground capitalize">{g.label}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {g.rows.length} nye kunder · {g.offersTotal} tilbud sendt
+            {grouped.map((g) => (
+              <Card key={g.key} className="overflow-hidden">
+                <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-border bg-muted/30">
+                  <div>
+                    <div className="text-sm font-semibold text-foreground capitalize">{g.label}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {g.rows.length} nye kunder
+                      {g.missingOffers > 0 && (
+                        <span className="text-warning"> · {g.missingOffers} mangler tilbud</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-6 text-right">
+                    <div>
+                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Til Mynder</div>
+                      <div className="text-sm font-semibold text-foreground">{fmt(g.mynderTotal)} kr/mnd</div>
+                    </div>
+                    <div>
+                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Tilbudt sluttkunde</div>
+                      <div className="text-sm font-semibold text-foreground">{fmt(g.offerTotal)} kr/mnd</div>
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-xs text-muted-foreground">Fakturagrunnlag</div>
-                  <div className="text-sm font-semibold text-foreground">{g.monthlyTotal.toLocaleString("nb-NO")} kr/mnd</div>
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/20 text-xs text-muted-foreground">
-                    <tr>
-                      <th className="text-left font-medium px-4 py-2.5">Kunde</th>
-                      <th className="text-left font-medium px-4 py-2.5">Mynder Core</th>
-                      <th className="text-left font-medium px-4 py-2.5">Leverandørmodul</th>
-                      <th className="text-left font-medium px-4 py-2.5">Aktiverte regelverk</th>
-                      <th className="text-right font-medium px-4 py-2.5">Tilbud sendt</th>
-                      <th className="text-right font-medium px-4 py-2.5">Brukere</th>
-                      <th className="text-right font-medium px-4 py-2.5">Kr/mnd</th>
-                      <th className="text-left font-medium px-4 py-2.5">Avtale</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {g.rows.map((c) => (
-                      <tr key={c.id} className="border-t border-border hover:bg-muted/20">
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-foreground">{c.name}</div>
-                          <div className="text-xs text-muted-foreground">
-                            Lagt til {new Date(c.createdAt).toLocaleDateString("nb-NO")}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Badge variant="outline" className={cn("text-xs", tierMeta[c.coreTier])}>
-                            {c.coreTier}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3">
-                          {c.vendorModule ? (
-                            <span className="inline-flex items-center gap-1 text-xs text-success">
-                              <CheckCircle2 className="h-3.5 w-3.5" /> Aktiv
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                              <Minus className="h-3.5 w-3.5" /> Ikke aktiv
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-1">
-                            {c.frameworks.map((f) => (
-                              <span key={f} className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                                {f}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/20 text-xs text-muted-foreground">
+                      <tr>
+                        <th className="text-left font-medium px-4 py-2.5">Kunde</th>
+                        <th className="text-left font-medium px-4 py-2.5">Mynder Core</th>
+                        <th className="text-left font-medium px-4 py-2.5">Leverandørmodul</th>
+                        <th className="text-left font-medium px-4 py-2.5">Aktiverte regelverk</th>
+                        <th className="text-right font-medium px-4 py-2.5">Brukere</th>
+                        <th className="text-right font-medium px-4 py-2.5">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center gap-1 cursor-help">
+                                Mynder kr/mnd <Info className="h-3 w-3" />
                               </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <span className="inline-flex items-center gap-1 text-xs text-foreground">
-                            <Send className="h-3.5 w-3.5 text-muted-foreground" />
-                            {c.offersSent}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 text-right font-medium text-foreground">{c.users}</td>
-                        <td className="px-4 py-3 text-right text-foreground">{c.monthlyKr.toLocaleString("nb-NO")}</td>
-                        <td className="px-4 py-3">
-                          {c.agreement ? (
-                            <button
-                              type="button"
-                              onClick={() => toast.success(`Åpner ${c.agreement!.name}`)}
-                              className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
-                              title={`Signert ${new Date(c.agreement.signedAt).toLocaleDateString("nb-NO")} av ${c.agreement.signedBy}`}
-                            >
-                              <FileText className="h-3.5 w-3.5" />
-                              <span className="truncate max-w-[180px]">{c.agreement.name}</span>
-                            </button>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 text-xs text-destructive">
-                              <AlertCircle className="h-3.5 w-3.5" /> Mangler
-                            </span>
-                          )}
-                        </td>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[260px] text-xs">
+                              Dette faktureres partneren av Mynder. Summen av Core-tier + Leverandørmodul + aktiverte regelverk. Løper uansett om sluttkunden har akseptert tilbudet.
+                            </TooltipContent>
+                          </Tooltip>
+                        </th>
+                        <th className="text-right font-medium px-4 py-2.5">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center gap-1 cursor-help">
+                                Tilbud kr/mnd <Info className="h-3 w-3" />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[260px] text-xs">
+                              Det partneren har tilbudt sin sluttkunde. Registreres manuelt — kan avvike fra Mynder-fakturagrunnlaget.
+                            </TooltipContent>
+                          </Tooltip>
+                        </th>
+                        <th className="text-left font-medium px-4 py-2.5">Tilbud</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </main>
-    </div>
+                    </thead>
+                    <tbody>
+                      {g.rows.map((c) => {
+                        const status = offerStatusMeta[c.offerStatus];
+                        const StatusIcon = status.Icon;
+                        return (
+                          <tr key={c.id} className="border-t border-border hover:bg-muted/20 align-top">
+                            <td className="px-4 py-3">
+                              <div className="font-medium text-foreground">{c.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                Lagt til {new Date(c.createdAt).toLocaleDateString("nb-NO")}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              <Badge variant="outline" className={cn("text-xs", tierMeta[c.coreTier])}>
+                                {c.coreTier}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-3">
+                              {c.vendorModule ? (
+                                <span className="inline-flex items-center gap-1 text-xs text-success">
+                                  <CheckCircle2 className="h-3.5 w-3.5" /> Aktiv
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Minus className="h-3.5 w-3.5" /> Ikke aktiv
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex flex-wrap gap-1">
+                                {c.frameworks.map((f) => (
+                                  <span key={f} className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                    {f}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right font-medium text-foreground">{c.users}</td>
+                            <td className="px-4 py-3 text-right font-semibold text-foreground tabular-nums">
+                              {fmt(c.mynderKr)}
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex flex-col items-end gap-1">
+                                <span className="text-foreground tabular-nums">
+                                  {c.offerPriceKr !== null ? fmt(c.offerPriceKr) : "—"}
+                                </span>
+                                <span className={cn("inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border", status.cls)}>
+                                  <StatusIcon className="h-3 w-3" />
+                                  {status.label}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3">
+                              {c.offerDoc ? (
+                                <button
+                                  type="button"
+                                  onClick={() => toast.success(`Åpner ${c.offerDoc!.name}`)}
+                                  className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                                >
+                                  <FileText className="h-3.5 w-3.5" />
+                                  <span className="truncate max-w-[180px]">{c.offerDoc.name}</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => toast.info("Last opp tilbudsdokument (demo)")}
+                                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                                >
+                                  <Upload className="h-3.5 w-3.5" />
+                                  Last opp tilbud
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </main>
+      </div>
+    </TooltipProvider>
   );
 }
