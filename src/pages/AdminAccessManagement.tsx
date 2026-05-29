@@ -252,29 +252,43 @@ const AdminAccessManagement = () => {
                           </div>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <Badge variant="secondary" className="text-[13px]">
-                            {isNb ? roleDef.labelNb : roleDef.labelEn}
-                          </Badge>
+                          <Select
+                            value={member.role}
+                            onValueChange={(newRole) => {
+                              if (newRole === member.role) return;
+                              setMembers(prev => prev.map(m => m.id === member.id ? { ...m, role: newRole } : m));
+                              const newLabel = isNb ? getRoleDef(newRole).labelNb : getRoleDef(newRole).labelEn;
+                              if (newRole === "admin" && member.role !== "admin") {
+                                toast.warning(
+                                  isNb
+                                    ? `${member.name} har nå Administrator — full tilgang til alle moduler og data.`
+                                    : `${member.name} is now Administrator — full access to all modules and data.`
+                                );
+                              } else {
+                                toast.success(
+                                  isNb
+                                    ? `${member.name} har nå rollen ${newLabel}`
+                                    : `${member.name} now has the role ${newLabel}`
+                                );
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="h-7 w-auto min-w-[180px] text-xs border-dashed hover:border-primary/50 hover:bg-muted/40 transition-colors">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent align="end">
+                              {visibleRoles.map(r => (
+                                <SelectItem key={r.key} value={r.key} className="text-xs">
+                                  {isNb ? r.labelNb : r.labelEn}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           {member.lastSeen && (
                             <span className="text-[13px] text-muted-foreground hidden md:inline">
                               {member.lastSeen}
                             </span>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 gap-1.5 px-2 text-xs"
-                            onClick={() => {
-                              setEditMember(member);
-                              setEditRole(member.role);
-                              setEditReason("");
-                            }}
-                          >
-                            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="hidden md:inline text-muted-foreground">
-                              {isNb ? "Endre rolle" : "Change role"}
-                            </span>
-                          </Button>
                         </div>
                       </div>
                     );
