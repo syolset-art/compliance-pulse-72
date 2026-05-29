@@ -14,6 +14,19 @@ i18n
       en: { translation: en },
     },
     fallbackLng: 'nb',
+    supportedLngs: ['nb', 'en'],
+    nonExplicitSupportedLngs: true,
+    load: 'languageOnly',
+    detection: {
+      order: ['localStorage', 'navigator', 'htmlTag'],
+      caches: ['localStorage'],
+      lookupLocalStorage: 'i18nextLng',
+      convertDetectedLanguage: (lng: string) => {
+        const base = (lng || '').toLowerCase().split('-')[0];
+        if (base === 'nb' || base === 'nn' || base === 'no') return 'nb';
+        return 'en';
+      },
+    },
     interpolation: {
       escapeValue: false,
     },
