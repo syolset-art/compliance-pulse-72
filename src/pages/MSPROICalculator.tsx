@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Download, TrendingUp, Wallet, Rocket, Users, BarChart3, Info, ShieldCheck, Zap } from "lucide-react";
 import { LICENSE_TIERS, type LicenseTier } from "@/lib/mspLicenseUtils";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import jsPDF from "jspdf";
 import { addMynderFooter } from "@/lib/pdfBranding";
 
