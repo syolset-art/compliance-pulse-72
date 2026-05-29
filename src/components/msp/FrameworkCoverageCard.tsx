@@ -217,12 +217,6 @@ export function FrameworkCoverageCard({
           <div className="text-sm font-semibold text-foreground tabular-nums">{controlHours} t</div>
         </div>
 
-        <div className="text-right min-w-[110px]">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Inntekt</div>
-          <div className="text-sm font-bold text-foreground tabular-nums">
-            {formatNOK(totalPrice)}
-          </div>
-        </div>
 
         <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Vis kontrollpunkter">
           {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -531,7 +525,7 @@ export function FrameworkCoverageCard({
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
                 <Check className="h-3.5 w-3.5 text-primary" />
-                {customPrice > 0 ? "Totalt" : "Inntektspotensial"} for {framework.shortName}
+                {customPrice > 0 ? "Totalt" : "Timer totalt"} for {framework.shortName}
               </span>
               <div className="flex items-center gap-6">
                 <span className="text-sm font-semibold text-foreground tabular-nums">

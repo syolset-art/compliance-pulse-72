@@ -18,7 +18,7 @@ import { SecurityServiceGapCard } from "@/components/msp/SecurityServiceGapCard"
 import { LaraRecommendationBanner } from "@/components/lara/LaraRecommendationBanner";
 import type { LaraPlanTask } from "@/components/lara/types";
 import { MSPCustomerSnapshotCard } from "@/components/msp/MSPCustomerSnapshotCard";
-import { MSPCustomerOpportunityCard } from "@/components/msp/MSPCustomerOpportunityCard";
+
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
@@ -317,13 +317,6 @@ export default function MSPCustomerDetail() {
                 />
               </div>
 
-
-              {/* 4) Inntekts- og tjenestepotensial */}
-              <MSPCustomerOpportunityCard
-                customerName={customer.name || "kunden"}
-                customerCoveragePct={Math.min(100, Math.round(customer.initial_assessment_score || 40))}
-                onCreateOffer={() => toast.info("Åpner tilbudsverktøy …")}
-              />
             </TabsContent>
 
             {/* ── Vurdering ── */}

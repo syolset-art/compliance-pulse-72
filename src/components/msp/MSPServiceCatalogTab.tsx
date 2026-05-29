@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Sparkles } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -310,14 +310,6 @@ export function MSPServiceCatalogTab() {
               <span className="ml-2 text-xs font-normal text-muted-foreground">
                 valgt{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
               </span>
-            </div>
-          </div>
-          <div className="space-y-1">
-            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" /> Samlet potensial
-            </div>
-            <div className="text-lg font-semibold text-foreground tabular-nums">
-              {formatNOK(grandPrice)}
             </div>
           </div>
         </div>
