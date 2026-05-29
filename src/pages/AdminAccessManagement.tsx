@@ -555,26 +555,37 @@ const AdminAccessManagement = () => {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-foreground">{isNb ? "Rolle" : "Role"}</label>
-              <Select value={inviteRole} onValueChange={setInviteRole}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {visibleRoles.map(role => (
-                    <SelectItem key={role.key} value={role.key}>
-                      <div className="flex items-center gap-2">
-                        <span>{isNb ? role.labelNb : role.labelEn}</span>
+              <label className="text-xs font-medium text-foreground">
+                {isNb ? "Roller" : "Roles"}
+                <span className="text-muted-foreground font-normal ml-1">
+                  ({isNb ? "én eller flere" : "one or more"})
+                </span>
+              </label>
+              <div className="max-h-56 overflow-y-auto rounded-md border border-border p-1">
+                {visibleRoles.map(role => {
+                  const checked = inviteRoles.includes(role.key);
+                  return (
+                    <label
+                      key={role.key}
+                      className="flex items-start gap-2 px-2 py-1.5 rounded-md hover:bg-muted/50 cursor-pointer"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(v) => {
+                          setInviteRoles(prev =>
+                            v ? [...prev, role.key] : prev.filter(r => r !== role.key)
+                          );
+                        }}
+                        className="mt-0.5"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium leading-tight">{isNb ? role.labelNb : role.labelEn}</p>
+                        <p className="text-[11px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
                       </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-[13px] text-muted-foreground">
-                {isNb
-                  ? getRoleDef(inviteRole).descNb
-                  : getRoleDef(inviteRole).descEn}
-              </p>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
           </div>
           <DialogFooter>
