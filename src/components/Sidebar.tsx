@@ -867,51 +867,8 @@ const SidebarContent = () => {
                   );
                 })}
                 <CreditMenuItem />
-                <div className="border-t border-sidebar-border my-2" />
-                {/* Partner submenu */}
-                <button
-                  onClick={() => setPartnerOpen(!partnerOpen)}
-                  className={cn(
-                    "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-colors",
-                    location.pathname.startsWith("/msp-") ? "text-sidebar-primary" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <Building2 className="h-4 w-4" />
-                    Partner
-                  </div>
-                  <ChevronDown className={cn("h-3 w-3 transition-transform", partnerOpen && "rotate-180")} />
-                </button>
-                {partnerOpen && (
-                  <div className="ml-4 space-y-1">
-                    {[
-                      { name: "Bli Partner", href: "/bli-partner", icon: Sparkles },
-                      { name: "Dashbord", href: "/msp-partner", icon: LayoutDashboard },
-                      { name: "Kunder", href: "/msp-dashboard", icon: Users },
-                      { name: "Tjenester", href: "/msp-services", icon: Package },
-                      { name: "Faktura", href: "/msp-invoices", icon: FileText },
-                      { name: "Meldinger", href: "/msp-messages", icon: Inbox },
-                      { name: "Innstillinger", href: "/msp-settings", icon: SettingsIcon },
-                    ].map((item) => {
-                      const isActive = location.pathname === item.href;
-                      return (
-                        <button
-                          key={item.href}
-                          onClick={() => navigate(item.href)}
-                          className={cn(
-                            "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
-                            isActive
-                              ? "bg-sidebar-accent text-sidebar-primary"
-                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                          )}
-                        >
-                          <item.icon className="h-3.5 w-3.5" />
-                          {item.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                {/* Partner-meny er flyttet til workspace-bryteren øverst */}
+
                 {isMynderAdmin && (
                   <>
                     <div className="border-t border-sidebar-border my-2" />
