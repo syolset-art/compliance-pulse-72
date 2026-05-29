@@ -454,10 +454,6 @@ function LaraSuggestionInline({
                 <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">FORVENTET</div>
                 <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.expectedClaims}</div>
               </div>
-              <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                <div className="text-[10px] tracking-wider text-primary font-semibold">POTENSIAL</div>
-                <div className="text-sm font-semibold text-primary mt-1">{suggestion.impact.revenue}</div>
-              </div>
             </div>
 
             <div>
