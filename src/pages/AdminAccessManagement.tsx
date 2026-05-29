@@ -260,8 +260,20 @@ const AdminAccessManagement = () => {
                               {member.lastSeen}
                             </span>
                           )}
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 gap-1.5 px-2 text-xs"
+                            onClick={() => {
+                              setEditMember(member);
+                              setEditRole(member.role);
+                              setEditReason("");
+                            }}
+                          >
                             <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="hidden md:inline text-muted-foreground">
+                              {isNb ? "Endre rolle" : "Change role"}
+                            </span>
                           </Button>
                         </div>
                       </div>
