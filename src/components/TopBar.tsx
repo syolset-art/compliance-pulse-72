@@ -43,6 +43,8 @@ export function TopBar() {
   const isNb = i18n.language === "nb";
   const demoSync = useDemoSyncOptional();
   const demoActive = demoSync?.customerRequestDemo ?? false;
+  const { mode, setMode, canSwitch } = useWorkspaceMode();
+  const isPartner = mode === "partner";
 
   // Mapping from TopBar role keys to AppRole keys used by sidebar/dashboard
   const TOPBAR_TO_APP_ROLE: Record<string, string> = {
