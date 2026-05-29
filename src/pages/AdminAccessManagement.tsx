@@ -64,7 +64,10 @@ const AdminAccessManagement = () => {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
-  const [members] = useState<TeamMember[]>(DEMO_MEMBERS);
+  const [members, setMembers] = useState<TeamMember[]>(DEMO_MEMBERS);
+  const [editMember, setEditMember] = useState<TeamMember | null>(null);
+  const [editRole, setEditRole] = useState<string>("member");
+  const [editReason, setEditReason] = useState("");
   const [activeRoles, setActiveRoles] = useState<string[]>([]);
   const [savingRoles, setSavingRoles] = useState(false);
 
