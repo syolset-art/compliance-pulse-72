@@ -303,9 +303,44 @@ export function VendorLaraInsightsPanel({
           >
             Be Lara håndtere det
           </Button>
-          <Button size="sm" variant="outline" onClick={() => setReviewOpen(true)}>
-            Se gjennom planen
+          <Button size="sm" variant="outline" onClick={() => setReviewOpen((v) => !v)}>
+            {reviewOpen ? "Skjul plan" : "Se gjennom planen"}
           </Button>
+        </div>
+        {reviewOpen && (
+          <LaraPlanInline
+            task={current}
+            onClose={() => setReviewOpen(false)}
+            onApprove={() => {
+              onSendRequest?.([current.vendor.id], current.requestType, current.categoryKey);
+              setReviewOpen(false);
+              toast.success("Lara er i gang", {
+                description: `Følger opp «${current.vendor.name}». Du ser fremdriften i Lara-innboksen.`,
+              });
+            }}
+            onRejectManual={() => {
+              createTask.mutate(
+                {
+                  title: `Manuell oppfølging: ${current.vendor.name}`,
+                  description: `${current.laraSees}\n\nForeslått handling: håndter dette manuelt med leverandøren.`,
+                  asset_id: current.vendor.id,
+                },
+                {
+                  onSuccess: () => {
+                    dismiss({ key: current.id, snapshot: snapshotFor(current) });
+                    setReviewOpen(false);
+                    toast.success("Lagt til som din egen aktivitet", {
+                      description: "Du finner oppgaven under Activity.",
+                    });
+                  },
+                  onError: () => toast.error("Kunne ikke lagre aktivitet"),
+                }
+              );
+            }}
+          />
+        )}
+        <div className="flex flex-wrap gap-2 mt-4" style={{ display: 'none' }}>
+          <Button size="sm" variant="outline">noop</Button>
           <div className="flex-1" />
           <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={handleSnooze} title="Utsett 7 dager">
             <Clock className="h-3.5 w-3.5 mr-1" />
