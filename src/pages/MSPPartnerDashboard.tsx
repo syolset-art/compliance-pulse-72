@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
