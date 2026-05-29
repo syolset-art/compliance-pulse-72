@@ -1,7 +1,8 @@
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import {
   Search, CalendarCheck, ClipboardList, Presentation, Rocket, HeartHandshake,
 } from "lucide-react";
