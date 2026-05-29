@@ -48,7 +48,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge } from "@/components/ui/badge";
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
-import { OrganizationSwitcher } from "@/components/sidebar/OrganizationSwitcher";
+import { WorkspaceSwitcher } from "@/components/sidebar/WorkspaceSwitcher";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
@@ -204,6 +205,58 @@ const TrustCenterMenu = () => {
   );
 };
 
+// Partner-modus: egen sidebar-meny som erstatter compliance-navigasjonen
+const PartnerNav = () => {
+  const location = useLocation();
+  const { t, i18n } = useTranslation();
+  const isNb = i18n.language === "nb";
+
+  const items = [
+    { name: isNb ? "Dashbord" : "Dashboard", href: "/msp-partner", icon: LayoutDashboard },
+    { name: isNb ? "Kunder" : "Customers", href: "/msp-dashboard", icon: Users },
+    { name: isNb ? "Tjenester" : "Services", href: "/msp-services", icon: Package },
+    { name: isNb ? "ROI-kalkulator" : "ROI calculator", href: "/msp-roi", icon: FileBarChart },
+    { name: isNb ? "Salgsguide" : "Sales guide", href: "/msp-sales-guide", icon: Briefcase },
+    { name: isNb ? "Meldinger" : "Messages", href: "/msp-messages", icon: Inbox },
+    { name: isNb ? "Faktura" : "Invoices", href: "/msp-invoices", icon: FileText },
+    { name: isNb ? "Lisenser" : "Licenses", href: "/msp-licenses", icon: CreditCard },
+    { name: isNb ? "Innstillinger" : "Settings", href: "/msp-settings", icon: SettingsIcon },
+    { name: isNb ? "Bli Partner" : "Become a partner", href: "/bli-partner", icon: Sparkles },
+  ];
+
+  return (
+    <nav className="flex-1 space-y-0.5 px-3 py-4 overflow-y-auto">
+      <div className="px-3 pb-2">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-foreground/80">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+          {isNb ? "Partner-arbeidsflate" : "Partner workspace"}
+        </div>
+      </div>
+      {items.map((item) => {
+        const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + "/");
+        return (
+          <Link
+            key={item.href}
+            to={item.href}
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
+              isActive
+                ? "bg-gradient-to-r from-primary/10 to-transparent text-sidebar-primary border-l-2 border-primary"
+                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+            )}
+          >
+            {isActive && <span className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />}
+            <item.icon className="h-4 w-4" />
+            {item.name}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+};
+
+
+
 const SidebarContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -214,6 +267,7 @@ const SidebarContent = () => {
   const { hasCoreAccess, hasRegistriesAccess, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade } = useSubscription();
   const { allRoles: _adminRoles } = useUserRole();
   const isMynderAdmin = _adminRoles.includes("super_admin") || _adminRoles.includes("daglig_leder");
+  const { mode: workspaceMode } = useWorkspaceMode();
 
   // Optimistic activation skeletons — cleared as soon as the underlying
   // subscription/activated-services queries confirm access (or as a final
@@ -300,7 +354,7 @@ const SidebarContent = () => {
   const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-") || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions");
-  const [partnerOpen, setPartnerOpen] = useState(() => location.pathname.startsWith("/msp-"));
+  // partnerOpen fjernet — Partner ligger nå i workspace-bryteren øverst
   const [loggingOut, setLoggingOut] = useState(false);
   const { activeOrg } = useActiveOrganization();
   // Fallback to demo company name so the sidebar never shows "Ikke registrert"
@@ -434,8 +488,17 @@ const SidebarContent = () => {
         </div>
       </div>
 
+      {/* Workspace switcher (Min virksomhet ↔ Partner) */}
+      <div className="border-b border-sidebar-border/60">
+        <WorkspaceSwitcher />
+      </div>
+
       {/* Navigation */}
+      {workspaceMode === "partner" ? (
+        <PartnerNav />
+      ) : (
       <nav className="flex-1 space-y-0.5 px-3 py-4 overflow-y-auto">
+
         {/* Dashboard */}
         {dashboardNav.map((item) => {
           const isActive = location.pathname === item.href;
@@ -767,6 +830,8 @@ const SidebarContent = () => {
           </div>
         </div>
       </nav>
+      )}
+
 
       {/* Company section at bottom (locked) */}
       <div className="flex-shrink-0 border-t border-sidebar-border bg-sidebar">
@@ -802,51 +867,8 @@ const SidebarContent = () => {
                   );
                 })}
                 <CreditMenuItem />
-                <div className="border-t border-sidebar-border my-2" />
-                {/* Partner submenu */}
-                <button
-                  onClick={() => setPartnerOpen(!partnerOpen)}
-                  className={cn(
-                    "flex w-full items-center justify-between rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-colors",
-                    location.pathname.startsWith("/msp-") ? "text-sidebar-primary" : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <Building2 className="h-4 w-4" />
-                    Partner
-                  </div>
-                  <ChevronDown className={cn("h-3 w-3 transition-transform", partnerOpen && "rotate-180")} />
-                </button>
-                {partnerOpen && (
-                  <div className="ml-4 space-y-1">
-                    {[
-                      { name: "Bli Partner", href: "/bli-partner", icon: Sparkles },
-                      { name: "Dashbord", href: "/msp-partner", icon: LayoutDashboard },
-                      { name: "Kunder", href: "/msp-dashboard", icon: Users },
-                      { name: "Tjenester", href: "/msp-services", icon: Package },
-                      { name: "Faktura", href: "/msp-invoices", icon: FileText },
-                      { name: "Meldinger", href: "/msp-messages", icon: Inbox },
-                      { name: "Innstillinger", href: "/msp-settings", icon: SettingsIcon },
-                    ].map((item) => {
-                      const isActive = location.pathname === item.href;
-                      return (
-                        <button
-                          key={item.href}
-                          onClick={() => navigate(item.href)}
-                          className={cn(
-                            "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
-                            isActive
-                              ? "bg-sidebar-accent text-sidebar-primary"
-                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                          )}
-                        >
-                          <item.icon className="h-3.5 w-3.5" />
-                          {item.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                {/* Partner-meny er flyttet til workspace-bryteren øverst */}
+
                 {isMynderAdmin && (
                   <>
                     <div className="border-t border-sidebar-border my-2" />
