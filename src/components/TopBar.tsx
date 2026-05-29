@@ -94,7 +94,45 @@ export function TopBar() {
   const currentRoleLabel = AVAILABLE_ROLES.find((r) => r.key === activeRole);
 
   return (
-    <div className="fixed top-0 right-0 z-40 h-11 border-b border-border bg-background/95 backdrop-blur-sm flex items-center justify-end gap-1 px-4 left-0 md:left-64">
+    <div className={cn(
+      "fixed top-0 right-0 z-40 h-11 border-b backdrop-blur-sm flex items-center gap-1 px-4 left-0 md:left-64 transition-colors",
+      isPartner
+        ? "border-accent/40 bg-accent/10"
+        : "border-border bg-background/95"
+    )}>
+      {/* Workspace mode ribbon */}
+      <div className="flex items-center gap-2 mr-auto">
+        <span className={cn(
+          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
+          isPartner
+            ? "bg-accent/25 text-accent-foreground"
+            : "bg-primary/10 text-primary"
+        )}>
+          {isPartner ? <Handshake className="h-3 w-3" /> : <ShieldCheck className="h-3 w-3" />}
+          {isPartner
+            ? (isNb ? "Partner-modus" : "Partner mode")
+            : (isNb ? "Min virksomhet" : "My organization")}
+        </span>
+        {canSwitch && (
+          <button
+            onClick={() => {
+              const next = isPartner ? "compliance" : "partner";
+              setMode(next);
+              navigate(next === "partner" ? "/msp-partner" : "/");
+            }}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            title={isPartner
+              ? (isNb ? "Bytt til Min virksomhet" : "Switch to My organization")
+              : (isNb ? "Bytt til Partner-modus" : "Switch to Partner mode")}
+          >
+            <ArrowLeftRight className="h-3 w-3" />
+            {isPartner
+              ? (isNb ? "Til Min virksomhet" : "To My organization")
+              : (isNb ? "Til Partner" : "To Partner")}
+          </button>
+        )}
+      </div>
+
       {/* Help */}
       <Tooltip>
         <TooltipTrigger asChild>
