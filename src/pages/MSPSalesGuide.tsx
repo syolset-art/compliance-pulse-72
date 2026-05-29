@@ -47,6 +47,8 @@ const steps = [
 ];
 
 export default function MSPSalesGuide() {
+  const { mode } = useWorkspaceMode();
+  if (mode === "compliance") return <Navigate to="/" replace />;
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
