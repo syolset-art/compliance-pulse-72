@@ -423,51 +423,90 @@ export function MSPServiceCatalogTab() {
             Anbefalt basert på din partnerprofil og hva som er populært blant tilsvarende MSP-er nå.
           </p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {TEMPLATE_PICKS.map((pick) => {
-            const template = SERVICE_LIBRARY.find((t) => t.code === pick.code);
-            if (!template) return null;
-            const isAdopted = adoptedIds.has(template.id);
-            const Icon = pick.icon;
-            const frameworks = template.mappings.map((m) => m.frameworkLabel).slice(0, 3);
-            const tagMeta = pick.tag ? TAG_META[pick.tag] : null;
-            return (
-              <button
-                key={template.id}
-                type="button"
-                disabled={isAdopted}
-                onClick={() => adoptTemplate(template)}
-                title={pick.tagReason}
-                className={cn(
-                  "group relative rounded-lg border border-border bg-card p-4 text-left transition-all",
-                  "hover:border-primary/50 hover:shadow-sm",
-                  isAdopted && "opacity-50 cursor-not-allowed",
-                )}
-              >
-                {tagMeta && !isAdopted && (
-                  <Badge
-                    variant="outline"
+        <div className="overflow-hidden rounded-md border border-border bg-card">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/30 text-xs text-muted-foreground">
+              <tr>
+                <th className="text-left font-medium px-3 py-2 w-12"></th>
+                <th className="text-left font-medium px-3 py-2">Tjeneste</th>
+                <th className="text-left font-medium px-3 py-2">Regelverk</th>
+                <th className="text-left font-medium px-3 py-2">Merknad</th>
+                <th className="text-right font-medium px-3 py-2 w-32"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {TEMPLATE_PICKS.map((pick) => {
+                const template = SERVICE_LIBRARY.find((t) => t.code === pick.code);
+                if (!template) return null;
+                const isAdopted = adoptedIds.has(template.id);
+                const Icon = pick.icon;
+                const frameworks = template.mappings.map((m) => m.frameworkLabel).slice(0, 3);
+                const tagMeta = pick.tag ? TAG_META[pick.tag] : null;
+                return (
+                  <tr
+                    key={template.id}
                     className={cn(
-                      "absolute right-2 top-2 h-5 px-1.5 text-[10px] font-medium",
-                      tagMeta.className,
+                      "hover:bg-muted/20 transition-colors",
+                      isAdopted && "opacity-60",
                     )}
                   >
-                    {tagMeta.label}
-                  </Badge>
-                )}
-                <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center mb-3", pick.bg)}>
-                  <Icon className={cn("h-5 w-5", pick.fg)} />
-                </div>
-                <p className="text-sm font-semibold text-foreground line-clamp-1">{pick.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                  {frameworks.length > 0 ? frameworks.join(" · ") : template.shortDescription}
-                </p>
-                {isAdopted && (
-                  <Badge variant="secondary" className="text-xs mt-2 h-5">Lagt til</Badge>
-                )}
-              </button>
-            );
-          })}
+                    <td className="px-3 py-2.5">
+                      <div className={cn("h-8 w-8 rounded-md flex items-center justify-center", pick.bg)}>
+                        <Icon className={cn("h-4 w-4", pick.fg)} />
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <div className="font-medium text-foreground">{pick.label}</div>
+                      <div className="text-xs text-muted-foreground line-clamp-1">
+                        {template.shortDescription}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex flex-wrap gap-1">
+                        {frameworks.length > 0 ? (
+                          frameworks.map((f) => (
+                            <span key={f} className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                              {f}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      {tagMeta ? (
+                        <Badge
+                          variant="outline"
+                          className={cn("h-5 px-1.5 text-[10px] font-medium", tagMeta.className)}
+                          title={pick.tagReason}
+                        >
+                          {tagMeta.label}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-2.5 text-right">
+                      {isAdopted ? (
+                        <Badge variant="secondary" className="text-xs h-5">Lagt til</Badge>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => adoptTemplate(template)}
+                          className="h-7 gap-1"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Legg til
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
 
 
