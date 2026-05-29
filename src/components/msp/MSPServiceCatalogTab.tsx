@@ -379,11 +379,6 @@ export function MSPServiceCatalogTab() {
               return (
                 <div key={e.id} className="flex items-center gap-3 px-3 py-2">
                   <div className="flex-1 min-w-0 flex items-center gap-2">
-                    {e.templateCode && (
-                      <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground shrink-0">
-                        {e.templateCode}
-                      </span>
-                    )}
                     <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
                   </div>
                   <div className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
