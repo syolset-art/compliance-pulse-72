@@ -96,8 +96,8 @@ export default function MSPInvoices() {
                 <h1 className="text-xl md:text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Kunder du har lagt til — gruppert per måned · {customers.length} kunder ·{" "}
-                  <span className="text-foreground font-medium">{fmt(mynderGrandTotal)} kr/mnd</span> til Mynder ·{" "}
-                  <span className="text-foreground font-medium">{fmt(offerGrandTotal)} kr/mnd</span> tilbudt din kunde
+                  <span className="text-foreground font-medium">{fmt(mynderGrandTotal)} kr</span> til Mynder ·{" "}
+                  <span className="text-foreground font-medium">{fmt(offerGrandTotal)} kr</span> tilbudt din kunde
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
@@ -129,11 +129,11 @@ export default function MSPInvoices() {
                   <div className="flex gap-6 sm:text-right">
                     <div>
                       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Til Mynder</div>
-                      <div className="text-sm font-semibold text-foreground">{fmt(g.mynderTotal)} kr/mnd</div>
+                      <div className="text-sm font-semibold text-foreground">{fmt(g.mynderTotal)} kr</div>
                     </div>
                     <div>
                       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Tilbudt din kunde</div>
-                      <div className="text-sm font-semibold text-foreground">{fmt(g.offerTotal)} kr/mnd</div>
+                      <div className="text-sm font-semibold text-foreground">{fmt(g.offerTotal)} kr</div>
                     </div>
                   </div>
                 </div>
