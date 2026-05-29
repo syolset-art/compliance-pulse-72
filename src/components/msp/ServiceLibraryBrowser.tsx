@@ -215,9 +215,6 @@ function TemplateCard({
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
-              {template.code}
-            </span>
             <Badge variant="outline" className="text-xs h-5">
               {deliveryLabel(template.delivery)}
             </Badge>
