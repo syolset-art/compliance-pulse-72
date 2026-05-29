@@ -95,9 +95,9 @@ export default function MSPInvoices() {
               <div>
                 <h1 className="text-xl md:text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Kunder partneren har lagt til — gruppert per måned · {customers.length} kunder ·{" "}
+                  Kunder du har lagt til — gruppert per måned · {customers.length} kunder ·{" "}
                   <span className="text-foreground font-medium">{fmt(mynderGrandTotal)} kr/mnd</span> til Mynder ·{" "}
-                  <span className="text-foreground font-medium">{fmt(offerGrandTotal)} kr/mnd</span> tilbudt sluttkunde
+                  <span className="text-foreground font-medium">{fmt(offerGrandTotal)} kr/mnd</span> tilbudt din kunde
                 </p>
               </div>
               <div className="flex gap-2 flex-wrap">
@@ -132,7 +132,7 @@ export default function MSPInvoices() {
                       <div className="text-sm font-semibold text-foreground">{fmt(g.mynderTotal)} kr/mnd</div>
                     </div>
                     <div>
-                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Tilbudt sluttkunde</div>
+                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Tilbudt din kunde</div>
                       <div className="text-sm font-semibold text-foreground">{fmt(g.offerTotal)} kr/mnd</div>
                     </div>
                   </div>
@@ -237,7 +237,7 @@ export default function MSPInvoices() {
                               </span>
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-[260px] text-xs">
-                              Dette faktureres partneren av Mynder. Summen av Core-tier + Leverandørmodul + aktiverte regelverk. Løper uansett om sluttkunden har akseptert tilbudet.
+                              Dette faktureres deg av Mynder. Summen av Core-tier + Leverandørmodul + aktiverte regelverk. Løper uansett om din kunde har akseptert tilbudet.
                             </TooltipContent>
                           </Tooltip>
                         </th>
@@ -249,7 +249,7 @@ export default function MSPInvoices() {
                               </span>
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-[260px] text-xs">
-                              Det partneren har tilbudt sin sluttkunde. Registreres manuelt — kan avvike fra Mynder-fakturagrunnlaget.
+                              Det du har tilbudt din kunde. Registreres manuelt — kan avvike fra Mynder-fakturagrunnlaget.
                             </TooltipContent>
                           </Tooltip>
                         </th>
