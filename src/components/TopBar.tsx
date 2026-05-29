@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useDemoSyncOptional } from "@/contexts/DemoSyncContext";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import {
-  Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, User, Bell, Handshake, ShieldCheck, ArrowLeftRight,
+  Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, User, Bell,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -100,38 +100,6 @@ export function TopBar() {
         ? "border-accent/40 bg-accent/10"
         : "border-border bg-background/95"
     )}>
-      {/* Workspace mode ribbon */}
-      <div className="flex items-center gap-2 mr-auto">
-        <span className={cn(
-          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold",
-          isPartner
-            ? "bg-accent/25 text-accent-foreground"
-            : "bg-primary/10 text-primary"
-        )}>
-          {isPartner ? <Handshake className="h-3 w-3" /> : <ShieldCheck className="h-3 w-3" />}
-          {isPartner
-            ? (isNb ? "Partner-modus" : "Partner mode")
-            : (isNb ? "Min virksomhet" : "My organization")}
-        </span>
-        {canSwitch && (
-          <button
-            onClick={() => {
-              const next = isPartner ? "compliance" : "partner";
-              setMode(next);
-              navigate(next === "partner" ? "/msp-partner" : "/");
-            }}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            title={isPartner
-              ? (isNb ? "Bytt til Min virksomhet" : "Switch to My organization")
-              : (isNb ? "Bytt til Partner-modus" : "Switch to Partner mode")}
-          >
-            <ArrowLeftRight className="h-3 w-3" />
-            {isPartner
-              ? (isNb ? "Til Min virksomhet" : "To My organization")
-              : (isNb ? "Til Partner" : "To Partner")}
-          </button>
-        )}
-      </div>
 
       {/* Help */}
       <Tooltip>
