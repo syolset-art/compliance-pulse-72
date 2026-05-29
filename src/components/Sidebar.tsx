@@ -14,7 +14,6 @@ import {
   Building2,
   Scale,
   CreditCard,
-  FileBarChart,
   HelpCircle,
   LogOut,
   
