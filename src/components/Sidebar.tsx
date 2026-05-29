@@ -778,6 +778,8 @@ const SidebarContent = () => {
           </div>
         </div>
       </nav>
+      )}
+
 
       {/* Company section at bottom (locked) */}
       <div className="flex-shrink-0 border-t border-sidebar-border bg-sidebar">
