@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { LayoutDashboard, ShieldCheck, BarChart3, Bell, Settings2 } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { ContentViewer } from "@/components/ContentViewer";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 
 import { AddAssetDialog } from "@/components/dialogs/AddAssetDialog";
 import { AddWorkAreaDialog } from "@/components/dialogs/AddWorkAreaDialog";
@@ -47,6 +49,12 @@ const Index = () => {
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const { user } = useAuth();
   const { activeOrg } = useActiveOrganization();
+  const { mode } = useWorkspaceMode();
+
+  // When the user is in Partner mode, "/" should land them in the partner dashboard.
+  if (mode === "partner") {
+    return <Navigate to="/msp-partner" replace />;
+  }
 
   const displayName = "Synnøve Olset";
 
