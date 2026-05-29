@@ -12,9 +12,13 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Users, UserPlus, Shield, Mail, Clock, CheckCircle2, Crown, Eye, Settings, Pencil,
   AlertTriangle, Bot, Leaf, ClipboardCheck, MonitorCog, GraduationCap, Truck, FileSearch,
-  Lock, User,
+  Lock, User, Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
