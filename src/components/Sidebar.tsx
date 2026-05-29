@@ -221,7 +221,6 @@ const PartnerNav = () => {
     { name: isNb ? "Faktura" : "Invoices", href: "/msp-invoices", icon: FileText },
     { name: isNb ? "Lisenser" : "Licenses", href: "/msp-licenses", icon: CreditCard },
     { name: isNb ? "Innstillinger" : "Settings", href: "/msp-settings", icon: SettingsIcon },
-    { name: isNb ? "Bli Partner" : "Become a partner", href: "/bli-partner", icon: Sparkles },
   ];
 
   return (
