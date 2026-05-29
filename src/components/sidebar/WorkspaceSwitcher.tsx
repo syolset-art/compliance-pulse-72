@@ -42,62 +42,64 @@ export function WorkspaceSwitcher() {
   };
 
   return (
-    <div className="px-3 py-2">
+    <div className="px-3 py-2.5">
       <button
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex w-full items-center justify-between rounded-lg px-3 py-2.5 transition-colors border",
+          "flex w-full items-center justify-between rounded-xl px-3 py-3 transition-all border",
           isPartner
-            ? "bg-accent/10 border-accent/30 hover:bg-accent/15"
-            : "bg-primary/5 border-primary/15 hover:bg-primary/10"
+            ? "bg-accent/10 border-accent/25 hover:bg-accent/15 shadow-sm"
+            : "bg-primary/5 border-primary/15 hover:bg-primary/10 shadow-sm"
         )}
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className={cn(
-            "h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0",
-            isPartner ? "bg-accent/20" : "bg-primary/10"
+            "h-9 w-9 rounded-lg flex items-center justify-center flex-shrink-0",
+            isPartner ? "bg-accent/20" : "bg-primary/15"
           )}>
-            <Icon className={cn("h-4 w-4", isPartner ? "text-accent-foreground" : "text-primary")} />
+            <Icon className={cn("h-[18px] w-[18px]", isPartner ? "text-accent" : "text-primary")} />
           </div>
           <div className="min-w-0 flex-1 text-left">
             <div className={cn(
-              "text-[11px] font-semibold uppercase tracking-wide",
-              isPartner ? "text-accent-foreground/80" : "text-primary"
+              "text-[13px] font-semibold leading-tight",
+              isPartner ? "text-accent" : "text-primary"
             )}>
               {label}
             </div>
-            <div className="text-sm font-medium text-sidebar-foreground truncate">
+            <div className="text-[12px] text-sidebar-foreground/70 truncate mt-0.5">
               {subtitle}
             </div>
           </div>
         </div>
         {canSwitch && (
-          <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/50 transition-transform flex-shrink-0", open && "rotate-180")} />
+          <ChevronDown className={cn("h-4 w-4 text-sidebar-foreground/40 transition-transform flex-shrink-0 ml-2", open && "rotate-180")} />
         )}
       </button>
 
       {open && canSwitch && (
-        <div className="mt-1 ml-1 space-y-0.5 animate-fade-in">
+        <div className="mt-1.5 space-y-0.5 animate-fade-in">
           {availableModes.includes("compliance") && (
             <button
               onClick={() => handleSelectMode("compliance")}
               className={cn(
-                "flex w-full items-center justify-between gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+                "flex w-full items-center justify-between gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors",
                 mode === "compliance"
-                  ? "bg-sidebar-accent text-sidebar-primary font-medium"
+                  ? "bg-sidebar-accent text-sidebar-primary font-medium border border-primary/20"
                   : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
               )}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <ShieldCheck className="h-4 w-4 flex-shrink-0" />
+                <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                </div>
                 <div className="text-left min-w-0">
-                  <div className="truncate">{isNb ? "Min virksomhet" : "My organization"}</div>
+                  <div className="text-[13px] font-medium truncate">{isNb ? "Min virksomhet" : "My organization"}</div>
                   <div className="text-[11px] text-sidebar-foreground/50 truncate">
                     {isNb ? "Compliance og styring" : "Compliance & governance"}
                   </div>
                 </div>
               </div>
-              {mode === "compliance" && <Check className="h-3.5 w-3.5 text-primary flex-shrink-0" />}
+              {mode === "compliance" && <Check className="h-4 w-4 text-primary flex-shrink-0" />}
             </button>
           )}
 
@@ -105,22 +107,24 @@ export function WorkspaceSwitcher() {
             <button
               onClick={() => handleSelectMode("partner")}
               className={cn(
-                "flex w-full items-center justify-between gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+                "flex w-full items-center justify-between gap-2.5 rounded-lg px-3 py-2.5 text-sm transition-colors",
                 mode === "partner"
-                  ? "bg-sidebar-accent text-sidebar-primary font-medium"
+                  ? "bg-sidebar-accent text-sidebar-primary font-medium border border-accent/30"
                   : "text-sidebar-foreground/75 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
               )}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <Handshake className="h-4 w-4 flex-shrink-0" />
+                <div className="h-7 w-7 rounded-md bg-accent/10 flex items-center justify-center flex-shrink-0">
+                  <Handshake className="h-3.5 w-3.5 text-accent" />
+                </div>
                 <div className="text-left min-w-0">
-                  <div className="truncate">{isNb ? "Partner" : "Partner"}</div>
+                  <div className="text-[13px] font-medium truncate">{isNb ? "Partner" : "Partner"}</div>
                   <div className="text-[11px] text-sidebar-foreground/50 truncate">
                     {isNb ? "Kunder og tjenester" : "Customers & services"}
                   </div>
                 </div>
               </div>
-              {mode === "partner" && <Check className="h-3.5 w-3.5 text-primary flex-shrink-0" />}
+              {mode === "partner" && <Check className="h-4 w-4 text-accent flex-shrink-0" />}
             </button>
           )}
 
