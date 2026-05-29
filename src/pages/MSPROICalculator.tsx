@@ -26,6 +26,8 @@ const COMMISSION_STANDARD = 0.20;
 const COMMISSION_BULK = 0.50;
 
 export default function MSPROICalculator() {
+  const { mode } = useWorkspaceMode();
+  if (mode === "compliance") return <Navigate to="/" replace />;
   const [customers, setCustomers] = useState(5);
   const [customerSize, setCustomerSize] = useState<CustomerSize>("S");
   const [selectedTierId, setSelectedTierId] = useState(LICENSE_TIERS[0].id);
