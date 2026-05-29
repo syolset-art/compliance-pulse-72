@@ -6,8 +6,6 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useDemoSyncOptional } from "@/contexts/DemoSyncContext";
-import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import {
   Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, User, Bell,
 } from "lucide-react";
