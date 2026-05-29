@@ -23,16 +23,12 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   CheckCircle2,
-  XCircle,
-  Clock,
-  MessageSquare,
   Mail,
   Phone,
   ChevronDown,
   ChevronUp,
   Megaphone,
   Users,
-  Plus,
   Settings,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -70,7 +66,7 @@ const LARA_PROPOSALS: LaraProposal[] = [
   },
 ];
 
-type Filter = "all" | "in" | "out" | "pending" | "accepted" | "rejected" | "campaigns";
+type Filter = "in" | "out" | "activated";
 
 interface SentCampaign {
   id: string;
@@ -161,42 +157,23 @@ const ITEMS: InboxItem[] = [
   },
 ];
 
-function statusBadge(s: ItemStatus) {
-  const map: Record<ItemStatus, { label: string; cls: string }> = {
-    accepted: { label: "Akseptert", cls: "bg-success/10 text-success border-success/30" },
-    rejected: { label: "Avvist", cls: "bg-muted text-muted-foreground border-border" },
-    pending: { label: "Venter", cls: "bg-warning/10 text-warning border-warning/30" },
-    message: { label: "Melding", cls: "bg-primary/10 text-primary border-primary/30" },
-  };
-  const m = map[s];
-  return (
-    <Badge variant="outline" className={cn("text-[10px]", m.cls)}>
-      {m.label}
-    </Badge>
-  );
-}
-
-function KindIcon({ kind, status, customer }: { kind: ItemKind; status: ItemStatus; customer: string }) {
-  if (status === "message") {
+function KindIcon({ kind, customer }: { kind: ItemKind; customer: string }) {
+  if (kind === "in") {
     return (
       <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-semibold shrink-0">
         {customer.charAt(0)}
       </div>
     );
   }
-  let Icon = Clock;
-  let cls = "bg-warning/10 text-warning";
-  if (status === "accepted") { Icon = CheckCircle2; cls = "bg-success/10 text-success"; }
-  else if (status === "rejected") { Icon = XCircle; cls = "bg-muted text-muted-foreground"; }
   return (
-    <div className={cn("h-7 w-7 rounded-full flex items-center justify-center shrink-0", cls)}>
-      <Icon className="h-3.5 w-3.5" />
+    <div className="h-7 w-7 rounded-full bg-muted text-muted-foreground flex items-center justify-center shrink-0">
+      <ArrowUpRight className="h-3.5 w-3.5" />
     </div>
   );
 }
 
 export default function MSPMessages() {
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>("in");
   const [dismissedBanner, setDismissedBanner] = useState(false);
   const [proposalsOpen, setProposalsOpen] = useState(false);
   const [selected, setSelected] = useState<Record<string, boolean>>(
@@ -287,34 +264,19 @@ export default function MSPMessages() {
   };
 
   const filtered = ITEMS.filter(i => {
-    if (filter === "all") return true;
     if (filter === "in") return i.kind === "in";
     if (filter === "out") return i.kind === "out";
-    if (filter === "pending") return i.status === "pending";
-    if (filter === "accepted") return i.status === "accepted";
-    if (filter === "rejected") return i.status === "rejected";
-    if (filter === "campaigns") return false; // kampanjer rendres separat
+    if (filter === "activated") return i.status === "accepted";
     return true;
   });
 
-  const today = filter === "campaigns" ? [] : filtered.filter(i => i.group === "today");
-  const earlier = filter === "campaigns" ? [] : filtered.filter(i => i.group === "earlier");
-
-  const stats = {
-    pending: ITEMS.filter(i => i.status === "pending").length,
-    accepted: ITEMS.filter(i => i.status === "accepted").length,
-    rejected: ITEMS.filter(i => i.status === "rejected").length,
-    unread: ITEMS.filter(i => i.unread).length,
-  };
+  const today = filtered.filter(i => i.group === "today");
+  const earlier = filtered.filter(i => i.group === "earlier");
 
   const filters: { value: Filter; label: string; icon?: any; count: number }[] = [
-    { value: "all", label: "Alle", count: ITEMS.length },
     { value: "in", label: "Innkommende", icon: ArrowDownLeft, count: ITEMS.filter(i => i.kind === "in").length },
-    { value: "out", label: "Utgående", icon: ArrowUpRight, count: ITEMS.filter(i => i.kind === "out").length },
-    { value: "pending", label: "Tilbud venter", count: stats.pending },
-    { value: "accepted", label: "Akseptert", count: stats.accepted },
-    { value: "rejected", label: "Avvist", count: stats.rejected },
-    { value: "campaigns", label: "Kampanjer", icon: Megaphone, count: campaigns.length },
+    { value: "out", label: "Utgående", icon: ArrowUpRight, count: ITEMS.filter(i => i.kind === "out").length + campaigns.length },
+    { value: "activated", label: "Aktivert", icon: CheckCircle2, count: ITEMS.filter(i => i.status === "accepted").length },
   ];
 
   return (
@@ -409,7 +371,7 @@ export default function MSPMessages() {
 
           {/* List */}
           <Card className="overflow-hidden">
-            {campaigns.length > 0 && (filter === "all" || filter === "campaigns" || filter === "out") && (
+            {campaigns.length > 0 && filter === "out" && (
               <>
                 <GroupHeader label="Kampanjer" />
                 {campaigns.map((c) => (
@@ -428,12 +390,7 @@ export default function MSPMessages() {
             {today.map(item => <Row key={item.id} item={item} />)}
             {earlier.length > 0 && <GroupHeader label="Tidligere" />}
             {earlier.map(item => <Row key={item.id} item={item} />)}
-            {filter === "campaigns" && campaigns.length === 0 && (
-              <div className="py-12 text-center text-sm text-muted-foreground">
-                Ingen kampanjer sendt ennå. Klikk «Ny kampanje» for å starte.
-              </div>
-            )}
-            {filter !== "campaigns" && filtered.length === 0 && (
+            {filtered.length === 0 && campaigns.length === 0 && (
               <div className="py-12 text-center text-sm text-muted-foreground">
                 Ingen meldinger i denne visningen.
               </div>
@@ -652,7 +609,7 @@ function Row({ item }: { item: InboxItem }) {
         onClick={() => toast.info(item.title, { description: item.customer })}
         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors text-left"
       >
-        <KindIcon kind={item.kind} status={item.status} customer={item.customer} />
+        <KindIcon kind={item.kind} customer={item.customer} />
 
         <div className="flex-1 min-w-0">
           <p className="text-sm text-foreground">
@@ -661,7 +618,6 @@ function Row({ item }: { item: InboxItem }) {
           </p>
           <p className="text-[12px] text-muted-foreground truncate">{item.meta}</p>
         </div>
-        {statusBadge(item.status)}
       </button>
       {item.laraSuggestion && (
         <div className="flex items-start gap-2.5 px-4 py-2.5 bg-primary/5 border-t border-primary/20">
@@ -729,9 +685,6 @@ function CampaignRow({
             {respondedCount} svar
           </p>
         </div>
-        <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30">
-          Kampanje
-        </Badge>
         {expanded ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
