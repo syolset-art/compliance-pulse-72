@@ -23,16 +23,12 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   CheckCircle2,
-  XCircle,
-  Clock,
-  MessageSquare,
   Mail,
   Phone,
   ChevronDown,
   ChevronUp,
   Megaphone,
   Users,
-  Plus,
   Settings,
 } from "lucide-react";
 import { toast } from "sonner";
