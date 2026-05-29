@@ -218,8 +218,7 @@ const PartnerNav = () => {
     { name: isNb ? "ROI-kalkulator" : "ROI calculator", href: "/msp-roi", icon: FileBarChart },
     { name: isNb ? "Salgsguide" : "Sales guide", href: "/msp-sales-guide", icon: Briefcase },
     { name: isNb ? "Meldinger" : "Messages", href: "/msp-messages", icon: Inbox },
-    { name: isNb ? "Faktura" : "Invoices", href: "/msp-invoices", icon: FileText },
-    { name: isNb ? "Lisenser" : "Licenses", href: "/msp-licenses", icon: CreditCard },
+    { name: isNb ? "Fakturagrunnlag" : "Billing basis", href: "/msp-invoices", icon: FileText },
     { name: isNb ? "Innstillinger" : "Settings", href: "/msp-settings", icon: SettingsIcon },
   ];
 
