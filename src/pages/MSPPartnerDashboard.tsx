@@ -1119,7 +1119,13 @@ export default function MSPPartnerDashboard() {
       <main className="flex-1 overflow-auto pt-11">
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-5">
           <PartnerHeader />
-          <LaraSuggestions onSelect={setActiveSuggestion} />
+          {!activeSuggestion && <LaraSuggestions onSelect={setActiveSuggestion} />}
+          {activeSuggestion && (
+            <LaraSuggestionInline
+              suggestion={activeSuggestion}
+              onClose={() => setActiveSuggestion(null)}
+            />
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <ClaimRateWidget />
             <NeedsFollowUpWidget />            
@@ -1146,10 +1152,6 @@ export default function MSPPartnerDashboard() {
         </div>
       </main>
 
-      <LaraSuggestionDialog
-        suggestion={activeSuggestion}
-        onClose={() => setActiveSuggestion(null)}
-      />
     </div>
   );
 }
