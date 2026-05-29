@@ -27,6 +27,8 @@ import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandover
 import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
 import { QuestionnaireGapList } from "@/components/msp/QuestionnaireGapList";
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
+import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
+import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { RegulationGapAnalysisCard } from "@/components/msp/RegulationGapAnalysisCard";
 import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
 import { getQuestionnaire } from "@/lib/questionnaireRegistry";
@@ -64,6 +66,8 @@ export default function MSPCustomerDetail() {
     serviceId: string;
   } | null>(null);
   const startGapRef = useRef<() => void>(() => {});
+  const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean }>({ open: false, review: false });
+  const { answers: baselineAnswers, setAnswer: setBaselineAnswer, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
@@ -260,9 +264,23 @@ export default function MSPCustomerDetail() {
 
               {/* 1) Baseline-gate */}
               <BaselineReadinessCard
-                activeCount={activeFrameworkIds.length}
+                areaProgress={areaProgress}
+                totalAnswered={totalAnswered}
+                totalQuestions={totalQuestions}
+                activeFrameworkCount={activeFrameworkIds.length}
+                onFillBaseline={() => setBaselineDrawer({ open: true, review: false })}
+                onReviewBaseline={() => setBaselineDrawer({ open: true, review: true })}
                 onGoToRegulations={() => handleTabChange("regulations")}
                 onStartGapAnalysis={() => startGapRef.current()}
+              />
+
+              <BaselineQuestionsDrawer
+                open={baselineDrawer.open}
+                onOpenChange={(open) => setBaselineDrawer((s) => ({ ...s, open }))}
+                customerName={customer.name || "kunden"}
+                answers={baselineAnswers}
+                onAnswer={setBaselineAnswer}
+                reviewMode={baselineDrawer.review}
               />
 
               {/* 2) Gap-analyse pr regelverk — Lara */}

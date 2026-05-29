@@ -1,65 +1,69 @@
 ## Mål
 
-På `Fakturagrunnlag` skal vi tydelig skille mellom:
+Gjøre det tydelig på MSP-kundedetalj (Veiledning-fanen) at en baseline består av kundens egenerklæringer i de fire kontrollområdene fra Trust Profile, og at **partneren kan fylle ut eller gå gjennom disse på vegne av kunden** før de starter gap-analysen.
 
-1. **Det Mynder fakturerer partneren** — deterministisk, basert på Core-tier + Leverandørmodul + aktiverte regelverk. Dette løper uansett om sluttkunden har akseptert partnerens tilbud eller ikke.
-2. **Tilbudet partneren har levert til sluttkunden** — partnerens egen pris, kan komme fra eksternt tilbudssystem, og kan være «sendt», «akseptert» eller ukjent.
+## Hva er "baseline" i dag vs. det vi vil ha
 
-Dette gjør at partneren ser hva som koster dem penger hos oss, og hva de selv tar betalt — to forskjellige tall som ikke skal forveksles.
+I dag: `BaselineReadinessCard` regner baseline som "klar" så snart minst ett regelverk er aktivert (`activeCount > 0`). Det er for tynt — det sier ingenting om at kunden faktisk har svart ut grunnlaget for Trust Profile.
 
-## Endringer i tabellen (`src/pages/MSPInvoices.tsx`)
+Vi knytter baseline til de samme fire kontrollområdene som brukes når en Trust Profile opprettes/claim-es (`src/lib/trustMaturityQuestions.ts` → `MATURITY_AREAS`):
 
-Kolonnene blir, i rekkefølge:
+1. **Styring** (Governance) — 5 spørsmål
+2. **Drift og sikkerhet** (Operations) — 5 spørsmål
+3. **Personvern og datahåndtering** (Privacy) — 5 spørsmål
+4. **Tredjepartsstyring** (Third-party) — 4 spørsmål
 
-```text
-Kunde │ Core │ Leverandørmodul │ Regelverk │ Brukere │ Mynder kr/mnd │ Tilbud kr/mnd │ Tilbud
-```
+Når partneren fyller ut svar her, bekrefter de implisitt at de har innsikt til å gjøre det på vegne av kunden. Svarene lagres som `customer_asserted` (vendor-/partner-asserted) og danner grunnlaget for gap-analysen.
 
-- **Mynder kr/mnd** (det vi heter «Kr/mnd» i dag): summen av Core + modul + regelverk. Vises som primær tallverdi. Liten hjelpetekst/tooltip: «Dette faktureres partneren av Mynder».
-- **Tilbud kr/mnd** (ny): pris partneren har gitt sluttkunden. Under tallet en liten status-pill:
-  - `Akseptert` (success) — sluttkunden har bekreftet
-  - `Sendt — venter` (muted) — tilbud registrert, ikke bekreftet
-  - `Ikke registrert` (warning) — partneren har ikke lagt inn noe tilbud
-  Hvis ikke registrert: vis dash («—») i pris-cellen.
-- **Tilbud** (erstatter «Avtale»): hvis tilbudsfil finnes → vis filnavn + ikon (samme som dagens lenke). Hvis ikke → en liten «Last opp tilbud»-knapp (UI-only, demo toast).
-- Kolonnen «Tilbud sendt» (antall) fjernes — informasjonen flyttes til månedsheaderen og blir overflødig per rad.
-
-«Brukere»-kolonnen beholdes, men flyttes til venstre for pris-kolonnene så de to pris-kolonnene står ved siden av hverandre og er lette å sammenligne.
-
-### Måneds-header
-
-Oppdateres til to tall side-om-side:
+## UX-flyt på Veiledning-fanen
 
 ```text
-Fakturagrunnlag (Mynder)   Tilbudt sluttkunde
-   54 280 kr/mnd               72 500 kr/mnd
+┌─ 1) Baseline ──────────────────────────────────────────────┐
+│  Status: 12 / 19 spørsmål besvart   • 2 regelverk aktive  │
+│  ──────────────────────────────────────────────────────── │
+│  Styring              ●●●●○   4/5                          │
+│  Drift og sikkerhet   ●●○○○   2/5                          │
+│  Personvern           ●●●●●   5/5                          │
+│  Tredjepartsstyring   ●○○○○   1/4                          │
+│                                                            │
+│  Du kan fylle ut baselinen på vegne av kunden — eller     │
+│  se gjennom det Lara allerede har foreslått.              │
+│                                                            │
+│  [Fyll ut baseline]  [Se over baseline]  [Kjør gap-analyse]│
+└────────────────────────────────────────────────────────────┘
 ```
 
-Slik ser partneren sin egen bruttomargin per måned. Hvis tilbudssum er ufullstendig (noen kunder mangler tilbud) vises en liten note: «3 kunder mangler tilbud».
+- "Fyll ut baseline" og "Se over baseline" åpner samme drawer/side med kontrollområdene; forskjellen er at "Se over" hopper rett til områder med Lara-forslag som ikke er bekreftet.
+- "Kjør gap-analyse" forblir tilgjengelig hele tiden, men er kun primær knapp når baseline er ≥ ~80 % komplett (terskel justerbar). Under det er den sekundær med tooltip: *"Anbefalt: fyll ut baseline først for mer presis gap-analyse"*.
+- Kortet snakker direkte til partneren ("Du kan...", "på vegne av kunden") jf. tone-of-voice for partner-vendt UI.
 
-### Topp-summering
+## Endringer
 
-«… kr/mnd totalt» splittes på samme måte: «X kr/mnd til Mynder · Y kr/mnd tilbudt sluttkunde».
+### 1. `src/components/msp/BaselineReadinessCard.tsx`
+Erstatt nåværende enkel-status med ny struktur:
+- Props utvides: `areaProgress: { area: string; answered: number; total: number }[]`, `totalAnswered`, `totalQuestions`, `activeFrameworkCount`, `onFillBaseline`, `onReviewBaseline`, `onStartGapAnalysis`.
+- Liste de fire områdene med dots/progress (semantiske tokens: `bg-primary` for besvart, `bg-muted` for ubesvart). Bruk ikonene fra `MATURITY_AREAS`.
+- Tre CTA-er: "Fyll ut baseline", "Se over baseline", "Kjør gap-analyse". Knappehierarki avhenger av completeness.
+- Tekster på norsk, partner-tone ("Du fyller ut...", "på vegne av kunden").
 
-## Datamodell-endringer (demo-data, samme fil)
+### 2. Ny komponent `src/components/msp/BaselineQuestionsDrawer.tsx`
+- `Sheet`/`Drawer` (shadcn) som åpnes fra knappene over.
+- Bruker `MATURITY_AREAS` fra `src/lib/trustMaturityQuestions.ts` direkte — samme spørsmål som ved Trust Profile-aktivering.
+- Per spørsmål: ja / nei / senere (samme `MaturityAnswer`-type), Lara-kilde-tooltip når tilgjengelig (`deriveLaraSources`).
+- Topp-banner: *"Du svarer på vegne av {kundenavn}. Svarene lagres som partner-bekreftet og inngår som baseline i gap-analysen."*
+- "Se over"-modus filtrerer til spørsmål der Lara har foreslått svar som ennå ikke er bekreftet (start-tab).
+- Lagring: per kunde i `localStorage` nøkkel `msp.customer.baselineAnswers.{customerId}` (følger samme mønster som `msp.customer.activatedFrameworks.{customerId}`). Ingen DB-endringer i denne iterasjonen — holdes som frontend-/demo-state.
 
-`PartnerCustomer` får tre nye felt:
+### 3. `src/pages/MSPCustomerDetail.tsx`
+- Last baseline-svar fra localStorage via en liten hook (`useCustomerBaseline(customerId)`) og regn ut `areaProgress` + totaler basert på `MATURITY_AREAS`.
+- Send props inn i `BaselineReadinessCard`. Behold `RegulationGapAnalysisCard` som steg 2.
+- State for å åpne drawer i "fill" eller "review"-modus.
 
-- `offerPriceKr: number | null` — partnerens tilbudspris til sluttkunden, `null` hvis ikke registrert
-- `offerStatus: "accepted" | "pending" | "missing"`
-- `offerDoc: { id: string; name: string } | null` — erstatter `agreement` semantisk i UI-en (kan beholde gammelt felt mappet over)
+### 4. Tekst/tone
+- All ny tekst på norsk, snakker direkte til partneren.
+- "Kontrollområde" konsistent med Trust Profile-siden (memoir: 4 Core Domains).
 
-`offersSent`-feltet beholdes i data men vises ikke per rad.
-
-## Hvorfor denne UX-en
-
-- Partneren forstår umiddelbart at **Mynder-kolonnen er ikke-forhandlingsbar** — den utløses i det øyeblikk et regelverk aktiveres, uansett om sluttkunde-tilbudet er signert.
-- Tilbudskolonnen er partnerens egen verden — de kan registrere pris og status manuelt (eller la den stå tom hvis tilbudet ligger i et eksternt system). Vi maser ikke om signatur; vi viser bare status.
-- To kolonner ved siden av hverandre gir partneren et øyeblikkelig margin-bilde uten en egen «Rabatt»-kolonne (som kan bli misvisende når tallene har ulik betydning).
-
-## Tekniske detaljer
-
-- Ingen backend-endringer; alt er demo-data i `MSPInvoices.tsx`.
-- Status-pill bruker eksisterende semantiske tokens (`bg-success/10`, `bg-warning/10`, `bg-muted`).
-- Tooltip på «Mynder kr/mnd»-header forklarer formelen (Core + modul + regelverk).
-- i18n: norsk strenger i tråd med eksisterende side (siden bruker hardkodet `nb-NO` allerede).
+## Out of scope
+- Persistere baseline-svar i Supabase (kan komme i neste iterasjon — nå holder vi det i localStorage på samme måte som aktiverte regelverk).
+- Endre selve gap-analyse-algoritmen — den bruker fortsatt aktiverte regelverk; baseline-svarene blir vist som kontekst og kan brukes av Lara senere.
+- Endringer på Trust Center-/Edit Profile-siden (`TrustCenterEditProfile.tsx`) — vi gjenbruker dataene derfra, men endrer ikke den UI-en.
