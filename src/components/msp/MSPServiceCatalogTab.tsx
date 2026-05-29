@@ -303,13 +303,21 @@ export function MSPServiceCatalogTab() {
           </div>
           <div className="space-y-1">
             <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1">
+              <Sparkles className="h-3 w-3" /> Tjenester i katalog
+            </div>
+            <div className="text-lg font-semibold text-foreground tabular-nums">
+              {extras.length}
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                valgt{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
+              </span>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1">
               <TrendingUp className="h-3 w-3" /> Samlet potensial
             </div>
             <div className="text-lg font-semibold text-foreground tabular-nums">
               {formatNOK(grandPrice)}
-              <span className="ml-2 text-xs font-normal text-muted-foreground">
-                {extras.length} tjenester{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
-              </span>
             </div>
           </div>
         </div>
