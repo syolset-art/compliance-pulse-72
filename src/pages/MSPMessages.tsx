@@ -685,9 +685,6 @@ function CampaignRow({
             {respondedCount} svar
           </p>
         </div>
-        <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30">
-          Kampanje
-        </Badge>
         {expanded ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
