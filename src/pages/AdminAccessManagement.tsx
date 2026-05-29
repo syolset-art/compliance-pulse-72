@@ -509,6 +509,118 @@ const AdminAccessManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Change role dialog */}
+      <Dialog open={!!editMember} onOpenChange={(o) => !o && setEditMember(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-primary" />
+              {isNb ? "Endre rolle" : "Change role"}
+            </DialogTitle>
+            <DialogDescription>
+              {isNb
+                ? "Velg ny rolle for brukeren. Endringen logges i revisjonssporet."
+                : "Select a new role for the user. The change is logged in the audit trail."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {editMember && (
+            <div className="space-y-4 py-2">
+              <div className="flex items-center gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
+                  {editMember.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{editMember.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{editMember.email}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs">
+                <div className="flex-1">
+                  <p className="text-muted-foreground mb-1">{isNb ? "Nåværende rolle" : "Current role"}</p>
+                  <Badge variant="secondary" className="text-[13px]">
+                    {isNb ? getRoleDef(editMember.role).labelNb : getRoleDef(editMember.role).labelEn}
+                  </Badge>
+                </div>
+                <div className="text-muted-foreground">→</div>
+                <div className="flex-1">
+                  <p className="text-muted-foreground mb-1">{isNb ? "Ny rolle" : "New role"}</p>
+                  <Badge className="text-[13px]">
+                    {isNb ? getRoleDef(editRole).labelNb : getRoleDef(editRole).labelEn}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">
+                  {isNb ? "Velg rolle" : "Select role"}
+                </label>
+                <Select value={editRole} onValueChange={setEditRole}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {visibleRoles.map(r => (
+                      <SelectItem key={r.key} value={r.key}>
+                        {isNb ? r.labelNb : r.labelEn}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[13px] text-muted-foreground leading-snug">
+                  {isNb ? getRoleDef(editRole).descNb : getRoleDef(editRole).descEn}
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">
+                  {isNb ? "Begrunnelse (valgfritt)" : "Reason (optional)"}
+                </label>
+                <Input
+                  value={editReason}
+                  onChange={(e) => setEditReason(e.target.value)}
+                  placeholder={isNb ? "F.eks. ny stilling, omorganisering…" : "E.g. new position, reorganization…"}
+                />
+              </div>
+
+              {editRole === "admin" && editMember.role !== "admin" && (
+                <div className="flex items-start gap-2 p-2.5 rounded-lg border border-warning/30 bg-warning/10">
+                  <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" />
+                  <p className="text-xs text-foreground">
+                    {isNb
+                      ? "Administrator gir full tilgang til alle moduler, innstillinger og data."
+                      : "Administrator grants full access to all modules, settings and data."}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditMember(null)}>
+              {isNb ? "Avbryt" : "Cancel"}
+            </Button>
+            <Button
+              disabled={!editMember || editRole === editMember?.role}
+              onClick={() => {
+                if (!editMember) return;
+                setMembers(prev => prev.map(m => m.id === editMember.id ? { ...m, role: editRole } : m));
+                const newLabel = isNb ? getRoleDef(editRole).labelNb : getRoleDef(editRole).labelEn;
+                toast.success(
+                  isNb
+                    ? `${editMember.name} har nå rollen ${newLabel}`
+                    : `${editMember.name} now has the role ${newLabel}`
+                );
+                setEditMember(null);
+              }}
+            >
+              {isNb ? "Lagre endring" : "Save change"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 };
