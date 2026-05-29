@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { NavigationModeProvider } from "@/hooks/useNavigationMode";
 import { ActiveOrganizationProvider } from "@/contexts/ActiveOrganizationContext";
+import { WorkspaceModeProvider } from "@/contexts/WorkspaceModeContext";
 import { GlobalChatProvider } from "@/components/GlobalChatProvider";
 import { AuthProvider } from "@/hooks/useAuth";
 import { DemoSyncProvider } from "@/contexts/DemoSyncContext";
@@ -104,6 +105,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ActiveOrganizationProvider>
+          <WorkspaceModeProvider>
           <NavigationModeProvider>
             <TooltipProvider>
               <Toaster />
@@ -207,6 +209,7 @@ const App = () => (
               </DemoSyncProvider>
             </TooltipProvider>
           </NavigationModeProvider>
+          </WorkspaceModeProvider>
           </ActiveOrganizationProvider>
         </AuthProvider>
       </BrowserRouter>
