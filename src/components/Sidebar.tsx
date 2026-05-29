@@ -268,6 +268,20 @@ const SidebarContent = () => {
   const isMynderAdmin = _adminRoles.includes("super_admin") || _adminRoles.includes("daglig_leder");
   const { mode: workspaceMode } = useWorkspaceMode();
 
+  // Check if the current company is already an MSP partner
+  const { data: companyProfile } = useQuery({
+    queryKey: ["sidebar-company-profile"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("company_profile")
+        .select("is_msp_partner")
+        .limit(1)
+        .maybeSingle();
+      return data as { is_msp_partner: boolean } | null;
+    },
+  });
+  const isPartner = companyProfile?.is_msp_partner === true;
+
   // Optimistic activation skeletons — cleared as soon as the underlying
   // subscription/activated-services queries confirm access (or as a final
   // 30s safety net if something goes wrong upstream).
