@@ -90,17 +90,17 @@ export default function MSPInvoices() {
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar />
         <main className="flex-1 overflow-auto pt-11">
-          <div className="container max-w-6xl mx-auto py-8 px-4 md:px-8 space-y-6">
-            <div className="flex items-start justify-between gap-4">
+          <div className="container max-w-6xl mx-auto py-6 md:py-8 px-4 md:px-8 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
+                <h1 className="text-xl md:text-2xl font-semibold text-foreground">Fakturagrunnlag</h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Kunder partneren har lagt til — gruppert per måned · {customers.length} kunder ·{" "}
                   <span className="text-foreground font-medium">{fmt(mynderGrandTotal)} kr/mnd</span> til Mynder ·{" "}
                   <span className="text-foreground font-medium">{fmt(offerGrandTotal)} kr/mnd</span> tilbudt sluttkunde
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button variant="outline" size="sm" className="gap-2" onClick={() => toast.success("Eksporterer fakturagrunnlag…")}>
                   <Download className="h-4 w-4" />
                   Eksporter
@@ -116,7 +116,7 @@ export default function MSPInvoices() {
 
             {grouped.map((g) => (
               <Card key={g.key} className="overflow-hidden">
-                <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-border bg-muted/30">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-4 py-3 border-b border-border bg-muted/30">
                   <div>
                     <div className="text-sm font-semibold text-foreground capitalize">{g.label}</div>
                     <div className="text-xs text-muted-foreground">
@@ -126,7 +126,7 @@ export default function MSPInvoices() {
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-6 text-right">
+                  <div className="flex gap-6 sm:text-right">
                     <div>
                       <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Til Mynder</div>
                       <div className="text-sm font-semibold text-foreground">{fmt(g.mynderTotal)} kr/mnd</div>
@@ -137,7 +137,90 @@ export default function MSPInvoices() {
                     </div>
                   </div>
                 </div>
-                <div className="overflow-x-auto">
+                {/* Mobile / tablet: kort-liste */}
+                <div className="md:hidden divide-y divide-border">
+                  {g.rows.map((c) => {
+                    const status = offerStatusMeta[c.offerStatus];
+                    const StatusIcon = status.Icon;
+                    return (
+                      <div key={c.id} className="p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <Link
+                              to={`/msp-dashboard/${c.id}`}
+                              className="font-medium text-foreground hover:text-primary hover:underline underline-offset-2 block truncate"
+                            >
+                              {c.name}
+                            </Link>
+                            <div className="text-xs text-muted-foreground">
+                              Lagt til {new Date(c.createdAt).toLocaleDateString("nb-NO")} · {c.users} brukere
+                            </div>
+                          </div>
+                          <Badge variant="outline" className={cn("text-xs shrink-0", tierMeta[c.coreTier])}>
+                            {c.coreTier}
+                          </Badge>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          {c.vendorModule ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-success">
+                              <CheckCircle2 className="h-3.5 w-3.5" /> Leverandørmodul
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                              <Minus className="h-3.5 w-3.5" /> Ingen modul
+                            </span>
+                          )}
+                          {c.frameworks.map((f) => (
+                            <span key={f} className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                              {f}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border">
+                          <div>
+                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Mynder kr/mnd</div>
+                            <div className="text-sm font-semibold text-foreground tabular-nums">{fmt(c.mynderKr)}</div>
+                          </div>
+                          <div>
+                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Tilbud kr/mnd</div>
+                            <div className="text-sm text-foreground tabular-nums">
+                              {c.offerPriceKr !== null ? fmt(c.offerPriceKr) : "—"}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={cn("inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border", status.cls)}>
+                            <StatusIcon className="h-3 w-3" />
+                            {status.label}
+                          </span>
+                          {c.offerDoc ? (
+                            <button
+                              type="button"
+                              onClick={() => toast.success("Åpner tilbud…")}
+                              className="inline-flex items-center gap-1 text-xs text-primary hover:opacity-80"
+                            >
+                              <FileText className="h-4 w-4" /> Se tilbud
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => toast.info("Last opp tilbudsdokument (demo)")}
+                              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              <Upload className="h-4 w-4" /> Last opp tilbud
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop: tabell */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-muted/20 text-xs text-muted-foreground">
                       <tr>
