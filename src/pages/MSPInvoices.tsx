@@ -184,7 +184,7 @@ export default function MSPInvoices() {
                             <div className="text-sm font-semibold text-foreground tabular-nums">{fmt(c.mynderKr)}</div>
                           </div>
                           <div>
-                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Tilbud kr/mnd</div>
+                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Tilbud</div>
                             <div className="text-sm text-foreground tabular-nums">
                               {c.offerPriceKr !== null ? fmt(c.offerPriceKr) : "—"}
                             </div>
@@ -245,7 +245,7 @@ export default function MSPInvoices() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span className="inline-flex items-center gap-1 cursor-help">
-                                Tilbud kr/mnd <Info className="h-3 w-3" />
+                                Tilbud <Info className="h-3 w-3" />
                               </span>
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-[260px] text-xs">
