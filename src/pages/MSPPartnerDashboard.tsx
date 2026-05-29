@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -1105,7 +1106,16 @@ function NewsWidget() {
 
 export default function MSPPartnerDashboard() {
   const navigate = useNavigate();
+  const { mode } = useWorkspaceMode();
   const [activeSuggestion, setActiveSuggestion] = useState<LaraSuggestion | null>(null);
+
+  // Partner-dashbordet skal kun vises i Partner-modus. I "Min virksomhet"
+  // sendes brukeren tilbake til hoveddashbordet for å unngå at partner-
+  // navigasjon (ROI-kalkulator, Salgsguide osv.) blir synlig.
+  if (mode === "compliance") {
+    return <Navigate to="/" replace />;
+  }
+
 
   return (
     <div className="flex min-h-screen w-full bg-background">

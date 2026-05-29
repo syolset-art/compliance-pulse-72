@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Download, TrendingUp, Wallet, Rocket, Users, BarChart3, Info, ShieldCheck, Zap } from "lucide-react";
 import { LICENSE_TIERS, type LicenseTier } from "@/lib/mspLicenseUtils";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import jsPDF from "jspdf";
 import { addMynderFooter } from "@/lib/pdfBranding";
 
@@ -25,11 +26,14 @@ const COMMISSION_STANDARD = 0.20;
 const COMMISSION_BULK = 0.50;
 
 export default function MSPROICalculator() {
+  const { mode } = useWorkspaceMode();
   const [customers, setCustomers] = useState(5);
   const [customerSize, setCustomerSize] = useState<CustomerSize>("S");
   const [selectedTierId, setSelectedTierId] = useState(LICENSE_TIERS[0].id);
   const [salesModel, setSalesModel] = useState<SalesModel>("bulk");
   const [hourlyRate, setHourlyRate] = useState(1200);
+
+  if (mode === "compliance") return <Navigate to="/" replace />;
 
   const tier = LICENSE_TIERS.find(t => t.id === selectedTierId) ?? LICENSE_TIERS[0];
   const isBulk = salesModel === "bulk";

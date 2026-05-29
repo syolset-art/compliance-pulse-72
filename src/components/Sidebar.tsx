@@ -209,7 +209,7 @@ const TrustCenterMenu = () => {
 const PartnerNav = () => {
   const location = useLocation();
   const { t, i18n } = useTranslation();
-  const isNb = i18n.language === "nb";
+  const isNb = i18n.language?.startsWith("nb") || i18n.language === "no";
 
   const items = [
     { name: isNb ? "Dashbord" : "Dashboard", href: "/msp-partner", icon: LayoutDashboard },
