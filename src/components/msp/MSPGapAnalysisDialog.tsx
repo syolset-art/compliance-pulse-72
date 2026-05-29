@@ -137,6 +137,21 @@ export function MSPGapAnalysisDialog({
     ? DEMO_GAPS.filter(f => f.framework_id === initialFrameworkId)
     : DEMO_GAPS;
 
+  const frameworkLabel = visibleFrameworks[0]?.framework_name ?? "regelverket";
+
+  // Agentic prosess: idle → running → done → results
+  type Phase = "running" | "done" | "results";
+  const [phase, setPhase] = useState<Phase>("running");
+  const [stepIndex, setStepIndex] = useState(0);
+
+  const PROCESS_STEPS: { icon: React.ReactNode; label: string; detail: string }[] = [
+    { icon: <BookOpen className="h-4 w-4" />, label: "Henter aktive kontroller", detail: `Laster kravsett for ${frameworkLabel}` },
+    { icon: <Database className="h-4 w-4" />, label: "Samler bevis fra kunden", detail: "Dokumenter, integrasjoner og tidligere svar" },
+    { icon: <GitCompare className="h-4 w-4" />, label: "Matcher kontroller mot bevis", detail: "Lara sammenligner krav med tilgjengelig dokumentasjon" },
+    { icon: <AlertTriangle className="h-4 w-4" />, label: "Identifiserer gap og kritikalitet", detail: "Klassifiserer mangler etter alvorlighet" },
+    { icon: <Sparkles className="h-4 w-4" />, label: "Foreslår tjenester som lukker gap", detail: "Kobler gap til tjenestekatalogen din" },
+  ];
+
   // Open/closed state per framework — første åpen, resten lukket (multi-mode)
   const [openIds, setOpenIds] = useState<Record<string, boolean>>({});
 
@@ -146,7 +161,28 @@ export function MSPGapAnalysisDialog({
     visibleFrameworks.forEach((f, i) => { init[f.framework_id] = singleMode || i === 0; });
     setOpenIds(init);
     setExpandedIds({});
+    // Start prosessen på nytt hver gang dialogen åpnes
+    setPhase("running");
+    setStepIndex(0);
   }, [open, initialFrameworkId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Driv prosess-stegene
+  useEffect(() => {
+    if (!open || phase !== "running") return;
+    if (stepIndex >= PROCESS_STEPS.length) {
+      const t = setTimeout(() => setPhase("done"), 350);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setStepIndex(i => i + 1), 650);
+    return () => clearTimeout(t);
+  }, [open, phase, stepIndex, PROCESS_STEPS.length]);
+
+  // Auto-gå til resultater etter "fullført"-bekreftelse
+  useEffect(() => {
+    if (phase !== "done") return;
+    const t = setTimeout(() => setPhase("results"), 900);
+    return () => clearTimeout(t);
+  }, [phase]);
 
   // Per-framework "Vis flere" expansion
   const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
