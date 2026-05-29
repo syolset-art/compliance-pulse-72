@@ -215,6 +215,7 @@ const SidebarContent = () => {
   const { hasCoreAccess, hasRegistriesAccess, selectedCoreAtOnboarding, selectedRegistriesAtOnboarding, needsUpgrade } = useSubscription();
   const { allRoles: _adminRoles } = useUserRole();
   const isMynderAdmin = _adminRoles.includes("super_admin") || _adminRoles.includes("daglig_leder");
+  const { mode: workspaceMode } = useWorkspaceMode();
 
   // Optimistic activation skeletons — cleared as soon as the underlying
   // subscription/activated-services queries confirm access (or as a final
