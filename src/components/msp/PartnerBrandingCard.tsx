@@ -44,7 +44,7 @@ export function PartnerBrandingCard() {
       domain: domain.trim() || undefined,
       tagline: tagline.trim() || undefined,
     });
-    toast.success("Tilbudsmerking lagret");
+    toast.success("Tilbudsmal lagret");
   };
 
   const previewName = name.trim() || branding.autoName;
