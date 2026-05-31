@@ -48,6 +48,39 @@ export function BaselineQuestionsDrawer({
   })();
 
   const [tab, setTab] = useState(initialArea);
+  // Draft buffer — endringer commit'es først ved "Gå videre"/"Ferdig".
+  const [draft, setDraft] = useState<MaturityAnswers>(answers);
+
+  // Synk når drawer åpnes på nytt eller eksterne svar endres.
+  useEffect(() => {
+    if (open) setDraft(answers);
+  }, [open, answers]);
+
+  const setDraftAnswer = (qid: string, val: MaturityAnswer) =>
+    setDraft((prev) => ({ ...prev, [qid]: val }));
+
+  const commit = () => {
+    Object.entries(draft).forEach(([qid, val]) => {
+      if (answers[qid] !== val) onAnswer(qid, val);
+    });
+  };
+
+  const currentIndex = MATURITY_AREAS.findIndex((a) => a.id === tab);
+  const isLastArea = currentIndex === MATURITY_AREAS.length - 1;
+
+  const handleNext = () => {
+    if (isLastArea) {
+      commit();
+      onOpenChange(false);
+    } else {
+      setTab(MATURITY_AREAS[currentIndex + 1].id);
+    }
+  };
+
+  const handleDiscard = () => {
+    setDraft(answers); // forkast endringer
+    onOpenChange(false);
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
