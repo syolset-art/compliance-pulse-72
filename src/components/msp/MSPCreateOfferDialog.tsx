@@ -213,6 +213,33 @@ export function MSPCreateOfferDialog({
     doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
     y += 28;
 
+    // Covered controls
+    if (safeCoveredControls.length > 0) {
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text("DEKKER KONTROLLPUNKTER", margin, y);
+      y += 14;
+      safeCoveredControls.forEach(group => {
+        if (y > 760) { doc.addPage(); y = margin; }
+        doc.setFontSize(11);
+        doc.setTextColor(20);
+        doc.text(`${group.frameworkLabel} · ${group.controlIds.length} kontrollpunkt${group.controlIds.length === 1 ? "" : "er"}`, margin, y);
+        y += 14;
+        doc.setFontSize(10);
+        doc.setTextColor(60);
+        group.controlIds.forEach(id => {
+          if (y > 780) { doc.addPage(); y = margin; }
+          const label = getControlLabel(group.frameworkId, id);
+          const lines = doc.splitTextToSize(`• ${id} — ${label}`, pageWidth - margin * 2);
+          doc.text(lines, margin + 8, y);
+          y += lines.length * 12;
+        });
+        y += 8;
+      });
+      y += 6;
+    }
+
+
     // Attachment
     if (attachGap && gapFrameworkId) {
       doc.setFontSize(10);
