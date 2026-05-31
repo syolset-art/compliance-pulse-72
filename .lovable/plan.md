@@ -1,35 +1,40 @@
 ## Mål
-Legg til arkfaner på siden **Tjenester** (`/msp-services`) med to faner:
-1. **Tjenestekatalog** (nåværende innhold)
-2. **Innstillinger** (ny) — overordnet timepris + tilbudsmal (logo, slagord)
+Legg til en tredje arkfane **"Hvordan virker det"** på siden Tjenester (`/msp-services`) som forklarer hele verdikjeden fra tjenestedefinisjon til levert sluttrapport, og hvordan dette beriker kundens trust profile.
 
 ## Endringer
 
 ### 1. `src/pages/MSPServiceCatalog.tsx`
-- Pakk innholdet i `<Tabs defaultValue="catalog">` med `TabsList` + to `TabsTrigger`:
-  - "Tjenestekatalog" (`value="catalog"`) — viser `<MSPServiceCatalogTab />`
-  - "Innstillinger" (`value="settings"`) — viser ny `<MSPServiceSettingsTab />`
-- Behold sidetittel "Tjenester" og ingress.
+- Legg til tredje `TabsTrigger` + `TabsContent` med `value="how-it-works"`, label **"Hvordan virker det"**.
+- Rekkefølge: Tjenestekatalog → Innstillinger → Hvordan virker det.
 
-### 2. Ny hook `src/hooks/useServiceDefaults.ts`
-- Persister overordnet standard timepris i `localStorage` (`msp-service-defaults-v1`), default `1500`.
-- Samme mønster som `usePartnerBranding` (custom event for sync mellom hook-instanser).
-- Eksporterer `{ defaultHourlyRate, setDefaultHourlyRate }`.
+### 2. Ny komponent `src/components/msp/MSPServiceHowItWorksTab.tsx`
+Pedagogisk side med 5 steg + outcomes-seksjon nederst. Apple-aktig minimal stil, bruker semantiske tokens.
 
-### 3. `src/components/msp/MSPServiceCatalogTab.tsx`
-- Bytt lokal `useState<number>(1500)` for `hourlyRate` til initialverdi fra `useServiceDefaults()`.
-- Beholder lokal state slik at brukeren fortsatt kan justere pr økt/visning, men den initialiseres fra standarden. Per-tjeneste-overstyring eksisterer allerede i `ServiceForm` (timepris-felt).
+**Hero-intro (kort):**
+> "Gjør dine eksisterende IT- og sikkerhetstjenester om til målbar compliance-leveranse."
+> Underlinje: "Tjenestene du allerede leverer, mappes mot kontrollpunkter i kundens valgte regelverk – og dokumenteres automatisk."
 
-### 4. Ny komponent `src/components/msp/MSPServiceSettingsTab.tsx`
-To kort:
-- **Standard timepris**: number-input bundet til `useServiceDefaults`, hjelpetekst: "Brukes som utgangspunkt for alle tjenester. Du kan overstyre pr tjeneste i tjenestekortet."
-- **Tilbudsmal**: gjenbruker `<PartnerBrandingCard />` (logo + navn/org) og legger til nytt felt **Slagord** (tagline) lagret via utvidet `usePartnerBranding`.
+**5 steg som vertikale kort med ikon + tittel + tekst** (én kolonne, kompakte kort med `Card`):
 
-### 5. Utvid `usePartnerBranding`
-- Legg til `tagline?: string` i `PartnerBrandingOverrides` og `PartnerBranding` (auto-fallback tom streng).
-- `PartnerBrandingCard.tsx`: nytt input-felt "Slagord (valgfritt)" som vises i forhåndsvisningen under partnernavn.
+1. **Definer dine tjenester** (`Wrench`) — "Beskriv IT- og sikkerhetstjenestene du allerede leverer i dag — backup, MDR, identitetsstyring, drift osv. Du legger inn aktiviteter, estimat og hvilke kontroller de dekker."
+2. **Auto-mapping mot regelverk** (`GitBranch`) — "Lara mapper hver tjeneste mot kontrollpunkter på tvers av kundens valgte regelverk (NIS2, ISO 27001, GDPR osv.) — én tjeneste kan dekke kontroller i flere regelverk samtidig."
+3. **Bli en del av tilbudet** (`FileText`) — "Tjenestene blir byggeklosser i tilbudet til kunden. Pris og omfang beregnes fra dine standard timesatser, og kunden ser tydelig hvilke kontrollpunkter som dekkes."
+4. **Lever og dokumenter underveis** (`ClipboardCheck`) — "Når du utfører arbeidet, besvarer du korte spørsmål knyttet til hver aktivitet. Svarene mappes automatisk til kontrollpunkter — på tvers av alle valgte regelverk — uten dobbeltarbeid."
+5. **Sluttrapport til kunden** (`FileDown`) — "Når leveransen er ferdig, genereres en sluttrapport automatisk med utført arbeid, bevis og oppdatert modenhetsstatus. Last ned og send til kunden i ett klikk."
+
+**Outcomes-seksjon "Slik berikes kundens trust profile"** (3 små kort i grid):
+- **Modenhet øker** (`TrendingUp`, success-token) — "Hvert kontrollpunkt du leverer på, hever kundens modenhetsnivå (0–4) i berørte regelverk."
+- **Synlig leverandør** (`Users`, primary-token) — "Kunden ser tydelig hvilke kontroller du som partner står bak — du blir en synlig del av deres compliance-historie."
+- **Automatisk bevis** (`ShieldCheck`, primary-token) — "Svar og dokumentasjon fra leveransen blir bevis i kundens trust profile — alltid oppdatert, alltid sporbar."
+
+**Avslutningsstripe** med to CTA-knapper:
+- Primær: "Gå til tjenestekatalog" → bytter til `catalog`-fanen (via callback prop fra `MSPServiceCatalog.tsx` som setter `Tabs.value`).
+- Sekundær (outline): "Sett standard timepris" → bytter til `settings`-fanen.
+
+For å støtte navigering mellom faner, gjør `Tabs` i `MSPServiceCatalog.tsx` controlled (`value`/`onValueChange` med lokal `useState`), og send en `onNavigate(tab: string)` prop til `MSPServiceHowItWorksTab`.
 
 ## Teknisk
-- Bruker shadcn `Tabs`, `Card`, `Input`, `Label` — alt allerede i prosjektet.
-- Ingen DB-endringer; alle innstillinger lever i `localStorage` (samme mønster som eksisterende branding).
-- Semantiske tokens kun (ingen rå farger).
+- Kun frontend, ingen DB-endringer.
+- Bruker eksisterende `Card`, `Button`, `Tabs` fra shadcn og `lucide-react` ikoner.
+- Alle farger via semantiske tokens (`text-primary`, `bg-primary/10`, `text-success`, `text-muted-foreground`).
+- Maks bredde matcher container (`max-w-5xl`); steg-kort er fulle bredde, outcomes er `md:grid-cols-3`.

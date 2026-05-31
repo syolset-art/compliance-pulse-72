@@ -1,9 +1,15 @@
+import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MSPServiceCatalogTab } from "@/components/msp/MSPServiceCatalogTab";
 import { MSPServiceSettingsTab } from "@/components/msp/MSPServiceSettingsTab";
+import { MSPServiceHowItWorksTab } from "@/components/msp/MSPServiceHowItWorksTab";
+
+type ServiceTab = "catalog" | "settings" | "how-it-works";
 
 export default function MSPServiceCatalog() {
+  const [tab, setTab] = useState<ServiceTab>("catalog");
+
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
@@ -16,16 +22,20 @@ export default function MSPServiceCatalog() {
             </p>
           </header>
 
-          <Tabs defaultValue="catalog" className="space-y-6">
+          <Tabs value={tab} onValueChange={(v) => setTab(v as ServiceTab)} className="space-y-6">
             <TabsList>
               <TabsTrigger value="catalog">Tjenestekatalog</TabsTrigger>
               <TabsTrigger value="settings">Innstillinger</TabsTrigger>
+              <TabsTrigger value="how-it-works">Hvordan virker det</TabsTrigger>
             </TabsList>
             <TabsContent value="catalog" className="space-y-6">
               <MSPServiceCatalogTab />
             </TabsContent>
             <TabsContent value="settings" className="space-y-6">
               <MSPServiceSettingsTab />
+            </TabsContent>
+            <TabsContent value="how-it-works" className="space-y-6">
+              <MSPServiceHowItWorksTab onNavigate={(t) => setTab(t)} />
             </TabsContent>
           </Tabs>
         </div>
