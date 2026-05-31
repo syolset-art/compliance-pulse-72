@@ -824,13 +824,17 @@ function OrgStep({
         </div>
       </div>
 
-      <WebsiteVerifyField
-        website={website}
-        setWebsite={setWebsite}
-        websiteVerified={websiteVerified}
-        onVerifyWebsite={onVerifyWebsite}
-        enabled={verified}
-      />
+      <WebsiteChoice hasWebsite={hasWebsite} setHasWebsite={setHasWebsite} disabled={!verified} />
+
+      {hasWebsite === "yes" && (
+        <WebsiteVerifyField
+          website={website}
+          setWebsite={setWebsite}
+          websiteVerified={websiteVerified}
+          onVerifyWebsite={onVerifyWebsite}
+          enabled={verified}
+        />
+      )}
 
       {verified && (
         <div className="flex items-center gap-2 text-xs text-success">
