@@ -313,7 +313,7 @@ export function MSPCustomerTrustProfileCard({
           setInviteOpen(false);
           setInvited(true);
           toast.success("Invitasjon sendt", {
-            description: `${contactName} har fått en e-post med lenke for å claime Trust Profile.`,
+            description: `${contactName} har fått en e-post med lenke for å aktivere Trust Profile.`,
           });
         }}
       />
