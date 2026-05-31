@@ -542,7 +542,7 @@ export default function ActivateTrustProfileWizard({
         {(hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
-      {step < 6 ? (
+      {step < 7 ? (
         <div className="flex gap-2">
           {step === 2 && (
             <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-full">
@@ -553,8 +553,9 @@ export default function ActivateTrustProfileWizard({
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
             {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
-            {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
-            {step === 5 && (<>Velg synlighet <ArrowRight className="h-4 w-4" /></>)}
+            {step === 4 && (<>Til kritiske leverandører <ArrowRight className="h-4 w-4" /></>)}
+            {step === 5 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
+            {step === 6 && (<>Velg synlighet <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
