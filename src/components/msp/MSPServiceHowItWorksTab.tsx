@@ -133,16 +133,16 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
       {/* CTA-stripe */}
       <Card className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-muted/30">
         <div>
-          <p className="text-sm font-semibold text-foreground">Klar til å sette opp dine tjenester?</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-base font-semibold text-foreground">Klar til å sette opp dine tjenester?</p>
+          <p className="text-sm text-muted-foreground">
             Start med katalogen, eller juster standard timepris og tilbudsmal først.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" className="h-9 text-xs gap-1.5" onClick={() => onNavigate?.("catalog")}>
-            Gå til tjenestekatalog <ArrowRight className="h-3.5 w-3.5" />
+          <Button size="sm" className="h-10 text-sm gap-1.5" onClick={() => onNavigate?.("catalog")}>
+            Gå til tjenestekatalog <ArrowRight className="h-4 w-4" />
           </Button>
-          <Button size="sm" variant="outline" className="h-9 text-xs" onClick={() => onNavigate?.("settings")}>
+          <Button size="sm" variant="outline" className="h-10 text-sm" onClick={() => onNavigate?.("settings")}>
             Sett standard timepris
           </Button>
         </div>
