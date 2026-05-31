@@ -508,6 +508,44 @@ export function MSPCreateOfferDialog({
                 </span>
               </div>
 
+              {safeCoveredControls.length > 0 && (
+                <div className="pt-3 border-t border-border space-y-2">
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekker kontrollpunkter</p>
+                    <span className="text-[11px] text-muted-foreground">
+                      {totalControlPoints} totalt · {safeCoveredControls.length} regelverk
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {safeCoveredControls.map(group => {
+                      const theme = getFrameworkTheme(group.frameworkId);
+                      return (
+                        <div key={group.frameworkId} className="space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold border", theme.chip)}>
+                              {group.frameworkLabel}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground">
+                              {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
+                            </span>
+                          </div>
+                          <ul className="space-y-0.5 pl-1">
+                            {group.controlIds.map(id => (
+                              <li key={id} className="text-[12px] text-foreground/85 flex gap-2">
+                                <span className="font-mono text-muted-foreground shrink-0">{id}</span>
+                                <span>— {getControlLabel(group.frameworkId, id)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+
+
               {attachGap && gapFrameworkId && (
                 <div className="pt-3 border-t border-border">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1.5">Vedlegg</p>
