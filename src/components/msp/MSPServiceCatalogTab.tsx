@@ -441,21 +441,21 @@ export function MSPServiceCatalogTab() {
       {extras.some((e) => e.isMynder) && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <h3 className="text-base font-semibold text-foreground">Mynder-tjenester</h3>
-            <span className="text-sm text-muted-foreground">Inkludert i alle leveranser</span>
+            <h3 className="text-lg font-semibold text-foreground">Mynder-tjenester</h3>
+            <span className="text-base text-foreground/70">Inkludert i alle leveranser</span>
           </div>
           <div className="divide-y divide-border rounded-md border border-border bg-card">
             {extras.filter((e) => e.isMynder).map((e) => {
               const price = e.hours * hourlyRate;
               return (
-                <div key={e.id} className="flex items-center gap-3 px-3 py-2">
+                <div key={e.id} className="flex items-center gap-3 px-3 py-3">
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
+                    <span className="text-base font-medium text-foreground truncate">{e.name}</span>
                   </div>
-                  <div className="text-sm text-muted-foreground tabular-nums whitespace-nowrap">
+                  <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
                     {e.hours} t
                   </div>
-                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
+                  <div className="text-base font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
                     {formatNOK(price)}
                   </div>
                 </div>
@@ -469,8 +469,8 @@ export function MSPServiceCatalogTab() {
       {extras.some((e) => !e.isMynder) && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <h3 className="text-base font-semibold text-foreground">Mine tjenester</h3>
-            <span className="text-sm text-muted-foreground">
+            <h3 className="text-lg font-semibold text-foreground">Mine tjenester</h3>
+            <span className="text-base text-foreground/70">
               {extras.filter((e) => !e.isMynder).length} tjenester
             </span>
           </div>
@@ -478,14 +478,14 @@ export function MSPServiceCatalogTab() {
             {extras.filter((e) => !e.isMynder).map((e) => {
               const price = e.priceOverride ?? e.hours * hourlyRate;
               return (
-                <div key={e.id} className="flex items-center gap-3 px-3 py-2">
+                <div key={e.id} className="flex items-center gap-3 px-3 py-3">
                   <div className="flex-1 min-w-0 flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
+                    <span className="text-base font-medium text-foreground truncate">{e.name}</span>
                   </div>
-                  <div className="text-sm text-muted-foreground tabular-nums whitespace-nowrap">
+                  <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
                     {e.hours} t
                   </div>
-                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
+                  <div className="text-base font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
                     {formatNOK(price)}
                   </div>
 
@@ -493,19 +493,19 @@ export function MSPServiceCatalogTab() {
                     variant="ghost"
                     size="icon"
                     onClick={() => { setEditingId(e.id); setManualOpen(true); }}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    className="h-11 w-11 text-foreground/70 hover:text-foreground"
                     aria-label="Rediger tjeneste"
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-4 w-4" aria-hidden="true" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removeExtra(e.id)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    className="h-11 w-11 text-foreground/70 hover:text-destructive"
                     aria-label="Fjern tjeneste"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
               );
