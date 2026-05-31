@@ -167,16 +167,16 @@ export function MSPCustomerTrustProfileCard({
           <Card className="p-4 space-y-3">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h3 className="text-sm font-semibold text-foreground">Kontrollområder per regelverk</h3>
-                <p className="text-xs text-muted-foreground">Modenhet 0–4 · 4 kjernedomener</p>
+                <h3 className="text-base font-semibold text-foreground">Kontrollområder per regelverk</h3>
+                <p className="text-sm text-muted-foreground mt-0.5">Modenhet 0–4 · 4 kjernedomener</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <div className="text-right">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Trust score</p>
-                  <p className="text-xs text-muted-foreground">Snittet av områdene</p>
+                  <p className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Trust score</p>
+                  <p className="text-sm text-muted-foreground">Snittet av områdene</p>
                 </div>
                 <div className="relative h-14 w-14 shrink-0">
-                  <svg viewBox="0 0 64 64" className="h-14 w-14 -rotate-90">
+                  <svg viewBox="0 0 64 64" className="h-14 w-14 -rotate-90" aria-hidden="true">
                     <circle cx="32" cy="32" r={r} className="fill-none stroke-muted" strokeWidth="6" />
                     <circle
                       cx="32" cy="32" r={r}
@@ -200,25 +200,25 @@ export function MSPCustomerTrustProfileCard({
                 return (
                   <div key={d.key} className="rounded-lg border border-border/60 p-3">
                     <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <d.Icon className="h-3.5 w-3.5 text-foreground/70 shrink-0" />
-                        <p className="text-[13px] font-medium text-foreground truncate">{d.name}</p>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <d.Icon className="h-4 w-4 text-foreground/70 shrink-0" aria-hidden="true" />
+                        <p className="text-sm font-semibold text-foreground truncate">{d.name}</p>
                         {d.source === "lara" ? (
-                          <Badge variant="outline" className="text-xs gap-1 px-1.5 py-0 bg-primary/5 text-primary border-primary/20">
-                            <Sparkles className="h-2.5 w-2.5" />
+                          <Badge variant="outline" className="text-xs gap-1 px-1.5 py-0 bg-primary/10 text-primary border-primary/30">
+                            <Sparkles className="h-3 w-3" aria-hidden="true" />
                             Lara
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="text-xs px-1.5 py-0 bg-muted text-muted-foreground border-border">
+                          <Badge variant="outline" className="text-xs px-1.5 py-0 bg-muted text-foreground/80 border-border">
                             Selvrapportert
                           </Badge>
                         )}
                       </div>
-                      <span className={`text-[13px] font-semibold ${tone.text} shrink-0`}>
+                      <span className={`text-sm font-semibold ${tone.text} shrink-0`}>
                         {d.level}<span className="text-muted-foreground font-normal">/4</span>
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-snug mb-1.5">{d.description}</p>
+                    <p className="text-sm text-foreground/75 leading-relaxed mb-2">{d.description}</p>
                     <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                       <div className={`h-full ${tone.bar} rounded-full transition-all`} style={{ width: `${pct}%` }} />
                     </div>
