@@ -83,8 +83,8 @@ export function MSPCustomerTrustProfileCard({
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs text-muted-foreground">{customerName} · Trust Profile</p>
-          <h2 className="text-lg font-semibold text-foreground">Kundens visningskort utad</h2>
+          <p className="text-sm text-muted-foreground">{customerName} · Trust Profile</p>
+          <h2 className="text-xl font-semibold text-foreground">Kundens visningskort utad</h2>
         </div>
         <TooltipProvider delayDuration={150}>
           <Tooltip>
@@ -94,19 +94,19 @@ export function MSPCustomerTrustProfileCard({
                   variant="outline"
                   size="sm"
                   disabled={!isPublished}
-                  className="gap-1.5 h-8 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="gap-1.5 h-9 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isPublished ? (
-                    <ExternalLink className="h-3.5 w-3.5" />
+                    <ExternalLink className="h-4 w-4" aria-hidden="true" />
                   ) : (
-                    <Lock className="h-3.5 w-3.5" />
+                    <Lock className="h-4 w-4" aria-hidden="true" />
                   )}
                   {isPublished ? "Se offentlig visning" : "Ikke publisert ennå"}
                 </Button>
               </span>
             </TooltipTrigger>
             {!isPublished && (
-              <TooltipContent side="bottom" className="max-w-[240px] text-xs">
+              <TooltipContent side="bottom" className="max-w-[260px] text-sm">
                 Profilen blir offentlig først når kunden har aktivert profilen og publisert den selv.
               </TooltipContent>
             )}
@@ -118,15 +118,15 @@ export function MSPCustomerTrustProfileCard({
       <Card className={`p-4 space-y-3 ${invited ? "border-success/30 bg-success/5" : "border-primary/30 bg-primary/5"}`}>
         <div className="flex items-start gap-2.5">
           {invited ? (
-            <Check className="h-4 w-4 text-success mt-0.5 shrink-0" />
+            <Check className="h-5 w-5 text-success mt-0.5 shrink-0" aria-hidden="true" />
           ) : (
-            <UserPlus className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+            <UserPlus className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
           )}
           <div className="space-y-1 flex-1">
-            <p className="text-sm font-semibold text-foreground">
+            <p className="text-base font-semibold text-foreground">
               {invited ? `Invitasjon sendt til ${contactName}` : "Kunden har ikke aktivert profilen ennå"}
             </p>
-            <p className="text-[13px] text-muted-foreground leading-snug">
+            <p className="text-sm text-foreground/80 leading-relaxed">
               {invited
                 ? `${contactName} har fått en e-post med en sikker lenke for å aktivere og signere profilen. Du får varsel når det er gjort. Inntil da kan du fortsatt redigere innholdet.`
                 : `Du administrerer profilen på vegne av ${customerName}. Når kunden aktiverer profilen tar de over redigering — du beholder innsynet, men kan ikke lenger endre innhold direkte.`}
@@ -135,8 +135,8 @@ export function MSPCustomerTrustProfileCard({
         </div>
         {!invited && (
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setInviteOpen(true)}>
-              <UserPlus className="h-3.5 w-3.5" />
+            <Button size="sm" className="h-9 text-sm gap-1.5" onClick={() => setInviteOpen(true)}>
+              <UserPlus className="h-4 w-4" aria-hidden="true" />
               Inviter {contactName} til å aktivere
             </Button>
           </div>
@@ -145,7 +145,7 @@ export function MSPCustomerTrustProfileCard({
           <Button
             variant="outline"
             size="sm"
-            className="h-7 text-xs"
+            className="h-9 text-sm"
             onClick={() => setInviteOpen(true)}
           >
             Send påminnelse
