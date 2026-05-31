@@ -14,6 +14,10 @@ export type VendorSuggestion = {
   dpaType: VendorDpaType;
   /** Short note shown in the DPA section for this vendor. */
   dpaNote?: string;
+  /** Vendor has a public Trust Profile in Mynder. */
+  hasTrustProfile?: boolean;
+  /** Country code (ISO 3166-1 alpha-2) where the vendor primarily processes data. */
+  country?: string;
 };
 
 export const VENDOR_CATALOG: VendorSuggestion[] = [
