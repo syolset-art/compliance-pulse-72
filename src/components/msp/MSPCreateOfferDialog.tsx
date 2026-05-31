@@ -516,15 +516,15 @@ export function MSPCreateOfferDialog({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-[13px] font-medium text-foreground truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           Gap-analyse {gapFrameworkId.toUpperCase()}
                         </p>
                         <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">Anbefalt</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">{gapCount} gap dokumentert</p>
+                      <p className="text-sm text-muted-foreground">{gapCount} gap dokumentert</p>
                     </div>
-                    <Button type="button" size="sm" variant="ghost" className="h-7 text-xs gap-1 text-primary" onClick={() => setGapPreviewOpen(true)}>
-                      <Eye className="h-3 w-3" /> Forhåndsvis
+                    <Button type="button" size="sm" variant="ghost" className="h-8 text-sm gap-1 text-primary" onClick={() => setGapPreviewOpen(true)}>
+                      <Eye className="h-3.5 w-3.5" /> Forhåndsvis
                     </Button>
                     <Switch checked={attachGap} onCheckedChange={setAttachGap} />
                   </div>
@@ -542,11 +542,12 @@ export function MSPCreateOfferDialog({
                 onChange={e => setMessage(e.target.value)}
                 rows={3}
                 placeholder={`Hei ${customerContactName}, basert på modenhetsbildet ditt foreslår vi følgende løp.`}
-                className="text-[13px] resize-none"
+                className="text-sm resize-none"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Denne teksten vises øverst i tilbudsdokumentet. Tilbudet sendes ikke automatisk — du laster det ned og sender selv.
               </p>
+
             </div>
           </div>
         )}
