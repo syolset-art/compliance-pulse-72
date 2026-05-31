@@ -432,7 +432,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     setIsUnpublishing(true);
     const { error } = await supabase
       .from("assets")
-      .update({ publish_mode: "private" } as any)
+      .update({ publish_mode: "ecosystem" } as any)
       .eq("id", asset.id);
     setIsUnpublishing(false);
     if (error) {
@@ -443,7 +443,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
     toast.success(
       isNb ? "Publisering fjernet" : "Profile unpublished",
-      { description: isNb ? "Profilen er nå privat og ikke synlig på Mynder Trust Engine." : "Profile is now private and no longer visible on Mynder Trust Engine." }
+      { description: isNb ? "Profilen er nå kun synlig i Mynder-økosystemet." : "Profile is now only visible within the Mynder ecosystem." }
     );
   };
 
