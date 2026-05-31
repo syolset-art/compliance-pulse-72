@@ -641,77 +641,52 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-foreground">Partnernavn</label>
-                <Popover open={partnerPickerOpen} onOpenChange={setPartnerPickerOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={partnerPickerOpen}
-                      className="w-full justify-between h-9 text-sm font-normal"
-                    >
-                      <span className={cn("truncate", !draftPartnerName && "text-muted-foreground")}>
-                        {draftPartnerName || "Søk eller velg partner…"}
-                      </span>
-                      <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0 ml-2" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                    <Command>
-                      <CommandInput
-                        placeholder="Søk eller skriv inn navn…"
-                        value={draftPartnerName}
-                        onValueChange={setDraftPartnerName}
-                      />
-                      <CommandList>
-                        <CommandEmpty>
-                          <div className="px-2 py-3 text-center space-y-1">
-                            <p className="text-[12px] text-muted-foreground">
-                              Ingen treff i Mynder Trust.
-                            </p>
-                            <p className="text-[11px] text-muted-foreground/80">
-                              Trykk «Legg til» for å bruke navnet du har skrevet.
-                            </p>
-                          </div>
-                        </CommandEmpty>
-                        <CommandGroup heading="Partnere med Trust Profile">
-                          {PARTNER_DIRECTORY.map((p) => (
-                            <CommandItem
-                              key={p.name}
-                              value={p.name}
-                              onSelect={() => {
-                                setDraftPartnerName(p.name);
-                                setPartnerPickerOpen(false);
-                              }}
-                              className="flex items-start gap-2 py-2"
-                            >
-                              <Check
-                                className={cn(
-                                  "h-3.5 w-3.5 mt-0.5 shrink-0",
-                                  draftPartnerName === p.name ? "opacity-100 text-primary" : "opacity-0"
-                                )}
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="text-sm font-medium truncate">{p.name}</span>
-                                  <Shield className="h-3 w-3 text-primary shrink-0" />
-                                </div>
-                                <p className="text-[11px] text-muted-foreground truncate">
-                                  {p.roleDescription}
-                                </p>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <div className="relative">
+                  <Input
+                    autoFocus
+                    value={draftPartnerName}
+                    onChange={(e) => {
+                      setDraftPartnerName(e.target.value);
+                      setPartnerPickerOpen(true);
+                    }}
+                    onFocus={() => setPartnerPickerOpen(true)}
+                    onBlur={() => setTimeout(() => setPartnerPickerOpen(false), 150)}
+                    placeholder="Skriv inn partnernavn…"
+                    className="text-sm"
+                  />
+                  {partnerPickerOpen && (() => {
+                    const q = draftPartnerName.trim().toLowerCase();
+                    const matches = q
+                      ? PARTNER_DIRECTORY.filter((p) => p.name.toLowerCase().includes(q))
+                      : PARTNER_DIRECTORY;
+                    if (matches.length === 0) return null;
+                    return (
+                      <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md max-h-64 overflow-auto">
+                        {matches.map((p) => (
+                          <button
+                            key={p.name}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setDraftPartnerName(p.name);
+                              setPartnerPickerOpen(false);
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-muted focus:bg-muted focus:outline-none"
+                          >
+                            <div className="text-sm font-medium text-foreground truncate">{p.name}</div>
+                            <p className="text-[11px] text-muted-foreground truncate">{p.roleDescription}</p>
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
                 <p className="text-[11px] text-muted-foreground">
                   Type partner, leveranseområde og partner siden kan fylles ut etterpå (valgfritt).
                 </p>
               </div>
             </div>
+
 
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => setAddPartnerDialogOpen(false)}>
