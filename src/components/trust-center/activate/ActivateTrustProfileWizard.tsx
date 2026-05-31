@@ -570,6 +570,9 @@ export default function ActivateTrustProfileWizard({
           encryption={encryption} setEncryption={setEncryption}
           mfa={mfa} setMfa={setMfa}
           subProcessors={subProcessors} setSubProcessors={setSubProcessors}
+          hasWebsite={hasWebsite}
+          website={website}
+          scan={scan}
         />
       )}
       {step === 4 && (
@@ -1011,68 +1014,43 @@ function WebsiteVerifyField({
 
 function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; revealed: number; progress: number; domain: string }) {
   const done = revealed >= scan.findings.length;
+  const currentFinding = !done ? scan.findings[Math.min(revealed, scan.findings.length - 1)] : null;
+  const found = scan.findings.filter((f) => (f.status ?? "found") === "found").length;
+  const missing = scan.findings.filter((f) => f.status === "missing").length;
+
   return (
-    <div className="space-y-4">
-      <Card className="p-4 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center">
-            {done ? <CheckCircle2 className="h-5 w-5 text-success" /> : <Loader2 className="h-5 w-5 text-primary animate-spin" />}
+    <div className="space-y-2.5">
+      <Card className="p-3 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+            {done ? <CheckCircle2 className="h-4 w-4 text-success" /> : <Loader2 className="h-4 w-4 text-primary animate-spin" />}
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium">
-              {done ? "Lara er ferdig" : "Lara analyserer"} <span className="text-muted-foreground">{domain || "hjemmesiden"}…</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">
+              {done
+                ? <>Ferdig — fant <strong>{found}</strong> områder</>
+                : <>Lara kartlegger <span className="text-muted-foreground">{domain || "hjemmesiden"}</span>…</>}
             </p>
             <Progress value={progress} className="h-1 mt-1.5" />
           </div>
         </div>
       </Card>
 
-      <div className="space-y-1.5">
-        {scan.findings.map((f, idx) => {
-          const visible = idx < revealed;
-          const status = f.status ?? "found";
-          const Icon = status === "missing" ? AlertCircle : status === "info" ? FileText : CheckCircle2;
-          const iconColor =
-            status === "missing" ? "text-warning" : status === "info" ? "text-primary" : "text-success";
-          const borderColor =
-            status === "missing" ? "border-warning/30 bg-warning/5"
-            : status === "info" ? "border-primary/20 bg-primary/5"
-            : "border-border bg-card";
-          return (
-            <div key={f.key}
-              className={`flex items-start gap-2.5 p-2.5 rounded-md border transition-all duration-300 ${
-                visible ? `opacity-100 translate-y-0 ${borderColor}` : "opacity-0 -translate-y-1 border-transparent"
-              }`}>
-              <Icon className={`h-4 w-4 ${iconColor} mt-0.5 shrink-0`} />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{f.label}</p>
-                {f.detail && <p className="text-xs text-muted-foreground">{f.detail}{f.source ? ` · ${f.source}` : ""}</p>}
-              </div>
-            </div>
-          );
-        })}
+      <div className="px-1 min-h-[18px] flex items-center gap-2 text-xs text-muted-foreground">
+        {done ? (
+          <>
+            <Sparkles className="h-3.5 w-3.5 text-success shrink-0" />
+            <span>
+              Alt er forhåndsutfylt i neste steg{missing > 0 ? ` · ${missing} ${missing === 1 ? "område mangler" : "områder mangler"}` : ""}.
+            </span>
+          </>
+        ) : currentFinding ? (
+          <>
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shrink-0" />
+            <span className="truncate">{currentFinding.label}…</span>
+          </>
+        ) : null}
       </div>
-
-      {done && (() => {
-        const found = scan.findings.filter((f) => (f.status ?? "found") === "found").length;
-        const missing = scan.findings.filter((f) => f.status === "missing").length;
-        return (
-          <Card className="p-3 bg-success/5 border-success/30 space-y-1.5">
-            <div className="flex items-center gap-2 text-sm text-foreground">
-              <Sparkles className="h-4 w-4 text-success" />
-              <span><strong>Lara fant {found} områder</strong> som er forhåndsutfylt i neste steg.</span>
-            </div>
-            {missing > 0 && (
-              <div className="flex items-start gap-2 text-xs text-muted-foreground pl-6">
-                <AlertCircle className="h-3.5 w-3.5 text-warning mt-0.5 shrink-0" />
-                <span>
-                  {missing} {missing === 1 ? "område mangler" : "områder mangler"} på nettsiden — du kan laste opp eller fylle inn dette manuelt etterpå.
-                </span>
-              </div>
-            )}
-          </Card>
-        );
-      })()}
     </div>
   );
 }
@@ -1090,23 +1068,54 @@ function FieldGroup({ icon: Icon, title, children }: any) {
   );
 }
 
+function PrefilledHint({ source }: { source: string }) {
+  return (
+    <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1">
+      <Sparkles className="h-3 w-3 text-primary/70" />
+      <span>Fra {source}</span>
+    </p>
+  );
+}
+
 function ConfirmStep(props: any) {
+  const fromLara = props.hasWebsite === "yes" && !!props.scan;
+  const sources = fromLara ? {
+    description: "hjemmesiden",
+    primary: props.scan?.contacts?.primaryEmail ? "kontaktside" : null,
+    dpo: props.scan?.contacts?.dpoEmail ? "personvernerklæring" : null,
+    security: (props.scan?.contacts as any)?.securityEmail ? "security.txt" : null,
+  } : { description: null, primary: null, dpo: null, security: null };
+
   return (
     <div className="space-y-3">
+      {fromLara && (
+        <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
+          <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <p className="text-xs text-foreground/80 leading-relaxed">
+            Lara fylte ut dette fra <span className="font-medium">{props.website || "hjemmesiden din"}</span>. Endre det du vil — eller bare gå videre.
+          </p>
+        </div>
+      )}
+
       <FieldGroup icon={Building2} title="Om virksomheten">
         <div className="space-y-2">
-          <Label>Beskrivelse</Label>
+          <Label className="flex items-center gap-1.5">
+            Beskrivelse
+            {sources.description && <Sparkles className="h-3 w-3 text-primary/70" />}
+          </Label>
           <Textarea value={props.description} onChange={(e) => props.setDescription(e.target.value)} rows={3} />
+          {sources.description && <PrefilledHint source={sources.description} />}
         </div>
       </FieldGroup>
 
       <FieldGroup icon={Users} title="Kontakter">
         <div className="space-y-4">
           {[
-            { key: "main", label: "Hovedkontakt", sub: "Mottar avtaler og DPA-er", name: props.contactName, setName: props.setContactName, email: props.contactEmail, setEmail: props.setContactEmail, emailPh: "kontakt@firma.no", extra: null as React.ReactNode },
+            { key: "main", label: "Hovedkontakt", sub: "Mottar avtaler og DPA-er", name: props.contactName, setName: props.setContactName, email: props.contactEmail, setEmail: props.setContactEmail, emailPh: "kontakt@firma.no", source: sources.primary, extra: null as React.ReactNode },
             {
               key: "privacy", label: "Personvern", sub: null,
               name: props.dpoName, setName: props.setDpoName, email: props.dpoEmail, setEmail: props.setDpoEmail, emailPh: "personvern@firma.no",
+              source: sources.dpo,
               extra: (
                 <div className="space-y-1.5">
                   <div className="inline-flex rounded-full border border-border bg-muted/40 p-0.5 text-[11px]">
@@ -1117,16 +1126,24 @@ function ConfirmStep(props: any) {
                 </div>
               ),
             },
-            { key: "security", label: "Sikkerhetskontakt", sub: "For sårbarheter og hendelser", name: props.securityName, setName: props.setSecurityName, email: props.securityEmail, setEmail: props.setSecurityEmail, emailPh: "sikkerhet@firma.no", extra: null as React.ReactNode },
+            { key: "security", label: "Sikkerhetskontakt", sub: "For sårbarheter og hendelser", name: props.securityName, setName: props.setSecurityName, email: props.securityEmail, setEmail: props.setSecurityEmail, emailPh: "sikkerhet@firma.no", source: sources.security, extra: null as React.ReactNode },
           ].map((row) => (
             <div key={row.key} className="grid grid-cols-[180px_1fr_1fr] items-start gap-3">
               <div className="pt-2">
-                <div className="text-sm font-semibold text-foreground">{row.label}</div>
+                <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  {row.label}
+                  {row.source && <Sparkles className="h-3 w-3 text-primary/70" />}
+                </div>
                 {row.sub && <div className="text-xs text-muted-foreground mt-0.5">{row.sub}</div>}
                 {row.extra}
               </div>
-              <Input value={row.name} onChange={(e) => row.setName(e.target.value)} placeholder="Navn" />
-              <Input type="email" value={row.email} onChange={(e) => row.setEmail(e.target.value)} placeholder={row.emailPh} />
+              <div className="space-y-1">
+                <Input value={row.name} onChange={(e) => row.setName(e.target.value)} placeholder="Navn" />
+              </div>
+              <div className="space-y-1">
+                <Input type="email" value={row.email} onChange={(e) => row.setEmail(e.target.value)} placeholder={row.emailPh} />
+                {row.source && <PrefilledHint source={row.source} />}
+              </div>
             </div>
           ))}
         </div>
