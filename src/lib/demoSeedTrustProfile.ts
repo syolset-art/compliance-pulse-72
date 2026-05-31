@@ -256,7 +256,7 @@ export async function deleteDemoTrustProfile() {
     await supabase.from("evidence_checks").delete().eq("asset_id", selfAssets[0].id);
     await supabase
       .from("assets")
-      .update({ name: "Min bedrift", description: null, compliance_score: 0, publish_mode: "private", country: null, region: null, org_number: null, contact_person: null, contact_email: null, url: null })
+      .update({ name: "Min bedrift", description: null, compliance_score: 0, publish_mode: "ecosystem", country: null, region: null, org_number: null, contact_person: null, contact_email: null, url: null })
       .eq("id", selfAssets[0].id);
   }
 }

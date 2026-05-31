@@ -80,7 +80,7 @@ const TrustCenterProducts = () => {
         name: newName.trim(),
         asset_type: newType,
         description: newDesc.trim() || null,
-        publish_mode: "private",
+        publish_mode: "ecosystem",
       })
       .select("id")
       .single();

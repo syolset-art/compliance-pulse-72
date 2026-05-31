@@ -381,7 +381,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const publicFullUrl = buildPublicTrustUrl(slug);
   const publicUrl = publicFullUrl.replace(/^https?:\/\//, "");
 
-  const isPublished = (asset as any).publish_mode && (asset as any).publish_mode !== "private";
+  const isPublished = (asset as any).publish_mode === "public";
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(publicFullUrl);
@@ -432,7 +432,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     setIsUnpublishing(true);
     const { error } = await supabase
       .from("assets")
-      .update({ publish_mode: "private" } as any)
+      .update({ publish_mode: "ecosystem" } as any)
       .eq("id", asset.id);
     setIsUnpublishing(false);
     if (error) {
@@ -443,7 +443,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
     toast.success(
       isNb ? "Publisering fjernet" : "Profile unpublished",
-      { description: isNb ? "Profilen er nå privat og ikke synlig på Mynder Trust Engine." : "Profile is now private and no longer visible on Mynder Trust Engine." }
+      { description: isNb ? "Profilen er nå kun synlig i Mynder-økosystemet." : "Profile is now only visible within the Mynder ecosystem." }
     );
   };
 
@@ -1365,9 +1365,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <span className="font-medium text-foreground">
                                 {(asset as any).publish_mode === "public"
                                   ? (isNb ? "Alle (offentlig)" : "Everyone (public)")
-                                  : (asset as any).publish_mode === "ecosystem"
-                                    ? (isNb ? "Mynder-økosystem" : "Mynder ecosystem")
-                                    : (isNb ? "Privat" : "Private")}
+                                  : (isNb ? "Mynder-økosystem" : "Mynder ecosystem")}
                               </span>
                             </span>
                           </div>
