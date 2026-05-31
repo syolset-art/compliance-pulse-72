@@ -4,8 +4,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
+
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -189,10 +189,6 @@ export function CustomServiceDialog({
       <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Rediger tjeneste" : "Legg til egen tjeneste"}</DialogTitle>
-          <DialogDescription>
-            Pris beregnes alltid fra timer × din timepris ({defaultHourlyRate.toLocaleString("nb-NO")} kr/t).
-            Legg til aktiviteter for å bygge opp timeestimatet.
-          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
@@ -202,7 +198,7 @@ export function CustomServiceDialog({
               id="cs-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="F.eks. Phishing-simulering og opplæring"
+              placeholder="F.eks. kurs av ansatte, phishing-simulering, backup-overvåking"
             />
           </div>
 
@@ -212,7 +208,7 @@ export function CustomServiceDialog({
               id="cs-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Kort beskrivelse — jo mer detalj, desto bedre forslag fra Lara"
+              placeholder="Legg til detaljer for bedre forslag"
               rows={2}
             />
           </div>
@@ -276,9 +272,9 @@ export function CustomServiceDialog({
           {/* Lara-forslag for kontrollpunkter */}
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1.5">
+              <span className="text-sm font-semibold text-primary inline-flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
-                Lara foreslår kontrollpunkter
+                Foreslåtte kontrollpunkter
               </span>
               {selectedCount > 0 && (
                 <span className="text-xs text-muted-foreground tabular-nums">
@@ -350,7 +346,7 @@ export function CustomServiceDialog({
 
             {suggestions.length === 0 ? (
               <p className="text-xs text-muted-foreground italic">
-                Skriv inn et navn — så finner Lara aktuelle regelverk og kontrollpunkter.
+                Skriv navn på tjenesten — forslag vises automatisk.
               </p>
             ) : (
               <ul className="space-y-1">
@@ -381,12 +377,8 @@ export function CustomServiceDialog({
                               {s.controlLabel}
                             </span>
                           </div>
-                          {s.matchedTerms.length > 0 && (
-                            <div className="text-xs text-muted-foreground mt-0.5">
-                              Treff: {s.matchedTerms.join(", ")}
-                            </div>
-                          )}
                         </div>
+
                       </label>
                     </li>
                   );
