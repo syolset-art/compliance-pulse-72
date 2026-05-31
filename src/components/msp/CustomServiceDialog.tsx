@@ -89,6 +89,9 @@ export function CustomServiceDialog({
       setSelectedMappings(new Set(initial.mappings.map(mappingKey)));
       setExtraMappings(initial.mappings);
       setUserTouchedMappings(true);
+      const hasOverride = typeof initial.priceOverride === "number" && initial.priceOverride > 0;
+      setUsePriceOverride(hasOverride);
+      setPriceOverride(hasOverride ? initial.priceOverride : 0);
     } else {
       setName("");
       setDescription("");
@@ -96,6 +99,8 @@ export function CustomServiceDialog({
       setSelectedMappings(new Set());
       setExtraMappings([]);
       setUserTouchedMappings(false);
+      setUsePriceOverride(false);
+      setPriceOverride(0);
     }
   }, [open, initial]);
 
