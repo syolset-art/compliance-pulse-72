@@ -327,6 +327,8 @@ export function MSPServiceCatalogTab() {
         mappings: editingService.mappings,
         priceOverride: editingService.priceOverride,
       }
+    : previewTemplate
+    ? buildDraftFromTemplate(previewTemplate)
     : undefined;
 
 
