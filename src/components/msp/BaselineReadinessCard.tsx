@@ -10,7 +10,6 @@ interface Props {
   activeFrameworkCount: number;
   onFillBaseline: () => void;
   onReviewBaseline: () => void;
-  onStartGapAnalysis: () => void;
   onGoToRegulations: () => void;
 }
 
