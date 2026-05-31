@@ -603,8 +603,8 @@ export default function ActivateTrustProfileWizard({
           scan={scan}
         />
       )}
-      {step === 4 && (
-        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
+      {step === 4 && !isCalculating && (
+        <DocumentsStep documents={documents} onUpload={uploadDocument} />
       )}
       {step === 5 && (
         <CriticalVendorsStep
@@ -615,8 +615,8 @@ export default function ActivateTrustProfileWizard({
         />
 
       )}
-      {step === 6 && !isCalculating && (
-        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+      {step === 6 && (
+        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
       {step === 7 && !isCalculating && (
         <div className="space-y-6">
