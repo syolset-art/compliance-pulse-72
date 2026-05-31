@@ -172,11 +172,11 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
               className="relative group animate-float-in"
             >
               {/* Glow ring behind butterfly */}
-              <div className="absolute -inset-4 rounded-full bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-xl opacity-50 group-hover:opacity-75 transition-silk" />
+              <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-xl opacity-50 group-hover:opacity-75 transition-silk" />
               
               {/* Progress ring behind butterfly */}
               <svg 
-                className="absolute -inset-1.5 sm:-inset-2 w-[76px] h-[76px] sm:w-24 sm:h-24 -rotate-90"
+                className="absolute -inset-1 sm:-inset-1.5 w-[56px] h-[56px] sm:w-[68px] sm:h-[68px] -rotate-90"
                 viewBox="0 0 88 88"
               >
                 {/* Background ring */}
@@ -206,7 +206,7 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
               <img 
                 src={laraButterfly} 
                 alt="Lara AI Agent" 
-                className={`relative w-16 h-16 sm:w-20 sm:h-20 drop-shadow-2xl group-hover:scale-110 transition-silk ${
+                className={`relative w-12 h-12 sm:w-14 sm:h-14 drop-shadow-2xl group-hover:scale-110 transition-silk ${
                   !isFullyComplete ? 'animate-pulse' : ''
                 }`}
               />
