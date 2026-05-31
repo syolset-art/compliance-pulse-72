@@ -430,8 +430,8 @@ export const OngoingDeliveriesList = ({
                               onOpenDetails={() => openConfirm(d.id, c.id, a.id)}
                               onSetStatus={(status) => {
                                 if (status === "done") {
-                                  // Krev note/bevis-bekreftelse via dialogen
-                                  openConfirm(d.id, c.id, a.id);
+                                  // Krev note/bevis-bekreftelse via dialogen — preutfyll med "Ferdig"
+                                  openConfirm(d.id, c.id, a.id, "done");
                                 } else if (a.done && onUndo) {
                                   // Hvis vi forlater done, angre evt. confirmation, så sett ny status
                                   onSetStatus?.(d.id, c.id, a.id, status);
