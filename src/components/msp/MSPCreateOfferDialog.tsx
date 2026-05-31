@@ -191,7 +191,7 @@ export function MSPCreateOfferDialog({
     doc.setTextColor(30);
     tasks.forEach(t => {
       const hours = Number(t.hours) || 0;
-      const price = hours * hourlyRate;
+      const price = hours * editableHourlyRate;
       const labelLines = doc.splitTextToSize(t.label, pageWidth - margin * 2 - 200);
       doc.text(labelLines, margin, y);
       doc.text(String(hours), pageWidth - margin - 90, y, { align: "right" });
