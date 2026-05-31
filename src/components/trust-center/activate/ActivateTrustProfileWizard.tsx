@@ -68,10 +68,19 @@ const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Kri
 
 export type CriticalVendorRow = {
   name: string;
-  access: string;
+  purpose: string;
+  processesPersonalData: "yes" | "no" | null;
+  dataCategories: string[];
   dpa: "yes" | "no" | "unknown" | null;
 };
-const EMPTY_VENDOR_ROW: CriticalVendorRow = { name: "", access: "", dpa: null };
+const EMPTY_VENDOR_ROW: CriticalVendorRow = {
+  name: "",
+  purpose: "",
+  processesPersonalData: null,
+  dataCategories: [],
+  dpa: null,
+};
+const DATA_CATEGORY_OPTIONS = ["Ansattdata", "Kundedata", "Pasientdata", "Annet"];
 const MAX_CRITICAL_VENDORS = 5;
 
 export default function ActivateTrustProfileWizard({
