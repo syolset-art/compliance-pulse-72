@@ -284,56 +284,6 @@ export function MSPServiceCatalogTab() {
 
   return (
     <div className="space-y-6">
-      {/* Slank topplinje: timepris + samlet potensial + handlinger */}
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
-        <div className="flex items-end gap-6">
-          <div className="space-y-1">
-            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Timepris
-            </label>
-            <div className="flex items-baseline gap-1.5">
-              <Input
-                type="number"
-                min={0}
-                step={50}
-                value={hourlyRate}
-                onChange={(e) => setHourlyRate(Math.max(0, Number(e.target.value) || 0))}
-                className="h-9 w-24 text-sm font-semibold tabular-nums"
-              />
-              <span className="text-xs text-muted-foreground">kr/t</span>
-            </div>
-          </div>
-          <div className="space-y-1">
-            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
-              <Sparkles className="h-3 w-3" /> Tjenester i katalog
-              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-semibold text-primary">
-                {extras.length}
-              </span>
-            </div>
-            <div className="text-lg font-semibold text-foreground tabular-nums">
-              {showCalculator ? (
-                <span className="text-xs font-normal text-muted-foreground">
-                  {frameworksActive} regelverk
-                </span>
-              ) : null}
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 h-9">
-            <Plus className="h-3.5 w-3.5" />
-            Egen tjeneste
-          </Button>
-          <Button size="sm" onClick={() => navigate("/msp-messages?compose=campaign")} className="gap-1.5 h-9">
-            <Megaphone className="h-3.5 w-3.5" />
-            Lag kampanje
-          </Button>
-        </div>
-      </div>
-
-
-
-
       {/* Mynder-tjenester — alltid inkludert */}
       {extras.some((e) => e.isMynder) && (
         <section className="space-y-2">
