@@ -191,37 +191,37 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg md:text-xl font-bold text-foreground truncate">{customer.customer_name}</h1>
-                <Badge variant="outline" className="text-xs px-2 py-0.5 border-primary/40 text-primary font-medium">
+                <h1 className="text-xl md:text-2xl font-bold text-foreground truncate">{customer.customer_name}</h1>
+                <Badge variant="outline" className="text-sm px-2 py-0.5 border-primary/40 text-primary font-medium">
                   {customer.subscription_plan || "Gratis"}
                 </Badge>
                 {customer.active_frameworks && customer.active_frameworks.length > 0 && (
-                  <Badge variant="outline" className="text-xs px-2 py-0.5 gap-1">
-                    <Shield className="h-3 w-3" />
+                  <Badge variant="outline" className="text-sm px-2 py-0.5 gap-1">
+                    <Shield className="h-3.5 w-3.5" aria-hidden="true" />
                     {customer.active_frameworks.length} regelverk
                   </Badge>
                 )}
               </div>
 
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-muted-foreground">
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-foreground/75">
                 {customer.industry && <span>{customer.industry}</span>}
                 {customer.employees && (
                   <>
-                    <span className="text-muted-foreground/40">·</span>
+                    <span className="text-muted-foreground/50" aria-hidden="true">·</span>
                     <span>{customer.employees} ansatte</span>
                   </>
                 )}
                 {customer.org_number && (
                   <>
-                    <span className="text-muted-foreground/40">·</span>
-                    <span><span className="text-muted-foreground/70">Org.nr</span>{" "}<span className="tabular-nums text-foreground/80 font-medium">{customer.org_number}</span></span>
+                    <span className="text-muted-foreground/50" aria-hidden="true">·</span>
+                    <span><span className="text-muted-foreground">Org.nr</span>{" "}<span className="tabular-nums text-foreground font-medium">{customer.org_number}</span></span>
                   </>
                 )}
                 {hostname && (
                   <>
-                    <span className="text-muted-foreground/40">·</span>
+                    <span className="text-muted-foreground/50" aria-hidden="true">·</span>
                     <a href={customer.url || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
-                      {hostname}<ExternalLink className="h-3 w-3" />
+                      {hostname}<ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                     </a>
                   </>
                 )}
@@ -231,19 +231,19 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
             {/* Maturity */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
               <div className="flex flex-col items-end text-right">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Modenhet</span>
+                <span className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">Modenhet</span>
                 <TooltipProvider delayDuration={150}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className={cn("mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold", maturityLevel.cls)}>
-                        <LaraAvatar size={10} />
+                      <span className={cn("mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-sm font-semibold", maturityLevel.cls)}>
+                        <LaraAvatar size={12} />
                         {maturityLevel.label}
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent side="left"><p className="text-xs">Beregnet av Mynder fra trust score</p></TooltipContent>
+                    <TooltipContent side="left"><p className="text-sm">Beregnet av Mynder fra trust score</p></TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                <span className="mt-1 text-xs text-muted-foreground italic">{maturityLabel}</span>
+                <span className="mt-1 text-sm text-muted-foreground italic">{maturityLabel}</span>
               </div>
               <Donut score={score} tone={status.tone} />
             </div>
@@ -253,30 +253,30 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
           {renderContext()}
 
           {/* Footer: Kontakt hos kunde · Ansvarlig hos oss */}
-          <div className="border-t border-border pt-3 flex flex-wrap items-center gap-x-8 gap-y-2 text-[13px]">
+          <div className="border-t border-border pt-3 flex flex-wrap items-center gap-x-8 gap-y-2 text-sm">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Kontakt hos kunde:</span>
+              <span className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Kontakt hos kunde:</span>
               {customer.contact_person ? (
-                <span className="inline-flex items-center gap-1.5 text-foreground/90">
+                <span className="inline-flex items-center gap-1.5 text-foreground">
                   <InitialAvatar name={customer.contact_person} color="bg-warning/15 text-warning" />
                   <span className="truncate">{customer.contact_person}</span>
                   {customer.contact_email && (
-                    <a href={`mailto:${customer.contact_email}`} className="text-muted-foreground hover:text-primary">
-                      <Mail className="h-3 w-3" />
+                    <a href={`mailto:${customer.contact_email}`} className="text-muted-foreground hover:text-primary" aria-label={`E-post til ${customer.contact_person}`}>
+                      <Mail className="h-3.5 w-3.5" aria-hidden="true" />
                     </a>
                   )}
                 </span>
               ) : (
                 <button className="inline-flex items-center gap-1 text-primary hover:underline">
-                  <UserPlus className="h-3.5 w-3.5" /> Legg til kontaktperson
+                  <UserPlus className="h-4 w-4" aria-hidden="true" /> Legg til kontaktperson
                 </button>
               )}
             </div>
 
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Ansvarlig hos oss:</span>
+              <span className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Ansvarlig hos oss:</span>
               {customer.account_manager ? (
-                <span className="inline-flex items-center gap-1.5 text-foreground/90">
+                <span className="inline-flex items-center gap-1.5 text-foreground">
                   <InitialAvatar name={customer.account_manager} />
                   <span className="truncate">{customer.account_manager}</span>
                 </span>
