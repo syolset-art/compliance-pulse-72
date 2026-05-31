@@ -10,7 +10,7 @@ import { PartnerBrandingCard } from "./PartnerBrandingCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function MSPServiceSettingsTab() {
-  const { defaultHourlyRate, setDefaultHourlyRate, currency, setCurrency, currencyOption } = useServiceDefaults();
+  const { defaultHourlyRate, setDefaultHourlyRate, currency, setCurrency } = useServiceDefaults();
   const [rate, setRate] = useState<string>(String(defaultHourlyRate));
 
   useEffect(() => {
