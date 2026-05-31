@@ -87,6 +87,9 @@ export function MSPCreateOfferDialog({
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
+  const [editableHourlyRate, setEditableHourlyRate] = useState(hourlyRate);
+  const [discountPercent, setDiscountPercent] = useState(0);
+
   useEffect(() => {
     if (!open) return;
     setTasks((defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })));
@@ -94,10 +97,14 @@ export function MSPCreateOfferDialog({
     setAttachGap(attachGapProp);
     setView(initialView);
     setSavedAt(null);
+    setEditableHourlyRate(hourlyRate);
+    setDiscountPercent(0);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
-  const totalPrice = totalHours * hourlyRate;
+  const subtotal = totalHours * editableHourlyRate;
+  const discountAmount = Math.round(subtotal * (discountPercent / 100));
+  const totalPrice = subtotal - discountAmount;
 
   const updateTask = (i: number, patch: Partial<EditableTask>) => {
     setTasks(p => p.map((t, idx) => (idx === i ? { ...t, ...patch } : t)));
@@ -184,7 +191,7 @@ export function MSPCreateOfferDialog({
     doc.setTextColor(30);
     tasks.forEach(t => {
       const hours = Number(t.hours) || 0;
-      const price = hours * hourlyRate;
+      const price = hours * editableHourlyRate;
       const labelLines = doc.splitTextToSize(t.label, pageWidth - margin * 2 - 200);
       doc.text(labelLines, margin, y);
       doc.text(String(hours), pageWidth - margin - 90, y, { align: "right" });
@@ -210,10 +217,22 @@ export function MSPCreateOfferDialog({
     // Totals
     doc.setFontSize(11);
     doc.setTextColor(90);
-    doc.text(`Timepris: ${hourlyRate.toLocaleString("nb-NO")} kr`, margin, y);
+    doc.text(`Timepris: ${editableHourlyRate.toLocaleString("nb-NO")} kr`, margin, y);
     doc.setFontSize(13);
     doc.setTextColor(20);
-    doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+    if (discountPercent > 0) {
+      doc.text(`Delsum: ${totalHours} t · ${subtotal.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+      y += 16;
+      doc.setFontSize(11);
+      doc.setTextColor(90);
+      doc.text(`Rabatt: ${discountPercent}% · -${discountAmount.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+      y += 16;
+      doc.setFontSize(13);
+      doc.setTextColor(20);
+      doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+    } else {
+      doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+    }
     y += 28;
 
     // Covered controls
@@ -315,14 +334,6 @@ export function MSPCreateOfferDialog({
 
         {view === "edit" && (
           <div className="flex-1 overflow-y-auto p-5 space-y-5">
-            {/* Lara intro */}
-            <div className="flex items-start gap-2.5 rounded-md border border-primary/30 bg-primary/5 p-3">
-              <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-              <p className="text-[12px] text-foreground leading-snug">
-                Jeg har satt opp et standardløp basert på din tjenestekatalog. Juster timene og generer et tilbudsdokument du kan laste ned.
-              </p>
-            </div>
-
             {/* Aktiviteter */}
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Aktiviteter</Label>
@@ -370,11 +381,49 @@ export function MSPCreateOfferDialog({
                 <Plus className="h-3 w-3" /> Legg til oppgave
               </Button>
 
-              <div className="flex items-baseline justify-between pt-2 px-1">
-                <span className="text-[12px] text-muted-foreground">Timepris {hourlyRate.toLocaleString("nb-NO")} kr</span>
-                <span className="text-sm font-semibold text-foreground tabular-nums">
-                  {totalHours} timer · {totalPrice.toLocaleString("nb-NO")} kr
-                </span>
+              {/* Pris og rabatt */}
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1">
+                    <Label className="text-[11px] text-muted-foreground">Timepris</Label>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        value={editableHourlyRate}
+                        onChange={e => setEditableHourlyRate(Number(e.target.value))}
+                        className="h-7 text-[13px] tabular-nums"
+                      />
+                      <span className="text-xs text-muted-foreground">kr</span>
+                    </div>
+                  </div>
+                  <div className="w-24">
+                    <Label className="text-[11px] text-muted-foreground">Rabatt</Label>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={discountPercent}
+                        onChange={e => setDiscountPercent(Math.max(0, Math.min(100, Number(e.target.value))))}
+                        className="h-7 text-[13px] tabular-nums"
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-baseline justify-between px-1">
+                  {discountPercent > 0 ? (
+                    <div className="text-[12px] text-muted-foreground">
+                      <div>Delsum {subtotal.toLocaleString("nb-NO")} kr</div>
+                      <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
+                    </div>
+                  ) : (
+                    <span className="text-[12px] text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                  )}
+                  <span className="text-sm font-semibold text-foreground tabular-nums">
+                    {totalHours} timer · {totalPrice.toLocaleString("nb-NO")} kr
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -545,14 +594,21 @@ export function MSPCreateOfferDialog({
                         {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
                       </div>
                       <span className="text-right tabular-nums text-foreground">{hrs}</span>
-                      <span className="text-right tabular-nums text-foreground">{(hrs * hourlyRate).toLocaleString("nb-NO")} kr</span>
+                      <span className="text-right tabular-nums text-foreground">{(hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
                     </div>
                   );
                 })}
               </div>
 
               <div className="flex items-baseline justify-between pt-2">
-                <span className="text-[12px] text-muted-foreground">Timepris {hourlyRate.toLocaleString("nb-NO")} kr</span>
+                {discountPercent > 0 ? (
+                  <div className="text-[12px] text-muted-foreground">
+                    <div>Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</div>
+                    <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
+                  </div>
+                ) : (
+                  <span className="text-[12px] text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                )}
                 <span className="text-base font-bold text-foreground tabular-nums">
                   {totalHours} t · {totalPrice.toLocaleString("nb-NO")} kr
                 </span>
