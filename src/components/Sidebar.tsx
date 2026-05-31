@@ -697,7 +697,7 @@ const SidebarContent = () => {
         ))}
 
         {/* "Flere tjenester" — for modules NOT selected at onboarding */}
-        {showExploreSection && (
+        {showExploreSection && !partnerHides("more") && (
           <>
             {(showCoreNormal || showVendorsNormal || showAssetsNormal) && <div className="my-2 border-b border-sidebar-border/40" />}
             <div>
