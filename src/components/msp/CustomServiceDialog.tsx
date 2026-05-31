@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Sparkles, Link2, Plus, Trash2, ListChecks } from "lucide-react";
 import { suggestControlPoints, type ControlSuggestion } from "@/lib/serviceMappingSuggester";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,8 @@ export interface CustomServiceDraft {
   hours: number;
   activities: ServiceActivity[];
   mappings: ServiceMapping[];
+  /** Overstyrt totalpris. Hvis satt, brukes denne i stedet for hours × timepris. */
+  priceOverride?: number;
 }
 
 interface Props {
@@ -70,6 +73,8 @@ export function CustomServiceDialog({
   /** Mappings som ikke finnes blant Lara-forslag (f.eks. fra adopterte maler) — beholdes som-er. */
   const [extraMappings, setExtraMappings] = useState<ServiceMapping[]>([]);
   const [userTouchedMappings, setUserTouchedMappings] = useState(false);
+  const [usePriceOverride, setUsePriceOverride] = useState(false);
+  const [priceOverride, setPriceOverride] = useState<number>(0);
 
   // Prefill ved åpning
   useEffect(() => {
@@ -85,6 +90,9 @@ export function CustomServiceDialog({
       setSelectedMappings(new Set(initial.mappings.map(mappingKey)));
       setExtraMappings(initial.mappings);
       setUserTouchedMappings(true);
+      const hasOverride = typeof initial.priceOverride === "number" && initial.priceOverride > 0;
+      setUsePriceOverride(hasOverride);
+      setPriceOverride(hasOverride ? initial.priceOverride : 0);
     } else {
       setName("");
       setDescription("");
@@ -92,6 +100,8 @@ export function CustomServiceDialog({
       setSelectedMappings(new Set());
       setExtraMappings([]);
       setUserTouchedMappings(false);
+      setUsePriceOverride(false);
+      setPriceOverride(0);
     }
   }, [open, initial]);
 
@@ -166,6 +176,7 @@ export function CustomServiceDialog({
       hours: cleanedActivities.reduce((s, a) => s + a.hours, 0),
       activities: cleanedActivities,
       mappings: [...fromSuggestions, ...keptExtras],
+      priceOverride: usePriceOverride && priceOverride > 0 ? Math.round(priceOverride) : undefined,
     });
     onOpenChange(false);
   };
@@ -384,13 +395,49 @@ export function CustomServiceDialog({
             )}
           </div>
 
-          <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-sm flex items-center justify-between">
-            <span className="text-muted-foreground inline-flex items-center gap-1.5">
-              <Link2 className="h-3.5 w-3.5" /> Estimert pris ({totalHours} t × {defaultHourlyRate.toLocaleString("nb-NO")} kr)
-            </span>
-            <span className="font-semibold tabular-nums">
-              {new Intl.NumberFormat("nb-NO").format(Math.round(estimate))} kr
-            </span>
+          <div className="rounded-md border border-border bg-muted/30 px-3 py-2 space-y-2">
+            <div className="text-sm flex items-center justify-between">
+              <span className="text-muted-foreground inline-flex items-center gap-1.5">
+                <Link2 className="h-3.5 w-3.5" /> Estimert pris ({totalHours} t × {defaultHourlyRate.toLocaleString("nb-NO")} kr/t)
+              </span>
+              <span className="font-semibold tabular-nums">
+                {new Intl.NumberFormat("nb-NO").format(Math.round(estimate))} kr
+              </span>
+            </div>
+            <div className="flex items-center gap-3 pt-1 border-t border-border/50">
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="price-override"
+                  checked={usePriceOverride}
+                  onCheckedChange={setUsePriceOverride}
+                  className="data-[state=checked]:bg-primary"
+                />
+                <Label htmlFor="price-override" className="text-sm cursor-pointer">
+                  Sett egen pris
+                </Label>
+              </div>
+              {usePriceOverride && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <Input
+                    type="number"
+                    min={0}
+                    step={100}
+                    value={priceOverride}
+                    onChange={(e) => setPriceOverride(Math.max(0, Number(e.target.value) || 0))}
+                    className="h-8 w-28 text-sm tabular-nums"
+                  />
+                  <span className="text-sm text-muted-foreground">kr</span>
+                </div>
+              )}
+            </div>
+            {usePriceOverride && (
+              <div className="text-sm flex items-center justify-between">
+                <span className="text-muted-foreground">Endelig pris</span>
+                <span className="font-semibold tabular-nums">
+                  {new Intl.NumberFormat("nb-NO").format(Math.round(priceOverride))} kr
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

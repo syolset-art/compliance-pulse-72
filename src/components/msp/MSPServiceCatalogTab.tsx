@@ -34,6 +34,8 @@ interface ExtraService {
   templateVersion?: string;
   mappings: ServiceMapping[];
   isMynder?: boolean;
+  /** Overstyrt totalpris. Hvis satt, brukes denne i stedet for hours × timepris. */
+  priceOverride?: number;
 }
 
 function formatNOK(n: number): string {
@@ -168,7 +170,7 @@ export function MSPServiceCatalogTab() {
     }
     extras.forEach((e) => {
       h += e.hours;
-      p += e.hours * hourlyRate;
+      p += e.priceOverride ?? e.hours * hourlyRate;
     });
     return { grandHours: h, grandPrice: p, frameworksActive: n };
   }, [selections, hourlyRate, extras, showCalculator]);
@@ -244,6 +246,7 @@ export function MSPServiceCatalogTab() {
                 hours: draft.hours,
                 activities: draft.activities,
                 mappings: draft.mappings,
+                priceOverride: draft.priceOverride,
               }
             : e,
         ),
@@ -260,6 +263,7 @@ export function MSPServiceCatalogTab() {
       activities: draft.activities,
       source: "manual",
       mappings: draft.mappings,
+      priceOverride: draft.priceOverride,
     };
     setExtras((prev) => [...prev, newService]);
     toast.success(`"${draft.name}" lagt til i katalogen`);
@@ -277,6 +281,7 @@ export function MSPServiceCatalogTab() {
         hours: editingService.hours,
         activities: editingService.activities,
         mappings: editingService.mappings,
+        priceOverride: editingService.priceOverride,
       }
     : undefined;
 
@@ -424,7 +429,7 @@ export function MSPServiceCatalogTab() {
           </div>
           <div className="divide-y divide-border rounded-md border border-border bg-card">
             {extras.filter((e) => !e.isMynder).map((e) => {
-              const price = e.hours * hourlyRate;
+              const price = e.priceOverride ?? e.hours * hourlyRate;
               return (
                 <div key={e.id} className="flex items-center gap-3 px-3 py-2">
                   <div className="flex-1 min-w-0 flex items-center gap-2">
