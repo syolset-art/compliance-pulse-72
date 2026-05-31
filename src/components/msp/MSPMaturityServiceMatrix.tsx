@@ -689,8 +689,7 @@ export function MSPMaturityServiceMatrix({
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">Lara har en anbefaling til deg</p>
               <p className="text-[13px] text-muted-foreground mt-0.5">
-                Du har {RECOMMENDATIONS.length} tjenester som matcher denne kundens behov
-                {urgentCount > 0 && <>, hvorav {urgentCount} er tidskritisk</>}.
+                Du har {RECOMMENDATIONS.length} tjenester som matcher denne kundens behov.
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
@@ -745,11 +744,6 @@ export function MSPMaturityServiceMatrix({
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-semibold text-foreground">{r.title}</span>
-                      {r.urgent && (
-                        <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30">
-                          Tidskritisk
-                        </Badge>
-                      )}
                     </div>
                     <p className="text-[13px] text-muted-foreground leading-snug">{r.desc}</p>
 
