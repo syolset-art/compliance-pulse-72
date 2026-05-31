@@ -570,6 +570,9 @@ export default function ActivateTrustProfileWizard({
           encryption={encryption} setEncryption={setEncryption}
           mfa={mfa} setMfa={setMfa}
           subProcessors={subProcessors} setSubProcessors={setSubProcessors}
+          hasWebsite={hasWebsite}
+          website={website}
+          scan={scan}
         />
       )}
       {step === 4 && (
