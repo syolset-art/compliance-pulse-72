@@ -6,12 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, FileCheck2, CheckCircle2, Inbox, Send, ClipboardList } from "lucide-react";
+import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, FileCheck2, CheckCircle2, Inbox, Send, ClipboardList, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import jsPDF from "jspdf";
 import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
+import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
+import { getControlLabel } from "@/lib/serviceControlLabels";
+import { cn } from "@/lib/utils";
+
+export interface CoveredControlGroup {
+  frameworkId: string;
+  frameworkLabel: string;
+  controlIds: string[];
+}
 
 export interface CreateOfferDialogProps {
   open: boolean;
