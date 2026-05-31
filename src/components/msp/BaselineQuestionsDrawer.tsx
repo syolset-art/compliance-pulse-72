@@ -109,7 +109,7 @@ export function BaselineQuestionsDrawer({
         <Tabs value={tab} onValueChange={setTab} className="mt-4">
           <TabsList className="grid w-full grid-cols-4 h-auto">
             {MATURITY_AREAS.map((a) => {
-              const answered = a.questions.filter((q) => answers[q.id] === "yes" || answers[q.id] === "no").length;
+              const answered = a.questions.filter((q) => draft[q.id] === "yes" || draft[q.id] === "no").length;
               return (
                 <TabsTrigger key={a.id} value={a.id} className="flex-col gap-0.5 py-2 text-xs">
                   <span className="font-medium truncate max-w-full">{a.title}</span>
