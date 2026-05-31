@@ -333,7 +333,7 @@ function LaraSuggestions({ onSelect }: { onSelect: (s: LaraSuggestion) => void }
 
 // Mock target customers for the NIS2 campaign preview
 const CAMPAIGN_TARGETS = [
-  { name: "Bergen Energi AS", industry: "Energi", risk: "Høy", reason: "NIS2 + ingen claim" },
+  { name: "Bergen Energi AS", industry: "Energi", risk: "Høy", reason: "NIS2 + ikke aktivert" },
   { name: "Sognefjord Helse AS", industry: "Helse", risk: "Høy", reason: "Særlige kategorier" },
   { name: "Vestland Logistikk", industry: "Transport", risk: "Medium", reason: "Ny CEO + DORA" },
   { name: "Nordic Cargo AS", industry: "Transport", risk: "Medium", reason: "NIS2-eksponert" },
