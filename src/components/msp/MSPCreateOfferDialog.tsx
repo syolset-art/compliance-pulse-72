@@ -16,7 +16,7 @@ import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { getRelatedControls } from "@/lib/controlCrosswalk";
 import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL, type GapItem } from "@/lib/gapData";
-import { Link2 } from "lucide-react";
+import { Link2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface CoveredControlGroup {
