@@ -322,8 +322,7 @@ export function CustomServiceDialog({
                           {m.frameworkShortName}
                         </span>
                         <span className="text-xs text-foreground">
-                          <span className="text-muted-foreground mr-1">{m.controlId}</span>
-                          {m.controlLabel}
+                          {m.controlLabel} <span className="text-muted-foreground">({m.controlId})</span>
                         </span>
                       </div>
                     </div>
