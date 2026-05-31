@@ -116,7 +116,6 @@ export function MSPCreateOfferDialog({
   const [selectedGapIds, setSelectedGapIds] = useState<Set<string>>(new Set(defaultSelectedGapIds));
 
   const [editableHourlyRate, setEditableHourlyRate] = useState(hourlyRate);
-  const [discountPercent, setDiscountPercent] = useState(0);
 
   // Frys et øyeblikksbilde-dato når dialogen åpnes (vises i alle visninger + PDF).
   const [snapshotDate, setSnapshotDate] = useState<Date>(() => new Date());
@@ -129,15 +128,12 @@ export function MSPCreateOfferDialog({
     setView(initialView);
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
-    setDiscountPercent(0);
     setSelectedGapIds(new Set(defaultSelectedGapIds));
     setSnapshotDate(new Date());
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
-  const subtotal = totalHours * editableHourlyRate;
-  const discountAmount = Math.round(subtotal * (discountPercent / 100));
-  const totalPrice = subtotal - discountAmount;
+  const totalPrice = totalHours * editableHourlyRate;
 
   const updateTask = (i: number, patch: Partial<EditableTask>) => {
     setTasks(p => p.map((t, idx) => (idx === i ? { ...t, ...patch } : t)));
@@ -291,19 +287,7 @@ export function MSPCreateOfferDialog({
     doc.text(`Timepris: ${editableHourlyRate.toLocaleString("nb-NO")} kr`, margin, y);
     doc.setFontSize(13);
     doc.setTextColor(20);
-    if (discountPercent > 0) {
-      doc.text(`Delsum: ${totalHours} t · ${subtotal.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
-      y += 16;
-      doc.setFontSize(11);
-      doc.setTextColor(90);
-      doc.text(`Rabatt: ${discountPercent}% · -${discountAmount.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
-      y += 16;
-      doc.setFontSize(13);
-      doc.setTextColor(20);
-      doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
-    } else {
-      doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
-    }
+    doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
     y += 28;
 
     // Lukker mangler fra gap-analysen (ny, gap-drevet visning)
@@ -494,49 +478,33 @@ export function MSPCreateOfferDialog({
                 <Plus className="h-3 w-3" /> Legg til oppgave
               </Button>
 
-              {/* Pris og rabatt */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
+              {/* Pris og total */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-end gap-3">
+                  <div className="w-40">
                     <Label className="text-xs font-medium text-foreground">Timepris</Label>
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
                         value={editableHourlyRate}
                         onChange={e => setEditableHourlyRate(Number(e.target.value))}
-                        className="h-8 text-sm tabular-nums"
+                        className="h-9 text-sm tabular-nums"
                       />
                       <span className="text-sm text-muted-foreground">kr</span>
                     </div>
                   </div>
-                  <div className="w-24">
-                    <Label className="text-xs font-medium text-foreground">Rabatt</Label>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        min={0}
-                        max={100}
-                        value={discountPercent}
-                        onChange={e => setDiscountPercent(Math.max(0, Math.min(100, Number(e.target.value))))}
-                        className="h-8 text-sm tabular-nums"
-                      />
-                      <span className="text-sm text-muted-foreground">%</span>
-                    </div>
-                  </div>
+                  <p className="text-xs text-muted-foreground pb-2">
+                    Brukes for å beregne totalsummen under.
+                  </p>
                 </div>
-                <div className="flex items-baseline justify-between px-1">
-                  {discountPercent > 0 ? (
-                    <div className="text-sm text-muted-foreground">
-                      <div>Delsum {subtotal.toLocaleString("nb-NO")} kr</div>
-                      <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
-                  )}
-                  <span className="text-base font-semibold text-foreground tabular-nums">
-                    {totalHours} timer · {totalPrice.toLocaleString("nb-NO")} kr
+                <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 flex items-baseline justify-between">
+                  <div className="text-sm text-foreground">
+                    <span className="font-medium">Totalt</span>
+                    <span className="text-muted-foreground"> · {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                  </div>
+                  <span className="text-lg font-bold text-foreground tabular-nums">
+                    {totalPrice.toLocaleString("nb-NO")} kr
                   </span>
-
                 </div>
               </div>
             </div>
@@ -772,18 +740,21 @@ export function MSPCreateOfferDialog({
                 })}
               </div>
 
-              <div className="flex items-baseline justify-between pt-2">
-                {discountPercent > 0 ? (
-                  <div className="text-sm text-muted-foreground">
-                    <div>Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</div>
-                    <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
-                  </div>
-                ) : (
-                  <span className="text-sm text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
-                )}
-                <span className="text-base font-bold text-foreground tabular-nums">
-                  {totalHours} t · {totalPrice.toLocaleString("nb-NO")} kr
-                </span>
+              <div className="pt-3 mt-1 border-t-2 border-foreground/80 space-y-1.5">
+                <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                  <span>Timepris</span>
+                  <span className="tabular-nums">{editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                </div>
+                <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                  <span>Sum timer</span>
+                  <span className="tabular-nums">{totalHours} t</span>
+                </div>
+                <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
+                  <span className="text-base font-bold text-foreground">Totalsum</span>
+                  <span className="text-lg font-bold text-foreground tabular-nums">
+                    {totalPrice.toLocaleString("nb-NO")} kr
+                  </span>
+                </div>
               </div>
 
 
