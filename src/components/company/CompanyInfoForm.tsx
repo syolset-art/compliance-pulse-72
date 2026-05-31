@@ -36,17 +36,20 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   const hydratedRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Partner-lookup (prototype): simulerer søk i Mynder Trust-katalog
-  const [partnerLookup, setPartnerLookup] = useState<{
-    status: "idle" | "searching" | "found" | "not_found";
-    match?: { name: string; type: string; roleDescription: string };
-  }>({ status: "idle" });
+  // Partner-katalog (prototype): partnere som har opprettet egen Trust Profile i Mynder
+  const [partnerPickerOpen, setPartnerPickerOpen] = useState(false);
   const PARTNER_DIRECTORY: Array<{ name: string; type: string; roleDescription: string }> = [
     { name: "Mynder MSP-partner AS", type: "msp", roleDescription: "Drift, sikkerhetsovervåking og brukerstøtte" },
     { name: "Acme IT AS", type: "it_partner", roleDescription: "IT-drift og support" },
     { name: "NordSec AS", type: "mssp", roleDescription: "24/7 SOC, EDR og hendelseshåndtering" },
     { name: "7 Security", type: "mssp", roleDescription: "Sikkerhetsovervåking og compliance-rådgivning" },
+    { name: "Bouvet Sikkerhet", type: "consultant", roleDescription: "Rådgivning innen informasjonssikkerhet og GDPR" },
+    { name: "Atea Managed Services", type: "msp", roleDescription: "Skytjenester, drift og support" },
+    { name: "Sopra Steria Cyber", type: "mssp", roleDescription: "Cybersikkerhet og hendelseshåndtering" },
   ];
+  const matchedPartner = PARTNER_DIRECTORY.find(
+    (p) => p.name.toLowerCase() === (form?.partner_name || "").trim().toLowerCase()
+  );
 
   const { data: companyProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["company-profile-shared"],
