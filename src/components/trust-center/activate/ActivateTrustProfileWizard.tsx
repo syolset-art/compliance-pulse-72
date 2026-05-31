@@ -740,13 +740,17 @@ function OrgStep({
           </div>
         </Card>
 
-        <WebsiteVerifyField
-          website={website}
-          setWebsite={setWebsite}
-          websiteVerified={websiteVerified}
-          onVerifyWebsite={onVerifyWebsite}
-          enabled={true}
-        />
+        <WebsiteChoice hasWebsite={hasWebsite} setHasWebsite={setHasWebsite} />
+
+        {hasWebsite === "yes" && (
+          <WebsiteVerifyField
+            website={website}
+            setWebsite={setWebsite}
+            websiteVerified={websiteVerified}
+            onVerifyWebsite={onVerifyWebsite}
+            enabled={true}
+          />
+        )}
       </div>
     );
   }
