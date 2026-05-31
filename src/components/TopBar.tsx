@@ -94,7 +94,14 @@ export function TopBar() {
   return (
     <div className="fixed top-0 right-0 z-40 h-11 border-b border-border bg-background/95 backdrop-blur-sm flex items-center gap-1 px-4 left-0 md:left-64 transition-colors">
 
-      {/* Help */}
+      {/* Push everything to the right */}
+      <div className="ml-auto flex items-center gap-1">
+
+      {/* Workspace / organization switcher */}
+      <WorkspaceSwitcherCompact />
+      <div className="mx-1 h-5 w-px bg-border" />
+
+
       <Tooltip>
         <TooltipTrigger asChild>
           <button
