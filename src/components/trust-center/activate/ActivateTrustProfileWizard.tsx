@@ -1370,15 +1370,6 @@ function CriticalVendorsStep({ rows, onChange, subprocessorList, onSubprocessorC
 
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
-        <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-        <p className="text-sm text-foreground">
-          Tenk på de leverandørene som faktisk lagrer eller behandler dine viktigste data — for eksempel skytjenester,
-          regnskap, lønn, HR eller IT-drift. Begynn å skrive navnet, så foreslår vi kjente leverandører og hva de
-          vanligvis har tilgang til. Du kan legge til inntil {MAX_CRITICAL_VENDORS}.
-        </p>
-      </div>
-
       <div className="space-y-3">
         {rows.map((row, idx) => (
           <VendorRowCard
@@ -1476,9 +1467,6 @@ function CriticalVendorsStep({ rows, onChange, subprocessorList, onSubprocessorC
         )}
       </Card>
 
-      <p className="text-xs text-muted-foreground pt-1">
-        Du trenger ikke fylle ut alt nå — du kan oppdatere listen senere fra Trust Profile-siden.
-      </p>
     </div>
   );
 }
@@ -1586,21 +1574,11 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
             </ul>
           )}
         </div>
-        {knownVendor && (
-          <p className="text-[11px] text-muted-foreground">
-            Gjenkjent: {knownVendor.category}
-          </p>
-        )}
       </div>
 
       {/* Access scopes — chips + custom */}
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">
-          Hva har de tilgang til?
-          <span className="ml-1 font-normal normal-case text-muted-foreground/80">
-            (hvilke data eller systemer leverandøren kan se eller behandle)
-          </span>
-        </Label>
+        <Label className="text-xs text-muted-foreground">Hva har de tilgang til?</Label>
 
         {accessChips.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
@@ -1656,11 +1634,6 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
             className="text-xs h-8"
           />
         </div>
-        {knownVendor && (
-          <p className="text-[11px] text-muted-foreground">
-            Forslag basert på {knownVendor.name}. Du kan overskrive eller fjerne det som ikke passer.
-          </p>
-        )}
       </div>
 
       {/* DPA — special handling for standard-DPA vendors */}
