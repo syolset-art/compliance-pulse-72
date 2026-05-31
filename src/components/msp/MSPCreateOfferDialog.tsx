@@ -376,7 +376,7 @@ export function MSPCreateOfferDialog({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="w-full h-8 text-xs border-dashed gap-1 text-muted-foreground"
+                className="w-full h-9 text-sm border-dashed gap-1 text-foreground"
                 onClick={addTask}
               >
                 <Plus className="h-3 w-3" /> Legg til oppgave
