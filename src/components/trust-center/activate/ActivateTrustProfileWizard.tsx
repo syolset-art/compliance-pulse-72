@@ -34,6 +34,12 @@ import {
   GENERIC_ACCESS_OPTIONS,
   type VendorSuggestion,
 } from "@/lib/vendorCatalog";
+import {
+  analyzeSubprocessorFile,
+  analyzeSubprocessorUrl,
+  type SubprocessorListData,
+} from "@/lib/demoSubprocessorAnalysis";
+import { Link2, FileUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PARTNER_TYPE_LABEL, type PartnerType } from "@/hooks/usePartnerInfo";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
