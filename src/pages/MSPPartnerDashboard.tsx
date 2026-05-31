@@ -209,12 +209,12 @@ function ClaimRateWidget() {
 
 function NeedsFollowUpWidget() {
   const navigate = useNavigate();
-  const total = 23;
   const breakdown = [
-    { label: "Utdaterte Trust Profiler", count: 11, tone: "bg-warning" },
-    { label: "Manglende DPA", count: 7, tone: "bg-primary" },
-    { label: "Kritiske avvik", count: 5, tone: "bg-destructive" },
+    { label: "NIS2-aktivering", count: 28, tone: "bg-primary" },
+    { label: "ISO 27001-resertifisering", count: 12, tone: "bg-warning" },
+    { label: "DORA gap-analyse", count: 9, tone: "bg-destructive" },
   ];
+  const total = breakdown.reduce((sum, b) => sum + b.count, 0);
   const max = Math.max(...breakdown.map((b) => b.count));
 
   return (
