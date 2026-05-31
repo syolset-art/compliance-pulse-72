@@ -207,6 +207,8 @@ export async function seedFromActivation(values: ActivationValues) {
     metadata: {
       maturity: values.maturityAnswers || {},
       documents: values.documents || [],
+      criticalVendors: values.criticalVendors || [],
+      subprocessors: values.subprocessorList || null,
       activation_completed_at: new Date().toISOString(),
     },
   };
