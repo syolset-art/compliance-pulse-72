@@ -273,6 +273,22 @@ const SidebarContent = () => {
   });
   const isPartner = companyProfile?.is_msp_partner === true;
 
+  // Partner module overrides — when in compliance mode as a partner, the heavy
+  // modules (Core, Registre, Vendors, "Flere tjenester", "Bli partner") are hidden
+  // by default and can be re-enabled from Innstillinger → Andre moduler.
+  const [enabledPartnerModules, setEnabledPartnerModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
+  useEffect(() => {
+    const sync = () => setEnabledPartnerModules(getEnabledPartnerModules());
+    window.addEventListener("storage", sync);
+    window.addEventListener("partner-modules-changed", sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("partner-modules-changed", sync);
+    };
+  }, []);
+  const partnerHides = (key: PartnerModuleKey) =>
+    isPartner && workspaceMode === "compliance" && !enabledPartnerModules.includes(key);
+
   // Optimistic activation skeletons — cleared as soon as the underlying
   // subscription/activated-services queries confirm access (or as a final
   // 30s safety net if something goes wrong upstream).
