@@ -361,6 +361,48 @@ export function MSPCreateOfferDialog({
               </div>
             </div>
 
+            {/* Dekker kontrollpunkter */}
+            {safeCoveredControls.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                    Dekker kontrollpunkter
+                  </Label>
+                  <span className="text-[11px] text-muted-foreground">
+                    {totalControlPoints} kontrollpunkt{totalControlPoints === 1 ? "" : "er"} · {safeCoveredControls.length} regelverk
+                  </span>
+                </div>
+                <div className="rounded-md border border-border divide-y divide-border">
+                  {safeCoveredControls.map(group => {
+                    const theme = getFrameworkTheme(group.frameworkId);
+                    return (
+                      <div key={group.frameworkId} className="p-3 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold border", theme.chip)}>
+                            {group.frameworkLabel}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground">
+                            {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
+                          </span>
+                        </div>
+                        <ul className="space-y-1">
+                          {group.controlIds.map(id => (
+                            <li key={id} className="flex items-start gap-2 text-[12.5px] text-foreground/85">
+                              <ShieldCheck className="h-3 w-3 text-muted-foreground mt-1 shrink-0" />
+                              <span className="font-mono text-[11.5px] text-muted-foreground shrink-0">{id}</span>
+                              <span className="text-foreground/80">— {getControlLabel(group.frameworkId, id)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+
+
             {/* Vedlegg */}
             {gapFrameworkId && (
               <div className="space-y-2">
