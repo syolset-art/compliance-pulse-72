@@ -139,6 +139,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         partner_role_description: (companyProfile as any).partner_role_description || "",
         partner_since: (companyProfile as any).partner_since || "",
         show_partner_on_trust_profile: (companyProfile as any).show_partner_on_trust_profile ?? true,
+        additional_partners: (companyProfile as any).additional_partners || [],
       });
       // Mark hydrated on next tick so the autosave effect doesn't fire on initial load
       setTimeout(() => { hydratedRef.current = true; }, 0);
