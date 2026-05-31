@@ -235,6 +235,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         partner_role_description: (companyProfile as any).partner_role_description || "",
         partner_since: (companyProfile as any).partner_since || "",
         show_partner_on_trust_profile: (companyProfile as any).show_partner_on_trust_profile ?? true,
+        additional_partners: (companyProfile as any).additional_partners || [],
       });
     }
   };
