@@ -193,7 +193,7 @@ export const getStepText = (s: LaraStep): string =>
 export const getStepVia = (s: LaraStep): string | undefined =>
   typeof s === "string" ? undefined : s.via;
 
-export type ActivityStatus = "in_progress" | "not_relevant" | "done";
+export type ActivityStatus = "not_started" | "in_progress" | "not_relevant" | "done";
 
 export interface DeliveryActivity {
   id: string;
