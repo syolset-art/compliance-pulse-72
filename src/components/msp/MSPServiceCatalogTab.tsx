@@ -339,26 +339,26 @@ export function MSPServiceCatalogTab() {
       <section className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 min-w-0">
-            <h3 className="text-base font-semibold text-foreground">
+            <h3 className="text-lg font-semibold text-foreground">
               Foreslåtte tjenester
             </h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-foreground/75 leading-relaxed">
               Basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0 h-10 text-sm">
-            <Plus className="h-4 w-4" />
+          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0 h-11 text-base">
+            <Plus className="h-4 w-4" aria-hidden="true" />
             Beskriv egen tjeneste
           </Button>
         </div>
         <div className="overflow-hidden rounded-md border border-border bg-card">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/30 text-sm text-muted-foreground">
+          <table className="w-full text-base">
+            <thead className="bg-muted/30 text-sm text-foreground/70">
               <tr>
-                <th className="text-left font-medium px-3 py-2 w-12"></th>
-                <th className="text-left font-medium px-3 py-2">Tjeneste</th>
-                <th className="text-left font-medium px-3 py-2">Regelverk</th>
-                <th className="text-right font-medium px-3 py-2 w-32"></th>
+                <th className="text-left font-semibold px-3 py-2.5 w-12"></th>
+                <th className="text-left font-semibold px-3 py-2.5">Tjeneste</th>
+                <th className="text-left font-semibold px-3 py-2.5">Regelverk</th>
+                <th className="text-right font-semibold px-3 py-2.5 w-32"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -378,41 +378,41 @@ export function MSPServiceCatalogTab() {
                       isAdopted && "opacity-60",
                     )}
                   >
-                    <td className="px-3 py-2.5">
-                      <div className={cn("h-8 w-8 rounded-md flex items-center justify-center", pick.bg)}>
-                        <Icon className={cn("h-4 w-4", pick.fg)} />
+                    <td className="px-3 py-3">
+                      <div className={cn("h-9 w-9 rounded-md flex items-center justify-center", pick.bg)}>
+                        <Icon className={cn("h-4 w-4", pick.fg)} aria-hidden="true" />
                       </div>
                     </td>
-                    <td className="px-3 py-2.5">
-                      <div className="font-medium text-foreground">{pick.label}</div>
-                      <div className="text-sm text-muted-foreground line-clamp-1">
+                    <td className="px-3 py-3">
+                      <div className="text-base font-medium text-foreground">{pick.label}</div>
+                      <div className="text-sm text-foreground/70 line-clamp-1">
                         {template.shortDescription}
                       </div>
                     </td>
-                    <td className="px-3 py-2.5">
+                    <td className="px-3 py-3">
                       <div className="flex flex-wrap gap-1">
                         {frameworks.length > 0 ? (
                           frameworks.map((f) => (
-                            <span key={f} className="text-sm px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                            <span key={f} className="text-sm px-2 py-0.5 rounded bg-muted text-foreground/80">
                               {f}
                             </span>
                           ))
                         ) : (
-                          <span className="text-sm text-muted-foreground">—</span>
+                          <span className="text-sm text-foreground/60">—</span>
                         )}
                       </div>
                     </td>
-                    <td className="px-3 py-2.5 text-right">
+                    <td className="px-3 py-3 text-right">
                       {isAdopted ? (
-                        <Badge variant="secondary" className="text-sm h-6">Lagt til</Badge>
+                        <Badge variant="secondary" className="text-sm h-7 px-2.5">Lagt til</Badge>
                       ) : (
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
-                          className="h-8 gap-1 text-sm"
+                          className="h-9 gap-1 text-sm"
                         >
-                          <Plus className="h-4 w-4" />
+                          <Plus className="h-4 w-4" aria-hidden="true" />
                           Legg til
                         </Button>
                       )}
@@ -428,11 +428,11 @@ export function MSPServiceCatalogTab() {
           <button
             type="button"
             onClick={() => setShowCalculator((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors ml-auto"
+            className="inline-flex items-center gap-1.5 text-base text-foreground/70 hover:text-foreground transition-colors ml-auto"
           >
-            <Settings2 className="h-4 w-4" />
+            <Settings2 className="h-4 w-4" aria-hidden="true" />
             Avansert: hele biblioteket og regelverks-bygger
-            {showCalculator ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {showCalculator ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
           </button>
         </div>
       </section>
@@ -441,21 +441,21 @@ export function MSPServiceCatalogTab() {
       {extras.some((e) => e.isMynder) && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <h3 className="text-base font-semibold text-foreground">Mynder-tjenester</h3>
-            <span className="text-sm text-muted-foreground">Inkludert i alle leveranser</span>
+            <h3 className="text-lg font-semibold text-foreground">Mynder-tjenester</h3>
+            <span className="text-base text-foreground/70">Inkludert i alle leveranser</span>
           </div>
           <div className="divide-y divide-border rounded-md border border-border bg-card">
             {extras.filter((e) => e.isMynder).map((e) => {
               const price = e.hours * hourlyRate;
               return (
-                <div key={e.id} className="flex items-center gap-3 px-3 py-2">
+                <div key={e.id} className="flex items-center gap-3 px-3 py-3">
                   <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
+                    <span className="text-base font-medium text-foreground truncate">{e.name}</span>
                   </div>
-                  <div className="text-sm text-muted-foreground tabular-nums whitespace-nowrap">
+                  <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
                     {e.hours} t
                   </div>
-                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
+                  <div className="text-base font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
                     {formatNOK(price)}
                   </div>
                 </div>
@@ -469,8 +469,8 @@ export function MSPServiceCatalogTab() {
       {extras.some((e) => !e.isMynder) && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <h3 className="text-base font-semibold text-foreground">Mine tjenester</h3>
-            <span className="text-sm text-muted-foreground">
+            <h3 className="text-lg font-semibold text-foreground">Mine tjenester</h3>
+            <span className="text-base text-foreground/70">
               {extras.filter((e) => !e.isMynder).length} tjenester
             </span>
           </div>
@@ -478,14 +478,14 @@ export function MSPServiceCatalogTab() {
             {extras.filter((e) => !e.isMynder).map((e) => {
               const price = e.priceOverride ?? e.hours * hourlyRate;
               return (
-                <div key={e.id} className="flex items-center gap-3 px-3 py-2">
+                <div key={e.id} className="flex items-center gap-3 px-3 py-3">
                   <div className="flex-1 min-w-0 flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
+                    <span className="text-base font-medium text-foreground truncate">{e.name}</span>
                   </div>
-                  <div className="text-sm text-muted-foreground tabular-nums whitespace-nowrap">
+                  <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
                     {e.hours} t
                   </div>
-                  <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
+                  <div className="text-base font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
                     {formatNOK(price)}
                   </div>
 
@@ -493,19 +493,19 @@ export function MSPServiceCatalogTab() {
                     variant="ghost"
                     size="icon"
                     onClick={() => { setEditingId(e.id); setManualOpen(true); }}
-                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    className="h-11 w-11 text-foreground/70 hover:text-foreground"
                     aria-label="Rediger tjeneste"
                   >
-                    <Pencil className="h-4 w-4" />
+                    <Pencil className="h-4 w-4" aria-hidden="true" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removeExtra(e.id)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    className="h-11 w-11 text-foreground/70 hover:text-destructive"
                     aria-label="Fjern tjeneste"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4" aria-hidden="true" />
                   </Button>
                 </div>
               );
@@ -525,7 +525,7 @@ export function MSPServiceCatalogTab() {
             hourlyRate={hourlyRate}
           />
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground italic">
+            <p className="text-base text-foreground/75 italic leading-relaxed">
               Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
             </p>
             {FRAMEWORK_CATALOG.map((fw) => (
