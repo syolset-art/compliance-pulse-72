@@ -1467,9 +1467,6 @@ function CriticalVendorsStep({ rows, onChange, subprocessorList, onSubprocessorC
         )}
       </Card>
 
-      <p className="text-xs text-muted-foreground pt-1">
-        Du trenger ikke fylle ut alt nå — du kan oppdatere listen senere fra Trust Profile-siden.
-      </p>
     </div>
   );
 }
