@@ -314,14 +314,34 @@ export default function ActivateTrustProfileWizard({
   };
 
   const canNext = useMemo(() => {
-    if (step === 1) return companyName.trim().length > 1 && orgNumber.trim().length > 0 && website.trim().length > 3 && websiteVerified;
+    if (step === 1) {
+      const orgOk = companyName.trim().length > 1 && orgNumber.trim().length > 0;
+      if (!orgOk || hasWebsite === null) return false;
+      if (hasWebsite === "no") return true;
+      return website.trim().length > 3 && websiteVerified;
+    }
     if (step === 2) return revealed >= (scan?.findings.length ?? 0) && scan != null;
     if (step === 3) return description.trim().length > 0;
     return true;
-  }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
+  }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified, hasWebsite]);
 
-  const next = () => setStep((s) => (Math.min(7, s + 1) as Step));
-  const back = () => setStep((s) => (Math.max(1, s - 1) as Step));
+  const next = () => {
+    setStep((s) => {
+      // Skip scan step when user has no website
+      if (s === 1 && hasWebsite === "no") {
+        // seed maturity defaults so step 4 is usable without a scan
+        setMaturityAnswers((prev) => (Object.keys(prev).length === 0 ? deriveDefaultAnswers(null) : prev));
+        return 3 as Step;
+      }
+      return Math.min(7, s + 1) as Step;
+    });
+  };
+  const back = () => {
+    setStep((s) => {
+      if (s === 3 && hasWebsite === "no") return 1 as Step;
+      return Math.max(1, s - 1) as Step;
+    });
+  };
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
     setMaturityAnswers((prev) => ({ ...prev, [id]: answer }));
