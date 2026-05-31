@@ -778,6 +778,9 @@ export function MSPMaturityServiceMatrix({
                             gapFrameworkId: r.frameworkId,
                             defaultTasks: r.tasks,
                             hourlyRate: r.hourlyRate,
+                            coveredControls: r.frameworkId && r.controlIds?.length
+                              ? [{ frameworkId: r.frameworkId, frameworkLabel: r.frameworkLabel ?? r.frameworkId.toUpperCase(), controlIds: r.controlIds }]
+                              : undefined,
                           });
                         }}
                       >
