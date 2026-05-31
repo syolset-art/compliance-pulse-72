@@ -855,6 +855,12 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               );
             })()}
 
+            {/* Subprocessors — Lara-analysed list */}
+            <SubprocessorTable
+              data={(meta.subprocessors as SubprocessorListData | undefined) ?? null}
+              isNb={isNb}
+            />
+
             <div className="border-t border-border" />
 
             {/* Contact */}
