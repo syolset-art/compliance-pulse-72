@@ -1182,7 +1182,121 @@ function MaturityStep({ answers, sources, onChange }: {
   );
 }
 
+/* -------------------- Critical vendors step -------------------- */
+
+function CriticalVendorsStep({ rows, onChange }: {
+  rows: CriticalVendorRow[];
+  onChange: (rows: CriticalVendorRow[]) => void;
+}) {
+  const updateRow = (idx: number, patch: Partial<CriticalVendorRow>) => {
+    onChange(rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+  };
+  const removeRow = (idx: number) => {
+    const next = rows.filter((_, i) => i !== idx);
+    onChange(next.length === 0 ? [{ ...EMPTY_VENDOR_ROW }] : next);
+  };
+  const addRow = () => {
+    if (rows.length >= MAX_CRITICAL_VENDORS) return;
+    onChange([...rows, { ...EMPTY_VENDOR_ROW }]);
+  };
+
+  const dpaOptions: { value: "yes" | "no" | "unknown"; label: string }[] = [
+    { value: "yes", label: "Ja" },
+    { value: "no", label: "Nei" },
+    { value: "unknown", label: "Vet ikke" },
+  ];
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
+        <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+        <p className="text-sm text-foreground">
+          Tenk på de leverandørene som faktisk lagrer eller behandler dine viktigste data — for eksempel skytjenester,
+          regnskap, lønn, HR eller IT-drift. Du kan legge til inntil {MAX_CRITICAL_VENDORS}.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {rows.map((row, idx) => (
+          <Card key={idx} className="p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Leverandør {idx + 1}
+              </span>
+              {rows.length > 1 && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  onClick={() => removeRow(idx)}
+                  aria-label="Fjern leverandør"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Navn på leverandør</Label>
+                <Input
+                  value={row.name}
+                  onChange={(e) => updateRow(idx, { name: e.target.value })}
+                  placeholder="F.eks. Microsoft 365"
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Hva har de tilgang til?</Label>
+                <Input
+                  value={row.access}
+                  onChange={(e) => updateRow(idx, { access: e.target.value })}
+                  placeholder="F.eks. e-post og dokumenter"
+                  className="text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Har dere databehandleravtale (DPA) med dem?</Label>
+              <div className="flex gap-1.5">
+                {dpaOptions.map((opt) => (
+                  <Button
+                    key={opt.value}
+                    size="sm"
+                    variant={row.dpa === opt.value ? "default" : "outline"}
+                    className="h-8 flex-1"
+                    onClick={() => updateRow(idx, { dpa: opt.value })}
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {rows.length < MAX_CRITICAL_VENDORS && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1.5 text-sm"
+          onClick={addRow}
+        >
+          <Plus className="h-3.5 w-3.5" /> Legg til leverandør
+        </Button>
+      )}
+
+      <p className="text-xs text-muted-foreground pt-1">
+        Du trenger ikke fylle ut alt nå — du kan oppdatere listen senere fra Trust Profile-siden.
+      </p>
+    </div>
+  );
+}
+
 /* -------------------- Documents step -------------------- */
+
 
 function DocumentsStep({ documents, onUpload }: {
   documents: ActivationDocument[];
