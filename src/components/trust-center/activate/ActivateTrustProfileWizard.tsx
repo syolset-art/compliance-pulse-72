@@ -78,6 +78,7 @@ export default function ActivateTrustProfileWizard({
   const [country] = useState("Norge");
   const normalizeUrl = (u: string) => (u && !/^https?:\/\//i.test(u) ? `https://${u}` : u);
   const [website, setWebsite] = useState(initialDomain ? normalizeUrl(initialDomain) : "");
+  const [hasWebsite, setHasWebsite] = useState<"yes" | "no" | null>(initialDomain ? "yes" : null);
   const [websiteVerified, setWebsiteVerified] = useState(false);
   const [verified, setVerified] = useState(hasOrgPrefill);
   const { searchByName, lookupByOrgNumber, searchResults, isLoading } = useBrregLookup();
