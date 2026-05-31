@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Sparkles } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -288,11 +288,8 @@ export function MSPServiceCatalogTab() {
       <section className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 min-w-0">
-            <h3 className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
+            <h3 className="text-sm font-semibold text-foreground">
               Foreslåtte tjenester
-              <Badge variant="outline" className="h-5 gap-1 border-primary/20 bg-primary/5 text-xs font-medium text-primary">
-                <Sparkles className="h-3 w-3" /> Kuratert av Lara
-              </Badge>
             </h3>
             <p className="text-xs text-muted-foreground">
               Basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.
