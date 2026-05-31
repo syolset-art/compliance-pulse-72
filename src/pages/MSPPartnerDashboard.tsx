@@ -806,9 +806,9 @@ function ClaimDevelopmentChart() {
     <Card onClick={() => navigate("/msp-partner/widget/claim-development")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-start justify-between mb-1">
         <div>
-          <h3 className="text-base font-semibold text-foreground">Claim-utvikling</h3>
+          <h3 className="text-base font-semibold text-foreground">Aktiveringer over tid</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Fra 6 til 47 claims · siste 6 mnd
+            Fra 6 til 47 aktiverte kunder · siste 6 mnd
           </p>
         </div>
         <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs gap-1 hover:bg-emerald-500/10">
