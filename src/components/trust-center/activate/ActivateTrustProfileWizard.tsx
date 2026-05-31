@@ -959,7 +959,7 @@ function ConfirmStep(props: any) {
 }
 
 function PreviewStep({ name, orgNumber, description, website, contactName, contactEmail, privacyUrl, encryption, certifications, subProcessors, maturityAnswers, documents }: any) {
-  const answered = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "yes" || v === "no").length : 0;
+  const answered = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "yes" || v === "no" || v === "n_a").length : 0;
   const later = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "later").length : 0;
   const docCount = documents ? documents.filter((d: ActivationDocument) => d.status === "uploaded" || d.status === "found").length : 0;
   return (
