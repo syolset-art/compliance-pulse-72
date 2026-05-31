@@ -40,8 +40,8 @@ export function MSPServiceSettingsTab() {
             <Coins className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-foreground">Valuta</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="text-base font-semibold text-foreground">Valuta</h3>
+            <p className="text-sm text-muted-foreground">
               Velg hvilken valuta som skal brukes i tilbud og fakturering. Vi har valgt et utgangspunkt basert på språket og regionen du er logget inn med — du kan endre den når som helst.
             </p>
           </div>
@@ -49,11 +49,11 @@ export function MSPServiceSettingsTab() {
 
         <div className="grid gap-3 md:grid-cols-[260px_1fr] md:items-end">
           <div className="space-y-1.5">
-            <Label htmlFor="currency-select" className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+            <Label htmlFor="currency-select" className="text-sm text-foreground font-medium">
               Valuta
             </Label>
             <Select value={currency} onValueChange={handleCurrencyChange}>
-              <SelectTrigger id="currency-select" className="h-9 text-sm">
+              <SelectTrigger id="currency-select" className="h-10 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -65,7 +65,7 @@ export function MSPServiceSettingsTab() {
               </SelectContent>
             </Select>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Aktiv valuta: <span className="font-medium text-foreground">{currencyOption.code}</span> ({currencyOption.symbol})
           </p>
         </div>
