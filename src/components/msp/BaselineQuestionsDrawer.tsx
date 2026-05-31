@@ -22,7 +22,8 @@ interface Props {
 const ANSWER_OPTIONS: { value: MaturityAnswer; label: string }[] = [
   { value: "yes", label: "Ja" },
   { value: "no", label: "Nei" },
-  { value: "later", label: "Senere" },
+  { value: "n_a", label: "Ikke aktuelt" },
+  { value: "unsure", label: "Usikker" },
 ];
 
 export function BaselineQuestionsDrawer({
