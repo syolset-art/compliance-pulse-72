@@ -281,6 +281,7 @@ export function MSPServiceCatalogTab() {
         hours: editingService.hours,
         activities: editingService.activities,
         mappings: editingService.mappings,
+        priceOverride: editingService.priceOverride,
       }
     : undefined;
 
