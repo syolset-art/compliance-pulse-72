@@ -87,6 +87,9 @@ export function MSPCreateOfferDialog({
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
 
+  const [editableHourlyRate, setEditableHourlyRate] = useState(hourlyRate);
+  const [discountPercent, setDiscountPercent] = useState(0);
+
   useEffect(() => {
     if (!open) return;
     setTasks((defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })));
@@ -94,10 +97,14 @@ export function MSPCreateOfferDialog({
     setAttachGap(attachGapProp);
     setView(initialView);
     setSavedAt(null);
+    setEditableHourlyRate(hourlyRate);
+    setDiscountPercent(0);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
-  const totalPrice = totalHours * hourlyRate;
+  const subtotal = totalHours * editableHourlyRate;
+  const discountAmount = Math.round(subtotal * (discountPercent / 100));
+  const totalPrice = subtotal - discountAmount;
 
   const updateTask = (i: number, patch: Partial<EditableTask>) => {
     setTasks(p => p.map((t, idx) => (idx === i ? { ...t, ...patch } : t)));
