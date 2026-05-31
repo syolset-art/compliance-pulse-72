@@ -126,7 +126,7 @@ export function BaselineQuestionsDrawer({
               <p className="text-sm text-muted-foreground">{area.subtitle}</p>
 
               {area.questions.map((q) => {
-                const current = answers[q.id];
+                const current = draft[q.id];
                 const laraSource = laraSources[q.id];
                 return (
                   <Card key={q.id} className="p-3 space-y-2.5">
