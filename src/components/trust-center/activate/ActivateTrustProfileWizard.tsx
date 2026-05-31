@@ -637,8 +637,8 @@ export default function ActivateTrustProfileWizard({
 
   const footer = step === 2 ? null : (
     <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
-      <Button variant="ghost" onClick={(hasPrefill && step === 1) ? handleSkip : back} disabled={isPublishing || isCalculating}>
-        {(hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
+      <Button variant="ghost" onClick={(hasOrgPrefill && step === 1) ? handleSkip : back} disabled={isPublishing || isCalculating}>
+        {(hasOrgPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
       {step < 7 ? (
