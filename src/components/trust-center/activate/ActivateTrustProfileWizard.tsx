@@ -1570,13 +1570,10 @@ function DocumentsStep({ documents, onUpload }: {
   const getDoc = (slotId: string) => documents.find((d) => d.slot === slotId);
   return (
     <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">
+        Valgfritt. Du kan også laste opp senere.
+      </p>
 
-      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
-        <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Last opp policyer som dekker hullene. Når du laster opp en <span className="font-semibold">DPA</span>, oppdaterer Lara automatisk svaret i Modenhet-steget. Alt er valgfritt — du kan komme tilbake senere.
-        </p>
-      </div>
 
       {DOCUMENT_SLOTS.map((slot) => {
         const doc = getDoc(slot.id);
