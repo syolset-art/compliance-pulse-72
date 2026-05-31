@@ -10,7 +10,7 @@ import { PartnerBrandingCard } from "./PartnerBrandingCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function MSPServiceSettingsTab() {
-  const { defaultHourlyRate, setDefaultHourlyRate, currency, setCurrency, currencyOption } = useServiceDefaults();
+  const { defaultHourlyRate, setDefaultHourlyRate, currency, setCurrency } = useServiceDefaults();
   const [rate, setRate] = useState<string>(String(defaultHourlyRate));
 
   useEffect(() => {
@@ -69,18 +69,15 @@ export function MSPServiceSettingsTab() {
             <Label htmlFor="default-hourly-rate" className="text-sm text-foreground font-medium">
               Timepris
             </Label>
-            <div className="relative">
-              <Input
-                id="default-hourly-rate"
-                type="number"
-                min={0}
-                step={50}
-                value={rate}
-                onChange={(e) => setRate(e.target.value)}
-                className="h-10 text-sm tabular-nums pr-14"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{currencyOption.unitSuffix}</span>
-            </div>
+            <Input
+              id="default-hourly-rate"
+              type="number"
+              min={0}
+              step={50}
+              value={rate}
+              onChange={(e) => setRate(e.target.value)}
+              className="h-10 text-sm tabular-nums"
+            />
           </div>
           <div>
             <Button type="button" size="sm" className="h-10 text-sm" onClick={handleSave}>
