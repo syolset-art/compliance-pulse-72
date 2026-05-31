@@ -459,7 +459,13 @@ export default function ActivateTrustProfileWizard({
       maturityAnswers,
       criticalVendors: criticalVendors
         .filter((v) => v.name.trim().length > 0)
-        .map((v) => ({ name: v.name.trim(), access: v.access.trim(), dpa: v.dpa ?? "unknown" })),
+        .map((v) => ({
+          name: v.name.trim(),
+          purpose: v.purpose.trim(),
+          processesPersonalData: v.processesPersonalData,
+          dataCategories: v.dataCategories,
+          dpa: v.dpa ?? "unknown",
+        })),
       subprocessorList: analyzedSubprocessors,
       documents,
       visibility,
