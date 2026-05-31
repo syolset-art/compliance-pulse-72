@@ -500,7 +500,7 @@ export default function ActivateTrustProfileWizard({
         <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
           Aktiver Trust Profile · Steg {step} av {TOTAL_STEPS}
         </span>
-        {hasPrefill && step === 1 && (
+        {hasOrgPrefill && step === 1 && (
           <Badge variant="outline" className="ml-auto text-[10px] gap-1 border-primary/30 text-primary">
             <CheckCircle2 className="h-3 w-3" /> Innlogget som {companyName}
           </Badge>
