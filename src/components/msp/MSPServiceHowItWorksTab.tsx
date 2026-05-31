@@ -68,13 +68,13 @@ const OUTCOMES = [
 
 export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Hero */}
-      <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-foreground">
+      <div className="space-y-3">
+        <h2 className="text-2xl font-semibold text-foreground leading-tight">
           Gjør eksisterende IT- og sikkerhetstjenester om til målbar compliance-leveranse
         </h2>
-        <p className="text-sm text-muted-foreground max-w-3xl">
+        <p className="text-base text-foreground/80 max-w-3xl leading-relaxed">
           Tjenestene du allerede leverer mappes mot kontrollpunkter i kundens valgte regelverk —
           og dokumenteres automatisk mens du jobber.
         </p>
@@ -84,22 +84,22 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
       <ServiceFlowDiagram />
 
       {/* Steg */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {STEPS.map((step, i) => {
           const Icon = step.icon;
           return (
-            <Card key={i} className="p-4 flex items-start gap-4">
+            <Card key={i} className="p-5 flex items-start gap-5">
               <div className="relative shrink-0">
-                <div className="h-10 w-10 rounded-md bg-primary/10 text-primary flex items-center justify-center">
-                  <Icon className="h-5 w-5" />
+                <div className="h-12 w-12 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+                  <Icon className="h-6 w-6" aria-hidden="true" />
                 </div>
-                <div className="absolute -top-1.5 -left-1.5 h-5 w-5 rounded-full bg-foreground text-background text-xs font-semibold flex items-center justify-center tabular-nums">
+                <div className="absolute -top-2 -left-2 h-6 w-6 rounded-full bg-foreground text-background text-sm font-semibold flex items-center justify-center tabular-nums">
                   {i + 1}
                 </div>
               </div>
-              <div className="min-w-0 space-y-1">
-                <h3 className="text-base font-semibold text-foreground">{step.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
+              <div className="min-w-0 space-y-2">
+                <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
+                <p className="text-base text-foreground/80 leading-relaxed">{step.body}</p>
               </div>
             </Card>
           );
@@ -107,14 +107,14 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
       </div>
 
       {/* Outcomes */}
-      <div className="space-y-3">
-        <div>
-          <h3 className="text-base font-semibold text-foreground">Slik berikes kundens trust profile</h3>
-          <p className="text-sm text-muted-foreground">
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-foreground">Slik berikes kundens trust profile</h3>
+          <p className="text-base text-foreground/80 leading-relaxed">
             Når du leverer, oppdateres kundens trust profile automatisk.
           </p>
         </div>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3">
           {OUTCOMES.map((o, i) => {
             const Icon = o.icon;
             const toneClass =
@@ -122,12 +122,12 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
                 ? "bg-success/10 text-success"
                 : "bg-primary/10 text-primary";
             return (
-              <Card key={i} className="p-4 space-y-2">
-                <div className={`h-9 w-9 rounded-md flex items-center justify-center ${toneClass}`}>
-                  <Icon className="h-4 w-4" />
+              <Card key={i} className="p-5 space-y-3">
+                <div className={`h-11 w-11 rounded-md flex items-center justify-center ${toneClass}`}>
+                  <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <h4 className="text-base font-semibold text-foreground">{o.title}</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">{o.body}</p>
+                <h4 className="text-lg font-semibold text-foreground">{o.title}</h4>
+                <p className="text-base text-foreground/80 leading-relaxed">{o.body}</p>
               </Card>
             );
           })}
@@ -135,18 +135,18 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
       </div>
 
       {/* CTA-stripe */}
-      <Card className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-muted/30">
-        <div>
-          <p className="text-base font-semibold text-foreground">Klar til å sette opp dine tjenester?</p>
-          <p className="text-sm text-muted-foreground">
+      <Card className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-muted/30">
+        <div className="space-y-1">
+          <p className="text-lg font-semibold text-foreground">Klar til å sette opp dine tjenester?</p>
+          <p className="text-base text-foreground/80 leading-relaxed">
             Start med katalogen, eller juster standard timepris og tilbudsmal først.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" className="h-10 text-sm gap-1.5" onClick={() => onNavigate?.("catalog")}>
-            Gå til tjenestekatalog <ArrowRight className="h-4 w-4" />
+          <Button className="h-11 text-base gap-2" onClick={() => onNavigate?.("catalog")}>
+            Gå til tjenestekatalog <ArrowRight className="h-5 w-5" aria-hidden="true" />
           </Button>
-          <Button size="sm" variant="outline" className="h-10 text-sm" onClick={() => onNavigate?.("settings")}>
+          <Button variant="outline" className="h-11 text-base" onClick={() => onNavigate?.("settings")}>
             Sett standard timepris
           </Button>
         </div>
