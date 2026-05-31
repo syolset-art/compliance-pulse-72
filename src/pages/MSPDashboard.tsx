@@ -143,14 +143,14 @@ function ColumnFilter({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center gap-1.5 rounded px-1 -mx-1 hover:text-foreground transition-colors",
-            active && "text-primary",
+            "inline-flex items-center gap-1.5 rounded text-sm font-medium hover:text-foreground transition-colors",
+            active ? "text-primary" : "text-foreground/80",
           )}
         >
           {!iconOnly && <span>{label}</span>}
-          <Filter className={cn("h-3.5 w-3.5", active ? "opacity-100" : "opacity-40")} />
+          <Filter className={cn("h-3.5 w-3.5 shrink-0", active ? "opacity-100" : "opacity-60")} aria-hidden="true" />
           {active && (
-            <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[10px] font-medium h-4 min-w-4 px-1 tabular-nums">
+            <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[11px] font-semibold h-4 min-w-4 px-1 tabular-nums">
               {selected.length}
             </span>
           )}
