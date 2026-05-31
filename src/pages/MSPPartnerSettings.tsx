@@ -134,12 +134,12 @@ export default function MSPPartnerSettings() {
           <div>
             <Link
               to="/msp-partner"
-              className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground mb-2"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-2"
             >
-              <ArrowLeft className="h-3.5 w-3.5" /> Tilbake til partner-dashbord
+              <ArrowLeft className="h-4 w-4" /> Tilbake til partner-dashbord
             </Link>
             <h1 className="text-2xl font-semibold text-foreground">Innstillinger</h1>
-            <p className="text-[13px] text-muted-foreground mt-1">
+            <p className="text-base text-muted-foreground mt-1">
               Administrer tilgang og varsler for partnerdelen av Mynder.
             </p>
           </div>
@@ -163,8 +163,8 @@ export default function MSPPartnerSettings() {
                       <Users className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground">Brukere med tilgang til partnerdelen</h2>
-                      <p className="text-[12px] text-muted-foreground mt-0.5">
+                      <h2 className="text-base font-semibold text-foreground">Brukere med tilgang til partnerdelen</h2>
+                      <p className="text-base text-muted-foreground mt-0.5">
                         Disse brukerne kan se kundeporteføljen, sende tilbud og motta meldinger.
                       </p>
                     </div>
@@ -181,7 +181,7 @@ export default function MSPPartnerSettings() {
 
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-3xl font-semibold text-foreground tabular-nums">{team.length}</span>
-                  <span className="text-[13px] text-muted-foreground">
+                  <span className="text-base text-muted-foreground">
                     {team.length === 1 ? "bruker" : "brukere"} har tilgang
                   </span>
                 </div>
@@ -189,19 +189,19 @@ export default function MSPPartnerSettings() {
                 <div className="rounded-xl border border-border divide-y divide-border">
                   {team.map((m) => (
                     <div key={m.id} className="flex items-center gap-3 px-4 py-3">
-                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-[12px] font-medium text-foreground shrink-0">
+                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground shrink-0">
                         {m.initials}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-medium text-foreground truncate">{m.name}</p>
-                        <p className="text-[12px] text-muted-foreground truncate">{m.email}</p>
+                        <p className="text-base font-medium text-foreground truncate">{m.name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{m.email}</p>
                       </div>
                       <Badge
                         variant="outline"
                         className={
                           m.role === "Partner-admin"
-                            ? "bg-primary/5 text-primary border-primary/30 text-[10px]"
-                            : "text-[10px]"
+                            ? "bg-primary/5 text-primary border-primary/30 text-xs"
+                            : "text-xs"
                         }
                       >
                         <Shield className="h-3 w-3 mr-1" /> {m.role}
@@ -218,8 +218,8 @@ export default function MSPPartnerSettings() {
                     <Mail className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-sm font-semibold text-foreground">Videresend meldinger til e-post</h2>
-                    <p className="text-[12px] text-muted-foreground mt-0.5">
+                    <h2 className="text-base font-semibold text-foreground">Videresend meldinger til e-post</h2>
+                    <p className="text-base text-muted-foreground mt-0.5">
                       Du får alt — kundesvar, aksepterte tilbud, påminnelser — rett i innboksen din. Slipp å
                       logge inn i Mynder for å holde deg oppdatert.
                     </p>
@@ -229,10 +229,10 @@ export default function MSPPartnerSettings() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
                     <div>
-                      <p className="text-[13px] font-medium text-foreground">
+                      <p className="text-base font-medium text-foreground">
                         Videresend alle innkommende meldinger
                       </p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         Skru av for å bare lese meldinger inne i Mynder.
                       </p>
                     </div>
@@ -244,7 +244,7 @@ export default function MSPPartnerSettings() {
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="space-y-1.5 sm:col-span-2">
-                      <Label htmlFor="inbox" className="text-[12px]">
+                      <Label htmlFor="inbox" className="text-base">
                         Mottaks-e-post
                       </Label>
                       <Input
@@ -255,12 +255,12 @@ export default function MSPPartnerSettings() {
                         onChange={(e) => update("inboxEmail", e.target.value)}
                         disabled={!form.forwardEnabled}
                       />
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         Alle nye meldinger sendes hit som e-post.
                       </p>
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="reply" className="text-[12px]">
+                      <Label htmlFor="reply" className="text-base">
                         Svar-til <span className="text-muted-foreground font-normal">— valgfritt</span>
                       </Label>
                       <Input
@@ -274,8 +274,8 @@ export default function MSPPartnerSettings() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-2 rounded-lg bg-muted/40 border border-border p-3 text-[11px] text-muted-foreground">
-                    <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                  <div className="flex items-start gap-2 rounded-lg bg-muted/40 border border-border p-3 text-sm text-muted-foreground">
+                    <Info className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>
                       Innstillingene gjelder for hele partner-organisasjonen og deles med alle meldingsfanene i
                       Mynder.
@@ -299,12 +299,12 @@ export default function MSPPartnerSettings() {
                   <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
                     <CreditCard className="h-4 w-4 text-foreground/70" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-foreground">Fakturering og adresse</p>
-                    <p className="text-[12px] text-muted-foreground">
-                      Faktura-e-post, EHF, organisasjonsnummer og betalingsmetode.
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-base font-medium text-foreground">Fakturering og adresse</p>
+                      <p className="text-base text-muted-foreground">
+                        Faktura-e-post, EHF, organisasjonsnummer og betalingsmetode.
+                      </p>
+                    </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                 </Link>
               </Card>
@@ -329,7 +329,7 @@ export default function MSPPartnerSettings() {
           <div className="space-y-4 py-1">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5 col-span-2">
-                <Label htmlFor="inv-name" className="text-[12px]">Navn</Label>
+                <Label htmlFor="inv-name" className="text-base">Navn</Label>
                 <Input
                   id="inv-name"
                   placeholder="Ola Nordmann"
@@ -338,7 +338,7 @@ export default function MSPPartnerSettings() {
                 />
               </div>
               <div className="space-y-1.5 col-span-2">
-                <Label htmlFor="inv-email" className="text-[12px]">E-post</Label>
+                <Label htmlFor="inv-email" className="text-base">E-post</Label>
                 <Input
                   id="inv-email"
                   type="email"
@@ -348,7 +348,7 @@ export default function MSPPartnerSettings() {
                 />
               </div>
               <div className="space-y-1.5 col-span-2">
-                <Label className="text-[12px]">Rolle</Label>
+                <Label className="text-base">Rolle</Label>
                 <Select
                   value={invite.role}
                   onValueChange={(v) => setInvite({ ...invite, role: v as TeamMember["role"] })}

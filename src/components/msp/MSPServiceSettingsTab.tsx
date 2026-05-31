@@ -41,7 +41,7 @@ export function MSPServiceSettingsTab() {
           </div>
           <div className="min-w-0">
             <h3 className="text-base font-semibold text-foreground">Standard timepris</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               Brukes som utgangspunkt for alle nye tjenester og tilbud. Du kan overstyre timeprisen pr tjeneste senere.
             </p>
           </div>
@@ -49,16 +49,16 @@ export function MSPServiceSettingsTab() {
 
         <div className="grid gap-3 md:grid-cols-[140px_200px_1fr] md:items-end">
           <div className="space-y-1.5">
-            <Label htmlFor="currency-select" className="text-sm text-foreground font-medium">
+            <Label htmlFor="currency-select" className="text-base text-foreground font-medium">
               Valuta
             </Label>
             <Select value={currency} onValueChange={handleCurrencyChange}>
-              <SelectTrigger id="currency-select" className="h-10 text-sm">
+              <SelectTrigger id="currency-select" className="h-10 text-base">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {SUPPORTED_CURRENCIES.map((c) => (
-                  <SelectItem key={c.code} value={c.code} className="text-sm">
+                  <SelectItem key={c.code} value={c.code} className="text-base">
                     {c.label}
                   </SelectItem>
                 ))}
@@ -66,7 +66,7 @@ export function MSPServiceSettingsTab() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="default-hourly-rate" className="text-sm text-foreground font-medium">
+            <Label htmlFor="default-hourly-rate" className="text-base text-foreground font-medium">
               Timepris
             </Label>
             <Input
@@ -76,11 +76,11 @@ export function MSPServiceSettingsTab() {
               step={50}
               value={rate}
               onChange={(e) => setRate(e.target.value)}
-              className="h-10 text-sm tabular-nums"
+              className="h-10 text-base tabular-nums"
             />
           </div>
           <div>
-            <Button type="button" size="sm" className="h-10 text-sm" onClick={handleSave}>
+            <Button type="button" size="sm" className="h-10 text-base" onClick={handleSave}>
               Lagre standard timepris
             </Button>
           </div>
@@ -94,7 +94,7 @@ export function MSPServiceSettingsTab() {
           </div>
           <div>
             <h3 className="text-base font-semibold text-foreground">Tilbudsmal</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               Logo, partnernavn og slagord som vises i tilbud du sender til kunder.
             </p>
           </div>
