@@ -262,7 +262,6 @@ export default function MSPCustomerDetail() {
                 onFillBaseline={() => setBaselineDrawer({ open: true, review: false })}
                 onReviewBaseline={() => setBaselineDrawer({ open: true, review: true })}
                 onGoToRegulations={() => handleTabChange("regulations")}
-                onStartGapAnalysis={() => startGapRef.current()}
               />
 
               <BaselineQuestionsDrawer
@@ -274,59 +273,14 @@ export default function MSPCustomerDetail() {
                 reviewMode={baselineDrawer.review}
               />
 
-              {/* 2) Gap-analyse pr regelverk — Lara */}
-              {activeFrameworkIds.length > 0 && (
-                <RegulationGapAnalysisCard
-                  customerId={customerId!}
-                  activeFrameworkIds={activeFrameworkIds}
-                  registerStartHandler={(h) => { startGapRef.current = h; }}
-                  onVerifyWithQuestionnaire={(frameworkId, frameworkName, serviceId) => {
-                    setVerifyContext({ frameworkId, frameworkName, serviceId });
-                    setTimeout(() => {
-                      document.getElementById("questionnaire-dispatch-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }, 80);
-                  }}
-                />
-              )}
-
-              {/* 3) Spørreskjema — verifiser Laras funn */}
-              <div id="questionnaire-dispatch-anchor" className="scroll-mt-24 space-y-3">
-                {verifyContext && (
-                  <div className="flex items-center gap-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
-                    <ClipboardCheck className="h-4 w-4 text-primary shrink-0" />
-                    <p className="text-sm text-foreground flex-1">
-                      Verifiserer gap-analyse for <span className="font-medium">{verifyContext.frameworkName}</span> — bruk et spørreskjema for å bekrefte Laras funn hos kunden.
-                    </p>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 w-8 p-0 shrink-0"
-                      onClick={() => setVerifyContext(null)}
-                      aria-label="Lukk verifiseringsmelding"
-                    >
-                      <XIcon className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-                <QuestionnaireDispatchCard
-                  customerId={customerId!}
-                  customerName={customer.name || "kunden"}
-                />
-              </div>
-
-              {/* 4) Lara-gap fra siste fullførte skjema */}
-              <div id="gap-list-anchor" className="scroll-mt-24 transition-all">
-                <QuestionnaireGapList
-                  customerId={customerId!}
-                  onProposeService={(serviceId, source) =>
-                    toast.info(`Foreslår "${serviceId}" basert på ${source}`, {
-                      description: "Åpner tilbudsverktøy i neste iterasjon.",
-                    })
-                  }
-                />
-              </div>
+              {/* 2) Spørreskjema til kunden */}
+              <QuestionnaireDispatchCard
+                customerId={customerId!}
+                customerName={customer.name || "kunden"}
+              />
 
             </TabsContent>
+
 
             {/* ── Vurdering ── */}
             <TabsContent value="assessment" className="mt-6 space-y-5">
