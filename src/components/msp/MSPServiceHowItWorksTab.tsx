@@ -80,6 +80,9 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
         </p>
       </div>
 
+      {/* Visuell sammenheng */}
+      <ServiceFlowDiagram />
+
       {/* Steg */}
       <div className="space-y-3">
         {STEPS.map((step, i) => {
