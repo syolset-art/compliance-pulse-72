@@ -584,7 +584,8 @@ export default function ActivateTrustProfileWizard({
         step === 2 ? "Jeg leter gjennom hjemmesiden din og offentlige kilder nå …" :
         step === 3 ? "Her er det jeg fant. Bekreft eller juster gjerne — alt er forhåndsutfylt." :
         step === 4 ? "La oss gå gjennom modenheten din. Jeg har gjettet basert på det jeg fant." :
-        step === 5 ? "Har du noen policyer å laste opp? Jeg kobler dem til riktig krav automatisk." :
+        step === 5 ? "Hvem er de viktigste leverandørene som har tilgang til systemene eller dataene dine?" :
+        step === 6 ? "Har du noen policyer å laste opp? Jeg kobler dem til riktig krav automatisk." :
         "Siste steg — hvem skal få se profilen?";
       return (
         <div className="max-w-3xl mx-auto space-y-4">
