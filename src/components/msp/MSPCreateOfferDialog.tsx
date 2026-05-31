@@ -236,6 +236,20 @@ export function MSPCreateOfferDialog({
           const lines = doc.splitTextToSize(`• ${id} — ${label}`, pageWidth - margin * 2);
           doc.text(lines, margin + 8, y);
           y += lines.length * 12;
+          const related = getRelatedControls(group.frameworkId, id);
+          if (related.length > 0) {
+            if (y > 780) { doc.addPage(); y = margin; }
+            const shown = related.slice(0, 3).map(r => `${r.frameworkLabel} ${r.controlId}`).join(", ");
+            const extra = related.length - 3;
+            const suffix = extra > 0 ? ` +${extra} flere` : "";
+            doc.setFontSize(9);
+            doc.setTextColor(120);
+            const relLines = doc.splitTextToSize(`Også: ${shown}${suffix}`, pageWidth - margin * 2 - 16);
+            doc.text(relLines, margin + 16, y);
+            y += relLines.length * 11;
+            doc.setFontSize(10);
+            doc.setTextColor(60);
+          }
         });
         y += 8;
       });
