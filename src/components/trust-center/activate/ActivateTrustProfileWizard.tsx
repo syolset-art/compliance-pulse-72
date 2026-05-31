@@ -1370,15 +1370,6 @@ function CriticalVendorsStep({ rows, onChange, subprocessorList, onSubprocessorC
 
   return (
     <div className="space-y-3">
-      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
-        <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-        <p className="text-sm text-foreground">
-          Tenk på de leverandørene som faktisk lagrer eller behandler dine viktigste data — for eksempel skytjenester,
-          regnskap, lønn, HR eller IT-drift. Begynn å skrive navnet, så foreslår vi kjente leverandører og hva de
-          vanligvis har tilgang til. Du kan legge til inntil {MAX_CRITICAL_VENDORS}.
-        </p>
-      </div>
-
       <div className="space-y-3">
         {rows.map((row, idx) => (
           <VendorRowCard
