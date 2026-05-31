@@ -478,49 +478,33 @@ export function MSPCreateOfferDialog({
                 <Plus className="h-3 w-3" /> Legg til oppgave
               </Button>
 
-              {/* Pris og rabatt */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center gap-3">
-                  <div className="flex-1">
+              {/* Pris og total */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-end gap-3">
+                  <div className="w-40">
                     <Label className="text-xs font-medium text-foreground">Timepris</Label>
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
                         value={editableHourlyRate}
                         onChange={e => setEditableHourlyRate(Number(e.target.value))}
-                        className="h-8 text-sm tabular-nums"
+                        className="h-9 text-sm tabular-nums"
                       />
                       <span className="text-sm text-muted-foreground">kr</span>
                     </div>
                   </div>
-                  <div className="w-24">
-                    <Label className="text-xs font-medium text-foreground">Rabatt</Label>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        min={0}
-                        max={100}
-                        value={discountPercent}
-                        onChange={e => setDiscountPercent(Math.max(0, Math.min(100, Number(e.target.value))))}
-                        className="h-8 text-sm tabular-nums"
-                      />
-                      <span className="text-sm text-muted-foreground">%</span>
-                    </div>
-                  </div>
+                  <p className="text-xs text-muted-foreground pb-2">
+                    Brukes for å beregne totalsummen under.
+                  </p>
                 </div>
-                <div className="flex items-baseline justify-between px-1">
-                  {discountPercent > 0 ? (
-                    <div className="text-sm text-muted-foreground">
-                      <div>Delsum {subtotal.toLocaleString("nb-NO")} kr</div>
-                      <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
-                  )}
-                  <span className="text-base font-semibold text-foreground tabular-nums">
-                    {totalHours} timer · {totalPrice.toLocaleString("nb-NO")} kr
+                <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 flex items-baseline justify-between">
+                  <div className="text-sm text-foreground">
+                    <span className="font-medium">Totalt</span>
+                    <span className="text-muted-foreground"> · {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                  </div>
+                  <span className="text-lg font-bold text-foreground tabular-nums">
+                    {totalPrice.toLocaleString("nb-NO")} kr
                   </span>
-
                 </div>
               </div>
             </div>
