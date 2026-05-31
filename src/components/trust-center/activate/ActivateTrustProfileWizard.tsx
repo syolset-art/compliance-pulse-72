@@ -696,9 +696,9 @@ export default function ActivateTrustProfileWizard({
         step === 1 ? "Hei! Jeg er Lara. La oss aktivere Trust Center-profilen din sammen — det tar bare et par minutter." :
         step === 2 ? "Jeg leter gjennom hjemmesiden din og offentlige kilder nå …" :
         step === 3 ? "Her er det jeg fant. Bekreft eller juster gjerne — alt er forhåndsutfylt." :
-        step === 4 ? "La oss gå gjennom modenheten din. Jeg har gjettet basert på det jeg fant." :
+        step === 4 ? "Har du noen policyer å laste opp? Jeg kobler dem til riktig krav automatisk." :
         step === 5 ? "Hvem er de viktigste leverandørene som har tilgang til systemene eller dataene dine?" :
-        step === 6 ? "Har du noen policyer å laste opp? Jeg kobler dem til riktig krav automatisk." :
+        step === 6 ? "La oss gå gjennom modenheten din. Jeg har gjettet basert på det jeg fant." :
         step === 7 ? "Siste steg — hvem skal få se profilen?" :
         "";
       return (
