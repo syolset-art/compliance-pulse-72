@@ -664,7 +664,7 @@ export function MSPCreateOfferDialog({
                           Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()}
                         </p>
                         <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
-                          Øyeblikksbilde {snapshotLabel}
+                          {snapshotLabel}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">
