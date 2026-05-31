@@ -517,16 +517,50 @@ export function MSPCreateOfferDialog({
             </div>
 
             {/* Lukker mangler fra gap-analysen (gap-drevet) */}
-            {coveredGaps && totalGapCount > 0 && (
+            {coveredGaps && totalGapCount > 0 && (() => {
+              const coverageState: "full" | "partial" | "none" =
+                selectedCount === 0 ? "none" : selectedCount === totalGapCount ? "full" : "partial";
+              const coverageLabel =
+                coverageState === "full" ? "Full dekning" : coverageState === "partial" ? "Delvis dekning" : "Ingen dekning";
+              const coverageClass =
+                coverageState === "full"
+                  ? "bg-success/10 text-success border-success/30"
+                  : coverageState === "partial"
+                    ? "bg-warning/10 text-warning border-warning/30"
+                    : "bg-destructive/10 text-destructive border-destructive/30";
+              const allIds = sortedGaps.map(g => g.id);
+              const allChecked = selectedCount === totalGapCount;
+              return (
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-                    Lukker mangler fra gap-analysen
+                    Mangler aktivitetene lukker
                   </Label>
                   <span className="text-xs text-foreground tabular-nums font-medium">
                     {selectedCount} av {totalGapCount}
                   </span>
                 </div>
+
+                {/* Tydelig dekningsstatus-banner */}
+                <div className={cn("rounded-md border px-3 py-2 flex items-center gap-2 flex-wrap", coverageClass)}>
+                  <ShieldCheck className="h-4 w-4 shrink-0" />
+                  <span className="text-sm font-semibold">{coverageLabel}</span>
+                  <span className="text-xs opacity-90">
+                    {coverageState === "full"
+                      ? "Aktivitetene lukker alle mangler fra gap-analysen."
+                      : coverageState === "partial"
+                        ? `Aktivitetene lukker ${selectedCount} av ${totalGapCount} mangler. ${totalGapCount - selectedCount} gjenstår.`
+                        : "Aktivitetene lukker ingen av manglene fra gap-analysen."}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedGapIds(allChecked ? new Set() : new Set(allIds))}
+                    className="ml-auto text-xs font-medium underline-offset-2 hover:underline"
+                  >
+                    {allChecked ? "Fjern alle" : "Velg alle"}
+                  </button>
+                </div>
+
                 <div className="rounded-md border border-border overflow-hidden">
                   <div className="px-3 py-2 bg-muted/40 border-b border-border space-y-1.5">
                     <div className="flex items-center justify-between gap-2 text-xs">
