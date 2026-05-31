@@ -217,10 +217,22 @@ export function MSPCreateOfferDialog({
     // Totals
     doc.setFontSize(11);
     doc.setTextColor(90);
-    doc.text(`Timepris: ${hourlyRate.toLocaleString("nb-NO")} kr`, margin, y);
+    doc.text(`Timepris: ${editableHourlyRate.toLocaleString("nb-NO")} kr`, margin, y);
     doc.setFontSize(13);
     doc.setTextColor(20);
-    doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+    if (discountPercent > 0) {
+      doc.text(`Delsum: ${totalHours} t · ${subtotal.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+      y += 16;
+      doc.setFontSize(11);
+      doc.setTextColor(90);
+      doc.text(`Rabatt: ${discountPercent}% · -${discountAmount.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+      y += 16;
+      doc.setFontSize(13);
+      doc.setTextColor(20);
+      doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+    } else {
+      doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+    }
     y += 28;
 
     // Covered controls
