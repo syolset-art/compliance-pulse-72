@@ -1,40 +1,49 @@
-# Kompakt kartlegging + tydelig forhåndsutfylling
 
 ## Mål
-1. Når brukeren har oppgitt hjemmeside, skal steg 3 vise tydelig hva Lara har forhåndsutfylt fra kartleggingen.
-2. Selve kartleggingsanimasjonen (steg 2) skal være en kompakt prosessindikator — ikke en stor liste som tar over hele siden.
+Bytte demo-bedriften fra «Framdrift Innovasjon AS» (rådgivning) til «DIPS Arena AS» — en realistisk helseaktør — slik at investor-demoen treffer riktig bransje. Alle felter (bransje, beskrivelse, e-poster, domener, dokumenter, kontaktpersoner) oppdateres så Lara-kartleggingen og Trust Profile fremstår troverdig.
 
-## Endringer
+## Ny demo-profil (helse)
 
-### 1. Steg 2 — kompakt prosessvisning (`ScanStep`)
-Erstatt dagens store kort + liste over alle findings med en liten, rolig progress-stripe:
-
-- Ett enkelt kort (én linje høyt) med:
-  - Lara-avatar / spinner til venstre, som blir grønt hak når ferdig
-  - Status-tekst: «Lara kartlegger {domene}…» → «Ferdig — fant {n} områder»
-  - Tynn progress-bar under teksten
-- Under kortet: én roterende mikrolinje som viser hva som skannes akkurat nå (bytter hvert ~600 ms blant findings: «Henter personvernerklæring…», «Ser etter sikkerhetskontakt…», «Sjekker underleverandører…»). Vises som liten muted tekst med en liten ikonprikk — ikke som kort.
-- Når skanning er ferdig: erstatt mikrolinjen med én kort oppsummeringslinje: «Fant {found} områder · {missing} mangler — alt er forhåndsutfylt i neste steg.»
-- Fjern: den fulle findings-listen og det store success-kortet.
-- Beholdes: samme `revealed/progress`-state og `SCAN_STEPS_MS` (driver bare animasjonen, ikke en lang liste).
-
-Resultat: steg 2 tar ~120 px loddrett i stedet for å fylle hele dialogen.
-
-### 2. Steg 3 — synliggjør forhåndsutfylling (`ConfirmStep`)
-Forhåndsutfylling skjer allerede i `useEffect` etter scan (linje 275-311), men brukeren ser ikke at feltene er forhåndsutfylt. Legg til:
-
-- Banner øverst (kun når `hasWebsite === "yes"` og scan finnes): liten Lara-stripe — «Lara fylte ut dette fra {domene}. Endre det du vil.» Skjules ved `hasWebsite === "no"`.
-- Per felt som er prefilled fra scan: liten muted hint under feltet — «Fra {kilde}» (f.eks. «Fra personvernerklæring», «Fra kontaktside»). Bruk `laraSources` (finnes allerede) — vi mapper inn kilder for beskrivelse, kontakter, personvern.
-- Liten Sparkles-ikon-badge på label når feltet kommer fra Lara, så brukeren ser hva som er auto-fylt vs. tomt.
-- Når `hasWebsite === "no"`: feltene er tomme, ingen banner, ingen «Fra …»-hint — vanlig manuell utfylling.
-
-### 3. Props til `ConfirmStep`
-Send inn `hasWebsite`, `website` og et lite `prefillSources`-objekt (avledet fra `scan` + `laraSources` i parent) slik at komponenten vet hva som kom fra Lara per felt.
+- Navn: DIPS Arena AS
+- Org.nr: 936431127 (uendret — fiktivt for demo)
+- Bransje: Helse og omsorg
+- Brreg-bransje: Helsetjenester / Programvareutvikling for helsesektoren
+- Beskrivelse: «DIPS Arena AS leverer digitale helseløsninger til sykehus, kommuner og spesialister i Norge. Vi behandler pasientopplysninger og særlige kategorier av personopplysninger på vegne av helsevirksomheter.»
+- Domene: dipsarena.no
+- Ansatte: 11–50 (brreg_employees: 25) — mer troverdig for helseaktør enn 5
+- Region/land: Vestland, Norge (beholdt)
+- Kontakt / DPO / Compliance: Marte Solberg → byttes til realistisk helse-navn, f.eks. Kari Lien (compliance) og Henrik Dahl (DPO)
+- E-poster: marte@framdrift.no → kari.lien@dipsarena.no, personvern@dipsarena.no, hei@dipsarena.no, sikkerhet@dipsarena.no
+- Personvernerklæring URL: https://dipsarena.no/personvern
+- Sensitive data: «extensive» (helseopplysninger) i stedet for «limited»
+- Use cases: ["gdpr", "iso27001", "nsm_grunnprinsipper"] (legger til NSM som er relevant for helse)
 
 ## Filer som endres
-- `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx`
-  - Skrive om `ScanStep` (linje ~1012-1078) til kompakt variant
-  - Utvide `ConfirmStep` (linje ~1093-1143) med banner + per-felt «Fra …»-hint og Sparkles-badge
-  - Sende `hasWebsite`, `website`, `scan` (eller avledet sources-map) som props til `ConfirmStep` (rundt linje 559)
 
-Ingen endringer i `demoTrustActivation`, `vendorCatalog` eller andre filer.
+1. `src/lib/demoSeedTrustProfile.ts`
+   - `FRAMDRIFT_PROFILE` → `DIPS_ARENA_PROFILE` (eller bare oppdatere feltene): navn, bransje, domene, ansatte, kontakt, DPO, e-poster, sensitive_data, use_cases.
+   - `SELF_ASSET`: navn, beskrivelse, kontakt, e-post, url.
+   - Behold org_number, geografisk scope, evidence-checks-strukturen.
+
+2. `src/lib/demoTrustActivation.ts`
+   - `FRAMDRIFT` `LaraScanResult` → `DIPS_ARENA`: company name, description, alle e-poster (primary, dpo, support, security), policyUrl, dokumenter-URLer.
+   - `normalized.includes("framdrift")` → `normalized.includes("dips")` (matcher domene/navn ved Lara-oppslag).
+   - Oppdater eventuelle subProcessors/leverandørreferanser så de passer en helseaktør (f.eks. Microsoft Azure Health Data Services, Norsk Helsenett som driftspartner).
+
+3. `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx`
+   - Linje 846: placeholder «F.eks. Framdrift Innovasjon AS» → «F.eks. DIPS Arena AS».
+
+4. `src/components/msp/AddMSPCustomerDialog.tsx`
+   - Linje 484: CSV-placeholder oppdateres til «936431127;DIPS Arena AS;Kari Lien;kari.lien@dipsarena.no».
+
+## Ikke i scope
+
+- Ingen endring i databaseskjema eller migreringer — dette er ren demo-/seed-data og UI-placeholders.
+- Logikk for kartlegging, modenhetsspørsmål og auto-utfylling endres ikke. Kun innholdet (navn/bransje/e-post/dokumenter) byttes ut.
+- Eksisterende seedet rad i Supabase oppdateres automatisk neste gang `seedDemoTrustProfile()` kjøres (koden gjør upsert via update på eksisterende id).
+
+## Verifikasjon
+
+- Åpne `/trust-center/profile` → bedriftsnavn, bransje og beskrivelse viser «DIPS Arena AS» / helse.
+- Kjør Aktiver Trust Profile-wizard → Lara-kartlegging matcher mot dipsarena.no og pre-utfyller helse-relevant data.
+- Sjekk MSP «Legg til kunde»-dialog → ny placeholder vises.
