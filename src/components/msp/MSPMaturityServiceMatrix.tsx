@@ -96,6 +96,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     desc: "Kunden er omfattet av NIS2 og lite forberedt. Strukturert leveranse med gap-analyse, policyer og rapporteringsrutiner.",
     urgent: true,
     frameworkId: "nis2",
+    frameworkLabel: "NIS2",
+    controlIds: ["Art.20", "Art.21", "Art.23"],
     openGaps: 7,
     hourlyRate: HOURLY_RATE,
     tasks: [
@@ -112,6 +114,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     title: "AI Governance-rammeverk",
     desc: "Kunden har ikke startet på AI-styring. Kartlegging av AI-bruk, klassifisering og policy-oppsett.",
     frameworkId: "aiact",
+    frameworkLabel: "AI Act",
+    controlIds: ["Art.4", "Art.9", "Art.10", "Art.26"],
     openGaps: 4,
     hourlyRate: HOURLY_RATE,
     tasks: [
@@ -127,6 +131,8 @@ const RECOMMENDATIONS: Recommendation[] = [
     title: "Penetrasjonstest",
     desc: "Årlig ekstern test av applikasjoner og infrastruktur. Underbygger ISO- og NIS2-arbeidet.",
     frameworkId: "iso27001",
+    frameworkLabel: "ISO 27001",
+    controlIds: ["A.8.8", "A.8.29", "A.5.7"],
     openGaps: 6,
     hourlyRate: HOURLY_RATE,
     tasks: [
