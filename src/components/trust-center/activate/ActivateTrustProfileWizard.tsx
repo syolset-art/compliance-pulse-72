@@ -369,6 +369,9 @@ export default function ActivateTrustProfileWizard({
       dpoEmail,
       securityEmail,
       maturityAnswers,
+      criticalVendors: criticalVendors
+        .filter((v) => v.name.trim().length > 0)
+        .map((v) => ({ name: v.name.trim(), access: v.access.trim(), dpa: v.dpa ?? "unknown" })),
       documents,
       visibility,
       partner: partnerStatus
