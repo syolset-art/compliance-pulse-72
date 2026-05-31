@@ -34,6 +34,8 @@ export interface CustomServiceDraft {
   hours: number;
   activities: ServiceActivity[];
   mappings: ServiceMapping[];
+  /** Overstyrt totalpris. Hvis satt, brukes denne i stedet for hours × timepris. */
+  priceOverride?: number;
 }
 
 interface Props {
