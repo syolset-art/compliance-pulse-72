@@ -837,7 +837,7 @@ export function MSPCreateOfferDialog({
                   <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1.5">Vedlegg</p>
                   <div className="flex items-center gap-2 text-sm text-foreground">
                     <FileText className="h-3.5 w-3.5 text-primary" />
-                    Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()} · øyeblikksbilde {snapshotLabel} · {gapCount} mangler
+                    Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()} · utført dato {snapshotLabel} · {gapCount} mangler
                   </div>
                 </div>
               )}
