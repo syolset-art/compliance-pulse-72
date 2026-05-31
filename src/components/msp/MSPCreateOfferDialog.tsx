@@ -601,7 +601,14 @@ export function MSPCreateOfferDialog({
               </div>
 
               <div className="flex items-baseline justify-between pt-2">
-                <span className="text-[12px] text-muted-foreground">Timepris {hourlyRate.toLocaleString("nb-NO")} kr</span>
+                {discountPercent > 0 ? (
+                  <div className="text-[12px] text-muted-foreground">
+                    <div>Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</div>
+                    <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
+                  </div>
+                ) : (
+                  <span className="text-[12px] text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                )}
                 <span className="text-base font-bold text-foreground tabular-nums">
                   {totalHours} t · {totalPrice.toLocaleString("nb-NO")} kr
                 </span>
