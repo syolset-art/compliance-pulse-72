@@ -317,26 +317,14 @@ export function MSPCreateOfferDialog({
       });
       y += 10;
     } else if (safeCoveredControls.length > 0) {
-      // Bakoverkompatibel statisk visning
       doc.setFontSize(10);
-      doc.setTextColor(120);
-      doc.text("DEKKER KONTROLLPUNKTER", margin, y);
-      y += 14;
+      doc.setTextColor(100);
       safeCoveredControls.forEach(group => {
-        if (y > 760) { doc.addPage(); y = margin; }
-        doc.setFontSize(11);
-        doc.setTextColor(20);
-        doc.text(`${group.frameworkLabel} · ${group.controlIds.length} kontrollpunkt${group.controlIds.length === 1 ? "" : "er"}`, margin, y);
-        y += 14;
-        doc.setFontSize(10);
-        doc.setTextColor(60);
-        group.controlIds.forEach(id => {
-          if (y > 780) { doc.addPage(); y = margin; }
-          const lines = doc.splitTextToSize(`• ${id}`, pageWidth - margin * 2);
-          doc.text(lines, margin + 8, y);
-          y += lines.length * 12;
-        });
-        y += 8;
+        if (y > 780) { doc.addPage(); y = margin; }
+        const items = group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ");
+        const lines = doc.splitTextToSize(`Dekker ${group.frameworkLabel}: ${items}`, pageWidth - margin * 2);
+        doc.text(lines, margin, y);
+        y += lines.length * 12;
       });
       y += 6;
     }
