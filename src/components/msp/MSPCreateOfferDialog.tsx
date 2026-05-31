@@ -14,6 +14,9 @@ import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { getControlLabel } from "@/lib/serviceControlLabels";
+import { getRelatedControls } from "@/lib/controlCrosswalk";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface CoveredControlGroup {
@@ -233,6 +236,20 @@ export function MSPCreateOfferDialog({
           const lines = doc.splitTextToSize(`• ${id} — ${label}`, pageWidth - margin * 2);
           doc.text(lines, margin + 8, y);
           y += lines.length * 12;
+          const related = getRelatedControls(group.frameworkId, id);
+          if (related.length > 0) {
+            if (y > 780) { doc.addPage(); y = margin; }
+            const shown = related.slice(0, 3).map(r => `${r.frameworkLabel} ${r.controlId}`).join(", ");
+            const extra = related.length - 3;
+            const suffix = extra > 0 ? ` +${extra} flere` : "";
+            doc.setFontSize(9);
+            doc.setTextColor(120);
+            const relLines = doc.splitTextToSize(`Også: ${shown}${suffix}`, pageWidth - margin * 2 - 16);
+            doc.text(relLines, margin + 16, y);
+            y += relLines.length * 11;
+            doc.setFontSize(10);
+            doc.setTextColor(60);
+          }
         });
         y += 8;
       });
@@ -385,14 +402,47 @@ export function MSPCreateOfferDialog({
                             {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
                           </span>
                         </div>
-                        <ul className="space-y-1">
-                          {group.controlIds.map(id => (
-                            <li key={id} className="flex items-start gap-2 text-[12.5px] text-foreground/85">
-                              <ShieldCheck className="h-3 w-3 text-muted-foreground mt-1 shrink-0" />
-                              <span className="font-mono text-[11.5px] text-muted-foreground shrink-0">{id}</span>
-                              <span className="text-foreground/80">— {getControlLabel(group.frameworkId, id)}</span>
-                            </li>
-                          ))}
+                        <ul className="space-y-1.5">
+                          {group.controlIds.map(id => {
+                            const related = getRelatedControls(group.frameworkId, id);
+                            const visible = related.slice(0, 3);
+                            const extra = related.length - visible.length;
+                            return (
+                              <li key={id} className="space-y-1 text-[12.5px] text-foreground/85">
+                                <div className="flex items-start gap-2">
+                                  <ShieldCheck className="h-3 w-3 text-muted-foreground mt-1 shrink-0" />
+                                  <span className="font-mono text-[11.5px] text-muted-foreground shrink-0">{id}</span>
+                                  <span className="text-foreground/80">— {getControlLabel(group.frameworkId, id)}</span>
+                                </div>
+                                {related.length > 0 && (
+                                  <div className="flex flex-wrap items-center gap-1 pl-7">
+                                    <Link2 className="h-3 w-3 text-muted-foreground" />
+                                    <span className="text-[11px] text-muted-foreground mr-1">Også:</span>
+                                    <TooltipProvider delayDuration={150}>
+                                      {visible.map(r => {
+                                        const t = getFrameworkTheme(r.frameworkId);
+                                        return (
+                                          <Tooltip key={`${r.frameworkId}-${r.controlId}`}>
+                                            <TooltipTrigger asChild>
+                                              <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[10.5px] font-medium border cursor-default", t.chip)}>
+                                                {r.frameworkLabel} {r.controlId}
+                                              </span>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="top" className="text-xs">
+                                              {getControlLabel(r.frameworkId, r.controlId)}
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        );
+                                      })}
+                                    </TooltipProvider>
+                                    {extra > 0 && (
+                                      <span className="text-[10.5px] text-muted-foreground">+{extra}</span>
+                                    )}
+                                  </div>
+                                )}
+                              </li>
+                            );
+                          })}
                         </ul>
                       </div>
                     );
@@ -529,13 +579,40 @@ export function MSPCreateOfferDialog({
                               {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
                             </span>
                           </div>
-                          <ul className="space-y-0.5 pl-1">
-                            {group.controlIds.map(id => (
-                              <li key={id} className="text-[12px] text-foreground/85 flex gap-2">
-                                <span className="font-mono text-muted-foreground shrink-0">{id}</span>
-                                <span>— {getControlLabel(group.frameworkId, id)}</span>
-                              </li>
-                            ))}
+                          <ul className="space-y-1.5 pl-1">
+                            {group.controlIds.map(id => {
+                              const related = getRelatedControls(group.frameworkId, id);
+                              const visible = related.slice(0, 3);
+                              const extra = related.length - visible.length;
+                              return (
+                                <li key={id} className="text-[12px] text-foreground/85 space-y-1">
+                                  <div className="flex gap-2">
+                                    <span className="font-mono text-muted-foreground shrink-0">{id}</span>
+                                    <span>— {getControlLabel(group.frameworkId, id)}</span>
+                                  </div>
+                                  {related.length > 0 && (
+                                    <div className="flex flex-wrap items-center gap-1 pl-1">
+                                      <Link2 className="h-3 w-3 text-muted-foreground" />
+                                      <span className="text-[10.5px] text-muted-foreground mr-1">Også:</span>
+                                      {visible.map(r => {
+                                        const t = getFrameworkTheme(r.frameworkId);
+                                        return (
+                                          <span
+                                            key={`${r.frameworkId}-${r.controlId}`}
+                                            className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[10.5px] font-medium border", t.chip)}
+                                          >
+                                            {r.frameworkLabel} {r.controlId}
+                                          </span>
+                                        );
+                                      })}
+                                      {extra > 0 && (
+                                        <span className="text-[10.5px] text-muted-foreground">+{extra}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                </li>
+                              );
+                            })}
                           </ul>
                         </div>
                       );
