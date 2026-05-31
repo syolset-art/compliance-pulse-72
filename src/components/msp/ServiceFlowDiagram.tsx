@@ -30,8 +30,8 @@ export function ServiceFlowDiagram() {
             </div>
           </div>
           <div className="space-y-2">
-            <p className="text-base text-foreground/80">Modenhetsnivå (0–4)</p>
-            <div className="flex items-center gap-1.5" role="img" aria-label="Modenhetsnivå 3 av 4">
+            <p className="text-base text-foreground/80">Modenhet</p>
+            <div className="flex items-center gap-1.5" role="img" aria-label="Modenhet stiger">
               {[0, 1, 2, 3, 4].map((i) => (
                 <span
                   key={i}

@@ -49,7 +49,7 @@ const OUTCOMES = [
   {
     icon: TrendingUp,
     title: "Modenhet øker",
-    body: "Hvert kontrollpunkt du leverer på, hever kundens modenhetsnivå (0–4) i berørte regelverk.",
+    body: "Hvert kontrollpunkt du leverer på, hever kundens modenhet i berørte regelverk.",
     tone: "success" as const,
   },
   {
