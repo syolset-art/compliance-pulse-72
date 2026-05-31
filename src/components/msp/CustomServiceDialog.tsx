@@ -189,10 +189,6 @@ export function CustomServiceDialog({
       <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Rediger tjeneste" : "Legg til egen tjeneste"}</DialogTitle>
-          <DialogDescription>
-            Pris beregnes alltid fra timer × din timepris ({defaultHourlyRate.toLocaleString("nb-NO")} kr/t).
-            Legg til aktiviteter for å bygge opp timeestimatet.
-          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
@@ -202,7 +198,7 @@ export function CustomServiceDialog({
               id="cs-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="F.eks. Phishing-simulering og opplæring"
+              placeholder="F.eks. kurs av ansatte, phishing-simulering, backup-overvåking"
             />
           </div>
 
@@ -212,7 +208,7 @@ export function CustomServiceDialog({
               id="cs-desc"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Kort beskrivelse — jo mer detalj, desto bedre forslag fra Lara"
+              placeholder="Legg til detaljer for bedre forslag"
               rows={2}
             />
           </div>
