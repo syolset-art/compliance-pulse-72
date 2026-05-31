@@ -302,14 +302,18 @@ export function MSPServiceCatalogTab() {
             </div>
           </div>
           <div className="space-y-1">
-            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1">
+            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
               <Sparkles className="h-3 w-3" /> Tjenester i katalog
+              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[10px] font-semibold text-primary">
+                {extras.length}
+              </span>
             </div>
             <div className="text-lg font-semibold text-foreground tabular-nums">
-              {extras.length}
-              <span className="ml-2 text-xs font-normal text-muted-foreground">
-                standard{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
-              </span>
+              {showCalculator ? (
+                <span className="text-xs font-normal text-muted-foreground">
+                  {frameworksActive} regelverk
+                </span>
+              ) : null}
             </div>
           </div>
         </div>
