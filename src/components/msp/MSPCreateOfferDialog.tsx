@@ -325,7 +325,7 @@ export function MSPCreateOfferDialog({
             <span className="text-xs text-muted-foreground">{effectivePartnerName}</span>
           </div>
           <DialogTitle className="text-lg">{offerName}</DialogTitle>
-          <DialogDescription className="text-[13px]">
+          <DialogDescription className="text-sm">
             {view === "edit"
               ? "Juster oppgaver og timer. Du genererer et tilbudsdokument du selv kan laste ned og sende fra ditt eget tilbudssystem."
               : "Last ned som PDF for å sende via ditt eget tilbudssystem, eller lagre tilbudet på kunden."}
