@@ -307,6 +307,9 @@ const TrustCenterEditProfile = () => {
               <CompanyInfoForm defaultEditing showEditControls partnerOnly />
             </section>
 
+            {/* Kritiske leverandører — speiler aktiveringen */}
+            <CriticalVendorsSection asset={asset} />
+
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Modenhet per kontrollområde */}
             {/* ═══════════════════════════════════════════ */}
