@@ -775,6 +775,13 @@ export function MSPMaturityServiceMatrix({
                             coveredControls: r.frameworkId && r.controlIds?.length
                               ? [{ frameworkId: r.frameworkId, frameworkLabel: r.frameworkLabel ?? r.frameworkId.toUpperCase(), controlIds: r.controlIds }]
                               : undefined,
+                            coveredGaps: r.frameworkId
+                              ? {
+                                  frameworkId: r.frameworkId,
+                                  frameworkLabel: r.frameworkLabel ?? r.frameworkId.toUpperCase(),
+                                  preselectedControlIds: r.controlIds ?? [],
+                                }
+                              : undefined,
                           });
                         }}
                       >
