@@ -649,34 +649,12 @@ export function MSPCreateOfferDialog({
 
             {/* Bakoverkompatibel: gammel statisk visning når coveredGaps ikke er satt */}
             {!coveredGaps && safeCoveredControls.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-                  Dekker kontrollpunkter
-                </Label>
-                <div className="rounded-md border border-border p-3 space-y-2">
-                  {safeCoveredControls.map(group => {
-                    const theme = getFrameworkTheme(group.frameworkId);
-                    return (
-                      <div key={group.frameworkId} className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                            {group.frameworkLabel}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-1 pl-1">
-                          {group.controlIds.map(id => (
-                            <span key={id} className="font-mono text-xs text-foreground bg-muted/50 rounded px-1.5 py-0.5">
-                              {id}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="space-y-1">
+                {safeCoveredControls.map(group => (
+                  <p key={group.frameworkId} className="text-xs text-muted-foreground">
+                    Dekker {group.frameworkLabel}: {group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ")}
+                  </p>
+                ))}
               </div>
             )}
 
