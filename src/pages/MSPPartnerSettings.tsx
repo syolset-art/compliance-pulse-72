@@ -26,7 +26,14 @@ import {
   Save,
   Info,
   ImageIcon,
+  Layers,
 } from "lucide-react";
+import {
+  PARTNER_MODULES,
+  getEnabledPartnerModules,
+  setPartnerModuleEnabled,
+  type PartnerModuleKey,
+} from "@/lib/partnerModules";
 import { toast } from "sonner";
 import { PartnerBrandingCard } from "@/components/msp/PartnerBrandingCard";
 
