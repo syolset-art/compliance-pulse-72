@@ -564,7 +564,7 @@ const SidebarContent = () => {
           );
 
           // Insert Vendors (if activated) between Regelverk (idx 0) and Meldinger (idx 1)
-          if (idx === 1 && showVendorsNormal) {
+          if (idx === 1 && showVendorsNormal && !partnerHides("vendors")) {
             const vIsActive = location.pathname === vendorLink.href;
             const isReportsActive = location.pathname === "/vendors/reports";
             const sectionActive = location.pathname.startsWith("/vendors");
