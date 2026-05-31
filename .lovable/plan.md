@@ -1,40 +1,29 @@
 ## Mål
-Legg til en tredje arkfane **"Hvordan virker det"** på siden Tjenester (`/msp-services`) som forklarer hele verdikjeden fra tjenestedefinisjon til levert sluttrapport, og hvordan dette beriker kundens trust profile.
+Partnernavn, organisasjonsnummer, webadresse og logo i Tilbudsmerking skal automatisk hentes fra brukerens trust profile (company_profile + self-asset), uten falske fallback-verdier som "Dintero AS".
 
 ## Endringer
 
-### 1. `src/pages/MSPServiceCatalog.tsx`
-- Legg til tredje `TabsTrigger` + `TabsContent` med `value="how-it-works"`, label **"Hvordan virker det"**.
-- Rekkefølge: Tjenestekatalog → Innstillinger → Hvordan virker det.
+### 1. `src/hooks/usePartnerBranding.ts`
+- Utvid Supabase-query mot `company_profile` til å hente `name, legal_name, org_number, domain`.
+- Legg til en ny query mot `assets` der `asset_type = 'self'` for å hente `logo_url`.
+- Auto-felt:
+  - `autoName = legal_name || name` (trimmet). Ingen "Dintero AS"-fallback — tom streng hvis ingenting finnes.
+  - `autoOrgNumber = org_number`.
+  - `autoDomain = domain`.
+  - `autoLogoUrl = selfAsset.logo_url`.
+- Overstyringer i localStorage vinner fortsatt over auto. Logo: hvis bruker ikke har lastet opp egen logo, brukes `autoLogoUrl` (URL fra storage), ellers data-URL fra overrides.
+- Utvid `PartnerBrandingOverrides` og `PartnerBranding` med `domain` + `isAutoDomain`, og legg til `autoDomain`.
 
-### 2. Ny komponent `src/components/msp/MSPServiceHowItWorksTab.tsx`
-Pedagogisk side med 5 steg + outcomes-seksjon nederst. Apple-aktig minimal stil, bruker semantiske tokens.
+### 2. `src/components/msp/PartnerBrandingCard.tsx`
+- Legg til input-felt **Webadresse** (auto-fylles, kan overstyres, samme mønster som navn/org).
+- Vis webadresse i mini-preview under org.nr.
+- Bytt hardkodet "Dintero AS"-placeholder/visning til `branding.autoName || "Mangler — fyll inn"`. Hvis auto-feltet er tomt og bruker ikke har overstyrt, vis hjelpetekst "Mangler — fyll inn i organisasjonsprofilen" med lenke til `/settings` (eller bare beskrivelse).
+- Logo-knapp: hvis `autoLogoUrl` finnes og brukeren ikke har overstyrt, vis "Bruker logo fra organisasjonsprofil" og knapp "Last opp egen logo for tilbud" + "Tilbakestill til auto" når overstyrt.
 
-**Hero-intro (kort):**
-> "Gjør dine eksisterende IT- og sikkerhetstjenester om til målbar compliance-leveranse."
-> Underlinje: "Tjenestene du allerede leverer, mappes mot kontrollpunkter i kundens valgte regelverk – og dokumenteres automatisk."
-
-**5 steg som vertikale kort med ikon + tittel + tekst** (én kolonne, kompakte kort med `Card`):
-
-1. **Definer dine tjenester** (`Wrench`) — "Beskriv IT- og sikkerhetstjenestene du allerede leverer i dag — backup, MDR, identitetsstyring, drift osv. Du legger inn aktiviteter, estimat og hvilke kontroller de dekker."
-2. **Auto-mapping mot regelverk** (`GitBranch`) — "Lara mapper hver tjeneste mot kontrollpunkter på tvers av kundens valgte regelverk (NIS2, ISO 27001, GDPR osv.) — én tjeneste kan dekke kontroller i flere regelverk samtidig."
-3. **Bli en del av tilbudet** (`FileText`) — "Tjenestene blir byggeklosser i tilbudet til kunden. Pris og omfang beregnes fra dine standard timesatser, og kunden ser tydelig hvilke kontrollpunkter som dekkes."
-4. **Lever og dokumenter underveis** (`ClipboardCheck`) — "Når du utfører arbeidet, besvarer du korte spørsmål knyttet til hver aktivitet. Svarene mappes automatisk til kontrollpunkter — på tvers av alle valgte regelverk — uten dobbeltarbeid."
-5. **Sluttrapport til kunden** (`FileDown`) — "Når leveransen er ferdig, genereres en sluttrapport automatisk med utført arbeid, bevis og oppdatert modenhetsstatus. Last ned og send til kunden i ett klikk."
-
-**Outcomes-seksjon "Slik berikes kundens trust profile"** (3 små kort i grid):
-- **Modenhet øker** (`TrendingUp`, success-token) — "Hvert kontrollpunkt du leverer på, hever kundens modenhetsnivå (0–4) i berørte regelverk."
-- **Synlig leverandør** (`Users`, primary-token) — "Kunden ser tydelig hvilke kontroller du som partner står bak — du blir en synlig del av deres compliance-historie."
-- **Automatisk bevis** (`ShieldCheck`, primary-token) — "Svar og dokumentasjon fra leveransen blir bevis i kundens trust profile — alltid oppdatert, alltid sporbar."
-
-**Avslutningsstripe** med to CTA-knapper:
-- Primær: "Gå til tjenestekatalog" → bytter til `catalog`-fanen (via callback prop fra `MSPServiceCatalog.tsx` som setter `Tabs.value`).
-- Sekundær (outline): "Sett standard timepris" → bytter til `settings`-fanen.
-
-For å støtte navigering mellom faner, gjør `Tabs` i `MSPServiceCatalog.tsx` controlled (`value`/`onValueChange` med lokal `useState`), og send en `onNavigate(tab: string)` prop til `MSPServiceHowItWorksTab`.
+### 3. Ingen DB-endringer
+Alle data finnes allerede.
 
 ## Teknisk
-- Kun frontend, ingen DB-endringer.
-- Bruker eksisterende `Card`, `Button`, `Tabs` fra shadcn og `lucide-react` ikoner.
-- Alle farger via semantiske tokens (`text-primary`, `bg-primary/10`, `text-success`, `text-muted-foreground`).
-- Maks bredde matcher container (`max-w-5xl`); steg-kort er fulle bredde, outcomes er `md:grid-cols-3`.
+- Kun frontend. To eksisterende Supabase-tabeller leses (`company_profile`, `assets`).
+- React Query brukes som før; query-keys: `partner-branding-profile`, `partner-branding-self-asset`.
+- Semantiske tokens for all styling.
