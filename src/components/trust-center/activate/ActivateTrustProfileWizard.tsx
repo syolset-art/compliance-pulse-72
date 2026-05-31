@@ -1068,63 +1068,23 @@ function ConfirmStep(props: any) {
         </div>
       </FieldGroup>
 
-      <FieldGroup icon={Users} title="Kontakter">
-        <div className="space-y-4">
-          {[
-            { key: "main", label: "Hovedkontakt", sub: "Avtaler og DPA-er", name: props.contactName, setName: props.setContactName, email: props.contactEmail, setEmail: props.setContactEmail, emailPh: "kontakt@firma.no", source: sources.primary, extra: null as React.ReactNode, phone: undefined as string | undefined, setPhone: undefined as ((v: string) => void) | undefined },
-            {
-              key: "privacy", label: "Personvern / DPO", sub: "GDPR og personvernspørsmål",
-              name: props.dpoName, setName: props.setDpoName, email: props.dpoEmail, setEmail: props.setDpoEmail, emailPh: "personvern@firma.no",
-              source: sources.dpo,
-              extra: (
-                <div className="space-y-1.5 mt-1">
-                  <div className="inline-flex rounded-full border border-border bg-muted/40 p-0.5 text-[11px]">
-                    <button type="button" onClick={() => props.setDpoType("dpo")} className={`px-2.5 py-0.5 rounded-full transition ${props.dpoType === "dpo" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}>DPO</button>
-                    <button type="button" onClick={() => props.setDpoType("contact")} className={`px-2.5 py-0.5 rounded-full transition ${props.dpoType === "contact" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}>Kontakt</button>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-tight">DPO = formelt utnevnt og uavhengig</p>
-                </div>
-              ),
-              phone: undefined,
-              setPhone: undefined,
-            },
-            { key: "security", label: "Sikkerhetskontakt", sub: "Sårbarheter og varsler", name: props.securityName, setName: props.setSecurityName, email: props.securityEmail, setEmail: props.setSecurityEmail, emailPh: "sikkerhet@firma.no", source: sources.security, extra: null, phone: undefined, setPhone: undefined },
-            { key: "incident", label: "Beredskapsansvarlig", sub: "Leder håndteringen ved en hendelse — og kan nås døgnet rundt", name: props.incidentName, setName: props.setIncidentName, email: props.incidentEmail, setEmail: props.setIncidentEmail, emailPh: "beredskap@firma.no", source: null, extra: null, phone: props.incidentPhone, setPhone: props.setIncidentPhone },
-          ].map((row) => (
-            <div key={row.key} className="grid grid-cols-[180px_1fr_1fr] items-start gap-3">
-              <div className="pt-2">
-                <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                  {row.label}
-                  {row.source && <Sparkles className="h-3 w-3 text-primary" />}
-                </div>
-                {row.sub && <div className="text-xs text-muted-foreground mt-0.5 leading-snug">{row.sub}</div>}
-                {row.extra}
-              </div>
-              <div className="space-y-1">
-                <Input value={row.name} onChange={(e) => row.setName(e.target.value)} placeholder="Navn" />
-                {row.setPhone && (
-                  <Input
-                    type="tel"
-                    value={row.phone ?? ""}
-                    onChange={(e) => row.setPhone!(e.target.value)}
-                    placeholder="Telefon (døgnet rundt)"
-                  />
-                )}
-              </div>
-              <div className="space-y-1">
-                <Input type="email" value={row.email} onChange={(e) => row.setEmail(e.target.value)} placeholder={row.emailPh} />
-                {row.source && <PrefilledHint source={row.source} />}
-              </div>
-            </div>
-          ))}
+      <FieldGroup icon={Users} title="Hovedkontakt">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label className="text-xs">Navn</Label>
+            <Input value={props.contactName} onChange={(e) => props.setContactName(e.target.value)} placeholder="Navn" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs flex items-center gap-1.5">
+              E-post
+              {sources.primary && <Sparkles className="h-3 w-3 text-primary" />}
+            </Label>
+            <Input type="email" value={props.contactEmail} onChange={(e) => props.setContactEmail(e.target.value)} placeholder="kontakt@firma.no" />
+          </div>
         </div>
-
-        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
-          <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            <span className="font-semibold">For mindre selskaper</span> er det helt vanlig at samme person dekker flere roller — bruk gjerne samme e-post. <span className="font-semibold">DPO-pliktige virksomheter</span> må ha personvernombud som er uavhengig av daglig ledelse.
-          </p>
-        </div>
+        <p className="text-[11px] text-muted-foreground mt-2">
+          Du kan legge til personvern-, sikkerhets- og beredskapskontakter senere i Rediger profil.
+        </p>
       </FieldGroup>
     </div>
   );
