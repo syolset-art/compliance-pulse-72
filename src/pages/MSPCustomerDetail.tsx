@@ -25,16 +25,13 @@ import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab"
 import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulationsTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
 import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
-import { QuestionnaireGapList } from "@/components/msp/QuestionnaireGapList";
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
-import { RegulationGapAnalysisCard } from "@/components/msp/RegulationGapAnalysisCard";
 import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
 import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ClipboardCheck, X as XIcon } from "lucide-react";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 
 
