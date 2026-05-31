@@ -843,7 +843,7 @@ function OrgStep({
           <Input
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            placeholder="F.eks. Framdrift Innovasjon AS"
+            placeholder="F.eks. DIPS Arena AS"
             autoFocus={!companyNameLocked}
             disabled={companyNameLocked}
           />
