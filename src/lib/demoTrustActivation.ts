@@ -47,50 +47,47 @@ export interface LaraScanResult {
 
 const FRAMDRIFT: LaraScanResult = {
   description:
-    "Framdrift Innovasjon AS er et bergensbasert rådgivningshus som hjelper SMB-er med strategi, bærekraft og digital transformasjon. Vi kombinerer forretningsforståelse med praktisk gjennomføring.",
-  industry: "Rådgivning",
-  employees: "1-10",
+    "DIPS Arena AS leverer digitale helseløsninger til sykehus, kommuner og spesialister i Norge. Vi behandler pasientopplysninger og særlige kategorier av personopplysninger på vegne av helsevirksomheter.",
+  industry: "Helse og omsorg",
+  employees: "11-50",
   region: "Vestland",
   country: "Norge",
   contacts: {
-    primaryName: "Marte Solberg",
-    primaryEmail: "marte@framdrift.no",
-    dpoName: "Marte Solberg",
-    dpoEmail: "personvern@framdrift.no",
-    supportEmail: "hei@framdrift.no",
-    securityEmail: "sikkerhet@framdrift.no",
+    primaryName: "Kari Lien",
+    primaryEmail: "kari.lien@dipsarena.no",
+    dpoName: "Henrik Dahl",
+    dpoEmail: "personvern@dipsarena.no",
+    supportEmail: "hei@dipsarena.no",
+    securityEmail: "sikkerhet@dipsarena.no",
   },
   privacy: {
-    policyUrl: "https://framdrift.no/personvern",
-    legalBasis: "Berettiget interesse og samtykke",
+    policyUrl: "https://dipsarena.no/personvern",
+    legalBasis: "Rettslig forpliktelse (pasientjournalloven) og databehandleravtale med helsevirksomheter",
     dataMinimizationStatement:
-      "Vi samler kun inn personopplysninger som er nødvendige for å levere våre rådgivningstjenester.",
+      "Vi behandler kun helseopplysninger som er nødvendige for å levere våre tjenester til helsevirksomheter, i tråd med Normen for informasjonssikkerhet i helse- og omsorgstjenesten.",
   },
   security: {
-    encryption: "TLS 1.3 i transit, AES-256 i hvile (Microsoft 365 / Azure)",
-    mfa: "Påkrevd for alle ansatte og administratorer",
-    incidentResponse: "Hendelser meldes innen 24t til kunder. Avvikslogg vedlikeholdes kvartalsvis.",
-    certifications: ["GDPR-compliant", "Microsoft 365 Business Premium"],
+    encryption: "TLS 1.3 i transit, AES-256 i hvile (Azure Norway East)",
+    mfa: "Påkrevd for alle ansatte, administratorer og driftspartnere",
+    incidentResponse: "Hendelser meldes innen 24t til berørte helsevirksomheter og Datatilsynet ved behov. Avvikslogg vedlikeholdes månedlig.",
+    certifications: ["GDPR-compliant", "Normen (Helse- og omsorgssektoren)", "ISO 27001 (under sertifisering)"],
   },
   dataStorage: {
-    regions: ["EU/EØS (Norge, Irland)"],
+    regions: ["EU/EØS (Norge — Azure Norway East)"],
     subProcessors: [
+      "Microsoft Azure (hosting, Norway East)",
+      "Norsk Helsenett (driftspartner og sikker tilkobling)",
       "Microsoft 365 (e-post, dokumenter, Teams)",
-      "Microsoft Azure (hosting, EU-region)",
-      "HubSpot (CRM og markedsføring)",
-      "Fiken (regnskap)",
-      "Tripletex (timeføring)",
-      "Slack (intern kommunikasjon)",
-      "Zoom (videomøter med kunder)",
-      "Google Workspace (analyse og samarbeid)",
-      "Mailchimp (nyhetsbrev)",
-      "Stripe (betaling)",
+      "Visma (HR og lønn)",
+      "Tripletex (regnskap og timeføring)",
+      "Slack (intern kommunikasjon — ingen pasientdata)",
+      "Zoom for Healthcare (videomøter)",
     ],
   },
   documents: [
-    { title: "Personvernerklæring", url: "https://framdrift.no/personvern", type: "privacy_policy" },
+    { title: "Personvernerklæring", url: "https://dipsarena.no/personvern", type: "privacy_policy" },
     { title: "Databehandleravtale (mal)", type: "dpa" },
-    { title: "Informasjonssikkerhetspolicy", type: "policy" },
+    { title: "Informasjonssikkerhetspolicy (Normen)", type: "policy" },
   ],
   findings: [
     { key: "web", label: "Sjekker hjemmesiden …", detail: "Laster og analyserer innhold", status: "found" },
@@ -146,7 +143,7 @@ const GENERIC: LaraScanResult = {
 
 export function getLaraScanForDomain(domain: string): LaraScanResult {
   const normalized = domain.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
-  if (normalized.includes("framdrift")) return FRAMDRIFT;
+  if (normalized.includes("dips") || normalized.includes("framdrift")) return FRAMDRIFT;
   return GENERIC;
 }
 

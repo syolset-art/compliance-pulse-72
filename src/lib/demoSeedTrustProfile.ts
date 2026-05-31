@@ -1,30 +1,30 @@
 import { supabase } from "@/integrations/supabase/client";
 
 const FRAMDRIFT_PROFILE = {
-  name: "Framdrift Innovasjon AS",
+  name: "DIPS Arena AS",
   org_number: "936431127",
-  industry: "Rådgivning",
-  brreg_industry: "Bedriftsrådgivning og annen administrativ rådgivning",
-  domain: "framdrift.no",
-  employees: "1-10",
-  brreg_employees: 5,
-  compliance_officer: "Marte Solberg",
-  compliance_officer_email: "marte@framdrift.no",
-  dpo_name: "Marte Solberg",
-  dpo_email: "marte@framdrift.no",
+  industry: "Helse og omsorg",
+  brreg_industry: "Programvareutvikling for helsesektoren",
+  domain: "dipsarena.no",
+  employees: "11-50",
+  brreg_employees: 25,
+  compliance_officer: "Kari Lien",
+  compliance_officer_email: "kari.lien@dipsarena.no",
+  dpo_name: "Henrik Dahl",
+  dpo_email: "personvern@dipsarena.no",
   geographic_scope: "Norge",
   governance_level: "medium",
-  sensitive_data: "limited",
+  sensitive_data: "extensive",
   maturity: "developing",
-  use_cases: ["gdpr", "iso27001"],
+  use_cases: ["gdpr", "iso27001", "nsm_grunnprinsipper"],
   active_roles: ["compliance_officer", "dpo"],
   is_msp_partner: false,
 };
 
 const SELF_ASSET = {
   asset_type: "self",
-  name: "Framdrift Innovasjon AS",
-  description: "Bedriftsrådgivning og innovasjonspartner med kontor i Bergen. Spesialiserer seg på strategisk rådgivning, bærekraft og digital transformasjon for SMB-markedet.",
+  name: "DIPS Arena AS",
+  description: "DIPS Arena AS leverer digitale helseløsninger til sykehus, kommuner og spesialister i Norge. Vi behandler pasientopplysninger og særlige kategorier av personopplysninger på vegne av helsevirksomheter.",
   compliance_score: 62,
   publish_mode: "public",
   lifecycle_status: "active",
@@ -33,9 +33,9 @@ const SELF_ASSET = {
   country: "Norge",
   region: "Vestland",
   org_number: "936431127",
-  contact_person: "Marte Solberg",
-  contact_email: "marte@framdrift.no",
-  url: "https://framdrift.no",
+  contact_person: "Kari Lien",
+  contact_email: "kari.lien@dipsarena.no",
+  url: "https://dipsarena.no",
 };
 
 const EVIDENCE_CHECKS = [
