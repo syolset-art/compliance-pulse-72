@@ -116,7 +116,6 @@ export function MSPCreateOfferDialog({
   const [selectedGapIds, setSelectedGapIds] = useState<Set<string>>(new Set(defaultSelectedGapIds));
 
   const [editableHourlyRate, setEditableHourlyRate] = useState(hourlyRate);
-  const [discountPercent, setDiscountPercent] = useState(0);
 
   // Frys et øyeblikksbilde-dato når dialogen åpnes (vises i alle visninger + PDF).
   const [snapshotDate, setSnapshotDate] = useState<Date>(() => new Date());
