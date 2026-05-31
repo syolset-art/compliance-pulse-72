@@ -346,7 +346,7 @@ export function CustomServiceDialog({
 
             {suggestions.length === 0 ? (
               <p className="text-xs text-muted-foreground italic">
-                Skriv inn et navn — så finner Lara aktuelle regelverk og kontrollpunkter.
+                Skriv navn på tjenesten — forslag vises automatisk.
               </p>
             ) : (
               <ul className="space-y-1">
