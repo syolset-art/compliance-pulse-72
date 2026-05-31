@@ -71,7 +71,7 @@ export default function TrustEngine() {
     },
   });
 
-  const myAssetPublished = myAsset && myAsset.publish_mode && myAsset.publish_mode !== "private";
+  const myAssetPublished = myAsset && !!myAsset.publish_mode;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
