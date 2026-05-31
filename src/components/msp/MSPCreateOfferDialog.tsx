@@ -111,6 +111,7 @@ export function MSPCreateOfferDialog({
   );
   const [message, setMessage] = useState(defaultMessage || "");
   const [attachGap, setAttachGap] = useState(attachGapProp);
+  const [showGapsInOffer, setShowGapsInOffer] = useState(true);
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
@@ -126,6 +127,7 @@ export function MSPCreateOfferDialog({
     setTasks((defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })));
     setMessage(defaultMessage || "");
     setAttachGap(attachGapProp);
+    setShowGapsInOffer(true);
     setView(initialView);
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
@@ -292,7 +294,7 @@ export function MSPCreateOfferDialog({
     y += 28;
 
     // Lukker mangler fra gap-analysen (ny, gap-drevet visning)
-    if (coveredGaps && selectedCount > 0) {
+    if (showGapsInOffer && coveredGaps && selectedCount > 0) {
       doc.setFontSize(10);
       doc.setTextColor(120);
       doc.text("LUKKER MANGLER FRA GAP-ANALYSEN", margin, y);
@@ -528,6 +530,17 @@ export function MSPCreateOfferDialog({
                   <span className="text-xs text-foreground tabular-nums font-medium">
                     {selectedCount} av {totalGapCount}
                   </span>
+                </div>
+
+                {/* Vis i tilbudet? */}
+                <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/20 px-3 py-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground">Vis manglene i tilbudet</p>
+                    <p className="text-xs text-muted-foreground">
+                      Når av: kunden ser kun aktivitetene, ikke listen over mangler som lukkes.
+                    </p>
+                  </div>
+                  <Switch checked={showGapsInOffer} onCheckedChange={setShowGapsInOffer} />
                 </div>
 
                 {/* Tydelig dekningsstatus-banner */}
@@ -770,7 +783,7 @@ export function MSPCreateOfferDialog({
               </div>
 
 
-              {coveredGaps && selectedCount > 0 && (
+              {showGapsInOffer && coveredGaps && selectedCount > 0 && (
                 <div className="pt-3 border-t border-border space-y-2">
                   <div className="flex items-baseline justify-between gap-2">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
