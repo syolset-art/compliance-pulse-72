@@ -49,9 +49,17 @@ interface Props {
   initialMaturity?: MaturityAnswers;
 }
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6;
-const TOTAL_STEPS = 6;
-const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter", "Synlighet"];
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+const TOTAL_STEPS = 7;
+const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Kritiske leverandører", "Dokumenter", "Synlighet"];
+
+export type CriticalVendorRow = {
+  name: string;
+  access: string;
+  dpa: "yes" | "no" | "unknown" | null;
+};
+const EMPTY_VENDOR_ROW: CriticalVendorRow = { name: "", access: "", dpa: null };
+const MAX_CRITICAL_VENDORS = 5;
 
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline, conversation,
