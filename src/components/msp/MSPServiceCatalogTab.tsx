@@ -372,8 +372,9 @@ export function MSPServiceCatalogTab() {
                 return (
                   <tr
                     key={template.id}
+                    onClick={() => openTemplatePreview(template)}
                     className={cn(
-                      "hover:bg-muted/20 transition-colors",
+                      "hover:bg-muted/30 transition-colors cursor-pointer",
                       isAdopted && "opacity-60",
                     )}
                   >
@@ -408,7 +409,7 @@ export function MSPServiceCatalogTab() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => adoptTemplate(template)}
+                          onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
                           className="h-8 gap-1 text-sm"
                         >
                           <Plus className="h-4 w-4" />
