@@ -935,6 +935,7 @@ export function MSPMaturityServiceMatrix({
         gapFrameworkId={offerCtx.gapFrameworkId}
         defaultTasks={offerCtx.defaultTasks}
         hourlyRate={offerCtx.hourlyRate}
+        coveredControls={offerCtx.coveredControls}
         initialView={offerCtx.initialView}
       />
 
