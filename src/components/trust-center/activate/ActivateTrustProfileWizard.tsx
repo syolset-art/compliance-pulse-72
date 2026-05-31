@@ -63,7 +63,7 @@ interface Props {
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 const TOTAL_STEPS = 7;
-const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Kritiske leverandører", "Dokumenter", "Synlighet"];
+const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Dokumenter", "Kritiske leverandører", "Modenhet", "Synlighet"];
 
 export type CriticalVendorRow = {
   name: string;
@@ -529,9 +529,9 @@ export default function ActivateTrustProfileWizard({
           : "Bekreft organisasjonen din")}
         {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
         {step === 3 && "Bekreft og juster informasjonen"}
-        {step === 4 && "Modenhet — bekreft det Lara fant"}
+        {step === 4 && "Last opp dokumenter"}
         {step === 5 && "Kritiske leverandører"}
-        {step === 6 && "Last opp dokumenter"}
+        {step === 6 && "Modenhet — bekreft det Lara fant"}
         {step === 7 && "Hvem skal se din Trust Profile?"}
       </h2>
       <p className="text-sm text-muted-foreground">
@@ -540,9 +540,9 @@ export default function ActivateTrustProfileWizard({
           : "Søk opp selskapet ditt i Brønnøysundregistrene — velg riktig treff, så fyller vi inn org.nr automatisk.")}
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
-        {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
+        {step === 4 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
         {step === 5 && "Hvilke leverandører har tilgang til dine viktigste systemer eller data? Legg til inntil 5 — dette gir oss et bilde av hvor dine viktigste data faktisk ligger."}
-        {step === 6 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
+        {step === 6 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
         {step === 7 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
       </p>
       <Progress value={((step - 1) / (TOTAL_STEPS - 1)) * 100} className="h-1" />
@@ -603,8 +603,8 @@ export default function ActivateTrustProfileWizard({
           scan={scan}
         />
       )}
-      {step === 4 && (
-        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
+      {step === 4 && !isCalculating && (
+        <DocumentsStep documents={documents} onUpload={uploadDocument} />
       )}
       {step === 5 && (
         <CriticalVendorsStep
@@ -615,8 +615,8 @@ export default function ActivateTrustProfileWizard({
         />
 
       )}
-      {step === 6 && !isCalculating && (
-        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+      {step === 6 && (
+        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
       {step === 7 && !isCalculating && (
         <div className="space-y-6">
@@ -665,9 +665,9 @@ export default function ActivateTrustProfileWizard({
         <div className="flex gap-2">
           <Button onClick={next} disabled={!canNext} className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white">
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
-            {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
+            {step === 3 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
             {step === 4 && (<>Til kritiske leverandører <ArrowRight className="h-4 w-4" /></>)}
-            {step === 5 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
+            {step === 5 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
             {step === 6 && (<>Velg synlighet <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
@@ -696,9 +696,9 @@ export default function ActivateTrustProfileWizard({
         step === 1 ? "Hei! Jeg er Lara. La oss aktivere Trust Center-profilen din sammen — det tar bare et par minutter." :
         step === 2 ? "Jeg leter gjennom hjemmesiden din og offentlige kilder nå …" :
         step === 3 ? "Her er det jeg fant. Bekreft eller juster gjerne — alt er forhåndsutfylt." :
-        step === 4 ? "La oss gå gjennom modenheten din. Jeg har gjettet basert på det jeg fant." :
+        step === 4 ? "Har du noen policyer å laste opp? Jeg kobler dem til riktig krav automatisk." :
         step === 5 ? "Hvem er de viktigste leverandørene som har tilgang til systemene eller dataene dine?" :
-        step === 6 ? "Har du noen policyer å laste opp? Jeg kobler dem til riktig krav automatisk." :
+        step === 6 ? "La oss gå gjennom modenheten din. Jeg har gjettet basert på det jeg fant." :
         step === 7 ? "Siste steg — hvem skal få se profilen?" :
         "";
       return (
