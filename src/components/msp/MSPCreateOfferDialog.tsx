@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, CheckCircle2, Inbox, Send, ClipboardList, ArrowRight } from "lucide-react";
+import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, CheckCircle2, Inbox, Send, ClipboardList, ArrowRight, ChevronDown } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import jsPDF from "jspdf";
@@ -113,6 +114,7 @@ export function MSPCreateOfferDialog({
   const [attachGap, setAttachGap] = useState(attachGapProp);
   const [showGapsInOffer, setShowGapsInOffer] = useState(true);
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
+  const [gapsExpanded, setGapsExpanded] = useState(false);
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [selectedGapIds, setSelectedGapIds] = useState<Set<string>>(new Set(defaultSelectedGapIds));
@@ -128,6 +130,7 @@ export function MSPCreateOfferDialog({
     setMessage(defaultMessage || "");
     setAttachGap(attachGapProp);
     setShowGapsInOffer(true);
+    setGapsExpanded(false);
     setView(initialView);
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
@@ -507,7 +510,7 @@ export function MSPCreateOfferDialog({
               </div>
             </div>
 
-            {/* Lukker mangler fra gap-analysen (gap-drevet) */}
+            {/* Gap-analyse: alt samlet (vedlegg + mangler som lukkes) */}
             {coveredGaps && totalGapCount > 0 && (() => {
               const coverageState: "full" | "partial" | "none" =
                 selectedCount === 0 ? "none" : selectedCount === totalGapCount ? "full" : "partial";
@@ -522,133 +525,165 @@ export function MSPCreateOfferDialog({
               const allIds = sortedGaps.map(g => g.id);
               const allChecked = selectedCount === totalGapCount;
               return (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-                    Mangler aktivitetene lukker
-                  </Label>
-                  <span className="text-xs text-foreground tabular-nums font-medium">
-                    {selectedCount} av {totalGapCount}
-                  </span>
-                </div>
-
-                {/* Vis i tilbudet? */}
-                <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/20 px-3 py-2">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground">Vis manglene i tilbudet</p>
-                    <p className="text-xs text-muted-foreground">
-                      Når av: kunden ser kun aktivitetene, ikke listen over mangler som lukkes.
-                    </p>
-                  </div>
-                  <Switch checked={showGapsInOffer} onCheckedChange={setShowGapsInOffer} />
-                </div>
-
-                {/* Tydelig dekningsstatus-banner */}
-                <div className={cn("rounded-md border px-3 py-2 flex items-center gap-2 flex-wrap", coverageClass)}>
-                  <ShieldCheck className="h-4 w-4 shrink-0" />
-                  <span className="text-sm font-semibold">{coverageLabel}</span>
-                  <span className="text-xs opacity-90">
-                    {coverageState === "full"
-                      ? "Aktivitetene lukker alle mangler fra gap-analysen."
-                      : coverageState === "partial"
-                        ? `Aktivitetene lukker ${selectedCount} av ${totalGapCount} mangler. ${totalGapCount - selectedCount} gjenstår.`
-                        : "Aktivitetene lukker ingen av manglene fra gap-analysen."}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedGapIds(allChecked ? new Set() : new Set(allIds))}
-                    className="ml-auto text-xs font-medium underline-offset-2 hover:underline"
-                  >
-                    {allChecked ? "Fjern alle" : "Velg alle"}
-                  </button>
-                </div>
-
-                <div className="rounded-md border border-border overflow-hidden">
-                  <div className="px-3 py-2 bg-muted/40 border-b border-border space-y-1.5">
-                    <div className="flex items-center justify-between gap-2 text-xs">
-                      <div className="flex items-center gap-2">
-                        {(() => {
-                          const theme = getFrameworkTheme(coveredGaps.frameworkId);
-                          return (
-                            <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                              {coveredGaps.frameworkLabel}
-                            </span>
-                          );
-                        })()}
-                        <span className="text-muted-foreground">status per {snapshotLabel}</span>
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Gap-analyse</Label>
+                  <div className={cn("rounded-md border transition-colors", attachGap ? "border-primary/40 bg-primary/5" : "border-border")}>
+                    {/* Header: tittel + brytere */}
+                    <div className="flex items-center gap-3 p-3">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <FileText className="h-4 w-4 text-primary" />
                       </div>
-                      {criticalSelected > 0 && (
-                        <span className="text-xs text-destructive font-medium">{criticalSelected} kritiske</span>
-                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium text-foreground truncate">
+                            Gap-analyse {coveredGaps.frameworkLabel}
+                          </p>
+                          <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
+                            {snapshotLabel}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {totalGapCount} mangler · {selectedCount} lukkes av tilbudet
+                        </p>
+                      </div>
+                      <Button type="button" size="sm" variant="ghost" className="h-8 text-sm gap-1 text-primary" onClick={() => setGapPreviewOpen(true)}>
+                        <Eye className="h-3.5 w-3.5" /> Forhåndsvis
+                      </Button>
                     </div>
-                    {/* Progress-bar */}
-                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full bg-primary transition-all"
-                        style={{ width: `${gapPercent}%` }}
-                      />
-                    </div>
-                  </div>
-                  <ul className="divide-y divide-border">
-                    {sortedGaps.map(g => {
-                      const checked = selectedGapIds.has(g.id);
-                      return (
-                        <li key={g.id} className="flex items-start gap-2.5 px-3 py-2 hover:bg-muted/30">
-                          <Checkbox
-                            checked={checked}
-                            onCheckedChange={() => toggleGap(g.id)}
-                            className="mt-0.5"
-                            id={`gap-${g.id}`}
-                          />
-                          <span className={cn("h-2 w-2 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
-                          <label htmlFor={`gap-${g.id}`} className="flex-1 min-w-0 cursor-pointer space-y-0.5">
-                            <div className="flex items-baseline gap-2 flex-wrap">
-                              <span className="text-sm text-foreground leading-snug">
-                                {g.title}
-                                {g.reference && (
-                                  <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
-                                )}
-                              </span>
-                            </div>
-                          </label>
-                          <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
-                            {SEVERITY_LABEL[g.severity]}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
 
-                {crosswalkChips.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-1 pt-1">
-                    <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
-                    {crosswalkChips.map(r => {
-                      const t = getFrameworkTheme(r.frameworkId);
-                      return (
-                        <span
-                          key={`${r.frameworkId}-${r.controlId}`}
-                          className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
-                        >
-                          {r.frameworkLabel} {r.controlId}
+                    {/* Brytere */}
+                    <div className="border-t border-border px-3 py-2 space-y-2">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground">Legg ved som vedlegg i PDF</p>
+                          <p className="text-xs text-muted-foreground">Hele gap-analysen som øyeblikksbilde bak i tilbudet.</p>
+                        </div>
+                        <Switch checked={attachGap} onCheckedChange={setAttachGap} />
+                      </div>
+                      <div className="flex items-center justify-between gap-3 pt-1 border-t border-border/60">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground">Vis mangellisten i tilbudet</p>
+                          <p className="text-xs text-muted-foreground">Når av: kunden ser kun aktivitetene, ikke listen over mangler som lukkes.</p>
+                        </div>
+                        <Switch checked={showGapsInOffer} onCheckedChange={setShowGapsInOffer} />
+                      </div>
+                    </div>
+
+                    {/* Dekningsbanner */}
+                    <div className={cn("border-t border-border px-3 py-2 flex items-center gap-2 flex-wrap", coverageClass)}>
+                      <ShieldCheck className="h-4 w-4 shrink-0" />
+                      <span className="text-sm font-semibold">{coverageLabel}</span>
+                      <span className="text-xs opacity-90">
+                        {coverageState === "full"
+                          ? "Aktivitetene lukker alle mangler fra gap-analysen."
+                          : coverageState === "partial"
+                            ? `Aktivitetene lukker ${selectedCount} av ${totalGapCount} mangler. ${totalGapCount - selectedCount} gjenstår.`
+                            : "Aktivitetene lukker ingen av manglene fra gap-analysen."}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedGapIds(allChecked ? new Set() : new Set(allIds))}
+                        className="ml-auto text-xs font-medium underline-offset-2 hover:underline"
+                      >
+                        {allChecked ? "Fjern alle" : "Velg alle"}
+                      </button>
+                    </div>
+
+                    {/* Collapsible: mangler aktivitetene lukker */}
+                    <Collapsible open={gapsExpanded} onOpenChange={setGapsExpanded}>
+                      <CollapsibleTrigger className="w-full flex items-center justify-between gap-2 px-3 py-2 border-t border-border text-sm hover:bg-muted/30 transition-colors">
+                        <span className="font-medium text-foreground">
+                          Vis hvilke mangler aktivitetene lukker
+                          <span className="text-muted-foreground font-normal ml-1">({selectedCount} av {totalGapCount})</span>
                         </span>
-                      );
-                    })}
-                  </div>
-                )}
+                        <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", gapsExpanded && "rotate-180")} />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="border-t border-border">
+                          <div className="px-3 py-2 bg-muted/40 border-b border-border space-y-1.5">
+                            <div className="flex items-center justify-between gap-2 text-xs">
+                              <div className="flex items-center gap-2">
+                                {(() => {
+                                  const theme = getFrameworkTheme(coveredGaps.frameworkId);
+                                  return (
+                                    <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                                      {coveredGaps.frameworkLabel}
+                                    </span>
+                                  );
+                                })()}
+                                <span className="text-muted-foreground">status per {snapshotLabel}</span>
+                              </div>
+                              {criticalSelected > 0 && (
+                                <span className="text-xs text-destructive font-medium">{criticalSelected} kritiske</span>
+                              )}
+                            </div>
+                            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div className="h-full bg-primary transition-all" style={{ width: `${gapPercent}%` }} />
+                            </div>
+                          </div>
+                          <ul className="divide-y divide-border">
+                            {sortedGaps.map(g => {
+                              const checked = selectedGapIds.has(g.id);
+                              return (
+                                <li key={g.id} className="flex items-start gap-2.5 px-3 py-2 hover:bg-muted/30">
+                                  <Checkbox
+                                    checked={checked}
+                                    onCheckedChange={() => toggleGap(g.id)}
+                                    className="mt-0.5"
+                                    id={`gap-${g.id}`}
+                                  />
+                                  <span className={cn("h-2 w-2 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
+                                  <label htmlFor={`gap-${g.id}`} className="flex-1 min-w-0 cursor-pointer space-y-0.5">
+                                    <div className="flex items-baseline gap-2 flex-wrap">
+                                      <span className="text-sm text-foreground leading-snug">
+                                        {g.title}
+                                        {g.reference && (
+                                          <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                                        )}
+                                      </span>
+                                    </div>
+                                  </label>
+                                  <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
+                                    {SEVERITY_LABEL[g.severity]}
+                                  </span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                          {crosswalkChips.length > 0 && (
+                            <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-t border-border">
+                              <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
+                              {crosswalkChips.map(r => {
+                                const t = getFrameworkTheme(r.frameworkId);
+                                return (
+                                  <span
+                                    key={`${r.frameworkId}-${r.controlId}`}
+                                    className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
+                                  >
+                                    {r.frameworkLabel} {r.controlId}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
 
-                <button
-                  type="button"
-                  onClick={() => setGapPreviewOpen(true)}
-                  className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                >
-                  Se hele gap-analysen <ArrowRight className="h-3 w-3" />
-                </button>
-              </div>
+                    <div className="border-t border-border px-3 py-2">
+                      <button
+                        type="button"
+                        onClick={() => setGapPreviewOpen(true)}
+                        className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        Se hele gap-analysen <ArrowRight className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               );
             })()}
-
 
             {/* Bakoverkompatibel: gammel statisk visning når coveredGaps ikke er satt */}
             {!coveredGaps && safeCoveredControls.length > 0 && (
@@ -661,12 +696,11 @@ export function MSPCreateOfferDialog({
               </div>
             )}
 
-
-            {/* Vedlegg: gap-analyse som øyeblikksbilde */}
-            {(coveredGaps || gapFrameworkId) && (
+            {/* Bakoverkompatibel: vedlegg-toggle når coveredGaps mangler men gapFrameworkId finnes */}
+            {!coveredGaps && gapFrameworkId && (
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Vedlegg</Label>
-                <div className={`rounded-md border p-3 transition-colors ${attachGap ? "border-primary/40 bg-primary/5" : "border-border"}`}>
+                <div className={cn("rounded-md border p-3 transition-colors", attachGap ? "border-primary/40 bg-primary/5" : "border-border")}>
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                       <FileText className="h-4 w-4 text-primary" />
@@ -674,15 +708,13 @@ export function MSPCreateOfferDialog({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-medium text-foreground truncate">
-                          Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()}
+                          Gap-analyse {gapFrameworkId.toUpperCase()}
                         </p>
                         <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
                           {snapshotLabel}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {gapCount} mangler · markerer hvilke tilbudet lukker
-                      </p>
+                      <p className="text-sm text-muted-foreground">{gapCount} mangler</p>
                     </div>
                     <Button type="button" size="sm" variant="ghost" className="h-8 text-sm gap-1 text-primary" onClick={() => setGapPreviewOpen(true)}>
                       <Eye className="h-3.5 w-3.5" /> Forhåndsvis
