@@ -846,6 +846,49 @@ function OrgStep({
   );
 }
 
+function WebsiteChoice({
+  hasWebsite, setHasWebsite, disabled,
+}: {
+  hasWebsite: "yes" | "no" | null;
+  setHasWebsite: (v: "yes" | "no") => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>Har dere en hjemmeside?</Label>
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant={hasWebsite === "yes" ? "default" : "outline"}
+          size="sm"
+          className="flex-1 gap-1.5"
+          disabled={disabled}
+          onClick={() => setHasWebsite("yes")}
+        >
+          <Globe className="h-3.5 w-3.5" /> Ja
+        </Button>
+        <Button
+          type="button"
+          variant={hasWebsite === "no" ? "default" : "outline"}
+          size="sm"
+          className="flex-1"
+          disabled={disabled}
+          onClick={() => setHasWebsite("no")}
+        >
+          Nei, vi har ingen hjemmeside
+        </Button>
+      </div>
+      {hasWebsite === "no" && (
+        <p className="text-xs text-muted-foreground">
+          Greit — Lara hopper over nettside-skanningen. Du fyller inn beskrivelse og kontakter manuelt i neste steg.
+        </p>
+      )}
+    </div>
+  );
+}
+
+
+
 function WebsiteVerifyField({
   website, setWebsite, websiteVerified, onVerifyWebsite, enabled,
 }: {
