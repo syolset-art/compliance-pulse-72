@@ -14,6 +14,7 @@ export function PartnerBrandingCard() {
   const { branding, save, clearField } = usePartnerBranding();
   const [name, setName] = useState(branding.isAutoName ? "" : branding.name);
   const [orgNumber, setOrgNumber] = useState(branding.isAutoOrg ? "" : branding.orgNumber);
+  const [tagline, setTagline] = useState(branding.tagline);
   const [expanded, setExpanded] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +36,11 @@ export function PartnerBrandingCard() {
   };
 
   const handleSave = () => {
-    save({ name: name.trim() || undefined, orgNumber: orgNumber.trim() || undefined });
+    save({
+      name: name.trim() || undefined,
+      orgNumber: orgNumber.trim() || undefined,
+      tagline: tagline.trim() || undefined,
+    });
     toast.success("Tilbudsmerking lagret");
   };
 
@@ -126,6 +131,20 @@ export function PartnerBrandingCard() {
             </div>
 
             <div className="space-y-1.5">
+              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
+                Slagord <span className="text-muted-foreground/70 normal-case">(valgfritt)</span>
+              </Label>
+              <Input
+                value={tagline}
+                onChange={(e) => setTagline(e.target.value)}
+                placeholder="F.eks. Din partner for trygg digitalisering"
+                className="h-9 text-sm"
+                maxLength={80}
+              />
+              <p className="text-[10px] text-muted-foreground">Vises under partnernavnet i tilbudet.</p>
+            </div>
+
+            <div className="space-y-1.5">
               <Label className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">Logo</Label>
               <div className="flex flex-wrap gap-2">
                 <input
@@ -179,6 +198,11 @@ export function PartnerBrandingCard() {
                     <p className="text-[12px] font-semibold text-foreground truncate">
                       {name.trim() || branding.autoName}
                     </p>
+                    {(tagline.trim() || branding.tagline) && (
+                      <p className="text-[10px] text-muted-foreground italic truncate">
+                        {tagline.trim() || branding.tagline}
+                      </p>
+                    )}
                     {(orgNumber.trim() || branding.autoOrgNumber) && (
                       <p className="text-[10px] text-muted-foreground tabular-nums">
                         Org.nr {orgNumber.trim() || branding.autoOrgNumber}

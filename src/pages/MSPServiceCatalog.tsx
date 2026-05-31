@@ -1,5 +1,7 @@
 import { Sidebar } from "@/components/Sidebar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MSPServiceCatalogTab } from "@/components/msp/MSPServiceCatalogTab";
+import { MSPServiceSettingsTab } from "@/components/msp/MSPServiceSettingsTab";
 
 export default function MSPServiceCatalog() {
   return (
@@ -13,10 +15,21 @@ export default function MSPServiceCatalog() {
               Definer dine egne tjenester og se hvordan de treffer kontrollpunkter på tvers av regelverk.
             </p>
           </header>
-          <MSPServiceCatalogTab />
+
+          <Tabs defaultValue="catalog" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="catalog">Tjenestekatalog</TabsTrigger>
+              <TabsTrigger value="settings">Innstillinger</TabsTrigger>
+            </TabsList>
+            <TabsContent value="catalog" className="space-y-6">
+              <MSPServiceCatalogTab />
+            </TabsContent>
+            <TabsContent value="settings" className="space-y-6">
+              <MSPServiceSettingsTab />
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
   );
 }
-

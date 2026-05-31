@@ -1,48 +1,35 @@
-## Bakgrunn
-«Claim-rate» er teknisk og lite selvforklarende for MSP-partnere. Brukeren har valgt **«Aktiverte kunder»** som nytt begrep, med **selvforklarende undertekst** og **ren KPI** uten salgsvinkling.
+## Mål
+Legg til arkfaner på siden **Tjenester** (`/msp-services`) med to faner:
+1. **Tjenestekatalog** (nåværende innhold)
+2. **Innstillinger** (ny) — overordnet timepris + tilbudsmal (logo, slagord)
 
-## Omfang
-Endringen er rent språklig i UI – ingen backend- eller databaseendringer nødvendig.
+## Endringer
 
-## Endringsliste
+### 1. `src/pages/MSPServiceCatalog.tsx`
+- Pakk innholdet i `<Tabs defaultValue="catalog">` med `TabsList` + to `TabsTrigger`:
+  - "Tjenestekatalog" (`value="catalog"`) — viser `<MSPServiceCatalogTab />`
+  - "Innstillinger" (`value="settings"`) — viser ny `<MSPServiceSettingsTab />`
+- Behold sidetittel "Tjenester" og ingress.
 
-### 1. Partner-dashbord – KPI-rad og claim-widget
-**Fil:** `src/pages/MSPPartnerDashboard.tsx`
-- Bytt KPI-label fra `CLAIM-RATE` til `AKTIVERINGSGRAD`.
-- Bytt undertekst fra `47 av 400 · mål 40%` til selvforklarende variant, f.eks.:
-  - `47 av 400 kunder har aktivert compliance-leveransen`
-- Oppdater `ClaimRateWidget`:
-  - Tittel: `Claim-rate` → `Aktiveringsgrad`
-  - Ring-label: `claim` → `aktive`
-  - Undertekst: tydeligere setning om hva tallet betyr
-- Oppdater live-signal: `Profil claimed` → `Profil aktivert`
+### 2. Ny hook `src/hooks/useServiceDefaults.ts`
+- Persister overordnet standard timepris i `localStorage` (`msp-service-defaults-v1`), default `1500`.
+- Samme mønster som `usePartnerBranding` (custom event for sync mellom hook-instanser).
+- Eksporterer `{ defaultHourlyRate, setDefaultHourlyRate }`.
 
-### 2. Widget-detaljside
-**Fil:** `src/pages/MSPWidgetDetail.tsx`
-- Oppdater sidetittel og beskrivelser fra claim-språk til aktiveringsspråk.
-- Endre eventuelle seksjonsheadere, tabelltitler og grafer som refererer til «claim».
+### 3. `src/components/msp/MSPServiceCatalogTab.tsx`
+- Bytt lokal `useState<number>(1500)` for `hourlyRate` til initialverdi fra `useServiceDefaults()`.
+- Beholder lokal state slik at brukeren fortsatt kan justere pr økt/visning, men den initialiseres fra standarden. Per-tjeneste-overstyring eksisterer allerede i `ServiceForm` (timepris-felt).
 
-### 3. Kundekort og statusbanner
-**Filer:**
-- `src/components/msp/CustomerStatusBanner.tsx`
-- `src/components/msp/MSPCustomerCard.tsx`
-- Juster tooltip/merknad for «claimed»-status: `selvrapportert av kunde` → språk som tydelig sier at kunden har aktivert/igangsatt compliance-leveransen.
+### 4. Ny komponent `src/components/msp/MSPServiceSettingsTab.tsx`
+To kort:
+- **Standard timepris**: number-input bundet til `useServiceDefaults`, hjelpetekst: "Brukes som utgangspunkt for alle tjenester. Du kan overstyre pr tjeneste i tjenestekortet."
+- **Tilbudsmal**: gjenbruker `<PartnerBrandingCard />` (logo + navn/org) og legger til nytt felt **Slagord** (tagline) lagret via utvidet `usePartnerBranding`.
 
-### 4. Campaign-wizard (hvis aktuelt)
-**Fil:** `src/components/msp/CampaignWizardDialog.tsx`
-- Bytt ut «claim»-språk i stegbeskrivelser og CTA-er til aktiveringsspråk.
+### 5. Utvid `usePartnerBranding`
+- Legg til `tagline?: string` i `PartnerBrandingOverrides` og `PartnerBranding` (auto-fallback tom streng).
+- `PartnerBrandingCard.tsx`: nytt input-felt "Slagord (valgfritt)" som vises i forhåndsvisningen under partnernavn.
 
-### 5. Oversettelser
-**Filer:** `src/locales/nb.json`, `src/locales/en.json`
-- Legg til i18next-nøkler for de nye begrepene (f.eks. `msp.activationRate`, `msp.activatedCustomers`, `msp.profileActivated`).
-- Erstatt hardkodet tekst i komponentene med `t()`-kall for å overholde i18next-standarden.
-
-## Design-hensyn
-- Behold eksisterende gradient-widget-stil og ring-visualisering – bare tekst endres.
-- Risikofarger og layout beholdes uendret.
-
-## Akseptansekriterier
-- [ ] Ingen «claim»- eller «claimed»-referanser gjenstår i brukervendt tekst på partner-dashbordet, widget-detaljsiden, kundekortene eller campaign-wizarden.
-- [ ] KPI-teksten er selvforklarende uten tooltips.
-- [ ] Bygget kompilerer uten TypeScript-feil.
-- [ ] Oversettelser finnes for både norsk og engelsk.
+## Teknisk
+- Bruker shadcn `Tabs`, `Card`, `Input`, `Label` — alt allerede i prosjektet.
+- Ingen DB-endringer; alle innstillinger lever i `localStorage` (samme mønster som eksisterende branding).
+- Semantiske tokens kun (ingen rå farger).

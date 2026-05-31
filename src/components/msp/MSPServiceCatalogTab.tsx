@@ -18,6 +18,7 @@ import {
 import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping, type ServiceActivity } from "./CustomServiceDialog";
 import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext } from "@/lib/serviceLibrary";
+import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -66,7 +67,8 @@ const TAG_META: Record<PickTag, { label: string; className: string }> = {
 
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
-  const [hourlyRate, setHourlyRate] = useState<number>(1500);
+  const { defaultHourlyRate } = useServiceDefaults();
+  const [hourlyRate, setHourlyRate] = useState<number>(defaultHourlyRate);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>(() => [
     {
