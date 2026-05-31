@@ -8,15 +8,18 @@ export interface PartnerBrandingOverrides {
   name?: string;
   orgNumber?: string;
   logoDataUrl?: string;
+  tagline?: string;
 }
 
 export interface PartnerBranding {
   name: string;
   orgNumber: string;
   logoDataUrl: string | null;
+  tagline: string;
   isAutoName: boolean;
   isAutoOrg: boolean;
   isAutoLogo: boolean;
+  isAutoTagline: boolean;
   autoName: string;
   autoOrgNumber: string;
 }
@@ -77,9 +80,11 @@ export function usePartnerBranding() {
     name: overrides.name?.trim() || autoName,
     orgNumber: overrides.orgNumber?.trim() || autoOrgNumber,
     logoDataUrl: overrides.logoDataUrl ?? null,
+    tagline: overrides.tagline?.trim() || "",
     isAutoName: !overrides.name,
     isAutoOrg: !overrides.orgNumber,
     isAutoLogo: !overrides.logoDataUrl,
+    isAutoTagline: !overrides.tagline,
     autoName,
     autoOrgNumber,
   };
