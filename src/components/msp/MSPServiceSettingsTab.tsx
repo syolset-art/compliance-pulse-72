@@ -37,17 +37,17 @@ export function MSPServiceSettingsTab() {
       <Card className="p-5 space-y-4">
         <div className="flex items-start gap-3">
           <div className="h-9 w-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <Coins className="h-4 w-4" />
+            <Clock className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-semibold text-foreground">Valuta</h3>
+            <h3 className="text-base font-semibold text-foreground">Standard timepris</h3>
             <p className="text-sm text-muted-foreground">
-              Velg hvilken valuta som skal brukes i tilbud og fakturering. Vi har valgt et utgangspunkt basert på språket og regionen du er logget inn med — du kan endre den når som helst.
+              Brukes som utgangspunkt for alle nye tjenester og tilbud. Du kan overstyre timeprisen pr tjeneste senere.
             </p>
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-[260px_1fr] md:items-end">
+        <div className="grid gap-3 md:grid-cols-[140px_200px_1fr] md:items-end">
           <div className="space-y-1.5">
             <Label htmlFor="currency-select" className="text-sm text-foreground font-medium">
               Valuta
@@ -65,29 +65,9 @@ export function MSPServiceSettingsTab() {
               </SelectContent>
             </Select>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Aktiv valuta: <span className="font-medium text-foreground">{currencyOption.code}</span> ({currencyOption.symbol})
-          </p>
-        </div>
-      </Card>
-
-      <Card className="p-5 space-y-4">
-        <div className="flex items-start gap-3">
-          <div className="h-9 w-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <Clock className="h-4 w-4" />
-          </div>
-          <div className="min-w-0">
-            <h3 className="text-base font-semibold text-foreground">Standard timepris</h3>
-            <p className="text-sm text-muted-foreground">
-              Brukes som utgangspunkt for alle nye tjenester og tilbud. Du kan overstyre timeprisen pr tjeneste senere.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-[200px_1fr] md:items-end">
           <div className="space-y-1.5">
             <Label htmlFor="default-hourly-rate" className="text-sm text-foreground font-medium">
-              Timepris ({currencyOption.symbol})
+              Timepris
             </Label>
             <div className="relative">
               <Input
