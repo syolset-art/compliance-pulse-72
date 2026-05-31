@@ -105,7 +105,7 @@ export const OngoingDeliveriesList = ({
   onUndo,
   onSetStatus,
 }: Props) => {
-  const [expanded, setExpanded] = useState<string | null>(deliveries[0]?.id ?? null);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const [filter, setFilter] = useState<Record<string, ActivityFilter>>({});
   const [confirmCtx, setConfirmCtx] = useState<{
     open: boolean;
