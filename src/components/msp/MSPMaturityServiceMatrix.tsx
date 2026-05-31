@@ -938,6 +938,7 @@ export function MSPMaturityServiceMatrix({
         defaultTasks={offerCtx.defaultTasks}
         hourlyRate={offerCtx.hourlyRate}
         coveredControls={offerCtx.coveredControls}
+        coveredGaps={offerCtx.coveredGaps}
         initialView={offerCtx.initialView}
       />
 
