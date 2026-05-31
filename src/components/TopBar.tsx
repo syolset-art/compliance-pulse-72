@@ -23,6 +23,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
+import { WorkspaceSwitcherCompact } from "@/components/sidebar/WorkspaceSwitcherCompact";
 
 const AVAILABLE_ROLES = [
   { key: "admin", labelNb: "Administrator", labelEn: "Administrator" },
