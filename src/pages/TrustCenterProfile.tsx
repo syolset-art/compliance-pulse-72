@@ -1365,9 +1365,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <span className="font-medium text-foreground">
                                 {(asset as any).publish_mode === "public"
                                   ? (isNb ? "Alle (offentlig)" : "Everyone (public)")
-                                  : (asset as any).publish_mode === "ecosystem"
-                                    ? (isNb ? "Mynder-økosystem" : "Mynder ecosystem")
-                                    : (isNb ? "Privat" : "Private")}
+                                  : (isNb ? "Mynder-økosystem" : "Mynder ecosystem")}
                               </span>
                             </span>
                           </div>
