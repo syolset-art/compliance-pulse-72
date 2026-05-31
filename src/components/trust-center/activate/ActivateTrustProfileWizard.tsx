@@ -1577,11 +1577,6 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
             </ul>
           )}
         </div>
-        {knownVendor && (
-          <p className="text-[11px] text-muted-foreground">
-            Gjenkjent: {knownVendor.category}
-          </p>
-        )}
       </div>
 
       {/* Access scopes — chips + custom */}
