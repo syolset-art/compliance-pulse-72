@@ -642,7 +642,9 @@ export function MSPCreateOfferDialog({
                   Se hele gap-analysen <ArrowRight className="h-3 w-3" />
                 </button>
               </div>
-            )}
+              );
+            })()}
+
 
             {/* Bakoverkompatibel: gammel statisk visning når coveredGaps ikke er satt */}
             {!coveredGaps && safeCoveredControls.length > 0 && (
