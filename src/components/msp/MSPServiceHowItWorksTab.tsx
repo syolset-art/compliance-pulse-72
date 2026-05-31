@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   ArrowRight,
 } from "lucide-react";
+import { ServiceFlowDiagram } from "./ServiceFlowDiagram";
 
 interface Props {
   onNavigate?: (tab: "catalog" | "settings") => void;
@@ -78,6 +79,9 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
           og dokumenteres automatisk mens du jobber.
         </p>
       </div>
+
+      {/* Visuell sammenheng */}
+      <ServiceFlowDiagram />
 
       {/* Steg */}
       <div className="space-y-3">

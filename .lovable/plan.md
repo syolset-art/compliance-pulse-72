@@ -1,29 +1,45 @@
 ## Mål
-Partnernavn, organisasjonsnummer, webadresse og logo i Tilbudsmerking skal automatisk hentes fra brukerens trust profile (company_profile + self-asset), uten falske fallback-verdier som "Dintero AS".
+Erstatte den tekstdrevne forklaringen øverst på "Hvordan virker det"-fanen med en tydelig **visuell illustrasjon** som viser sammenhengen mellom:
 
-## Endringer
+- **Kundens Trust profile & modenhet** (venstre side)
+- **Partnerens tjenester** (midten — broen)
+- **Tilbud, regelverk og kontrollpunkter** (høyre side)
 
-### 1. `src/hooks/usePartnerBranding.ts`
-- Utvid Supabase-query mot `company_profile` til å hente `name, legal_name, org_number, domain`.
-- Legg til en ny query mot `assets` der `asset_type = 'self'` for å hente `logo_url`.
-- Auto-felt:
-  - `autoName = legal_name || name` (trimmet). Ingen "Dintero AS"-fallback — tom streng hvis ingenting finnes.
-  - `autoOrgNumber = org_number`.
-  - `autoDomain = domain`.
-  - `autoLogoUrl = selfAsset.logo_url`.
-- Overstyringer i localStorage vinner fortsatt over auto. Logo: hvis bruker ikke har lastet opp egen logo, brukes `autoLogoUrl` (URL fra storage), ellers data-URL fra overrides.
-- Utvid `PartnerBrandingOverrides` og `PartnerBranding` med `domain` + `isAutoDomain`, og legg til `autoDomain`.
+Stegene under (1–5) og outcome-kortene beholdes som de er — de fungerer som detaljert utdypning under illustrasjonen.
 
-### 2. `src/components/msp/PartnerBrandingCard.tsx`
-- Legg til input-felt **Webadresse** (auto-fylles, kan overstyres, samme mønster som navn/org).
-- Vis webadresse i mini-preview under org.nr.
-- Bytt hardkodet "Dintero AS"-placeholder/visning til `branding.autoName || "Mangler — fyll inn"`. Hvis auto-feltet er tomt og bruker ikke har overstyrt, vis hjelpetekst "Mangler — fyll inn i organisasjonsprofilen" med lenke til `/settings` (eller bare beskrivelse).
-- Logo-knapp: hvis `autoLogoUrl` finnes og brukeren ikke har overstyrt, vis "Bruker logo fra organisasjonsprofil" og knapp "Last opp egen logo for tilbud" + "Tilbakestill til auto" når overstyrt.
+## Illustrasjonens oppbygning
 
-### 3. Ingen DB-endringer
-Alle data finnes allerede.
+En SVG-basert illustrasjon (ren React + Tailwind/semantiske tokens, ingen ekstra avhengigheter) bygget som tre kolonner koblet sammen med flytlinjer:
 
-## Teknisk
-- Kun frontend. To eksisterende Supabase-tabeller leses (`company_profile`, `assets`).
-- React Query brukes som før; query-keys: `partner-branding-profile`, `partner-branding-self-asset`.
-- Semantiske tokens for all styling.
+```text
+┌─────────────────┐         ┌──────────────────┐         ┌─────────────────────┐
+│  KUNDE          │         │   PARTNER        │         │  COMPLIANCE         │
+│                 │         │                  │         │                     │
+│  Trust profile  │ ──────▶ │  Dine tjenester  │ ──────▶ │  Tilbud             │
+│  Modenhet 0–4   │         │  (byggeklosser)  │         │  Regelverk (NIS2,   │
+│  ●●●○○          │         │  • Backup        │         │   ISO, GDPR…)       │
+│                 │ ◀────── │  • MDR           │ ◀────── │  Kontrollpunkter    │
+│  Hever seg ▲    │  bevis  │  • Opplæring     │  dekker │  ✓ A.8.13 ✓ Art.21  │
+└─────────────────┘         └──────────────────┘         └─────────────────────┘
+```
+
+### Visuelle elementer
+- **Venstre kort (Kunde)**: Shield-ikon, "Trust profile", en liten modenhetsbar (0–4 prikker) med pil oppover som viser at den hever seg.
+- **Midtkort (Partner)**: Wrench/Layers-ikon, "Dine tjenester", 3 chips med eksempeltjenester (Backup, MDR, Awareness).
+- **Høyre kort (Compliance)**: FileText/ShieldCheck-ikon, "Tilbud + Regelverk + Kontrollpunkter", med små framework-badges (NIS2, ISO 27001, GDPR) og 2–3 grønne ✓-kontroller.
+- **Forbindelseslinjer**: To-veis piler mellom kortene med korte etiketter:
+  - Kunde → Partner: *"leverer på"*
+  - Partner → Compliance: *"dekker"*
+  - Compliance → Kunde: *"hever modenhet"* (lukker loopen)
+- **Loop-følelsen**: En subtil sirkulær flyt som understreker at partnerens leveranse → dekker kontroller → hever kundens modenhet i trust profile.
+- Bruker semantiske tokens: `bg-card`, `border-border`, `text-primary`, `bg-success/10`, etc. WCAG-vennlig kontrast og tekststørrelse (≥ `text-sm`).
+- Responsivt: 3 kolonner på `md+`, stables vertikalt på mobil (piler roteres 90°).
+
+## Tekstendringer
+- Beholder hero-overskriften, men forkorter ingressen til én setning.
+- Fjerner ikke stegene (1–5) eller outcome-seksjonen — illustrasjonen kommer **i tillegg**, plassert rett under hero, før stegene, som den umiddelbare "aha"-en.
+
+## Filer som endres
+- `src/components/msp/MSPServiceHowItWorksTab.tsx` — legge til ny `<ServiceFlowDiagram />`-komponent (inline i samme fil eller egen fil under `src/components/msp/`), plassert mellom hero og stegene.
+
+Ingen endringer i forretningslogikk eller data.
