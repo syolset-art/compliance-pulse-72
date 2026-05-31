@@ -19,7 +19,7 @@ export interface TrustProfileMeta {
   contributors: ProfileContributor[];
 }
 
-export type TrustControlStatus = "implemented" | "partial" | "missing";
+export type TrustControlStatus = "implemented" | "partial" | "missing" | "not_applicable";
 export type ControlArea = "governance" | "risk_compliance" | "security_posture" | "privacy_data" | "supplier_governance";
 export type RiskSeverity = "high" | "medium" | "low";
 
