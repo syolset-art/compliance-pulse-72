@@ -8,8 +8,9 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useDemoSyncOptional } from "@/contexts/DemoSyncContext";
 import {
-  Inbox, Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, User, Bell,
+  Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, Bell,
 } from "lucide-react";
+import avatarProfile from "../../public/avatar-profile.png";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
@@ -73,16 +74,6 @@ export function TopBar() {
     window.location.reload();
   };
 
-  const { data: inboxCount = 0 } = useQuery({
-    queryKey: ["lara-inbox-total"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("lara_inbox")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["new", "auto_matched"]);
-      return count || 0;
-    },
-  });
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -128,25 +119,12 @@ export function TopBar() {
         )}
       </button>
 
-      {/* Inbox – fører til Meldinger > Lara-innboks */}
-      <button
-        onClick={() => navigate("/customer-requests?tab=inbox")}
-        className="relative p-2 rounded-lg hover:bg-muted transition-colors"
-        title={isNb ? "Lara-innboks" : "Lara inbox"}
-      >
-        <Inbox className="h-4 w-4 text-muted-foreground" />
-        {inboxCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-            {inboxCount}
-          </span>
-        )}
-      </button>
 
       {/* Profile avatar with dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="ml-1 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:ring-2 hover:ring-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/40">
-            <User className="h-4 w-4 text-primary" />
+          <button className="ml-1 h-8 w-8 rounded-full overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/40">
+            <img src={avatarProfile} alt="Profil" className="h-full w-full object-cover" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
