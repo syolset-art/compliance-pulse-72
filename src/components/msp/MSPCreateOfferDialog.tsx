@@ -64,12 +64,16 @@ export function MSPCreateOfferDialog({
   defaultMessage,
   attachGap: attachGapProp = true,
   gapFrameworkId,
+  coveredControls,
   initialView = "edit",
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
   const effectivePartnerName = partnerName ?? branding.name;
   const effectiveOrgNumber = partnerOrgNumber ?? branding.orgNumber;
   const effectiveLogo = partnerLogoDataUrl ?? branding.logoDataUrl ?? null;
+
+  const safeCoveredControls = (coveredControls ?? []).filter(g => g.controlIds.length > 0);
+  const totalControlPoints = safeCoveredControls.reduce((s, g) => s + g.controlIds.length, 0);
 
   const [tasks, setTasks] = useState<EditableTask[]>(
     (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })),
