@@ -266,3 +266,30 @@ export async function deleteDemoTrustProfile() {
       .eq("id", selfAssets[0].id);
   }
 }
+
+/**
+ * Reset Trust Profile state so the activation wizard can be played from scratch
+ * (e.g. for a demo recording). Keeps company_profile intact so the wizard
+ * still has prefill, but unpublishes the self-asset, clears wizard metadata
+ * and deletes evidence checks so the trust score drops back to "low".
+ */
+export async function resetTrustProfileForDemo() {
+  const { data: selfAssets } = await supabase
+    .from("assets")
+    .select("id")
+    .eq("asset_type", "self")
+    .limit(1);
+  if (!selfAssets || selfAssets.length === 0) return;
+  const selfAssetId = selfAssets[0].id;
+
+  await supabase.from("evidence_checks").delete().eq("asset_id", selfAssetId);
+
+  await supabase
+    .from("assets")
+    .update({
+      publish_mode: "ecosystem",
+      compliance_score: 0,
+      metadata: {} as any,
+    } as any)
+    .eq("id", selfAssetId);
+}
