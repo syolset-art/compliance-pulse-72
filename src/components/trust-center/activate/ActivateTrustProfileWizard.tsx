@@ -665,9 +665,9 @@ export default function ActivateTrustProfileWizard({
         <div className="flex gap-2">
           <Button onClick={next} disabled={!canNext} className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white">
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
-            {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
+            {step === 3 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
             {step === 4 && (<>Til kritiske leverandører <ArrowRight className="h-4 w-4" /></>)}
-            {step === 5 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
+            {step === 5 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
             {step === 6 && (<>Velg synlighet <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
