@@ -329,7 +329,7 @@ export default function MSPPartnerSettings() {
           <div className="space-y-4 py-1">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5 col-span-2">
-                <Label htmlFor="inv-name" className="text-[12px]">Navn</Label>
+                <Label htmlFor="inv-name" className="text-base">Navn</Label>
                 <Input
                   id="inv-name"
                   placeholder="Ola Nordmann"
@@ -338,7 +338,7 @@ export default function MSPPartnerSettings() {
                 />
               </div>
               <div className="space-y-1.5 col-span-2">
-                <Label htmlFor="inv-email" className="text-[12px]">E-post</Label>
+                <Label htmlFor="inv-email" className="text-base">E-post</Label>
                 <Input
                   id="inv-email"
                   type="email"
@@ -348,7 +348,7 @@ export default function MSPPartnerSettings() {
                 />
               </div>
               <div className="space-y-1.5 col-span-2">
-                <Label className="text-[12px]">Rolle</Label>
+                <Label className="text-base">Rolle</Label>
                 <Select
                   value={invite.role}
                   onValueChange={(v) => setInvite({ ...invite, role: v as TeamMember["role"] })}
