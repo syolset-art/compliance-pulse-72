@@ -29,7 +29,7 @@ import {
 // ---------- Mock data (aggregated partner view) ----------
 const KPIS = [
   { key: "portfolio", label: "PORTEFØLJE", value: "400", sub: "kunder", tone: "default" as const },
-  { key: "claim", label: "CLAIM-RATE", value: "12%", sub: "47 av 400 · mål 40%", tone: "primary" as const, delta: "+2", progress: 30 },
+  { key: "claim", label: "AKTIVERINGSGRAD", value: "12%", sub: "47 av 400 kunder har aktivert compliance-leveransen", tone: "primary" as const, delta: "+2", progress: 30 },
   { key: "signals", label: "SALGSSIGNALER", value: "23", sub: "aktive nå", tone: "warning" as const },
   { key: "won", label: "VUNNET I MND", value: "340k", sub: "12 oppdrag", tone: "success" as const },
 ];
@@ -50,11 +50,11 @@ const LARA_SUGGESTIONS: LaraSuggestion[] = [
   {
     id: 1,
     dot: "bg-status-followup",
-    text: "Kjør NIS2-claim-kampanje mot 28 kunder",
+    text: "Kjør NIS2-aktiveringskampanje mot 28 kunder",
     icon: Target,
-    title: "NIS2-claim-kampanje",
-    summary: "28 kunder i porteføljen er NIS2-eksponert, men har ennå ikke overtatt sin Trust Profile. Lara har klargjort en målrettet kampanje.",
-    impact: { reach: "28 kunder", expectedClaims: "9–12 nye claims", revenue: "~210 000 kr ARR" },
+    title: "NIS2-aktiveringskampanje",
+    summary: "28 kunder i porteføljen er NIS2-eksponert, men har ennå ikke aktivert sin Trust Profile. Lara har klargjort en målrettet kampanje.",
+    impact: { reach: "28 kunder", expectedClaims: "9–12 nye aktiveringer", revenue: "~210 000 kr ARR" },
     steps: [
       "Send personalisert e-post med NIS2-eksponering og frister",
       "Automatisk oppfølging etter 3 dager til de som ikke åpnet",
@@ -118,7 +118,7 @@ const LIVE_SIGNALS = [
   { time: "2t", name: "Bergen Maskin AS", note: "ISO 27001 utløpt", accent: "bg-destructive" },
   { time: "04:15", name: "Sognefjord Helse AS", note: "Datatilsyn-sak åpnet", accent: "bg-status-followup" },
   { time: "i går", name: "Vestland Logistikk", note: "Ny CEO i Brreg", accent: "bg-primary" },
-  { time: "i går", name: "Nordic Cargo AS", note: "Profil claimed", accent: "bg-emerald-500" },
+  { time: "i går", name: "Nordic Cargo AS", note: "Kunde har aktivert profilen", accent: "bg-emerald-500" },
 ];
 
 // ---------- Components ----------
@@ -193,13 +193,13 @@ function ClaimRateWidget() {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="text-2xl font-bold leading-none">{claimPct}%</div>
-            <div className="text-[9px] uppercase tracking-wider text-white/80 mt-0.5">claim</div>
+            <div className="text-[9px] uppercase tracking-wider text-white/80 mt-0.5">aktive</div>
           </div>
         </div>
         <div className="min-w-0">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Claim-rate</div>
-          <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder</div>
-          <div className="text-xs text-white/70 mt-1">Mål {claimGoal}% · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
+          <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Aktiveringsgrad</div>
+          <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder har aktivert</div>
+          <div className="text-xs text-white/70 mt-1">Kunder som har godkjent compliance-leveranse · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
         </div>
         <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
       </div>
@@ -333,7 +333,7 @@ function LaraSuggestions({ onSelect }: { onSelect: (s: LaraSuggestion) => void }
 
 // Mock target customers for the NIS2 campaign preview
 const CAMPAIGN_TARGETS = [
-  { name: "Bergen Energi AS", industry: "Energi", risk: "Høy", reason: "NIS2 + ingen claim" },
+  { name: "Bergen Energi AS", industry: "Energi", risk: "Høy", reason: "NIS2 + ikke aktivert" },
   { name: "Sognefjord Helse AS", industry: "Helse", risk: "Høy", reason: "Særlige kategorier" },
   { name: "Vestland Logistikk", industry: "Transport", risk: "Medium", reason: "Ny CEO + DORA" },
   { name: "Nordic Cargo AS", industry: "Transport", risk: "Medium", reason: "NIS2-eksponert" },
@@ -806,9 +806,9 @@ function ClaimDevelopmentChart() {
     <Card onClick={() => navigate("/msp-partner/widget/claim-development")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-start justify-between mb-1">
         <div>
-          <h3 className="text-base font-semibold text-foreground">Claim-utvikling</h3>
+          <h3 className="text-base font-semibold text-foreground">Aktiveringer over tid</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Fra 6 til 47 claims · siste 6 mnd
+            Fra 6 til 47 aktiverte kunder · siste 6 mnd
           </p>
         </div>
         <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs gap-1 hover:bg-emerald-500/10">
@@ -873,7 +873,7 @@ function ClaimDevelopmentChart() {
       <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-border">
         <div>
           <div className="text-2xl font-bold text-foreground">8</div>
-          <div className="text-xs text-muted-foreground">claims i april</div>
+          <div className="text-xs text-muted-foreground">aktivert i april</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-foreground">12%</div>

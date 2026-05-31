@@ -115,15 +115,15 @@ type WidgetMeta = {
 const WIDGETS: Record<string, WidgetMeta> = {
   "claim-rate": {
     id: "claim-rate",
-    title: "Claim-rate",
-    subtitle: "Andelen kunder som har overtatt sin Trust Profile",
+    title: "Aktiveringsgrad",
+    subtitle: "Andelen kunder som har aktivert sin Trust Profile og godkjent compliance-leveransen",
     icon: Target,
-    hero: { value: "12%", sub: "47 av 400 kunder har overtatt sin profil. Mål: 40% innen 2026." },
+    hero: { value: "12%", sub: "47 av 400 kunder har aktivert sin profil. Mål: 40% innen 2026." },
     explainer:
-      "Claim-rate måles som antall kunder som aktivt har tatt eierskap til sin Trust Profile, delt på total portefølje. Høyere claim-rate gir mer engasjement, bedre datakvalitet og flere oppsalgsmuligheter.",
+      "Aktiveringsgrad måles som antall kunder som har godkjent compliance-leveransen og tatt eierskap til sin Trust Profile, delt på total portefølje. Høyere aktiveringsgrad gir mer engasjement, bedre datakvalitet og flere muligheter for å levere tilbud som hjelper kundene å øke modenheten innenfor valgte regelverk.",
     ctas: [
-      { label: "Kjør claim-kampanje", href: "/msp-messages", primary: true },
-      { label: "Se uclaimed kunder", href: "/msp-licenses?filter=unclaimed" },
+      { label: "Kjør aktiveringskampanje", href: "/msp-messages", primary: true },
+      { label: "Se ikke-aktiverte kunder", href: "/msp-licenses?filter=unclaimed" },
     ],
   },
   "needs-follow-up": {
@@ -153,12 +153,12 @@ const WIDGETS: Record<string, WidgetMeta> = {
   },
   "claim-development": {
     id: "claim-development",
-    title: "Claim-utvikling",
-    subtitle: "Hvordan claim-raten har utviklet seg over tid",
+    title: "Aktivering over tid",
+    subtitle: "Hvordan aktiveringsgraden har utviklet seg",
     icon: TrendingUp,
-    hero: { value: "+167%", sub: "vekst i claims siste 6 måneder (fra 6 til 47)" },
+    hero: { value: "+167%", sub: "vekst i aktiveringer siste 6 måneder (fra 6 til 47)" },
     explainer:
-      "Grafen viser nye claims per måned. Trenden lar deg se effekten av kampanjer og oppfølgingsarbeid. Et naturlig mål er å holde en stigende trend frem til 40% claim-rate er nådd.",
+      "Grafen viser nye aktiverte kunder per måned. Trenden lar deg se effekten av kampanjer og oppfølgingsarbeid. Et naturlig mål er å holde en stigende trend frem til 40% aktiveringsgrad er nådd.",
     ctas: [
       { label: "Planlegg ny kampanje", href: "/msp-messages", primary: true },
     ],
@@ -249,7 +249,7 @@ function WidgetBody({ id }: { id: string }) {
               </div>
             </Card>
           </Section>
-          <Section title="Claims per segment">
+          <Section title="Aktiverte kunder per segment">
             <Card className="p-5">
               <div className="h-[240px]">
                 <ResponsiveContainer width="100%" height="100%">

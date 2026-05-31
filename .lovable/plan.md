@@ -1,49 +1,48 @@
+## Bakgrunn
+«Claim-rate» er teknisk og lite selvforklarende for MSP-partnere. Brukeren har valgt **«Aktiverte kunder»** som nytt begrep, med **selvforklarende undertekst** og **ren KPI** uten salgsvinkling.
 
-## Mål
-Bytte demo-bedriften fra «Framdrift Innovasjon AS» (rådgivning) til «DIPS Arena AS» — en realistisk helseaktør — slik at investor-demoen treffer riktig bransje. Alle felter (bransje, beskrivelse, e-poster, domener, dokumenter, kontaktpersoner) oppdateres så Lara-kartleggingen og Trust Profile fremstår troverdig.
+## Omfang
+Endringen er rent språklig i UI – ingen backend- eller databaseendringer nødvendig.
 
-## Ny demo-profil (helse)
+## Endringsliste
 
-- Navn: DIPS Arena AS
-- Org.nr: 936431127 (uendret — fiktivt for demo)
-- Bransje: Helse og omsorg
-- Brreg-bransje: Helsetjenester / Programvareutvikling for helsesektoren
-- Beskrivelse: «DIPS Arena AS leverer digitale helseløsninger til sykehus, kommuner og spesialister i Norge. Vi behandler pasientopplysninger og særlige kategorier av personopplysninger på vegne av helsevirksomheter.»
-- Domene: dipsarena.no
-- Ansatte: 11–50 (brreg_employees: 25) — mer troverdig for helseaktør enn 5
-- Region/land: Vestland, Norge (beholdt)
-- Kontakt / DPO / Compliance: Marte Solberg → byttes til realistisk helse-navn, f.eks. Kari Lien (compliance) og Henrik Dahl (DPO)
-- E-poster: marte@framdrift.no → kari.lien@dipsarena.no, personvern@dipsarena.no, hei@dipsarena.no, sikkerhet@dipsarena.no
-- Personvernerklæring URL: https://dipsarena.no/personvern
-- Sensitive data: «extensive» (helseopplysninger) i stedet for «limited»
-- Use cases: ["gdpr", "iso27001", "nsm_grunnprinsipper"] (legger til NSM som er relevant for helse)
+### 1. Partner-dashbord – KPI-rad og claim-widget
+**Fil:** `src/pages/MSPPartnerDashboard.tsx`
+- Bytt KPI-label fra `CLAIM-RATE` til `AKTIVERINGSGRAD`.
+- Bytt undertekst fra `47 av 400 · mål 40%` til selvforklarende variant, f.eks.:
+  - `47 av 400 kunder har aktivert compliance-leveransen`
+- Oppdater `ClaimRateWidget`:
+  - Tittel: `Claim-rate` → `Aktiveringsgrad`
+  - Ring-label: `claim` → `aktive`
+  - Undertekst: tydeligere setning om hva tallet betyr
+- Oppdater live-signal: `Profil claimed` → `Profil aktivert`
 
-## Filer som endres
+### 2. Widget-detaljside
+**Fil:** `src/pages/MSPWidgetDetail.tsx`
+- Oppdater sidetittel og beskrivelser fra claim-språk til aktiveringsspråk.
+- Endre eventuelle seksjonsheadere, tabelltitler og grafer som refererer til «claim».
 
-1. `src/lib/demoSeedTrustProfile.ts`
-   - `FRAMDRIFT_PROFILE` → `DIPS_ARENA_PROFILE` (eller bare oppdatere feltene): navn, bransje, domene, ansatte, kontakt, DPO, e-poster, sensitive_data, use_cases.
-   - `SELF_ASSET`: navn, beskrivelse, kontakt, e-post, url.
-   - Behold org_number, geografisk scope, evidence-checks-strukturen.
+### 3. Kundekort og statusbanner
+**Filer:**
+- `src/components/msp/CustomerStatusBanner.tsx`
+- `src/components/msp/MSPCustomerCard.tsx`
+- Juster tooltip/merknad for «claimed»-status: `selvrapportert av kunde` → språk som tydelig sier at kunden har aktivert/igangsatt compliance-leveransen.
 
-2. `src/lib/demoTrustActivation.ts`
-   - `FRAMDRIFT` `LaraScanResult` → `DIPS_ARENA`: company name, description, alle e-poster (primary, dpo, support, security), policyUrl, dokumenter-URLer.
-   - `normalized.includes("framdrift")` → `normalized.includes("dips")` (matcher domene/navn ved Lara-oppslag).
-   - Oppdater eventuelle subProcessors/leverandørreferanser så de passer en helseaktør (f.eks. Microsoft Azure Health Data Services, Norsk Helsenett som driftspartner).
+### 4. Campaign-wizard (hvis aktuelt)
+**Fil:** `src/components/msp/CampaignWizardDialog.tsx`
+- Bytt ut «claim»-språk i stegbeskrivelser og CTA-er til aktiveringsspråk.
 
-3. `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx`
-   - Linje 846: placeholder «F.eks. Framdrift Innovasjon AS» → «F.eks. DIPS Arena AS».
+### 5. Oversettelser
+**Filer:** `src/locales/nb.json`, `src/locales/en.json`
+- Legg til i18next-nøkler for de nye begrepene (f.eks. `msp.activationRate`, `msp.activatedCustomers`, `msp.profileActivated`).
+- Erstatt hardkodet tekst i komponentene med `t()`-kall for å overholde i18next-standarden.
 
-4. `src/components/msp/AddMSPCustomerDialog.tsx`
-   - Linje 484: CSV-placeholder oppdateres til «936431127;DIPS Arena AS;Kari Lien;kari.lien@dipsarena.no».
+## Design-hensyn
+- Behold eksisterende gradient-widget-stil og ring-visualisering – bare tekst endres.
+- Risikofarger og layout beholdes uendret.
 
-## Ikke i scope
-
-- Ingen endring i databaseskjema eller migreringer — dette er ren demo-/seed-data og UI-placeholders.
-- Logikk for kartlegging, modenhetsspørsmål og auto-utfylling endres ikke. Kun innholdet (navn/bransje/e-post/dokumenter) byttes ut.
-- Eksisterende seedet rad i Supabase oppdateres automatisk neste gang `seedDemoTrustProfile()` kjøres (koden gjør upsert via update på eksisterende id).
-
-## Verifikasjon
-
-- Åpne `/trust-center/profile` → bedriftsnavn, bransje og beskrivelse viser «DIPS Arena AS» / helse.
-- Kjør Aktiver Trust Profile-wizard → Lara-kartlegging matcher mot dipsarena.no og pre-utfyller helse-relevant data.
-- Sjekk MSP «Legg til kunde»-dialog → ny placeholder vises.
+## Akseptansekriterier
+- [ ] Ingen «claim»- eller «claimed»-referanser gjenstår i brukervendt tekst på partner-dashbordet, widget-detaljsiden, kundekortene eller campaign-wizarden.
+- [ ] KPI-teksten er selvforklarende uten tooltips.
+- [ ] Bygget kompilerer uten TypeScript-feil.
+- [ ] Oversettelser finnes for både norsk og engelsk.

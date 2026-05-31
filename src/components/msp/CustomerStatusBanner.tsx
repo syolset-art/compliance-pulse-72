@@ -104,7 +104,7 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
   const score = customer.compliance_score || 0;
 
   const maturityLabel =
-    status.key === "claimed" ? "selvrapportert av kunde" :
+    status.key === "claimed" ? "godkjent av kunden" :
     status.key === "invited" ? "under onboarding" :
     status.key === "draft"   ? "estimert av Lara" :
     "data fryst";

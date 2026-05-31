@@ -95,8 +95,8 @@ const KIND_OPTIONS: { id: CampaignKind; label: string; hint: string; icon: typeo
   },
   {
     id: "claim",
-    label: "Inviter til å overta Trust-profil",
-    hint: "Be kunden claime og signere sin egen Trust-profil med sikker lenke.",
+    label: "Inviter til å aktivere Trust-profil",
+    hint: "Be kunden aktivere og signere sin egen Trust-profil med sikker lenke.",
     icon: UserPlus,
   },
 ];
