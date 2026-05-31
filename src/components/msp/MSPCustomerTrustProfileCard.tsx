@@ -114,7 +114,7 @@ export function MSPCustomerTrustProfileCard({
         </TooltipProvider>
       </div>
 
-      {/* Claim banner */}
+      {/* Aktiverings-banner */}
       <Card className={`p-4 space-y-3 ${invited ? "border-success/30 bg-success/5" : "border-primary/30 bg-primary/5"}`}>
         <div className="flex items-start gap-2.5">
           {invited ? (
@@ -124,12 +124,12 @@ export function MSPCustomerTrustProfileCard({
           )}
           <div className="space-y-1 flex-1">
             <p className="text-sm font-semibold text-foreground">
-              {invited ? `Invitasjon sendt til ${contactName}` : "Profilen er ikke claimet av kunden"}
+              {invited ? `Invitasjon sendt til ${contactName}` : "Kunden har ikke aktivert profilen ennå"}
             </p>
             <p className="text-[13px] text-muted-foreground leading-snug">
               {invited
-                ? `${contactName} har fått en e-post med en sikker lenke for å overta og signere profilen. Du får varsel når det er gjort. Inntil da kan du fortsatt redigere innholdet.`
-                : `Du administrerer profilen på vegne av ${customerName}. Når kunden claimer profilen tar de over redigering — du beholder innsynet, men kan ikke lenger endre innhold direkte.`}
+                ? `${contactName} har fått en e-post med en sikker lenke for å aktivere og signere profilen. Du får varsel når det er gjort. Inntil da kan du fortsatt redigere innholdet.`
+                : `Du administrerer profilen på vegne av ${customerName}. Når kunden aktiverer profilen tar de over redigering — du beholder innsynet, men kan ikke lenger endre innhold direkte.`}
             </p>
           </div>
         </div>
@@ -137,7 +137,7 @@ export function MSPCustomerTrustProfileCard({
           <div className="flex flex-wrap gap-2">
             <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setInviteOpen(true)}>
               <UserPlus className="h-3.5 w-3.5" />
-              Inviter {contactName} til å claime
+              Inviter {contactName} til å aktivere
             </Button>
           </div>
         )}
