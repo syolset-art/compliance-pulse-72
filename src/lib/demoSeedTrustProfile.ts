@@ -137,6 +137,7 @@ export interface ActivationValues {
   securityEmail?: string;
   maturityAnswers?: Record<string, "yes" | "no" | "later" | "n_a">;
   criticalVendors?: Array<{ name: string; access: string; dpa: "yes" | "no" | "unknown" }>;
+  subprocessorList?: import("./demoSubprocessorAnalysis").SubprocessorListData | null;
   documents?: ActivationDocument[];
   visibility: "private" | "ecosystem" | "public";
   partner?: {
@@ -206,6 +207,8 @@ export async function seedFromActivation(values: ActivationValues) {
     metadata: {
       maturity: values.maturityAnswers || {},
       documents: values.documents || [],
+      criticalVendors: values.criticalVendors || [],
+      subprocessors: values.subprocessorList || null,
       activation_completed_at: new Date().toISOString(),
     },
   };

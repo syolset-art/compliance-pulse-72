@@ -18,6 +18,8 @@ import {
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
   Linkedin, Facebook, Mail, Star, TrendingUp, BarChart3,
 } from "lucide-react";
+import { SubprocessorTable } from "@/components/trust-center/profile/SubprocessorTable";
+import type { SubprocessorListData } from "@/lib/demoSubprocessorAnalysis";
 
 // EU-style 12-star wreath used in the compliance badge
 const StarWreath = ({ count = 12, radius = 30, starSize = 7, color = "hsl(45, 90%, 55%)" }: { count?: number; radius?: number; starSize?: number; color?: string }) => (
@@ -852,6 +854,12 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </section>
               );
             })()}
+
+            {/* Subprocessors — Lara-analysed list */}
+            <SubprocessorTable
+              data={(meta.subprocessors as SubprocessorListData | undefined) ?? null}
+              isNb={isNb}
+            />
 
             <div className="border-t border-border" />
 

@@ -34,6 +34,12 @@ import {
   GENERIC_ACCESS_OPTIONS,
   type VendorSuggestion,
 } from "@/lib/vendorCatalog";
+import {
+  analyzeSubprocessorFile,
+  analyzeSubprocessorUrl,
+  type SubprocessorListData,
+} from "@/lib/demoSubprocessorAnalysis";
+import { Link2, FileUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PARTNER_TYPE_LABEL, type PartnerType } from "@/hooks/usePartnerInfo";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
@@ -116,6 +122,13 @@ export default function ActivateTrustProfileWizard({
 
   // Step 5: critical vendors
   const [criticalVendors, setCriticalVendors] = useState<CriticalVendorRow[]>([{ ...EMPTY_VENDOR_ROW }]);
+  // Step 5: optional aggregated subprocessor list (upload or URL)
+  const [subprocessorList, setSubprocessorList] = useState<{
+    source: "upload" | "url" | "none";
+    file?: File | null;
+    fileName?: string;
+    url?: string;
+  }>({ source: "none" });
 
   // Step 6: documents
   const [documents, setDocuments] = useState<ActivationDocument[]>([]);
@@ -383,6 +396,31 @@ export default function ActivateTrustProfileWizard({
     await new Promise((r) => setTimeout(r, 600));
     setCalcStep(3);
     await new Promise((r) => setTimeout(r, 500));
+
+    // Lara analyses the optional subprocessor list (file or URL)
+    let analyzedSubprocessors: SubprocessorListData | null = null;
+    try {
+      if (subprocessorList.source === "upload" && subprocessorList.file) {
+        const vendors = await analyzeSubprocessorFile(subprocessorList.file);
+        analyzedSubprocessors = {
+          source: "upload",
+          fileName: subprocessorList.fileName,
+          analyzedAt: new Date().toISOString(),
+          vendors,
+        };
+      } else if (subprocessorList.source === "url" && subprocessorList.url) {
+        const vendors = await analyzeSubprocessorUrl(subprocessorList.url);
+        analyzedSubprocessors = {
+          source: "url",
+          url: subprocessorList.url,
+          analyzedAt: new Date().toISOString(),
+          vendors,
+        };
+      }
+    } catch {
+      // ignore — keep null
+    }
+
     const values: ActivationValues = {
       name: companyName,
       orgNumber,
@@ -400,6 +438,7 @@ export default function ActivateTrustProfileWizard({
       criticalVendors: criticalVendors
         .filter((v) => v.name.trim().length > 0)
         .map((v) => ({ name: v.name.trim(), access: v.access.trim(), dpa: v.dpa ?? "unknown" })),
+      subprocessorList: analyzedSubprocessors,
       documents,
       visibility,
       partner: partnerStatus
@@ -419,7 +458,14 @@ export default function ActivateTrustProfileWizard({
       try { localStorage.setItem("mynder.trustprofile.activated", "1"); } catch {}
       await queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
       await queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-      toast.success("Trust Profile aktivert");
+      if (analyzedSubprocessors && analyzedSubprocessors.vendors.length > 0) {
+        const tp = analyzedSubprocessors.vendors.filter((v) => v.hasTrustProfile).length;
+        toast.success(
+          `Trust Profile aktivert · Lara analyserte ${analyzedSubprocessors.vendors.length} underleverandører (${tp} med Trust Profile)`,
+        );
+      } else {
+        toast.success("Trust Profile aktivert");
+      }
       onOpenChange(false);
       onCompleted?.();
     } catch (e: any) {
@@ -530,7 +576,13 @@ export default function ActivateTrustProfileWizard({
         <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
       {step === 5 && (
-        <CriticalVendorsStep rows={criticalVendors} onChange={setCriticalVendors} />
+        <CriticalVendorsStep
+          rows={criticalVendors}
+          onChange={setCriticalVendors}
+          subprocessorList={subprocessorList}
+          onSubprocessorChange={setSubprocessorList}
+        />
+
       )}
       {step === 6 && !isCalculating && (
         <DocumentsStep documents={documents} onUpload={uploadDocument} />
@@ -1286,9 +1338,18 @@ function MaturityStep({ answers, sources, onChange }: {
 
 /* -------------------- Critical vendors step -------------------- */
 
-function CriticalVendorsStep({ rows, onChange }: {
+type SubprocessorListInput = {
+  source: "upload" | "url" | "none";
+  file?: File | null;
+  fileName?: string;
+  url?: string;
+};
+
+function CriticalVendorsStep({ rows, onChange, subprocessorList, onSubprocessorChange }: {
   rows: CriticalVendorRow[];
   onChange: (rows: CriticalVendorRow[]) => void;
+  subprocessorList: SubprocessorListInput;
+  onSubprocessorChange: (next: SubprocessorListInput) => void;
 }) {
   const updateRow = (idx: number, patch: Partial<CriticalVendorRow>) => {
     onChange(rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
@@ -1300,6 +1361,11 @@ function CriticalVendorsStep({ rows, onChange }: {
   const addRow = () => {
     if (rows.length >= MAX_CRITICAL_VENDORS) return;
     onChange([...rows, { ...EMPTY_VENDOR_ROW }]);
+  };
+
+  const onFile = (file: File | null) => {
+    if (!file) return;
+    onSubprocessorChange({ source: "upload", file, fileName: file.name });
   };
 
   return (
@@ -1336,6 +1402,79 @@ function CriticalVendorsStep({ rows, onChange }: {
           <Plus className="h-3.5 w-3.5" /> Legg til leverandør
         </Button>
       )}
+
+      {/* Aggregated subprocessor list — optional upload or public URL */}
+      <Card className="p-4 space-y-3 mt-2">
+        <div className="space-y-0.5">
+          <p className="text-sm font-semibold text-foreground">
+            Har du en samlet liste over alle underleverandører?
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Mange virksomheter har en åpen oversikt. Last opp listen eller lim inn lenken — så analyserer Lara den
+            og kobler hver leverandør mot Mynder-katalogen når du fullfører aktiveringen.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-1.5">
+          {([
+            { id: "upload", label: "Last opp liste", icon: FileUp },
+            { id: "url", label: "Lim inn lenke", icon: Link2 },
+            { id: "none", label: "Har ikke" },
+          ] as const).map((opt) => (
+            <Button
+              key={opt.id}
+              size="sm"
+              variant={subprocessorList.source === opt.id ? "default" : "outline"}
+              className="h-8 gap-1.5"
+              onClick={() => onSubprocessorChange({ source: opt.id })}
+            >
+              {"icon" in opt && opt.icon ? <opt.icon className="h-3.5 w-3.5" /> : null}
+              {opt.label}
+            </Button>
+          ))}
+        </div>
+
+        {subprocessorList.source === "upload" && (
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-2 text-xs cursor-pointer rounded-md border border-dashed border-border bg-muted/30 px-3 py-2 hover:bg-muted/50 transition-colors">
+              <FileUp className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">
+                {subprocessorList.fileName ?? "Velg CSV, XLSX eller PDF…"}
+              </span>
+              <input
+                type="file"
+                accept=".csv,.xlsx,.xls,.pdf,text/csv,application/pdf"
+                className="hidden"
+                onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+              />
+            </label>
+            {subprocessorList.fileName && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-xs text-muted-foreground"
+                onClick={() => onSubprocessorChange({ source: "upload" })}
+              >
+                <X className="h-3 w-3 mr-1" /> Fjern fil
+              </Button>
+            )}
+          </div>
+        )}
+
+        {subprocessorList.source === "url" && (
+          <div className="space-y-1">
+            <Input
+              value={subprocessorList.url ?? ""}
+              onChange={(e) => onSubprocessorChange({ source: "url", url: e.target.value })}
+              placeholder="https://leverandor.no/subprocessors"
+              className="text-sm h-9"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Bruk dette hvis Lara ikke fant siden automatisk.
+            </p>
+          </div>
+        )}
+      </Card>
 
       <p className="text-xs text-muted-foreground pt-1">
         Du trenger ikke fylle ut alt nå — du kan oppdatere listen senere fra Trust Profile-siden.
