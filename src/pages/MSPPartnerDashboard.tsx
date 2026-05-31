@@ -873,7 +873,7 @@ function ClaimDevelopmentChart() {
       <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-border">
         <div>
           <div className="text-2xl font-bold text-foreground">8</div>
-          <div className="text-xs text-muted-foreground">claims i april</div>
+          <div className="text-xs text-muted-foreground">aktivert i april</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-foreground">12%</div>
