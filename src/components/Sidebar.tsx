@@ -52,6 +52,7 @@ import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
+import { getEnabledPartnerModules, type PartnerModuleKey } from "@/lib/partnerModules";
 
 const ModuleSkeletonRow = ({ label }: { label: string }) => (
   <div
@@ -271,6 +272,22 @@ const SidebarContent = () => {
     },
   });
   const isPartner = companyProfile?.is_msp_partner === true;
+
+  // Partner module overrides — when in compliance mode as a partner, the heavy
+  // modules (Core, Registre, Vendors, "Flere tjenester", "Bli partner") are hidden
+  // by default and can be re-enabled from Innstillinger → Andre moduler.
+  const [enabledPartnerModules, setEnabledPartnerModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
+  useEffect(() => {
+    const sync = () => setEnabledPartnerModules(getEnabledPartnerModules());
+    window.addEventListener("storage", sync);
+    window.addEventListener("partner-modules-changed", sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("partner-modules-changed", sync);
+    };
+  }, []);
+  const partnerHides = (key: PartnerModuleKey) =>
+    isPartner && workspaceMode === "compliance" && !enabledPartnerModules.includes(key);
 
   // Optimistic activation skeletons — cleared as soon as the underlying
   // subscription/activated-services queries confirm access (or as a final
@@ -547,7 +564,7 @@ const SidebarContent = () => {
           );
 
           // Insert Vendors (if activated) between Regelverk (idx 0) and Meldinger (idx 1)
-          if (idx === 1 && showVendorsNormal) {
+          if (idx === 1 && showVendorsNormal && !partnerHides("vendors")) {
             const vIsActive = location.pathname === vendorLink.href;
             const isReportsActive = location.pathname === "/vendors/reports";
             const sectionActive = location.pathname.startsWith("/vendors");
@@ -656,7 +673,7 @@ const SidebarContent = () => {
         {(showCoreNormal || showRegistries) && <div className="my-2 border-b border-sidebar-border/40" />}
 
         {/* Mynder Core — only if selected at onboarding or paid */}
-        {showCoreNormal && (isCoreActivating ? (
+        {showCoreNormal && !partnerHides("core") && (isCoreActivating ? (
           <ModuleSkeletonRow label={t("nav.mynderCore", "Mynder Core")} />
         ) : renderCollapsibleSection(
           t("nav.mynderCore", "Mynder Core"),
@@ -668,7 +685,7 @@ const SidebarContent = () => {
         ))}
 
         {/* Registre — Systemer (Core) + Aktiva (Assets) */}
-        {showRegistries && registriesItems.length > 0 && ((isCoreActivating || isAssetsActivating) ? (
+        {showRegistries && registriesItems.length > 0 && !partnerHides("registries") && ((isCoreActivating || isAssetsActivating) ? (
           <ModuleSkeletonRow label={t("nav.registries", "Registre")} />
         ) : renderCollapsibleSection(
           t("nav.registries", "Registre"),
@@ -680,7 +697,7 @@ const SidebarContent = () => {
         ))}
 
         {/* "Flere tjenester" — for modules NOT selected at onboarding */}
-        {showExploreSection && (
+        {showExploreSection && !partnerHides("more") && (
           <>
             {(showCoreNormal || showVendorsNormal || showAssetsNormal) && <div className="my-2 border-b border-sidebar-border/40" />}
             <div>
@@ -768,7 +785,7 @@ const SidebarContent = () => {
         )}
 
         {/* Bli Partner — kun synlig for de som ikke er partner enda */}
-        {!isPartner && (
+        {!isPartner && !partnerHides("become_partner") && (
           <Link
             to="/bli-partner"
             className={cn(

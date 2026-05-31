@@ -1,23 +1,42 @@
-Replace the partner-name combobox in the "Legg til partner" dialog with a plain text input that shows suggestions as the user types, without purple hover styling.
+# Forenklet Compliance-meny for partnere + "Andre moduler" i Innstillinger
 
-### What to change
-In `src/components/company/CompanyInfoForm.tsx` (lines 644–709):
+Når en partner bytter til workspace-modus **"Min organisasjon — Compliance og styring"**, skal sidebaren være minimal: kun Trust Center, Regelverk og Meldinger. Alt annet (Mynder Core, Registre, Leverandørmodul, Flere tjenester, Bli Partner) flyttes til Innstillinger som "Andre moduler" som kan aktiveres.
 
-1. **Replace the trigger Button with an Input**  
-   Remove the `PopoverTrigger` containing the `Button` with `role="combobox"`. Instead, render a standard `Input` field that:
-   - Accepts free-text typing
-   - Opens the suggestion popover on focus or when the user starts typing
-   - Does NOT turn purple on hover/focus
+## Mål
 
-2. **Keep the suggestion list**  
-   Keep the `PopoverContent` with `Command`/`CommandList`, but:
-   - Override `CommandItem` hover/focus styles so they use neutral grays (`bg-muted`, `text-foreground`) instead of the theme's purple (`bg-primary`, `text-primary`)
-   - Remove or neutralize the `Shield` icon inside each `CommandItem` so the row does not highlight in purple
+1. Partnere får et eget Trust Center-punkt øverst i compliance-menyen.
+2. Compliance-menyen for partnere viser kun: **Trust Center**, **Regelverk**, **Meldinger**.
+3. Skjulte moduler kan aktiveres på nytt fra Innstillinger → "Andre moduler". Når en modul aktiveres, dukker den opp i menyen igjen.
 
-3. **Preserve existing behaviour**
-   - Selecting a suggestion still pre-fills partner type and role description
-   - Typing a non-matching name still works ("Ingen treff i Mynder Trust" + manual add)
-   - The `draftPartnerName` state and `selectPartner` logic stay the same
+## Endringer
 
-### Files to edit
-- `src/components/company/CompanyInfoForm.tsx` — the partner picker dialog only
+### 1. `src/components/Sidebar.tsx` — compliance-grenen
+- Beholde eksisterende `isPartner`-flagg (allerede beregnet via `companyProfile.is_msp_partner`).
+- Når `workspaceMode === "compliance" && isPartner`:
+  - Vise Dashbord + nytt **Trust Center**-punkt (lenke til `/trust-center/profile`, ikon `ShieldCheck`).
+  - Vise `globalNav` filtrert til kun **Regelverk** og **Meldinger**.
+  - Skjule: Mynder Core-seksjonen, Registre-seksjonen, Leverandører-collapse, "Flere tjenester", "Bli Partner".
+  - Skjulingen overstyres per-modul av en ny localStorage-flagg `mynder_partner_modules_enabled` (JSON-array med modulnøkler: `"core"`, `"registries"`, `"vendors"`, `"more"`, `"become_partner"`). Når en nøkkel er til stede, vises tilhørende blokk igjen.
+- Ikke-partnere er uendret.
+
+### 2. `src/pages/MSPPartnerSettings.tsx` — ny seksjon "Andre moduler"
+Legge til en seksjon nederst (eller som ny fane) med kort for hver modul:
+- **Mynder Core** — "Aktivitet, kontroller og styringsoppgaver"
+- **Registre** — "Systemer og aktiva"
+- **Leverandørmodul** — "Tredjeparts­leverandører og TPRM"
+- **Flere tjenester** — "Utforsk tilleggsmoduler"
+
+Hvert kort har en Switch "Aktiver i Compliance-menyen". Toggle skriver/fjerner nøkkelen i `mynder_partner_modules_enabled` (localStorage) og trigger `window.dispatchEvent(new Event("storage"))` slik at sidebaren oppdateres.
+
+### 3. Liten hjelpefunksjon
+Ny `src/lib/partnerModules.ts` med:
+- `getEnabledPartnerModules(): string[]`
+- `setPartnerModuleEnabled(key, enabled): void`
+- Konstant-liste over modulnøkler + etiketter (gjenbrukes i Sidebar + Innstillinger).
+
+## Avgrensning
+
+- Ingen endringer i partner-modus-menyen (`PartnerNav`) eller TopBar.
+- Ingen DB-/backend-endringer; alt styres frontend via localStorage.
+- Ingen ruteendringer — Trust Center-lenken bruker eksisterende `/trust-center/profile`.
+- i18n følger samme `isNb ? ... : ...`-mønster som resten av Sidebar.tsx.
