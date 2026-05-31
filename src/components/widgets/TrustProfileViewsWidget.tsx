@@ -34,7 +34,7 @@ export function TrustProfileViewsWidget() {
     fetch();
   }, []);
 
-  const isPublished = publishMode && publishMode !== "private";
+  const isPublished = publishMode === "public";
 
   return (
     <Card variant="flat" className="h-full">
