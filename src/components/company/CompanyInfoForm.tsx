@@ -47,9 +47,6 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     { name: "Atea Managed Services", type: "msp", roleDescription: "Skytjenester, drift og support" },
     { name: "Sopra Steria Cyber", type: "mssp", roleDescription: "Cybersikkerhet og hendelseshåndtering" },
   ];
-  const matchedPartner = PARTNER_DIRECTORY.find(
-    (p) => p.name.toLowerCase() === (form?.partner_name || "").trim().toLowerCase()
-  );
 
   const { data: companyProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["company-profile-shared"],
