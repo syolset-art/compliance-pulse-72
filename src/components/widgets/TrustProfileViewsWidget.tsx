@@ -67,8 +67,8 @@ export function TrustProfileViewsWidget() {
                 ? "Publisert"
                 : "Published"
               : isNorwegian
-              ? "Privat"
-              : "Private"}
+              ? "Mynder-økosystem"
+              : "Mynder ecosystem"}
           </Badge>
         </div>
 
