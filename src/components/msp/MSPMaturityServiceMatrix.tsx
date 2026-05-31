@@ -292,6 +292,7 @@ const DELIVERIES: DeliveryItem[] = [
             id: "a3",
             label: "Målrettet opplæring for ledergruppen",
             done: false,
+            status: "in_progress",
             owner: "Partner",
             date: "20. mai",
             laraSteps: [
@@ -320,6 +321,7 @@ const DELIVERIES: DeliveryItem[] = [
             id: "a4",
             label: "Re-test phishing og rapportering",
             done: false,
+            status: "not_started",
             owner: "Partner",
             date: "15. jun",
             laraSteps: [
@@ -397,6 +399,7 @@ const DELIVERIES: DeliveryItem[] = [
             id: "b3",
             label: "Kommunisert til alle ansatte",
             done: false,
+            status: "not_started",
             owner: "Kunde",
             laraSteps: [
               { text: "Lagt intranett-melding klar for publisering", via: "SharePoint" },
@@ -447,6 +450,7 @@ const DELIVERIES: DeliveryItem[] = [
             id: "v2",
             label: "Middels funn under retting",
             done: false,
+            status: "in_progress",
             owner: "Kunde",
             date: "15. mai",
             laraSteps: [
@@ -466,6 +470,14 @@ const DELIVERIES: DeliveryItem[] = [
                 "Klar for godkjenning av kunde",
               ],
             },
+          },
+          {
+            id: "v3",
+            label: "Lav-risiko funn vurdert",
+            done: false,
+            status: "not_relevant",
+            owner: "Partner",
+            note: "Kunden aksepterer restrisiko for 3 lav-funn (legacy-system fases ut Q3).",
           },
         ],
       },
