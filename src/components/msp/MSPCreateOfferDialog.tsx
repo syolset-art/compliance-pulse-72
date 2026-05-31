@@ -565,13 +565,40 @@ export function MSPCreateOfferDialog({
                               {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
                             </span>
                           </div>
-                          <ul className="space-y-0.5 pl-1">
-                            {group.controlIds.map(id => (
-                              <li key={id} className="text-[12px] text-foreground/85 flex gap-2">
-                                <span className="font-mono text-muted-foreground shrink-0">{id}</span>
-                                <span>— {getControlLabel(group.frameworkId, id)}</span>
-                              </li>
-                            ))}
+                          <ul className="space-y-1.5 pl-1">
+                            {group.controlIds.map(id => {
+                              const related = getRelatedControls(group.frameworkId, id);
+                              const visible = related.slice(0, 3);
+                              const extra = related.length - visible.length;
+                              return (
+                                <li key={id} className="text-[12px] text-foreground/85 space-y-1">
+                                  <div className="flex gap-2">
+                                    <span className="font-mono text-muted-foreground shrink-0">{id}</span>
+                                    <span>— {getControlLabel(group.frameworkId, id)}</span>
+                                  </div>
+                                  {related.length > 0 && (
+                                    <div className="flex flex-wrap items-center gap-1 pl-1">
+                                      <Link2 className="h-3 w-3 text-muted-foreground" />
+                                      <span className="text-[10.5px] text-muted-foreground mr-1">Også:</span>
+                                      {visible.map(r => {
+                                        const t = getFrameworkTheme(r.frameworkId);
+                                        return (
+                                          <span
+                                            key={`${r.frameworkId}-${r.controlId}`}
+                                            className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[10.5px] font-medium border", t.chip)}
+                                          >
+                                            {r.frameworkLabel} {r.controlId}
+                                          </span>
+                                        );
+                                      })}
+                                      {extra > 0 && (
+                                        <span className="text-[10.5px] text-muted-foreground">+{extra}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                </li>
+                              );
+                            })}
                           </ul>
                         </div>
                       );
