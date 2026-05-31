@@ -27,6 +27,7 @@ import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 
 import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
+import { CriticalVendorsSection } from "@/components/trust-center/edit/CriticalVendorsSection";
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
 import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
@@ -305,6 +306,9 @@ const TrustCenterEditProfile = () => {
               </p>
               <CompanyInfoForm defaultEditing showEditControls partnerOnly />
             </section>
+
+            {/* Kritiske leverandører — speiler aktiveringen */}
+            <CriticalVendorsSection asset={asset} />
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Modenhet per kontrollområde */}
