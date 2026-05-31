@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -5,7 +6,10 @@ import { cn } from "@/lib/utils";
 import { Building2, Sparkles, ShieldCheck, Send, Archive, Mail, User, UserPlus, ExternalLink, Shield } from "lucide-react";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNavigate } from "react-router-dom";
+import { PARTNER_TEAM, getAccountManagerOverride, setAccountManagerOverride } from "@/lib/partnerTeam";
+import { toast } from "sonner";
 
 interface CustomerLike {
   id: string;
@@ -102,6 +106,21 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
   const navigate = useNavigate();
   const status = deriveStatus(customer);
   const score = customer.compliance_score || 0;
+
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [accountManager, setAccountManager] = useState<string | null>(
+    customer.account_manager ?? getAccountManagerOverride(customer.id),
+  );
+  useEffect(() => {
+    setAccountManager(customer.account_manager ?? getAccountManagerOverride(customer.id));
+  }, [customer.id, customer.account_manager]);
+
+  const handleAssign = (name: string) => {
+    setAccountManagerOverride(customer.id, name);
+    setAccountManager(name);
+    setAssignOpen(false);
+    toast.success(`${name} er satt som ansvarlig`);
+  };
 
   const maturityLabel =
     status.key === "claimed" ? "godkjent av kunden" :
@@ -275,13 +294,75 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
 
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Ansvarlig hos oss:</span>
-              {customer.account_manager ? (
+              {accountManager ? (
                 <span className="inline-flex items-center gap-1.5 text-foreground">
-                  <InitialAvatar name={customer.account_manager} />
-                  <span className="truncate">{customer.account_manager}</span>
+                  <InitialAvatar name={accountManager} />
+                  <span className="truncate">{accountManager}</span>
+                  <Popover open={assignOpen} onOpenChange={setAssignOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="ml-1 text-sm text-primary hover:underline"
+                        aria-label="Endre ansvarlig"
+                      >
+                        Endre
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-1" align="start">
+                      <p className="px-3 py-2 text-xs uppercase tracking-wider text-muted-foreground">
+                        Velg partner-medlem
+                      </p>
+                      <div className="max-h-64 overflow-auto">
+                        {PARTNER_TEAM.map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => handleAssign(m.name)}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
+                          >
+                            <InitialAvatar name={m.name} />
+                            <span className="flex-1 min-w-0">
+                              <span className="block text-sm font-medium text-foreground truncate">{m.name}</span>
+                              <span className="block text-xs text-muted-foreground truncate">{m.role}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </span>
               ) : (
-                <span className="text-muted-foreground italic">Ikke tildelt</span>
+                <Popover open={assignOpen} onOpenChange={setAssignOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 text-primary hover:underline text-sm font-medium"
+                    >
+                      <UserPlus className="h-4 w-4" aria-hidden="true" /> Tildel ansvarlig
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-1" align="start">
+                    <p className="px-3 py-2 text-xs uppercase tracking-wider text-muted-foreground">
+                      Velg partner-medlem
+                    </p>
+                    <div className="max-h-64 overflow-auto">
+                      {PARTNER_TEAM.map((m) => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => handleAssign(m.name)}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
+                        >
+                          <InitialAvatar name={m.name} />
+                          <span className="flex-1 min-w-0">
+                            <span className="block text-sm font-medium text-foreground truncate">{m.name}</span>
+                            <span className="block text-xs text-muted-foreground truncate">{m.role}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
           </div>
