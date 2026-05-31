@@ -294,13 +294,75 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
 
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Ansvarlig hos oss:</span>
-              {customer.account_manager ? (
+              {accountManager ? (
                 <span className="inline-flex items-center gap-1.5 text-foreground">
-                  <InitialAvatar name={customer.account_manager} />
-                  <span className="truncate">{customer.account_manager}</span>
+                  <InitialAvatar name={accountManager} />
+                  <span className="truncate">{accountManager}</span>
+                  <Popover open={assignOpen} onOpenChange={setAssignOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="ml-1 text-sm text-primary hover:underline"
+                        aria-label="Endre ansvarlig"
+                      >
+                        Endre
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-1" align="start">
+                      <p className="px-3 py-2 text-xs uppercase tracking-wider text-muted-foreground">
+                        Velg partner-medlem
+                      </p>
+                      <div className="max-h-64 overflow-auto">
+                        {PARTNER_TEAM.map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => handleAssign(m.name)}
+                            className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
+                          >
+                            <InitialAvatar name={m.name} />
+                            <span className="flex-1 min-w-0">
+                              <span className="block text-sm font-medium text-foreground truncate">{m.name}</span>
+                              <span className="block text-xs text-muted-foreground truncate">{m.role}</span>
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </span>
               ) : (
-                <span className="text-muted-foreground italic">Ikke tildelt</span>
+                <Popover open={assignOpen} onOpenChange={setAssignOpen}>
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 text-primary hover:underline text-sm font-medium"
+                    >
+                      <UserPlus className="h-4 w-4" aria-hidden="true" /> Tildel ansvarlig
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-64 p-1" align="start">
+                    <p className="px-3 py-2 text-xs uppercase tracking-wider text-muted-foreground">
+                      Velg partner-medlem
+                    </p>
+                    <div className="max-h-64 overflow-auto">
+                      {PARTNER_TEAM.map((m) => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => handleAssign(m.name)}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-left"
+                        >
+                          <InitialAvatar name={m.name} />
+                          <span className="flex-1 min-w-0">
+                            <span className="block text-sm font-medium text-foreground truncate">{m.name}</span>
+                            <span className="block text-xs text-muted-foreground truncate">{m.role}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
           </div>
