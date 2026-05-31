@@ -261,6 +261,44 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     return () => window.removeEventListener("open-activate-trust-wizard", open);
   }, []);
 
+  // ─── Demo mode: ?demo=activation ────────────────────────────────────────
+  // Triggered when filming a walkthrough. Resets the activation state, opens
+  // the wizard in auto-play mode (calm ~40s rhythm), and cleans the URL so a
+  // refresh does not re-trigger the demo. Skipped on service-profile views
+  // and on read-only renders.
+  const [autoPlayDemo, setAutoPlayDemo] = useState(false);
+  useEffect(() => {
+    if (propAssetId || readOnly) return;
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") !== "activation") return;
+
+    let cancelled = false;
+    (async () => {
+      try { localStorage.removeItem("mynder.trustprofile.activated"); } catch {}
+      setIsActivated(false);
+      setJustActivated(false);
+      try {
+        await resetTrustProfileForDemo();
+      } catch (e) {
+        // ignore — wizard will still play
+      }
+      if (cancelled) return;
+      await queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+      await queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+      if (cancelled) return;
+      setAutoPlayDemo(true);
+      // Strip the demo param so a refresh doesn't loop the demo
+      params.delete("demo");
+      const qs = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
+
   // Gate: own profile but not yet activated → locked landing
   if (isOwnProfile && !isActivated) {
     return (
