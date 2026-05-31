@@ -244,7 +244,7 @@ export default function MSPPartnerSettings() {
 
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="space-y-1.5 sm:col-span-2">
-                      <Label htmlFor="inbox" className="text-[12px]">
+                      <Label htmlFor="inbox" className="text-base">
                         Mottaks-e-post
                       </Label>
                       <Input
@@ -255,12 +255,12 @@ export default function MSPPartnerSettings() {
                         onChange={(e) => update("inboxEmail", e.target.value)}
                         disabled={!form.forwardEnabled}
                       />
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         Alle nye meldinger sendes hit som e-post.
                       </p>
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="reply" className="text-[12px]">
+                      <Label htmlFor="reply" className="text-base">
                         Svar-til <span className="text-muted-foreground font-normal">— valgfritt</span>
                       </Label>
                       <Input
@@ -274,8 +274,8 @@ export default function MSPPartnerSettings() {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-2 rounded-lg bg-muted/40 border border-border p-3 text-[11px] text-muted-foreground">
-                    <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                  <div className="flex items-start gap-2 rounded-lg bg-muted/40 border border-border p-3 text-sm text-muted-foreground">
+                    <Info className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>
                       Innstillingene gjelder for hele partner-organisasjonen og deles med alle meldingsfanene i
                       Mynder.
@@ -299,12 +299,12 @@ export default function MSPPartnerSettings() {
                   <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center shrink-0">
                     <CreditCard className="h-4 w-4 text-foreground/70" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-foreground">Fakturering og adresse</p>
-                    <p className="text-[12px] text-muted-foreground">
-                      Faktura-e-post, EHF, organisasjonsnummer og betalingsmetode.
-                    </p>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-base font-medium text-foreground">Fakturering og adresse</p>
+                      <p className="text-base text-muted-foreground">
+                        Faktura-e-post, EHF, organisasjonsnummer og betalingsmetode.
+                      </p>
+                    </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                 </Link>
               </Card>
