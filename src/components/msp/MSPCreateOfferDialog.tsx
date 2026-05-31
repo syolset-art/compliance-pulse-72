@@ -39,6 +39,8 @@ export interface CreateOfferDialogProps {
   defaultMessage?: string;
   attachGap?: boolean;
   gapFrameworkId?: string;
+  /** Kontrollpunkter denne leveransen dekker (vises i edit, preview og PDF). */
+  coveredControls?: CoveredControlGroup[];
   /** Hvilken visning dialogen åpner i. Default "edit". Bruk "preview" for å vise lagrede tilbud. */
   initialView?: "edit" | "preview";
 }
