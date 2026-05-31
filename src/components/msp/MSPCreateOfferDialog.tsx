@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,16 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, FileCheck2, CheckCircle2, Inbox, Send, ClipboardList, ShieldCheck } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, CheckCircle2, Inbox, Send, ClipboardList, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import jsPDF from "jspdf";
 import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
-import { getControlLabel } from "@/lib/serviceControlLabels";
 import { getRelatedControls } from "@/lib/controlCrosswalk";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL, type GapItem } from "@/lib/gapData";
 import { Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,16 @@ export interface CoveredControlGroup {
   frameworkId: string;
   frameworkLabel: string;
   controlIds: string[];
+}
+
+export interface CoveredGapsSpec {
+  /** Regelverk dette tilbudet bygger på. */
+  frameworkId: string;
+  frameworkLabel: string;
+  /** Kontroll-id-er fra tjenestekatalogen som forhåndsvelger relaterte gap. Hvis tom, ingen gap er forhåndsvalgt. */
+  preselectedControlIds?: string[];
+  /** Eksplisitt liste over gap-id-er som er forhåndsvalgt (overstyrer preselectedControlIds). */
+  preselectedGapIds?: string[];
 }
 
 export interface CreateOfferDialogProps {
@@ -44,6 +54,8 @@ export interface CreateOfferDialogProps {
   gapFrameworkId?: string;
   /** Kontrollpunkter denne leveransen dekker (vises i edit, preview og PDF). */
   coveredControls?: CoveredControlGroup[];
+  /** Gap fra gap-analysen som tilbudet lukker. Når satt, erstatter den den statiske coveredControls-visningen. */
+  coveredGaps?: CoveredGapsSpec;
   /** Hvilken visning dialogen åpner i. Default "edit". Bruk "preview" for å vise lagrede tilbud. */
   initialView?: "edit" | "preview";
 }
@@ -68,6 +80,7 @@ export function MSPCreateOfferDialog({
   attachGap: attachGapProp = true,
   gapFrameworkId,
   coveredControls,
+  coveredGaps,
   initialView = "edit",
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
@@ -75,8 +88,22 @@ export function MSPCreateOfferDialog({
   const effectiveOrgNumber = partnerOrgNumber ?? branding.orgNumber;
   const effectiveLogo = partnerLogoDataUrl ?? branding.logoDataUrl ?? null;
 
+  // Bygg gap-snapshot: hent alle gap for regelverket, og forhåndsvelg de som matcher tjenestens kontroller.
+  const frameworkGap = coveredGaps ? getFrameworkGap(coveredGaps.frameworkId) : undefined;
+  const gapList: GapItem[] = frameworkGap?.gaps ?? [];
+  const defaultSelectedGapIds = useMemo(() => {
+    if (!coveredGaps) return [] as string[];
+    if (coveredGaps.preselectedGapIds && coveredGaps.preselectedGapIds.length > 0) {
+      return coveredGaps.preselectedGapIds;
+    }
+    if (coveredGaps.preselectedControlIds && coveredGaps.preselectedControlIds.length > 0) {
+      return getGapIdsForControls(coveredGaps.frameworkId, coveredGaps.preselectedControlIds);
+    }
+    return [];
+  }, [coveredGaps]);
+
+  // Fallback: gammel statisk visning når coveredGaps ikke er satt.
   const safeCoveredControls = (coveredControls ?? []).filter(g => g.controlIds.length > 0);
-  const totalControlPoints = safeCoveredControls.reduce((s, g) => s + g.controlIds.length, 0);
 
   const [tasks, setTasks] = useState<EditableTask[]>(
     (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })),
@@ -86,9 +113,13 @@ export function MSPCreateOfferDialog({
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [selectedGapIds, setSelectedGapIds] = useState<Set<string>>(new Set(defaultSelectedGapIds));
 
   const [editableHourlyRate, setEditableHourlyRate] = useState(hourlyRate);
   const [discountPercent, setDiscountPercent] = useState(0);
+
+  // Frys et øyeblikksbilde-dato når dialogen åpnes (vises i alle visninger + PDF).
+  const [snapshotDate, setSnapshotDate] = useState<Date>(() => new Date());
 
   useEffect(() => {
     if (!open) return;
@@ -99,6 +130,8 @@ export function MSPCreateOfferDialog({
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
     setDiscountPercent(0);
+    setSelectedGapIds(new Set(defaultSelectedGapIds));
+    setSnapshotDate(new Date());
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
@@ -114,9 +147,47 @@ export function MSPCreateOfferDialog({
     setTasks(p => [...p, { label: "Ny oppgave", hours: 8, owner: "Partner", weeks: "" }]);
 
   const offerName = serviceTitle || domainName;
-  const gapCount = 9; // demo
   const offerNumber = `T-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
   const todayLabel = new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+  const snapshotLabel = snapshotDate.toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+
+  // Gap-statistikk og sorteringsrekkefølge (kritiske først)
+  const severityRank: Record<GapItem["severity"], number> = { critical: 0, high: 1, medium: 2, low: 3 };
+  const sortedGaps = [...gapList].sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
+  const selectedCount = sortedGaps.filter(g => selectedGapIds.has(g.id)).length;
+  const totalGapCount = sortedGaps.length;
+  const criticalSelected = sortedGaps.filter(g => selectedGapIds.has(g.id) && g.severity === "critical").length;
+  const gapCount = totalGapCount > 0 ? totalGapCount : 9;
+  const gapPercent = totalGapCount > 0 ? Math.round((selectedCount / totalGapCount) * 100) : 0;
+
+  const toggleGap = (id: string) => {
+    setSelectedGapIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // Samle cross-walk refs fra valgte gap (én chip per regelverk/kontroll)
+  const crosswalkChips = useMemo(() => {
+    if (!coveredGaps) return [] as { frameworkId: string; frameworkLabel: string; controlId: string }[];
+    const seen = new Set<string>();
+    const out: { frameworkId: string; frameworkLabel: string; controlId: string }[] = [];
+    for (const g of sortedGaps) {
+      if (!selectedGapIds.has(g.id)) continue;
+      for (const cid of g.relatedControlIds) {
+        const related = getRelatedControls(coveredGaps.frameworkId, cid);
+        for (const r of related) {
+          const key = `${r.frameworkId}:${r.controlId}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          out.push(r);
+        }
+      }
+    }
+    return out.slice(0, 8);
+  }, [coveredGaps, sortedGaps, selectedGapIds]);
 
   const handleGenerate = () => {
     if (tasks.length === 0) {
@@ -235,8 +306,33 @@ export function MSPCreateOfferDialog({
     }
     y += 28;
 
-    // Covered controls
-    if (safeCoveredControls.length > 0) {
+    // Lukker mangler fra gap-analysen (ny, gap-drevet visning)
+    if (coveredGaps && selectedCount > 0) {
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text("LUKKER MANGLER FRA GAP-ANALYSEN", margin, y);
+      y += 14;
+      doc.setFontSize(11);
+      doc.setTextColor(20);
+      doc.text(
+        `${coveredGaps.frameworkLabel} · ${selectedCount} av ${totalGapCount} mangler · status per ${snapshotLabel}`,
+        margin,
+        y,
+      );
+      y += 16;
+      doc.setFontSize(10);
+      doc.setTextColor(60);
+      sortedGaps.filter(g => selectedGapIds.has(g.id)).forEach(g => {
+        if (y > 780) { doc.addPage(); y = margin; }
+        const sev = SEVERITY_LABEL[g.severity];
+        const ref = g.reference ? `${g.reference} — ` : "";
+        const lines = doc.splitTextToSize(`• [${sev}] ${ref}${g.title}`, pageWidth - margin * 2 - 8);
+        doc.text(lines, margin + 8, y);
+        y += lines.length * 12;
+      });
+      y += 10;
+    } else if (safeCoveredControls.length > 0) {
+      // Bakoverkompatibel statisk visning
       doc.setFontSize(10);
       doc.setTextColor(120);
       doc.text("DEKKER KONTROLLPUNKTER", margin, y);
@@ -251,24 +347,9 @@ export function MSPCreateOfferDialog({
         doc.setTextColor(60);
         group.controlIds.forEach(id => {
           if (y > 780) { doc.addPage(); y = margin; }
-          const label = getControlLabel(group.frameworkId, id);
-          const lines = doc.splitTextToSize(`• ${id} — ${label}`, pageWidth - margin * 2);
+          const lines = doc.splitTextToSize(`• ${id}`, pageWidth - margin * 2);
           doc.text(lines, margin + 8, y);
           y += lines.length * 12;
-          const related = getRelatedControls(group.frameworkId, id);
-          if (related.length > 0) {
-            if (y > 780) { doc.addPage(); y = margin; }
-            const shown = related.slice(0, 3).map(r => `${r.frameworkLabel} ${r.controlId}`).join(", ");
-            const extra = related.length - 3;
-            const suffix = extra > 0 ? ` +${extra} flere` : "";
-            doc.setFontSize(9);
-            doc.setTextColor(120);
-            const relLines = doc.splitTextToSize(`Også: ${shown}${suffix}`, pageWidth - margin * 2 - 16);
-            doc.text(relLines, margin + 16, y);
-            y += relLines.length * 11;
-            doc.setFontSize(10);
-            doc.setTextColor(60);
-          }
         });
         y += 8;
       });
@@ -276,16 +357,46 @@ export function MSPCreateOfferDialog({
     }
 
 
-    // Attachment
-    if (attachGap && gapFrameworkId) {
+    // Vedlegg: gap-analyse som øyeblikksbilde
+    if (attachGap && (coveredGaps || gapFrameworkId)) {
+      if (y > 700) { doc.addPage(); y = margin; }
       doc.setFontSize(10);
       doc.setTextColor(120);
-      doc.text("VEDLEGG", margin, y);
+      doc.text("VEDLEGG — GAP-ANALYSE (ØYEBLIKKSBILDE)", margin, y);
       y += 14;
+      const fwLabel = coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase() ?? "";
       doc.setFontSize(11);
-      doc.setTextColor(40);
-      doc.text(`• Gap-analyse ${gapFrameworkId.toUpperCase()} (${gapCount} gap dokumentert)`, margin, y);
-      y += 20;
+      doc.setTextColor(20);
+      doc.text(`${fwLabel} · status per ${snapshotLabel}`, margin, y);
+      y += 14;
+
+      if (totalGapCount > 0) {
+        const critTotal = sortedGaps.filter(g => g.severity === "critical").length;
+        const highTotal = sortedGaps.filter(g => g.severity === "high").length;
+        const minorTotal = sortedGaps.filter(g => g.severity === "medium" || g.severity === "low").length;
+        doc.setFontSize(10);
+        doc.setTextColor(110);
+        doc.text(`${totalGapCount} gap · ${critTotal} kritiske · ${highTotal} vesentlige · ${minorTotal} mindre`, margin, y);
+        y += 16;
+
+        doc.setFontSize(10);
+        doc.setTextColor(60);
+        sortedGaps.forEach(g => {
+          if (y > 780) { doc.addPage(); y = margin; }
+          const tick = selectedGapIds.has(g.id) ? "✓" : "•";
+          const sev = SEVERITY_LABEL[g.severity];
+          const ref = g.reference ? `${g.reference} — ` : "";
+          const lines = doc.splitTextToSize(`${tick} [${sev}] ${ref}${g.title}`, pageWidth - margin * 2 - 8);
+          doc.text(lines, margin + 8, y);
+          y += lines.length * 12 + 2;
+        });
+        y += 8;
+      } else {
+        doc.setFontSize(11);
+        doc.setTextColor(40);
+        doc.text(`• ${gapCount} gap dokumentert`, margin + 8, y);
+        y += 20;
+      }
     }
 
     // Footer
@@ -430,22 +541,111 @@ export function MSPCreateOfferDialog({
               </div>
             </div>
 
-            {/* Dekker kontrollpunkter */}
-            {safeCoveredControls.length > 0 && (
+            {/* Lukker mangler fra gap-analysen (gap-drevet) */}
+            {coveredGaps && totalGapCount > 0 && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-                    Dekker kontrollpunkter
+                    Lukker mangler fra gap-analysen
                   </Label>
-                  <span className="text-xs text-muted-foreground">
-                    {totalControlPoints} kontrollpunkt{totalControlPoints === 1 ? "" : "er"} · {safeCoveredControls.length} regelverk
+                  <span className="text-xs text-foreground tabular-nums font-medium">
+                    {selectedCount} av {totalGapCount}
                   </span>
                 </div>
-                <div className="rounded-md border border-border divide-y divide-border">
+                <div className="rounded-md border border-border overflow-hidden">
+                  <div className="px-3 py-2 bg-muted/40 border-b border-border space-y-1.5">
+                    <div className="flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        {(() => {
+                          const theme = getFrameworkTheme(coveredGaps.frameworkId);
+                          return (
+                            <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                              {coveredGaps.frameworkLabel}
+                            </span>
+                          );
+                        })()}
+                        <span className="text-muted-foreground">status per {snapshotLabel}</span>
+                      </div>
+                      {criticalSelected > 0 && (
+                        <span className="text-xs text-destructive font-medium">{criticalSelected} kritiske</span>
+                      )}
+                    </div>
+                    {/* Progress-bar */}
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full bg-primary transition-all"
+                        style={{ width: `${gapPercent}%` }}
+                      />
+                    </div>
+                  </div>
+                  <ul className="divide-y divide-border">
+                    {sortedGaps.map(g => {
+                      const checked = selectedGapIds.has(g.id);
+                      return (
+                        <li key={g.id} className="flex items-start gap-2.5 px-3 py-2 hover:bg-muted/30">
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={() => toggleGap(g.id)}
+                            className="mt-0.5"
+                            id={`gap-${g.id}`}
+                          />
+                          <span className={cn("h-2 w-2 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
+                          <label htmlFor={`gap-${g.id}`} className="flex-1 min-w-0 cursor-pointer space-y-0.5">
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                              {g.reference && (
+                                <span className="font-mono text-xs text-muted-foreground shrink-0">{g.reference}</span>
+                              )}
+                              <span className="text-sm text-foreground leading-snug">{g.title}</span>
+                            </div>
+                          </label>
+                          <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
+                            {SEVERITY_LABEL[g.severity]}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+
+                {crosswalkChips.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1 pt-1">
+                    <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
+                    {crosswalkChips.map(r => {
+                      const t = getFrameworkTheme(r.frameworkId);
+                      return (
+                        <span
+                          key={`${r.frameworkId}-${r.controlId}`}
+                          className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
+                        >
+                          {r.frameworkLabel} {r.controlId}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setGapPreviewOpen(true)}
+                  className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  Se hele gap-analysen <ArrowRight className="h-3 w-3" />
+                </button>
+              </div>
+            )}
+
+            {/* Bakoverkompatibel: gammel statisk visning når coveredGaps ikke er satt */}
+            {!coveredGaps && safeCoveredControls.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                  Dekker kontrollpunkter
+                </Label>
+                <div className="rounded-md border border-border p-3 space-y-2">
                   {safeCoveredControls.map(group => {
                     const theme = getFrameworkTheme(group.frameworkId);
                     return (
-                      <div key={group.frameworkId} className="p-3 space-y-2">
+                      <div key={group.frameworkId} className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
                             {group.frameworkLabel}
@@ -454,60 +654,23 @@ export function MSPCreateOfferDialog({
                             {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
                           </span>
                         </div>
-                        <ul className="space-y-2">
-                          {group.controlIds.map(id => {
-                            const related = getRelatedControls(group.frameworkId, id);
-                            const visible = related.slice(0, 3);
-                            const extra = related.length - visible.length;
-                            return (
-                              <li key={id} className="space-y-1 text-sm text-foreground">
-                                <div className="flex items-start gap-2">
-                                  <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-                                  <span className="font-mono text-xs text-foreground shrink-0">{id}</span>
-                                  <span className="text-foreground">— {getControlLabel(group.frameworkId, id)}</span>
-                                </div>
-                                {related.length > 0 && (
-                                  <div className="flex flex-wrap items-center gap-1 pl-7">
-                                    <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span className="text-xs text-muted-foreground mr-1">Også:</span>
-                                    <TooltipProvider delayDuration={150}>
-                                      {visible.map(r => {
-                                        const t = getFrameworkTheme(r.frameworkId);
-                                        return (
-                                          <Tooltip key={`${r.frameworkId}-${r.controlId}`}>
-                                            <TooltipTrigger asChild>
-                                              <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border cursor-default", t.chip)}>
-                                                {r.frameworkLabel} {r.controlId}
-                                              </span>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top" className="text-xs">
-                                              {getControlLabel(r.frameworkId, r.controlId)}
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        );
-                                      })}
-                                    </TooltipProvider>
-                                    {extra > 0 && (
-                                      <span className="text-xs text-muted-foreground">+{extra}</span>
-                                    )}
-                                  </div>
-                                )}
-                              </li>
-                            );
-                          })}
-                        </ul>
+                        <div className="flex flex-wrap gap-1 pl-1">
+                          {group.controlIds.map(id => (
+                            <span key={id} className="font-mono text-xs text-foreground bg-muted/50 rounded px-1.5 py-0.5">
+                              {id}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     );
                   })}
                 </div>
-
               </div>
             )}
 
 
-
-            {/* Vedlegg */}
-            {gapFrameworkId && (
+            {/* Vedlegg: gap-analyse som øyeblikksbilde */}
+            {(coveredGaps || gapFrameworkId) && (
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Vedlegg</Label>
                 <div className={`rounded-md border p-3 transition-colors ${attachGap ? "border-primary/40 bg-primary/5" : "border-border"}`}>
@@ -516,13 +679,17 @@ export function MSPCreateOfferDialog({
                       <FileText className="h-4 w-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-medium text-foreground truncate">
-                          Gap-analyse {gapFrameworkId.toUpperCase()}
+                          Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()}
                         </p>
-                        <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">Anbefalt</Badge>
+                        <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
+                          Øyeblikksbilde {snapshotLabel}
+                        </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">{gapCount} gap dokumentert</p>
+                      <p className="text-sm text-muted-foreground">
+                        {gapCount} mangler · markerer hvilke tilbudet lukker
+                      </p>
                     </div>
                     <Button type="button" size="sm" variant="ghost" className="h-8 text-sm gap-1 text-primary" onClick={() => setGapPreviewOpen(true)}>
                       <Eye className="h-3.5 w-3.5" /> Forhåndsvis
@@ -620,77 +787,86 @@ export function MSPCreateOfferDialog({
               </div>
 
 
-              {safeCoveredControls.length > 0 && (
+              {coveredGaps && selectedCount > 0 && (
                 <div className="pt-3 border-t border-border space-y-2">
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekker kontrollpunkter</p>
-                    <span className="text-xs text-muted-foreground">
-                      {totalControlPoints} totalt · {safeCoveredControls.length} regelverk
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                      Lukker mangler fra gap-analysen
+                    </p>
+                    <span className="text-xs text-foreground tabular-nums font-medium">
+                      {selectedCount} av {totalGapCount}
                     </span>
                   </div>
-                  <div className="space-y-3">
-                    {safeCoveredControls.map(group => {
-                      const theme = getFrameworkTheme(group.frameworkId);
+                  <div className="flex items-center gap-2 text-xs">
+                    {(() => {
+                      const theme = getFrameworkTheme(coveredGaps.frameworkId);
                       return (
-                        <div key={group.frameworkId} className="space-y-1.5">
-                          <div className="flex items-center gap-2">
-                            <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                              {group.frameworkLabel}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
-                            </span>
-                          </div>
-                          <ul className="space-y-2 pl-1">
-                            {group.controlIds.map(id => {
-                              const related = getRelatedControls(group.frameworkId, id);
-                              const visible = related.slice(0, 3);
-                              const extra = related.length - visible.length;
-                              return (
-                                <li key={id} className="text-sm text-foreground space-y-1">
-                                  <div className="flex gap-2">
-                                    <span className="font-mono text-xs text-foreground shrink-0 pt-0.5">{id}</span>
-                                    <span>— {getControlLabel(group.frameworkId, id)}</span>
-                                  </div>
-                                  {related.length > 0 && (
-                                    <div className="flex flex-wrap items-center gap-1 pl-1">
-                                      <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-                                      <span className="text-xs text-muted-foreground mr-1">Også:</span>
-                                      {visible.map(r => {
-                                        const t = getFrameworkTheme(r.frameworkId);
-                                        return (
-                                          <span
-                                            key={`${r.frameworkId}-${r.controlId}`}
-                                            className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
-                                          >
-                                            {r.frameworkLabel} {r.controlId}
-                                          </span>
-                                        );
-                                      })}
-                                      {extra > 0 && (
-                                        <span className="text-xs text-muted-foreground">+{extra}</span>
-                                      )}
-                                    </div>
-                                  )}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
+                        <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                          {coveredGaps.frameworkLabel}
+                        </span>
                       );
-                    })}
+                    })()}
+                    <span className="text-muted-foreground">status per {snapshotLabel}</span>
                   </div>
+                  <ul className="space-y-1.5">
+                    {sortedGaps.filter(g => selectedGapIds.has(g.id)).map(g => (
+                      <li key={g.id} className="flex items-start gap-2 text-sm text-foreground">
+                        <span className={cn("h-1.5 w-1.5 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
+                        {g.reference && (
+                          <span className="font-mono text-xs text-muted-foreground shrink-0 mt-0.5">{g.reference}</span>
+                        )}
+                        <span className="leading-snug">— {g.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {crosswalkChips.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1 pt-1">
+                      <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
+                      {crosswalkChips.map(r => {
+                        const t = getFrameworkTheme(r.frameworkId);
+                        return (
+                          <span
+                            key={`${r.frameworkId}-${r.controlId}`}
+                            className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
+                          >
+                            {r.frameworkLabel} {r.controlId}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!coveredGaps && safeCoveredControls.length > 0 && (
+                <div className="pt-3 border-t border-border space-y-2">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekker kontrollpunkter</p>
+                  {safeCoveredControls.map(group => {
+                    const theme = getFrameworkTheme(group.frameworkId);
+                    return (
+                      <div key={group.frameworkId} className="space-y-1">
+                        <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                          {group.frameworkLabel}
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {group.controlIds.map(id => (
+                            <span key={id} className="font-mono text-xs text-foreground bg-muted/50 rounded px-1.5 py-0.5">{id}</span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
 
-
-              {attachGap && gapFrameworkId && (
+              {attachGap && (coveredGaps || gapFrameworkId) && (
                 <div className="pt-3 border-t border-border">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1.5">Vedlegg</p>
                   <div className="flex items-center gap-2 text-sm text-foreground">
                     <FileText className="h-3.5 w-3.5 text-primary" />
-                    Gap-analyse {gapFrameworkId.toUpperCase()} · {gapCount} gap dokumentert
+                    Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()} · øyeblikksbilde {snapshotLabel} · {gapCount} mangler
                   </div>
                 </div>
               )}
@@ -794,7 +970,7 @@ export function MSPCreateOfferDialog({
         open={gapPreviewOpen}
         onOpenChange={setGapPreviewOpen}
         customerName={customerContactName}
-        initialFrameworkId={gapFrameworkId}
+        initialFrameworkId={coveredGaps?.frameworkId ?? gapFrameworkId}
       />
     </Dialog>
   );

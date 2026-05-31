@@ -543,6 +543,7 @@ export function MSPMaturityServiceMatrix({
     defaultTasks?: TaskEstimate[];
     hourlyRate?: number;
     coveredControls?: Array<{ frameworkId: string; frameworkLabel: string; controlIds: string[] }>;
+    coveredGaps?: { frameworkId: string; frameworkLabel: string; preselectedControlIds?: string[] };
     initialView?: "edit" | "preview";
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
@@ -775,6 +776,13 @@ export function MSPMaturityServiceMatrix({
                             coveredControls: r.frameworkId && r.controlIds?.length
                               ? [{ frameworkId: r.frameworkId, frameworkLabel: r.frameworkLabel ?? r.frameworkId.toUpperCase(), controlIds: r.controlIds }]
                               : undefined,
+                            coveredGaps: r.frameworkId
+                              ? {
+                                  frameworkId: r.frameworkId,
+                                  frameworkLabel: r.frameworkLabel ?? r.frameworkId.toUpperCase(),
+                                  preselectedControlIds: r.controlIds ?? [],
+                                }
+                              : undefined,
                           });
                         }}
                       >
@@ -930,6 +938,7 @@ export function MSPMaturityServiceMatrix({
         defaultTasks={offerCtx.defaultTasks}
         hourlyRate={offerCtx.hourlyRate}
         coveredControls={offerCtx.coveredControls}
+        coveredGaps={offerCtx.coveredGaps}
         initialView={offerCtx.initialView}
       />
 
