@@ -118,7 +118,7 @@ const LIVE_SIGNALS = [
   { time: "2t", name: "Bergen Maskin AS", note: "ISO 27001 utløpt", accent: "bg-destructive" },
   { time: "04:15", name: "Sognefjord Helse AS", note: "Datatilsyn-sak åpnet", accent: "bg-status-followup" },
   { time: "i går", name: "Vestland Logistikk", note: "Ny CEO i Brreg", accent: "bg-primary" },
-  { time: "i går", name: "Nordic Cargo AS", note: "Profil claimed", accent: "bg-emerald-500" },
+  { time: "i går", name: "Nordic Cargo AS", note: "Kunde har aktivert profilen", accent: "bg-emerald-500" },
 ];
 
 // ---------- Components ----------
