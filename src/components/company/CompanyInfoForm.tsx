@@ -103,7 +103,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
 
   useEffect(() => {
-    if (companyProfile) {
+    // Only hydrate once on initial load. Subsequent refetches must not
+    // overwrite local edits (e.g. removing a partner) before autosave runs.
+    if (companyProfile && !hydratedRef.current) {
       setForm({
         name: companyProfile.name || "",
         legal_name: (companyProfile as any).legal_name || "",
