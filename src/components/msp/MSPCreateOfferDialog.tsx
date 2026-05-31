@@ -833,23 +833,12 @@ export function MSPCreateOfferDialog({
               )}
 
               {!coveredGaps && safeCoveredControls.length > 0 && (
-                <div className="pt-3 border-t border-border space-y-2">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekker kontrollpunkter</p>
-                  {safeCoveredControls.map(group => {
-                    const theme = getFrameworkTheme(group.frameworkId);
-                    return (
-                      <div key={group.frameworkId} className="space-y-1">
-                        <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                          {group.frameworkLabel}
-                        </span>
-                        <div className="flex flex-wrap gap-1">
-                          {group.controlIds.map(id => (
-                            <span key={id} className="font-mono text-xs text-foreground bg-muted/50 rounded px-1.5 py-0.5">{id}</span>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="pt-3 border-t border-border space-y-1">
+                  {safeCoveredControls.map(group => (
+                    <p key={group.frameworkId} className="text-xs text-muted-foreground">
+                      Dekker {group.frameworkLabel}: {group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ")}
+                    </p>
+                  ))}
                 </div>
               )}
 
