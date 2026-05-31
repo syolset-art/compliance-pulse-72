@@ -27,6 +27,8 @@ export type CampaignCustomer = {
   trustProfileStatus?: "not_started" | "in_progress" | "complete";
   /** Dager siden siste kontakt */
   daysSinceContact?: number;
+  /** Baseline (Se over baseline) fullført — påvirker om regelverk/modenhet kan bekreftes */
+  baselineComplete?: boolean;
 };
 
 export interface CampaignSegment {
@@ -191,6 +193,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     purchasedServices: ["awareness"],
     trustProfileStatus: "in_progress",
     daysSinceContact: 12,
+    baselineComplete: true,
   },
   {
     id: "c-catalystone",
@@ -205,6 +208,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     purchasedServices: [],
     trustProfileStatus: "complete",
     daysSinceContact: 28,
+    baselineComplete: true,
   },
   {
     id: "c-visma",
@@ -219,6 +223,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     purchasedServices: ["pentest", "vciso", "mynder-core", "mynder-vendors"],
     trustProfileStatus: "complete",
     daysSinceContact: 4,
+    baselineComplete: true,
   },
   {
     id: "c-sparebank1",
@@ -233,6 +238,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     purchasedServices: ["awareness", "mynder-core"],
     trustProfileStatus: "complete",
     daysSinceContact: 45,
+    baselineComplete: true,
   },
   {
     id: "c-kommune",
@@ -247,6 +253,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     purchasedServices: [],
     trustProfileStatus: "in_progress",
     daysSinceContact: 70,
+    baselineComplete: false,
   },
   {
     id: "c-hydra",
@@ -261,6 +268,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     purchasedServices: [],
     trustProfileStatus: "not_started",
     daysSinceContact: 90,
+    baselineComplete: false,
   },
   {
     id: "c-northpower",
@@ -275,6 +283,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     purchasedServices: [],
     trustProfileStatus: "not_started",
     daysSinceContact: 110,
+    baselineComplete: false,
   },
   {
     id: "c-medtech",
@@ -289,6 +298,7 @@ export const DEMO_CAMPAIGN_CUSTOMERS: CampaignCustomer[] = [
     purchasedServices: ["awareness"],
     trustProfileStatus: "in_progress",
     daysSinceContact: 22,
+    baselineComplete: true,
   },
 ];
 
@@ -302,4 +312,28 @@ export function applySegments(
   return customers.filter((c) =>
     combine === "and" ? segs.every((s) => s.predicate(c)) : segs.some((s) => s.predicate(c)),
   );
+}
+
+/**
+ * Returnerer treff splittet på baseline-status. Brukes når valgte segmenter
+ * er avhengige av baseline-data (regelverk-gap eller modenhet & risiko).
+ */
+export function applySegmentsWithBaseline(
+  customers: CampaignCustomer[],
+  segmentIds: string[],
+  combine: "and" | "or" = "or",
+): { confirmed: CampaignCustomer[]; possible: CampaignCustomer[]; baselineMatters: boolean } {
+  const matches = applySegments(customers, segmentIds, combine);
+  const segs = CAMPAIGN_SEGMENTS.filter((s) => segmentIds.includes(s.id));
+  const baselineMatters = segs.some(
+    (s) => s.category === "framework" || s.category === "maturity",
+  );
+  if (!baselineMatters) {
+    return { confirmed: matches, possible: [], baselineMatters: false };
+  }
+  return {
+    confirmed: matches.filter((c) => c.baselineComplete === true),
+    possible: matches.filter((c) => c.baselineComplete !== true),
+    baselineMatters: true,
+  };
 }
