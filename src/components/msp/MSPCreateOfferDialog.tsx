@@ -111,6 +111,7 @@ export function MSPCreateOfferDialog({
   );
   const [message, setMessage] = useState(defaultMessage || "");
   const [attachGap, setAttachGap] = useState(attachGapProp);
+  const [showGapsInOffer, setShowGapsInOffer] = useState(true);
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
