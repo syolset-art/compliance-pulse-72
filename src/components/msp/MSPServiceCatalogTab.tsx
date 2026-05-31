@@ -34,6 +34,8 @@ interface ExtraService {
   templateVersion?: string;
   mappings: ServiceMapping[];
   isMynder?: boolean;
+  /** Overstyrt totalpris. Hvis satt, brukes denne i stedet for hours × timepris. */
+  priceOverride?: number;
 }
 
 function formatNOK(n: number): string {
