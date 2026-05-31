@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Info, Sparkles, ShieldCheck } from "lucide-react";
+import { Info, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 import { MATURITY_AREAS, deriveLaraSources, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -48,6 +48,39 @@ export function BaselineQuestionsDrawer({
   })();
 
   const [tab, setTab] = useState(initialArea);
+  // Draft buffer — endringer commit'es først ved "Gå videre"/"Ferdig".
+  const [draft, setDraft] = useState<MaturityAnswers>(answers);
+
+  // Synk når drawer åpnes på nytt eller eksterne svar endres.
+  useEffect(() => {
+    if (open) setDraft(answers);
+  }, [open, answers]);
+
+  const setDraftAnswer = (qid: string, val: MaturityAnswer) =>
+    setDraft((prev) => ({ ...prev, [qid]: val }));
+
+  const commit = () => {
+    Object.entries(draft).forEach(([qid, val]) => {
+      if (answers[qid] !== val) onAnswer(qid, val);
+    });
+  };
+
+  const currentIndex = MATURITY_AREAS.findIndex((a) => a.id === tab);
+  const isLastArea = currentIndex === MATURITY_AREAS.length - 1;
+
+  const handleNext = () => {
+    if (isLastArea) {
+      commit();
+      onOpenChange(false);
+    } else {
+      setTab(MATURITY_AREAS[currentIndex + 1].id);
+    }
+  };
+
+  const handleDiscard = () => {
+    setDraft(answers); // forkast endringer
+    onOpenChange(false);
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -76,7 +109,7 @@ export function BaselineQuestionsDrawer({
         <Tabs value={tab} onValueChange={setTab} className="mt-4">
           <TabsList className="grid w-full grid-cols-4 h-auto">
             {MATURITY_AREAS.map((a) => {
-              const answered = a.questions.filter((q) => answers[q.id] === "yes" || answers[q.id] === "no").length;
+              const answered = a.questions.filter((q) => draft[q.id] === "yes" || draft[q.id] === "no").length;
               return (
                 <TabsTrigger key={a.id} value={a.id} className="flex-col gap-0.5 py-2 text-xs">
                   <span className="font-medium truncate max-w-full">{a.title}</span>
@@ -93,7 +126,7 @@ export function BaselineQuestionsDrawer({
               <p className="text-sm text-muted-foreground">{area.subtitle}</p>
 
               {area.questions.map((q) => {
-                const current = answers[q.id];
+                const current = draft[q.id];
                 const laraSource = laraSources[q.id];
                 return (
                   <Card key={q.id} className="p-3 space-y-2.5">
@@ -131,7 +164,7 @@ export function BaselineQuestionsDrawer({
                           size="sm"
                           variant={current === opt.value ? "default" : "outline"}
                           className="h-8 flex-1"
-                          onClick={() => onAnswer(q.id, opt.value)}
+                          onClick={() => setDraftAnswer(q.id, opt.value)}
                         >
                           {opt.label}
                         </Button>
@@ -144,8 +177,17 @@ export function BaselineQuestionsDrawer({
           ))}
         </Tabs>
 
-        <div className="flex justify-end mt-6">
-          <Button onClick={() => onOpenChange(false)}>Ferdig</Button>
+        <div className="flex items-center justify-between gap-4 mt-6 pt-4 border-t border-border">
+          <button
+            type="button"
+            onClick={handleDiscard}
+            className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+          >
+            Avslutt uten å lagre
+          </button>
+          <Button onClick={handleNext} className="gap-1.5">
+            {isLastArea ? "Ferdig" : (<>Gå videre <ArrowRight className="h-4 w-4" /></>)}
+          </Button>
         </div>
       </SheetContent>
     </Sheet>
