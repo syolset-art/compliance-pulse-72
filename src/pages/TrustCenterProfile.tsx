@@ -381,7 +381,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const publicFullUrl = buildPublicTrustUrl(slug);
   const publicUrl = publicFullUrl.replace(/^https?:\/\//, "");
 
-  const isPublished = (asset as any).publish_mode && (asset as any).publish_mode !== "private";
+  const isPublished = (asset as any).publish_mode === "public";
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(publicFullUrl);
