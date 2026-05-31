@@ -193,13 +193,13 @@ function ClaimRateWidget() {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="text-2xl font-bold leading-none">{claimPct}%</div>
-            <div className="text-[9px] uppercase tracking-wider text-white/80 mt-0.5">claim</div>
+            <div className="text-[9px] uppercase tracking-wider text-white/80 mt-0.5">aktive</div>
           </div>
         </div>
         <div className="min-w-0">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Claim-rate</div>
-          <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder</div>
-          <div className="text-xs text-white/70 mt-1">Mål {claimGoal}% · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
+          <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Aktiveringsgrad</div>
+          <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder har aktivert</div>
+          <div className="text-xs text-white/70 mt-1">Kunder som har godkjent compliance-leveranse · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
         </div>
         <ChevronRight className="absolute top-3 right-3 h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
       </div>
