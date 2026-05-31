@@ -1634,11 +1634,6 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
             className="text-xs h-8"
           />
         </div>
-        {knownVendor && (
-          <p className="text-[11px] text-muted-foreground">
-            Forslag basert på {knownVendor.name}. Du kan overskrive eller fjerne det som ikke passer.
-          </p>
-        )}
       </div>
 
       {/* DPA — special handling for standard-DPA vendors */}
