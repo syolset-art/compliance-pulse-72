@@ -322,14 +322,6 @@ export function MSPCreateOfferDialog({
 
         {view === "edit" && (
           <div className="flex-1 overflow-y-auto p-5 space-y-5">
-            {/* Lara intro */}
-            <div className="flex items-start gap-2.5 rounded-md border border-primary/30 bg-primary/5 p-3">
-              <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-              <p className="text-[12px] text-foreground leading-snug">
-                Jeg har satt opp et standardløp basert på din tjenestekatalog. Juster timene og generer et tilbudsdokument du kan laste ned.
-              </p>
-            </div>
-
             {/* Aktiviteter */}
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Aktiviteter</Label>
