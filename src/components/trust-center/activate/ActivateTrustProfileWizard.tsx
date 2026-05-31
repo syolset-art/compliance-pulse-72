@@ -595,34 +595,19 @@ export default function ActivateTrustProfileWizard({
         <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
       {step === 7 && !isCalculating && (
-        <div className="space-y-6">
-          <PartnerSelectionBlock
-            status={partnerStatus}
-            setStatus={setPartnerStatus}
-            name={partnerName}
-            setName={setPartnerName}
-            companyId={partnerCompanyId}
-            setCompanyId={setPartnerCompanyId}
-            partnerType={partnerType}
-            setPartnerType={setPartnerType}
-            showOnProfile={showPartnerOnProfile}
-            setShowOnProfile={setShowPartnerOnProfile}
-            additionalPartners={additionalPartners}
-            setAdditionalPartners={setAdditionalPartners}
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Profilen er privat som standard. Andre Mynder-brukere kan finne deg og be om tilgang — du godkjenner hver forespørsel.
+          </p>
+          <VisibilityStep
+            visibility={visibility}
+            setVisibility={setVisibility}
+            publicAcknowledged={publicAcknowledged}
+            setPublicAcknowledged={setPublicAcknowledged}
           />
-
-          <div className="border-t border-border pt-4">
-            <h3 className="text-sm font-semibold">Hvem skal se Trust Profilen?</h3>
-            <p className="text-xs text-muted-foreground mt-1 mb-3">
-              Profilen er privat som standard. Andre Mynder-brukere kan finne deg og be om tilgang — du godkjenner hver forespørsel.
-            </p>
-            <VisibilityStep
-              visibility={visibility}
-              setVisibility={setVisibility}
-              publicAcknowledged={publicAcknowledged}
-              setPublicAcknowledged={setPublicAcknowledged}
-            />
-          </div>
+          <p className="text-[11px] text-muted-foreground pt-2 border-t border-border">
+            Partner-relasjon kan legges til senere i Rediger profil.
+          </p>
         </div>
       )}
       {step === 7 && isCalculating && (
