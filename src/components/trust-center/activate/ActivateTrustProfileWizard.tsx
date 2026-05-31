@@ -1586,12 +1586,7 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
 
       {/* Access scopes — chips + custom */}
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">
-          Hva har de tilgang til?
-          <span className="ml-1 font-normal normal-case text-muted-foreground/80">
-            (hvilke data eller systemer leverandøren kan se eller behandle)
-          </span>
-        </Label>
+        <Label className="text-xs text-muted-foreground">Hva har de tilgang til?</Label>
 
         {accessChips.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
