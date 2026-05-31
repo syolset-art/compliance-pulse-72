@@ -246,6 +246,7 @@ export function MSPServiceCatalogTab() {
                 hours: draft.hours,
                 activities: draft.activities,
                 mappings: draft.mappings,
+                priceOverride: draft.priceOverride,
               }
             : e,
         ),
@@ -262,6 +263,7 @@ export function MSPServiceCatalogTab() {
       activities: draft.activities,
       source: "manual",
       mappings: draft.mappings,
+      priceOverride: draft.priceOverride,
     };
     setExtras((prev) => [...prev, newService]);
     toast.success(`"${draft.name}" lagt til i katalogen`);
