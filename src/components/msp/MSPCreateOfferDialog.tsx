@@ -436,7 +436,7 @@ export function MSPCreateOfferDialog({
                   <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
                     Dekker kontrollpunkter
                   </Label>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     {totalControlPoints} kontrollpunkt{totalControlPoints === 1 ? "" : "er"} · {safeCoveredControls.length} regelverk
                   </span>
                 </div>
@@ -446,36 +446,36 @@ export function MSPCreateOfferDialog({
                     return (
                       <div key={group.frameworkId} className="p-3 space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold border", theme.chip)}>
+                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
                             {group.frameworkLabel}
                           </span>
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
                           </span>
                         </div>
-                        <ul className="space-y-1.5">
+                        <ul className="space-y-2">
                           {group.controlIds.map(id => {
                             const related = getRelatedControls(group.frameworkId, id);
                             const visible = related.slice(0, 3);
                             const extra = related.length - visible.length;
                             return (
-                              <li key={id} className="space-y-1 text-[12.5px] text-foreground/85">
+                              <li key={id} className="space-y-1 text-sm text-foreground">
                                 <div className="flex items-start gap-2">
-                                  <ShieldCheck className="h-3 w-3 text-muted-foreground mt-1 shrink-0" />
-                                  <span className="font-mono text-[11.5px] text-muted-foreground shrink-0">{id}</span>
-                                  <span className="text-foreground/80">— {getControlLabel(group.frameworkId, id)}</span>
+                                  <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                                  <span className="font-mono text-xs text-foreground shrink-0">{id}</span>
+                                  <span className="text-foreground">— {getControlLabel(group.frameworkId, id)}</span>
                                 </div>
                                 {related.length > 0 && (
                                   <div className="flex flex-wrap items-center gap-1 pl-7">
-                                    <Link2 className="h-3 w-3 text-muted-foreground" />
-                                    <span className="text-[11px] text-muted-foreground mr-1">Også:</span>
+                                    <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span className="text-xs text-muted-foreground mr-1">Også:</span>
                                     <TooltipProvider delayDuration={150}>
                                       {visible.map(r => {
                                         const t = getFrameworkTheme(r.frameworkId);
                                         return (
                                           <Tooltip key={`${r.frameworkId}-${r.controlId}`}>
                                             <TooltipTrigger asChild>
-                                              <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[10.5px] font-medium border cursor-default", t.chip)}>
+                                              <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border cursor-default", t.chip)}>
                                                 {r.frameworkLabel} {r.controlId}
                                               </span>
                                             </TooltipTrigger>
@@ -487,7 +487,7 @@ export function MSPCreateOfferDialog({
                                       })}
                                     </TooltipProvider>
                                     {extra > 0 && (
-                                      <span className="text-[10.5px] text-muted-foreground">+{extra}</span>
+                                      <span className="text-xs text-muted-foreground">+{extra}</span>
                                     )}
                                   </div>
                                 )}
@@ -499,6 +499,7 @@ export function MSPCreateOfferDialog({
                     );
                   })}
                 </div>
+
               </div>
             )}
 
