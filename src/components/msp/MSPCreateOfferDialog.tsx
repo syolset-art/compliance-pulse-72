@@ -130,6 +130,7 @@ export function MSPCreateOfferDialog({
     setMessage(defaultMessage || "");
     setAttachGap(attachGapProp);
     setShowGapsInOffer(true);
+    setGapsExpanded(false);
     setView(initialView);
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
