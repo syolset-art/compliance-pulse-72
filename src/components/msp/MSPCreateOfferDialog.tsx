@@ -6,12 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, FileCheck2, CheckCircle2, Inbox, Send, ClipboardList } from "lucide-react";
+import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, FileCheck2, CheckCircle2, Inbox, Send, ClipboardList, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import jsPDF from "jspdf";
 import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
+import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
+import { getControlLabel } from "@/lib/serviceControlLabels";
+import { cn } from "@/lib/utils";
+
+export interface CoveredControlGroup {
+  frameworkId: string;
+  frameworkLabel: string;
+  controlIds: string[];
+}
 
 export interface CreateOfferDialogProps {
   open: boolean;
@@ -30,6 +39,8 @@ export interface CreateOfferDialogProps {
   defaultMessage?: string;
   attachGap?: boolean;
   gapFrameworkId?: string;
+  /** Kontrollpunkter denne leveransen dekker (vises i edit, preview og PDF). */
+  coveredControls?: CoveredControlGroup[];
   /** Hvilken visning dialogen åpner i. Default "edit". Bruk "preview" for å vise lagrede tilbud. */
   initialView?: "edit" | "preview";
 }
@@ -53,12 +64,16 @@ export function MSPCreateOfferDialog({
   defaultMessage,
   attachGap: attachGapProp = true,
   gapFrameworkId,
+  coveredControls,
   initialView = "edit",
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
   const effectivePartnerName = partnerName ?? branding.name;
   const effectiveOrgNumber = partnerOrgNumber ?? branding.orgNumber;
   const effectiveLogo = partnerLogoDataUrl ?? branding.logoDataUrl ?? null;
+
+  const safeCoveredControls = (coveredControls ?? []).filter(g => g.controlIds.length > 0);
+  const totalControlPoints = safeCoveredControls.reduce((s, g) => s + g.controlIds.length, 0);
 
   const [tasks, setTasks] = useState<EditableTask[]>(
     (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })),
@@ -198,6 +213,33 @@ export function MSPCreateOfferDialog({
     doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
     y += 28;
 
+    // Covered controls
+    if (safeCoveredControls.length > 0) {
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text("DEKKER KONTROLLPUNKTER", margin, y);
+      y += 14;
+      safeCoveredControls.forEach(group => {
+        if (y > 760) { doc.addPage(); y = margin; }
+        doc.setFontSize(11);
+        doc.setTextColor(20);
+        doc.text(`${group.frameworkLabel} · ${group.controlIds.length} kontrollpunkt${group.controlIds.length === 1 ? "" : "er"}`, margin, y);
+        y += 14;
+        doc.setFontSize(10);
+        doc.setTextColor(60);
+        group.controlIds.forEach(id => {
+          if (y > 780) { doc.addPage(); y = margin; }
+          const label = getControlLabel(group.frameworkId, id);
+          const lines = doc.splitTextToSize(`• ${id} — ${label}`, pageWidth - margin * 2);
+          doc.text(lines, margin + 8, y);
+          y += lines.length * 12;
+        });
+        y += 8;
+      });
+      y += 6;
+    }
+
+
     // Attachment
     if (attachGap && gapFrameworkId) {
       doc.setFontSize(10);
@@ -319,6 +361,48 @@ export function MSPCreateOfferDialog({
               </div>
             </div>
 
+            {/* Dekker kontrollpunkter */}
+            {safeCoveredControls.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                    Dekker kontrollpunkter
+                  </Label>
+                  <span className="text-[11px] text-muted-foreground">
+                    {totalControlPoints} kontrollpunkt{totalControlPoints === 1 ? "" : "er"} · {safeCoveredControls.length} regelverk
+                  </span>
+                </div>
+                <div className="rounded-md border border-border divide-y divide-border">
+                  {safeCoveredControls.map(group => {
+                    const theme = getFrameworkTheme(group.frameworkId);
+                    return (
+                      <div key={group.frameworkId} className="p-3 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold border", theme.chip)}>
+                            {group.frameworkLabel}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground">
+                            {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
+                          </span>
+                        </div>
+                        <ul className="space-y-1">
+                          {group.controlIds.map(id => (
+                            <li key={id} className="flex items-start gap-2 text-[12.5px] text-foreground/85">
+                              <ShieldCheck className="h-3 w-3 text-muted-foreground mt-1 shrink-0" />
+                              <span className="font-mono text-[11.5px] text-muted-foreground shrink-0">{id}</span>
+                              <span className="text-foreground/80">— {getControlLabel(group.frameworkId, id)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+
+
             {/* Vedlegg */}
             {gapFrameworkId && (
               <div className="space-y-2">
@@ -423,6 +507,44 @@ export function MSPCreateOfferDialog({
                   {totalHours} t · {totalPrice.toLocaleString("nb-NO")} kr
                 </span>
               </div>
+
+              {safeCoveredControls.length > 0 && (
+                <div className="pt-3 border-t border-border space-y-2">
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekker kontrollpunkter</p>
+                    <span className="text-[11px] text-muted-foreground">
+                      {totalControlPoints} totalt · {safeCoveredControls.length} regelverk
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {safeCoveredControls.map(group => {
+                      const theme = getFrameworkTheme(group.frameworkId);
+                      return (
+                        <div key={group.frameworkId} className="space-y-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold border", theme.chip)}>
+                              {group.frameworkLabel}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground">
+                              {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
+                            </span>
+                          </div>
+                          <ul className="space-y-0.5 pl-1">
+                            {group.controlIds.map(id => (
+                              <li key={id} className="text-[12px] text-foreground/85 flex gap-2">
+                                <span className="font-mono text-muted-foreground shrink-0">{id}</span>
+                                <span>— {getControlLabel(group.frameworkId, id)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+
 
               {attachGap && gapFrameworkId && (
                 <div className="pt-3 border-t border-border">

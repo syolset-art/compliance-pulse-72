@@ -272,6 +272,11 @@ export function QuestionnaireDispatchCard({ customerId, customerName, partnerNam
           defaultTasks={offerTasks}
           defaultMessage={`Hei! Vi foreslår å gjennomføre «${offerFor.name}» for dere. Skjemaet inneholder ${getQuestionnaire(offerFor.questionnaireId).totalQuestions} spørsmål og tar ca. ${offerFor.estimatedMinutes ?? 15} minutter å besvare.`}
           attachGap={false}
+          coveredControls={offerFor.frameworkMappings?.map(fm => ({
+            frameworkId: fm.frameworkId,
+            frameworkLabel: fm.frameworkLabel,
+            controlIds: fm.controlIds,
+          }))}
         />
       )}
     </>
