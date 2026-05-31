@@ -57,12 +57,6 @@ export default function MSPCustomerDetail() {
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
-  const [verifyContext, setVerifyContext] = useState<{
-    frameworkId: string;
-    frameworkName: string;
-    serviceId: string;
-  } | null>(null);
-  const startGapRef = useRef<() => void>(() => {});
   const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean }>({ open: false, review: false });
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
