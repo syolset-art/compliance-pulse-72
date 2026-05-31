@@ -1486,11 +1486,12 @@ function PartnerSelectionBlock({
       <div className="flex items-start gap-2">
         <Handshake className="h-4 w-4 text-primary mt-0.5 shrink-0" />
         <div>
-          <h3 className="text-sm font-semibold">Er du knyttet til en partner?</h3>
+          <h3 className="text-sm font-semibold">IT- og/eller sikkerhetspartner</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Mange virksomheter får hjelp av en MSP, MSSP, IT-partner eller konsulent. Hvis du har en, viser vi det på profilen — det styrker tilliten.
+            Her kan du oppgi om du bruker en IT- og/eller sikkerhetspartner. Du kan legge til flere.
           </p>
         </div>
+
       </div>
 
       <div className="grid grid-cols-3 gap-2">
