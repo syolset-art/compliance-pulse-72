@@ -1183,110 +1183,101 @@ function MaturityStep({ answers, sources, onChange }: {
   const laraPrefillIds = Object.keys(sources).filter((id) => !sources[id]?.includes("Regelverk"));
   const laraYes = laraPrefillIds.filter((id) => answers[id] === "yes").length;
   const laraNa = laraPrefillIds.filter((id) => answers[id] === "n_a").length;
+  const [openAreas, setOpenAreas] = useState<Record<string, boolean>>({});
+  const toggleArea = (id: string) => setOpenAreas((prev) => ({ ...prev, [id]: !prev[id] }));
+
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-3">
-        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
-          <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <div className="space-y-1.5">
-            {fromRegelverkCount > 0 ? (
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Lara har hentet data fra <span className="font-medium">Regelverk</span> og fylt ut svarene under. Du kan velge å fortsette å oppdatere i Regelverk før du deler eller publiserer — det <span className="font-medium">må ikke fullføres nå</span>.
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Lara har svart på <span className="font-medium">{laraYes + laraNa}</span> spørsmål basert på sikre kilder fra kartleggingen
-                {laraYes > 0 && <> — <span className="font-medium">{laraYes}</span> bekreftet</>}
-                {laraNa > 0 && <>, <span className="font-medium">{laraNa}</span> markert som ikke aktuelt</>}.
-                Du kan overstyre alle svar. Resten er satt til «Senere» — fyll inn det du vet.
-              </p>
-            )}
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <span className="font-medium">Tips:</span> Du kan fortsette å heve modenheten din når som helst under <span className="font-medium">Regelverk</span> i menyen — der jobber du systematisk med kontroller per rammeverk, og endringene speiles automatisk her på Trust Profile.
-            </p>
-          </div>
-        </div>
-
+        <p className="text-xs text-muted-foreground">
+          Lara har svart for deg. Bekreft eller juster.
+        </p>
 
         {MATURITY_AREAS.map((area) => {
           const Icon = area.icon;
+          const isOpen = openAreas[area.id] ?? false;
+          const total = area.questions.length;
+          const laraAnswered = area.questions.filter(
+            (q) => sources[q.id] && !sources[q.id]?.includes("Regelverk") && (answers[q.id] === "yes" || answers[q.id] === "n_a"),
+          ).length;
           return (
-            <Card key={area.id} className="p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Icon className="h-4 w-4 text-primary" />
-                <div>
+            <Card key={area.id} className="overflow-hidden">
+              <button
+                type="button"
+                onClick={() => toggleArea(area.id)}
+                className="w-full flex items-center gap-3 p-4 hover:bg-muted/30 transition text-left"
+              >
+                <Icon className="h-4 w-4 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-semibold leading-tight">{area.title}</h4>
-                  <p className="text-[11px] text-muted-foreground">{area.subtitle}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {total} spørsmål{laraAnswered > 0 ? ` · ${laraAnswered} bekreftet av Lara` : ""}
+                  </p>
                 </div>
-              </div>
-              <div className="space-y-2">
-                {area.questions.map((q) => {
-                  const val = answers[q.id] ?? "later";
-                  const laraSrc = sources[q.id];
-                  return (
-                    <div key={q.id} className="flex items-start gap-3 py-1.5 border-t border-border first:border-t-0 first:pt-0">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start gap-1.5">
-                          <p className="text-sm text-foreground leading-snug">{q.text}</p>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0">
-                                <Info className="h-3.5 w-3.5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs text-xs">
-                              GDPR {q.article}
-                            </TooltipContent>
-                          </Tooltip>
+                {isOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-2 border-t border-border">
+                  {area.questions.map((q) => {
+                    const val = answers[q.id] ?? "later";
+                    const laraSrc = sources[q.id];
+                    return (
+                      <div key={q.id} className="flex items-start gap-3 py-1.5 border-t border-border first:border-t-0 first:pt-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start gap-1.5">
+                            <p className="text-sm text-foreground leading-snug">{q.text}</p>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0">
+                                  <Info className="h-3.5 w-3.5" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs text-xs">
+                                GDPR {q.article}
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          {laraSrc && !laraSrc.includes("Regelverk") && (val === "yes" || val === "n_a") && (
+                            <span className={`inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                              val === "n_a" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary"
+                            }`}>
+                              <Sparkles className="h-2.5 w-2.5" />
+                              {val === "n_a" ? "Lara: ikke aktuelt" : "Svart av Lara"}
+                            </span>
+                          )}
                         </div>
-                        {laraSrc && !laraSrc.includes("Regelverk") && (val === "yes" || val === "n_a") && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className={`inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium cursor-help ${
-                                val === "n_a" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary"
-                              }`}>
-                                <Sparkles className="h-2.5 w-2.5" />
-                                {val === "n_a" ? "Lara: ikke aktuelt (sikker kilde)" : "Svart av Lara (sikker kilde)"}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom" className="max-w-xs text-xs">
-                              {laraSrc} · Du kan overstyre svaret.
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-
+                        <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 shrink-0">
+                          {[
+                            { v: "yes" as const, label: "Ja" },
+                            { v: "no" as const, label: "Nei" },
+                            { v: "n_a" as const, label: "Ikke aktuelt" },
+                            { v: "later" as const, label: "Senere" },
+                          ].map((opt) => {
+                            const active = val === opt.v;
+                            return (
+                              <button
+                                key={opt.v}
+                                type="button"
+                                onClick={() => onChange(q.id, opt.v)}
+                                className={`px-2.5 py-1 rounded text-xs font-medium transition ${
+                                  active
+                                    ? opt.v === "yes" ? "bg-success text-success-foreground"
+                                    : opt.v === "no" ? "bg-destructive text-destructive-foreground"
+                                    : opt.v === "n_a" ? "bg-muted text-muted-foreground border border-border"
+                                    : "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
+                                }`}
+                              >
+                                {opt.label}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 shrink-0">
-                        {[
-                          { v: "yes" as const, label: "Ja" },
-                          { v: "no" as const, label: "Nei" },
-                          { v: "n_a" as const, label: "Ikke aktuelt" },
-                          { v: "later" as const, label: "Senere" },
-                        ].map((opt) => {
-                          const active = val === opt.v;
-                          return (
-                            <button
-                              key={opt.v}
-                              type="button"
-                              onClick={() => onChange(q.id, opt.v)}
-                              className={`px-2.5 py-1 rounded text-xs font-medium transition ${
-                                active
-                                  ? opt.v === "yes" ? "bg-success text-success-foreground"
-                                  : opt.v === "no" ? "bg-destructive text-destructive-foreground"
-                                  : opt.v === "n_a" ? "bg-muted text-muted-foreground border border-border"
-                                  : "bg-background text-foreground shadow-sm"
-                                  : "text-muted-foreground hover:text-foreground"
-                              }`}
-                            >
-                              {opt.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </Card>
           );
         })}
