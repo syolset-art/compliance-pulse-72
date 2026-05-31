@@ -49,9 +49,17 @@ interface Props {
   initialMaturity?: MaturityAnswers;
 }
 
-type Step = 1 | 2 | 3 | 4 | 5 | 6;
-const TOTAL_STEPS = 6;
-const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Dokumenter", "Synlighet"];
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+const TOTAL_STEPS = 7;
+const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Kritiske leverandører", "Dokumenter", "Synlighet"];
+
+export type CriticalVendorRow = {
+  name: string;
+  access: string;
+  dpa: "yes" | "no" | "unknown" | null;
+};
+const EMPTY_VENDOR_ROW: CriticalVendorRow = { name: "", access: "", dpa: null };
+const MAX_CRITICAL_VENDORS = 5;
 
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline, conversation,
@@ -98,7 +106,10 @@ export default function ActivateTrustProfileWizard({
   const [maturityAnswers, setMaturityAnswers] = useState<MaturityAnswers>({});
   const [laraSources, setLaraSources] = useState<Record<string, string>>({});
 
-  // Step 5: documents
+  // Step 5: critical vendors
+  const [criticalVendors, setCriticalVendors] = useState<CriticalVendorRow[]>([{ ...EMPTY_VENDOR_ROW }]);
+
+  // Step 6: documents
   const [documents, setDocuments] = useState<ActivationDocument[]>([]);
 
   // Step 6: visibility
@@ -308,7 +319,7 @@ export default function ActivateTrustProfileWizard({
     return true;
   }, [step, companyName, orgNumber, website, revealed, scan, description, websiteVerified]);
 
-  const next = () => setStep((s) => (Math.min(6, s + 1) as Step));
+  const next = () => setStep((s) => (Math.min(7, s + 1) as Step));
   const back = () => setStep((s) => (Math.max(1, s - 1) as Step));
 
   const updateMaturity = (id: string, answer: MaturityAnswer) => {
@@ -358,6 +369,9 @@ export default function ActivateTrustProfileWizard({
       dpoEmail,
       securityEmail,
       maturityAnswers,
+      criticalVendors: criticalVendors
+        .filter((v) => v.name.trim().length > 0)
+        .map((v) => ({ name: v.name.trim(), access: v.access.trim(), dpa: v.dpa ?? "unknown" })),
       documents,
       visibility,
       partner: partnerStatus
@@ -415,8 +429,9 @@ export default function ActivateTrustProfileWizard({
         {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
         {step === 3 && "Bekreft og juster informasjonen"}
         {step === 4 && "Modenhet — bekreft det Lara fant"}
-        {step === 5 && "Last opp dokumenter"}
-        {step === 6 && "Hvem skal se din Trust Profile?"}
+        {step === 5 && "Kritiske leverandører"}
+        {step === 6 && "Last opp dokumenter"}
+        {step === 7 && "Hvem skal se din Trust Profile?"}
       </h2>
       <p className="text-sm text-muted-foreground">
         {step === 1 && (hasOrgPrefill
@@ -427,8 +442,9 @@ export default function ActivateTrustProfileWizard({
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
         {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
-        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
-        {step === 6 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
+        {step === 5 && "Hvilke leverandører har tilgang til dine viktigste systemer eller data? Legg til inntil 5 — dette gir oss et bilde av hvor dine viktigste data faktisk ligger."}
+        {step === 6 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
+        {step === 7 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
       </p>
       <Progress value={((step - 1) / (TOTAL_STEPS - 1)) * 100} className="h-1" />
     </div>
@@ -477,10 +493,13 @@ export default function ActivateTrustProfileWizard({
       {step === 4 && (
         <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
-      {step === 5 && !isCalculating && (
-        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+      {step === 5 && (
+        <CriticalVendorsStep rows={criticalVendors} onChange={setCriticalVendors} />
       )}
       {step === 6 && !isCalculating && (
+        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+      )}
+      {step === 7 && !isCalculating && (
         <div className="space-y-6">
           <PartnerSelectionBlock
             status={partnerStatus}
@@ -511,7 +530,7 @@ export default function ActivateTrustProfileWizard({
           </div>
         </div>
       )}
-      {step === 6 && isCalculating && (
+      {step === 7 && isCalculating && (
         <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
       )}
     </div>
@@ -523,7 +542,7 @@ export default function ActivateTrustProfileWizard({
         {(hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
-      {step < 6 ? (
+      {step < 7 ? (
         <div className="flex gap-2">
           {step === 2 && (
             <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-full">
@@ -534,8 +553,9 @@ export default function ActivateTrustProfileWizard({
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
             {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
             {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
-            {step === 4 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
-            {step === 5 && (<>Velg synlighet <ArrowRight className="h-4 w-4" /></>)}
+            {step === 4 && (<>Til kritiske leverandører <ArrowRight className="h-4 w-4" /></>)}
+            {step === 5 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
+            {step === 6 && (<>Velg synlighet <ArrowRight className="h-4 w-4" /></>)}
           </Button>
         </div>
       ) : (
@@ -564,7 +584,8 @@ export default function ActivateTrustProfileWizard({
         step === 2 ? "Jeg leter gjennom hjemmesiden din og offentlige kilder nå …" :
         step === 3 ? "Her er det jeg fant. Bekreft eller juster gjerne — alt er forhåndsutfylt." :
         step === 4 ? "La oss gå gjennom modenheten din. Jeg har gjettet basert på det jeg fant." :
-        step === 5 ? "Har du noen policyer å laste opp? Jeg kobler dem til riktig krav automatisk." :
+        step === 5 ? "Hvem er de viktigste leverandørene som har tilgang til systemene eller dataene dine?" :
+        step === 6 ? "Har du noen policyer å laste opp? Jeg kobler dem til riktig krav automatisk." :
         "Siste steg — hvem skal få se profilen?";
       return (
         <div className="max-w-3xl mx-auto space-y-4">
@@ -1161,7 +1182,121 @@ function MaturityStep({ answers, sources, onChange }: {
   );
 }
 
+/* -------------------- Critical vendors step -------------------- */
+
+function CriticalVendorsStep({ rows, onChange }: {
+  rows: CriticalVendorRow[];
+  onChange: (rows: CriticalVendorRow[]) => void;
+}) {
+  const updateRow = (idx: number, patch: Partial<CriticalVendorRow>) => {
+    onChange(rows.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+  };
+  const removeRow = (idx: number) => {
+    const next = rows.filter((_, i) => i !== idx);
+    onChange(next.length === 0 ? [{ ...EMPTY_VENDOR_ROW }] : next);
+  };
+  const addRow = () => {
+    if (rows.length >= MAX_CRITICAL_VENDORS) return;
+    onChange([...rows, { ...EMPTY_VENDOR_ROW }]);
+  };
+
+  const dpaOptions: { value: "yes" | "no" | "unknown"; label: string }[] = [
+    { value: "yes", label: "Ja" },
+    { value: "no", label: "Nei" },
+    { value: "unknown", label: "Vet ikke" },
+  ];
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
+        <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+        <p className="text-sm text-foreground">
+          Tenk på de leverandørene som faktisk lagrer eller behandler dine viktigste data — for eksempel skytjenester,
+          regnskap, lønn, HR eller IT-drift. Du kan legge til inntil {MAX_CRITICAL_VENDORS}.
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {rows.map((row, idx) => (
+          <Card key={idx} className="p-4 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Leverandør {idx + 1}
+              </span>
+              {rows.length > 1 && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  onClick={() => removeRow(idx)}
+                  aria-label="Fjern leverandør"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Navn på leverandør</Label>
+                <Input
+                  value={row.name}
+                  onChange={(e) => updateRow(idx, { name: e.target.value })}
+                  placeholder="F.eks. Microsoft 365"
+                  className="text-sm"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Hva har de tilgang til?</Label>
+                <Input
+                  value={row.access}
+                  onChange={(e) => updateRow(idx, { access: e.target.value })}
+                  placeholder="F.eks. e-post og dokumenter"
+                  className="text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Har dere databehandleravtale (DPA) med dem?</Label>
+              <div className="flex gap-1.5">
+                {dpaOptions.map((opt) => (
+                  <Button
+                    key={opt.value}
+                    size="sm"
+                    variant={row.dpa === opt.value ? "default" : "outline"}
+                    className="h-8 flex-1"
+                    onClick={() => updateRow(idx, { dpa: opt.value })}
+                  >
+                    {opt.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {rows.length < MAX_CRITICAL_VENDORS && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1.5 text-sm"
+          onClick={addRow}
+        >
+          <Plus className="h-3.5 w-3.5" /> Legg til leverandør
+        </Button>
+      )}
+
+      <p className="text-xs text-muted-foreground pt-1">
+        Du trenger ikke fylle ut alt nå — du kan oppdatere listen senere fra Trust Profile-siden.
+      </p>
+    </div>
+  );
+}
+
 /* -------------------- Documents step -------------------- */
+
 
 function DocumentsStep({ documents, onUpload }: {
   documents: ActivationDocument[];
