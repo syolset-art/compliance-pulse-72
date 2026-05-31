@@ -272,9 +272,9 @@ export function CustomServiceDialog({
           {/* Lara-forslag for kontrollpunkter */}
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1.5">
+              <span className="text-sm font-semibold text-primary inline-flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
-                Lara foreslår kontrollpunkter
+                Foreslåtte kontrollpunkter
               </span>
               {selectedCount > 0 && (
                 <span className="text-xs text-muted-foreground tabular-nums">
