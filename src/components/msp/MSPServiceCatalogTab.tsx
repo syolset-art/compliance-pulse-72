@@ -119,6 +119,7 @@ export function MSPServiceCatalogTab() {
   ]);
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<ServiceTemplate | null>(null);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -234,6 +235,44 @@ export function MSPServiceCatalogTab() {
     });
   };
 
+  const buildDraftFromTemplate = (template: ServiceTemplate): CustomServiceDraft => {
+    const hoursAvg = Math.round((template.estimatedHours.min + template.estimatedHours.max) / 2);
+    const withHours = template.activities.filter((a) => typeof a.hours === "number");
+    const withoutHoursCount = template.activities.length - withHours.length;
+    const remainder = Math.max(0, hoursAvg - withHours.reduce((s, a) => s + (a.hours ?? 0), 0));
+    const perRemaining = withoutHoursCount > 0 ? remainder / withoutHoursCount : 0;
+    const activities: ServiceActivity[] = template.activities.map((a) => ({
+      label: a.label,
+      hours: typeof a.hours === "number" ? a.hours : Math.max(0, perRemaining),
+    }));
+    const totalHours = activities.reduce((s, a) => s + a.hours, 0) || hoursAvg;
+    const mappings: ServiceMapping[] = template.mappings.flatMap((m) => {
+      const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
+      return m.controlIds.map((cid) => {
+        const cp = fw?.controlPoints.find((c) => c.id === cid);
+        return {
+          frameworkId: m.frameworkId,
+          frameworkShortName: fw?.shortName ?? m.frameworkLabel,
+          controlId: cid,
+          controlLabel: cp?.label ?? cid,
+        };
+      });
+    });
+    return { name: template.name, description: template.shortDescription, hours: totalHours, activities, mappings };
+  };
+
+  const openTemplatePreview = (template: ServiceTemplate) => {
+    const existing = extras.find((e) => e.templateId === template.id);
+    if (existing) {
+      setEditingId(existing.id);
+      setPreviewTemplate(null);
+    } else {
+      setPreviewTemplate(template);
+      setEditingId(null);
+    }
+    setManualOpen(true);
+  };
+
   const handleManualSave = (draft: CustomServiceDraft) => {
     if (editingId) {
       setExtras((prev) =>
@@ -255,18 +294,23 @@ export function MSPServiceCatalogTab() {
       setEditingId(null);
       return;
     }
+    const fromTemplate = previewTemplate;
     const newService: ExtraService = {
-      id: `manual-${Date.now()}`,
+      id: fromTemplate ? `adopt-${fromTemplate.id}-${Date.now()}` : `manual-${Date.now()}`,
       name: draft.name,
       description: draft.description,
       hours: draft.hours,
       activities: draft.activities,
-      source: "manual",
+      source: fromTemplate ? "library" : "manual",
+      templateCode: fromTemplate?.code,
+      templateId: fromTemplate?.id,
+      templateVersion: fromTemplate?.version,
       mappings: draft.mappings,
       priceOverride: draft.priceOverride,
     };
     setExtras((prev) => [...prev, newService]);
     toast.success(`"${draft.name}" lagt til i katalogen`);
+    setPreviewTemplate(null);
   };
 
   const removeExtra = (id: string) => {
@@ -283,6 +327,8 @@ export function MSPServiceCatalogTab() {
         mappings: editingService.mappings,
         priceOverride: editingService.priceOverride,
       }
+    : previewTemplate
+    ? buildDraftFromTemplate(previewTemplate)
     : undefined;
 
 
@@ -326,8 +372,9 @@ export function MSPServiceCatalogTab() {
                 return (
                   <tr
                     key={template.id}
+                    onClick={() => openTemplatePreview(template)}
                     className={cn(
-                      "hover:bg-muted/20 transition-colors",
+                      "hover:bg-muted/30 transition-colors cursor-pointer",
                       isAdopted && "opacity-60",
                     )}
                   >
@@ -362,7 +409,7 @@ export function MSPServiceCatalogTab() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => adoptTemplate(template)}
+                          onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
                           className="h-8 gap-1 text-sm"
                         >
                           <Plus className="h-4 w-4" />
@@ -498,7 +545,7 @@ export function MSPServiceCatalogTab() {
 
       <CustomServiceDialog
         open={manualOpen}
-        onOpenChange={(o) => { setManualOpen(o); if (!o) setEditingId(null); }}
+        onOpenChange={(o) => { setManualOpen(o); if (!o) { setEditingId(null); setPreviewTemplate(null); } }}
         onSave={handleManualSave}
         defaultHourlyRate={hourlyRate}
         initial={editingDraft}
