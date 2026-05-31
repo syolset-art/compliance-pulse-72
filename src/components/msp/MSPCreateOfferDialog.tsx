@@ -14,6 +14,9 @@ import type { TaskEstimate, TaskOwner } from "./MSPMaturityServiceMatrix";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { getControlLabel } from "@/lib/serviceControlLabels";
+import { getRelatedControls } from "@/lib/controlCrosswalk";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface CoveredControlGroup {
