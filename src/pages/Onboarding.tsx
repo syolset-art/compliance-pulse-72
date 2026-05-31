@@ -92,7 +92,7 @@ export default function Onboarding() {
     // Simulate fetching data from Brønnøysund
     setTimeout(() => {
       setOverallProgress(15);
-      setLaraMessage("Henter organisasjonsinformasjon fra Brønnøysundregisteret...");
+      setLaraMessage("Henter organisasjonsinformasjon...");
       
       // Pre-fill with company data
       setCompanyName("Eviny");
@@ -102,7 +102,7 @@ export default function Onboarding() {
       
       toast({
         title: "🤖 Lara jobber",
-        description: "Hentet virksomhetsinformasjon fra Brønnøysundregisteret"
+        description: "Hentet virksomhetsinformasjon"
       });
       
       setTimeout(() => {
@@ -114,7 +114,7 @@ export default function Onboarding() {
 
   const startManual = async () => {
     setIsLaraWorking(true);
-    setLaraMessage("Henter organisasjonsinformasjon fra Brønnøysundregisteret...");
+    setLaraMessage("Henter organisasjonsinformasjon...");
     setCurrentStep("profile");
     
     // Simulate fetching data from Brønnøysund even in manual mode
@@ -129,7 +129,7 @@ export default function Onboarding() {
       
       toast({
         title: "✅ Informasjon hentet",
-        description: "Organisasjonsdata fra Brønnøysundregisteret. Du kan justere etter behov."
+        description: "Organisasjonsdata hentet. Du kan justere etter behov."
       });
       
       setIsLaraWorking(false);
