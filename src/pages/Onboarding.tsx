@@ -570,7 +570,7 @@ export default function Onboarding() {
                   Grunnprofil
                 </CardTitle>
                 <CardDescription>
-                  Informasjon hentet fra Brønnøysundregisteret. Du kan justere detaljene om nødvendig.
+                  Informasjon om din virksomhet. Du kan justere detaljene om nødvendig.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -580,10 +580,10 @@ export default function Onboarding() {
                       <CheckCircle2 className="w-5 h-5 text-primary mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-foreground">
-                          Organisasjonsdata hentet fra Brønnøysundregisteret
+                          Organisasjonsdata hentet
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Verifiser og juster informasjonen under ved behov.
+                          Gjennomgå og juster informasjonen under ved behov.
                         </p>
                       </div>
                     </div>
