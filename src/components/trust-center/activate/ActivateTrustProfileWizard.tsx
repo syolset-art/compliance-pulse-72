@@ -86,8 +86,8 @@ export default function ActivateTrustProfileWizard({
   const [step, setStep] = useState<Step>(1);
 
   // Step 1: org
-  const [companyName, setCompanyName] = useState(initialCompanyName ?? "");
-  const [orgNumber, setOrgNumber] = useState(initialOrgNumber ?? "");
+  const [companyName, setCompanyName] = useState(hasOrgPrefill ? (initialCompanyName ?? "") : "");
+  const [orgNumber, setOrgNumber] = useState(hasOrgPrefill ? (initialOrgNumber ?? "") : "");
   const [country] = useState("Norge");
   const normalizeUrl = (u: string) => (u && !/^https?:\/\//i.test(u) ? `https://${u}` : u);
   const [website, setWebsite] = useState(initialDomain ? normalizeUrl(initialDomain) : "");
