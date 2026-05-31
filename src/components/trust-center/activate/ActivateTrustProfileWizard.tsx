@@ -637,7 +637,7 @@ export default function ActivateTrustProfileWizard({
     </div>
   );
 
-  const footer = (
+  const footer = step === 2 ? null : (
     <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
       <Button variant="ghost" onClick={(hasPrefill && step === 1) ? handleSkip : back} disabled={isPublishing || isCalculating}>
         {(hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
@@ -645,14 +645,8 @@ export default function ActivateTrustProfileWizard({
 
       {step < 7 ? (
         <div className="flex gap-2">
-          {step === 2 && (
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="rounded-full">
-              Lukk — kom tilbake senere
-            </Button>
-          )}
           <Button onClick={next} disabled={!canNext} className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white">
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
-            {step === 2 && (<>Se forslag <ArrowRight className="h-4 w-4" /></>)}
             {step === 3 && (<>Til modenhet <ArrowRight className="h-4 w-4" /></>)}
             {step === 4 && (<>Til kritiske leverandører <ArrowRight className="h-4 w-4" /></>)}
             {step === 5 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
