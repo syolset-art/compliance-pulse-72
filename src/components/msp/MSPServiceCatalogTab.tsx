@@ -545,7 +545,7 @@ export function MSPServiceCatalogTab() {
 
       <CustomServiceDialog
         open={manualOpen}
-        onOpenChange={(o) => { setManualOpen(o); if (!o) setEditingId(null); }}
+        onOpenChange={(o) => { setManualOpen(o); if (!o) { setEditingId(null); setPreviewTemplate(null); } }}
         onSave={handleManualSave}
         defaultHourlyRate={hourlyRate}
         initial={editingDraft}
