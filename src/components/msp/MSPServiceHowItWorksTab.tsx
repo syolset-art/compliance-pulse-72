@@ -94,8 +94,8 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
                 </div>
               </div>
               <div className="min-w-0 space-y-1">
-                <h3 className="text-sm font-semibold text-foreground">{step.title}</h3>
-                <p className="text-[13px] text-muted-foreground leading-relaxed">{step.body}</p>
+                <h3 className="text-base font-semibold text-foreground">{step.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.body}</p>
               </div>
             </Card>
           );
@@ -105,8 +105,8 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
       {/* Outcomes */}
       <div className="space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Slik berikes kundens trust profile</h3>
-          <p className="text-xs text-muted-foreground">
+          <h3 className="text-base font-semibold text-foreground">Slik berikes kundens trust profile</h3>
+          <p className="text-sm text-muted-foreground">
             Når du leverer, oppdateres kundens trust profile automatisk.
           </p>
         </div>
@@ -122,8 +122,8 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
                 <div className={`h-9 w-9 rounded-md flex items-center justify-center ${toneClass}`}>
                   <Icon className="h-4 w-4" />
                 </div>
-                <h4 className="text-sm font-semibold text-foreground">{o.title}</h4>
-                <p className="text-[12px] text-muted-foreground leading-relaxed">{o.body}</p>
+                <h4 className="text-base font-semibold text-foreground">{o.title}</h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">{o.body}</p>
               </Card>
             );
           })}
@@ -133,16 +133,16 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
       {/* CTA-stripe */}
       <Card className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-muted/30">
         <div>
-          <p className="text-sm font-semibold text-foreground">Klar til å sette opp dine tjenester?</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-base font-semibold text-foreground">Klar til å sette opp dine tjenester?</p>
+          <p className="text-sm text-muted-foreground">
             Start med katalogen, eller juster standard timepris og tilbudsmal først.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button size="sm" className="h-9 text-xs gap-1.5" onClick={() => onNavigate?.("catalog")}>
-            Gå til tjenestekatalog <ArrowRight className="h-3.5 w-3.5" />
+          <Button size="sm" className="h-10 text-sm gap-1.5" onClick={() => onNavigate?.("catalog")}>
+            Gå til tjenestekatalog <ArrowRight className="h-4 w-4" />
           </Button>
-          <Button size="sm" variant="outline" className="h-9 text-xs" onClick={() => onNavigate?.("settings")}>
+          <Button size="sm" variant="outline" className="h-10 text-sm" onClick={() => onNavigate?.("settings")}>
             Sett standard timepris
           </Button>
         </div>

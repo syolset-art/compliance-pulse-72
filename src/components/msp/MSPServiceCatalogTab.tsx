@@ -288,21 +288,21 @@ export function MSPServiceCatalogTab() {
       <section className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 min-w-0">
-            <h3 className="text-sm font-semibold text-foreground">
+            <h3 className="text-base font-semibold text-foreground">
               Foreslåtte tjenester
             </h3>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0">
-            <Plus className="h-3.5 w-3.5" />
+          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0 h-10 text-sm">
+            <Plus className="h-4 w-4" />
             Beskriv egen tjeneste
           </Button>
         </div>
         <div className="overflow-hidden rounded-md border border-border bg-card">
           <table className="w-full text-sm">
-            <thead className="bg-muted/30 text-xs text-muted-foreground">
+            <thead className="bg-muted/30 text-sm text-muted-foreground">
               <tr>
                 <th className="text-left font-medium px-3 py-2 w-12"></th>
                 <th className="text-left font-medium px-3 py-2">Tjeneste</th>
@@ -333,7 +333,7 @@ export function MSPServiceCatalogTab() {
                     </td>
                     <td className="px-3 py-2.5">
                       <div className="font-medium text-foreground">{pick.label}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1">
+                      <div className="text-sm text-muted-foreground line-clamp-1">
                         {template.shortDescription}
                       </div>
                     </td>
@@ -341,26 +341,26 @@ export function MSPServiceCatalogTab() {
                       <div className="flex flex-wrap gap-1">
                         {frameworks.length > 0 ? (
                           frameworks.map((f) => (
-                            <span key={f} className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                            <span key={f} className="text-sm px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                               {f}
                             </span>
                           ))
                         ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
+                          <span className="text-sm text-muted-foreground">—</span>
                         )}
                       </div>
                     </td>
                     <td className="px-3 py-2.5 text-right">
                       {isAdopted ? (
-                        <Badge variant="secondary" className="text-xs h-5">Lagt til</Badge>
+                        <Badge variant="secondary" className="text-sm h-6">Lagt til</Badge>
                       ) : (
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => adoptTemplate(template)}
-                          className="h-7 gap-1"
+                          className="h-8 gap-1 text-sm"
                         >
-                          <Plus className="h-3.5 w-3.5" />
+                          <Plus className="h-4 w-4" />
                           Legg til
                         </Button>
                       )}
@@ -376,11 +376,11 @@ export function MSPServiceCatalogTab() {
           <button
             type="button"
             onClick={() => setShowCalculator((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors ml-auto"
           >
-            <Settings2 className="h-3.5 w-3.5" />
+            <Settings2 className="h-4 w-4" />
             Avansert: hele biblioteket og regelverks-bygger
-            {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            {showCalculator ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
         </div>
       </section>
@@ -389,8 +389,8 @@ export function MSPServiceCatalogTab() {
       {extras.some((e) => e.isMynder) && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Mynder-tjenester</h3>
-            <span className="text-xs text-muted-foreground">Inkludert i alle leveranser</span>
+            <h3 className="text-base font-semibold text-foreground">Mynder-tjenester</h3>
+            <span className="text-sm text-muted-foreground">Inkludert i alle leveranser</span>
           </div>
           <div className="divide-y divide-border rounded-md border border-border bg-card">
             {extras.filter((e) => e.isMynder).map((e) => {
@@ -400,7 +400,7 @@ export function MSPServiceCatalogTab() {
                   <div className="flex-1 min-w-0">
                     <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
                   </div>
-                  <div className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+                  <div className="text-sm text-muted-foreground tabular-nums whitespace-nowrap">
                     {e.hours} t
                   </div>
                   <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
@@ -417,8 +417,8 @@ export function MSPServiceCatalogTab() {
       {extras.some((e) => !e.isMynder) && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <h3 className="text-sm font-semibold text-foreground">Mine tjenester</h3>
-            <span className="text-xs text-muted-foreground">
+            <h3 className="text-base font-semibold text-foreground">Mine tjenester</h3>
+            <span className="text-sm text-muted-foreground">
               {extras.filter((e) => !e.isMynder).length} tjenester
             </span>
           </div>
@@ -430,7 +430,7 @@ export function MSPServiceCatalogTab() {
                   <div className="flex-1 min-w-0 flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground truncate">{e.name}</span>
                   </div>
-                  <div className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
+                  <div className="text-sm text-muted-foreground tabular-nums whitespace-nowrap">
                     {e.hours} t
                   </div>
                   <div className="text-sm font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
@@ -473,7 +473,7 @@ export function MSPServiceCatalogTab() {
             hourlyRate={hourlyRate}
           />
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground italic">
+            <p className="text-sm text-muted-foreground italic">
               Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
             </p>
             {FRAMEWORK_CATALOG.map((fw) => (
