@@ -29,10 +29,10 @@ export const MATURITY_AREAS: MaturityArea[] = [
     subtitle: "Eierskap, ansvar og dokumentasjon",
     icon: Users,
     questions: [
-      { id: "gov.dpo", text: "Har dere utpekt en person som er ansvarlig for personvern (DPO eller personvernkontakt)?", article: "Art. 24 / 37" },
-      { id: "gov.privacy_policy", text: "Har dere en publisert personvernerklæring tilgjengelig for kunder og besøkende?", article: "Art. 13" },
-      { id: "gov.internal_policy", text: "Har dere en intern policy eller rutine for personvern som ansatte kjenner til?", article: "Art. 24" },
-      { id: "gov.records", text: "Har dere oversikt over hvilke behandlingsaktiviteter dere utfører (behandlingsprotokoll, Art. 30)?", article: "Art. 30" },
+      { id: "gov.dpo", text: "Er det utpekt en person som er ansvarlig for personvern (DPO eller personvernkontakt)?", article: "Art. 24 / 37" },
+      { id: "gov.privacy_policy", text: "Finnes det en publisert personvernerklæring tilgjengelig for kunder og besøkende?", article: "Art. 13" },
+      { id: "gov.internal_policy", text: "Er det laget en intern policy eller rutine for personvern som ansatte kjenner til?", article: "Art. 24" },
+      { id: "gov.records", text: "Er det laget en oversikt over behandlingsaktiviteter (behandlingsprotokoll, Art. 30)?", article: "Art. 30" },
       { id: "gov.training", text: "Får ansatte opplæring i personvern minst én gang i året?", article: "Art. 39" },
     ],
   },
@@ -43,10 +43,10 @@ export const MATURITY_AREAS: MaturityArea[] = [
     icon: ShieldCheck,
     questions: [
       { id: "ops.encryption", text: "Krypteres personopplysninger både i hvile og i overføring?", article: "Art. 32" },
-      { id: "ops.mfa", text: "Krever dere tofaktor-autentisering for tilgang til systemer med personopplysninger?", article: "Art. 32" },
-      { id: "ops.breach", text: "Har dere en rutine for håndtering av personvernbrudd, inkludert varsling innen 72 timer (Art. 33)?", article: "Art. 33" },
-      { id: "ops.logging", text: "Logger og overvåker dere tilgang til personopplysninger?", article: "Art. 32" },
-      { id: "ops.backup", text: "Tar dere regelmessige backups, og har dere testet at de kan gjenopprettes?", article: "Art. 32" },
+      { id: "ops.mfa", text: "Kreves tofaktor-autentisering for tilgang til systemer med personopplysninger?", article: "Art. 32" },
+      { id: "ops.breach", text: "Finnes det en rutine for håndtering av personvernbrudd, inkludert varsling innen 72 timer (Art. 33)?", article: "Art. 33" },
+      { id: "ops.logging", text: "Blir tilgang til personopplysninger logget og overvåket?", article: "Art. 32" },
+      { id: "ops.backup", text: "Tas det regelmessige backups, og er det testet at de kan gjenopprettes?", article: "Art. 32" },
     ],
   },
   {
@@ -55,11 +55,11 @@ export const MATURITY_AREAS: MaturityArea[] = [
     subtitle: "Selve GDPR-kjernen",
     icon: Lock,
     questions: [
-      { id: "pri.legal_basis", text: "Har dere et lovlig grunnlag for hver behandling av personopplysninger (samtykke, avtale, rettslig forpliktelse, etc.)?", article: "Art. 6" },
-      { id: "pri.minimization", text: "Innhenter dere kun de personopplysningene dere faktisk trenger (dataminimering)?", article: "Art. 5(1c)" },
-      { id: "pri.retention", text: "Har dere definerte oppbevaringsperioder, og sletter dere data automatisk når perioden utløper?", article: "Art. 5(1e)" },
+      { id: "pri.legal_basis", text: "Finnes det et lovlig grunnlag for hver behandling av personopplysninger (samtykke, avtale, rettslig forpliktelse, etc.)?", article: "Art. 6" },
+      { id: "pri.minimization", text: "Innhentes kun de personopplysningene som faktisk trengs (dataminimering)?", article: "Art. 5(1c)" },
+      { id: "pri.retention", text: "Er det definerte oppbevaringsperioder, og slettes data automatisk når perioden utløper?", article: "Art. 5(1e)" },
       { id: "pri.rights", text: "Kan registrerte få innsyn, retting, sletting og dataportabilitet på forespørsel (Art. 15–20)?", article: "Art. 15–20" },
-      { id: "pri.transfer", text: "Overfører dere personopplysninger utenfor EØS, og har dere i så fall gyldig overføringsgrunnlag (SCC, adequacy, BCR)?", article: "Art. 44–49" },
+      { id: "pri.transfer", text: "Overføres personopplysninger utenfor EØS, og finnes det i så fall gyldig overføringsgrunnlag (SCC, adequacy, BCR)?", article: "Art. 44–49" },
     ],
   },
   {
@@ -68,10 +68,10 @@ export const MATURITY_AREAS: MaturityArea[] = [
     subtitle: "Databehandlere og underleverandører",
     icon: Globe,
     questions: [
-      { id: "tp.inventory", text: "Har dere en oversikt over alle databehandlere som behandler personopplysninger på deres vegne?", article: "Art. 30(1f)" },
-      { id: "tp.dpa", text: "Har dere signert databehandleravtale (DPA) med hver enkelt databehandler (Art. 28)?", article: "Art. 28" },
-      { id: "tp.risk_assessment", text: "Vurderer dere personvernrisiko før dere tar i bruk nye databehandlere?", article: "Art. 28(1) / 35" },
-      { id: "tp.subprocessor_notice", text: "Får dere varsel fra databehandlere ved endringer i underleverandører eller datalagringssted?", article: "Art. 28(2)" },
+      { id: "tp.inventory", text: "Er det laget en oversikt over alle databehandlere som behandler personopplysninger på virksomhetens vegne?", article: "Art. 30(1f)" },
+      { id: "tp.dpa", text: "Er det signert databehandleravtale (DPA) med hver enkelt databehandler (Art. 28)?", article: "Art. 28" },
+      { id: "tp.risk_assessment", text: "Vurderes personvernrisiko før nye databehandlere tas i bruk?", article: "Art. 28(1) / 35" },
+      { id: "tp.subprocessor_notice", text: "Mottas varsel fra databehandlere ved endringer i underleverandører eller datalagringssted?", article: "Art. 28(2)" },
     ],
   },
 ];
@@ -164,8 +164,8 @@ export interface DocumentSlot {
 }
 
 export const DOCUMENT_SLOTS: DocumentSlot[] = [
-  { id: "privacy_policy", title: "Personvernerklæring", description: "Publisert erklæring som beskriver hvordan dere behandler personopplysninger.", resolvesQuestion: "gov.privacy_policy", scanType: "privacy_policy" },
-  { id: "dpa", title: "Databehandleravtale (mal)", description: "Standard DPA dere bruker med kunder eller underleverandører.", resolvesQuestion: "tp.dpa", scanType: "dpa" },
+  { id: "privacy_policy", title: "Personvernerklæring", description: "Publisert erklæring som beskriver behandling av personopplysninger.", resolvesQuestion: "gov.privacy_policy", scanType: "privacy_policy" },
+  { id: "dpa", title: "Databehandleravtale (mal)", description: "Standard DPA som brukes med kunder eller underleverandører.", resolvesQuestion: "tp.dpa", scanType: "dpa" },
   { id: "security_policy", title: "Informasjonssikkerhetspolicy", description: "Intern policy som dekker tilgang, kryptering, hendelseshåndtering.", resolvesQuestion: "gov.internal_policy", scanType: "policy" },
   { id: "incident_plan", title: "Hendelsesplan", description: "Rutine for å oppdage, varsle og håndtere personvernbrudd innen 72 timer.", resolvesQuestion: "ops.breach" },
 ];
