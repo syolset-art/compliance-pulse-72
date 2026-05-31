@@ -1382,12 +1382,15 @@ const PARTNER_TYPE_OPTIONS: { value: PartnerType; label: string }[] = [
   { value: "other", label: "Annet" },
 ];
 
+type AdditionalPartnerItem = { name: string; companyId: string | null; type: PartnerType | null };
+
 function PartnerSelectionBlock({
   status, setStatus,
   name, setName,
   companyId, setCompanyId,
   partnerType, setPartnerType,
   showOnProfile, setShowOnProfile,
+  additionalPartners, setAdditionalPartners,
 }: {
   status: "auto" | "yes" | "no" | "unknown" | null;
   setStatus: (s: "auto" | "yes" | "no" | "unknown" | null) => void;
@@ -1399,7 +1402,10 @@ function PartnerSelectionBlock({
   setPartnerType: (v: PartnerType | null) => void;
   showOnProfile: boolean;
   setShowOnProfile: (v: boolean) => void;
+  additionalPartners: AdditionalPartnerItem[];
+  setAdditionalPartners: (v: AdditionalPartnerItem[] | ((p: AdditionalPartnerItem[]) => AdditionalPartnerItem[])) => void;
 }) {
+
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<{ id: string; name: string; type?: string | null }[]>([]);
   const [searching, setSearching] = useState(false);
