@@ -308,7 +308,7 @@ export function MSPServiceCatalogTab() {
             <div className="text-lg font-semibold text-foreground tabular-nums">
               {extras.length}
               <span className="ml-2 text-xs font-normal text-muted-foreground">
-                valgt{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
+                standard{showCalculator ? ` · ${frameworksActive} regelverk` : ""}
               </span>
             </div>
           </div>
