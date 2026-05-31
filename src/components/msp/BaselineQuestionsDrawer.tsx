@@ -177,8 +177,17 @@ export function BaselineQuestionsDrawer({
           ))}
         </Tabs>
 
-        <div className="flex justify-end mt-6">
-          <Button onClick={() => onOpenChange(false)}>Ferdig</Button>
+        <div className="flex items-center justify-between gap-4 mt-6 pt-4 border-t border-border">
+          <button
+            type="button"
+            onClick={handleDiscard}
+            className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+          >
+            Avslutt uten å lagre
+          </button>
+          <Button onClick={handleNext} className="gap-1.5">
+            {isLastArea ? "Ferdig" : (<>Gå videre <ArrowRight className="h-4 w-4" /></>)}
+          </Button>
         </div>
       </SheetContent>
     </Sheet>
