@@ -164,8 +164,8 @@ export interface DocumentSlot {
 }
 
 export const DOCUMENT_SLOTS: DocumentSlot[] = [
-  { id: "privacy_policy", title: "Personvernerklæring", description: "Publisert erklæring som beskriver hvordan dere behandler personopplysninger.", resolvesQuestion: "gov.privacy_policy", scanType: "privacy_policy" },
-  { id: "dpa", title: "Databehandleravtale (mal)", description: "Standard DPA dere bruker med kunder eller underleverandører.", resolvesQuestion: "tp.dpa", scanType: "dpa" },
+  { id: "privacy_policy", title: "Personvernerklæring", description: "Publisert erklæring som beskriver behandling av personopplysninger.", resolvesQuestion: "gov.privacy_policy", scanType: "privacy_policy" },
+  { id: "dpa", title: "Databehandleravtale (mal)", description: "Standard DPA som brukes med kunder eller underleverandører.", resolvesQuestion: "tp.dpa", scanType: "dpa" },
   { id: "security_policy", title: "Informasjonssikkerhetspolicy", description: "Intern policy som dekker tilgang, kryptering, hendelseshåndtering.", resolvesQuestion: "gov.internal_policy", scanType: "policy" },
   { id: "incident_plan", title: "Hendelsesplan", description: "Rutine for å oppdage, varsle og håndtere personvernbrudd innen 72 timer.", resolvesQuestion: "ops.breach" },
 ];
