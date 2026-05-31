@@ -123,12 +123,12 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
     if (status.key === "draft") {
       return (
         <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
-          <p className="text-[13px] text-foreground/80 flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
+          <p className="text-sm text-foreground/85 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-primary animate-pulse" aria-hidden="true" />
             Lara kartlegger kundeprofilen…
           </p>
-          <Button size="sm" className="gap-1.5 h-8" onClick={() => navigate(`/msp-dashboard/${customer.id}/trust-profile`)}>
-            <Send className="h-3.5 w-3.5" /> Start onboarding
+          <Button size="sm" className="gap-1.5 h-9 text-sm" onClick={() => navigate(`/msp-dashboard/${customer.id}/trust-profile`)}>
+            <Send className="h-4 w-4" aria-hidden="true" /> Start onboarding
           </Button>
         </div>
       );
@@ -136,8 +136,8 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
     if (status.key === "invited") {
       return (
         <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
-          <p className="text-[13px] text-foreground/80 flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-warning" />
+          <p className="text-sm text-foreground/85 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-warning" aria-hidden="true" />
             Onboarding pågår — Lara fyller ut kundeprofilen.
           </p>
         </div>
@@ -146,16 +146,16 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
     if (status.key === "claimed") {
       const last = formatLongDate(customer.last_activity_at);
       return (
-        <div className="rounded-lg bg-muted/40 border border-border px-4 py-2 flex items-center gap-2">
-          <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
-          <p className="text-[13px] text-foreground/80">Aktiv kunde{last ? ` · siste aktivitet ${last}` : ""}</p>
+        <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-success shrink-0" aria-hidden="true" />
+          <p className="text-sm text-foreground/85">Aktiv kunde{last ? ` · siste aktivitet ${last}` : ""}</p>
         </div>
       );
     }
     return (
-      <div className="rounded-lg bg-muted/40 border border-border px-4 py-2 flex items-center gap-2">
-        <Archive className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        <p className="text-[13px] text-muted-foreground">Inaktiv kunde — data fryst.</p>
+      <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center gap-2">
+        <Archive className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
+        <p className="text-sm text-muted-foreground">Inaktiv kunde — data fryst.</p>
       </div>
     );
   };
