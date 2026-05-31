@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Clock, FileText, Coins } from "lucide-react";
+import { Clock, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useServiceDefaults, SUPPORTED_CURRENCIES } from "@/hooks/useServiceDefaults";
 import { PartnerBrandingCard } from "./PartnerBrandingCard";
