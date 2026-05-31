@@ -576,7 +576,13 @@ export default function ActivateTrustProfileWizard({
         <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
       {step === 5 && (
-        <CriticalVendorsStep rows={criticalVendors} onChange={setCriticalVendors} />
+        <CriticalVendorsStep
+          rows={criticalVendors}
+          onChange={setCriticalVendors}
+          subprocessorList={subprocessorList}
+          onSubprocessorChange={setSubprocessorList}
+        />
+
       )}
       {step === 6 && !isCalculating && (
         <DocumentsStep documents={documents} onUpload={uploadDocument} />
