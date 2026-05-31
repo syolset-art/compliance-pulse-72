@@ -27,6 +27,8 @@ export type CampaignCustomer = {
   trustProfileStatus?: "not_started" | "in_progress" | "complete";
   /** Dager siden siste kontakt */
   daysSinceContact?: number;
+  /** Baseline (Se over baseline) fullført — påvirker om regelverk/modenhet kan bekreftes */
+  baselineComplete?: boolean;
 };
 
 export interface CampaignSegment {

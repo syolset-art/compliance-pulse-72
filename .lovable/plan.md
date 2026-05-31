@@ -1,45 +1,51 @@
-## Mål
-Erstatte den tekstdrevne forklaringen øverst på "Hvordan virker det"-fanen med en tydelig **visuell illustrasjon** som viser sammenhengen mellom:
+## Problem
 
-- **Kundens Trust profile & modenhet** (venstre side)
-- **Partnerens tjenester** (midten — broen)
-- **Tilbud, regelverk og kontrollpunkter** (høyre side)
+Steg 1 i «Ny kampanje med Lara» dumper 6 kategorier × 15 segmenter på brukeren samtidig. Det er vanskelig å vite hvor man skal starte. I tillegg teller f.eks. «Trenger NIS2-vurdering» kunder som mangler baseline — uten å si fra om at vi egentlig ikke vet sikkert.
 
-Stegene under (1–5) og outcome-kortene beholdes som de er — de fungerer som detaljert utdypning under illustrasjonen.
+## Endringer
 
-## Illustrasjonens oppbygning
+### 1) Nytt mellom-steg: Velg fokus først
+Før segment-listen vises, presenteres tre store valg som fungerer som filter:
 
-En SVG-basert illustrasjon (ren React + Tailwind/semantiske tokens, ingen ekstra avhengigheter) bygget som tre kolonner koblet sammen med flytlinjer:
+- **Regelverk-gap** (NIS2, ISO 27001, GDPR, åpenhetsloven, AI Act)
+- **Modenhet og risiko** (lav modenhet, høy risiko)
+- **Tjeneste-gap** (mangler vCISO, ingen aktiv leveranse, mangler Mynder-moduler)
 
-```text
-┌─────────────────┐         ┌──────────────────┐         ┌─────────────────────┐
-│  KUNDE          │         │   PARTNER        │         │  COMPLIANCE         │
-│                 │         │                  │         │                     │
-│  Trust profile  │ ──────▶ │  Dine tjenester  │ ──────▶ │  Tilbud             │
-│  Modenhet 0–4   │         │  (byggeklosser)  │         │  Regelverk (NIS2,   │
-│  ●●●○○          │         │  • Backup        │         │   ISO, GDPR…)       │
-│                 │ ◀────── │  • MDR           │ ◀────── │  Kontrollpunkter    │
-│  Hever seg ▲    │  bevis  │  • Opplæring     │  dekker │  ✓ A.8.13 ✓ Art.21  │
-└─────────────────┘         └──────────────────┘         └─────────────────────┘
-```
+Hvert valg har en kort beskrivelse + Lara-anbefaling («Vi anbefaler Regelverk-gap — flest kunder berøres»).
 
-### Visuelle elementer
-- **Venstre kort (Kunde)**: Shield-ikon, "Trust profile", en liten modenhetsbar (0–4 prikker) med pil oppover som viser at den hever seg.
-- **Midtkort (Partner)**: Wrench/Layers-ikon, "Dine tjenester", 3 chips med eksempeltjenester (Backup, MDR, Awareness).
-- **Høyre kort (Compliance)**: FileText/ShieldCheck-ikon, "Tilbud + Regelverk + Kontrollpunkter", med små framework-badges (NIS2, ISO 27001, GDPR) og 2–3 grønne ✓-kontroller.
-- **Forbindelseslinjer**: To-veis piler mellom kortene med korte etiketter:
-  - Kunde → Partner: *"leverer på"*
-  - Partner → Compliance: *"dekker"*
-  - Compliance → Kunde: *"hever modenhet"* (lukker loopen)
-- **Loop-følelsen**: En subtil sirkulær flyt som understreker at partnerens leveranse → dekker kontroller → hever kundens modenhet i trust profile.
-- Bruker semantiske tokens: `bg-card`, `border-border`, `text-primary`, `bg-success/10`, etc. WCAG-vennlig kontrast og tekststørrelse (≥ `text-sm`).
-- Responsivt: 3 kolonner på `md+`, stables vertikalt på mobil (piler roteres 90°).
+Når et fokus er valgt vises kun segmentene i den kategorien. «Aktivitet» og «Kritikalitet» blir sekundære, foldet inn under «Flere kriterier» (collapsible) for de som vil kombinere.
 
-## Tekstendringer
-- Beholder hero-overskriften, men forkorter ingressen til én setning.
-- Fjerner ikke stegene (1–5) eller outcome-seksjonen — illustrasjonen kommer **i tillegg**, plassert rett under hero, før stegene, som den umiddelbare "aha"-en.
+Brukeren kan bytte fokus med en pille øverst («Fokus: Regelverk-gap · endre»).
 
-## Filer som endres
-- `src/components/msp/MSPServiceHowItWorksTab.tsx` — legge til ny `<ServiceFlowDiagram />`-komponent (inline i samme fil eller egen fil under `src/components/msp/`), plassert mellom hero og stegene.
+### 2) Baseline-bevissthet i treff-telleren
+Utvid `CampaignCustomer` med `baselineComplete: boolean`. Segmenter i kategori `framework` deler treffene i to:
 
-Ingen endringer i forretningslogikk eller data.
+- **Bekreftet treff** — baseline fullført og kriteriet matcher
+- **Mulig treff** — baseline ikke fullført, så vi kan ikke bekrefte
+
+Sticky teller-kortet viser begge tall:
+
+> **8 kunder treffer kampanjen** (fullført baseline)
+> *+ 7 mulige kunder uten fullført baseline — kjør baseline først for å bekrefte*
+
+«Mulige kunder»-linjen har en sekundær-knapp «Se kunder uten baseline» som lister dem og lenker til baseline-drawer per kunde. Disse inkluderes ikke i mottakerlisten med mindre brukeren aktivt huker dem av.
+
+For ikke-framework segmenter (modenhet, tjeneste) gjelder samme deling kun når kriteriet faktisk er avhengig av baseline-data (modenhet ja, tjeneste nei).
+
+### 3) Lara anbefaler en kampanje
+På fokus-skjermen viser vi én «Lara anbefaler»-rad øverst — det segmentet med flest bekreftede treff i demoen. Klikker brukeren den, hoppes fokus-valg over og det segmentet er forhåndskrysset.
+
+## Tekniske detaljer
+
+**Filer som endres**
+- `src/lib/campaignSegments.ts` — legg til `baselineComplete?: boolean` på `CampaignCustomer`, sett verdier på demo-kundene (5 fullført, 3 ikke), og utvid `applySegments` til å returnere `{ confirmed, possible }` for framework + maturity-kategorier.
+- `src/components/msp/CampaignWizardDialog.tsx` —
+  - Ny `Step1Focus`-komponent vist før dagens segment-grid.
+  - State `focus: "framework" | "maturity" | "service" | null`.
+  - Dagens `Step1` filtreres på valgt fokus; «Aktivitet/Kritikalitet» foldes inn i collapsible «Flere kriterier».
+  - Sticky teller-kort splittes i bekreftet + mulig.
+  - Stepperen oppdateres: «1. Velg fokus → 2. Velg kunder → 3. Skriv innhold → 4. Send».
+
+**Out of scope**
+- Faktisk persistens av baseline-status mot Supabase. Vi bruker demo-flagget på `CampaignCustomer` for nå (samme mønster som resten av kampanje-flyten).
+- Endringer i steg 2 og 3.
