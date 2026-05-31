@@ -116,8 +116,8 @@ export function MSPServiceSettingsTab() {
             <FileText className="h-4 w-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Tilbudsmal</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="text-base font-semibold text-foreground">Tilbudsmal</h3>
+            <p className="text-sm text-muted-foreground">
               Logo, partnernavn og slagord som vises i tilbud du sender til kunder.
             </p>
           </div>
