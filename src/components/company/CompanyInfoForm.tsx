@@ -7,8 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Upload, Shield, Save, Pencil, X, Sparkles, AlertCircle, Handshake, Loader2, CheckCircle2, Search } from "lucide-react";
+import { Upload, Shield, Save, Pencil, X, Sparkles, AlertCircle, Handshake, Loader2, CheckCircle2, Search, ChevronsUpDown, Check } from "lucide-react";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 interface CompanyInfoFormProps {
   /** If true, starts in edit mode */
@@ -33,17 +36,20 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   const hydratedRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Partner-lookup (prototype): simulerer søk i Mynder Trust-katalog
-  const [partnerLookup, setPartnerLookup] = useState<{
-    status: "idle" | "searching" | "found" | "not_found";
-    match?: { name: string; type: string; roleDescription: string };
-  }>({ status: "idle" });
+  // Partner-katalog (prototype): partnere som har opprettet egen Trust Profile i Mynder
+  const [partnerPickerOpen, setPartnerPickerOpen] = useState(false);
   const PARTNER_DIRECTORY: Array<{ name: string; type: string; roleDescription: string }> = [
     { name: "Mynder MSP-partner AS", type: "msp", roleDescription: "Drift, sikkerhetsovervåking og brukerstøtte" },
     { name: "Acme IT AS", type: "it_partner", roleDescription: "IT-drift og support" },
     { name: "NordSec AS", type: "mssp", roleDescription: "24/7 SOC, EDR og hendelseshåndtering" },
     { name: "7 Security", type: "mssp", roleDescription: "Sikkerhetsovervåking og compliance-rådgivning" },
+    { name: "Bouvet Sikkerhet", type: "consultant", roleDescription: "Rådgivning innen informasjonssikkerhet og GDPR" },
+    { name: "Atea Managed Services", type: "msp", roleDescription: "Skytjenester, drift og support" },
+    { name: "Sopra Steria Cyber", type: "mssp", roleDescription: "Cybersikkerhet og hendelseshåndtering" },
   ];
+  const matchedPartner = PARTNER_DIRECTORY.find(
+    (p) => p.name.toLowerCase() === (form?.partner_name || "").trim().toLowerCase()
+  );
 
   const { data: companyProfile, isLoading: loadingProfile } = useQuery({
     queryKey: ["company-profile-shared"],
@@ -250,38 +256,16 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     setForm((prev) => ({ ...prev, [key]: value as never }));
   };
 
-  // Debounced partner-name lookup (prototype: matcher mot mock-katalog)
-  useEffect(() => {
-    if (!form.managed_by_partner) {
-      setPartnerLookup({ status: "idle" });
-      return;
-    }
-    const name = (form.partner_name || "").trim();
-    if (name.length < 2) {
-      setPartnerLookup({ status: "idle" });
-      return;
-    }
-    setPartnerLookup({ status: "searching" });
-    const t = setTimeout(() => {
-      const lower = name.toLowerCase();
-      const match = PARTNER_DIRECTORY.find(
-        (p) => p.name.toLowerCase().includes(lower) || lower.includes(p.name.toLowerCase().split(" ")[0])
-      );
-      if (match) {
-        setPartnerLookup({ status: "found", match });
-        // Forhåndsutfyll bare om feltene er tomme — la brukeren beholde egne overskrivinger
-        setForm((prev) => ({
-          ...prev,
-          partner_type: prev.partner_type && prev.partner_type !== "msp" ? prev.partner_type : (match.type as never),
-          partner_role_description: prev.partner_role_description ? prev.partner_role_description : (match.roleDescription as never),
-        }));
-      } else {
-        setPartnerLookup({ status: "not_found" });
-      }
-    }, 500);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.partner_name, form.managed_by_partner]);
+  // Velger partner fra katalog og forhåndsutfyller type + leveranseområde
+  const selectPartner = (p: { name: string; type: string; roleDescription: string }) => {
+    setForm((prev) => ({
+      ...prev,
+      partner_name: p.name as never,
+      partner_type: p.type as never,
+      partner_role_description: p.roleDescription as never,
+    }));
+    setPartnerPickerOpen(false);
+  };
 
   if (loadingProfile) {
     return <div className="animate-pulse h-48 bg-muted rounded-lg" />;
@@ -514,44 +498,83 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
         {form.managed_by_partner ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FieldBlock label="Partnernavn" hint="Vi søker i Mynder Trust-katalog når du skriver">
+            <FieldBlock label="Partnernavn" hint="Velg fra Mynder Trust-katalogen eller skriv inn manuelt">
               {isEditing ? (
                 <div className="space-y-1.5">
-                  <div className="relative">
-                    <Input
-                      value={form.partner_name}
-                      onChange={(e) => update("partner_name", e.target.value)}
-                      placeholder="F.eks. Acme IT AS"
-                      className="text-sm pr-9"
-                    />
-                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
-                      {partnerLookup.status === "searching" ? (
-                        <Loader2 className="h-3.5 w-3.5 text-muted-foreground animate-spin" />
-                      ) : partnerLookup.status === "found" ? (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-                      ) : (
-                        <Search className="h-3.5 w-3.5 text-muted-foreground/60" />
-                      )}
-                    </div>
-                  </div>
-                  {partnerLookup.status === "searching" && (
-                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Søker etter leverandøren i Mynder Trust…
-                    </p>
-                  )}
-                  {partnerLookup.status === "found" && partnerLookup.match && (
+                  <Popover open={partnerPickerOpen} onOpenChange={setPartnerPickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={partnerPickerOpen}
+                        className="w-full justify-between h-9 text-sm font-normal"
+                      >
+                        <span className={cn("truncate", !form.partner_name && "text-muted-foreground")}>
+                          {form.partner_name || "Søk eller velg partner…"}
+                        </span>
+                        <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0 ml-2" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                      <Command>
+                        <CommandInput
+                          placeholder="Søk i Mynder Trust-katalog…"
+                          value={form.partner_name}
+                          onValueChange={(v) => update("partner_name", v)}
+                        />
+                        <CommandList>
+                          <CommandEmpty>
+                            <div className="px-2 py-3 text-center space-y-1">
+                              <p className="text-[12px] text-muted-foreground">
+                                Ingen partner matchet i Mynder Trust.
+                              </p>
+                              <p className="text-[11px] text-muted-foreground/80">
+                                Du kan beholde navnet og fylle ut Type partner og Leveranseområde manuelt.
+                              </p>
+                            </div>
+                          </CommandEmpty>
+                          <CommandGroup heading="Partnere med Trust Profile">
+                            {PARTNER_DIRECTORY.map((p) => (
+                              <CommandItem
+                                key={p.name}
+                                value={p.name}
+                                onSelect={() => selectPartner(p)}
+                                className="flex items-start gap-2 py-2"
+                              >
+                                <Check
+                                  className={cn(
+                                    "h-3.5 w-3.5 mt-0.5 shrink-0",
+                                    form.partner_name === p.name ? "opacity-100 text-primary" : "opacity-0"
+                                  )}
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-sm font-medium truncate">{p.name}</span>
+                                    <Shield className="h-3 w-3 text-primary shrink-0" />
+                                  </div>
+                                  <p className="text-[11px] text-muted-foreground truncate">
+                                    {p.roleDescription}
+                                  </p>
+                                </div>
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {matchedPartner ? (
                     <p className="text-[11px] text-primary flex items-center gap-1">
                       <CheckCircle2 className="h-3 w-3" />
-                      Funnet i Mynder Trust — feltene under er forhåndsutfylt og kan redigeres.
+                      Hentet fra Mynder Trust — Type og Leveranseområde er forhåndsutfylt.
                     </p>
-                  )}
-                  {partnerLookup.status === "not_found" && (
+                  ) : form.partner_name ? (
                     <p className="text-[11px] text-muted-foreground flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" />
-                      Ikke funnet i Mynder Trust — fyll ut Type partner og Leveranseområde manuelt.
+                      Ikke i Mynder Trust-katalogen — fyll ut Type og Leveranseområde manuelt.
                     </p>
-                  )}
+                  ) : null}
                 </div>
               ) : (
                 <Input value={form.partner_name || "—"} readOnly className="bg-muted/30 text-sm" />
@@ -560,7 +583,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
             <FieldBlock
               label="Type partner"
-              hint={partnerLookup.status === "found" ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Hvilken rolle partneren har"}
+              hint={matchedPartner ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Hvilken rolle partneren har"}
             >
               {isEditing ? (
                 <select
@@ -581,7 +604,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
             <FieldBlock
               label="Leveranseområde"
-              hint={partnerLookup.status === "found" ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Kort beskrivelse av hva partneren leverer"}
+              hint={matchedPartner ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Kort beskrivelse av hva partneren leverer"}
             >
               {isEditing ? (
                 <Input
