@@ -86,8 +86,8 @@ export default function ActivateTrustProfileWizard({
   const [step, setStep] = useState<Step>(1);
 
   // Step 1: org
-  const [companyName, setCompanyName] = useState(initialCompanyName ?? "");
-  const [orgNumber, setOrgNumber] = useState(initialOrgNumber ?? "");
+  const [companyName, setCompanyName] = useState(hasOrgPrefill ? (initialCompanyName ?? "") : "");
+  const [orgNumber, setOrgNumber] = useState(hasOrgPrefill ? (initialOrgNumber ?? "") : "");
   const [country] = useState("Norge");
   const normalizeUrl = (u: string) => (u && !/^https?:\/\//i.test(u) ? `https://${u}` : u);
   const [website, setWebsite] = useState(initialDomain ? normalizeUrl(initialDomain) : "");
@@ -167,8 +167,8 @@ export default function ActivateTrustProfileWizard({
     if (!open) {
       setTimeout(() => {
         setStep(1);
-        setCompanyName(initialCompanyName ?? "");
-        setOrgNumber(initialOrgNumber ?? "");
+        setCompanyName(hasOrgPrefill ? (initialCompanyName ?? "") : "");
+        setOrgNumber(hasOrgPrefill ? (initialOrgNumber ?? "") : "");
         setWebsite(initialDomain ? normalizeUrl(initialDomain) : "");
         setWebsiteVerified(false);
         setVerified(hasOrgPrefill);
@@ -500,7 +500,7 @@ export default function ActivateTrustProfileWizard({
         <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
           Aktiver Trust Profile · Steg {step} av {TOTAL_STEPS}
         </span>
-        {hasPrefill && step === 1 && (
+        {hasOrgPrefill && step === 1 && (
           <Badge variant="outline" className="ml-auto text-[10px] gap-1 border-primary/30 text-primary">
             <CheckCircle2 className="h-3 w-3" /> Innlogget som {companyName}
           </Badge>
@@ -509,7 +509,7 @@ export default function ActivateTrustProfileWizard({
       <h2 className="text-xl font-semibold">
         {step === 1 && (hasOrgPrefill
           ? "Bekreft hjemmesiden din"
-          : (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din"))}
+          : "Bekreft organisasjonen din")}
         {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
         {step === 3 && "Bekreft og juster informasjonen"}
         {step === 4 && "Modenhet — bekreft det Lara fant"}
@@ -520,9 +520,7 @@ export default function ActivateTrustProfileWizard({
       <p className="text-sm text-muted-foreground">
         {step === 1 && (hasOrgPrefill
           ? "Vi har allerede selskapsnavn, organisasjonsnummer og land. For å fortsette trenger Lara hjemmesiden din."
-          : (hasPrefill
-            ? "Vi vet allerede hvem du er. For å gjøre resten automatisk trenger Lara organisasjonsnummeret og hjemmesiden din."
-            : "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start."))}
+          : "Søk opp selskapet ditt i Brønnøysundregistrene — velg riktig treff, så fyller vi inn org.nr automatisk.")}
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
         {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
@@ -551,7 +549,7 @@ export default function ActivateTrustProfileWizard({
           searchResults={searchResults}
           onSearch={handleSearchName}
           onPick={pickRegistry}
-          companyNameLocked={hasPrefill}
+          companyNameLocked={hasOrgPrefill}
           orgPrefilled={hasOrgPrefill}
           hasWebsite={hasWebsite}
           setHasWebsite={(v: "yes" | "no") => {
@@ -639,8 +637,8 @@ export default function ActivateTrustProfileWizard({
 
   const footer = step === 2 ? null : (
     <div className="flex items-center justify-between gap-2 pt-3 border-t border-border">
-      <Button variant="ghost" onClick={(hasPrefill && step === 1) ? handleSkip : back} disabled={isPublishing || isCalculating}>
-        {(hasPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
+      <Button variant="ghost" onClick={(hasOrgPrefill && step === 1) ? handleSkip : back} disabled={isPublishing || isCalculating}>
+        {(hasOrgPrefill && step === 1) ? "Hopp over" : (<><ArrowLeft className="h-4 w-4 mr-1.5" /> Tilbake</>)}
       </Button>
 
       {step < 7 ? (
@@ -675,12 +673,14 @@ export default function ActivateTrustProfileWizard({
     if (!open) return null;
     if (conversation) {
       const laraIntro =
+        step === 1 ? "Hei! Jeg er Lara. La oss aktivere Trust Center-profilen din sammen — det tar bare et par minutter." :
         step === 2 ? "Jeg leter gjennom hjemmesiden din og offentlige kilder nå …" :
         step === 3 ? "Her er det jeg fant. Bekreft eller juster gjerne — alt er forhåndsutfylt." :
         step === 4 ? "La oss gå gjennom modenheten din. Jeg har gjettet basert på det jeg fant." :
         step === 5 ? "Hvem er de viktigste leverandørene som har tilgang til systemene eller dataene dine?" :
         step === 6 ? "Har du noen policyer å laste opp? Jeg kobler dem til riktig krav automatisk." :
-        "Siste steg — hvem skal få se profilen?";
+        step === 7 ? "Siste steg — hvem skal få se profilen?" :
+        "";
       return (
         <div className="max-w-3xl mx-auto space-y-4">
           {/* Stepper */}

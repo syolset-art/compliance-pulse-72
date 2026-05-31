@@ -1,42 +1,25 @@
-# Forenklet Compliance-meny for partnere + "Andre moduler" i Innstillinger
+## Bakgrunn
 
-Når en partner bytter til workspace-modus **"Min organisasjon — Compliance og styring"**, skal sidebaren være minimal: kun Trust Center, Regelverk og Meldinger. Alt annet (Mynder Core, Registre, Leverandørmodul, Flere tjenester, Bli Partner) flyttes til Innstillinger som "Andre moduler" som kan aktiveres.
+På Trust Center-aktiveringsveiviseren (`ActivateTrustProfileWizard`) er det to feil i steg 1:
 
-## Mål
-
-1. Partnere får et eget Trust Center-punkt øverst i compliance-menyen.
-2. Compliance-menyen for partnere viser kun: **Trust Center**, **Regelverk**, **Meldinger**.
-3. Skjulte moduler kan aktiveres på nytt fra Innstillinger → "Andre moduler". Når en modul aktiveres, dukker den opp i menyen igjen.
+1. **Lara-meldingen er feil.** Toppen viser «Lara · Steg 1 av 7», men teksten under sier «Siste steg — hvem skal få se profilen?». Det skyldes at `laraIntro`-switchen mangler en case for steg 1, så fallback for steg 7 vises.
+2. **Selskapsnavnet er forhåndsutfylt og låst** til verdien fra demo-profilen («Dips Arena»). Feltet skal være tomt slik at brukeren selv skriver inn et navn, får treff fra Brreg, velger riktig organisasjon, og deretter får org.nr automatisk utfylt.
 
 ## Endringer
 
-### 1. `src/components/Sidebar.tsx` — compliance-grenen
-- Beholde eksisterende `isPartner`-flagg (allerede beregnet via `companyProfile.is_msp_partner`).
-- Når `workspaceMode === "compliance" && isPartner`:
-  - Vise Dashbord + nytt **Trust Center**-punkt (lenke til `/trust-center/profile`, ikon `ShieldCheck`).
-  - Vise `globalNav` filtrert til kun **Regelverk** og **Meldinger**.
-  - Skjule: Mynder Core-seksjonen, Registre-seksjonen, Leverandører-collapse, "Flere tjenester", "Bli Partner".
-  - Skjulingen overstyres per-modul av en ny localStorage-flagg `mynder_partner_modules_enabled` (JSON-array med modulnøkler: `"core"`, `"registries"`, `"vendors"`, `"more"`, `"become_partner"`). Når en nøkkel er til stede, vises tilhørende blokk igjen.
-- Ikke-partnere er uendret.
+### 1. `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx`
 
-### 2. `src/pages/MSPPartnerSettings.tsx` — ny seksjon "Andre moduler"
-Legge til en seksjon nederst (eller som ny fane) med kort for hver modul:
-- **Mynder Core** — "Aktivitet, kontroller og styringsoppgaver"
-- **Registre** — "Systemer og aktiva"
-- **Leverandørmodul** — "Tredjeparts­leverandører og TPRM"
-- **Flere tjenester** — "Utforsk tilleggsmoduler"
+**Lara-melding for steg 1:** Legg til eksplisitt steg 1-tekst i `laraIntro`-switchen (linje ~677–683), f.eks.:
+> «Hei! Jeg er Lara. La oss aktivere Trust Center-profilen din sammen — det tar bare et par minutter.»
 
-Hvert kort har en Switch "Aktiver i Compliance-menyen". Toggle skriver/fjerner nøkkelen i `mynder_partner_modules_enabled` (localStorage) og trigger `window.dispatchEvent(new Event("storage"))` slik at sidebaren oppdateres.
+**Selskapsnavn skal være valgbart fra Brreg:**
+- Når kun `initialCompanyName` finnes (org.nr mangler), skal feltet ikke være låst. Sett `companyNameLocked = false` i denne situasjonen slik at brukeren kan skrive et annet navn og søke på nytt mot Brreg.
+- Alternativt: ignorer `initialCompanyName` helt i steg 1 hvis `initialOrgNumber` ikke finnes, slik at feltet starter tomt og brukeren styrer hele flyten selv.
+- Beholder dagens oppførsel der både navn og org.nr er kjent (vises som «bekreftet organisasjon»-sammendrag).
+- Brreg-treffene rendres allerede som klikkbare kort (`pickRegistry`) som setter både navn og org.nr — denne logikken trenger ingen endring, bare at navnefeltet er redigerbart.
 
-### 3. Liten hjelpefunksjon
-Ny `src/lib/partnerModules.ts` med:
-- `getEnabledPartnerModules(): string[]`
-- `setPartnerModuleEnabled(key, enabled): void`
-- Konstant-liste over modulnøkler + etiketter (gjenbrukes i Sidebar + Innstillinger).
+### Akseptansekriterier
 
-## Avgrensning
-
-- Ingen endringer i partner-modus-menyen (`PartnerNav`) eller TopBar.
-- Ingen DB-/backend-endringer; alt styres frontend via localStorage.
-- Ingen ruteendringer — Trust Center-lenken bruker eksisterende `/trust-center/profile`.
-- i18n følger samme `isNb ? ... : ...`-mønster som resten av Sidebar.tsx.
+- Steg 1 viser en passende velkomst-/intro-tekst fra Lara, ikke «Siste steg»-teksten.
+- Selskapsnavn er tomt (eller redigerbart) ved start; brukeren skriver inn et navn, ser Brreg-treff, velger riktig organisasjon, og org.nr fylles inn automatisk.
+- Ingen andre steg eller funksjoner endres.
