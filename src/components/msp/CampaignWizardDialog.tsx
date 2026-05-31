@@ -43,10 +43,47 @@ import {
   SEGMENT_CATEGORY_LABEL,
   DEMO_CAMPAIGN_CUSTOMERS,
   applySegments,
+  applySegmentsWithBaseline,
   type CampaignCustomer,
   type CampaignSegment,
 } from "@/lib/campaignSegments";
 import { PARTNER_SERVICES, type PartnerService } from "@/lib/serviceCatalog";
+
+type CampaignFocus = "framework" | "maturity" | "service";
+
+const FOCUS_OPTIONS: {
+  id: CampaignFocus;
+  label: string;
+  description: string;
+  icon: typeof Shield;
+  recommended?: boolean;
+}[] = [
+  {
+    id: "framework",
+    label: "Regelverk-gap",
+    description: "NIS2, ISO 27001, GDPR, åpenhetsloven, AI Act — kunder som mangler dekning.",
+    icon: Shield,
+    recommended: true,
+  },
+  {
+    id: "maturity",
+    label: "Modenhet og risiko",
+    description: "Kunder med lav modenhet eller høy risiko avledet fra Mynder-data.",
+    icon: AlertTriangle,
+  },
+  {
+    id: "service",
+    label: "Tjeneste-gap",
+    description: "Kunder som mangler vCISO, ingen aktiv leveranse, eller Mynder-moduler.",
+    icon: Tag,
+  },
+];
+
+const FOCUS_TO_CATEGORIES: Record<CampaignFocus, CampaignSegment["category"][]> = {
+  framework: ["framework"],
+  maturity: ["maturity"],
+  service: ["service", "product"],
+};
 
 export type CampaignKind = "message" | "offer" | "reminder" | "claim";
 
