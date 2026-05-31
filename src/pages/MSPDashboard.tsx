@@ -39,7 +39,7 @@ function deriveTPStatus(c: any): TPStatusKey {
 
 const TP_STATUS_LABEL: Record<TPStatusKey, string> = {
   draft: "Utkast",
-  onboarding: "Claimet",
+  onboarding: "Aktivert",
   claimed: "Utkast",
   published: "Publisert",
 };
