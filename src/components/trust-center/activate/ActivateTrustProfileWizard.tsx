@@ -396,6 +396,31 @@ export default function ActivateTrustProfileWizard({
     await new Promise((r) => setTimeout(r, 600));
     setCalcStep(3);
     await new Promise((r) => setTimeout(r, 500));
+
+    // Lara analyses the optional subprocessor list (file or URL)
+    let analyzedSubprocessors: SubprocessorListData | null = null;
+    try {
+      if (subprocessorList.source === "upload" && subprocessorList.file) {
+        const vendors = await analyzeSubprocessorFile(subprocessorList.file);
+        analyzedSubprocessors = {
+          source: "upload",
+          fileName: subprocessorList.fileName,
+          analyzedAt: new Date().toISOString(),
+          vendors,
+        };
+      } else if (subprocessorList.source === "url" && subprocessorList.url) {
+        const vendors = await analyzeSubprocessorUrl(subprocessorList.url);
+        analyzedSubprocessors = {
+          source: "url",
+          url: subprocessorList.url,
+          analyzedAt: new Date().toISOString(),
+          vendors,
+        };
+      }
+    } catch {
+      // ignore — keep null
+    }
+
     const values: ActivationValues = {
       name: companyName,
       orgNumber,
@@ -413,6 +438,7 @@ export default function ActivateTrustProfileWizard({
       criticalVendors: criticalVendors
         .filter((v) => v.name.trim().length > 0)
         .map((v) => ({ name: v.name.trim(), access: v.access.trim(), dpa: v.dpa ?? "unknown" })),
+      subprocessorList: analyzedSubprocessors,
       documents,
       visibility,
       partner: partnerStatus
