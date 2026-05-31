@@ -201,13 +201,17 @@ export function useTrustControlEvaluation(assetId: string) {
 
     // For "self" type, use only ORG_CONTROLS (all 17 trust controls); skip generic controls
     const isSelf = effectiveType === "self";
-    const evaluatedGeneric: EvaluatedControl[] = isSelf ? [] : GENERIC_CONTROLS.map((c) => ({
+    const meta = (asset.metadata as Record<string, any>) || {};
+    const applyNotApplicable = (c: EvaluatedControl): EvaluatedControl =>
+      meta[c.key] === "n_a" ? { ...c, status: "not_applicable" as const } : c;
+
+    const evaluatedGeneric: EvaluatedControl[] = isSelf ? [] : GENERIC_CONTROLS.map((c) => applyNotApplicable({
       ...c,
       status: evaluateGenericControl(c.key, assetLike, docsCount),
       verificationSource: inferVerificationSource(c.key, assetLike, docsCount),
     }));
     const typeDefinitions = getTypeSpecificControls(effectiveType);
-    const evaluatedType: EvaluatedControl[] = typeDefinitions.map((c) => ({
+    const evaluatedType: EvaluatedControl[] = typeDefinitions.map((c) => applyNotApplicable({
       ...c,
       status: evaluateTypeControl(c.key, effectiveType, assetLike, docsCount),
       verificationSource: inferVerificationSource(c.key, assetLike, docsCount),
@@ -229,9 +233,12 @@ export function useTrustControlEvaluation(assetId: string) {
     const areaScore = (area: ControlArea) => {
       const controls = grouped[area];
       if (!controls || controls.length === 0) return 0;
-      const impl = controls.filter(c => c.status === "implemented").length;
-      const partial = controls.filter(c => c.status === "partial").length;
-      return Math.round(((impl + partial * 0.5) / controls.length) * 100);
+      // Exclude "not_applicable" from both numerator and denominator.
+      const scored = controls.filter(c => c.status !== "not_applicable");
+      if (scored.length === 0) return 0;
+      const impl = scored.filter(c => c.status === "implemented").length;
+      const partial = scored.filter(c => c.status === "partial").length;
+      return Math.round(((impl + partial * 0.5) / scored.length) * 100);
     };
 
     // Derive evidence summary per area
