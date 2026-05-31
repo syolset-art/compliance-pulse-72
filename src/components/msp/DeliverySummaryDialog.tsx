@@ -171,15 +171,17 @@ const Stat = ({
   label,
   tone,
 }: {
-  value: number;
+  value: number | string;
   label: string;
-  tone?: "primary" | "muted";
+  tone?: "primary" | "muted" | "success";
 }) => (
   <div
     className={
       tone === "primary"
         ? "rounded-lg border border-primary/20 bg-primary/5 p-2.5"
-        : "rounded-lg border border-border bg-card p-2.5"
+        : tone === "success"
+          ? "rounded-lg border border-success/20 bg-success/5 p-2.5"
+          : "rounded-lg border border-border bg-card p-2.5"
     }
   >
     <p className="text-lg font-semibold text-foreground tabular-nums">{value}</p>
