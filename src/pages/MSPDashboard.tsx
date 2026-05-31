@@ -497,15 +497,15 @@ export default function MSPDashboard() {
                     })}
                   </div>
                 <div className="hidden lg:block rounded-lg border border-border bg-card overflow-x-auto">
-                  <Table className="table-fixed min-w-[960px]">
+                  <Table className="table-fixed min-w-[1080px]">
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[220px]">
-                          <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                        <TableHead className="w-[220px] text-foreground/80">
+                          <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
                             Kunde <SortIcon k="customer_name" />
                           </button>
                         </TableHead>
-                        <TableHead className="w-[90px]">
+                        <TableHead className="w-[120px] text-foreground/80">
                           <ColumnFilter
                             label="Landskode"
                             options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
@@ -513,7 +513,7 @@ export default function MSPDashboard() {
                             onChange={setCountryCodeFilter}
                           />
                         </TableHead>
-                        <TableHead className="w-[140px]">
+                        <TableHead className="w-[160px] text-foreground/80">
                           <ColumnFilter
                             label="Bransje"
                             options={industryOptions.map((v) => ({ value: v, label: v }))}
@@ -521,7 +521,7 @@ export default function MSPDashboard() {
                             onChange={setIndustryFilter}
                           />
                         </TableHead>
-                        <TableHead className="w-[120px]">
+                        <TableHead className="w-[140px] text-foreground/80">
                           <ColumnFilter
                             label="Kritikalitet"
                             options={[
@@ -533,7 +533,7 @@ export default function MSPDashboard() {
                             onChange={setCriticalityFilter}
                           />
                         </TableHead>
-                        <TableHead className="w-auto">
+                        <TableHead className="w-auto text-foreground/80">
                           <ColumnFilter
                             label="Lara anbefaler"
                             options={serviceOptions.map((v) => ({ value: v, label: v }))}
@@ -541,9 +541,9 @@ export default function MSPDashboard() {
                             onChange={setServiceFilter}
                           />
                         </TableHead>
-                        <TableHead className="w-[140px]">
-                          <div className="inline-flex items-center gap-1.5">
-                            <button type="button" onClick={() => toggleSort("tp_status")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                        <TableHead className="w-[160px] text-foreground/80">
+                          <div className="inline-flex items-center gap-2">
+                            <button type="button" onClick={() => toggleSort("tp_status")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
                               TP-status <SortIcon k="tp_status" />
                             </button>
                             <ColumnFilter
@@ -555,8 +555,8 @@ export default function MSPDashboard() {
                             />
                           </div>
                         </TableHead>
-                        <TableHead className="w-[110px] text-right">
-                          <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors">
+                        <TableHead className="w-[120px] text-right text-foreground/80">
+                          <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
                             Modenhet <SortIcon k="compliance_score" />
                           </button>
                         </TableHead>
