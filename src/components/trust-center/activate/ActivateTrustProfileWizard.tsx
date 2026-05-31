@@ -669,7 +669,7 @@ export default function ActivateTrustProfileWizard({
           </div>
 
           {/* User reply area: the actual step content */}
-          <Card className="p-5 space-y-4 ml-11 animate-in fade-in slide-in-from-bottom-2 duration-300" key={step}>
+          <Card className="p-5 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300" key={step}>
             {body}
             {!isCalculating && footer}
           </Card>
