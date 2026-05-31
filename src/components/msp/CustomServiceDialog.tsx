@@ -175,6 +175,7 @@ export function CustomServiceDialog({
       hours: cleanedActivities.reduce((s, a) => s + a.hours, 0),
       activities: cleanedActivities,
       mappings: [...fromSuggestions, ...keptExtras],
+      priceOverride: usePriceOverride && priceOverride > 0 ? Math.round(priceOverride) : undefined,
     });
     onOpenChange(false);
   };
