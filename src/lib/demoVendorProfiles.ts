@@ -259,7 +259,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     risk_score: 48,
     risk_level: "medium",
     criticality: "medium",
-    publish_mode: "private",
+    publish_mode: "ecosystem",
     contact_person: "Driftsleder",
     contact_email: "drift@connectvest-demo.no",
     description: "Regional IT-driftsleverandør som tilbyr managed services, nettverksdrift og brukerstøtte til SMB-markedet i Vestland.",
