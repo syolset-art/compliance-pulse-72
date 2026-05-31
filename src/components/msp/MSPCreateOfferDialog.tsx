@@ -970,7 +970,7 @@ export function MSPCreateOfferDialog({
         open={gapPreviewOpen}
         onOpenChange={setGapPreviewOpen}
         customerName={customerContactName}
-        initialFrameworkId={gapFrameworkId}
+        initialFrameworkId={coveredGaps?.frameworkId ?? gapFrameworkId}
       />
     </Dialog>
   );
