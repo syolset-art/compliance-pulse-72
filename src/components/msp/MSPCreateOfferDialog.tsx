@@ -325,7 +325,7 @@ export function MSPCreateOfferDialog({
             <span className="text-xs text-muted-foreground">{effectivePartnerName}</span>
           </div>
           <DialogTitle className="text-lg">{offerName}</DialogTitle>
-          <DialogDescription className="text-[13px]">
+          <DialogDescription className="text-sm">
             {view === "edit"
               ? "Juster oppgaver og timer. Du genererer et tilbudsdokument du selv kan laste ned og sende fra ditt eget tilbudssystem."
               : "Last ned som PDF for å sende via ditt eget tilbudssystem, eller lagre tilbudet på kunden."}
@@ -350,16 +350,17 @@ export function MSPCreateOfferDialog({
                         <Input
                           value={t.label}
                           onChange={e => updateTask(i, { label: e.target.value })}
-                          className="h-7 text-[13px] font-medium border-0 bg-transparent px-0 focus-visible:ring-0"
+                          className="h-8 text-sm font-medium border-0 bg-transparent px-0 focus-visible:ring-0"
                         />
-                        {t.note && <p className="text-xs text-muted-foreground -mt-0.5">{t.note}</p>}
+                        {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
                       </div>
                       <Input
                         type="number"
                         value={t.hours}
                         onChange={e => updateTask(i, { hours: Number(e.target.value) })}
-                        className="h-7 text-[13px] text-right tabular-nums"
+                        className="h-8 text-sm text-right tabular-nums"
                       />
+
                       <button
                         type="button"
                         onClick={() => removeTask(i)}
@@ -375,7 +376,7 @@ export function MSPCreateOfferDialog({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="w-full h-8 text-xs border-dashed gap-1 text-muted-foreground"
+                className="w-full h-9 text-sm border-dashed gap-1 text-foreground"
                 onClick={addTask}
               >
                 <Plus className="h-3 w-3" /> Legg til oppgave
@@ -385,19 +386,19 @@ export function MSPCreateOfferDialog({
               <div className="space-y-2 pt-2">
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
-                    <Label className="text-[11px] text-muted-foreground">Timepris</Label>
+                    <Label className="text-xs font-medium text-foreground">Timepris</Label>
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
                         value={editableHourlyRate}
                         onChange={e => setEditableHourlyRate(Number(e.target.value))}
-                        className="h-7 text-[13px] tabular-nums"
+                        className="h-8 text-sm tabular-nums"
                       />
-                      <span className="text-xs text-muted-foreground">kr</span>
+                      <span className="text-sm text-muted-foreground">kr</span>
                     </div>
                   </div>
                   <div className="w-24">
-                    <Label className="text-[11px] text-muted-foreground">Rabatt</Label>
+                    <Label className="text-xs font-medium text-foreground">Rabatt</Label>
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
@@ -405,24 +406,25 @@ export function MSPCreateOfferDialog({
                         max={100}
                         value={discountPercent}
                         onChange={e => setDiscountPercent(Math.max(0, Math.min(100, Number(e.target.value))))}
-                        className="h-7 text-[13px] tabular-nums"
+                        className="h-8 text-sm tabular-nums"
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
+                      <span className="text-sm text-muted-foreground">%</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-baseline justify-between px-1">
                   {discountPercent > 0 ? (
-                    <div className="text-[12px] text-muted-foreground">
+                    <div className="text-sm text-muted-foreground">
                       <div>Delsum {subtotal.toLocaleString("nb-NO")} kr</div>
                       <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
                     </div>
                   ) : (
-                    <span className="text-[12px] text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                    <span className="text-sm text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
                   )}
-                  <span className="text-sm font-semibold text-foreground tabular-nums">
+                  <span className="text-base font-semibold text-foreground tabular-nums">
                     {totalHours} timer · {totalPrice.toLocaleString("nb-NO")} kr
                   </span>
+
                 </div>
               </div>
             </div>
@@ -434,7 +436,7 @@ export function MSPCreateOfferDialog({
                   <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
                     Dekker kontrollpunkter
                   </Label>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     {totalControlPoints} kontrollpunkt{totalControlPoints === 1 ? "" : "er"} · {safeCoveredControls.length} regelverk
                   </span>
                 </div>
@@ -444,36 +446,36 @@ export function MSPCreateOfferDialog({
                     return (
                       <div key={group.frameworkId} className="p-3 space-y-2">
                         <div className="flex items-center gap-2">
-                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold border", theme.chip)}>
+                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
                             {group.frameworkLabel}
                           </span>
-                          <span className="text-[11px] text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
                           </span>
                         </div>
-                        <ul className="space-y-1.5">
+                        <ul className="space-y-2">
                           {group.controlIds.map(id => {
                             const related = getRelatedControls(group.frameworkId, id);
                             const visible = related.slice(0, 3);
                             const extra = related.length - visible.length;
                             return (
-                              <li key={id} className="space-y-1 text-[12.5px] text-foreground/85">
+                              <li key={id} className="space-y-1 text-sm text-foreground">
                                 <div className="flex items-start gap-2">
-                                  <ShieldCheck className="h-3 w-3 text-muted-foreground mt-1 shrink-0" />
-                                  <span className="font-mono text-[11.5px] text-muted-foreground shrink-0">{id}</span>
-                                  <span className="text-foreground/80">— {getControlLabel(group.frameworkId, id)}</span>
+                                  <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                                  <span className="font-mono text-xs text-foreground shrink-0">{id}</span>
+                                  <span className="text-foreground">— {getControlLabel(group.frameworkId, id)}</span>
                                 </div>
                                 {related.length > 0 && (
                                   <div className="flex flex-wrap items-center gap-1 pl-7">
-                                    <Link2 className="h-3 w-3 text-muted-foreground" />
-                                    <span className="text-[11px] text-muted-foreground mr-1">Også:</span>
+                                    <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span className="text-xs text-muted-foreground mr-1">Også:</span>
                                     <TooltipProvider delayDuration={150}>
                                       {visible.map(r => {
                                         const t = getFrameworkTheme(r.frameworkId);
                                         return (
                                           <Tooltip key={`${r.frameworkId}-${r.controlId}`}>
                                             <TooltipTrigger asChild>
-                                              <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[10.5px] font-medium border cursor-default", t.chip)}>
+                                              <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border cursor-default", t.chip)}>
                                                 {r.frameworkLabel} {r.controlId}
                                               </span>
                                             </TooltipTrigger>
@@ -485,7 +487,7 @@ export function MSPCreateOfferDialog({
                                       })}
                                     </TooltipProvider>
                                     {extra > 0 && (
-                                      <span className="text-[10.5px] text-muted-foreground">+{extra}</span>
+                                      <span className="text-xs text-muted-foreground">+{extra}</span>
                                     )}
                                   </div>
                                 )}
@@ -497,6 +499,7 @@ export function MSPCreateOfferDialog({
                     );
                   })}
                 </div>
+
               </div>
             )}
 
@@ -513,15 +516,15 @@ export function MSPCreateOfferDialog({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-[13px] font-medium text-foreground truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           Gap-analyse {gapFrameworkId.toUpperCase()}
                         </p>
                         <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">Anbefalt</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">{gapCount} gap dokumentert</p>
+                      <p className="text-sm text-muted-foreground">{gapCount} gap dokumentert</p>
                     </div>
-                    <Button type="button" size="sm" variant="ghost" className="h-7 text-xs gap-1 text-primary" onClick={() => setGapPreviewOpen(true)}>
-                      <Eye className="h-3 w-3" /> Forhåndsvis
+                    <Button type="button" size="sm" variant="ghost" className="h-8 text-sm gap-1 text-primary" onClick={() => setGapPreviewOpen(true)}>
+                      <Eye className="h-3.5 w-3.5" /> Forhåndsvis
                     </Button>
                     <Switch checked={attachGap} onCheckedChange={setAttachGap} />
                   </div>
@@ -539,11 +542,12 @@ export function MSPCreateOfferDialog({
                 onChange={e => setMessage(e.target.value)}
                 rows={3}
                 placeholder={`Hei ${customerContactName}, basert på modenhetsbildet ditt foreslår vi følgende løp.`}
-                className="text-[13px] resize-none"
+                className="text-sm resize-none"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Denne teksten vises øverst i tilbudsdokumentet. Tilbudet sendes ikke automatisk — du laster det ned og sender selv.
               </p>
+
             </div>
           </div>
         )}
@@ -572,11 +576,11 @@ export function MSPCreateOfferDialog({
 
               <div>
                 <h2 className="text-xl font-bold text-foreground">{offerName}</h2>
-                <p className="text-[12px] text-muted-foreground mt-1">Til: {customerContactName}</p>
+                <p className="text-sm text-muted-foreground mt-1">Til: {customerContactName}</p>
               </div>
 
               {message.trim() && (
-                <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{message.trim()}</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{message.trim()}</p>
               )}
 
               <div className="space-y-1.5">
@@ -588,7 +592,7 @@ export function MSPCreateOfferDialog({
                 {tasks.map((t, i) => {
                   const hrs = Number(t.hours) || 0;
                   return (
-                    <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-[13px] py-1 border-b border-border/50">
+                    <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-sm py-1.5 border-b border-border/50">
                       <div>
                         <p className="text-foreground">{t.label}</p>
                         {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
@@ -602,23 +606,24 @@ export function MSPCreateOfferDialog({
 
               <div className="flex items-baseline justify-between pt-2">
                 {discountPercent > 0 ? (
-                  <div className="text-[12px] text-muted-foreground">
+                  <div className="text-sm text-muted-foreground">
                     <div>Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</div>
                     <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
                   </div>
                 ) : (
-                  <span className="text-[12px] text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                  <span className="text-sm text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
                 )}
                 <span className="text-base font-bold text-foreground tabular-nums">
                   {totalHours} t · {totalPrice.toLocaleString("nb-NO")} kr
                 </span>
               </div>
 
+
               {safeCoveredControls.length > 0 && (
                 <div className="pt-3 border-t border-border space-y-2">
                   <div className="flex items-baseline justify-between">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekker kontrollpunkter</p>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {totalControlPoints} totalt · {safeCoveredControls.length} regelverk
                     </span>
                   </div>
@@ -628,41 +633,41 @@ export function MSPCreateOfferDialog({
                       return (
                         <div key={group.frameworkId} className="space-y-1.5">
                           <div className="flex items-center gap-2">
-                            <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-semibold border", theme.chip)}>
+                            <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
                               {group.frameworkLabel}
                             </span>
-                            <span className="text-[11px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
                             </span>
                           </div>
-                          <ul className="space-y-1.5 pl-1">
+                          <ul className="space-y-2 pl-1">
                             {group.controlIds.map(id => {
                               const related = getRelatedControls(group.frameworkId, id);
                               const visible = related.slice(0, 3);
                               const extra = related.length - visible.length;
                               return (
-                                <li key={id} className="text-[12px] text-foreground/85 space-y-1">
+                                <li key={id} className="text-sm text-foreground space-y-1">
                                   <div className="flex gap-2">
-                                    <span className="font-mono text-muted-foreground shrink-0">{id}</span>
+                                    <span className="font-mono text-xs text-foreground shrink-0 pt-0.5">{id}</span>
                                     <span>— {getControlLabel(group.frameworkId, id)}</span>
                                   </div>
                                   {related.length > 0 && (
                                     <div className="flex flex-wrap items-center gap-1 pl-1">
-                                      <Link2 className="h-3 w-3 text-muted-foreground" />
-                                      <span className="text-[10.5px] text-muted-foreground mr-1">Også:</span>
+                                      <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <span className="text-xs text-muted-foreground mr-1">Også:</span>
                                       {visible.map(r => {
                                         const t = getFrameworkTheme(r.frameworkId);
                                         return (
                                           <span
                                             key={`${r.frameworkId}-${r.controlId}`}
-                                            className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-[10.5px] font-medium border", t.chip)}
+                                            className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
                                           >
                                             {r.frameworkLabel} {r.controlId}
                                           </span>
                                         );
                                       })}
                                       {extra > 0 && (
-                                        <span className="text-[10.5px] text-muted-foreground">+{extra}</span>
+                                        <span className="text-xs text-muted-foreground">+{extra}</span>
                                       )}
                                     </div>
                                   )}
@@ -682,12 +687,13 @@ export function MSPCreateOfferDialog({
               {attachGap && gapFrameworkId && (
                 <div className="pt-3 border-t border-border">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1.5">Vedlegg</p>
-                  <div className="flex items-center gap-2 text-[12px] text-foreground">
+                  <div className="flex items-center gap-2 text-sm text-foreground">
                     <FileText className="h-3.5 w-3.5 text-primary" />
                     Gap-analyse {gapFrameworkId.toUpperCase()} · {gapCount} gap dokumentert
                   </div>
                 </div>
               )}
+
 
               <p className="text-xs text-muted-foreground pt-4 border-t border-border">
                 {effectivePartnerName}{effectiveOrgNumber ? ` · Org.nr ${effectiveOrgNumber}` : ""} · Tilbud {offerNumber} · {todayLabel}
@@ -704,7 +710,7 @@ export function MSPCreateOfferDialog({
               </div>
               <div className="space-y-1">
                 <h3 className="text-base font-semibold text-foreground">Tilbudet er lagret</h3>
-                <p className="text-[13px] text-muted-foreground max-w-sm">
+                <p className="text-sm text-muted-foreground max-w-sm">
                   <span className="font-medium text-foreground">{offerNumber}</span> · {offerName} ·{" "}
                   <span className="tabular-nums">{totalPrice.toLocaleString("nb-NO")} kr</span>
                   {savedAt && <> · lagret {savedAt}</>}
@@ -716,25 +722,26 @@ export function MSPCreateOfferDialog({
               <div className="flex items-start gap-3 p-3">
                 <Inbox className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-foreground">Lagret på kundekortet</p>
-                  <p className="text-[12px] text-muted-foreground">Du finner det igjen under <span className="text-foreground font-medium">Tilbud</span>-fanen på {customerContactName}.</p>
+                  <p className="text-sm font-medium text-foreground">Lagret på kundekortet</p>
+                  <p className="text-sm text-muted-foreground">Du finner det igjen under <span className="text-foreground font-medium">Tilbud</span>-fanen på {customerContactName}.</p>
                 </div>
                 <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-xs shrink-0">Utkast</Badge>
               </div>
               <div className="flex items-start gap-3 p-3">
                 <ClipboardList className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-foreground">Aktivitet opprettet for Lara</p>
-                  <p className="text-[12px] text-muted-foreground">Lara følger opp status og minner deg på oppfølging etter 7 dager.</p>
+                  <p className="text-sm font-medium text-foreground">Aktivitet opprettet for Lara</p>
+                  <p className="text-sm text-muted-foreground">Lara følger opp status og minner deg på oppfølging etter 7 dager.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3">
                 <Send className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-foreground">Ikke sendt til kunden ennå</p>
-                  <p className="text-[12px] text-muted-foreground">Last ned PDF og send fra ditt eget tilbudssystem når du er klar.</p>
+                  <p className="text-sm font-medium text-foreground">Ikke sendt til kunden ennå</p>
+                  <p className="text-sm text-muted-foreground">Last ned PDF og send fra ditt eget tilbudssystem når du er klar.</p>
                 </div>
               </div>
+
             </div>
           </div>
         )}
