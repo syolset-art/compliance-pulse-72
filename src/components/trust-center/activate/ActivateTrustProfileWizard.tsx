@@ -1359,15 +1359,6 @@ function VisibilityStep({
         );
       })}
 
-      <div className="rounded-xl border border-[hsl(var(--mynder-blue))]/20 bg-[hsl(var(--mynder-blue))]/5 p-3 text-xs leading-relaxed text-foreground/80">
-        <p>
-          <strong className="text-foreground">Vi anbefaler Mynder-økosystem</strong> som synlighet ved aktivering — da blir profilen umiddelbart tilgjengelig for kunder, partnere og leverandører i nettverket, uten å være åpen for søkemotorer.
-        </p>
-        <p className="mt-1.5 text-muted-foreground">
-          Du kan når som helst publisere profilen <strong className="text-foreground">offentlig</strong> fra Trust Profile-siden etter aktivering.
-        </p>
-      </div>
-
     </div>
   );
 }
