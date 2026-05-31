@@ -59,6 +59,10 @@ interface Props {
   initialDomain?: string;
   /** Existing maturity answers from prior work in Regelverk module. Merged over Lara defaults. */
   initialMaturity?: MaturityAnswers;
+  /** When true, the wizard auto-advances through every step with calm pauses
+   *  so the activation flow can be recorded as a demo. Manual clicks still
+   *  work and timers are cancelled on unmount or step change. */
+  autoPlay?: boolean;
 }
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
