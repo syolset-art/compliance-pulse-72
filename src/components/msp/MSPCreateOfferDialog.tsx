@@ -294,7 +294,7 @@ export function MSPCreateOfferDialog({
     y += 28;
 
     // Lukker mangler fra gap-analysen (ny, gap-drevet visning)
-    if (coveredGaps && selectedCount > 0) {
+    if (showGapsInOffer && coveredGaps && selectedCount > 0) {
       doc.setFontSize(10);
       doc.setTextColor(120);
       doc.text("LUKKER MANGLER FRA GAP-ANALYSEN", margin, y);
