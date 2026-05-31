@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   ArrowRight,
 } from "lucide-react";
+import { ServiceFlowDiagram } from "./ServiceFlowDiagram";
 
 interface Props {
   onNavigate?: (tab: "catalog" | "settings") => void;
