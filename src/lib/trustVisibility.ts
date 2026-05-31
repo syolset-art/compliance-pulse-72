@@ -1,9 +1,9 @@
 import { Lock, Globe2, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-export type TrustVisibility = "private" | "ecosystem" | "public";
+export type TrustVisibility = "ecosystem" | "public";
 
-export const DEFAULT_VISIBILITY: TrustVisibility = "private";
+export const DEFAULT_VISIBILITY: TrustVisibility = "ecosystem";
 
 type Meta = {
   level: TrustVisibility;
