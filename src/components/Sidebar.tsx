@@ -491,10 +491,8 @@ const SidebarContent = () => {
         </div>
       </div>
 
-      {/* Workspace switcher (Min virksomhet ↔ Partner) */}
-      <div className="border-b border-sidebar-border/60">
-        <WorkspaceSwitcher />
-      </div>
+      {/* Workspace switcher moved to TopBar (top-right) */}
+
 
       {/* Navigation */}
       {workspaceMode === "partner" ? (
