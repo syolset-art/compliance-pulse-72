@@ -377,12 +377,8 @@ export function CustomServiceDialog({
                               {s.controlLabel}
                             </span>
                           </div>
-                          {s.matchedTerms.length > 0 && (
-                            <div className="text-xs text-muted-foreground mt-0.5">
-                              Treff: {s.matchedTerms.join(", ")}
-                            </div>
-                          )}
                         </div>
+
                       </label>
                     </li>
                   );
