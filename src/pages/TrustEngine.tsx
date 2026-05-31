@@ -42,7 +42,7 @@ export default function TrustEngine() {
         .from("assets")
         .select("*")
         .eq("asset_type", "self")
-        .neq("publish_mode", "private")
+        .in("publish_mode", ["ecosystem", "public"])
         .not("publish_mode", "is", null)
         .order("name");
       if (query) {
