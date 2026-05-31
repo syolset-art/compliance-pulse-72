@@ -122,8 +122,8 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
                 <div className={`h-9 w-9 rounded-md flex items-center justify-center ${toneClass}`}>
                   <Icon className="h-4 w-4" />
                 </div>
-                <h4 className="text-sm font-semibold text-foreground">{o.title}</h4>
-                <p className="text-[12px] text-muted-foreground leading-relaxed">{o.body}</p>
+                <h4 className="text-base font-semibold text-foreground">{o.title}</h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">{o.body}</p>
               </Card>
             );
           })}
