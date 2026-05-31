@@ -335,6 +335,19 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
         <ScrollArea className="flex-1 -mx-1 px-1">
           {step === 1 && (
             <Step1
+              focus={focus}
+              setFocus={(f) => {
+                setFocus(f);
+                // når brukeren bytter fokus, fjern segmenter som ikke hører hjemme
+                if (f) {
+                  const allowed = new Set(
+                    CAMPAIGN_SEGMENTS.filter((s) =>
+                      FOCUS_TO_CATEGORIES[f].includes(s.category),
+                    ).map((s) => s.id),
+                  );
+                  setSelectedSegments((prev) => prev.filter((id) => allowed.has(id)));
+                }
+              }}
               selected={selectedSegments}
               onToggle={(id) =>
                 setSelectedSegments((prev) =>
@@ -343,7 +356,7 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
               }
               combine={combine}
               setCombine={setCombine}
-              matches={segmentMatches}
+              split={segmentSplit}
               overrides={manualOverrides}
               setOverride={(id, on) =>
                 setManualOverrides((prev) => ({ ...prev, [id]: on }))
