@@ -635,11 +635,7 @@ export default function ActivateTrustProfileWizard({
       ) : (
         <Button
           onClick={() => handlePublish()}
-          disabled={
-            isPublishing ||
-            partnerStatus === null ||
-            (partnerStatus === "yes" && !partnerName.trim())
-          }
+          disabled={isPublishing}
 
           className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white"
         >
