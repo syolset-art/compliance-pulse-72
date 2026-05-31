@@ -869,7 +869,7 @@ function WebsiteChoice({
 }) {
   return (
     <div className="space-y-2">
-      <Label>Har du en hjemmeside?</Label>
+      <Label>Oppgi hjemmeside</Label>
       <div className="flex gap-2">
         <Button
           type="button"
@@ -879,7 +879,7 @@ function WebsiteChoice({
           disabled={disabled}
           onClick={() => setHasWebsite("yes")}
         >
-          <Globe className="h-3.5 w-3.5" /> Ja
+          <Globe className="h-3.5 w-3.5" /> Ja, har hjemmeside
         </Button>
         <Button
           type="button"
@@ -889,7 +889,7 @@ function WebsiteChoice({
           disabled={disabled}
           onClick={() => setHasWebsite("no")}
         >
-          Nei, jeg har ingen hjemmeside
+          Har ikke hjemmeside
         </Button>
       </div>
       {hasWebsite === "no" && (
