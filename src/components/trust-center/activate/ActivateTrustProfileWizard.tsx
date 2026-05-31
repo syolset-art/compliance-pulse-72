@@ -11,8 +11,9 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
   CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb, Info,
-  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil,
+  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil, Plus, Trash2,
 } from "lucide-react";
+
 import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
 import { getLaraScanForDomain, SCAN_STEPS_MS, type LaraScanResult } from "@/lib/demoTrustActivation";
