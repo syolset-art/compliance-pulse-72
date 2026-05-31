@@ -22,7 +22,7 @@ export interface EvidenceFileMeta {
   uploadedAt: string;
 }
 
-export type ActivityStatus = "in_progress" | "not_relevant" | "done";
+export type ActivityStatus = "not_started" | "in_progress" | "not_relevant" | "done";
 
 export interface ConfirmPayload {
   note: string;
