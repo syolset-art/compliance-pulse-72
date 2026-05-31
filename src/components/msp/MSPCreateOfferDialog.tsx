@@ -16,6 +16,7 @@ import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { getRelatedControls } from "@/lib/controlCrosswalk";
 import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL, type GapItem } from "@/lib/gapData";
+import { getControlLabel } from "@/lib/serviceControlLabels";
 import { Link2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -316,26 +317,14 @@ export function MSPCreateOfferDialog({
       });
       y += 10;
     } else if (safeCoveredControls.length > 0) {
-      // Bakoverkompatibel statisk visning
       doc.setFontSize(10);
-      doc.setTextColor(120);
-      doc.text("DEKKER KONTROLLPUNKTER", margin, y);
-      y += 14;
+      doc.setTextColor(100);
       safeCoveredControls.forEach(group => {
-        if (y > 760) { doc.addPage(); y = margin; }
-        doc.setFontSize(11);
-        doc.setTextColor(20);
-        doc.text(`${group.frameworkLabel} · ${group.controlIds.length} kontrollpunkt${group.controlIds.length === 1 ? "" : "er"}`, margin, y);
-        y += 14;
-        doc.setFontSize(10);
-        doc.setTextColor(60);
-        group.controlIds.forEach(id => {
-          if (y > 780) { doc.addPage(); y = margin; }
-          const lines = doc.splitTextToSize(`• ${id}`, pageWidth - margin * 2);
-          doc.text(lines, margin + 8, y);
-          y += lines.length * 12;
-        });
-        y += 8;
+        if (y > 780) { doc.addPage(); y = margin; }
+        const items = group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ");
+        const lines = doc.splitTextToSize(`Dekker ${group.frameworkLabel}: ${items}`, pageWidth - margin * 2);
+        doc.text(lines, margin, y);
+        y += lines.length * 12;
       });
       y += 6;
     }
@@ -648,34 +637,12 @@ export function MSPCreateOfferDialog({
 
             {/* Bakoverkompatibel: gammel statisk visning når coveredGaps ikke er satt */}
             {!coveredGaps && safeCoveredControls.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-                  Dekker kontrollpunkter
-                </Label>
-                <div className="rounded-md border border-border p-3 space-y-2">
-                  {safeCoveredControls.map(group => {
-                    const theme = getFrameworkTheme(group.frameworkId);
-                    return (
-                      <div key={group.frameworkId} className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                            {group.frameworkLabel}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-1 pl-1">
-                          {group.controlIds.map(id => (
-                            <span key={id} className="font-mono text-xs text-foreground bg-muted/50 rounded px-1.5 py-0.5">
-                              {id}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+              <div className="space-y-1">
+                {safeCoveredControls.map(group => (
+                  <p key={group.frameworkId} className="text-xs text-muted-foreground">
+                    Dekker {group.frameworkLabel}: {group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ")}
+                  </p>
+                ))}
               </div>
             )}
 
@@ -854,23 +821,12 @@ export function MSPCreateOfferDialog({
               )}
 
               {!coveredGaps && safeCoveredControls.length > 0 && (
-                <div className="pt-3 border-t border-border space-y-2">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekker kontrollpunkter</p>
-                  {safeCoveredControls.map(group => {
-                    const theme = getFrameworkTheme(group.frameworkId);
-                    return (
-                      <div key={group.frameworkId} className="space-y-1">
-                        <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                          {group.frameworkLabel}
-                        </span>
-                        <div className="flex flex-wrap gap-1">
-                          {group.controlIds.map(id => (
-                            <span key={id} className="font-mono text-xs text-foreground bg-muted/50 rounded px-1.5 py-0.5">{id}</span>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="pt-3 border-t border-border space-y-1">
+                  {safeCoveredControls.map(group => (
+                    <p key={group.frameworkId} className="text-xs text-muted-foreground">
+                      Dekker {group.frameworkLabel}: {group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ")}
+                    </p>
+                  ))}
                 </div>
               )}
 
