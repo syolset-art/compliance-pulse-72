@@ -383,7 +383,12 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     );
   }
 
-  const trustScore = evaluation?.trustScore ?? 0;
+  // Når Trust-profilen er aktivert har brukeren gått gjennom wizard og bekreftet
+  // grunnleggende kontroller (Lara-skann, kontakter, dokumenter, policyer).
+  // Modenhet skal da minst ligge på "medium" (≥ 50%) selv om enkelte felter
+  // i metadata ennå ikke er manuelt utfylt.
+  const rawTrustScore = evaluation?.trustScore ?? 0;
+  const trustScore = isActivated ? Math.max(rawTrustScore, 52) : rawTrustScore;
   const risks = evaluation?.risks ?? [];
   const highRisks = risks.filter(r => r.severity === "high");
 
