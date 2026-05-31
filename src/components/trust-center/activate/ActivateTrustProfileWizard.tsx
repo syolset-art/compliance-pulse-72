@@ -89,6 +89,7 @@ const MAX_CRITICAL_VENDORS = 5;
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline, conversation,
   initialCompanyName, initialOrgNumber, initialDomain, initialMaturity,
+  autoPlay,
 }: Props) {
   const queryClient = useQueryClient();
   // When we already know the customer (logged-in), skip Welcome and start at Organisasjon.
