@@ -395,11 +395,12 @@ const TrustCenterEditProfile = () => {
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                   {([
                                     { value: "implemented", labelNb: "Ja", labelEn: "Yes", icon: CheckCircle2, activeClass: "bg-success/10 text-success border-success/30" },
                                     { value: "partial", labelNb: "Delvis", labelEn: "Partial", icon: AlertTriangle, activeClass: "bg-warning/10 text-warning border-warning/30" },
                                     { value: "missing", labelNb: "Nei", labelEn: "No", icon: Shield, activeClass: "bg-destructive/10 text-destructive border-destructive/30" },
+                                    { value: "not_applicable", labelNb: "Ikke relevant", labelEn: "Not applicable", icon: MinusCircle, activeClass: "bg-muted text-muted-foreground border-border" },
                                   ] as const).map(opt => {
                                     const isActive = currentStatus === opt.value;
                                     return (
@@ -407,7 +408,10 @@ const TrustCenterEditProfile = () => {
                                         key={opt.value}
                                         onClick={async () => {
                                           const metaKey = control.key;
-                                          const metaValue = opt.value === "implemented" ? "yes" : opt.value === "partial" ? "partial" : "no";
+                                          const metaValue =
+                                            opt.value === "implemented" ? "yes" :
+                                            opt.value === "partial" ? "partial" :
+                                            opt.value === "not_applicable" ? "n_a" : "no";
                                           const currentMeta = (asset?.metadata || {}) as Record<string, any>;
                                           const newMeta = { ...currentMeta, [metaKey]: metaValue };
                                           await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset!.id);
