@@ -74,16 +74,6 @@ export function TopBar() {
     window.location.reload();
   };
 
-  const { data: inboxCount = 0 } = useQuery({
-    queryKey: ["lara-inbox-total"],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from("lara_inbox")
-        .select("id", { count: "exact", head: true })
-        .in("status", ["new", "auto_matched"]);
-      return count || 0;
-    },
-  });
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
