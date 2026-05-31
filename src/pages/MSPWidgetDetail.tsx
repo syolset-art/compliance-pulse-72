@@ -249,7 +249,7 @@ function WidgetBody({ id }: { id: string }) {
               </div>
             </Card>
           </Section>
-          <Section title="Claims per segment">
+          <Section title="Aktiverte kunder per segment">
             <Card className="p-5">
               <div className="h-[240px]">
                 <ResponsiveContainer width="100%" height="100%">
