@@ -1,51 +1,83 @@
-# Forenkle "Kritiske leverandører"-steget
+## Mål
 
-Steget skal stille færre og mer presise spørsmål per leverandør — uten å gå ned i felter eller systemer. Autosuggest mot porteføljen/Mynder-katalogen beholdes (skjult kartlegging for brukeren).
+Førstegangs-aktivering skal være en mild introduksjon til hvilke felt vi spør om — ikke et fullstendig redigeringsverktøy. Brukeren skal kunne gå gjennom uten å lese mye, og finpusse alt i **Rediger profil** etterpå.
 
-## Ny struktur per leverandørkort
+Prinsipp: **én ting per steg, kort tekst, ingen tips-bokser.**
 
-1. **Navn på leverandør** — beholdes som i dag (autosuggest mot `VENDOR_CATALOG` + portefølje).
-2. **Hva gjør de for dere?** — én kort setning eller kategori.
-   - Inputfelt (én linje) med placeholder `f.eks. "Skylagring", "HR-system", "Fakturering"`.
-   - Når en kjent leverandør er valgt, foreslås `knownVendor.category` som ferdig forslag-chip brukeren kan trykke for å fylle inn (men kan overstyres fritt).
-3. **Behandler de personopplysninger på dine vegne?** — `Ja` / `Nei` (segmentert knapperad).
-   - Hvis **Ja**: vis sekundærspørsmål **"Hvilken kategori?"** med chips (multi-select):
-     - `Ansattdata`, `Kundedata`, `Pasientdata`, `Annet`
-   - Hvis **Nei**: skjul kategori-valget og hopp DPA-logikken til standardvisning.
-4. **Har dere en DPA med dem?** — `Ja` / `Nei` / `Vet ikke` (segmentert knapperad, beholdes).
-   - Spesialtilfellet for `dpaType === "standard"` (Microsoft, Google osv.) beholdes: vis info-boks om at standard DPA gjelder, og forhåndsvelg `Ja`.
-   - Hvis bruker svarte `Nei` på personopplysninger, vises DPA-feltet fortsatt, men med en liten hjelpetekst: *"DPA er normalt ikke påkrevd når leverandøren ikke behandler personopplysninger."*
+---
 
-## Det som fjernes
+## Endringer per steg
 
-- Hele "Hva har de tilgang til?"-blokken: chip-quickpicks (`accessQuickPicks`), valgte chips, og custom-tilgang-input.
-- Tilhørende state: `accessChips`, `customAccess`, `toggleChip`, `setAccessChips`, samt prefilling av `access` ved `selectVendor`.
+### Felles header (gjelder alle steg)
+- Behold steg-indikatoren (stepper med tall + label) — den er allerede ren.
+- Fjern den lange ingressen under tittelen. Erstatt med **én kort setning** per steg (maks ~10 ord).
+- Fjern det doble headeret (Lara-bobla + den store H2). Behold kun Lara-bobla med Lara-intro + en liten "Steg X av 7"-pill. Tittelen blir overflødig når Lara allerede sier det samme.
+- Fjern `Progress`-baren under headeren (steppern viser allerede progresjon).
 
-## Datamodell-endringer
+### Steg 1 — Organisasjon
+- Allerede ryddig når brukeren er innlogget (kort bekreftelseskort + nettside-spørsmål). Ingen endring.
 
-`CriticalVendorRow` (rundt linje 69) utvides/erstattes:
+### Steg 2 — Lara skanner
+- Ingen endring (auto-steg).
 
-```ts
-type CriticalVendorRow = {
-  name: string;
-  purpose: string;                // ny — "Skylagring", "HR-system", …
-  processesPersonalData: "yes" | "no" | null;  // ny
-  dataCategories: string[];       // ny — kun relevant når processesPersonalData === "yes"
-  dpa: "yes" | "no" | "unknown" | null;
-  // access fjernes
-};
-```
+### Steg 3 — Bekreft virksomhet  *(stor forenkling)*
+Nå: beskrivelse + 4 kontaktroller (hoved, DPO, sikkerhet, beredskap) med ekstra DPO/Kontakt-toggle og en stor lyspære-tips-boks.
 
-`EMPTY_VENDOR_ROW` oppdateres tilsvarende. Submit-mappingen (linje ~451) oppdateres til å sende de nye feltene videre, og demo-seed (`demoTrustActivation.ts` hvis den fyller `access`) får tilsvarende justering.
+Forenkles til **kun to felt**:
+1. Beskrivelse (Lara-utfylt)
+2. **Hovedkontakt** (navn + e-post)
 
-## Filer som endres
+Fjern fra aktivering:
+- DPO/Personvern-rad + DPO/Kontakt-toggle
+- Sikkerhetskontakt-rad
+- Beredskapsansvarlig-rad (navn/e-post/telefon)
+- Lyspære-tips-boksen om "mindre selskaper"
 
+Legg til én liten footnote (12px, muted): *"Du kan legge til personvern-, sikkerhets- og beredskapskontakter senere i Rediger profil."* DPO/sikkerhets-/beredskapsfelt i `ActivationValues` settes fortsatt (tomme strenger) så seedingen ikke knekker.
+
+### Steg 4 — Dokumenter
+- Behold listen, men fjern eventuelle ekstra info/tips-paneler. Legg til kort tekst: *"Valgfritt. Du kan også laste opp senere."*
+
+### Steg 5 — Kritiske leverandører
+- Behold leverandørradene.
+- **Fjern** upload/URL-blokken for samlet underleverandørliste fra aktivering (flyttes til Rediger profil). State + analyse-koden beholdes, men UI-blokken rendres ikke i veiviseren.
+- Reduser intro-tekst til én linje.
+
+### Steg 6 — Modenhet  *(stor forenkling)*
+Nå: stor info-boks + alle 15 spørsmål synlige på én side, 4 områder utbrettet.
+
+Endres til:
+- Fjern den store Lara-info-boksen øverst. Erstatt med én linje: *"Lara har svart for deg. Bekreft eller juster."*
+- Vis hvert av de 4 områdene som en **kollapsbar Card** (Governance, Operations, Privacy, Third-party). Standard: alle kollapsert, med en liten oppsummering per område (f.eks. "5 spørsmål · 3 bekreftet av Lara").
+- Bruk eksisterende `Card` + en enkel `button` med chevron som toggle (ingen ny avhengighet). Spørsmålene under er uendret.
+- Fjern Tips/Regelverk-paragrafene inni info-boksen.
+
+### Steg 7 — Synlighet  *(forenkling)*
+Nå: PartnerSelectionBlock + Visibility på samme steg.
+
+Endres til:
+- **Fjern PartnerSelectionBlock fra aktivering**. Behold koden og state; partner kan settes i Rediger profil. (Hvis `partnerStatus === "auto"` fra auto-deteksjonen, bevar den stille i state — den seedes uten å vise blokk.)
+- Fjern krav i `disabled`-logikken på Fullfør-knappen om at `partnerStatus !== null`.
+- Steget viser kun synlighetsvalg + den korte forklaringen.
+
+---
+
+## Tekniske detaljer
+
+Filer som endres:
 - `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx`
-  - `CriticalVendorRow`-typen + `EMPTY_VENDOR_ROW`
-  - `VendorRowCard`-komponenten (linje 1513–1712): bytt ut access-blokken med formål + personopplysninger + kategori
-  - Submit-mappingen for `criticalVendors`
-- `src/lib/demoTrustActivation.ts` — hvis seed-data inneholder `access`-felt, oppdateres til `purpose` + `processesPersonalData` + `dataCategories` så demo-flyten fortsatt fungerer.
+  - `header`-blokken (linje 511–550): fjern H2 + ingress + Progress, behold bare en liten steg-pill.
+  - `ConfirmStep` (linje 1083–1174): fjern rader for `privacy`, `security`, `incident`; fjern lyspære-boks; legg til footnote-tekst.
+  - `MaturityStep` (linje 1260–1379): erstatt info-boks med én linje; pakk hvert område i kollapsbar Card med lokal `useState` for åpen/lukket per område.
+  - `CriticalVendorsStep` (linje 1390+): fjern subprocessor upload/URL-UI-seksjonen (behold props/state inntakt).
+  - Steg 7-blokken (linje 622–650): fjern `PartnerSelectionBlock`-render.
+  - `handlePublish` (linje 408+): fjern partner-disabled-krav i footer (linje 678–681).
+  - `STEP_LABELS` og `STEP_LABELS` kan beholdes uendret — antall steg er det samme.
 
-## Validering/Fortsett-knapp
+Ingen endringer i:
+- `seedFromActivation` / `ActivationValues`-typen (alle felter fortsatt sendt, bare tomme der UI er fjernet)
+- `CriticalVendorsSection` / `CompanyInfoForm` i Rediger profil (de viser allerede disse feltene)
+- Modenhet-datastruktur eller Lara-skanningslogikk
 
-`Fortsett` aktiveres når minst én rad har `name` utfylt (samme regel som i dag). Ingen av de nye feltene er påkrevd — de er hjelpeinformasjon.
+## Validering
+Etter implementering: åpne aktiveringen, gå gjennom alle steg, verifiser at steg 3, 6 og 7 er merkbart kortere og at Fullfør fungerer uten å fylle ut partner.
