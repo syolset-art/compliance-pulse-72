@@ -105,8 +105,8 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
       {/* Outcomes */}
       <div className="space-y-3">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Slik berikes kundens trust profile</h3>
-          <p className="text-xs text-muted-foreground">
+          <h3 className="text-base font-semibold text-foreground">Slik berikes kundens trust profile</h3>
+          <p className="text-sm text-muted-foreground">
             Når du leverer, oppdateres kundens trust profile automatisk.
           </p>
         </div>
