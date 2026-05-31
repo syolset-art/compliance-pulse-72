@@ -116,6 +116,13 @@ export default function ActivateTrustProfileWizard({
 
   // Step 5: critical vendors
   const [criticalVendors, setCriticalVendors] = useState<CriticalVendorRow[]>([{ ...EMPTY_VENDOR_ROW }]);
+  // Step 5: optional aggregated subprocessor list (upload or URL)
+  const [subprocessorList, setSubprocessorList] = useState<{
+    source: "upload" | "url" | "none";
+    file?: File | null;
+    fileName?: string;
+    url?: string;
+  }>({ source: "none" });
 
   // Step 6: documents
   const [documents, setDocuments] = useState<ActivationDocument[]>([]);
