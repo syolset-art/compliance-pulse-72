@@ -473,7 +473,7 @@ export function MSPServiceCatalogTab() {
             hourlyRate={hourlyRate}
           />
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground italic">
+            <p className="text-sm text-muted-foreground italic">
               Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
             </p>
             {FRAMEWORK_CATALOG.map((fw) => (
