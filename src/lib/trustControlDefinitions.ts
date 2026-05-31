@@ -250,10 +250,12 @@ export function getTypeSpecificControls(assetType: string): TrustControlDefiniti
  * Calculate trust score from evaluated controls.
  */
 export function calculateTrustScore(controls: EvaluatedControl[]): number {
-  if (controls.length === 0) return 0;
-  const totalWeight = controls.reduce((s, c) => s + c.weight, 0);
+  // Exclude "not_applicable" — they don't count for or against the score.
+  const scored = controls.filter((c) => c.status !== "not_applicable");
+  if (scored.length === 0) return 0;
+  const totalWeight = scored.reduce((s, c) => s + c.weight, 0);
   if (totalWeight === 0) return 0;
-  const earned = controls.reduce((s, c) => {
+  const earned = scored.reduce((s, c) => {
     const factor = c.status === "implemented" ? 1 : c.status === "partial" ? 0.5 : 0;
     return s + c.weight * factor;
   }, 0);
@@ -265,12 +267,13 @@ export function calculateTrustScore(controls: EvaluatedControl[]): number {
  * Returns percentages relative to total controls (so they sum to trustScore).
  */
 export function calculateScoreBySource(controls: EvaluatedControl[]): { baselinePercent: number; enrichmentPercent: number } {
-  if (controls.length === 0) return { baselinePercent: 0, enrichmentPercent: 0 };
-  const totalWeight = controls.reduce((s, c) => s + c.weight, 0);
+  const scored = controls.filter((c) => c.status !== "not_applicable");
+  if (scored.length === 0) return { baselinePercent: 0, enrichmentPercent: 0 };
+  const totalWeight = scored.reduce((s, c) => s + c.weight, 0);
   if (totalWeight === 0) return { baselinePercent: 0, enrichmentPercent: 0 };
   let baselineEarned = 0;
   let enrichmentEarned = 0;
-  for (const c of controls) {
+  for (const c of scored) {
     const factor = c.status === "implemented" ? 1 : c.status === "partial" ? 0.5 : 0;
     if (factor === 0) continue;
     if (c.source === "vendor_baseline") {
@@ -289,7 +292,7 @@ export function calculateScoreBySource(controls: EvaluatedControl[]): { baseline
  * Calculate confidence score based on verification levels.
  */
 export function calculateConfidenceScore(controls: EvaluatedControl[]): number {
-  const implemented = controls.filter((c) => c.status !== "missing");
+  const implemented = controls.filter((c) => c.status !== "missing" && c.status !== "not_applicable");
   if (implemented.length === 0) return 0;
   const totalPossible = implemented.length;
   const earned = implemented.reduce((s, c) => {
