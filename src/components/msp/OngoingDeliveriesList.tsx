@@ -542,7 +542,7 @@ export const OngoingDeliveriesList = ({
             note: confirmCtxResolved.a.note,
             files: confirmCtxResolved.a.evidence,
             sharedWithCustomer: confirmCtxResolved.a.sharedWithCustomer,
-            status: getStatus(confirmCtxResolved.a),
+            status: confirmCtx.intendedStatus ?? getStatus(confirmCtxResolved.a),
           }}
           onConfirm={(payload) =>
             onConfirm(
