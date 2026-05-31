@@ -63,7 +63,7 @@ interface Props {
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 const TOTAL_STEPS = 7;
-const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Kritiske leverandører", "Dokumenter", "Synlighet"];
+const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Dokumenter", "Kritiske leverandører", "Modenhet", "Synlighet"];
 
 export type CriticalVendorRow = {
   name: string;
