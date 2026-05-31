@@ -69,12 +69,12 @@ export function PartnerBrandingCard() {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm font-semibold text-foreground truncate">Tilbudsmerking</h3>
-              <Badge variant="outline" className="text-xs gap-1 bg-primary/10 text-primary border-primary/30">
-                <Sparkles className="h-2.5 w-2.5" /> Auto-fylt fra trust-profil
+              <h3 className="text-base font-semibold text-foreground truncate">Tilbudsmerking</h3>
+              <Badge variant="outline" className="text-sm gap-1 bg-primary/10 text-primary border-primary/30">
+                <Sparkles className="h-3 w-3" /> Auto-fylt fra trust-profil
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground truncate">
+            <p className="text-sm text-muted-foreground truncate">
               {branding.name || "Mangler navn"}
               {branding.orgNumber ? ` · Org.nr ${branding.orgNumber}` : ""}
               {branding.domain ? ` · ${branding.domain}` : ""}
@@ -87,14 +87,14 @@ export function PartnerBrandingCard() {
       {expanded && (
         <div className="grid gap-4 md:grid-cols-[1fr_280px] pt-2 border-t border-border">
           <div className="space-y-3">
-            <p className="text-[12px] text-muted-foreground">
+            <p className="text-base text-muted-foreground">
               Navn, organisasjonsnummer, webadresse og logo hentes automatisk fra organisasjonsprofilen din.
               Du kan overstyre per felt under, eller{" "}
               <Link to="/settings" className="text-primary hover:underline">oppdatere profilen</Link>.
             </p>
 
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
                 Partnernavn
               </Label>
               <div className="flex gap-2">
@@ -102,16 +102,16 @@ export function PartnerBrandingCard() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={branding.autoName || "Fyll inn i organisasjonsprofilen"}
-                  className="h-9 text-sm"
+                  className="h-9 text-base"
                 />
                 {!branding.isAutoName && (
-                  <Button type="button" variant="ghost" size="sm" className="h-9 text-xs gap-1"
+                  <Button type="button" variant="ghost" size="sm" className="h-9 text-sm gap-1"
                     onClick={() => { clearField("name"); setName(""); toast.success("Tilbakestilt til auto"); }}>
                     <RotateCcw className="h-3 w-3" /> Auto
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {branding.isAutoName
                   ? (branding.autoName
                       ? "Hentet automatisk fra organisasjonsprofilen."
@@ -121,7 +121,7 @@ export function PartnerBrandingCard() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
                 Organisasjonsnummer
               </Label>
               <div className="flex gap-2">
@@ -129,16 +129,16 @@ export function PartnerBrandingCard() {
                   value={orgNumber}
                   onChange={(e) => setOrgNumber(e.target.value)}
                   placeholder={branding.autoOrgNumber || "999 999 999"}
-                  className="h-9 text-sm tabular-nums"
+                  className="h-9 text-base tabular-nums"
                 />
                 {!branding.isAutoOrg && (
-                  <Button type="button" variant="ghost" size="sm" className="h-9 text-xs gap-1"
+                  <Button type="button" variant="ghost" size="sm" className="h-9 text-sm gap-1"
                     onClick={() => { clearField("orgNumber"); setOrgNumber(""); toast.success("Tilbakestilt til auto"); }}>
                     <RotateCcw className="h-3 w-3" /> Auto
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {branding.isAutoOrg
                   ? (branding.autoOrgNumber ? "Hentet automatisk fra organisasjonsprofilen." : "Mangler — fyll inn i organisasjonsprofilen.")
                   : "Overstyrt manuelt."}
@@ -146,7 +146,7 @@ export function PartnerBrandingCard() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
                 Webadresse
               </Label>
               <div className="flex gap-2">
@@ -154,16 +154,16 @@ export function PartnerBrandingCard() {
                   value={domain}
                   onChange={(e) => setDomain(e.target.value)}
                   placeholder={branding.autoDomain || "f.eks. firma.no"}
-                  className="h-9 text-sm"
+                  className="h-9 text-base"
                 />
                 {!branding.isAutoDomain && (
-                  <Button type="button" variant="ghost" size="sm" className="h-9 text-xs gap-1"
+                  <Button type="button" variant="ghost" size="sm" className="h-9 text-sm gap-1"
                     onClick={() => { clearField("domain"); setDomain(""); toast.success("Tilbakestilt til auto"); }}>
                     <RotateCcw className="h-3 w-3" /> Auto
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {branding.isAutoDomain
                   ? (branding.autoDomain ? "Hentet automatisk fra organisasjonsprofilen." : "Valgfritt — kan fylles inn i organisasjonsprofilen.")
                   : "Overstyrt manuelt."}
@@ -171,21 +171,21 @@ export function PartnerBrandingCard() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
                 Slagord <span className="text-muted-foreground/70 normal-case">(valgfritt)</span>
               </Label>
               <Input
                 value={tagline}
                 onChange={(e) => setTagline(e.target.value)}
                 placeholder="F.eks. Din partner for trygg digitalisering"
-                className="h-9 text-sm"
+                className="h-9 text-base"
                 maxLength={80}
               />
-              <p className="text-xs text-muted-foreground">Vises under partnernavnet i tilbudet.</p>
+              <p className="text-sm text-muted-foreground">Vises under partnernavnet i tilbudet.</p>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Logo</Label>
+              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">Logo</Label>
               <div className="flex flex-wrap gap-2">
                 <input
                   ref={fileRef}
@@ -198,7 +198,7 @@ export function PartnerBrandingCard() {
                     e.target.value = "";
                   }}
                 />
-                <Button type="button" variant="outline" size="sm" className="h-9 text-xs gap-1.5"
+                <Button type="button" variant="outline" size="sm" className="h-9 text-sm gap-1.5"
                   onClick={() => fileRef.current?.click()}>
                   <Upload className="h-3.5 w-3.5" />
                   {branding.isAutoLogo
@@ -206,13 +206,13 @@ export function PartnerBrandingCard() {
                     : "Bytt logo"}
                 </Button>
                 {!branding.isAutoLogo && (
-                  <Button type="button" variant="ghost" size="sm" className="h-9 text-xs gap-1"
+                  <Button type="button" variant="ghost" size="sm" className="h-9 text-sm gap-1"
                     onClick={() => { clearField("logoDataUrl"); toast.success("Tilbakestilt til auto"); }}>
                     <RotateCcw className="h-3 w-3" /> Auto
                   </Button>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {branding.isAutoLogo
                   ? (branding.autoLogoUrl
                       ? "Bruker logo fra organisasjonsprofilen. Last opp en egen hvis du vil ha noe annet i tilbudet."
@@ -222,7 +222,7 @@ export function PartnerBrandingCard() {
             </div>
 
             <div className="pt-1">
-              <Button type="button" size="sm" className="h-9 text-xs" onClick={handleSave}>
+              <Button type="button" size="sm" className="h-9 text-sm" onClick={handleSave}>
                 Lagre tilbudsmerking
               </Button>
             </div>
@@ -230,7 +230,7 @@ export function PartnerBrandingCard() {
 
           {/* Mini-preview */}
           <div className="space-y-1.5">
-            <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+            <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
               Slik vises det i tilbudet
             </Label>
             <div className="rounded-md border border-border bg-background p-4 shadow-sm">
@@ -244,27 +244,27 @@ export function PartnerBrandingCard() {
                     </div>
                   )}
                   <div className="min-w-0">
-                    <p className="text-[12px] font-semibold text-foreground truncate">
+                    <p className="text-sm font-semibold text-foreground truncate">
                       {previewName || "Mangler navn"}
                     </p>
                     {previewTagline && (
-                      <p className="text-xs text-muted-foreground italic truncate">
+                      <p className="text-sm text-muted-foreground italic truncate">
                         {previewTagline}
                       </p>
                     )}
                     {previewOrg && (
-                      <p className="text-xs text-muted-foreground tabular-nums">
+                      <p className="text-sm text-muted-foreground tabular-nums">
                         Org.nr {previewOrg}
                       </p>
                     )}
                     {previewDomain && (
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-sm text-muted-foreground truncate">
                         {previewDomain}
                       </p>
                     )}
                   </div>
                 </div>
-                <div className="text-right text-xs text-muted-foreground">
+                <div className="text-right text-sm text-muted-foreground">
                   <div>Tilbud T-2026-1234</div>
                   <div>{new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" })}</div>
                 </div>
