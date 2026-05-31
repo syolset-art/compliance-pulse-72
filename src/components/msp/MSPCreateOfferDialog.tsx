@@ -576,11 +576,11 @@ export function MSPCreateOfferDialog({
 
               <div>
                 <h2 className="text-xl font-bold text-foreground">{offerName}</h2>
-                <p className="text-[12px] text-muted-foreground mt-1">Til: {customerContactName}</p>
+                <p className="text-sm text-muted-foreground mt-1">Til: {customerContactName}</p>
               </div>
 
               {message.trim() && (
-                <p className="text-[13px] text-foreground leading-relaxed whitespace-pre-wrap">{message.trim()}</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{message.trim()}</p>
               )}
 
               <div className="space-y-1.5">
@@ -592,7 +592,7 @@ export function MSPCreateOfferDialog({
                 {tasks.map((t, i) => {
                   const hrs = Number(t.hours) || 0;
                   return (
-                    <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-[13px] py-1 border-b border-border/50">
+                    <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-sm py-1.5 border-b border-border/50">
                       <div>
                         <p className="text-foreground">{t.label}</p>
                         {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
@@ -606,17 +606,18 @@ export function MSPCreateOfferDialog({
 
               <div className="flex items-baseline justify-between pt-2">
                 {discountPercent > 0 ? (
-                  <div className="text-[12px] text-muted-foreground">
+                  <div className="text-sm text-muted-foreground">
                     <div>Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</div>
                     <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
                   </div>
                 ) : (
-                  <span className="text-[12px] text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                  <span className="text-sm text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
                 )}
                 <span className="text-base font-bold text-foreground tabular-nums">
                   {totalHours} t · {totalPrice.toLocaleString("nb-NO")} kr
                 </span>
               </div>
+
 
               {safeCoveredControls.length > 0 && (
                 <div className="pt-3 border-t border-border space-y-2">
