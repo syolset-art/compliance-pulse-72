@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
   CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb, Info,
-  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil, Plus, Trash2,
+  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil, Plus, Trash2, ChevronDown, ChevronUp,
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -508,44 +508,20 @@ export default function ActivateTrustProfileWizard({
     onOpenChange(false);
   };
 
+  const stepHint =
+    step === 1 ? "Bekreft hvor du jobber." :
+    step === 2 ? "Lara henter offentlig informasjon." :
+    step === 3 ? "Bekreft kort om virksomheten." :
+    step === 4 ? "Valgfritt — last opp om du har." :
+    step === 5 ? "Hvem har tilgang til dine viktigste systemer?" :
+    step === 6 ? "Bekreft eller juster Laras svar." :
+    step === 7 ? "Hvem skal kunne se profilen?" : "";
+
   const header = (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <ShieldCheck className="h-4 w-4 text-primary" />
-        </div>
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-          Aktiver Trust Profile · Steg {step} av {TOTAL_STEPS}
-        </span>
-        {hasOrgPrefill && step === 1 && (
-          <Badge variant="outline" className="ml-auto text-[10px] gap-1 border-primary/30 text-primary">
-            <CheckCircle2 className="h-3 w-3" /> Innlogget som {companyName}
-          </Badge>
-        )}
-      </div>
-      <h2 className="text-xl font-semibold">
-        {step === 1 && (hasOrgPrefill
-          ? "Bekreft hjemmesiden din"
-          : "Bekreft organisasjonen din")}
-        {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
-        {step === 3 && "Bekreft og juster informasjonen"}
-        {step === 4 && "Last opp dokumenter"}
-        {step === 5 && "Kritiske leverandører"}
-        {step === 6 && "Modenhet — bekreft det Lara fant"}
-        {step === 7 && "Hvem skal se din Trust Profile?"}
-      </h2>
-      <p className="text-sm text-muted-foreground">
-        {step === 1 && (hasOrgPrefill
-          ? "Vi har allerede selskapsnavn, organisasjonsnummer og land. For å fortsette trenger Lara hjemmesiden din."
-          : "Søk opp selskapet ditt i Brønnøysundregistrene — velg riktig treff, så fyller vi inn org.nr automatisk.")}
-        {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
-        {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
-        {step === 4 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
-        {step === 5 && "Hvilke leverandører har tilgang til dine viktigste systemer eller data? Legg til inntil 5 — dette gir oss et bilde av hvor dine viktigste data faktisk ligger."}
-        {step === 6 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
-        {step === 7 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
-      </p>
-      <Progress value={((step - 1) / (TOTAL_STEPS - 1)) * 100} className="h-1" />
+    <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <span className="text-primary">Steg {step}</span>
+      <span>·</span>
+      <span>{stepHint}</span>
     </div>
   );
 
@@ -619,34 +595,19 @@ export default function ActivateTrustProfileWizard({
         <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
       {step === 7 && !isCalculating && (
-        <div className="space-y-6">
-          <PartnerSelectionBlock
-            status={partnerStatus}
-            setStatus={setPartnerStatus}
-            name={partnerName}
-            setName={setPartnerName}
-            companyId={partnerCompanyId}
-            setCompanyId={setPartnerCompanyId}
-            partnerType={partnerType}
-            setPartnerType={setPartnerType}
-            showOnProfile={showPartnerOnProfile}
-            setShowOnProfile={setShowPartnerOnProfile}
-            additionalPartners={additionalPartners}
-            setAdditionalPartners={setAdditionalPartners}
+        <div className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Profilen er privat som standard. Andre Mynder-brukere kan finne deg og be om tilgang — du godkjenner hver forespørsel.
+          </p>
+          <VisibilityStep
+            visibility={visibility}
+            setVisibility={setVisibility}
+            publicAcknowledged={publicAcknowledged}
+            setPublicAcknowledged={setPublicAcknowledged}
           />
-
-          <div className="border-t border-border pt-4">
-            <h3 className="text-sm font-semibold">Hvem skal se Trust Profilen?</h3>
-            <p className="text-xs text-muted-foreground mt-1 mb-3">
-              Profilen er privat som standard. Andre Mynder-brukere kan finne deg og be om tilgang — du godkjenner hver forespørsel.
-            </p>
-            <VisibilityStep
-              visibility={visibility}
-              setVisibility={setVisibility}
-              publicAcknowledged={publicAcknowledged}
-              setPublicAcknowledged={setPublicAcknowledged}
-            />
-          </div>
+          <p className="text-[11px] text-muted-foreground pt-2 border-t border-border">
+            Partner-relasjon kan legges til senere i Rediger profil.
+          </p>
         </div>
       )}
       {step === 7 && isCalculating && (
@@ -674,11 +635,7 @@ export default function ActivateTrustProfileWizard({
       ) : (
         <Button
           onClick={() => handlePublish()}
-          disabled={
-            isPublishing ||
-            partnerStatus === null ||
-            (partnerStatus === "yes" && !partnerName.trim())
-          }
+          disabled={isPublishing}
 
           className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white"
         >
@@ -1111,63 +1068,23 @@ function ConfirmStep(props: any) {
         </div>
       </FieldGroup>
 
-      <FieldGroup icon={Users} title="Kontakter">
-        <div className="space-y-4">
-          {[
-            { key: "main", label: "Hovedkontakt", sub: "Avtaler og DPA-er", name: props.contactName, setName: props.setContactName, email: props.contactEmail, setEmail: props.setContactEmail, emailPh: "kontakt@firma.no", source: sources.primary, extra: null as React.ReactNode, phone: undefined as string | undefined, setPhone: undefined as ((v: string) => void) | undefined },
-            {
-              key: "privacy", label: "Personvern / DPO", sub: "GDPR og personvernspørsmål",
-              name: props.dpoName, setName: props.setDpoName, email: props.dpoEmail, setEmail: props.setDpoEmail, emailPh: "personvern@firma.no",
-              source: sources.dpo,
-              extra: (
-                <div className="space-y-1.5 mt-1">
-                  <div className="inline-flex rounded-full border border-border bg-muted/40 p-0.5 text-[11px]">
-                    <button type="button" onClick={() => props.setDpoType("dpo")} className={`px-2.5 py-0.5 rounded-full transition ${props.dpoType === "dpo" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}>DPO</button>
-                    <button type="button" onClick={() => props.setDpoType("contact")} className={`px-2.5 py-0.5 rounded-full transition ${props.dpoType === "contact" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground"}`}>Kontakt</button>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground leading-tight">DPO = formelt utnevnt og uavhengig</p>
-                </div>
-              ),
-              phone: undefined,
-              setPhone: undefined,
-            },
-            { key: "security", label: "Sikkerhetskontakt", sub: "Sårbarheter og varsler", name: props.securityName, setName: props.setSecurityName, email: props.securityEmail, setEmail: props.setSecurityEmail, emailPh: "sikkerhet@firma.no", source: sources.security, extra: null, phone: undefined, setPhone: undefined },
-            { key: "incident", label: "Beredskapsansvarlig", sub: "Leder håndteringen ved en hendelse — og kan nås døgnet rundt", name: props.incidentName, setName: props.setIncidentName, email: props.incidentEmail, setEmail: props.setIncidentEmail, emailPh: "beredskap@firma.no", source: null, extra: null, phone: props.incidentPhone, setPhone: props.setIncidentPhone },
-          ].map((row) => (
-            <div key={row.key} className="grid grid-cols-[180px_1fr_1fr] items-start gap-3">
-              <div className="pt-2">
-                <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-                  {row.label}
-                  {row.source && <Sparkles className="h-3 w-3 text-primary" />}
-                </div>
-                {row.sub && <div className="text-xs text-muted-foreground mt-0.5 leading-snug">{row.sub}</div>}
-                {row.extra}
-              </div>
-              <div className="space-y-1">
-                <Input value={row.name} onChange={(e) => row.setName(e.target.value)} placeholder="Navn" />
-                {row.setPhone && (
-                  <Input
-                    type="tel"
-                    value={row.phone ?? ""}
-                    onChange={(e) => row.setPhone!(e.target.value)}
-                    placeholder="Telefon (døgnet rundt)"
-                  />
-                )}
-              </div>
-              <div className="space-y-1">
-                <Input type="email" value={row.email} onChange={(e) => row.setEmail(e.target.value)} placeholder={row.emailPh} />
-                {row.source && <PrefilledHint source={row.source} />}
-              </div>
-            </div>
-          ))}
+      <FieldGroup icon={Users} title="Hovedkontakt">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label className="text-xs">Navn</Label>
+            <Input value={props.contactName} onChange={(e) => props.setContactName(e.target.value)} placeholder="Navn" />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs flex items-center gap-1.5">
+              E-post
+              {sources.primary && <Sparkles className="h-3 w-3 text-primary" />}
+            </Label>
+            <Input type="email" value={props.contactEmail} onChange={(e) => props.setContactEmail(e.target.value)} placeholder="kontakt@firma.no" />
+          </div>
         </div>
-
-        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
-          <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            <span className="font-semibold">For mindre selskaper</span> er det helt vanlig at samme person dekker flere roller — bruk gjerne samme e-post. <span className="font-semibold">DPO-pliktige virksomheter</span> må ha personvernombud som er uavhengig av daglig ledelse.
-          </p>
-        </div>
+        <p className="text-[11px] text-muted-foreground mt-2">
+          Du kan legge til personvern-, sikkerhets- og beredskapskontakter senere i Rediger profil.
+        </p>
       </FieldGroup>
     </div>
   );
@@ -1262,114 +1179,101 @@ function MaturityStep({ answers, sources, onChange }: {
   sources: Record<string, string>;
   onChange: (id: string, answer: MaturityAnswer) => void;
 }) {
-  const fromRegelverkCount = Object.values(sources).filter((s) => s?.includes("Regelverk")).length;
-  const laraPrefillIds = Object.keys(sources).filter((id) => !sources[id]?.includes("Regelverk"));
-  const laraYes = laraPrefillIds.filter((id) => answers[id] === "yes").length;
-  const laraNa = laraPrefillIds.filter((id) => answers[id] === "n_a").length;
+  const [openAreas, setOpenAreas] = useState<Record<string, boolean>>({});
+  const toggleArea = (id: string) => setOpenAreas((prev) => ({ ...prev, [id]: !prev[id] }));
+
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-3">
-        <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
-          <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <div className="space-y-1.5">
-            {fromRegelverkCount > 0 ? (
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Lara har hentet data fra <span className="font-medium">Regelverk</span> og fylt ut svarene under. Du kan velge å fortsette å oppdatere i Regelverk før du deler eller publiserer — det <span className="font-medium">må ikke fullføres nå</span>.
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Lara har svart på <span className="font-medium">{laraYes + laraNa}</span> spørsmål basert på sikre kilder fra kartleggingen
-                {laraYes > 0 && <> — <span className="font-medium">{laraYes}</span> bekreftet</>}
-                {laraNa > 0 && <>, <span className="font-medium">{laraNa}</span> markert som ikke aktuelt</>}.
-                Du kan overstyre alle svar. Resten er satt til «Senere» — fyll inn det du vet.
-              </p>
-            )}
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <span className="font-medium">Tips:</span> Du kan fortsette å heve modenheten din når som helst under <span className="font-medium">Regelverk</span> i menyen — der jobber du systematisk med kontroller per rammeverk, og endringene speiles automatisk her på Trust Profile.
-            </p>
-          </div>
-        </div>
-
+        <p className="text-xs text-muted-foreground">
+          Lara har svart for deg. Bekreft eller juster.
+        </p>
 
         {MATURITY_AREAS.map((area) => {
           const Icon = area.icon;
+          const isOpen = openAreas[area.id] ?? false;
+          const total = area.questions.length;
+          const laraAnswered = area.questions.filter(
+            (q) => sources[q.id] && !sources[q.id]?.includes("Regelverk") && (answers[q.id] === "yes" || answers[q.id] === "n_a"),
+          ).length;
           return (
-            <Card key={area.id} className="p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Icon className="h-4 w-4 text-primary" />
-                <div>
+            <Card key={area.id} className="overflow-hidden">
+              <button
+                type="button"
+                onClick={() => toggleArea(area.id)}
+                className="w-full flex items-center gap-3 p-4 hover:bg-muted/30 transition text-left"
+              >
+                <Icon className="h-4 w-4 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-semibold leading-tight">{area.title}</h4>
-                  <p className="text-[11px] text-muted-foreground">{area.subtitle}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {total} spørsmål{laraAnswered > 0 ? ` · ${laraAnswered} bekreftet av Lara` : ""}
+                  </p>
                 </div>
-              </div>
-              <div className="space-y-2">
-                {area.questions.map((q) => {
-                  const val = answers[q.id] ?? "later";
-                  const laraSrc = sources[q.id];
-                  return (
-                    <div key={q.id} className="flex items-start gap-3 py-1.5 border-t border-border first:border-t-0 first:pt-0">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start gap-1.5">
-                          <p className="text-sm text-foreground leading-snug">{q.text}</p>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button type="button" className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0">
-                                <Info className="h-3.5 w-3.5" />
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs text-xs">
-                              GDPR {q.article}
-                            </TooltipContent>
-                          </Tooltip>
+                {isOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-2 border-t border-border">
+                  {area.questions.map((q) => {
+                    const val = answers[q.id] ?? "later";
+                    const laraSrc = sources[q.id];
+                    return (
+                      <div key={q.id} className="flex items-start gap-3 py-1.5 border-t border-border first:border-t-0 first:pt-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start gap-1.5">
+                            <p className="text-sm text-foreground leading-snug">{q.text}</p>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button type="button" className="mt-0.5 text-muted-foreground hover:text-foreground shrink-0">
+                                  <Info className="h-3.5 w-3.5" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs text-xs">
+                                GDPR {q.article}
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                          {laraSrc && !laraSrc.includes("Regelverk") && (val === "yes" || val === "n_a") && (
+                            <span className={`inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                              val === "n_a" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary"
+                            }`}>
+                              <Sparkles className="h-2.5 w-2.5" />
+                              {val === "n_a" ? "Lara: ikke aktuelt" : "Svart av Lara"}
+                            </span>
+                          )}
                         </div>
-                        {laraSrc && !laraSrc.includes("Regelverk") && (val === "yes" || val === "n_a") && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className={`inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium cursor-help ${
-                                val === "n_a" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary"
-                              }`}>
-                                <Sparkles className="h-2.5 w-2.5" />
-                                {val === "n_a" ? "Lara: ikke aktuelt (sikker kilde)" : "Svart av Lara (sikker kilde)"}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom" className="max-w-xs text-xs">
-                              {laraSrc} · Du kan overstyre svaret.
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-
+                        <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 shrink-0">
+                          {[
+                            { v: "yes" as const, label: "Ja" },
+                            { v: "no" as const, label: "Nei" },
+                            { v: "n_a" as const, label: "Ikke aktuelt" },
+                            { v: "later" as const, label: "Senere" },
+                          ].map((opt) => {
+                            const active = val === opt.v;
+                            return (
+                              <button
+                                key={opt.v}
+                                type="button"
+                                onClick={() => onChange(q.id, opt.v)}
+                                className={`px-2.5 py-1 rounded text-xs font-medium transition ${
+                                  active
+                                    ? opt.v === "yes" ? "bg-success text-success-foreground"
+                                    : opt.v === "no" ? "bg-destructive text-destructive-foreground"
+                                    : opt.v === "n_a" ? "bg-muted text-muted-foreground border border-border"
+                                    : "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
+                                }`}
+                              >
+                                {opt.label}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 shrink-0">
-                        {[
-                          { v: "yes" as const, label: "Ja" },
-                          { v: "no" as const, label: "Nei" },
-                          { v: "n_a" as const, label: "Ikke aktuelt" },
-                          { v: "later" as const, label: "Senere" },
-                        ].map((opt) => {
-                          const active = val === opt.v;
-                          return (
-                            <button
-                              key={opt.v}
-                              type="button"
-                              onClick={() => onChange(q.id, opt.v)}
-                              className={`px-2.5 py-1 rounded text-xs font-medium transition ${
-                                active
-                                  ? opt.v === "yes" ? "bg-success text-success-foreground"
-                                  : opt.v === "no" ? "bg-destructive text-destructive-foreground"
-                                  : opt.v === "n_a" ? "bg-muted text-muted-foreground border border-border"
-                                  : "bg-background text-foreground shadow-sm"
-                                  : "text-muted-foreground hover:text-foreground"
-                              }`}
-                            >
-                              {opt.label}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </Card>
           );
         })}
@@ -1436,78 +1340,10 @@ function CriticalVendorsStep({ rows, onChange, subprocessorList, onSubprocessorC
         </Button>
       )}
 
-      {/* Aggregated subprocessor list — optional upload or public URL */}
-      <Card className="p-4 space-y-3 mt-2">
-        <div className="space-y-0.5">
-          <p className="text-sm font-semibold text-foreground">
-            Har du en samlet liste over alle underleverandører?
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Mange virksomheter har en åpen oversikt. Last opp listen eller lim inn lenken — så analyserer Lara den
-            og kobler hver leverandør mot Mynder-katalogen når du fullfører aktiveringen.
-          </p>
-        </div>
+      <p className="text-[11px] text-muted-foreground pt-1">
+        Samlet liste over alle underleverandører kan lastes opp senere i Rediger profil.
+      </p>
 
-        <div className="flex flex-wrap gap-1.5">
-          {([
-            { id: "upload", label: "Last opp liste", icon: FileUp },
-            { id: "url", label: "Lim inn lenke", icon: Link2 },
-            { id: "none", label: "Har ikke" },
-          ] as const).map((opt) => (
-            <Button
-              key={opt.id}
-              size="sm"
-              variant={subprocessorList.source === opt.id ? "default" : "outline"}
-              className="h-8 gap-1.5"
-              onClick={() => onSubprocessorChange({ source: opt.id })}
-            >
-              {"icon" in opt && opt.icon ? <opt.icon className="h-3.5 w-3.5" /> : null}
-              {opt.label}
-            </Button>
-          ))}
-        </div>
-
-        {subprocessorList.source === "upload" && (
-          <div className="space-y-1.5">
-            <label className="flex items-center gap-2 text-xs cursor-pointer rounded-md border border-dashed border-border bg-muted/30 px-3 py-2 hover:bg-muted/50 transition-colors">
-              <FileUp className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-muted-foreground">
-                {subprocessorList.fileName ?? "Velg CSV, XLSX eller PDF…"}
-              </span>
-              <input
-                type="file"
-                accept=".csv,.xlsx,.xls,.pdf,text/csv,application/pdf"
-                className="hidden"
-                onChange={(e) => onFile(e.target.files?.[0] ?? null)}
-              />
-            </label>
-            {subprocessorList.fileName && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 px-2 text-xs text-muted-foreground"
-                onClick={() => onSubprocessorChange({ source: "upload" })}
-              >
-                <X className="h-3 w-3 mr-1" /> Fjern fil
-              </Button>
-            )}
-          </div>
-        )}
-
-        {subprocessorList.source === "url" && (
-          <div className="space-y-1">
-            <Input
-              value={subprocessorList.url ?? ""}
-              onChange={(e) => onSubprocessorChange({ source: "url", url: e.target.value })}
-              placeholder="https://leverandor.no/subprocessors"
-              className="text-sm h-9"
-            />
-            <p className="text-[11px] text-muted-foreground">
-              Bruk dette hvis Lara ikke fant siden automatisk.
-            </p>
-          </div>
-        )}
-      </Card>
 
     </div>
   );
@@ -1734,13 +1570,10 @@ function DocumentsStep({ documents, onUpload }: {
   const getDoc = (slotId: string) => documents.find((d) => d.slot === slotId);
   return (
     <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">
+        Valgfritt. Du kan også laste opp senere.
+      </p>
 
-      <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
-        <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Last opp policyer som dekker hullene. Når du laster opp en <span className="font-semibold">DPA</span>, oppdaterer Lara automatisk svaret i Modenhet-steget. Alt er valgfritt — du kan komme tilbake senere.
-        </p>
-      </div>
 
       {DOCUMENT_SLOTS.map((slot) => {
         const doc = getDoc(slot.id);
@@ -1788,10 +1621,6 @@ function DocumentsStep({ documents, onUpload }: {
         );
       })}
 
-      <div className="flex items-start gap-2 text-xs text-muted-foreground p-3 rounded-md bg-muted/40">
-        <HelpCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-        <span>Mangler du dokumenter? Hopp over — du kan laste opp senere fra Trust Profile under «Dokumenter».</span>
-      </div>
     </div>
   );
 }
