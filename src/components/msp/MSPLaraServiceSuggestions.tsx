@@ -160,7 +160,7 @@ export function MSPLaraServiceSuggestions({
           return (
             <div key={s.id} className="relative">
               {isTop && (
-                <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-primary text-primary-foreground shadow-sm">
+                <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide bg-primary text-primary-foreground shadow-sm">
                   <Award className="h-2.5 w-2.5" />
                   Mest dekning
                 </span>

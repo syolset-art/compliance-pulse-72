@@ -249,7 +249,7 @@ function TemplateCard({
         {template.mappings.map((m, i) => (
           <span key={i} className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
             <span className="font-semibold text-foreground">{m.frameworkLabel}</span>
-            <span className="text-[9px]">{m.controlIds.slice(0, 2).join(", ")}{m.controlIds.length > 2 ? "…" : ""}</span>
+            <span className="text-xs">{m.controlIds.slice(0, 2).join(", ")}{m.controlIds.length > 2 ? "…" : ""}</span>
           </span>
         ))}
       </div>
