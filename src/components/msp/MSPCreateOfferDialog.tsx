@@ -127,6 +127,7 @@ export function MSPCreateOfferDialog({
     setTasks((defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })));
     setMessage(defaultMessage || "");
     setAttachGap(attachGapProp);
+    setShowGapsInOffer(true);
     setView(initialView);
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
