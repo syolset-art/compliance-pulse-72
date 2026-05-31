@@ -1,25 +1,51 @@
-## Bakgrunn
+# Forenkle "Kritiske leverandører"-steget
 
-På Trust Center-aktiveringsveiviseren (`ActivateTrustProfileWizard`) er det to feil i steg 1:
+Steget skal stille færre og mer presise spørsmål per leverandør — uten å gå ned i felter eller systemer. Autosuggest mot porteføljen/Mynder-katalogen beholdes (skjult kartlegging for brukeren).
 
-1. **Lara-meldingen er feil.** Toppen viser «Lara · Steg 1 av 7», men teksten under sier «Siste steg — hvem skal få se profilen?». Det skyldes at `laraIntro`-switchen mangler en case for steg 1, så fallback for steg 7 vises.
-2. **Selskapsnavnet er forhåndsutfylt og låst** til verdien fra demo-profilen («Dips Arena»). Feltet skal være tomt slik at brukeren selv skriver inn et navn, får treff fra Brreg, velger riktig organisasjon, og deretter får org.nr automatisk utfylt.
+## Ny struktur per leverandørkort
 
-## Endringer
+1. **Navn på leverandør** — beholdes som i dag (autosuggest mot `VENDOR_CATALOG` + portefølje).
+2. **Hva gjør de for dere?** — én kort setning eller kategori.
+   - Inputfelt (én linje) med placeholder `f.eks. "Skylagring", "HR-system", "Fakturering"`.
+   - Når en kjent leverandør er valgt, foreslås `knownVendor.category` som ferdig forslag-chip brukeren kan trykke for å fylle inn (men kan overstyres fritt).
+3. **Behandler de personopplysninger på dine vegne?** — `Ja` / `Nei` (segmentert knapperad).
+   - Hvis **Ja**: vis sekundærspørsmål **"Hvilken kategori?"** med chips (multi-select):
+     - `Ansattdata`, `Kundedata`, `Pasientdata`, `Annet`
+   - Hvis **Nei**: skjul kategori-valget og hopp DPA-logikken til standardvisning.
+4. **Har dere en DPA med dem?** — `Ja` / `Nei` / `Vet ikke` (segmentert knapperad, beholdes).
+   - Spesialtilfellet for `dpaType === "standard"` (Microsoft, Google osv.) beholdes: vis info-boks om at standard DPA gjelder, og forhåndsvelg `Ja`.
+   - Hvis bruker svarte `Nei` på personopplysninger, vises DPA-feltet fortsatt, men med en liten hjelpetekst: *"DPA er normalt ikke påkrevd når leverandøren ikke behandler personopplysninger."*
 
-### 1. `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx`
+## Det som fjernes
 
-**Lara-melding for steg 1:** Legg til eksplisitt steg 1-tekst i `laraIntro`-switchen (linje ~677–683), f.eks.:
-> «Hei! Jeg er Lara. La oss aktivere Trust Center-profilen din sammen — det tar bare et par minutter.»
+- Hele "Hva har de tilgang til?"-blokken: chip-quickpicks (`accessQuickPicks`), valgte chips, og custom-tilgang-input.
+- Tilhørende state: `accessChips`, `customAccess`, `toggleChip`, `setAccessChips`, samt prefilling av `access` ved `selectVendor`.
 
-**Selskapsnavn skal være valgbart fra Brreg:**
-- Når kun `initialCompanyName` finnes (org.nr mangler), skal feltet ikke være låst. Sett `companyNameLocked = false` i denne situasjonen slik at brukeren kan skrive et annet navn og søke på nytt mot Brreg.
-- Alternativt: ignorer `initialCompanyName` helt i steg 1 hvis `initialOrgNumber` ikke finnes, slik at feltet starter tomt og brukeren styrer hele flyten selv.
-- Beholder dagens oppførsel der både navn og org.nr er kjent (vises som «bekreftet organisasjon»-sammendrag).
-- Brreg-treffene rendres allerede som klikkbare kort (`pickRegistry`) som setter både navn og org.nr — denne logikken trenger ingen endring, bare at navnefeltet er redigerbart.
+## Datamodell-endringer
 
-### Akseptansekriterier
+`CriticalVendorRow` (rundt linje 69) utvides/erstattes:
 
-- Steg 1 viser en passende velkomst-/intro-tekst fra Lara, ikke «Siste steg»-teksten.
-- Selskapsnavn er tomt (eller redigerbart) ved start; brukeren skriver inn et navn, ser Brreg-treff, velger riktig organisasjon, og org.nr fylles inn automatisk.
-- Ingen andre steg eller funksjoner endres.
+```ts
+type CriticalVendorRow = {
+  name: string;
+  purpose: string;                // ny — "Skylagring", "HR-system", …
+  processesPersonalData: "yes" | "no" | null;  // ny
+  dataCategories: string[];       // ny — kun relevant når processesPersonalData === "yes"
+  dpa: "yes" | "no" | "unknown" | null;
+  // access fjernes
+};
+```
+
+`EMPTY_VENDOR_ROW` oppdateres tilsvarende. Submit-mappingen (linje ~451) oppdateres til å sende de nye feltene videre, og demo-seed (`demoTrustActivation.ts` hvis den fyller `access`) får tilsvarende justering.
+
+## Filer som endres
+
+- `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx`
+  - `CriticalVendorRow`-typen + `EMPTY_VENDOR_ROW`
+  - `VendorRowCard`-komponenten (linje 1513–1712): bytt ut access-blokken med formål + personopplysninger + kategori
+  - Submit-mappingen for `criticalVendors`
+- `src/lib/demoTrustActivation.ts` — hvis seed-data inneholder `access`-felt, oppdateres til `purpose` + `processesPersonalData` + `dataCategories` så demo-flyten fortsatt fungerer.
+
+## Validering/Fortsett-knapp
+
+`Fortsett` aktiveres når minst én rad har `name` utfylt (samme regel som i dag). Ingen av de nye feltene er påkrevd — de er hjelpeinformasjon.
