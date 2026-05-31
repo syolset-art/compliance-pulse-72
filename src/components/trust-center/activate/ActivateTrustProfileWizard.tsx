@@ -1012,44 +1012,38 @@ function WebsiteVerifyField({
 function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; revealed: number; progress: number; domain: string }) {
   const done = revealed >= scan.findings.length;
   const currentFinding = !done ? scan.findings[Math.min(revealed, scan.findings.length - 1)] : null;
+  const currentLabel = done
+    ? "Ferdig med kartleggingen"
+    : (currentFinding?.label ?? "Forbereder kartlegging");
 
   return (
-    <div className="space-y-3">
-      <Card className="p-3 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
-        <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-            {done ? <CheckCircle2 className="h-4 w-4 text-success" /> : <Loader2 className="h-4 w-4 text-primary animate-spin" />}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">
-              {done
-                ? "Lara er ferdig med kartleggingen"
-                : <>Lara kartlegger <span className="text-muted-foreground">{domain || "hjemmesiden"}</span>…</>}
-            </p>
-            <Progress value={progress} className="h-1 mt-1.5" />
-          </div>
+    <div className="py-10 flex flex-col items-center text-center space-y-5">
+      <div className="relative">
+        <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+          {done ? (
+            <CheckCircle2 className="h-7 w-7 text-success" />
+          ) : (
+            <Sparkles className="h-7 w-7 text-primary animate-pulse" />
+          )}
         </div>
-      </Card>
+        {!done && (
+          <Loader2 className="absolute -bottom-1 -right-1 h-5 w-5 text-primary animate-spin" />
+        )}
+      </div>
 
-      <div className="space-y-1.5">
-        {scan.findings.map((f, i) => {
-          const isRevealed = i < revealed;
-          const isCurrent = i === revealed && !done;
-          if (!isRevealed && !isCurrent) return null;
-          return (
-            <div
-              key={f.key}
-              className={`flex items-center gap-2 text-xs px-1 transition-opacity duration-300 ${isCurrent ? "text-foreground" : "text-muted-foreground"}`}
-            >
-              {isCurrent ? (
-                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shrink-0" />
-              ) : (
-                <CheckCircle2 className="h-3 w-3 text-success shrink-0" />
-              )}
-              <span className="truncate">{f.label}</span>
-            </div>
-          );
-        })}
+      <div className="space-y-1 max-w-sm">
+        <p className="text-sm font-semibold">
+          {done
+            ? "Lara er ferdig med kartleggingen"
+            : <>Lara kartlegger <span className="text-muted-foreground">{domain || "hjemmesiden"}</span>…</>}
+        </p>
+        <p className="text-xs text-muted-foreground min-h-[1rem] transition-opacity duration-300" key={currentLabel}>
+          {currentLabel}
+        </p>
+      </div>
+
+      <div className="w-full max-w-sm">
+        <Progress value={progress} className="h-1.5" />
       </div>
     </div>
   );
