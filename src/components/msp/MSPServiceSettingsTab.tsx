@@ -77,8 +77,8 @@ export function MSPServiceSettingsTab() {
             <Clock className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-foreground">Standard timepris</h3>
-            <p className="text-xs text-muted-foreground">
+            <h3 className="text-base font-semibold text-foreground">Standard timepris</h3>
+            <p className="text-sm text-muted-foreground">
               Brukes som utgangspunkt for alle nye tjenester og tilbud. Du kan overstyre timeprisen pr tjeneste senere.
             </p>
           </div>
@@ -86,7 +86,7 @@ export function MSPServiceSettingsTab() {
 
         <div className="grid gap-3 md:grid-cols-[200px_1fr] md:items-end">
           <div className="space-y-1.5">
-            <Label htmlFor="default-hourly-rate" className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+            <Label htmlFor="default-hourly-rate" className="text-sm text-foreground font-medium">
               Timepris ({currencyOption.symbol})
             </Label>
             <div className="relative">
@@ -97,13 +97,13 @@ export function MSPServiceSettingsTab() {
                 step={50}
                 value={rate}
                 onChange={(e) => setRate(e.target.value)}
-                className="h-9 text-sm tabular-nums pr-14"
+                className="h-10 text-sm tabular-nums pr-14"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">{currencyOption.unitSuffix}</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{currencyOption.unitSuffix}</span>
             </div>
           </div>
           <div>
-            <Button type="button" size="sm" className="h-9 text-xs" onClick={handleSave}>
+            <Button type="button" size="sm" className="h-10 text-sm" onClick={handleSave}>
               Lagre standard timepris
             </Button>
           </div>
