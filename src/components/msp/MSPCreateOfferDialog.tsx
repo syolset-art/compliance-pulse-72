@@ -80,6 +80,7 @@ export function MSPCreateOfferDialog({
   attachGap: attachGapProp = true,
   gapFrameworkId,
   coveredControls,
+  coveredGaps,
   initialView = "edit",
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
@@ -87,8 +88,22 @@ export function MSPCreateOfferDialog({
   const effectiveOrgNumber = partnerOrgNumber ?? branding.orgNumber;
   const effectiveLogo = partnerLogoDataUrl ?? branding.logoDataUrl ?? null;
 
+  // Bygg gap-snapshot: hent alle gap for regelverket, og forhåndsvelg de som matcher tjenestens kontroller.
+  const frameworkGap = coveredGaps ? getFrameworkGap(coveredGaps.frameworkId) : undefined;
+  const gapList: GapItem[] = frameworkGap?.gaps ?? [];
+  const defaultSelectedGapIds = useMemo(() => {
+    if (!coveredGaps) return [] as string[];
+    if (coveredGaps.preselectedGapIds && coveredGaps.preselectedGapIds.length > 0) {
+      return coveredGaps.preselectedGapIds;
+    }
+    if (coveredGaps.preselectedControlIds && coveredGaps.preselectedControlIds.length > 0) {
+      return getGapIdsForControls(coveredGaps.frameworkId, coveredGaps.preselectedControlIds);
+    }
+    return [];
+  }, [coveredGaps]);
+
+  // Fallback: gammel statisk visning når coveredGaps ikke er satt.
   const safeCoveredControls = (coveredControls ?? []).filter(g => g.controlIds.length > 0);
-  const totalControlPoints = safeCoveredControls.reduce((s, g) => s + g.controlIds.length, 0);
 
   const [tasks, setTasks] = useState<EditableTask[]>(
     (defaultTasks || []).map(t => ({ ...t, owner: t.owner ?? "Partner" })),
@@ -98,9 +113,13 @@ export function MSPCreateOfferDialog({
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [selectedGapIds, setSelectedGapIds] = useState<Set<string>>(new Set(defaultSelectedGapIds));
 
   const [editableHourlyRate, setEditableHourlyRate] = useState(hourlyRate);
   const [discountPercent, setDiscountPercent] = useState(0);
+
+  // Frys et øyeblikksbilde-dato når dialogen åpnes (vises i alle visninger + PDF).
+  const [snapshotDate, setSnapshotDate] = useState<Date>(() => new Date());
 
   useEffect(() => {
     if (!open) return;
@@ -111,6 +130,8 @@ export function MSPCreateOfferDialog({
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
     setDiscountPercent(0);
+    setSelectedGapIds(new Set(defaultSelectedGapIds));
+    setSnapshotDate(new Date());
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
