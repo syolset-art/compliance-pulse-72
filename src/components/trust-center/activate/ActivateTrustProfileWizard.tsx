@@ -367,9 +367,11 @@ export default function ActivateTrustProfileWizard({
             companyId: partnerCompanyId,
             type: partnerType,
             showOnProfile: showPartnerOnProfile,
+            additional: additionalPartners.filter((p) => p.name.trim().length > 0),
           }
         : undefined,
     };
+
     try {
       await seedFromActivation(values);
       try { localStorage.setItem("mynder.trustprofile.activated", "1"); } catch {}
