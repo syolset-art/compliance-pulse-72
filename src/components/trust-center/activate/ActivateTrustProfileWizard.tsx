@@ -918,7 +918,7 @@ function OrgStep({
       {verified && (
         <div className="flex items-center gap-2 text-xs text-success">
           <CheckCircle2 className="h-4 w-4" />
-          Verifisert mot Brønnøysundregistrene
+          Selskapsdata hentet
         </div>
       )}
     </div>
