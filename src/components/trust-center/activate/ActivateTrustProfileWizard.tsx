@@ -551,7 +551,7 @@ export default function ActivateTrustProfileWizard({
           searchResults={searchResults}
           onSearch={handleSearchName}
           onPick={pickRegistry}
-          companyNameLocked={hasPrefill}
+          companyNameLocked={hasOrgPrefill}
           orgPrefilled={hasOrgPrefill}
           hasWebsite={hasWebsite}
           setHasWebsite={(v: "yes" | "no") => {
