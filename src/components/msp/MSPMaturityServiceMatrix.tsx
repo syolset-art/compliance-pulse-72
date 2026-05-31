@@ -792,7 +792,7 @@ export function MSPMaturityServiceMatrix({
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 text-xs gap-1.5 text-primary hover:bg-primary/10"
+                          className="h-8 text-xs gap-1.5 text-primary hover:bg-primary hover:text-primary-foreground"
                           onClick={() => openGap(r.frameworkId)}
                         >
                           <FileText className="h-3.5 w-3.5" />
