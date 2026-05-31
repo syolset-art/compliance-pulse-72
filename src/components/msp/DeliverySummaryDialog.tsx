@@ -40,18 +40,20 @@ export const DeliverySummaryDialog = ({
   const allActivities = delivery.controls.flatMap((c) =>
     c.activities.map((a) => ({ control: c, activity: a })),
   );
+  const doneCount = allActivities.filter(
+    (x) => x.activity.status === "done" || x.activity.done,
+  ).length;
+  const notRelevantCount = allActivities.filter(
+    (x) => x.activity.status === "not_relevant",
+  ).length;
+  const closedControls = delivery.controls.filter((c) =>
+    c.activities.every((a) => a.status === "done" || a.done),
+  ).length;
   const evidenceCount = allActivities.reduce(
     (s, x) => s + (x.activity.evidence?.length ?? 0),
     0,
   );
-  const laraStepCount = allActivities.reduce(
-    (s, x) => s + (x.activity.laraSteps?.length ?? 0),
-    0,
-  );
-  const partnerStepCount = allActivities.reduce(
-    (s, x) => s + (x.activity.partnerSteps?.length ?? 0),
-    0,
-  );
+  const maturityDelta = Math.min(12, Math.max(4, closedControls * 3));
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,25 +64,17 @@ export const DeliverySummaryDialog = ({
             <DialogTitle>Gjennomgang før leveranserapport</DialogTitle>
           </div>
           <DialogDescription>
-            Bekreft at alt under er utført korrekt. Når du godkjenner, genererer
+            Bekreft at alle spørsmål i oppdraget er svart ut. Når du godkjenner, genererer
             Lara leveranserapporten og legger den klar for sending til kunde.
           </DialogDescription>
         </DialogHeader>
 
         {/* Sammendragstall */}
         <div className="grid grid-cols-4 gap-2 shrink-0">
-          <Stat value={delivery.controls.length} label="Kontrollpunkter" />
-          <Stat value={allActivities.length} label="Aktiviteter" />
-          <Stat
-            value={laraStepCount}
-            label="Steg utført av Lara"
-            tone="primary"
-          />
-          <Stat
-            value={partnerStepCount}
-            label="Steg utført manuelt"
-            tone="muted"
-          />
+          <Stat value={doneCount} label="Fullført" tone="success" />
+          <Stat value={notRelevantCount} label="Ikke aktuelt" />
+          <Stat value={closedControls} label="Kontrollpunkter lukket" tone="primary" />
+          <Stat value={`+${maturityDelta}%`} label="Modenhet økt" tone="primary" />
         </div>
 
         <ScrollArea className="flex-1 -mx-6 px-6">
