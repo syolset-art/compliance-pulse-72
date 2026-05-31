@@ -72,6 +72,8 @@ export function CustomServiceDialog({
   /** Mappings som ikke finnes blant Lara-forslag (f.eks. fra adopterte maler) — beholdes som-er. */
   const [extraMappings, setExtraMappings] = useState<ServiceMapping[]>([]);
   const [userTouchedMappings, setUserTouchedMappings] = useState(false);
+  const [usePriceOverride, setUsePriceOverride] = useState(false);
+  const [priceOverride, setPriceOverride] = useState<number>(0);
 
   // Prefill ved åpning
   useEffect(() => {
