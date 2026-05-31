@@ -170,7 +170,7 @@ export function MSPServiceCatalogTab() {
     }
     extras.forEach((e) => {
       h += e.hours;
-      p += e.hours * hourlyRate;
+      p += e.priceOverride ?? e.hours * hourlyRate;
     });
     return { grandHours: h, grandPrice: p, frameworksActive: n };
   }, [selections, hourlyRate, extras, showCalculator]);
