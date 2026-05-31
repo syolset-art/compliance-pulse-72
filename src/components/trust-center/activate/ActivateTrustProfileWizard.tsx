@@ -31,7 +31,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   findVendorSuggestions,
   findVendorByName,
-  GENERIC_ACCESS_OPTIONS,
   type VendorSuggestion,
 } from "@/lib/vendorCatalog";
 import {
