@@ -69,10 +69,7 @@ export function PartnerBrandingCard() {
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-base font-semibold text-foreground truncate">Tilbudsmerking</h3>
-              <Badge variant="outline" className="text-sm gap-1 bg-primary/10 text-primary border-primary/30">
-                <Sparkles className="h-3 w-3" /> Auto-fylt fra trust-profil
-              </Badge>
+              <h3 className="text-base font-semibold text-foreground truncate">Tilbudsmal</h3>
             </div>
             <p className="text-sm text-muted-foreground truncate">
               {branding.name || "Mangler navn"}
@@ -223,7 +220,7 @@ export function PartnerBrandingCard() {
 
             <div className="pt-1">
               <Button type="button" size="sm" className="h-9 text-sm" onClick={handleSave}>
-                Lagre tilbudsmerking
+                Lagre tilbudsmal
               </Button>
             </div>
           </div>
