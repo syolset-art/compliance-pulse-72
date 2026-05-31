@@ -1,95 +1,52 @@
-# Gap-drevne kontrollpunkter i tilbud
-
-## Problemet i dag
-
-Når partner klikker **Lag tilbud** på en anbefalt tjeneste, vises «Dekker kontrollpunkter» som en statisk liste fra tjenestekatalogen (`serviceCatalog.ts` → `frameworkMappings.controlIds`, f.eks. `NIS2 Art.21, Art.23, Art.20`). Den listen er løsrevet fra `MSPGapAnalysisDialog`, som har den faktiske kunde-spesifikke status: 9 åpne gap i NIS2 med tittel, domene, paragraf og kritikalitet.
-
-Resultat: kunden ser et tilbud som sier «dekker Art.20, Art.21, Art.23», men det fremgår ikke at det faktisk **lukker disse 5 konkrete manglene** Lara fant i gap-analysen.
+# Demo-modus: Auto-aktivering av Trust Profile
 
 ## Mål
+Gjør det enkelt å filme aktiveringen av Trust Profile: ett klikk → nullstilling → wizard spilles av med rolige pauser → publisert profil med modenhet over 40%.
 
-1. Tilbudets kontrollpunkter skal speile alle eller deler av manglene fra gap-analysen for det aktuelle regelverket.
-2. Partner skal kunne se og justere hvilke gap leveransen lukker — uten å forlate tilbudsdialogen.
-3. Gap-analysen vedlegges som et fryst øyeblikksbilde med dato (status da tilbudet ble laget), slik at kunden ser hva tilbudet bygger på selv om bildet endrer seg senere.
+## Trigger
+- **URL-parameter**: `/trust-center/profile?demo=activation` starter demoen.
+- **Knapp**: Liten "Spill av demo"-knapp på den låste landingen (`Din Trust Profile gjør deg klar`), kun synlig når URL-en *ikke* allerede har `?demo=activation`. Klikket navigerer til samme route med parameteren.
+- Vanlig oppførsel (uten parameter/knapp) er uendret — ingen risiko for produksjon.
 
-## Designgrep i tilbudsdialogen
+## Nullstilling
+Når demoen starter på `TrustCenterProfile`:
+1. Fjern `localStorage.mynder.trustprofile.activated` slik at låst landing vises et øyeblikk.
+2. Sett `publish_mode: "ecosystem"` på self-asset (avpubliser) og nullstill demo-metadata-felter som ble fylt under forrige aktivering (kontakter, MFA, kryptering, policy-flagg, mfl. — samme felter som `seedFromActivation` setter), slik at trustScore faller tilbake til "low".
+3. Invalider relevante queries (`self-asset-profile`, `asset-for-trust-eval`, `asset-docs-count`).
+4. Vis kort den låste landingen i ~1,2 s, så åpne wizarden i `autoPlay`-modus.
 
-Erstatt blokken «Dekker kontrollpunkter» med en gap-drevet blokk:
+Etter at demoen er ferdig fjernes `?demo=activation` fra URL-en med `replaceState` for ikke å re-trigge ved refresh.
 
-```text
-┌─ Lukker mangler fra gap-analysen ────────── 5 av 9 ▒▒▒▒▒░░░░ ─┐
-│ NIS2 · status per 31. mai 2026                                │
-│                                                               │
-│ ☑ ● Art.21(2)(a)  Ingen formell risikoanalyse av nett… [krit] │
-│ ☑ ● Art.20        Ledelsen ikke involvert i cyber…     [krit] │
-│ ☑ ● Art.23        Mangler hendelsesrapporteringsrutine [krit] │
-│ ☑ ◐ Art.21(2)(d)  Leverandørstyring ikke dokumentert   [vest] │
-│ ☑ ◐ Art.21(2)(j)  Tilgangskontroll uten MFA-policy     [vest] │
-│ ☐ ◐ Art.21(2)(c)  Kontinuitetsplan og backup…          [vest] │
-│ ☐ ◐ Art.21(2)(e)  Sårbarhetshåndtering…                [vest] │
-│ ☐ ○ Art.21(2)(h)  Kryptering ikke systematisk          [mind] │
-│ ☐ ○ Art.21(2)(g)  Awareness-trening                    [mind] │
-│                                                               │
-│ Også relevant: GDPR Art.32, ISO A.5.24  (cross-walk)         │
-│ Se hele gap-analysen →                                        │
-└───────────────────────────────────────────────────────────────┘
-```
+## Auto-play av wizarden (ca. 40 s totalt)
+Ny prop på `ActivateTrustProfileWizard`: `autoPlay?: boolean`.
 
-Detaljer:
-- **Severity-prikk** (rød/oransje/grå) gjenbruker `severityDot` fra gap-dialogen.
-- **Checkbox per rad** lar partner deselecte gap som leveransen ikke faktisk lukker. Standard: alle gap koblet til tjenestens `controlIds` er forhåndsavkrysset; resten kan hukes på manuelt.
-- **Progress-bar i header** («5 av 9») gjør koblingen visuell.
-- **«Status per 31. mai 2026»** signaliserer at dette er et øyeblikksbilde.
-- **Cross-walk-chipsene** fra forrige iterasjon flyttes til en samlerad under listen — slik at hvert gap-rad slipper å være overfylt.
-- **«Se hele gap-analysen →»** åpner `MSPGapAnalysisDialog` i lese-modus.
+Når `autoPlay = true` advancer wizarden seg selv etter at hvert steg er rendret, med pauser som gir tid til å lese:
 
-I forhåndsvisningen (paper-look) vises samme liste som ren oppsummering uten checkboxes, med samme «Status per [dato]»-stempel.
+| Steg | Handling | Pause |
+| --- | --- | --- |
+| 1 Organisasjon | Auto-utfyll firma/website hvis tomt, så klikk "Fortsett" | 4 s |
+| 2 Lara skanner | Bruker eksisterende auto-advance når `revealed === findings.length` (≈8 s med `SCAN_STEPS_MS`) | — |
+| 3 Bekreft | Behold prefylt beskrivelse, klikk "Til dokumenter" | 5 s |
+| 4 Dokumenter | Ingen opplastning, klikk "Til kritiske leverandører" | 4 s |
+| 5 Kritiske leverandører | Hopp over (tom rad), klikk "Til modenhet" | 4 s |
+| 6 Modenhet | Behold Laras forhåndsutfylte svar, klikk "Velg synlighet" | 6 s |
+| 7 Synlighet | Behold default, klikk "Publiser & aktiver" | 5 s |
 
-## Vedlegget «Gap-analyse»
+Implementasjon: `useEffect` per steg som setter en `setTimeout` ved mount og kaller wizardens eksisterende handlers (`next`, `handlePublish`/equivalent for steg 7). Timeoutene ryddes opp ved unmount/steg-skift. Knappene fungerer fortsatt manuelt — auto-play overstyrer ikke bruker-klikk.
 
-Eksisterende attachment-blokk får mer innhold:
-- Tittel: `Gap-analyse NIS2 · øyeblikksbilde 31. mai 2026`
-- Stat-rad: `9 gap · 3 kritiske · 4 vesentlige · 2 mindre`
-- Liste over alle gap (ikke bare de som er huket av), med markering av hvilke som lukkes av tilbudet (✓)
-- Genereres i PDF-en som et eget kapittel etter pristabellen
+## Modenhet over 40%
+- `seedFromActivation` setter allerede `mfa_org`, `encryption_org`, `documented_policies`, `incident_handling`, `access_control` osv. til "yes" basert på scan-resultatet — det gir reell trustScore ≈ 50–60%.
+- I tillegg sørger den eksisterende "aktivert"-fallback'en i `TrustCenterProfile.tsx` (gulv på 52% når aktivert) for at modenhet aldri vises lavere enn medium etter publisering.
 
-## Datamodell og dataflyt
+## Teknisk
+**Filer som endres:**
+- `src/pages/TrustCenterProfile.tsx` — lese `?demo=activation`, nullstillingsrutine, "Spill av demo"-knapp på låst landing, sende `autoPlay`-prop til wizarden.
+- `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx` — ny `autoPlay` prop, `useEffect` med per-steg-timere som kaller eksisterende `next()`/publiser-handler.
+- (Liten) ny helper i `src/lib/demoSeedTrustProfile.ts` for å nullstille demo-metadata, gjenbrukt av demoen.
 
-1. **Felles gap-kilde**: Flytt `DEMO_GAPS` ut av `MSPGapAnalysisDialog.tsx` til `src/lib/gapData.ts`. Eksporter `getGapsByFramework(frameworkId)` og `getGapsForControls(frameworkId, controlIds[])` (finner gap som matcher en kontrollreferanse).
+**Ingen endringer** i datamodell, RLS, edge functions eller andre sider.
 
-2. **Ny offer-prop**: Erstatt `coveredControls: CoveredControlGroup[]` med
-   ```ts
-   coveredGaps?: {
-     frameworkId: string;
-     frameworkLabel: string;
-     snapshotDate: string;       // ISO
-     totalGaps: number;
-     gaps: GapItem[];            // alle gap for regelverket
-     preselectedGapIds: string[]; // gap som tjenesten lukker (fra catalog mapping)
-   };
-   ```
-   Beholder bakoverkompatibilitet ved å la `MSPCreateOfferDialog` rendre den gamle visningen hvis kun `coveredControls` er gitt.
-
-3. **Call-sites**:
-   - `MSPMaturityServiceMatrix.tsx` (linje 775): bygg `coveredGaps` via `getGapsForControls(r.frameworkId, r.controlIds)`; preselect = gap-id-ene som returneres.
-   - `QuestionnaireDispatchCard.tsx` (linje 275): samme.
-
-4. **State i dialogen**: `selectedGapIds: Set<string>` initialiseres fra `preselectedGapIds`. Brukerens utvalg lagres på tilbudet (vises i preview + PDF).
-
-## Filer som endres
-
-- **Ny**: `src/lib/gapData.ts` — `DEMO_GAPS`, `GapItem`, `FrameworkGap`, helpers.
-- **Endres**: `src/components/msp/MSPGapAnalysisDialog.tsx` — importer fra gapData.
-- **Endres**: `src/components/msp/MSPCreateOfferDialog.tsx`
-  - Ny prop `coveredGaps`, state `selectedGapIds`.
-  - Erstatt nåværende «Dekker kontrollpunkter»-blokk med ny «Lukker mangler»-blokk (edit + preview).
-  - PDF-eksport: ny seksjon for gap-vedlegg når `attachGap`.
-  - Behold cross-walk-chipsene, men flytt til samlerad.
-- **Endres**: `src/components/msp/MSPMaturityServiceMatrix.tsx` — bygg `coveredGaps` i stedet for `coveredControls`.
-- **Endres**: `src/components/msp/QuestionnaireDispatchCard.tsx` — samme call-site-justering.
-
-## Utenfor scope
-
-- Ingen migrasjoner — alt drives av frontend-demo-data inntil videre.
-- Ingen endringer i selve gap-analyseflyten (Lara-prosessanimasjon, framework-collapser).
-- Ingen endring av kritikalitet/risiko-logikk.
+## Kvalitetssjekk
+- Verifisere at uten `?demo=activation` ser brukeren ingen forskjell.
+- Manuell test: `/trust-center/profile?demo=activation` → wizarden lander på publisert profil med trustScore ≥ 52% etter ~40 s uten manuell interaksjon.
+- Avbryt-test: lukker wizarden manuelt under auto-play stopper timerne.
