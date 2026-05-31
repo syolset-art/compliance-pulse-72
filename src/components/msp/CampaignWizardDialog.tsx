@@ -140,6 +140,7 @@ const KIND_OPTIONS: { id: CampaignKind; label: string; hint: string; icon: typeo
 
 export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [focus, setFocus] = useState<CampaignFocus | null>(null);
   const [selectedSegments, setSelectedSegments] = useState<string[]>([]);
   const [combine, setCombine] = useState<"and" | "or">("or");
   const [manualOverrides, setManualOverrides] = useState<Record<string, boolean>>({});
@@ -150,16 +151,18 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
 
-  const segmentMatches = useMemo(
-    () => applySegments(DEMO_CAMPAIGN_CUSTOMERS, selectedSegments, combine),
+  const segmentSplit = useMemo(
+    () => applySegmentsWithBaseline(DEMO_CAMPAIGN_CUSTOMERS, selectedSegments, combine),
     [selectedSegments, combine],
   );
 
-  // Recipients = segment matches minus manually unchecked
-  const recipients = useMemo(
-    () => segmentMatches.filter((c) => manualOverrides[c.id] !== false),
-    [segmentMatches, manualOverrides],
-  );
+  // Default: bare bekreftede treff er mottakere. Mulige (uten baseline) må aktivt
+  // hukes av brukeren via overrides[id] === true.
+  const recipients = useMemo(() => {
+    const confirmed = segmentSplit.confirmed.filter((c) => manualOverrides[c.id] !== false);
+    const optedIn = segmentSplit.possible.filter((c) => manualOverrides[c.id] === true);
+    return [...confirmed, ...optedIn];
+  }, [segmentSplit, manualOverrides]);
 
   const selectedService: PartnerService | undefined = useMemo(
     () => PARTNER_SERVICES.find((s) => s.id === serviceId),
@@ -168,6 +171,7 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
 
   const reset = () => {
     setStep(1);
+    setFocus(null);
     setSelectedSegments([]);
     setManualOverrides({});
     setName("");
