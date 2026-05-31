@@ -107,6 +107,21 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
   const status = deriveStatus(customer);
   const score = customer.compliance_score || 0;
 
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [accountManager, setAccountManager] = useState<string | null>(
+    customer.account_manager ?? getAccountManagerOverride(customer.id),
+  );
+  useEffect(() => {
+    setAccountManager(customer.account_manager ?? getAccountManagerOverride(customer.id));
+  }, [customer.id, customer.account_manager]);
+
+  const handleAssign = (name: string) => {
+    setAccountManagerOverride(customer.id, name);
+    setAccountManager(name);
+    setAssignOpen(false);
+    toast.success(`${name} er satt som ansvarlig`);
+  };
+
   const maturityLabel =
     status.key === "claimed" ? "godkjent av kunden" :
     status.key === "invited" ? "under onboarding" :
