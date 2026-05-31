@@ -1295,80 +1295,27 @@ function CriticalVendorsStep({ rows, onChange }: {
     onChange([...rows, { ...EMPTY_VENDOR_ROW }]);
   };
 
-  const dpaOptions: { value: "yes" | "no" | "unknown"; label: string }[] = [
-    { value: "yes", label: "Ja" },
-    { value: "no", label: "Nei" },
-    { value: "unknown", label: "Vet ikke" },
-  ];
-
   return (
     <div className="space-y-3">
       <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
         <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
         <p className="text-sm text-foreground">
           Tenk på de leverandørene som faktisk lagrer eller behandler dine viktigste data — for eksempel skytjenester,
-          regnskap, lønn, HR eller IT-drift. Du kan legge til inntil {MAX_CRITICAL_VENDORS}.
+          regnskap, lønn, HR eller IT-drift. Begynn å skrive navnet, så foreslår vi kjente leverandører og hva de
+          vanligvis har tilgang til. Du kan legge til inntil {MAX_CRITICAL_VENDORS}.
         </p>
       </div>
 
       <div className="space-y-3">
         {rows.map((row, idx) => (
-          <Card key={idx} className="p-4 space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Leverandør {idx + 1}
-              </span>
-              {rows.length > 1 && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                  onClick={() => removeRow(idx)}
-                  aria-label="Fjern leverandør"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Navn på leverandør</Label>
-                <Input
-                  value={row.name}
-                  onChange={(e) => updateRow(idx, { name: e.target.value })}
-                  placeholder="F.eks. Microsoft 365"
-                  className="text-sm"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Hva har de tilgang til?</Label>
-                <Input
-                  value={row.access}
-                  onChange={(e) => updateRow(idx, { access: e.target.value })}
-                  placeholder="F.eks. e-post og dokumenter"
-                  className="text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Har du databehandleravtale (DPA) med dem?</Label>
-              <div className="flex gap-1.5">
-                {dpaOptions.map((opt) => (
-                  <Button
-                    key={opt.value}
-                    size="sm"
-                    variant={row.dpa === opt.value ? "default" : "outline"}
-                    className="h-8 flex-1"
-                    onClick={() => updateRow(idx, { dpa: opt.value })}
-                  >
-                    {opt.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </Card>
+          <VendorRowCard
+            key={idx}
+            row={row}
+            index={idx}
+            canRemove={rows.length > 1}
+            onChange={(patch) => updateRow(idx, patch)}
+            onRemove={() => removeRow(idx)}
+          />
         ))}
       </div>
 
@@ -1387,6 +1334,224 @@ function CriticalVendorsStep({ rows, onChange }: {
         Du trenger ikke fylle ut alt nå — du kan oppdatere listen senere fra Trust Profile-siden.
       </p>
     </div>
+  );
+}
+
+function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
+  row: CriticalVendorRow;
+  index: number;
+  canRemove: boolean;
+  onChange: (patch: Partial<CriticalVendorRow>) => void;
+  onRemove: () => void;
+}) {
+  const [query, setQuery] = useState(row.name);
+  const [open, setOpen] = useState(false);
+  const suggestions = useMemo(() => findVendorSuggestions(query, 6), [query]);
+  const knownVendor = useMemo(() => findVendorByName(row.name), [row.name]);
+
+  // Access stored as comma-separated string for backwards compatibility with seed code.
+  const accessChips = useMemo(
+    () => row.access.split(",").map((s) => s.trim()).filter(Boolean),
+    [row.access],
+  );
+  const setAccessChips = (chips: string[]) => onChange({ access: chips.join(", ") });
+  const toggleChip = (chip: string) => {
+    if (accessChips.includes(chip)) setAccessChips(accessChips.filter((c) => c !== chip));
+    else setAccessChips([...accessChips, chip]);
+  };
+  const [customAccess, setCustomAccess] = useState("");
+
+  const selectVendor = (v: VendorSuggestion) => {
+    const patch: Partial<CriticalVendorRow> = { name: v.name };
+    // Only prefill access if user hasn't typed anything yet
+    if (accessChips.length === 0) patch.access = v.suggestedAccess.join(", ");
+    // For standard-DPA vendors we set dpa=yes (covered by vendor's standard DPA)
+    if (v.dpaType === "standard") patch.dpa = "yes";
+    onChange(patch);
+    setQuery(v.name);
+    setOpen(false);
+  };
+
+  // Quick-pick: known vendor's suggestions union generic; deduped
+  const accessQuickPicks = useMemo(() => {
+    const base = knownVendor?.suggestedAccess ?? GENERIC_ACCESS_OPTIONS;
+    return Array.from(new Set([...base, ...GENERIC_ACCESS_OPTIONS])).slice(0, 8);
+  }, [knownVendor]);
+
+  const dpaOptions: { value: "yes" | "no" | "unknown"; label: string }[] = [
+    { value: "yes", label: "Ja" },
+    { value: "no", label: "Nei" },
+    { value: "unknown", label: "Vet ikke" },
+  ];
+
+  return (
+    <Card className="p-4 space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Leverandør {index + 1}
+        </span>
+        {canRemove && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-7 w-7 text-muted-foreground hover:text-destructive"
+            onClick={onRemove}
+            aria-label="Fjern leverandør"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
+      </div>
+
+      {/* Vendor name with autosuggest */}
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">Navn på leverandør</Label>
+        <Popover open={open && suggestions.length > 0} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Input
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                onChange({ name: e.target.value });
+                setOpen(true);
+              }}
+              onFocus={() => setOpen(true)}
+              placeholder="Begynn å skriv — f.eks. Microsoft, Tripletex, AWS …"
+              className="text-sm"
+            />
+          </PopoverTrigger>
+          <PopoverContent
+            className="p-1 w-[--radix-popover-trigger-width]"
+            align="start"
+            onOpenAutoFocus={(e) => e.preventDefault()}
+          >
+            <ul className="max-h-64 overflow-auto">
+              {suggestions.map((v) => (
+                <li key={v.name}>
+                  <button
+                    type="button"
+                    onClick={() => selectVendor(v)}
+                    className="w-full text-left px-2 py-1.5 rounded-md hover:bg-muted text-sm flex flex-col"
+                  >
+                    <span className="font-medium">{v.name}</span>
+                    <span className="text-[11px] text-muted-foreground">{v.category}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </PopoverContent>
+        </Popover>
+        {knownVendor && (
+          <p className="text-[11px] text-muted-foreground">
+            Gjenkjent: {knownVendor.category}
+          </p>
+        )}
+      </div>
+
+      {/* Access scopes — chips + custom */}
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">
+          Hva har de tilgang til?
+          <span className="ml-1 font-normal normal-case text-muted-foreground/80">
+            (hvilke data eller systemer leverandøren kan se eller behandle)
+          </span>
+        </Label>
+
+        {accessChips.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {accessChips.map((chip) => (
+              <Badge
+                key={chip}
+                variant="secondary"
+                className="gap-1 pl-2 pr-1 py-0.5 text-xs font-normal"
+              >
+                {chip}
+                <button
+                  type="button"
+                  onClick={() => toggleChip(chip)}
+                  className="rounded hover:bg-background/60 p-0.5"
+                  aria-label={`Fjern ${chip}`}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-1.5">
+          {accessQuickPicks
+            .filter((opt) => !accessChips.includes(opt))
+            .map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => toggleChip(opt)}
+                className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+              >
+                + {opt}
+              </button>
+            ))}
+        </div>
+
+        <div className="flex gap-1.5 pt-1">
+          <Input
+            value={customAccess}
+            onChange={(e) => setCustomAccess(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && customAccess.trim()) {
+                e.preventDefault();
+                if (!accessChips.includes(customAccess.trim())) {
+                  setAccessChips([...accessChips, customAccess.trim()]);
+                }
+                setCustomAccess("");
+              }
+            }}
+            placeholder="Legg til egendefinert tilgang og trykk Enter"
+            className="text-xs h-8"
+          />
+        </div>
+        {knownVendor && (
+          <p className="text-[11px] text-muted-foreground">
+            Forslag basert på {knownVendor.name}. Du kan overskrive eller fjerne det som ikke passer.
+          </p>
+        )}
+      </div>
+
+      {/* DPA — special handling for standard-DPA vendors */}
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">
+          Databehandleravtale (DPA)
+        </Label>
+        {knownVendor?.dpaType === "standard" ? (
+          <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5 flex gap-2 text-xs text-foreground">
+            <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+            <span>
+              {knownVendor.dpaNote ??
+                `${knownVendor.name} tilbyr en standard databehandleravtale som gjelder for alle kunder. Egen signert avtale er normalt ikke nødvendig.`}
+            </span>
+          </div>
+        ) : knownVendor?.dpaType === "none" ? (
+          <div className="rounded-md border border-border bg-muted/40 p-2.5 text-xs text-muted-foreground">
+            DPA er normalt ikke aktuelt for denne leverandøren — de behandler ikke personopplysninger på dine vegne.
+          </div>
+        ) : (
+          <div className="flex gap-1.5">
+            {dpaOptions.map((opt) => (
+              <Button
+                key={opt.value}
+                size="sm"
+                variant={row.dpa === opt.value ? "default" : "outline"}
+                className="h-8 flex-1"
+                onClick={() => onChange({ dpa: opt.value })}
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }
 
