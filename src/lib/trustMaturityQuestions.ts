@@ -4,7 +4,7 @@
 
 import { Users, ShieldCheck, Lock, Globe, type LucideIcon } from "lucide-react";
 
-export type MaturityAnswer = "yes" | "no" | "later" | "n_a";
+export type MaturityAnswer = "yes" | "no" | "later" | "n_a" | "unsure";
 
 export interface MaturityQuestion {
   id: string;
