@@ -306,8 +306,33 @@ export function MSPCreateOfferDialog({
     }
     y += 28;
 
-    // Covered controls
-    if (safeCoveredControls.length > 0) {
+    // Lukker mangler fra gap-analysen (ny, gap-drevet visning)
+    if (coveredGaps && selectedCount > 0) {
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text("LUKKER MANGLER FRA GAP-ANALYSEN", margin, y);
+      y += 14;
+      doc.setFontSize(11);
+      doc.setTextColor(20);
+      doc.text(
+        `${coveredGaps.frameworkLabel} · ${selectedCount} av ${totalGapCount} mangler · status per ${snapshotLabel}`,
+        margin,
+        y,
+      );
+      y += 16;
+      doc.setFontSize(10);
+      doc.setTextColor(60);
+      sortedGaps.filter(g => selectedGapIds.has(g.id)).forEach(g => {
+        if (y > 780) { doc.addPage(); y = margin; }
+        const sev = SEVERITY_LABEL[g.severity];
+        const ref = g.reference ? `${g.reference} — ` : "";
+        const lines = doc.splitTextToSize(`• [${sev}] ${ref}${g.title}`, pageWidth - margin * 2 - 8);
+        doc.text(lines, margin + 8, y);
+        y += lines.length * 12;
+      });
+      y += 10;
+    } else if (safeCoveredControls.length > 0) {
+      // Bakoverkompatibel statisk visning
       doc.setFontSize(10);
       doc.setTextColor(120);
       doc.text("DEKKER KONTROLLPUNKTER", margin, y);
@@ -322,24 +347,9 @@ export function MSPCreateOfferDialog({
         doc.setTextColor(60);
         group.controlIds.forEach(id => {
           if (y > 780) { doc.addPage(); y = margin; }
-          const label = getControlLabel(group.frameworkId, id);
-          const lines = doc.splitTextToSize(`• ${id} — ${label}`, pageWidth - margin * 2);
+          const lines = doc.splitTextToSize(`• ${id}`, pageWidth - margin * 2);
           doc.text(lines, margin + 8, y);
           y += lines.length * 12;
-          const related = getRelatedControls(group.frameworkId, id);
-          if (related.length > 0) {
-            if (y > 780) { doc.addPage(); y = margin; }
-            const shown = related.slice(0, 3).map(r => `${r.frameworkLabel} ${r.controlId}`).join(", ");
-            const extra = related.length - 3;
-            const suffix = extra > 0 ? ` +${extra} flere` : "";
-            doc.setFontSize(9);
-            doc.setTextColor(120);
-            const relLines = doc.splitTextToSize(`Også: ${shown}${suffix}`, pageWidth - margin * 2 - 16);
-            doc.text(relLines, margin + 16, y);
-            y += relLines.length * 11;
-            doc.setFontSize(10);
-            doc.setTextColor(60);
-          }
         });
         y += 8;
       });
@@ -347,16 +357,46 @@ export function MSPCreateOfferDialog({
     }
 
 
-    // Attachment
-    if (attachGap && gapFrameworkId) {
+    // Vedlegg: gap-analyse som øyeblikksbilde
+    if (attachGap && (coveredGaps || gapFrameworkId)) {
+      if (y > 700) { doc.addPage(); y = margin; }
       doc.setFontSize(10);
       doc.setTextColor(120);
-      doc.text("VEDLEGG", margin, y);
+      doc.text("VEDLEGG — GAP-ANALYSE (ØYEBLIKKSBILDE)", margin, y);
       y += 14;
+      const fwLabel = coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase() ?? "";
       doc.setFontSize(11);
-      doc.setTextColor(40);
-      doc.text(`• Gap-analyse ${gapFrameworkId.toUpperCase()} (${gapCount} gap dokumentert)`, margin, y);
-      y += 20;
+      doc.setTextColor(20);
+      doc.text(`${fwLabel} · status per ${snapshotLabel}`, margin, y);
+      y += 14;
+
+      if (totalGapCount > 0) {
+        const critTotal = sortedGaps.filter(g => g.severity === "critical").length;
+        const highTotal = sortedGaps.filter(g => g.severity === "high").length;
+        const minorTotal = sortedGaps.filter(g => g.severity === "medium" || g.severity === "low").length;
+        doc.setFontSize(10);
+        doc.setTextColor(110);
+        doc.text(`${totalGapCount} gap · ${critTotal} kritiske · ${highTotal} vesentlige · ${minorTotal} mindre`, margin, y);
+        y += 16;
+
+        doc.setFontSize(10);
+        doc.setTextColor(60);
+        sortedGaps.forEach(g => {
+          if (y > 780) { doc.addPage(); y = margin; }
+          const tick = selectedGapIds.has(g.id) ? "✓" : "•";
+          const sev = SEVERITY_LABEL[g.severity];
+          const ref = g.reference ? `${g.reference} — ` : "";
+          const lines = doc.splitTextToSize(`${tick} [${sev}] ${ref}${g.title}`, pageWidth - margin * 2 - 8);
+          doc.text(lines, margin + 8, y);
+          y += lines.length * 12 + 2;
+        });
+        y += 8;
+      } else {
+        doc.setFontSize(11);
+        doc.setTextColor(40);
+        doc.text(`• ${gapCount} gap dokumentert`, margin + 8, y);
+        y += 20;
+      }
     }
 
     // Footer
