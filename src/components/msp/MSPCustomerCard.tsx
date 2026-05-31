@@ -104,7 +104,7 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
   const maturityLabel =
     status.key === "draft"   ? "estimert av Lara" :
     status.key === "invited" ? "under onboarding" :
-    status.key === "claimed" ? "selvrapportert av kunde" :
+    status.key === "claimed" ? "godkjent av kunden" :
     "fryst";
 
   const riskTone = score >= 75 ? "success" : score >= 50 ? "warning" : "destructive";
