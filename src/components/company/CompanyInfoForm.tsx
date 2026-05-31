@@ -502,100 +502,208 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </div>
 
-        {form.managed_by_partner && form.partner_name ? (
-          <div className="space-y-4">
-            {/* Partner header med fjern-knapp */}
-            <div className="flex items-center justify-between rounded-md border border-border bg-muted/20 px-3 py-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <Shield className="h-4 w-4 text-primary shrink-0" />
+        {(() => {
+          const PARTNER_TYPE_LABELS: Record<string, string> = {
+            msp: "MSP",
+            mssp: "MSSP",
+            it_partner: "IT-partner",
+            consultant: "Konsulent",
+            other: "Annet",
+          };
+          const PARTNER_TYPE_OPTIONS = [
+            { value: "msp", label: "MSP — Managed Service Provider" },
+            { value: "mssp", label: "MSSP — Managed Security Service Provider" },
+            { value: "it_partner", label: "IT-partner" },
+            { value: "consultant", label: "Konsulent / rådgiver" },
+            { value: "other", label: "Annet" },
+          ];
+
+          type Row = { name: string; type: string; roleDescription: string; since: string; isPrimary: boolean };
+          const rows: Row[] = form.managed_by_partner && form.partner_name
+            ? [
+                {
+                  name: form.partner_name,
+                  type: form.partner_type,
+                  roleDescription: form.partner_role_description,
+                  since: form.partner_since,
+                  isPrimary: true,
+                },
+                ...form.additional_partners.map((p) => ({ ...p, isPrimary: false })),
+              ]
+            : [];
+
+          const updateRow = (idx: number, patch: Partial<Omit<Row, "isPrimary">>) => {
+            setForm((prev) => {
+              if (idx === 0 && rows[0]?.isPrimary) {
+                return {
+                  ...prev,
+                  ...(patch.name !== undefined ? { partner_name: patch.name } : {}),
+                  ...(patch.type !== undefined ? { partner_type: patch.type as never } : {}),
+                  ...(patch.roleDescription !== undefined ? { partner_role_description: patch.roleDescription } : {}),
+                  ...(patch.since !== undefined ? { partner_since: patch.since } : {}),
+                };
+              }
+              const addIdx = idx - 1;
+              const next = [...prev.additional_partners];
+              next[addIdx] = { ...next[addIdx], ...patch };
+              return { ...prev, additional_partners: next };
+            });
+          };
+
+          const removeRow = (idx: number) => {
+            setForm((prev) => {
+              if (idx === 0) {
+                // Promote first additional to primary, or clear all
+                const [first, ...rest] = prev.additional_partners;
+                if (first) {
+                  return {
+                    ...prev,
+                    partner_name: first.name,
+                    partner_type: first.type as never,
+                    partner_role_description: first.roleDescription,
+                    partner_since: first.since,
+                    additional_partners: rest,
+                  };
+                }
+                return {
+                  ...prev,
+                  managed_by_partner: false,
+                  partner_name: "",
+                  partner_type: "msp",
+                  partner_role_description: "",
+                  partner_since: "",
+                  additional_partners: [],
+                };
+              }
+              const addIdx = idx - 1;
+              return {
+                ...prev,
+                additional_partners: prev.additional_partners.filter((_, i) => i !== addIdx),
+              };
+            });
+          };
+
+          if (rows.length === 0) {
+            return (
+              <div className="rounded-md border border-dashed border-border bg-muted/20 p-4 flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{form.partner_name}</p>
-                  {matchedPartner && (
-                    <p className="text-[11px] text-primary flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3" />
-                      Hentet fra Mynder Trust
-                    </p>
-                  )}
+                  <p className="text-[13px] text-foreground font-medium">Ingen partner registrert</p>
+                  <p className="text-[12px] text-muted-foreground mt-0.5">
+                    Legg til MSP, MSSP, IT-partner eller rådgiver som leverer tjenester til virksomheten.
+                  </p>
                 </div>
+                {isEditing && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      setDraftPartnerName("");
+                      setAddPartnerDialogOpen(true);
+                    }}
+                    className="shrink-0"
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    Legg til partner
+                  </Button>
+                )}
               </div>
+            );
+          }
+
+          return (
+            <div className="space-y-3">
+              <div className="rounded-md border border-border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/40">
+                    <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+                      <th className="px-3 py-2 font-medium">Partner</th>
+                      <th className="px-3 py-2 font-medium">Type</th>
+                      <th className="px-3 py-2 font-medium">Siden</th>
+                      {isEditing && <th className="px-3 py-2 w-10" />}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {rows.map((row, idx) => (
+                      <tr key={idx} className="bg-background">
+                        <td className="px-3 py-2 align-middle">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Shield className="h-3.5 w-3.5 text-primary shrink-0" />
+                            <span className="font-medium text-foreground truncate">{row.name}</span>
+                          </div>
+                          {row.roleDescription && (
+                            <p className="text-[11px] text-muted-foreground mt-0.5 truncate pl-5">
+                              {row.roleDescription}
+                            </p>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 align-middle">
+                          {isEditing ? (
+                            <select
+                              value={row.type || "msp"}
+                              onChange={(e) => updateRow(idx, { type: e.target.value })}
+                              className="h-8 px-2 rounded-md border border-input bg-background text-xs"
+                            >
+                              {PARTNER_TYPE_OPTIONS.map((o) => (
+                                <option key={o.value} value={o.value}>{o.label}</option>
+                              ))}
+                            </select>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">
+                              {PARTNER_TYPE_LABELS[row.type] || "—"}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2 align-middle">
+                          {isEditing ? (
+                            <Input
+                              type="date"
+                              value={row.since || ""}
+                              onChange={(e) => updateRow(idx, { since: e.target.value })}
+                              className="h-8 text-xs w-36"
+                            />
+                          ) : (
+                            <span className="text-xs text-muted-foreground">{row.since || "—"}</span>
+                          )}
+                        </td>
+                        {isEditing && (
+                          <td className="px-3 py-2 align-middle text-right">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                              onClick={() => removeRow(idx)}
+                              aria-label="Fjern partner"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
               {isEditing && (
                 <Button
                   type="button"
-                  variant="ghost"
                   size="sm"
+                  variant="outline"
                   onClick={() => {
-                    setForm((prev) => ({
-                      ...prev,
-                      managed_by_partner: false,
-                      partner_name: "",
-                      partner_type: "msp",
-                      partner_role_description: "",
-                      partner_since: "",
-                    }));
+                    setDraftPartnerName("");
+                    setAddPartnerDialogOpen(true);
                   }}
-                  className="text-muted-foreground hover:text-destructive"
+                  className="gap-1.5"
                 >
-                  <Trash2 className="h-3.5 w-3.5 mr-1" />
-                  Fjern
+                  <Plus className="h-3.5 w-3.5" />
+                  Legg til partner
                 </Button>
               )}
-            </div>
-
-            {/* Valgfrie detaljer */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FieldBlock
-                label="Type partner (valgfritt)"
-                hint={matchedPartner ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Hvilken rolle partneren har"}
-              >
-                {isEditing ? (
-                  <select
-                    value={form.partner_type}
-                    onChange={(e) => update("partner_type", e.target.value as any)}
-                    className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
-                  >
-                    <option value="msp">MSP — Managed Service Provider</option>
-                    <option value="mssp">MSSP — Managed Security Service Provider</option>
-                    <option value="it_partner">IT-partner</option>
-                    <option value="consultant">Konsulent / rådgiver</option>
-                    <option value="other">Annet</option>
-                  </select>
-                ) : (
-                  <Input value={form.partner_type || "—"} readOnly className="bg-muted/30 text-sm" />
-                )}
-              </FieldBlock>
-
-              <FieldBlock
-                label="Leveranseområde (valgfritt)"
-                hint={matchedPartner ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Kort beskrivelse av hva partneren leverer"}
-              >
-                {isEditing ? (
-                  <Input
-                    value={form.partner_role_description}
-                    onChange={(e) => update("partner_role_description", e.target.value)}
-                    placeholder="F.eks. Drift, sikkerhetsovervåking, brukerstøtte"
-                    className="text-sm"
-                  />
-                ) : (
-                  <Input value={form.partner_role_description || "—"} readOnly className="bg-muted/30 text-sm" />
-                )}
-              </FieldBlock>
-
-              <FieldBlock label="Partner siden (valgfritt)" hint="Når startet samarbeidet?">
-                {isEditing ? (
-                  <Input
-                    type="date"
-                    value={form.partner_since}
-                    onChange={(e) => update("partner_since", e.target.value)}
-                    className="text-sm"
-                  />
-                ) : (
-                  <Input value={form.partner_since || "—"} readOnly className="bg-muted/30 text-sm" />
-                )}
-              </FieldBlock>
 
               <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
                 <div>
-                  <p className="text-xs font-medium text-foreground">Vis partner på Trust-profilen</p>
+                  <p className="text-xs font-medium text-foreground">Vis partnere på Trust-profilen</p>
                   <p className="text-[12px] text-muted-foreground">Anbefales — bygger tillit i due diligence.</p>
                 </div>
                 <Switch
@@ -606,31 +714,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                 />
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="rounded-md border border-dashed border-border bg-muted/20 p-4 flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[13px] text-foreground font-medium">Ingen partner registrert</p>
-              <p className="text-[12px] text-muted-foreground mt-0.5">
-                Legg til MSP, MSSP, IT-partner eller rådgiver som leverer tjenester til virksomheten.
-              </p>
-            </div>
-            {isEditing && (
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => {
-                  setDraftPartnerName("");
-                  setAddPartnerDialogOpen(true);
-                }}
-                className="shrink-0"
-              >
-                <Plus className="h-3.5 w-3.5 mr-1" />
-                Legg til partner
-              </Button>
-            )}
-          </div>
-        )}
+          );
+        })()}
+
 
         {/* Dialog: Legg til partner */}
         <Dialog open={addPartnerDialogOpen} onOpenChange={setAddPartnerDialogOpen}>
