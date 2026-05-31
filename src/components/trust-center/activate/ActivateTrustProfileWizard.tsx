@@ -31,7 +31,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   findVendorSuggestions,
   findVendorByName,
-  GENERIC_ACCESS_OPTIONS,
   type VendorSuggestion,
 } from "@/lib/vendorCatalog";
 import {
@@ -68,10 +67,19 @@ const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Modenhet", "Kri
 
 export type CriticalVendorRow = {
   name: string;
-  access: string;
+  purpose: string;
+  processesPersonalData: "yes" | "no" | null;
+  dataCategories: string[];
   dpa: "yes" | "no" | "unknown" | null;
 };
-const EMPTY_VENDOR_ROW: CriticalVendorRow = { name: "", access: "", dpa: null };
+const EMPTY_VENDOR_ROW: CriticalVendorRow = {
+  name: "",
+  purpose: "",
+  processesPersonalData: null,
+  dataCategories: [],
+  dpa: null,
+};
+const DATA_CATEGORY_OPTIONS = ["Ansattdata", "Kundedata", "Pasientdata", "Annet"];
 const MAX_CRITICAL_VENDORS = 5;
 
 export default function ActivateTrustProfileWizard({
@@ -450,7 +458,13 @@ export default function ActivateTrustProfileWizard({
       maturityAnswers,
       criticalVendors: criticalVendors
         .filter((v) => v.name.trim().length > 0)
-        .map((v) => ({ name: v.name.trim(), access: v.access.trim(), dpa: v.dpa ?? "unknown" })),
+        .map((v) => ({
+          name: v.name.trim(),
+          purpose: v.purpose.trim(),
+          processesPersonalData: v.processesPersonalData,
+          dataCategories: v.dataCategories,
+          dpa: v.dpa ?? "unknown",
+        })),
       subprocessorList: analyzedSubprocessors,
       documents,
       visibility,
@@ -1522,39 +1536,33 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
   const suggestions = useMemo(() => findVendorSuggestions(query, 6), [query]);
   const knownVendor = useMemo(() => findVendorByName(row.name), [row.name]);
 
-  // Access stored as comma-separated string for backwards compatibility with seed code.
-  const accessChips = useMemo(
-    () => row.access.split(",").map((s) => s.trim()).filter(Boolean),
-    [row.access],
-  );
-  const setAccessChips = (chips: string[]) => onChange({ access: chips.join(", ") });
-  const toggleChip = (chip: string) => {
-    if (accessChips.includes(chip)) setAccessChips(accessChips.filter((c) => c !== chip));
-    else setAccessChips([...accessChips, chip]);
-  };
-  const [customAccess, setCustomAccess] = useState("");
-
   const selectVendor = (v: VendorSuggestion) => {
     const patch: Partial<CriticalVendorRow> = { name: v.name };
-    // Only prefill access if user hasn't typed anything yet
-    if (accessChips.length === 0) patch.access = v.suggestedAccess.join(", ");
-    // For standard-DPA vendors we set dpa=yes (covered by vendor's standard DPA)
+    if (!row.purpose.trim()) patch.purpose = v.category;
     if (v.dpaType === "standard") patch.dpa = "yes";
     onChange(patch);
     setQuery(v.name);
     setOpen(false);
   };
 
-  // Quick-pick: known vendor's suggestions union generic; deduped
-  const accessQuickPicks = useMemo(() => {
-    const base = knownVendor?.suggestedAccess ?? GENERIC_ACCESS_OPTIONS;
-    return Array.from(new Set([...base, ...GENERIC_ACCESS_OPTIONS])).slice(0, 8);
-  }, [knownVendor]);
+  const toggleCategory = (cat: string) => {
+    const has = row.dataCategories.includes(cat);
+    onChange({
+      dataCategories: has
+        ? row.dataCategories.filter((c) => c !== cat)
+        : [...row.dataCategories, cat],
+    });
+  };
 
   const dpaOptions: { value: "yes" | "no" | "unknown"; label: string }[] = [
     { value: "yes", label: "Ja" },
     { value: "no", label: "Nei" },
     { value: "unknown", label: "Vet ikke" },
+  ];
+
+  const ppdOptions: { value: "yes" | "no"; label: string }[] = [
+    { value: "yes", label: "Ja" },
+    { value: "no", label: "Nei" },
   ];
 
   return (
@@ -1615,70 +1623,80 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
         </div>
       </div>
 
-      {/* Access scopes — chips + custom */}
+      {/* Purpose — short sentence / category */}
       <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">Hva har de tilgang til?</Label>
+        <Label className="text-xs text-muted-foreground">Hva gjør de for dere?</Label>
+        <Input
+          value={row.purpose}
+          onChange={(e) => onChange({ purpose: e.target.value })}
+          placeholder={'f.eks. "Skylagring", "HR-system", "Fakturering"'}
+          className="text-sm"
+        />
+        {knownVendor && row.purpose.trim() !== knownVendor.category && (
+          <button
+            type="button"
+            onClick={() => onChange({ purpose: knownVendor.category })}
+            className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+          >
+            + Bruk forslag: {knownVendor.category}
+          </button>
+        )}
+      </div>
 
-        {accessChips.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {accessChips.map((chip) => (
-              <Badge
-                key={chip}
-                variant="secondary"
-                className="gap-1 pl-2 pr-1 py-0.5 text-xs font-normal"
-              >
-                {chip}
-                <button
-                  type="button"
-                  onClick={() => toggleChip(chip)}
-                  className="rounded hover:bg-background/60 p-0.5"
-                  aria-label={`Fjern ${chip}`}
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
+      {/* Personal data processing */}
+      <div className="space-y-1.5">
+        <Label className="text-xs text-muted-foreground">
+          Behandler de personopplysninger på dine vegne?
+        </Label>
+        <div className="flex gap-1.5">
+          {ppdOptions.map((opt) => (
+            <Button
+              key={opt.value}
+              size="sm"
+              variant={row.processesPersonalData === opt.value ? "default" : "outline"}
+              className="h-8 flex-1"
+              onClick={() =>
+                onChange({
+                  processesPersonalData: opt.value,
+                  ...(opt.value === "no" ? { dataCategories: [] } : {}),
+                })
+              }
+            >
+              {opt.label}
+            </Button>
+          ))}
+        </div>
+
+        {row.processesPersonalData === "yes" && (
+          <div className="pt-2 space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Hvilken kategori?</Label>
+            <div className="flex flex-wrap gap-1.5">
+              {DATA_CATEGORY_OPTIONS.map((cat) => {
+                const active = row.dataCategories.includes(cat);
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => toggleCategory(cat)}
+                    className={
+                      active
+                        ? "text-xs px-2.5 py-1 rounded-full bg-primary text-primary-foreground border border-primary"
+                        : "text-xs px-2.5 py-1 rounded-full border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+                    }
+                  >
+                    {cat}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
-
-        <div className="flex flex-wrap gap-1.5">
-          {accessQuickPicks
-            .filter((opt) => !accessChips.includes(opt))
-            .map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                onClick={() => toggleChip(opt)}
-                className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-              >
-                + {opt}
-              </button>
-            ))}
-        </div>
-
-        <div className="flex gap-1.5 pt-1">
-          <Input
-            value={customAccess}
-            onChange={(e) => setCustomAccess(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && customAccess.trim()) {
-                e.preventDefault();
-                if (!accessChips.includes(customAccess.trim())) {
-                  setAccessChips([...accessChips, customAccess.trim()]);
-                }
-                setCustomAccess("");
-              }
-            }}
-            placeholder="Legg til egendefinert tilgang og trykk Enter"
-            className="text-xs h-8"
-          />
-        </div>
       </div>
 
       {/* DPA — special handling for standard-DPA vendors */}
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">
-          Databehandleravtale (DPA)
+          Har dere en DPA med dem?
         </Label>
         {knownVendor?.dpaType === "standard" ? (
           <div className="rounded-md border border-primary/20 bg-primary/5 p-2.5 flex gap-2 text-xs text-foreground">
@@ -1688,29 +1706,34 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
                 `${knownVendor.name} tilbyr en standard databehandleravtale som gjelder for alle kunder. Egen signert avtale er normalt ikke nødvendig.`}
             </span>
           </div>
-        ) : knownVendor?.dpaType === "none" ? (
-          <div className="rounded-md border border-border bg-muted/40 p-2.5 text-xs text-muted-foreground">
-            DPA er normalt ikke aktuelt for denne leverandøren — de behandler ikke personopplysninger på dine vegne.
-          </div>
         ) : (
-          <div className="flex gap-1.5">
-            {dpaOptions.map((opt) => (
-              <Button
-                key={opt.value}
-                size="sm"
-                variant={row.dpa === opt.value ? "default" : "outline"}
-                className="h-8 flex-1"
-                onClick={() => onChange({ dpa: opt.value })}
-              >
-                {opt.label}
-              </Button>
-            ))}
-          </div>
+          <>
+            <div className="flex gap-1.5">
+              {dpaOptions.map((opt) => (
+                <Button
+                  key={opt.value}
+                  size="sm"
+                  variant={row.dpa === opt.value ? "default" : "outline"}
+                  className="h-8 flex-1"
+                  onClick={() => onChange({ dpa: opt.value })}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+            {row.processesPersonalData === "no" && (
+              <p className="text-[11px] text-muted-foreground">
+                DPA er normalt ikke påkrevd når leverandøren ikke behandler personopplysninger.
+              </p>
+            )}
+          </>
         )}
       </div>
     </Card>
   );
 }
+
+
 
 /* -------------------- Documents step -------------------- */
 
