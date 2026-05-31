@@ -534,10 +534,10 @@ export default function ActivateTrustProfileWizard({
           onClick={() => handlePublish()}
           disabled={
             isPublishing ||
-            (visibility === "public" && !publicAcknowledged) ||
             partnerStatus === null ||
             (partnerStatus === "yes" && !partnerName.trim())
           }
+
           className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white"
         >
           {isPublishing || isCalculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
@@ -1350,23 +1350,15 @@ function VisibilityStep({
         );
       })}
 
-      {visibility === "public" && (
-        <div className="rounded-xl border border-warning/30 bg-warning/5 p-3 flex gap-2">
-          <Checkbox
-            id="public-ack"
-            checked={publicAcknowledged}
-            onCheckedChange={(c) => setPublicAcknowledged(c === true)}
-            className="mt-0.5"
-          />
-          <Label htmlFor="public-ack" className="text-xs leading-relaxed cursor-pointer">
-            Jeg bekrefter at innholdet i Trust Profilen er klarert for offentlig publisering og indeksering av søkemotorer.
-          </Label>
-        </div>
-      )}
+      <div className="rounded-xl border border-[hsl(var(--mynder-blue))]/20 bg-[hsl(var(--mynder-blue))]/5 p-3 text-xs leading-relaxed text-foreground/80">
+        <p>
+          <strong className="text-foreground">Vi anbefaler Mynder-økosystem</strong> som synlighet ved aktivering — da blir profilen umiddelbart tilgjengelig for kunder, partnere og leverandører i nettverket, uten å være åpen for søkemotorer.
+        </p>
+        <p className="mt-1.5 text-muted-foreground">
+          Du kan når som helst publisere profilen <strong className="text-foreground">offentlig</strong> fra Trust Profile-siden etter aktivering.
+        </p>
+      </div>
 
-      <p className="text-xs text-muted-foreground pt-1">
-        Du kan endre synlighet når som helst fra Trust Profile-siden.
-      </p>
     </div>
   );
 }
