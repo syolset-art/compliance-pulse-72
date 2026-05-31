@@ -256,38 +256,16 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     setForm((prev) => ({ ...prev, [key]: value as never }));
   };
 
-  // Debounced partner-name lookup (prototype: matcher mot mock-katalog)
-  useEffect(() => {
-    if (!form.managed_by_partner) {
-      setPartnerLookup({ status: "idle" });
-      return;
-    }
-    const name = (form.partner_name || "").trim();
-    if (name.length < 2) {
-      setPartnerLookup({ status: "idle" });
-      return;
-    }
-    setPartnerLookup({ status: "searching" });
-    const t = setTimeout(() => {
-      const lower = name.toLowerCase();
-      const match = PARTNER_DIRECTORY.find(
-        (p) => p.name.toLowerCase().includes(lower) || lower.includes(p.name.toLowerCase().split(" ")[0])
-      );
-      if (match) {
-        setPartnerLookup({ status: "found", match });
-        // Forhåndsutfyll bare om feltene er tomme — la brukeren beholde egne overskrivinger
-        setForm((prev) => ({
-          ...prev,
-          partner_type: prev.partner_type && prev.partner_type !== "msp" ? prev.partner_type : (match.type as never),
-          partner_role_description: prev.partner_role_description ? prev.partner_role_description : (match.roleDescription as never),
-        }));
-      } else {
-        setPartnerLookup({ status: "not_found" });
-      }
-    }, 500);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.partner_name, form.managed_by_partner]);
+  // Velger partner fra katalog og forhåndsutfyller type + leveranseområde
+  const selectPartner = (p: { name: string; type: string; roleDescription: string }) => {
+    setForm((prev) => ({
+      ...prev,
+      partner_name: p.name as never,
+      partner_type: p.type as never,
+      partner_role_description: p.roleDescription as never,
+    }));
+    setPartnerPickerOpen(false);
+  };
 
   if (loadingProfile) {
     return <div className="animate-pulse h-48 bg-muted rounded-lg" />;
