@@ -92,6 +92,12 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     show_partner_on_trust_profile: true,
   });
 
+  const matchedPartner = PARTNER_DIRECTORY.find(
+    (p) => p.name.toLowerCase() === (form?.partner_name || "").trim().toLowerCase()
+  );
+
+
+
   useEffect(() => {
     if (companyProfile) {
       setForm({
