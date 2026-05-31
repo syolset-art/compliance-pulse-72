@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
   CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb, Info,
-  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil, Plus, Trash2,
+  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil, Plus, Trash2, ChevronDown, ChevronUp,
 } from "lucide-react";
 
 import { toast } from "sonner";
