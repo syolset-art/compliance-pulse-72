@@ -1454,8 +1454,9 @@ function PartnerSelectionBlock({
               Lara har sett at <strong>{name || "en partner"}</strong> forvalter sikkerheten din.
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Bekreft at dette skal vises på Trust Profilen din. Det styrker tilliten hos kunder og partnere.
+              Bekreft at dette skal vises på Trust Profilen din.
             </p>
+
           </div>
           <Button
             variant="ghost"
