@@ -740,18 +740,21 @@ export function MSPCreateOfferDialog({
                 })}
               </div>
 
-              <div className="flex items-baseline justify-between pt-2">
-                {discountPercent > 0 ? (
-                  <div className="text-sm text-muted-foreground">
-                    <div>Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</div>
-                    <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
-                  </div>
-                ) : (
-                  <span className="text-sm text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
-                )}
-                <span className="text-base font-bold text-foreground tabular-nums">
-                  {totalHours} t · {totalPrice.toLocaleString("nb-NO")} kr
-                </span>
+              <div className="pt-3 mt-1 border-t-2 border-foreground/80 space-y-1.5">
+                <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                  <span>Timepris</span>
+                  <span className="tabular-nums">{editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                </div>
+                <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                  <span>Sum timer</span>
+                  <span className="tabular-nums">{totalHours} t</span>
+                </div>
+                <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
+                  <span className="text-base font-bold text-foreground">Totalsum</span>
+                  <span className="text-lg font-bold text-foreground tabular-nums">
+                    {totalPrice.toLocaleString("nb-NO")} kr
+                  </span>
+                </div>
               </div>
 
 
