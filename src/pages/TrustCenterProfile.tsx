@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+
 import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -76,7 +77,7 @@ import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { EvidenceStatusBadge, deriveWorstStatus } from "@/components/trust-controls/EvidenceStatusBadge";
 import type { EvidenceStatus } from "@/components/trust-controls/EvidenceStatusBadge";
-import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
+import { seedDemoTrustProfile, resetTrustProfileForDemo } from "@/lib/demoSeedTrustProfile";
 import ActivateTrustProfileWizard from "@/components/trust-center/activate/ActivateTrustProfileWizard";
 import { usePartnerInfo, PARTNER_TYPE_LABEL } from "@/hooks/usePartnerInfo";
 
@@ -260,6 +261,44 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     return () => window.removeEventListener("open-activate-trust-wizard", open);
   }, []);
 
+  // ─── Demo mode: ?demo=activation ────────────────────────────────────────
+  // Triggered when filming a walkthrough. Resets the activation state, opens
+  // the wizard in auto-play mode (calm ~40s rhythm), and cleans the URL so a
+  // refresh does not re-trigger the demo. Skipped on service-profile views
+  // and on read-only renders.
+  const [autoPlayDemo, setAutoPlayDemo] = useState(false);
+  useEffect(() => {
+    if (propAssetId || readOnly) return;
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") !== "activation") return;
+
+    let cancelled = false;
+    (async () => {
+      try { localStorage.removeItem("mynder.trustprofile.activated"); } catch {}
+      setIsActivated(false);
+      setJustActivated(false);
+      try {
+        await resetTrustProfileForDemo();
+      } catch (e) {
+        // ignore — wizard will still play
+      }
+      if (cancelled) return;
+      await queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+      await queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+      if (cancelled) return;
+      setAutoPlayDemo(true);
+      // Strip the demo param so a refresh doesn't loop the demo
+      params.delete("demo");
+      const qs = params.toString();
+      window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : ""));
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+
+
   // Gate: own profile but not yet activated → locked landing
   if (isOwnProfile && !isActivated) {
     return (
@@ -288,12 +327,32 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </li>
                 ))}
               </ul>
+              {!autoPlayDemo && (
+                <div className="mt-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      try { localStorage.removeItem("mynder.trustprofile.activated"); } catch {}
+                      const url = new URL(window.location.href);
+                      url.searchParams.set("demo", "activation");
+                      window.location.assign(url.toString());
+                    }}
+                    title={isNb ? "Nullstill og spill av aktiveringen automatisk (~40 s)" : "Reset and auto-play the activation flow (~40 s)"}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    {isNb ? "Spill av demo (~40 s)" : "Play demo (~40 s)"}
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className={`transition-all duration-500 ${justActivated ? "opacity-0 -translate-y-2" : "opacity-100"}`}>
               <ActivateTrustProfileWizard
                 inline
                 conversation
+                autoPlay={autoPlayDemo}
                 initialCompanyName={companyProfile?.name || undefined}
                 initialOrgNumber={companyProfile?.org_number || undefined}
                 initialDomain={(companyProfile as any)?.domain || undefined}
@@ -304,12 +363,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   setJustActivated(true);
                   setTimeout(() => {
                     setIsActivated(true);
+                    setAutoPlayDemo(false);
                     queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
                     queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
                   }, 700);
                 }}
               />
             </div>
+
 
             <ContextualHelpPanel
               open={helpOpen}

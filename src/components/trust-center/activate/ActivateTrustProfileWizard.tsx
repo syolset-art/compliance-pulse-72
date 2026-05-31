@@ -59,6 +59,10 @@ interface Props {
   initialDomain?: string;
   /** Existing maturity answers from prior work in Regelverk module. Merged over Lara defaults. */
   initialMaturity?: MaturityAnswers;
+  /** When true, the wizard auto-advances through every step with calm pauses
+   *  so the activation flow can be recorded as a demo. Manual clicks still
+   *  work and timers are cancelled on unmount or step change. */
+  autoPlay?: boolean;
 }
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -85,6 +89,7 @@ const MAX_CRITICAL_VENDORS = 5;
 export default function ActivateTrustProfileWizard({
   open, onOpenChange, onCompleted, inline, conversation,
   initialCompanyName, initialOrgNumber, initialDomain, initialMaturity,
+  autoPlay,
 }: Props) {
   const queryClient = useQueryClient();
   // When we already know the customer (logged-in), skip Welcome and start at Organisasjon.
@@ -507,6 +512,37 @@ export default function ActivateTrustProfileWizard({
     try { localStorage.setItem("mynder.trustprofile.activated", "skipped"); } catch {}
     onOpenChange(false);
   };
+
+  // ─── Auto-play (demo mode) ─────────────────────────────────────────────
+  // Drives the wizard forward on a calm rhythm so the activation flow can be
+  // filmed without manual clicks. Each step's timer waits long enough for the
+  // viewer to read the screen, then calls the same handlers a real user would.
+  // Step 2 is skipped here because the Lara-scan effect already auto-advances
+  // when all findings are revealed.
+  useEffect(() => {
+    if (!autoPlay || !open) return;
+    if (isCalculating || isPublishing) return;
+    const delays: Record<number, number> = {
+      1: 4200,
+      3: 5000,
+      4: 4000,
+      5: 4000,
+      6: 6000,
+      7: 5000,
+    };
+    const delay = delays[step];
+    if (!delay) return;
+    const t = window.setTimeout(() => {
+      if (step === 7) {
+        handlePublish();
+      } else {
+        next();
+      }
+    }, delay);
+    return () => window.clearTimeout(t);
+  }, [autoPlay, open, step, isCalculating, isPublishing]);
+
+
 
   const stepHint =
     step === 1 ? "Bekreft hvor du jobber." :
