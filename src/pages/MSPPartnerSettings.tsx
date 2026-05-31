@@ -68,6 +68,13 @@ export default function MSPPartnerSettings() {
   const [invite, setInvite] = useState({ name: "", email: "", role: "Partner-rådgiver" as TeamMember["role"] });
   const [inviteTerms, setInviteTerms] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [enabledModules, setEnabledModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
+
+  const handleToggleModule = (key: PartnerModuleKey, enabled: boolean) => {
+    setPartnerModuleEnabled(key, enabled);
+    setEnabledModules(getEnabledPartnerModules());
+    toast.success(enabled ? "Modul aktivert i Compliance-menyen" : "Modul fjernet fra Compliance-menyen");
+  };
 
   const inviteValid = invite.name.trim().length > 0 && isValidEmail(invite.email);
 
