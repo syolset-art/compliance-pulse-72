@@ -233,25 +233,25 @@ export function MSPCustomerTrustProfileCard({
       {/* Dokumenter og bevis */}
       <Card className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Dokumenter og bevis</h3>
-          <span className="text-xs text-muted-foreground">{certifications.length + policies.filter(p => p.published).length} publisert · {policies.filter(p => !p.published).length} mangler</span>
+          <h3 className="text-base font-semibold text-foreground">Dokumenter og bevis</h3>
+          <span className="text-sm text-muted-foreground">{certifications.length + policies.filter(p => p.published).length} publisert · {policies.filter(p => !p.published).length} mangler</span>
         </div>
 
         {/* Sertifiseringer og attesteringer */}
         <div className="space-y-2">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Sertifiseringer og attesteringer</p>
+          <p className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Sertifiseringer og attesteringer</p>
           {certifications.map(c => (
-            <div key={c.name} className="flex items-center gap-3 rounded-lg border border-border/60 p-2.5">
-              <div className={`h-8 w-8 rounded-md flex items-center justify-center shrink-0 ${c.status === "active" ? "bg-success/10" : "bg-destructive/10"}`}>
-                <FileBadge className={`h-4 w-4 ${c.status === "active" ? "text-success" : "text-destructive"}`} />
+            <div key={c.name} className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
+              <div className={`h-9 w-9 rounded-md flex items-center justify-center shrink-0 ${c.status === "active" ? "bg-success/10" : "bg-destructive/10"}`}>
+                <FileBadge className={`h-4 w-4 ${c.status === "active" ? "text-success" : "text-destructive"}`} aria-hidden="true" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium text-foreground truncate">{c.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{c.meta}</p>
+                <p className="text-sm font-semibold text-foreground truncate">{c.name}</p>
+                <p className="text-sm text-muted-foreground truncate">{c.meta}</p>
               </div>
               <Badge variant="outline" className={c.status === "active"
-                ? "text-xs bg-success/10 text-success border-success/30"
-                : "text-xs bg-destructive/10 text-destructive border-destructive/30"}>
+                ? "text-xs px-2 py-0.5 bg-success/10 text-success border-success/30"
+                : "text-xs px-2 py-0.5 bg-destructive/10 text-destructive border-destructive/30"}>
                 {c.status === "active" ? "Aktiv" : "Utløpt"}
               </Badge>
             </div>
@@ -260,16 +260,16 @@ export function MSPCustomerTrustProfileCard({
 
         {/* Policyer og dokumenter */}
         <div className="space-y-2">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Policyer og dokumenter</p>
+          <p className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Policyer og dokumenter</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {policies.map(p => (
-              <div key={p.name} className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${p.published ? "border-border/60" : "border-dashed border-border bg-muted/20"}`}>
-                <FileText className={`h-3.5 w-3.5 shrink-0 ${p.published ? "text-muted-foreground" : "text-muted-foreground/50"}`} />
-                <span className={`text-[13px] flex-1 truncate ${p.published ? "text-foreground" : "text-muted-foreground"}`}>{p.name}</span>
+              <div key={p.name} className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 ${p.published ? "border-border/60" : "border-dashed border-border bg-muted/20"}`}>
+                <FileText className={`h-4 w-4 shrink-0 ${p.published ? "text-foreground/70" : "text-muted-foreground/60"}`} aria-hidden="true" />
+                <span className={`text-sm flex-1 truncate ${p.published ? "text-foreground" : "text-foreground/70"}`}>{p.name}</span>
                 {p.published ? (
-                  <Check className="h-3.5 w-3.5 text-success" />
+                  <Check className="h-4 w-4 text-success" aria-hidden="true" />
                 ) : (
-                  <span className="text-xs text-muted-foreground">Mangler</span>
+                  <span className="text-sm text-muted-foreground">Mangler</span>
                 )}
               </div>
             ))}
@@ -280,22 +280,22 @@ export function MSPCustomerTrustProfileCard({
       {/* Access requests */}
       <Card className="p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Innsynsforespørsler fra tredjepart</h3>
-          <span className="text-xs text-muted-foreground">Siste 90 dager</span>
+          <h3 className="text-base font-semibold text-foreground">Innsynsforespørsler fra tredjepart</h3>
+          <span className="text-sm text-muted-foreground">Siste 90 dager</span>
         </div>
         <div className="space-y-2">
           {accessRequests.map(r => (
-            <div key={r.title} className="flex items-center gap-3 rounded-lg border border-border/60 p-2.5">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${r.color}`}>
+            <div key={r.title} className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
+              <div className={`h-9 w-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${r.color}`}>
                 {r.initials}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-medium text-foreground truncate">{r.title}</p>
-                <p className="text-xs text-muted-foreground truncate">{r.meta}</p>
+                <p className="text-sm font-semibold text-foreground truncate">{r.title}</p>
+                <p className="text-sm text-muted-foreground truncate">{r.meta}</p>
               </div>
               <Badge variant="outline" className={r.status === "open"
-                ? "text-xs bg-warning/10 text-warning border-warning/30"
-                : "text-xs bg-success/10 text-success border-success/30"}>
+                ? "text-xs px-2 py-0.5 bg-warning/10 text-warning border-warning/30"
+                : "text-xs px-2 py-0.5 bg-success/10 text-success border-success/30"}>
                 {r.status === "open" ? "Åpen" : "Lukket"}
               </Badge>
             </div>
