@@ -541,22 +541,111 @@ export function MSPCreateOfferDialog({
               </div>
             </div>
 
-            {/* Dekker kontrollpunkter */}
-            {safeCoveredControls.length > 0 && (
+            {/* Lukker mangler fra gap-analysen (gap-drevet) */}
+            {coveredGaps && totalGapCount > 0 && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-                    Dekker kontrollpunkter
+                    Lukker mangler fra gap-analysen
                   </Label>
-                  <span className="text-xs text-muted-foreground">
-                    {totalControlPoints} kontrollpunkt{totalControlPoints === 1 ? "" : "er"} · {safeCoveredControls.length} regelverk
+                  <span className="text-xs text-foreground tabular-nums font-medium">
+                    {selectedCount} av {totalGapCount}
                   </span>
                 </div>
-                <div className="rounded-md border border-border divide-y divide-border">
+                <div className="rounded-md border border-border overflow-hidden">
+                  <div className="px-3 py-2 bg-muted/40 border-b border-border space-y-1.5">
+                    <div className="flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        {(() => {
+                          const theme = getFrameworkTheme(coveredGaps.frameworkId);
+                          return (
+                            <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                              {coveredGaps.frameworkLabel}
+                            </span>
+                          );
+                        })()}
+                        <span className="text-muted-foreground">status per {snapshotLabel}</span>
+                      </div>
+                      {criticalSelected > 0 && (
+                        <span className="text-xs text-destructive font-medium">{criticalSelected} kritiske</span>
+                      )}
+                    </div>
+                    {/* Progress-bar */}
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full bg-primary transition-all"
+                        style={{ width: `${gapPercent}%` }}
+                      />
+                    </div>
+                  </div>
+                  <ul className="divide-y divide-border">
+                    {sortedGaps.map(g => {
+                      const checked = selectedGapIds.has(g.id);
+                      return (
+                        <li key={g.id} className="flex items-start gap-2.5 px-3 py-2 hover:bg-muted/30">
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={() => toggleGap(g.id)}
+                            className="mt-0.5"
+                            id={`gap-${g.id}`}
+                          />
+                          <span className={cn("h-2 w-2 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
+                          <label htmlFor={`gap-${g.id}`} className="flex-1 min-w-0 cursor-pointer space-y-0.5">
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                              {g.reference && (
+                                <span className="font-mono text-xs text-muted-foreground shrink-0">{g.reference}</span>
+                              )}
+                              <span className="text-sm text-foreground leading-snug">{g.title}</span>
+                            </div>
+                          </label>
+                          <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
+                            {SEVERITY_LABEL[g.severity]}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+
+                {crosswalkChips.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1 pt-1">
+                    <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
+                    {crosswalkChips.map(r => {
+                      const t = getFrameworkTheme(r.frameworkId);
+                      return (
+                        <span
+                          key={`${r.frameworkId}-${r.controlId}`}
+                          className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
+                        >
+                          {r.frameworkLabel} {r.controlId}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setGapPreviewOpen(true)}
+                  className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  Se hele gap-analysen <ArrowRight className="h-3 w-3" />
+                </button>
+              </div>
+            )}
+
+            {/* Bakoverkompatibel: gammel statisk visning når coveredGaps ikke er satt */}
+            {!coveredGaps && safeCoveredControls.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                  Dekker kontrollpunkter
+                </Label>
+                <div className="rounded-md border border-border p-3 space-y-2">
                   {safeCoveredControls.map(group => {
                     const theme = getFrameworkTheme(group.frameworkId);
                     return (
-                      <div key={group.frameworkId} className="p-3 space-y-2">
+                      <div key={group.frameworkId} className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
                             {group.frameworkLabel}
@@ -565,60 +654,23 @@ export function MSPCreateOfferDialog({
                             {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
                           </span>
                         </div>
-                        <ul className="space-y-2">
-                          {group.controlIds.map(id => {
-                            const related = getRelatedControls(group.frameworkId, id);
-                            const visible = related.slice(0, 3);
-                            const extra = related.length - visible.length;
-                            return (
-                              <li key={id} className="space-y-1 text-sm text-foreground">
-                                <div className="flex items-start gap-2">
-                                  <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-                                  <span className="font-mono text-xs text-foreground shrink-0">{id}</span>
-                                  <span className="text-foreground">— {getControlLabel(group.frameworkId, id)}</span>
-                                </div>
-                                {related.length > 0 && (
-                                  <div className="flex flex-wrap items-center gap-1 pl-7">
-                                    <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span className="text-xs text-muted-foreground mr-1">Også:</span>
-                                    <TooltipProvider delayDuration={150}>
-                                      {visible.map(r => {
-                                        const t = getFrameworkTheme(r.frameworkId);
-                                        return (
-                                          <Tooltip key={`${r.frameworkId}-${r.controlId}`}>
-                                            <TooltipTrigger asChild>
-                                              <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border cursor-default", t.chip)}>
-                                                {r.frameworkLabel} {r.controlId}
-                                              </span>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="top" className="text-xs">
-                                              {getControlLabel(r.frameworkId, r.controlId)}
-                                            </TooltipContent>
-                                          </Tooltip>
-                                        );
-                                      })}
-                                    </TooltipProvider>
-                                    {extra > 0 && (
-                                      <span className="text-xs text-muted-foreground">+{extra}</span>
-                                    )}
-                                  </div>
-                                )}
-                              </li>
-                            );
-                          })}
-                        </ul>
+                        <div className="flex flex-wrap gap-1 pl-1">
+                          {group.controlIds.map(id => (
+                            <span key={id} className="font-mono text-xs text-foreground bg-muted/50 rounded px-1.5 py-0.5">
+                              {id}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     );
                   })}
                 </div>
-
               </div>
             )}
 
 
-
-            {/* Vedlegg */}
-            {gapFrameworkId && (
+            {/* Vedlegg: gap-analyse som øyeblikksbilde */}
+            {(coveredGaps || gapFrameworkId) && (
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Vedlegg</Label>
                 <div className={`rounded-md border p-3 transition-colors ${attachGap ? "border-primary/40 bg-primary/5" : "border-border"}`}>
@@ -627,13 +679,17 @@ export function MSPCreateOfferDialog({
                       <FileText className="h-4 w-4 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <p className="text-sm font-medium text-foreground truncate">
-                          Gap-analyse {gapFrameworkId.toUpperCase()}
+                          Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()}
                         </p>
-                        <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">Anbefalt</Badge>
+                        <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/30">
+                          Øyeblikksbilde {snapshotLabel}
+                        </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">{gapCount} gap dokumentert</p>
+                      <p className="text-sm text-muted-foreground">
+                        {gapCount} mangler · markerer hvilke tilbudet lukker
+                      </p>
                     </div>
                     <Button type="button" size="sm" variant="ghost" className="h-8 text-sm gap-1 text-primary" onClick={() => setGapPreviewOpen(true)}>
                       <Eye className="h-3.5 w-3.5" /> Forhåndsvis
