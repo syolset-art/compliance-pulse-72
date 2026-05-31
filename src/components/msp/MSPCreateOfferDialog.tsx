@@ -25,6 +25,16 @@ export interface CoveredControlGroup {
   controlIds: string[];
 }
 
+export interface CoveredGapsSpec {
+  /** Regelverk dette tilbudet bygger på. */
+  frameworkId: string;
+  frameworkLabel: string;
+  /** Kontroll-id-er fra tjenestekatalogen som forhåndsvelger relaterte gap. Hvis tom, ingen gap er forhåndsvalgt. */
+  preselectedControlIds?: string[];
+  /** Eksplisitt liste over gap-id-er som er forhåndsvalgt (overstyrer preselectedControlIds). */
+  preselectedGapIds?: string[];
+}
+
 export interface CreateOfferDialogProps {
   open: boolean;
   onOpenChange: (o: boolean) => void;
@@ -44,6 +54,8 @@ export interface CreateOfferDialogProps {
   gapFrameworkId?: string;
   /** Kontrollpunkter denne leveransen dekker (vises i edit, preview og PDF). */
   coveredControls?: CoveredControlGroup[];
+  /** Gap fra gap-analysen som tilbudet lukker. Når satt, erstatter den den statiske coveredControls-visningen. */
+  coveredGaps?: CoveredGapsSpec;
   /** Hvilken visning dialogen åpner i. Default "edit". Bruk "preview" for å vise lagrede tilbud. */
   initialView?: "edit" | "preview";
 }
