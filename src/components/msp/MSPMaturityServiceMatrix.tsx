@@ -906,6 +906,7 @@ export function MSPMaturityServiceMatrix({
             customerEmail={customerEmail}
             onConfirm={confirmActivity}
             onUndo={undoActivity}
+            onSetStatus={setActivityStatus}
           />
         </TabsContent>
 
