@@ -493,10 +493,13 @@ export default function ActivateTrustProfileWizard({
       {step === 4 && (
         <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
       )}
-      {step === 5 && !isCalculating && (
-        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+      {step === 5 && (
+        <CriticalVendorsStep rows={criticalVendors} onChange={setCriticalVendors} />
       )}
       {step === 6 && !isCalculating && (
+        <DocumentsStep documents={documents} onUpload={uploadDocument} />
+      )}
+      {step === 7 && !isCalculating && (
         <div className="space-y-6">
           <PartnerSelectionBlock
             status={partnerStatus}
@@ -527,7 +530,7 @@ export default function ActivateTrustProfileWizard({
           </div>
         </div>
       )}
-      {step === 6 && isCalculating && (
+      {step === 7 && isCalculating && (
         <CalculatingScoreStep activeStep={calcStep} score={trustScore} />
       )}
     </div>
