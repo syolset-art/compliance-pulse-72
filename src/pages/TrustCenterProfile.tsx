@@ -327,12 +327,32 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </li>
                 ))}
               </ul>
+              {!autoPlayDemo && (
+                <div className="mt-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => {
+                      try { localStorage.removeItem("mynder.trustprofile.activated"); } catch {}
+                      const url = new URL(window.location.href);
+                      url.searchParams.set("demo", "activation");
+                      window.location.assign(url.toString());
+                    }}
+                    title={isNb ? "Nullstill og spill av aktiveringen automatisk (~40 s)" : "Reset and auto-play the activation flow (~40 s)"}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    {isNb ? "Spill av demo (~40 s)" : "Play demo (~40 s)"}
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className={`transition-all duration-500 ${justActivated ? "opacity-0 -translate-y-2" : "opacity-100"}`}>
               <ActivateTrustProfileWizard
                 inline
                 conversation
+                autoPlay={autoPlayDemo}
                 initialCompanyName={companyProfile?.name || undefined}
                 initialOrgNumber={companyProfile?.org_number || undefined}
                 initialDomain={(companyProfile as any)?.domain || undefined}
@@ -343,12 +363,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   setJustActivated(true);
                   setTimeout(() => {
                     setIsActivated(true);
+                    setAutoPlayDemo(false);
                     queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
                     queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
                   }, 700);
                 }}
               />
             </div>
+
 
             <ContextualHelpPanel
               open={helpOpen}
