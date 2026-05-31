@@ -27,6 +27,13 @@ import {
 } from "@/lib/trustMaturityQuestions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  findVendorSuggestions,
+  findVendorByName,
+  GENERIC_ACCESS_OPTIONS,
+  type VendorSuggestion,
+} from "@/lib/vendorCatalog";
 import { supabase } from "@/integrations/supabase/client";
 import { PARTNER_TYPE_LABEL, type PartnerType } from "@/hooks/usePartnerInfo";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
