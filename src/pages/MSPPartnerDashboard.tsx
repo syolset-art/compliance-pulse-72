@@ -50,11 +50,11 @@ const LARA_SUGGESTIONS: LaraSuggestion[] = [
   {
     id: 1,
     dot: "bg-status-followup",
-    text: "Kjør NIS2-claim-kampanje mot 28 kunder",
+    text: "Kjør NIS2-aktiveringskampanje mot 28 kunder",
     icon: Target,
-    title: "NIS2-claim-kampanje",
-    summary: "28 kunder i porteføljen er NIS2-eksponert, men har ennå ikke overtatt sin Trust Profile. Lara har klargjort en målrettet kampanje.",
-    impact: { reach: "28 kunder", expectedClaims: "9–12 nye claims", revenue: "~210 000 kr ARR" },
+    title: "NIS2-aktiveringskampanje",
+    summary: "28 kunder i porteføljen er NIS2-eksponert, men har ennå ikke aktivert sin Trust Profile. Lara har klargjort en målrettet kampanje.",
+    impact: { reach: "28 kunder", expectedClaims: "9–12 nye aktiveringer", revenue: "~210 000 kr ARR" },
     steps: [
       "Send personalisert e-post med NIS2-eksponering og frister",
       "Automatisk oppfølging etter 3 dager til de som ikke åpnet",
