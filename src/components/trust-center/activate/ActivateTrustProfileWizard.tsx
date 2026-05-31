@@ -773,14 +773,14 @@ function WelcomeStep() {
       <Card className="p-4 bg-primary/5 border-primary/20">
         <div className="flex gap-3">
           <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-          <div className="text-sm text-foreground/80 space-y-1.5">
+          <div className="text-sm text-muted-foreground space-y-1.5">
             <p><strong>Velkommen!</strong> Du er i ferd med å lage ditt eget <strong>Trust Center</strong> i Mynder — en publiserbar profil som viser kunder og partnere at du tar sikkerhet og personvern på alvor.</p>
           </div>
         </div>
       </Card>
       <div>
         <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2">Slik fungerer det</p>
-        <p className="text-sm text-foreground/80">
+        <p className="text-sm text-muted-foreground">
           Lara kartlegger informasjon du har lagret i Mynder samt offentlige kilder — så slipper du å fylle alt ut fra skratsj.
         </p>
       </div>
@@ -1071,7 +1071,7 @@ function FieldGroup({ icon: Icon, title, children }: any) {
 function PrefilledHint({ source }: { source: string }) {
   return (
     <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1">
-      <Sparkles className="h-3 w-3 text-primary/70" />
+      <Sparkles className="h-3 w-3 text-primary" />
       <span>Fra {source}</span>
     </p>
   );
@@ -1091,7 +1091,7 @@ function ConfirmStep(props: any) {
       {fromLara && (
         <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2">
           <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <p className="text-xs text-foreground/80 leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             Lara fylte ut dette fra <span className="font-medium">{props.website || "hjemmesiden din"}</span>. Endre det du vil — eller bare gå videre.
           </p>
         </div>
@@ -1101,7 +1101,7 @@ function ConfirmStep(props: any) {
         <div className="space-y-2">
           <Label className="flex items-center gap-1.5">
             Beskrivelse
-            {sources.description && <Sparkles className="h-3 w-3 text-primary/70" />}
+            {sources.description && <Sparkles className="h-3 w-3 text-primary" />}
           </Label>
           <Textarea value={props.description} onChange={(e) => props.setDescription(e.target.value)} rows={3} />
           {sources.description && <PrefilledHint source={sources.description} />}
@@ -1132,7 +1132,7 @@ function ConfirmStep(props: any) {
               <div className="pt-2">
                 <div className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                   {row.label}
-                  {row.source && <Sparkles className="h-3 w-3 text-primary/70" />}
+                  {row.source && <Sparkles className="h-3 w-3 text-primary" />}
                 </div>
                 {row.sub && <div className="text-xs text-muted-foreground mt-0.5">{row.sub}</div>}
                 {row.extra}
@@ -1150,7 +1150,7 @@ function ConfirmStep(props: any) {
 
         <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
           <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-          <p className="text-xs text-foreground/80 leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             <span className="font-semibold">For mindre selskaper</span> er det helt vanlig at samme person dekker både personvern og sikkerhet — bruk gjerne samme e-post. <span className="font-semibold">DPO-pliktige virksomheter</span> må ha personvernombud som er uavhengig av daglig ledelse.
           </p>
         </div>
@@ -1178,7 +1178,7 @@ function PreviewStep({ name, orgNumber, description, website, contactName, conta
             <ShieldCheck className="h-3 w-3" /> Aktiv
           </Badge>
         </div>
-        <p className="text-sm text-foreground/80">{description}</p>
+        <p className="text-sm text-muted-foreground">{description}</p>
 
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="flex items-start gap-2">
@@ -1259,18 +1259,18 @@ function MaturityStep({ answers, sources, onChange }: {
           <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
           <div className="space-y-1.5">
             {fromRegelverkCount > 0 ? (
-              <p className="text-xs text-foreground/80 leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Lara har hentet data fra <span className="font-medium">Regelverk</span> og fylt ut svarene under. Du kan velge å fortsette å oppdatere i Regelverk før du deler eller publiserer — det <span className="font-medium">må ikke fullføres nå</span>.
               </p>
             ) : (
-              <p className="text-xs text-foreground/80 leading-relaxed">
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Lara har svart på <span className="font-medium">{laraYes + laraNa}</span> spørsmål basert på sikre kilder fra kartleggingen
                 {laraYes > 0 && <> — <span className="font-medium">{laraYes}</span> bekreftet</>}
                 {laraNa > 0 && <>, <span className="font-medium">{laraNa}</span> markert som ikke aktuelt</>}.
                 Du kan overstyre alle svar. Resten er satt til «Senere» — fyll inn det du vet.
               </p>
             )}
-            <p className="text-xs text-foreground/70 leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               <span className="font-medium">Tips:</span> Du kan fortsette å heve modenheten din når som helst under <span className="font-medium">Regelverk</span> i menyen — der jobber du systematisk med kontroller per rammeverk, og endringene speiles automatisk her på Trust Profile.
             </p>
           </div>
@@ -1714,7 +1714,7 @@ function DocumentsStep({ documents, onUpload }: {
 
       <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex gap-2.5">
         <Lightbulb className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-        <p className="text-xs text-foreground/80 leading-relaxed">
+        <p className="text-xs text-muted-foreground leading-relaxed">
           Last opp policyer som dekker hullene. Når du laster opp en <span className="font-semibold">DPA</span>, oppdaterer Lara automatisk svaret i Modenhet-steget. Alt er valgfritt — du kan komme tilbake senere.
         </p>
       </div>
@@ -1830,9 +1830,9 @@ function CalculatingScoreStep({ activeStep, score }: { activeStep: number; score
               ) : active ? (
                 <Loader2 className="h-3.5 w-3.5 text-primary animate-spin" />
               ) : (
-                <Clock className="h-3.5 w-3.5 text-muted-foreground/50" />
+                <Clock className="h-3.5 w-3.5 text-muted-foreground" />
               )}
-              <span className={done ? "text-foreground" : active ? "text-foreground" : "text-muted-foreground/70"}>
+              <span className={done ? "text-foreground" : active ? "text-foreground" : "text-muted-foreground"}>
                 {label}
               </span>
             </li>
@@ -1892,7 +1892,7 @@ function VisibilityStep({
               </div>
               <div
                 className={`mt-1 h-4 w-4 rounded-full border-2 ${
-                  selected ? "border-[hsl(var(--mynder-blue))] bg-[hsl(var(--mynder-blue))]" : "border-muted-foreground/40"
+                  selected ? "border-[hsl(var(--mynder-blue))] bg-[hsl(var(--mynder-blue))]" : "border-muted-foreground"
                 }`}
               />
             </div>
