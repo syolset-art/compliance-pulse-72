@@ -508,44 +508,20 @@ export default function ActivateTrustProfileWizard({
     onOpenChange(false);
   };
 
+  const stepHint =
+    step === 1 ? "Bekreft hvor du jobber." :
+    step === 2 ? "Lara henter offentlig informasjon." :
+    step === 3 ? "Bekreft kort om virksomheten." :
+    step === 4 ? "Valgfritt — last opp om du har." :
+    step === 5 ? "Hvem har tilgang til dine viktigste systemer?" :
+    step === 6 ? "Bekreft eller juster Laras svar." :
+    step === 7 ? "Hvem skal kunne se profilen?" : "";
+
   const header = (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <ShieldCheck className="h-4 w-4 text-primary" />
-        </div>
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
-          Aktiver Trust Profile · Steg {step} av {TOTAL_STEPS}
-        </span>
-        {hasOrgPrefill && step === 1 && (
-          <Badge variant="outline" className="ml-auto text-[10px] gap-1 border-primary/30 text-primary">
-            <CheckCircle2 className="h-3 w-3" /> Innlogget som {companyName}
-          </Badge>
-        )}
-      </div>
-      <h2 className="text-xl font-semibold">
-        {step === 1 && (hasOrgPrefill
-          ? "Bekreft hjemmesiden din"
-          : "Bekreft organisasjonen din")}
-        {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
-        {step === 3 && "Bekreft og juster informasjonen"}
-        {step === 4 && "Last opp dokumenter"}
-        {step === 5 && "Kritiske leverandører"}
-        {step === 6 && "Modenhet — bekreft det Lara fant"}
-        {step === 7 && "Hvem skal se din Trust Profile?"}
-      </h2>
-      <p className="text-sm text-muted-foreground">
-        {step === 1 && (hasOrgPrefill
-          ? "Vi har allerede selskapsnavn, organisasjonsnummer og land. For å fortsette trenger Lara hjemmesiden din."
-          : "Søk opp selskapet ditt i Brønnøysundregistrene — velg riktig treff, så fyller vi inn org.nr automatisk.")}
-        {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
-        {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
-        {step === 4 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
-        {step === 5 && "Hvilke leverandører har tilgang til dine viktigste systemer eller data? Legg til inntil 5 — dette gir oss et bilde av hvor dine viktigste data faktisk ligger."}
-        {step === 6 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
-        {step === 7 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
-      </p>
-      <Progress value={((step - 1) / (TOTAL_STEPS - 1)) * 100} className="h-1" />
+    <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <span className="text-primary">Steg {step}</span>
+      <span>·</span>
+      <span>{stepHint}</span>
     </div>
   );
 
