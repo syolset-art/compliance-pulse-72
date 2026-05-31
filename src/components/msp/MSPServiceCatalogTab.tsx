@@ -288,21 +288,21 @@ export function MSPServiceCatalogTab() {
       <section className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1 min-w-0">
-            <h3 className="text-sm font-semibold text-foreground">
+            <h3 className="text-base font-semibold text-foreground">
               Foreslåtte tjenester
             </h3>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0">
-            <Plus className="h-3.5 w-3.5" />
+          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0 h-10 text-sm">
+            <Plus className="h-4 w-4" />
             Beskriv egen tjeneste
           </Button>
         </div>
         <div className="overflow-hidden rounded-md border border-border bg-card">
           <table className="w-full text-sm">
-            <thead className="bg-muted/30 text-xs text-muted-foreground">
+            <thead className="bg-muted/30 text-sm text-muted-foreground">
               <tr>
                 <th className="text-left font-medium px-3 py-2 w-12"></th>
                 <th className="text-left font-medium px-3 py-2">Tjeneste</th>
