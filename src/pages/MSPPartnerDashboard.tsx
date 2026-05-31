@@ -29,7 +29,7 @@ import {
 // ---------- Mock data (aggregated partner view) ----------
 const KPIS = [
   { key: "portfolio", label: "PORTEFØLJE", value: "400", sub: "kunder", tone: "default" as const },
-  { key: "claim", label: "CLAIM-RATE", value: "12%", sub: "47 av 400 · mål 40%", tone: "primary" as const, delta: "+2", progress: 30 },
+  { key: "claim", label: "AKTIVERINGSGRAD", value: "12%", sub: "47 av 400 kunder har aktivert compliance-leveransen", tone: "primary" as const, delta: "+2", progress: 30 },
   { key: "signals", label: "SALGSSIGNALER", value: "23", sub: "aktive nå", tone: "warning" as const },
   { key: "won", label: "VUNNET I MND", value: "340k", sub: "12 oppdrag", tone: "success" as const },
 ];
