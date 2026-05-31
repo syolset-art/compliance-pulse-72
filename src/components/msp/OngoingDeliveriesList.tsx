@@ -113,6 +113,8 @@ export const OngoingDeliveriesList = ({
     controlId?: string;
     activityId?: string;
     readOnly?: boolean;
+    /** Forhåndsvalgt status — settes når dialogen åpnes via en status-knapp (f.eks. "Fullført"). */
+    intendedStatus?: ActivityStatus;
   }>({ open: false });
   const [summaryCtx, setSummaryCtx] = useState<{ open: boolean; deliveryId?: string }>({
     open: false,
@@ -130,9 +132,11 @@ export const OngoingDeliveriesList = ({
     deliveryId: string,
     controlId: string,
     activityId: string,
+    intendedStatus?: ActivityStatus,
   ) => {
-    setConfirmCtx({ open: true, deliveryId, controlId, activityId });
+    setConfirmCtx({ open: true, deliveryId, controlId, activityId, intendedStatus });
   };
+
 
   const confirmCtxResolved = useMemo(() => {
     if (!confirmCtx.open) return null;
@@ -426,8 +430,8 @@ export const OngoingDeliveriesList = ({
                               onOpenDetails={() => openConfirm(d.id, c.id, a.id)}
                               onSetStatus={(status) => {
                                 if (status === "done") {
-                                  // Krev note/bevis-bekreftelse via dialogen
-                                  openConfirm(d.id, c.id, a.id);
+                                  // Krev note/bevis-bekreftelse via dialogen — preutfyll med "Ferdig"
+                                  openConfirm(d.id, c.id, a.id, "done");
                                 } else if (a.done && onUndo) {
                                   // Hvis vi forlater done, angre evt. confirmation, så sett ny status
                                   onSetStatus?.(d.id, c.id, a.id, status);
@@ -538,7 +542,7 @@ export const OngoingDeliveriesList = ({
             note: confirmCtxResolved.a.note,
             files: confirmCtxResolved.a.evidence,
             sharedWithCustomer: confirmCtxResolved.a.sharedWithCustomer,
-            status: getStatus(confirmCtxResolved.a),
+            status: confirmCtx.intendedStatus ?? getStatus(confirmCtxResolved.a),
           }}
           onConfirm={(payload) =>
             onConfirm(
