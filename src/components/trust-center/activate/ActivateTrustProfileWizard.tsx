@@ -493,7 +493,10 @@ export default function ActivateTrustProfileWizard({
             setPartnerType={setPartnerType}
             showOnProfile={showPartnerOnProfile}
             setShowOnProfile={setShowPartnerOnProfile}
+            additionalPartners={additionalPartners}
+            setAdditionalPartners={setAdditionalPartners}
           />
+
           <div className="border-t border-border pt-4">
             <h3 className="text-sm font-semibold">Hvem skal se Trust Profilen?</h3>
             <p className="text-xs text-muted-foreground mt-1 mb-3">
