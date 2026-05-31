@@ -128,15 +128,12 @@ export function MSPCreateOfferDialog({
     setView(initialView);
     setSavedAt(null);
     setEditableHourlyRate(hourlyRate);
-    setDiscountPercent(0);
     setSelectedGapIds(new Set(defaultSelectedGapIds));
     setSnapshotDate(new Date());
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
-  const subtotal = totalHours * editableHourlyRate;
-  const discountAmount = Math.round(subtotal * (discountPercent / 100));
-  const totalPrice = subtotal - discountAmount;
+  const totalPrice = totalHours * editableHourlyRate;
 
   const updateTask = (i: number, patch: Partial<EditableTask>) => {
     setTasks(p => p.map((t, idx) => (idx === i ? { ...t, ...patch } : t)));
