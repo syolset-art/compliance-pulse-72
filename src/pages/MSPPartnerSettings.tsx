@@ -48,20 +48,9 @@ const defaults: ForwardSettings = {
   dailyDigest: false,
 };
 
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  role: "Partner-admin" | "Partner-rådgiver";
-  initials: string;
-}
-
-// Demo-team. Erstattes med user_roles-spørring når invitasjonsflyt er på plass.
-const DEMO_TEAM: TeamMember[] = [
-  { id: "u1", name: "Truls Berg", email: "truls@dintero.no", role: "Partner-admin", initials: "TB" },
-  { id: "u2", name: "Maja Solheim", email: "maja@dintero.no", role: "Partner-rådgiver", initials: "MS" },
-  { id: "u3", name: "Erik Hansen", email: "erik@dintero.no", role: "Partner-rådgiver", initials: "EH" },
-];
+import { PARTNER_TEAM, type PartnerTeamMember } from "@/lib/partnerTeam";
+type TeamMember = PartnerTeamMember;
+const DEMO_TEAM = PARTNER_TEAM;
 
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
