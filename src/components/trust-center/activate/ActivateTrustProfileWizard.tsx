@@ -1019,11 +1019,9 @@ function WebsiteVerifyField({
 function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; revealed: number; progress: number; domain: string }) {
   const done = revealed >= scan.findings.length;
   const currentFinding = !done ? scan.findings[Math.min(revealed, scan.findings.length - 1)] : null;
-  const found = scan.findings.filter((f) => (f.status ?? "found") === "found").length;
-  const missing = scan.findings.filter((f) => f.status === "missing").length;
 
   return (
-    <div className="space-y-2.5">
+    <div className="space-y-3">
       <Card className="p-3 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
@@ -1032,7 +1030,7 @@ function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; 
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">
               {done
-                ? <>Ferdig — fant <strong>{found}</strong> områder</>
+                ? "Lara er ferdig med kartleggingen"
                 : <>Lara kartlegger <span className="text-muted-foreground">{domain || "hjemmesiden"}</span>…</>}
             </p>
             <Progress value={progress} className="h-1 mt-1.5" />
@@ -1040,20 +1038,25 @@ function ScanStep({ scan, revealed, progress, domain }: { scan: LaraScanResult; 
         </div>
       </Card>
 
-      <div className="px-1 min-h-[18px] flex items-center gap-2 text-xs text-muted-foreground">
-        {done ? (
-          <>
-            <Sparkles className="h-3.5 w-3.5 text-success shrink-0" />
-            <span>
-              Alt er forhåndsutfylt i neste steg{missing > 0 ? ` · ${missing} ${missing === 1 ? "område mangler" : "områder mangler"}` : ""}.
-            </span>
-          </>
-        ) : currentFinding ? (
-          <>
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shrink-0" />
-            <span className="truncate">{currentFinding.label}…</span>
-          </>
-        ) : null}
+      <div className="space-y-1.5">
+        {scan.findings.map((f, i) => {
+          const isRevealed = i < revealed;
+          const isCurrent = i === revealed && !done;
+          if (!isRevealed && !isCurrent) return null;
+          return (
+            <div
+              key={f.key}
+              className={`flex items-center gap-2 text-xs px-1 transition-opacity duration-300 ${isCurrent ? "text-foreground" : "text-muted-foreground"}`}
+            >
+              {isCurrent ? (
+                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shrink-0" />
+              ) : (
+                <CheckCircle2 className="h-3 w-3 text-success shrink-0" />
+              )}
+              <span className="truncate">{f.label}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
