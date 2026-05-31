@@ -193,7 +193,7 @@ export const getStepText = (s: LaraStep): string =>
 export const getStepVia = (s: LaraStep): string | undefined =>
   typeof s === "string" ? undefined : s.via;
 
-export type ActivityStatus = "in_progress" | "not_relevant" | "done";
+export type ActivityStatus = "not_started" | "in_progress" | "not_relevant" | "done";
 
 export interface DeliveryActivity {
   id: string;
@@ -292,6 +292,7 @@ const DELIVERIES: DeliveryItem[] = [
             id: "a3",
             label: "Målrettet opplæring for ledergruppen",
             done: false,
+            status: "in_progress",
             owner: "Partner",
             date: "20. mai",
             laraSteps: [
@@ -320,6 +321,7 @@ const DELIVERIES: DeliveryItem[] = [
             id: "a4",
             label: "Re-test phishing og rapportering",
             done: false,
+            status: "not_started",
             owner: "Partner",
             date: "15. jun",
             laraSteps: [
@@ -397,6 +399,7 @@ const DELIVERIES: DeliveryItem[] = [
             id: "b3",
             label: "Kommunisert til alle ansatte",
             done: false,
+            status: "not_started",
             owner: "Kunde",
             laraSteps: [
               { text: "Lagt intranett-melding klar for publisering", via: "SharePoint" },
@@ -447,6 +450,7 @@ const DELIVERIES: DeliveryItem[] = [
             id: "v2",
             label: "Middels funn under retting",
             done: false,
+            status: "in_progress",
             owner: "Kunde",
             date: "15. mai",
             laraSteps: [
@@ -466,6 +470,14 @@ const DELIVERIES: DeliveryItem[] = [
                 "Klar for godkjenning av kunde",
               ],
             },
+          },
+          {
+            id: "v3",
+            label: "Lav-risiko funn vurdert",
+            done: false,
+            status: "not_relevant",
+            owner: "Partner",
+            note: "Kunden aksepterer restrisiko for 3 lav-funn (legacy-system fases ut Q3).",
           },
         ],
       },
@@ -550,10 +562,19 @@ export function MSPMaturityServiceMatrix({
         const controls = d.controls.map(c => {
           if (c.id !== controlId) return c;
           const activities = c.activities.map(a => (a.id === activityId ? updater(a) : a));
-          const doneCount = activities.filter(a => a.done).length;
-          const progress = activities.length > 0 ? Math.round((doneCount / activities.length) * 100) : 0;
+          // "Svart ut" = ferdig eller ikke relevant (begge teller mot full progress)
+          const resolvedCount = activities.filter(
+            a => a.status === "done" || a.status === "not_relevant" || a.done,
+          ).length;
+          const progress = activities.length > 0 ? Math.round((resolvedCount / activities.length) * 100) : 0;
+          // Modenhet (status) — kun "done" bidrar til lukket kontroll
+          const doneCount = activities.filter(a => a.status === "done" || a.done).length;
           const status: DeliveryControl["status"] =
-            progress >= 100 ? "fulfilled" : progress > 0 ? "partial" : "missing";
+            doneCount === activities.length && doneCount > 0
+              ? "fulfilled"
+              : doneCount > 0
+                ? "partial"
+                : "missing";
           return { ...c, activities, progress, status };
         });
         return { ...d, controls };
@@ -572,7 +593,7 @@ export function MSPMaturityServiceMatrix({
     applyActivityUpdate(deliveryId, controlId, activityId, a => ({
       ...a,
       status,
-      done: isResolved,
+      done: status === "done",
       confirmedAt: isResolved ? new Date().toISOString() : undefined,
       confirmedBy: isResolved ? "Partner" : undefined,
       note: payload.note,
@@ -580,14 +601,38 @@ export function MSPMaturityServiceMatrix({
       sharedWithCustomer: payload.sharedWithCustomer,
     }));
     if (status === "done") {
-      toast.success("Aktivitet markert som ferdig", {
-        description: "Generer sluttrapport når alle aktivitetene er ferdige.",
+      toast.success("Spørsmål svart ut: Fullført", {
+        description: "Generer sluttrapport når alle spørsmål er svart ut.",
       });
     } else if (status === "not_relevant") {
-      toast.success("Aktivitet markert som ikke relevant");
+      toast.success("Spørsmål svart ut: Ikke aktuelt");
+    } else if (status === "not_started") {
+      toast.info("Status: Ikke påstartet");
     } else {
-      toast.success("Aktivitet oppdatert", { description: "Status: pågår" });
+      toast.success("Status: Pågår");
     }
+  };
+
+  const setActivityStatus = (
+    deliveryId: string,
+    controlId: string,
+    activityId: string,
+    status: ActivityStatus,
+  ) => {
+    applyActivityUpdate(deliveryId, controlId, activityId, a => ({
+      ...a,
+      status,
+      done: status === "done",
+      confirmedAt: status === "done" || status === "not_relevant" ? a.confirmedAt ?? new Date().toISOString() : undefined,
+      confirmedBy: status === "done" || status === "not_relevant" ? a.confirmedBy ?? "Partner" : undefined,
+    }));
+    const labels: Record<ActivityStatus, string> = {
+      not_started: "Ikke påstartet",
+      in_progress: "Pågår",
+      not_relevant: "Ikke aktuelt",
+      done: "Fullført",
+    };
+    toast.success(`Status: ${labels[status]}`);
   };
 
   const undoActivity = (deliveryId: string, controlId: string, activityId: string) => {
@@ -861,6 +906,7 @@ export function MSPMaturityServiceMatrix({
             customerEmail={customerEmail}
             onConfirm={confirmActivity}
             onUndo={undoActivity}
+            onSetStatus={setActivityStatus}
           />
         </TabsContent>
 
