@@ -310,6 +310,16 @@ export default function ActivateTrustProfileWizard({
     );
   }, [scan]);
 
+  // Auto-advance from scan step to confirm step when Lara is done
+  useEffect(() => {
+    if (step !== 2 || !scan) return;
+    if (revealed < scan.findings.length) return;
+    const t = window.setTimeout(() => {
+      setStep((s) => (s === 2 ? (3 as Step) : s));
+    }, 700);
+    return () => window.clearTimeout(t);
+  }, [step, scan, revealed]);
+
   const handleSearchName = async () => {
     if (companyName.trim().length < 2) return;
     await searchByName(companyName);
