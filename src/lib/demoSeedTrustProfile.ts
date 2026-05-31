@@ -137,6 +137,7 @@ export interface ActivationValues {
   securityEmail?: string;
   maturityAnswers?: Record<string, "yes" | "no" | "later" | "n_a">;
   criticalVendors?: Array<{ name: string; access: string; dpa: "yes" | "no" | "unknown" }>;
+  subprocessorList?: import("./demoSubprocessorAnalysis").SubprocessorListData | null;
   documents?: ActivationDocument[];
   visibility: "private" | "ecosystem" | "public";
   partner?: {
