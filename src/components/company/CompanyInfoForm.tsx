@@ -11,6 +11,8 @@ import { Upload, Shield, Save, Pencil, X, Sparkles, AlertCircle, Handshake, Load
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CompanyInfoFormProps {
@@ -38,6 +40,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
   // Partner-katalog (prototype): partnere som har opprettet egen Trust Profile i Mynder
   const [partnerPickerOpen, setPartnerPickerOpen] = useState(false);
+  const [addPartnerDialogOpen, setAddPartnerDialogOpen] = useState(false);
+  const [draftPartnerName, setDraftPartnerName] = useState("");
   const PARTNER_DIRECTORY: Array<{ name: string; type: string; roleDescription: string }> = [
     { name: "Mynder MSP-partner AS", type: "msp", roleDescription: "Drift, sikkerhetsovervåking og brukerstøtte" },
     { name: "Acme IT AS", type: "it_partner", roleDescription: "IT-drift og support" },
@@ -487,175 +491,253 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
               </div>
             </div>
           )}
-          {isEditing && (
-            <div className="flex items-center gap-2 pt-1">
-              <span className="text-[13px] text-muted-foreground">Har partner</span>
-              <Switch
-                checked={form.managed_by_partner}
-                onCheckedChange={(v) => update("managed_by_partner", v as any)}
-                className="data-[state=checked]:bg-primary"
-              />
-            </div>
-          )}
         </div>
 
-        {form.managed_by_partner ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FieldBlock label="Partnernavn" hint="Velg fra Mynder Trust-katalogen eller skriv inn manuelt">
-              {isEditing ? (
-                <div className="space-y-1.5">
-                  <Popover open={partnerPickerOpen} onOpenChange={setPartnerPickerOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={partnerPickerOpen}
-                        className="w-full justify-between h-9 text-sm font-normal"
-                      >
-                        <span className={cn("truncate", !form.partner_name && "text-muted-foreground")}>
-                          {form.partner_name || "Søk eller velg partner…"}
-                        </span>
-                        <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0 ml-2" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                      <Command>
-                        <CommandInput
-                          placeholder="Søk i Mynder Trust-katalog…"
-                          value={form.partner_name}
-                          onValueChange={(v) => update("partner_name", v)}
-                        />
-                        <CommandList>
-                          <CommandEmpty>
-                            <div className="px-2 py-3 text-center space-y-1">
-                              <p className="text-[12px] text-muted-foreground">
-                                Ingen partner matchet i Mynder Trust.
-                              </p>
-                              <p className="text-[11px] text-muted-foreground/80">
-                                Du kan beholde navnet og fylle ut Type partner og Leveranseområde manuelt.
-                              </p>
-                            </div>
-                          </CommandEmpty>
-                          <CommandGroup heading="Partnere med Trust Profile">
-                            {PARTNER_DIRECTORY.map((p) => (
-                              <CommandItem
-                                key={p.name}
-                                value={p.name}
-                                onSelect={() => selectPartner(p)}
-                                className="flex items-start gap-2 py-2"
-                              >
-                                <Check
-                                  className={cn(
-                                    "h-3.5 w-3.5 mt-0.5 shrink-0",
-                                    form.partner_name === p.name ? "opacity-100 text-primary" : "opacity-0"
-                                  )}
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-sm font-medium truncate">{p.name}</span>
-                                    <Shield className="h-3 w-3 text-primary shrink-0" />
-                                  </div>
-                                  <p className="text-[11px] text-muted-foreground truncate">
-                                    {p.roleDescription}
-                                  </p>
-                                </div>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  {matchedPartner ? (
+        {form.managed_by_partner && form.partner_name ? (
+          <div className="space-y-4">
+            {/* Partner header med fjern-knapp */}
+            <div className="flex items-center justify-between rounded-md border border-border bg-muted/20 px-3 py-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <Shield className="h-4 w-4 text-primary shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{form.partner_name}</p>
+                  {matchedPartner && (
                     <p className="text-[11px] text-primary flex items-center gap-1">
                       <CheckCircle2 className="h-3 w-3" />
-                      Hentet fra Mynder Trust — Type og Leveranseområde er forhåndsutfylt.
+                      Hentet fra Mynder Trust
                     </p>
-                  ) : form.partner_name ? (
-                    <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" />
-                      Ikke i Mynder Trust-katalogen — fyll ut Type og Leveranseområde manuelt.
-                    </p>
-                  ) : null}
+                  )}
                 </div>
-              ) : (
-                <Input value={form.partner_name || "—"} readOnly className="bg-muted/30 text-sm" />
-              )}
-            </FieldBlock>
-
-            <FieldBlock
-              label="Type partner"
-              hint={matchedPartner ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Hvilken rolle partneren har"}
-            >
-              {isEditing ? (
-                <select
-                  value={form.partner_type}
-                  onChange={(e) => update("partner_type", e.target.value as any)}
-                  className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
-                >
-                  <option value="msp">MSP — Managed Service Provider</option>
-                  <option value="mssp">MSSP — Managed Security Service Provider</option>
-                  <option value="it_partner">IT-partner</option>
-                  <option value="consultant">Konsulent / rådgiver</option>
-                  <option value="other">Annet</option>
-                </select>
-              ) : (
-                <Input value={form.partner_type || "—"} readOnly className="bg-muted/30 text-sm" />
-              )}
-            </FieldBlock>
-
-            <FieldBlock
-              label="Leveranseområde"
-              hint={matchedPartner ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Kort beskrivelse av hva partneren leverer"}
-            >
-              {isEditing ? (
-                <Input
-                  value={form.partner_role_description}
-                  onChange={(e) => update("partner_role_description", e.target.value)}
-                  placeholder="F.eks. Drift, sikkerhetsovervåking, brukerstøtte"
-                  className="text-sm"
-                />
-              ) : (
-                <Input value={form.partner_role_description || "—"} readOnly className="bg-muted/30 text-sm" />
-              )}
-            </FieldBlock>
-
-            <FieldBlock label="Partner siden" hint="Når startet samarbeidet? (fylles inn manuelt)">
-              {isEditing ? (
-                <Input
-                  type="date"
-                  value={form.partner_since}
-                  onChange={(e) => update("partner_since", e.target.value)}
-                  className="text-sm"
-                />
-              ) : (
-                <Input value={form.partner_since || "—"} readOnly className="bg-muted/30 text-sm" />
-              )}
-            </FieldBlock>
-
-            <div className="md:col-span-2 flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
-              <div>
-                <p className="text-xs font-medium text-foreground">Vis partner på Trust-profilen</p>
-                <p className="text-[12px] text-muted-foreground">Anbefales — bygger tillit i due diligence.</p>
               </div>
-              <Switch
-                checked={form.show_partner_on_trust_profile}
-                onCheckedChange={(v) => update("show_partner_on_trust_profile", v as any)}
-                disabled={!isEditing}
-                className="data-[state=checked]:bg-primary"
-              />
+              {isEditing && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setForm((prev) => ({
+                      ...prev,
+                      managed_by_partner: false,
+                      partner_name: "",
+                      partner_type: "msp",
+                      partner_role_description: "",
+                      partner_since: "",
+                    }));
+                  }}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5 mr-1" />
+                  Fjern
+                </Button>
+              )}
+            </div>
+
+            {/* Valgfrie detaljer */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FieldBlock
+                label="Type partner (valgfritt)"
+                hint={matchedPartner ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Hvilken rolle partneren har"}
+              >
+                {isEditing ? (
+                  <select
+                    value={form.partner_type}
+                    onChange={(e) => update("partner_type", e.target.value as any)}
+                    className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm"
+                  >
+                    <option value="msp">MSP — Managed Service Provider</option>
+                    <option value="mssp">MSSP — Managed Security Service Provider</option>
+                    <option value="it_partner">IT-partner</option>
+                    <option value="consultant">Konsulent / rådgiver</option>
+                    <option value="other">Annet</option>
+                  </select>
+                ) : (
+                  <Input value={form.partner_type || "—"} readOnly className="bg-muted/30 text-sm" />
+                )}
+              </FieldBlock>
+
+              <FieldBlock
+                label="Leveranseområde (valgfritt)"
+                hint={matchedPartner ? "Forhåndsutfylt fra Mynder Trust — kan redigeres" : "Kort beskrivelse av hva partneren leverer"}
+              >
+                {isEditing ? (
+                  <Input
+                    value={form.partner_role_description}
+                    onChange={(e) => update("partner_role_description", e.target.value)}
+                    placeholder="F.eks. Drift, sikkerhetsovervåking, brukerstøtte"
+                    className="text-sm"
+                  />
+                ) : (
+                  <Input value={form.partner_role_description || "—"} readOnly className="bg-muted/30 text-sm" />
+                )}
+              </FieldBlock>
+
+              <FieldBlock label="Partner siden (valgfritt)" hint="Når startet samarbeidet?">
+                {isEditing ? (
+                  <Input
+                    type="date"
+                    value={form.partner_since}
+                    onChange={(e) => update("partner_since", e.target.value)}
+                    className="text-sm"
+                  />
+                ) : (
+                  <Input value={form.partner_since || "—"} readOnly className="bg-muted/30 text-sm" />
+                )}
+              </FieldBlock>
+
+              <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
+                <div>
+                  <p className="text-xs font-medium text-foreground">Vis partner på Trust-profilen</p>
+                  <p className="text-[12px] text-muted-foreground">Anbefales — bygger tillit i due diligence.</p>
+                </div>
+                <Switch
+                  checked={form.show_partner_on_trust_profile}
+                  onCheckedChange={(v) => update("show_partner_on_trust_profile", v as any)}
+                  disabled={!isEditing}
+                  className="data-[state=checked]:bg-primary"
+                />
+              </div>
             </div>
           </div>
         ) : (
-          <div className="rounded-md border border-dashed border-border bg-muted/20 p-3">
-            <p className="text-[13px] text-muted-foreground">
-              {isEditing
-                ? "Slå på «Har partner» over for å registrere en MSP, MSSP eller IT-partner."
-                : "Ingen partner registrert. Klikk «Rediger» for å legge til."}
-            </p>
+          <div className="rounded-md border border-dashed border-border bg-muted/20 p-4 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[13px] text-foreground font-medium">Ingen partner registrert</p>
+              <p className="text-[12px] text-muted-foreground mt-0.5">
+                Legg til MSP, MSSP, IT-partner eller rådgiver som leverer tjenester til virksomheten.
+              </p>
+            </div>
+            {isEditing && (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  setDraftPartnerName("");
+                  setAddPartnerDialogOpen(true);
+                }}
+                className="shrink-0"
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" />
+                Legg til partner
+              </Button>
+            )}
           </div>
         )}
+
+        {/* Dialog: Legg til partner */}
+        <Dialog open={addPartnerDialogOpen} onOpenChange={setAddPartnerDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Legg til partner</DialogTitle>
+              <DialogDescription>
+                Velg en partner fra Mynder Trust-katalogen, eller skriv inn navnet manuelt.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">Partnernavn</label>
+                <Popover open={partnerPickerOpen} onOpenChange={setPartnerPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={partnerPickerOpen}
+                      className="w-full justify-between h-9 text-sm font-normal"
+                    >
+                      <span className={cn("truncate", !draftPartnerName && "text-muted-foreground")}>
+                        {draftPartnerName || "Søk eller velg partner…"}
+                      </span>
+                      <ChevronsUpDown className="h-3.5 w-3.5 opacity-50 shrink-0 ml-2" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                    <Command>
+                      <CommandInput
+                        placeholder="Søk eller skriv inn navn…"
+                        value={draftPartnerName}
+                        onValueChange={setDraftPartnerName}
+                      />
+                      <CommandList>
+                        <CommandEmpty>
+                          <div className="px-2 py-3 text-center space-y-1">
+                            <p className="text-[12px] text-muted-foreground">
+                              Ingen treff i Mynder Trust.
+                            </p>
+                            <p className="text-[11px] text-muted-foreground/80">
+                              Trykk «Legg til» for å bruke navnet du har skrevet.
+                            </p>
+                          </div>
+                        </CommandEmpty>
+                        <CommandGroup heading="Partnere med Trust Profile">
+                          {PARTNER_DIRECTORY.map((p) => (
+                            <CommandItem
+                              key={p.name}
+                              value={p.name}
+                              onSelect={() => {
+                                setDraftPartnerName(p.name);
+                                setPartnerPickerOpen(false);
+                              }}
+                              className="flex items-start gap-2 py-2"
+                            >
+                              <Check
+                                className={cn(
+                                  "h-3.5 w-3.5 mt-0.5 shrink-0",
+                                  draftPartnerName === p.name ? "opacity-100 text-primary" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-sm font-medium truncate">{p.name}</span>
+                                  <Shield className="h-3 w-3 text-primary shrink-0" />
+                                </div>
+                                <p className="text-[11px] text-muted-foreground truncate">
+                                  {p.roleDescription}
+                                </p>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <p className="text-[11px] text-muted-foreground">
+                  Type partner, leveranseområde og partner siden kan fylles ut etterpå (valgfritt).
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setAddPartnerDialogOpen(false)}>
+                Avbryt
+              </Button>
+              <Button
+                type="button"
+                disabled={!draftPartnerName.trim()}
+                onClick={() => {
+                  const name = draftPartnerName.trim();
+                  if (!name) return;
+                  const match = PARTNER_DIRECTORY.find(
+                    (p) => p.name.toLowerCase() === name.toLowerCase()
+                  );
+                  setForm((prev) => ({
+                    ...prev,
+                    managed_by_partner: true,
+                    partner_name: match ? match.name : name,
+                    partner_type: match ? (match.type as never) : prev.partner_type,
+                    partner_role_description: match ? (match.roleDescription as never) : prev.partner_role_description,
+                  }));
+                  setAddPartnerDialogOpen(false);
+                  setDraftPartnerName("");
+                }}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" />
+                Legg til
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
       </>
       )}
