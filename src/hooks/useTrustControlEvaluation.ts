@@ -78,7 +78,16 @@ function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, d
     self: {
       security_responsibility: () => {
         const val = meta.security_responsibility;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : (asset.asset_manager || meta.security_responsibility_defined) ? "implemented" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        // Registered contact information signals responsibility/accountability
+        const contacts = (meta.contacts || {}) as Record<string, any>;
+        const hasSecurityContact = !!(contacts.security && String(contacts.security).trim());
+        const hasPrivacyContact = !!(contacts.privacy && String(contacts.privacy).trim());
+        if (hasSecurityContact && hasPrivacyContact) return "implemented";
+        if (hasSecurityContact || hasPrivacyContact) return "partial";
+        if (asset.asset_manager || meta.security_responsibility_defined) return "implemented";
+        return "missing";
       },
       documented_policies: () => {
         const val = meta.documented_policies;
