@@ -458,7 +458,14 @@ export default function ActivateTrustProfileWizard({
       try { localStorage.setItem("mynder.trustprofile.activated", "1"); } catch {}
       await queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
       await queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
-      toast.success("Trust Profile aktivert");
+      if (analyzedSubprocessors && analyzedSubprocessors.vendors.length > 0) {
+        const tp = analyzedSubprocessors.vendors.filter((v) => v.hasTrustProfile).length;
+        toast.success(
+          `Trust Profile aktivert · Lara analyserte ${analyzedSubprocessors.vendors.length} underleverandører (${tp} med Trust Profile)`,
+        );
+      } else {
+        toast.success("Trust Profile aktivert");
+      }
       onOpenChange(false);
       onCompleted?.();
     } catch (e: any) {
