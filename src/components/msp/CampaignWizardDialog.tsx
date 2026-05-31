@@ -440,36 +440,107 @@ export function CampaignWizardDialog({ open, onOpenChange, onSend }: Props) {
 
 // ── STEP 1 ────────────────────────────────────────────────────────────────
 function Step1({
+  focus,
+  setFocus,
   selected,
   onToggle,
   combine,
   setCombine,
-  matches,
+  split,
   overrides,
   setOverride,
 }: {
+  focus: CampaignFocus | null;
+  setFocus: (f: CampaignFocus | null) => void;
   selected: string[];
   onToggle: (id: string) => void;
   combine: "and" | "or";
   setCombine: (v: "and" | "or") => void;
-  matches: CampaignCustomer[];
+  split: { confirmed: CampaignCustomer[]; possible: CampaignCustomer[]; baselineMatters: boolean };
   overrides: Record<string, boolean>;
   setOverride: (id: string, on: boolean) => void;
 }) {
-  const grouped = useMemo(() => {
-    const out: Record<string, CampaignSegment[]> = {};
-    for (const s of CAMPAIGN_SEGMENTS) (out[s.category] ??= []).push(s);
-    return out;
-  }, []);
+  // ── Fokus-velger ──────────────────────────────────────────────────────
+  if (!focus) {
+    return (
+      <div className="space-y-4 py-2">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Hva slags kampanje vil du sende?</p>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Velg ett fokus først — så filtrerer Lara fram kriteriene som passer.
+          </p>
+        </div>
+        <div className="space-y-2">
+          {FOCUS_OPTIONS.map((opt) => {
+            const Icon = opt.icon;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setFocus(opt.id)}
+                className="w-full text-left p-4 rounded-lg border border-border bg-background hover:border-primary/40 hover:bg-primary/5 transition-colors"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <Icon className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-foreground">{opt.label}</p>
+                      {opt.recommended && (
+                        <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
+                          <Sparkles className="h-3 w-3" />
+                          Lara anbefaler
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1 leading-snug">
+                      {opt.description}
+                    </p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground self-center shrink-0" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Segment-velger filtrert på fokus ──────────────────────────────────
+  const focusOpt = FOCUS_OPTIONS.find((f) => f.id === focus)!;
+  const allowedCategories = FOCUS_TO_CATEGORIES[focus];
+  const visibleSegments = CAMPAIGN_SEGMENTS.filter((s) => allowedCategories.includes(s.category));
+  const grouped: Record<string, CampaignSegment[]> = {};
+  for (const s of visibleSegments) (grouped[s.category] ??= []).push(s);
+
+  const totalMatches = split.confirmed.length + split.possible.length;
 
   return (
     <div className="space-y-5 py-2">
-      {/* Stor, sticky treff-teller */}
+      {/* Fokus-pille — endre */}
+      <div className="flex items-center gap-2">
+        <Badge variant="secondary" className="gap-1.5 py-1 px-2.5">
+          <focusOpt.icon className="h-3.5 w-3.5" />
+          Fokus: {focusOpt.label}
+        </Badge>
+        <Button
+          variant="link"
+          size="sm"
+          className="h-auto p-0 text-xs text-muted-foreground"
+          onClick={() => setFocus(null)}
+        >
+          endre
+        </Button>
+      </div>
+
+      {/* Sticky treff-teller med baseline-split */}
       <div className="sticky top-0 z-10 -mx-1 px-1 pb-2 bg-background">
         <Card
           className={cn(
             "p-4 border-2 transition-colors",
-            matches.length > 0
+            split.confirmed.length > 0
               ? "border-primary bg-primary/10"
               : "border-border bg-muted/30",
           )}
@@ -478,29 +549,36 @@ function Step1({
             <div
               className={cn(
                 "h-14 w-14 rounded-full flex items-center justify-center shrink-0",
-                matches.length > 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+                split.confirmed.length > 0 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
               )}
             >
-              <span className="text-2xl font-bold tabular-nums">{matches.length}</span>
+              <span className="text-2xl font-bold tabular-nums">{split.confirmed.length}</span>
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-base font-semibold text-foreground">
-                {matches.length === 0
-                  ? "Ingen kunder valgt ennå"
-                  : `${matches.length} kunde${matches.length === 1 ? "" : "r"} treffer kampanjen`}
-              </p>
-              <p className="text-sm text-muted-foreground">
                 {selected.length === 0
-                  ? "Hak av ett eller flere kriterier under."
-                  : `Av totalt ${DEMO_CAMPAIGN_CUSTOMERS.length} kunder · ${selected.length} kriteri${selected.length === 1 ? "um" : "er"} valgt`}
+                  ? "Ingen kunder valgt ennå"
+                  : split.baselineMatters
+                    ? `${split.confirmed.length} kunde${split.confirmed.length === 1 ? "" : "r"} bekreftet treff${split.confirmed.length > 0 ? " (fullført baseline)" : ""}`
+                    : `${totalMatches} kunde${totalMatches === 1 ? "" : "r"} treffer kampanjen`}
               </p>
+              {selected.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Hak av ett eller flere kriterier under.</p>
+              ) : split.baselineMatters && split.possible.length > 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  + {split.possible.length} mulig{split.possible.length === 1 ? " kunde" : "e kunder"} uten fullført baseline — kjør baseline først for å bekrefte.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Av totalt {DEMO_CAMPAIGN_CUSTOMERS.length} kunder · {selected.length} kriteri{selected.length === 1 ? "um" : "er"} valgt
+                </p>
+              )}
             </div>
           </div>
         </Card>
       </div>
 
-
-      {/* Segmenter */}
+      {/* Segmenter (filtrert på fokus) */}
       {Object.entries(grouped).map(([cat, segs]) => {
         const Icon = CATEGORY_ICON[cat as CampaignSegment["category"]];
         return (
@@ -578,47 +656,17 @@ function Step1({
         </Card>
       )}
 
-      {/* Live counter + manual list */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-semibold text-foreground">
-            {matches.length} av {DEMO_CAMPAIGN_CUSTOMERS.length} kunder treffer
-          </p>
-          {matches.length > 0 && (
-            <span className="text-xs text-muted-foreground">
-              Hak av for å hoppe over enkelte
-            </span>
-          )}
-        </div>
-        {matches.length === 0 ? (
-          selected.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Ingen kunder ennå — velg ett eller flere kriterier over.
+      {/* Bekreftede treff */}
+      {split.confirmed.length > 0 && (
+        <Card className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-semibold text-foreground">
+              Bekreftede mottakere ({split.confirmed.length})
             </p>
-          ) : combine === "and" && selected.length >= 2 ? (
-            <div className="space-y-2">
-              <p className="text-sm text-foreground">
-                <span className="font-medium">Ingen kunder matcher alle valgene samtidig.</span>{" "}
-                Det er sjelden at samme kunde mangler flere regelverk på én gang.
-              </p>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setCombine("or")}
-                className="gap-1.5"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                Bytt til «minst ett av valgene»
-              </Button>
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Ingen kunder matcher kriteriene. Prøv å velge flere segmenter eller andre kategorier.
-            </p>
-          )
-        ) : (
+            <span className="text-xs text-muted-foreground">Hak av for å hoppe over</span>
+          </div>
           <div className="space-y-1 max-h-48 overflow-y-auto">
-            {matches.map((c) => {
+            {split.confirmed.map((c) => {
               const isIn = overrides[c.id] !== false;
               return (
                 <label
@@ -642,11 +690,75 @@ function Step1({
               );
             })}
           </div>
-        )}
-      </Card>
+        </Card>
+      )}
+
+      {/* Mulige kunder uten baseline */}
+      {split.baselineMatters && split.possible.length > 0 && (
+        <Card className="p-4 border-dashed">
+          <div className="flex items-start gap-2 mb-2">
+            <AlertTriangle className="h-4 w-4 text-warning mt-0.5 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">
+                {split.possible.length} mulig{split.possible.length === 1 ? " kunde" : "e kunder"} uten fullført baseline
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                Vi vet ikke sikkert om disse er omfattet. Kjør baseline for å bekrefte, eller hak av for å inkludere likevel.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-1 max-h-40 overflow-y-auto mt-2">
+            {split.possible.map((c) => {
+              const isIn = overrides[c.id] === true;
+              return (
+                <label
+                  key={c.id}
+                  className="flex items-center gap-2.5 px-2 py-2 rounded hover:bg-muted/50 cursor-pointer"
+                >
+                  <Checkbox
+                    checked={isIn}
+                    onCheckedChange={(v) => setOverride(c.id, !!v)}
+                  />
+                  <span className="text-sm text-foreground">{c.name}</span>
+                  <span className="text-xs text-muted-foreground">· baseline ikke fullført</span>
+                </label>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
+      {/* Tom-tilstand */}
+      {selected.length > 0 && split.confirmed.length === 0 && split.possible.length === 0 && (
+        <Card className="p-4">
+          {combine === "and" && selected.length >= 2 ? (
+            <div className="space-y-2">
+              <p className="text-sm text-foreground">
+                <span className="font-medium">Ingen kunder matcher alle valgene samtidig.</span>{" "}
+                Det er sjelden at samme kunde mangler flere kriterier på én gang.
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setCombine("or")}
+                className="gap-1.5"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                Bytt til «minst ett av valgene»
+              </Button>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Ingen kunder matcher kriteriene. Prøv andre segmenter eller bytt fokus.
+            </p>
+          )}
+        </Card>
+      )}
     </div>
   );
 }
+
+
 
 // ── STEP 2 ────────────────────────────────────────────────────────────────
 function Step2({
