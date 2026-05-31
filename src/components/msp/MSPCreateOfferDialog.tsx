@@ -327,8 +327,9 @@ export function MSPCreateOfferDialog({
           <DialogTitle className="text-lg">{offerName}</DialogTitle>
           <DialogDescription className="text-sm">
             {view === "edit"
-              ? "Juster oppgaver og timer. Du genererer et tilbudsdokument du selv kan laste ned og sende fra ditt eget tilbudssystem."
-              : "Last ned som PDF for å sende via ditt eget tilbudssystem, eller lagre tilbudet på kunden."}
+              ? "Juster oppgaver og timer. Når tilbudet er generert kan du sende det direkte til kunden, eller laste det ned som PDF og sende fra ditt eget tilbudssystem."
+              : "Send tilbudet direkte til kunden, eller last ned som PDF og send fra ditt eget tilbudssystem."}
+
           </DialogDescription>
         </DialogHeader>
 
@@ -545,7 +546,7 @@ export function MSPCreateOfferDialog({
                 className="text-sm resize-none"
               />
               <p className="text-sm text-muted-foreground">
-                Denne teksten vises øverst i tilbudsdokumentet. Tilbudet sendes ikke automatisk — du laster det ned og sender selv.
+                Denne teksten vises øverst i tilbudsdokumentet. Etter generering kan du sende tilbudet direkte til kunden, eller laste det ned og sende fra ditt eget system.
               </p>
 
             </div>
