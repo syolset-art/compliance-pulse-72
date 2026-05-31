@@ -785,7 +785,7 @@ const SidebarContent = () => {
         )}
 
         {/* Bli Partner — kun synlig for de som ikke er partner enda */}
-        {!isPartner && (
+        {!isPartner && !partnerHides("become_partner") && (
           <Link
             to="/bli-partner"
             className={cn(
