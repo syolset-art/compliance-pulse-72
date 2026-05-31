@@ -282,13 +282,6 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
   return (
     <Card className="p-5 space-y-4">
-      {partnerOnly && showEditControls && (
-        <div className="flex items-center justify-end">
-          <span className="text-[11px] text-muted-foreground">
-            {saving ? "Lagrer..." : savedAt ? `Lagret ${savedAt.toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit" })}` : "Endringer lagres automatisk"}
-          </span>
-        </div>
-      )}
       {!partnerOnly && (
       <>
       <div className="flex items-center justify-between">
