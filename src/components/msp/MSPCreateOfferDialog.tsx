@@ -787,77 +787,86 @@ export function MSPCreateOfferDialog({
               </div>
 
 
-              {safeCoveredControls.length > 0 && (
+              {coveredGaps && selectedCount > 0 && (
                 <div className="pt-3 border-t border-border space-y-2">
-                  <div className="flex items-baseline justify-between">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekker kontrollpunkter</p>
-                    <span className="text-xs text-muted-foreground">
-                      {totalControlPoints} totalt · {safeCoveredControls.length} regelverk
+                  <div className="flex items-baseline justify-between gap-2">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                      Lukker mangler fra gap-analysen
+                    </p>
+                    <span className="text-xs text-foreground tabular-nums font-medium">
+                      {selectedCount} av {totalGapCount}
                     </span>
                   </div>
-                  <div className="space-y-3">
-                    {safeCoveredControls.map(group => {
-                      const theme = getFrameworkTheme(group.frameworkId);
+                  <div className="flex items-center gap-2 text-xs">
+                    {(() => {
+                      const theme = getFrameworkTheme(coveredGaps.frameworkId);
                       return (
-                        <div key={group.frameworkId} className="space-y-1.5">
-                          <div className="flex items-center gap-2">
-                            <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                              {group.frameworkLabel}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              {group.controlIds.length} kontrollpunkt{group.controlIds.length === 1 ? "" : "er"}
-                            </span>
-                          </div>
-                          <ul className="space-y-2 pl-1">
-                            {group.controlIds.map(id => {
-                              const related = getRelatedControls(group.frameworkId, id);
-                              const visible = related.slice(0, 3);
-                              const extra = related.length - visible.length;
-                              return (
-                                <li key={id} className="text-sm text-foreground space-y-1">
-                                  <div className="flex gap-2">
-                                    <span className="font-mono text-xs text-foreground shrink-0 pt-0.5">{id}</span>
-                                    <span>— {getControlLabel(group.frameworkId, id)}</span>
-                                  </div>
-                                  {related.length > 0 && (
-                                    <div className="flex flex-wrap items-center gap-1 pl-1">
-                                      <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-                                      <span className="text-xs text-muted-foreground mr-1">Også:</span>
-                                      {visible.map(r => {
-                                        const t = getFrameworkTheme(r.frameworkId);
-                                        return (
-                                          <span
-                                            key={`${r.frameworkId}-${r.controlId}`}
-                                            className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
-                                          >
-                                            {r.frameworkLabel} {r.controlId}
-                                          </span>
-                                        );
-                                      })}
-                                      {extra > 0 && (
-                                        <span className="text-xs text-muted-foreground">+{extra}</span>
-                                      )}
-                                    </div>
-                                  )}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
+                        <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                          {coveredGaps.frameworkLabel}
+                        </span>
                       );
-                    })}
+                    })()}
+                    <span className="text-muted-foreground">status per {snapshotLabel}</span>
                   </div>
+                  <ul className="space-y-1.5">
+                    {sortedGaps.filter(g => selectedGapIds.has(g.id)).map(g => (
+                      <li key={g.id} className="flex items-start gap-2 text-sm text-foreground">
+                        <span className={cn("h-1.5 w-1.5 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
+                        {g.reference && (
+                          <span className="font-mono text-xs text-muted-foreground shrink-0 mt-0.5">{g.reference}</span>
+                        )}
+                        <span className="leading-snug">— {g.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {crosswalkChips.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1 pt-1">
+                      <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
+                      {crosswalkChips.map(r => {
+                        const t = getFrameworkTheme(r.frameworkId);
+                        return (
+                          <span
+                            key={`${r.frameworkId}-${r.controlId}`}
+                            className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
+                          >
+                            {r.frameworkLabel} {r.controlId}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!coveredGaps && safeCoveredControls.length > 0 && (
+                <div className="pt-3 border-t border-border space-y-2">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekker kontrollpunkter</p>
+                  {safeCoveredControls.map(group => {
+                    const theme = getFrameworkTheme(group.frameworkId);
+                    return (
+                      <div key={group.frameworkId} className="space-y-1">
+                        <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                          {group.frameworkLabel}
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {group.controlIds.map(id => (
+                            <span key={id} className="font-mono text-xs text-foreground bg-muted/50 rounded px-1.5 py-0.5">{id}</span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
 
-
-              {attachGap && gapFrameworkId && (
+              {attachGap && (coveredGaps || gapFrameworkId) && (
                 <div className="pt-3 border-t border-border">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1.5">Vedlegg</p>
                   <div className="flex items-center gap-2 text-sm text-foreground">
                     <FileText className="h-3.5 w-3.5 text-primary" />
-                    Gap-analyse {gapFrameworkId.toUpperCase()} · {gapCount} gap dokumentert
+                    Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()} · øyeblikksbilde {snapshotLabel} · {gapCount} mangler
                   </div>
                 </div>
               )}
