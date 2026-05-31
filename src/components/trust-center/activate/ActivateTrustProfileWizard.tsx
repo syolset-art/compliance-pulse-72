@@ -509,7 +509,7 @@ export default function ActivateTrustProfileWizard({
       <h2 className="text-xl font-semibold">
         {step === 1 && (hasOrgPrefill
           ? "Bekreft hjemmesiden din"
-          : (hasPrefill ? "Bekreft organisasjonsnummer og hjemmeside" : "Bekreft organisasjonen din"))}
+          : "Bekreft organisasjonen din")}
         {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
         {step === 3 && "Bekreft og juster informasjonen"}
         {step === 4 && "Modenhet — bekreft det Lara fant"}
@@ -520,9 +520,7 @@ export default function ActivateTrustProfileWizard({
       <p className="text-sm text-muted-foreground">
         {step === 1 && (hasOrgPrefill
           ? "Vi har allerede selskapsnavn, organisasjonsnummer og land. For å fortsette trenger Lara hjemmesiden din."
-          : (hasPrefill
-            ? "Vi vet allerede hvem du er. For å gjøre resten automatisk trenger Lara organisasjonsnummeret og hjemmesiden din."
-            : "Vi henter selskapsdata fra Brønnøysundregistrene slik at det meste er klart fra start."))}
+          : "Søk opp selskapet ditt i Brønnøysundregistrene — velg riktig treff, så fyller vi inn org.nr automatisk.")}
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
         {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
