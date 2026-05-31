@@ -267,15 +267,27 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         <div className="flex min-h-screen w-full bg-background">
           <Sidebar />
           <main className="flex-1 p-6 pt-16">
-            <div className="max-w-3xl mx-auto mt-6 mb-4">
-              <h1 className="text-xl font-semibold text-foreground">
-                {isNb ? "Trust Profile" : "Trust Profile"}
+            <div className="max-w-3xl mx-auto mt-6 mb-6">
+              <h1 className="text-2xl font-semibold text-foreground">
+                {isNb ? "Din Trust Profile gjør deg klar" : "Your Trust Profile gets you ready"}
               </h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-sm text-muted-foreground mt-2 max-w-xl">
                 {isNb
-                  ? "Lara hjelper deg å sette opp profilen — bare svar etterhvert."
-                  : "Lara will guide you through the setup — answer as you go."}
+                  ? "Sett opp profilen én gang. Del status med kunder, leverandører og revisorer — uten å sende dokumenter på nytt hver gang noen spør."
+                  : "Set up your profile once. Share status with customers, vendors and auditors — without sending documents over and over again."}
               </p>
+              <ul className="mt-4 space-y-2">
+                {[
+                  isNb ? "Spar tid — lever én gang, svar til alle" : "Save time — deliver once, reply to everyone",
+                  isNb ? "Bygg tillit — vis at du har kontroll, verifisert" : "Build trust — show you are in control, verified",
+                  isNb ? "Møt regelverket — NIS2, GDPR og EU AI Act på ett sted" : "Meet regulations — NIS2, GDPR and EU AI Act in one place",
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2 text-sm text-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div className={`transition-all duration-500 ${justActivated ? "opacity-0 -translate-y-2" : "opacity-100"}`}>

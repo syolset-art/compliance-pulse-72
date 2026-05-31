@@ -790,20 +790,9 @@ export default function ActivateTrustProfileWizard({
 function WelcomeStep() {
   return (
     <div className="space-y-4">
-      <Card className="p-4 bg-primary/5 border-primary/20">
-        <div className="flex gap-3">
-          <Sparkles className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-          <div className="text-sm text-muted-foreground space-y-1.5">
-            <p><strong>Velkommen!</strong> Du er i ferd med å lage ditt eget <strong>Trust Center</strong> i Mynder — en publiserbar profil som viser kunder og partnere at du tar sikkerhet og personvern på alvor.</p>
-          </div>
-        </div>
-      </Card>
-      <div>
-        <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-2">Slik fungerer det</p>
-        <p className="text-sm text-muted-foreground">
-          Lara kartlegger informasjon du har lagret i Mynder samt offentlige kilder — så slipper du å fylle alt ut fra skratsj.
-        </p>
-      </div>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        Lara kartlegger det hun finner — du bekrefter eller justerer. Det tar under 10 minutter.
+      </p>
     </div>
   );
 }
