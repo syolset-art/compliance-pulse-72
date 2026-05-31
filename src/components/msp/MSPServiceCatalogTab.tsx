@@ -429,7 +429,7 @@ export function MSPServiceCatalogTab() {
           </div>
           <div className="divide-y divide-border rounded-md border border-border bg-card">
             {extras.filter((e) => !e.isMynder).map((e) => {
-              const price = e.hours * hourlyRate;
+              const price = e.priceOverride ?? e.hours * hourlyRate;
               return (
                 <div key={e.id} className="flex items-center gap-3 px-3 py-2">
                   <div className="flex-1 min-w-0 flex items-center gap-2">
