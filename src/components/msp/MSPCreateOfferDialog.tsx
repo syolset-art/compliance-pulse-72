@@ -546,7 +546,7 @@ export function MSPCreateOfferDialog({
                 className="text-sm resize-none"
               />
               <p className="text-sm text-muted-foreground">
-                Denne teksten vises øverst i tilbudsdokumentet. Tilbudet sendes ikke automatisk — du laster det ned og sender selv.
+                Denne teksten vises øverst i tilbudsdokumentet. Etter generering kan du sende tilbudet direkte til kunden, eller laste det ned og sende fra ditt eget system.
               </p>
 
             </div>
