@@ -133,8 +133,8 @@ export function TopBar() {
       {/* Profile avatar with dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="ml-1 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:ring-2 hover:ring-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/40">
-            <User className="h-4 w-4 text-primary" />
+          <button className="ml-1 h-8 w-8 rounded-full overflow-hidden hover:ring-2 hover:ring-primary/30 transition-all focus:outline-none focus:ring-2 focus:ring-primary/40">
+            <img src={avatarProfile} alt="Profil" className="h-full w-full object-cover" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
