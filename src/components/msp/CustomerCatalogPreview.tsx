@@ -78,7 +78,7 @@ export function CustomerCatalogPreview({
             {/* Aktiviteter (uten timer) */}
             {s.activities.length > 0 && (
               <div className="space-y-0.5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Hva inngår
                 </p>
                 <ul className="space-y-0.5">
@@ -100,7 +100,7 @@ export function CustomerCatalogPreview({
             {/* Regelverk-dekning */}
             {s.mappings.length > 0 && (
               <div className="mt-auto pt-2 border-t border-border">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
                   Dekker krav i
                 </p>
                 <div className="flex flex-wrap gap-1">

@@ -73,7 +73,7 @@ export function QuestionnaireGapList({ customerId, onProposeService }: Props) {
               Lara fant {gaps.length} {gaps.length === 1 ? "gap" : "gap"} fra {source}
             </h3>
             {score != null && (
-              <Badge variant="outline" className="text-[10px]">
+              <Badge variant="outline" className="text-xs">
                 Modenhet: {score}%
               </Badge>
             )}
@@ -101,7 +101,7 @@ export function QuestionnaireGapList({ customerId, onProposeService }: Props) {
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] text-foreground leading-snug">{g.questionText}</p>
                   {service && (
-                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       Foreslått tjeneste: <span className="font-medium text-foreground">{service.name}</span>
                       {service.price && (
                         <> · {new Intl.NumberFormat("nb-NO").format(service.price)} kr</>
@@ -113,7 +113,7 @@ export function QuestionnaireGapList({ customerId, onProposeService }: Props) {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 text-[11px] gap-1 shrink-0"
+                    className="h-7 text-xs gap-1 shrink-0"
                     onClick={() => onProposeService?.(service.id, source)}
                   >
                     Foreslå

@@ -288,7 +288,7 @@ export function MSPServiceCatalogTab() {
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
         <div className="flex items-end gap-6">
           <div className="space-y-1">
-            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            <label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Timepris
             </label>
             <div className="flex items-baseline gap-1.5">
@@ -304,9 +304,9 @@ export function MSPServiceCatalogTab() {
             </div>
           </div>
           <div className="space-y-1">
-            <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
+            <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
               <Sparkles className="h-3 w-3" /> Tjenester i katalog
-              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[10px] font-semibold text-primary">
+              <span className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary/10 px-1.5 text-xs font-semibold text-primary">
                 {extras.length}
               </span>
             </div>
@@ -416,7 +416,7 @@ export function MSPServiceCatalogTab() {
         <div className="space-y-1">
           <h3 className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
             Legg til tjeneste
-            <Badge variant="outline" className="h-5 gap-1 border-primary/20 bg-primary/5 text-[10px] font-medium text-primary">
+            <Badge variant="outline" className="h-5 gap-1 border-primary/20 bg-primary/5 text-xs font-medium text-primary">
               <Sparkles className="h-3 w-3" /> Kuratert av Lara
             </Badge>
           </h3>
@@ -465,7 +465,7 @@ export function MSPServiceCatalogTab() {
                       <div className="flex flex-wrap gap-1">
                         {frameworks.length > 0 ? (
                           frameworks.map((f) => (
-                            <span key={f} className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                            <span key={f} className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                               {f}
                             </span>
                           ))

@@ -101,17 +101,17 @@ export const ConfirmActivityDialog = ({
           <DialogDescription className="space-y-1.5 pt-1">
             <span className="block text-foreground font-medium">{activityLabel}</span>
             <span className="flex flex-wrap items-center gap-1.5 text-xs">
-              <Badge variant="outline" className="text-[10px] font-mono">{controlId}</Badge>
+              <Badge variant="outline" className="text-xs font-mono">{controlId}</Badge>
               <span className="text-muted-foreground">{controlName}</span>
               {frameworkLabel && (
-                <Badge variant="outline" className="text-[10px] gap-1">
+                <Badge variant="outline" className="text-xs gap-1">
                   <FileText className="h-3 w-3" />
                   {frameworkLabel}
                 </Badge>
               )}
             </span>
             {!readOnly && (
-              <span className="block text-[11px] text-muted-foreground pt-1">
+              <span className="block text-xs text-muted-foreground pt-1">
                 Beskriv hva som er gjort og last opp dokument/bevis. Når alle aktiviteter er ferdige kan du generere sluttrapport til kunden.
               </span>
             )}
@@ -195,7 +195,7 @@ export const ConfirmActivityDialog = ({
                 <p className="text-xs text-foreground font-medium">
                   Dra filer hit eller klikk for å velge
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   PDF, bilder, Office-dokumenter
                 </p>
                 <input
@@ -217,7 +217,7 @@ export const ConfirmActivityDialog = ({
                   >
                     <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
                     <span className="text-xs text-foreground flex-1 truncate">{f.name}</span>
-                    <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                    <span className="text-xs text-muted-foreground tabular-nums shrink-0">
                       {formatSize(f.size)}
                     </span>
                     {readOnly ? (
@@ -258,7 +258,7 @@ export const ConfirmActivityDialog = ({
                 <p className="text-xs font-medium text-foreground">
                   Klar for sluttrapport
                 </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Når alle aktivitetene i tilbudet er ferdige, kan du generere en samlet sluttrapport til kunden.
                 </p>
               </div>

@@ -92,7 +92,7 @@ function Donut({ score, tone }: { score: number; tone: StatusMeta["tone"] }) {
 function InitialAvatar({ name, color = "bg-primary/15 text-primary" }: { name: string; color?: string }) {
   const initials = name.split(" ").map(p => p[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
   return (
-    <span className={cn("inline-flex items-center justify-center h-6 w-6 rounded-full text-[10px] font-semibold", color)}>
+    <span className={cn("inline-flex items-center justify-center h-6 w-6 rounded-full text-xs font-semibold", color)}>
       {initials || "?"}
     </span>
   );
@@ -166,7 +166,7 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
         {/* Vertical stripe */}
         <div className={cn("relative w-9 shrink-0", status.stripeBg)}>
           <span
-            className={cn("absolute inset-0 flex items-center justify-center text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap", status.stripeText)}
+            className={cn("absolute inset-0 flex items-center justify-center text-xs font-bold uppercase tracking-[0.18em] whitespace-nowrap", status.stripeText)}
             style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
           >
             {status.stripeLabel}
@@ -192,11 +192,11 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-lg md:text-xl font-bold text-foreground truncate">{customer.customer_name}</h1>
-                <Badge variant="outline" className="text-[11px] px-2 py-0.5 border-primary/40 text-primary font-medium">
+                <Badge variant="outline" className="text-xs px-2 py-0.5 border-primary/40 text-primary font-medium">
                   {customer.subscription_plan || "Gratis"}
                 </Badge>
                 {customer.active_frameworks && customer.active_frameworks.length > 0 && (
-                  <Badge variant="outline" className="text-[11px] px-2 py-0.5 gap-1">
+                  <Badge variant="outline" className="text-xs px-2 py-0.5 gap-1">
                     <Shield className="h-3 w-3" />
                     {customer.active_frameworks.length} regelverk
                   </Badge>
@@ -231,19 +231,19 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
             {/* Maturity */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
               <div className="flex flex-col items-end text-right">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Modenhet</span>
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Modenhet</span>
                 <TooltipProvider delayDuration={150}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className={cn("mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold", maturityLevel.cls)}>
+                      <span className={cn("mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold", maturityLevel.cls)}>
                         <LaraAvatar size={10} />
                         {maturityLevel.label}
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent side="left"><p className="text-[11px]">Beregnet av Mynder fra trust score</p></TooltipContent>
+                    <TooltipContent side="left"><p className="text-xs">Beregnet av Mynder fra trust score</p></TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                <span className="mt-1 text-[11px] text-muted-foreground italic">{maturityLabel}</span>
+                <span className="mt-1 text-xs text-muted-foreground italic">{maturityLabel}</span>
               </div>
               <Donut score={score} tone={status.tone} />
             </div>
@@ -255,7 +255,7 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
           {/* Footer: Kontakt hos kunde · Ansvarlig hos oss */}
           <div className="border-t border-border pt-3 flex flex-wrap items-center gap-x-8 gap-y-2 text-[13px]">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Kontakt hos kunde:</span>
+              <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Kontakt hos kunde:</span>
               {customer.contact_person ? (
                 <span className="inline-flex items-center gap-1.5 text-foreground/90">
                   <InitialAvatar name={customer.contact_person} color="bg-warning/15 text-warning" />
@@ -274,7 +274,7 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
             </div>
 
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Ansvarlig hos oss:</span>
+              <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Ansvarlig hos oss:</span>
               {customer.account_manager ? (
                 <span className="inline-flex items-center gap-1.5 text-foreground/90">
                   <InitialAvatar name={customer.account_manager} />

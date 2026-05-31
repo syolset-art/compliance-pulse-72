@@ -42,7 +42,7 @@ export function MSPCustomerSnapshotCard({
     <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-card p-5 space-y-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-wider font-semibold text-primary">
+          <p className="text-xs uppercase tracking-wider font-semibold text-primary">
             Partner-snapshot
           </p>
           <h3 className="text-base font-semibold text-foreground truncate">
@@ -66,7 +66,7 @@ export function MSPCustomerSnapshotCard({
                 {deltaPct >= 0 ? "+" : ""}{deltaPct}% / 30d
               </span>
               {sourceLabel && (
-                <span className="block text-[10px] text-primary truncate">{sourceLabel}</span>
+                <span className="block text-xs text-primary truncate">{sourceLabel}</span>
               )}
             </span>
           }
@@ -119,11 +119,11 @@ function Metric({
         clickable && "hover:border-primary/40 hover:bg-card hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 cursor-pointer group",
       )}
     >
-      <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</p>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">{label}</p>
       <p className={cn("text-2xl font-bold tabular-nums mt-1", valueClass)}>{value}</p>
       <p className="text-[12px] text-muted-foreground mt-0.5">{sub}</p>
       {clickable && hint && (
-        <p className="mt-2 text-[11px] text-primary inline-flex items-center gap-0.5 opacity-80 group-hover:opacity-100">
+        <p className="mt-2 text-xs text-primary inline-flex items-center gap-0.5 opacity-80 group-hover:opacity-100">
           {hint} <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
         </p>
       )}

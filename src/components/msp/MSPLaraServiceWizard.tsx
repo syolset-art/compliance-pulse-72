@@ -106,7 +106,7 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }:
             </div>
 
             <div className="space-y-1">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 Steg {step + 1} av {WIZARD_QUESTIONS.length}
               </p>
               <p className="text-base font-semibold text-foreground">{q.title}</p>

@@ -89,7 +89,7 @@ export function MSPServiceHowItWorksTab({ onNavigate }: Props) {
                 <div className="h-10 w-10 rounded-md bg-primary/10 text-primary flex items-center justify-center">
                   <Icon className="h-5 w-5" />
                 </div>
-                <div className="absolute -top-1.5 -left-1.5 h-5 w-5 rounded-full bg-foreground text-background text-[10px] font-semibold flex items-center justify-center tabular-nums">
+                <div className="absolute -top-1.5 -left-1.5 h-5 w-5 rounded-full bg-foreground text-background text-xs font-semibold flex items-center justify-center tabular-nums">
                   {i + 1}
                 </div>
               </div>

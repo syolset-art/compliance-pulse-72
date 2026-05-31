@@ -85,7 +85,7 @@ export const DeliverySummaryDialog = ({
                 className="rounded-lg border border-border bg-card/50 p-4 space-y-3"
               >
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline" className="font-mono text-[10px]">
+                  <Badge variant="outline" className="font-mono text-xs">
                     {c.id}
                   </Badge>
                   <span className="text-sm font-medium text-foreground">
@@ -113,7 +113,7 @@ export const DeliverySummaryDialog = ({
                               {a.label}
                             </p>
                             {a.owner && (
-                              <p className="text-[11px] text-muted-foreground">
+                              <p className="text-xs text-muted-foreground">
                                 Eier: {a.owner}
                                 {a.date && <> · {a.date}</>}
                               </p>
@@ -121,7 +121,7 @@ export const DeliverySummaryDialog = ({
                           </div>
                         </div>
                         {a.evidence && a.evidence.length > 0 && (
-                          <Badge variant="outline" className="text-[10px] gap-1 shrink-0">
+                          <Badge variant="outline" className="text-xs gap-1 shrink-0">
                             <FileText className="h-3 w-3" />
                             {a.evidence.length} bevis
                           </Badge>
@@ -185,7 +185,7 @@ const Stat = ({
     }
   >
     <p className="text-lg font-semibold text-foreground tabular-nums">{value}</p>
-    <p className="text-[10px] text-muted-foreground leading-tight">{label}</p>
+    <p className="text-xs text-muted-foreground leading-tight">{label}</p>
   </div>
 );
 
@@ -214,8 +214,8 @@ const StepList = ({
       <p
         className={
           isPrimary
-            ? "text-[10px] font-medium text-primary uppercase tracking-wide flex items-center gap-1.5 mb-1.5"
-            : "text-[10px] font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-1.5"
+            ? "text-xs font-medium text-primary uppercase tracking-wide flex items-center gap-1.5 mb-1.5"
+            : "text-xs font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-1.5 mb-1.5"
         }
       >
         <Icon className="h-3 w-3" />

@@ -628,7 +628,7 @@ const UserDot = () => (
 );
 
 export const IntegrationBadge = ({ name }: { name: string }) => (
-  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/15 shrink-0 leading-none flex items-center">
+  <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/15 shrink-0 leading-none flex items-center">
     via {name}
   </span>
 );

@@ -99,21 +99,21 @@ const items: Item[] = [
 function statusBadge(s?: OfferStatus) {
   if (s === "approved") {
     return (
-      <Badge variant="outline" className="text-[10px] bg-success/10 text-success border-success/30 gap-1">
+      <Badge variant="outline" className="text-xs bg-success/10 text-success border-success/30 gap-1">
         <CheckCircle2 className="h-3 w-3" /> Godkjent
       </Badge>
     );
   }
   if (s === "pending") {
     return (
-      <Badge variant="outline" className="text-[10px] bg-warning/10 text-warning border-warning/30 gap-1">
+      <Badge variant="outline" className="text-xs bg-warning/10 text-warning border-warning/30 gap-1">
         <Clock className="h-3 w-3" /> Avventer svar
       </Badge>
     );
   }
   if (s === "declined") {
     return (
-      <Badge variant="outline" className="text-[10px] bg-destructive/10 text-destructive border-destructive/30 gap-1">
+      <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30 gap-1">
         <XCircle className="h-3 w-3" /> Avslått
       </Badge>
     );
@@ -132,18 +132,18 @@ function OfferCard({ o }: { o: Item }) {
         {statusBadge(o.status)}
       </div>
       <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/40">
-        <span className="text-[11px] text-muted-foreground">Sendt {o.date}</span>
+        <span className="text-xs text-muted-foreground">Sendt {o.date}</span>
         <span className="text-[12px] font-semibold text-foreground">{o.amount}</span>
       </div>
       {o.status === "approved" && o.approval && (
         <details className="group">
-          <summary className="flex items-center gap-1.5 cursor-pointer text-[11px] text-muted-foreground hover:text-foreground transition-colors list-none [&::-webkit-details-marker]:hidden">
+          <summary className="flex items-center gap-1.5 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors list-none [&::-webkit-details-marker]:hidden">
             <ShieldCheck className="h-3 w-3 text-success" />
             <span>Bevis på godkjenning</span>
             <span className="text-muted-foreground/60">·</span>
             <span className="truncate">{o.approval.approvedBy}, {o.approval.approvedAt}</span>
           </summary>
-          <div className="mt-2 pl-4 border-l-2 border-success/30 space-y-1 text-[11px]">
+          <div className="mt-2 pl-4 border-l-2 border-success/30 space-y-1 text-xs">
             <div>
               <span className="text-muted-foreground">Godkjent av: </span>
               <span className="text-foreground">{o.approval.approvedBy} ({o.approval.approverRole})</span>
@@ -181,7 +181,7 @@ function MessageCard({ m }: { m: Item }) {
     <div className="rounded-lg border border-border/60 p-3 space-y-1">
       <div className="flex items-start justify-between gap-3">
         <p className="text-[13px] font-semibold text-foreground">{m.title}</p>
-        <span className="text-[11px] text-muted-foreground whitespace-nowrap">{m.date}</span>
+        <span className="text-xs text-muted-foreground whitespace-nowrap">{m.date}</span>
       </div>
       <p className="text-[12px] text-muted-foreground leading-snug">{m.desc}</p>
     </div>
@@ -236,15 +236,15 @@ export function MSPCustomerMessagesTab() {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="p-3 bg-muted/30 border-border/60">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Sendte tilbud</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Sendte tilbud</p>
           <p className="text-2xl font-bold text-foreground mt-1">{allOffers.length}</p>
         </Card>
         <Card className="p-3 bg-muted/30 border-border/60">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Godkjent</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Godkjent</p>
           <p className="text-2xl font-bold text-success mt-1">{approvedOffers.length + approvedReports.length}</p>
         </Card>
         <Card className="p-3 bg-muted/30 border-border/60">
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Avventer svar</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Avventer svar</p>
           <p className="text-2xl font-bold text-warning mt-1">{sent.length + pendingReports.length}</p>
         </Card>
       </div>
@@ -255,7 +255,7 @@ export function MSPCustomerMessagesTab() {
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <h3 className="text-sm font-semibold text-foreground">Leveranserapporter</h3>
-            <span className="text-[11px] text-muted-foreground">Sendt til kunde for godkjenning</span>
+            <span className="text-xs text-muted-foreground">Sendt til kunde for godkjenning</span>
           </div>
           <div className="space-y-2">
             {pendingReports.map(r => (
@@ -278,19 +278,19 @@ export function MSPCustomerMessagesTab() {
           <TabsList className="bg-muted/50">
             <TabsTrigger value="sent" className="text-xs gap-1.5 data-[state=active]:bg-background">
               <Send className="h-3 w-3" /> Sendt
-              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{sent.length}</Badge>
+              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-xs">{sent.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="approved" className="text-xs gap-1.5 data-[state=active]:bg-background">
               <CheckCircle2 className="h-3 w-3" /> Godkjent
-              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{approvedOffers.length}</Badge>
+              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-xs">{approvedOffers.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="received" className="text-xs gap-1.5 data-[state=active]:bg-background">
               <Inbox className="h-3 w-3" /> Mottatt
-              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{received.length}</Badge>
+              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-xs">{received.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="closed" className="text-xs gap-1.5 data-[state=active]:bg-background">
               <Archive className="h-3 w-3" /> Avsluttet
-              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-[10px]">{closedOffers.length}</Badge>
+              <Badge variant="secondary" className="ml-1 h-4 px-1.5 text-xs">{closedOffers.length}</Badge>
             </TabsTrigger>
           </TabsList>
           {tab === "sent" && (
@@ -321,7 +321,7 @@ export function MSPCustomerMessagesTab() {
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-success" />
               <h3 className="text-sm font-semibold text-foreground">Godkjente tilbud</h3>
-              <span className="text-[11px] text-muted-foreground">Med signert bevis</span>
+              <span className="text-xs text-muted-foreground">Med signert bevis</span>
             </div>
             {approvedOffers.length === 0 ? (
               <EmptyState icon={CheckCircle2} label="Ingen godkjente tilbud ennå." />
@@ -354,7 +354,7 @@ export function MSPCustomerMessagesTab() {
             <div className="flex items-center gap-2">
               <Archive className="h-4 w-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold text-foreground">Avsluttede tilbud</h3>
-              <span className="text-[11px] text-muted-foreground">Avslåtte eller trukne tilbud</span>
+              <span className="text-xs text-muted-foreground">Avslåtte eller trukne tilbud</span>
             </div>
             {closedOffers.length === 0 ? (
               <EmptyState icon={Archive} label="Ingen avsluttede tilbud." />
@@ -390,7 +390,7 @@ function DeliveryReportRow({
             <p className="text-[13px] font-semibold text-foreground truncate">
               {r.deliveryTitle}
             </p>
-            <p className="text-[11px] text-muted-foreground truncate">
+            <p className="text-xs text-muted-foreground truncate">
               {r.fileName}
             </p>
           </div>
@@ -399,10 +399,10 @@ function DeliveryReportRow({
           variant="outline"
           className={
             approved
-              ? "text-[10px] bg-success/10 text-success border-success/30 gap-1"
+              ? "text-xs bg-success/10 text-success border-success/30 gap-1"
               : declined
-                ? "text-[10px] bg-destructive/10 text-destructive border-destructive/30 gap-1"
-                : "text-[10px] bg-warning/10 text-warning border-warning/30 gap-1"
+                ? "text-xs bg-destructive/10 text-destructive border-destructive/30 gap-1"
+                : "text-xs bg-warning/10 text-warning border-warning/30 gap-1"
           }
         >
           {approved ? (
@@ -414,9 +414,9 @@ function DeliveryReportRow({
           )}
         </Badge>
       </div>
-      <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
         {r.frameworkLabel && (
-          <Badge variant="outline" className="text-[10px]">{r.frameworkLabel}</Badge>
+          <Badge variant="outline" className="text-xs">{r.frameworkLabel}</Badge>
         )}
         <span>{r.controlIds.length} kontroller</span>
         <span>·</span>
@@ -426,7 +426,7 @@ function DeliveryReportRow({
         <span className="ml-auto">Sendt {new Date(r.sentAt).toLocaleDateString("nb-NO")}</span>
       </div>
       {approved && r.approvedAt && (
-        <div className="flex items-center gap-1.5 text-[11px] text-success border-t border-success/20 pt-2">
+        <div className="flex items-center gap-1.5 text-xs text-success border-t border-success/20 pt-2">
           <ShieldCheck className="h-3 w-3" />
           Godkjent av {r.approvedBy} · {new Date(r.approvedAt).toLocaleString("nb-NO")} · Modenhet +{r.maturityDeltaPercent ?? 0} %
         </div>
@@ -447,7 +447,7 @@ function DeliveryReportRow({
               Avvis
             </Button>
           )}
-          <span className="ml-auto text-[11px] text-muted-foreground">
+          <span className="ml-auto text-xs text-muted-foreground">
             Ved godkjenning oppdateres modenheten automatisk
           </span>
         </div>

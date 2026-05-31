@@ -119,7 +119,7 @@ export function MSPLaraServiceSuggestions({
 
       {/* Filter chips */}
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[11px] font-medium text-muted-foreground mr-1">Filter:</span>
+        <span className="text-xs font-medium text-muted-foreground mr-1">Filter:</span>
         <FilterChip
           label="Alle"
           count={suggestions.length}
@@ -233,7 +233,7 @@ function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium border transition-colors",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border transition-colors",
         active
           ? "bg-foreground text-background border-foreground"
           : theme

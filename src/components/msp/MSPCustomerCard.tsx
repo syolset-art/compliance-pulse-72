@@ -168,7 +168,7 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
         {/* Vertical status stripe */}
         <div className={cn("relative w-7 shrink-0 flex items-center justify-center", status.stripeBg)}>
           <span
-            className={cn("absolute text-[10px] font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
+            className={cn("absolute text-xs font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
             style={{ transform: "rotate(-90deg)" }}
           >
             {status.stripeLabel}
@@ -214,7 +214,7 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
             <div className="hidden md:flex items-center gap-3 shrink-0 pl-3 border-l border-border/60">
               <CustomerDonut score={score} tone={status.tone} frozen={isArchived} />
               <div className="text-right space-y-1">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
                   {isArchived ? "Siste modenhet" : "Modenhet"}
                 </p>
                 <p className={cn("text-[12px]", isArchived ? "italic text-muted-foreground" : "text-muted-foreground")}>
@@ -226,7 +226,7 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
                       <TooltipTrigger asChild>
                         <button type="button" onClick={(e) => e.stopPropagation()}
                           className={cn(
-                            "inline-flex items-center gap-1 rounded-pill px-2 py-0.5 border text-[11px] font-medium",
+                            "inline-flex items-center gap-1 rounded-pill px-2 py-0.5 border text-xs font-medium",
                             `bg-${riskTone}/10 text-${riskTone} border-${riskTone}/20`
                           )}>
                           <LaraAvatar size={12} />
@@ -234,7 +234,7 @@ export function MSPCustomerCard({ customer }: MSPCustomerCardProps) {
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="left">
-                        <p className="text-[11px]">Beregnet av Mynder fra trust score</p>
+                        <p className="text-xs">Beregnet av Mynder fra trust score</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
