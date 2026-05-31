@@ -618,44 +618,58 @@ export default function ActivateTrustProfileWizard({
         "Siste steg — hvem skal få se profilen?";
       return (
         <div className="max-w-3xl mx-auto space-y-4">
-          {/* Lara header */}
-          <div className="flex items-center gap-3 px-1">
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20">
-              <Sparkles className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-foreground">Lara</span>
-                <span className="text-[11px] text-muted-foreground">Trust Profile-assistent</span>
-              </div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
-                  <span
-                    key={i}
-                    className={`h-1.5 rounded-full transition-all ${
-                      i + 1 < step ? "w-4 bg-primary" :
-                      i + 1 === step ? "w-6 bg-primary" :
-                      "w-1.5 bg-muted"
-                    }`}
-                  />
-                ))}
-                <span className="ml-2 text-[11px] text-muted-foreground">Steg {step} av {TOTAL_STEPS}</span>
-              </div>
-            </div>
-          </div>
+          {/* Stepper */}
+          <nav aria-label="Aktiveringssteg" className="px-1">
+            <ol className="flex items-start gap-2">
+              {STEP_LABELS.map((label, i) => {
+                const n = i + 1;
+                const isDone = n < step;
+                const isCurrent = n === step;
+                return (
+                  <li key={label} className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className={`h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-semibold shrink-0 transition-colors ${
+                          isCurrent
+                            ? "bg-primary text-primary-foreground"
+                            : isDone
+                              ? "bg-primary/15 text-primary"
+                              : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {isDone ? <CheckCircle2 className="h-3.5 w-3.5" /> : n}
+                      </div>
+                      {i < STEP_LABELS.length - 1 && (
+                        <div className={`h-px flex-1 ${n < step ? "bg-primary/40" : "bg-border"}`} />
+                      )}
+                    </div>
+                    <div
+                      className={`mt-1.5 text-[11px] leading-tight truncate ${
+                        isCurrent ? "text-foreground font-medium" : "text-muted-foreground"
+                      }`}
+                      title={label}
+                    >
+                      {label}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
 
-          {/* Lara message bubble */}
-          <div className="flex gap-3">
-            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-1">
+          {/* Lara message */}
+          <div className="flex items-center gap-3 px-1">
+            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20 shrink-0">
               <Sparkles className="h-4 w-4 text-primary" />
             </div>
-            <div className="flex-1 bg-muted/40 border border-border rounded-2xl rounded-tl-sm px-4 py-3">
-              <p className="text-sm text-foreground leading-relaxed">{laraIntro}</p>
+            <div className="flex-1 min-w-0">
+              <div className="text-[11px] text-muted-foreground">Lara · Steg {step} av {TOTAL_STEPS}</div>
+              <p className="text-sm text-foreground leading-snug">{laraIntro}</p>
             </div>
           </div>
 
           {/* User reply area: the actual step content */}
-          <Card className="p-5 space-y-4 ml-11 animate-in fade-in slide-in-from-bottom-2 duration-300" key={step}>
+          <Card className="p-5 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300" key={step}>
             {body}
             {!isCalculating && footer}
           </Card>
