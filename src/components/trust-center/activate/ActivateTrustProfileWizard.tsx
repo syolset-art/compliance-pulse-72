@@ -429,8 +429,9 @@ export default function ActivateTrustProfileWizard({
         {step === 2 && "Lara kartlegger informasjon og klargjør profilen din"}
         {step === 3 && "Bekreft og juster informasjonen"}
         {step === 4 && "Modenhet — bekreft det Lara fant"}
-        {step === 5 && "Last opp dokumenter"}
-        {step === 6 && "Hvem skal se din Trust Profile?"}
+        {step === 5 && "Kritiske leverandører"}
+        {step === 6 && "Last opp dokumenter"}
+        {step === 7 && "Hvem skal se din Trust Profile?"}
       </h2>
       <p className="text-sm text-muted-foreground">
         {step === 1 && (hasOrgPrefill
@@ -441,8 +442,9 @@ export default function ActivateTrustProfileWizard({
         {step === 2 && "Lara henter inn bedriftsinfo, kontakter, personvern og sikkerhet fra hjemmesiden din. Dette kan ta ett til to minutter — du kan trygt lukke vinduet og komme tilbake for å verifisere senere."}
         {step === 3 && "Alt Lara fant er forhåndsutfylt. Endre det du vil, eller bare gå videre."}
         {step === 4 && "Bekreft, overstyr eller marker «Senere». Lara har forhåndsutfylt det hun fant fra dokumentene."}
-        {step === 5 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
-        {step === 6 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
+        {step === 5 && "Hvilke leverandører har tilgang til dine viktigste systemer eller data? Legg til inntil 5 — dette gir oss et bilde av hvor dine viktigste data faktisk ligger."}
+        {step === 6 && "Last opp policyer som dekker hullene. Når du laster opp en DPA, oppdaterer Lara svarene i Modenhet automatisk."}
+        {step === 7 && "Velg hvem som skal kunne se Trust Profilen din. Du kan endre dette når som helst fra Trust Profile-siden."}
       </p>
       <Progress value={((step - 1) / (TOTAL_STEPS - 1)) * 100} className="h-1" />
     </div>
