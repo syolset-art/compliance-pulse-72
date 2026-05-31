@@ -134,12 +134,12 @@ export default function MSPPartnerSettings() {
           <div>
             <Link
               to="/msp-partner"
-              className="inline-flex items-center gap-1.5 text-[12px] text-muted-foreground hover:text-foreground mb-2"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-2"
             >
-              <ArrowLeft className="h-3.5 w-3.5" /> Tilbake til partner-dashbord
+              <ArrowLeft className="h-4 w-4" /> Tilbake til partner-dashbord
             </Link>
             <h1 className="text-2xl font-semibold text-foreground">Innstillinger</h1>
-            <p className="text-[13px] text-muted-foreground mt-1">
+            <p className="text-base text-muted-foreground mt-1">
               Administrer tilgang og varsler for partnerdelen av Mynder.
             </p>
           </div>
@@ -163,8 +163,8 @@ export default function MSPPartnerSettings() {
                       <Users className="h-4 w-4 text-primary" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground">Brukere med tilgang til partnerdelen</h2>
-                      <p className="text-[12px] text-muted-foreground mt-0.5">
+                      <h2 className="text-base font-semibold text-foreground">Brukere med tilgang til partnerdelen</h2>
+                      <p className="text-base text-muted-foreground mt-0.5">
                         Disse brukerne kan se kundeporteføljen, sende tilbud og motta meldinger.
                       </p>
                     </div>
@@ -181,7 +181,7 @@ export default function MSPPartnerSettings() {
 
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-3xl font-semibold text-foreground tabular-nums">{team.length}</span>
-                  <span className="text-[13px] text-muted-foreground">
+                  <span className="text-base text-muted-foreground">
                     {team.length === 1 ? "bruker" : "brukere"} har tilgang
                   </span>
                 </div>
