@@ -791,13 +791,28 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                   const match = PARTNER_DIRECTORY.find(
                     (p) => p.name.toLowerCase() === name.toLowerCase()
                   );
-                  setForm((prev) => ({
-                    ...prev,
-                    managed_by_partner: true,
-                    partner_name: match ? match.name : name,
-                    partner_type: match ? (match.type as never) : prev.partner_type,
-                    partner_role_description: match ? (match.roleDescription as never) : prev.partner_role_description,
-                  }));
+                  setForm((prev) => {
+                    const finalName = match ? match.name : name;
+                    const finalType = match ? match.type : prev.partner_type;
+                    const finalRole = match ? match.roleDescription : "";
+                    // If a primary partner already exists, append to additional_partners
+                    if (prev.managed_by_partner && prev.partner_name) {
+                      return {
+                        ...prev,
+                        additional_partners: [
+                          ...prev.additional_partners,
+                          { name: finalName, type: finalType, roleDescription: finalRole, since: "" },
+                        ],
+                      };
+                    }
+                    return {
+                      ...prev,
+                      managed_by_partner: true,
+                      partner_name: finalName,
+                      partner_type: finalType as never,
+                      partner_role_description: finalRole as never,
+                    };
+                  });
                   setAddPartnerDialogOpen(false);
                   setDraftPartnerName("");
                 }}
