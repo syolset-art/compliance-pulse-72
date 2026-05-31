@@ -40,6 +40,8 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
   // Partner-katalog (prototype): partnere som har opprettet egen Trust Profile i Mynder
   const [partnerPickerOpen, setPartnerPickerOpen] = useState(false);
+  const [addPartnerDialogOpen, setAddPartnerDialogOpen] = useState(false);
+  const [draftPartnerName, setDraftPartnerName] = useState("");
   const PARTNER_DIRECTORY: Array<{ name: string; type: string; roleDescription: string }> = [
     { name: "Mynder MSP-partner AS", type: "msp", roleDescription: "Drift, sikkerhetsovervåking og brukerstøtte" },
     { name: "Acme IT AS", type: "it_partner", roleDescription: "IT-drift og support" },
