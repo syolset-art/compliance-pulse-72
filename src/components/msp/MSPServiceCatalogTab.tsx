@@ -284,6 +284,110 @@ export function MSPServiceCatalogTab() {
 
   return (
     <div className="space-y-6">
+      {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
+      <section className="space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1 min-w-0">
+            <h3 className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
+              Foreslåtte tjenester
+              <Badge variant="outline" className="h-5 gap-1 border-primary/20 bg-primary/5 text-xs font-medium text-primary">
+                <Sparkles className="h-3 w-3" /> Kuratert av Lara
+              </Badge>
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.
+            </p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0">
+            <Plus className="h-3.5 w-3.5" />
+            Beskriv egen tjeneste
+          </Button>
+        </div>
+        <div className="overflow-hidden rounded-md border border-border bg-card">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/30 text-xs text-muted-foreground">
+              <tr>
+                <th className="text-left font-medium px-3 py-2 w-12"></th>
+                <th className="text-left font-medium px-3 py-2">Tjeneste</th>
+                <th className="text-left font-medium px-3 py-2">Regelverk</th>
+                <th className="text-right font-medium px-3 py-2 w-32"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {TEMPLATE_PICKS.map((pick) => {
+                const template = SERVICE_LIBRARY.find((t) => t.code === pick.code);
+                if (!template) return null;
+                const isAdopted = adoptedIds.has(template.id);
+                const Icon = pick.icon;
+                const frameworks = template.mappings.map((m) => m.frameworkLabel).slice(0, 3);
+                const tagMeta = pick.tag ? TAG_META[pick.tag] : null;
+                return (
+                  <tr
+                    key={template.id}
+                    className={cn(
+                      "hover:bg-muted/20 transition-colors",
+                      isAdopted && "opacity-60",
+                    )}
+                  >
+                    <td className="px-3 py-2.5">
+                      <div className={cn("h-8 w-8 rounded-md flex items-center justify-center", pick.bg)}>
+                        <Icon className={cn("h-4 w-4", pick.fg)} />
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <div className="font-medium text-foreground">{pick.label}</div>
+                      <div className="text-xs text-muted-foreground line-clamp-1">
+                        {template.shortDescription}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5">
+                      <div className="flex flex-wrap gap-1">
+                        {frameworks.length > 0 ? (
+                          frameworks.map((f) => (
+                            <span key={f} className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                              {f}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2.5 text-right">
+                      {isAdopted ? (
+                        <Badge variant="secondary" className="text-xs h-5">Lagt til</Badge>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => adoptTemplate(template)}
+                          className="h-7 gap-1"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Legg til
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex items-center pt-1">
+          <button
+            type="button"
+            onClick={() => setShowCalculator((v) => !v)}
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto"
+          >
+            <Settings2 className="h-3.5 w-3.5" />
+            Avansert: hele biblioteket og regelverks-bygger
+            {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
+        </div>
+      </section>
+
       {/* Mynder-tjenester — alltid inkludert */}
       {extras.some((e) => e.isMynder) && (
         <section className="space-y-2">
@@ -361,108 +465,6 @@ export function MSPServiceCatalogTab() {
         </section>
       )}
 
-      {/* Mal-velger — kompakt, à la wizard step 1 */}
-      <section className="space-y-3">
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-foreground inline-flex items-center gap-1.5">
-            Legg til tjeneste
-            <Badge variant="outline" className="h-5 gap-1 border-primary/20 bg-primary/5 text-xs font-medium text-primary">
-              <Sparkles className="h-3 w-3" /> Kuratert av Lara
-            </Badge>
-          </h3>
-          <p className="text-xs text-muted-foreground">
-            Anbefalt basert på din partnerprofil og hva som er populært blant tilsvarende MSP-er nå.
-          </p>
-        </div>
-        <div className="overflow-hidden rounded-md border border-border bg-card">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/30 text-xs text-muted-foreground">
-              <tr>
-                <th className="text-left font-medium px-3 py-2 w-12"></th>
-                <th className="text-left font-medium px-3 py-2">Tjeneste</th>
-                <th className="text-left font-medium px-3 py-2">Regelverk</th>
-                <th className="text-right font-medium px-3 py-2 w-32"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {TEMPLATE_PICKS.map((pick) => {
-                const template = SERVICE_LIBRARY.find((t) => t.code === pick.code);
-                if (!template) return null;
-                const isAdopted = adoptedIds.has(template.id);
-                const Icon = pick.icon;
-                const frameworks = template.mappings.map((m) => m.frameworkLabel).slice(0, 3);
-                const tagMeta = pick.tag ? TAG_META[pick.tag] : null;
-                return (
-                  <tr
-                    key={template.id}
-                    className={cn(
-                      "hover:bg-muted/20 transition-colors",
-                      isAdopted && "opacity-60",
-                    )}
-                  >
-                    <td className="px-3 py-2.5">
-                      <div className={cn("h-8 w-8 rounded-md flex items-center justify-center", pick.bg)}>
-                        <Icon className={cn("h-4 w-4", pick.fg)} />
-                      </div>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <div className="font-medium text-foreground">{pick.label}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1">
-                        {template.shortDescription}
-                      </div>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <div className="flex flex-wrap gap-1">
-                        {frameworks.length > 0 ? (
-                          frameworks.map((f) => (
-                            <span key={f} className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
-                              {f}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-3 py-2.5 text-right">
-                      {isAdopted ? (
-                        <Badge variant="secondary" className="text-xs h-5">Lagt til</Badge>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => adoptTemplate(template)}
-                          className="h-7 gap-1"
-                        >
-                          <Plus className="h-3.5 w-3.5" />
-                          Legg til
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-
-        <div className="flex items-center gap-2 pt-1">
-          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5">
-            <Plus className="h-3.5 w-3.5" />
-            Beskriv egen tjeneste
-          </Button>
-          <button
-            type="button"
-            onClick={() => setShowCalculator((v) => !v)}
-            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors ml-auto"
-          >
-            <Settings2 className="h-3.5 w-3.5" />
-            Avansert: hele biblioteket og regelverks-bygger
-            {showCalculator ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-          </button>
-        </div>
-      </section>
 
       {/* Avansert: hele biblioteket + framework-kalkulator */}
       {showCalculator && (
