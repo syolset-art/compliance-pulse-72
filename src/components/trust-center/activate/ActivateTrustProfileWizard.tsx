@@ -1340,78 +1340,10 @@ function CriticalVendorsStep({ rows, onChange, subprocessorList, onSubprocessorC
         </Button>
       )}
 
-      {/* Aggregated subprocessor list — optional upload or public URL */}
-      <Card className="p-4 space-y-3 mt-2">
-        <div className="space-y-0.5">
-          <p className="text-sm font-semibold text-foreground">
-            Har du en samlet liste over alle underleverandører?
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Mange virksomheter har en åpen oversikt. Last opp listen eller lim inn lenken — så analyserer Lara den
-            og kobler hver leverandør mot Mynder-katalogen når du fullfører aktiveringen.
-          </p>
-        </div>
+      <p className="text-[11px] text-muted-foreground pt-1">
+        Samlet liste over alle underleverandører kan lastes opp senere i Rediger profil.
+      </p>
 
-        <div className="flex flex-wrap gap-1.5">
-          {([
-            { id: "upload", label: "Last opp liste", icon: FileUp },
-            { id: "url", label: "Lim inn lenke", icon: Link2 },
-            { id: "none", label: "Har ikke" },
-          ] as const).map((opt) => (
-            <Button
-              key={opt.id}
-              size="sm"
-              variant={subprocessorList.source === opt.id ? "default" : "outline"}
-              className="h-8 gap-1.5"
-              onClick={() => onSubprocessorChange({ source: opt.id })}
-            >
-              {"icon" in opt && opt.icon ? <opt.icon className="h-3.5 w-3.5" /> : null}
-              {opt.label}
-            </Button>
-          ))}
-        </div>
-
-        {subprocessorList.source === "upload" && (
-          <div className="space-y-1.5">
-            <label className="flex items-center gap-2 text-xs cursor-pointer rounded-md border border-dashed border-border bg-muted/30 px-3 py-2 hover:bg-muted/50 transition-colors">
-              <FileUp className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-muted-foreground">
-                {subprocessorList.fileName ?? "Velg CSV, XLSX eller PDF…"}
-              </span>
-              <input
-                type="file"
-                accept=".csv,.xlsx,.xls,.pdf,text/csv,application/pdf"
-                className="hidden"
-                onChange={(e) => onFile(e.target.files?.[0] ?? null)}
-              />
-            </label>
-            {subprocessorList.fileName && (
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 px-2 text-xs text-muted-foreground"
-                onClick={() => onSubprocessorChange({ source: "upload" })}
-              >
-                <X className="h-3 w-3 mr-1" /> Fjern fil
-              </Button>
-            )}
-          </div>
-        )}
-
-        {subprocessorList.source === "url" && (
-          <div className="space-y-1">
-            <Input
-              value={subprocessorList.url ?? ""}
-              onChange={(e) => onSubprocessorChange({ source: "url", url: e.target.value })}
-              placeholder="https://leverandor.no/subprocessors"
-              className="text-sm h-9"
-            />
-            <p className="text-[11px] text-muted-foreground">
-              Bruk dette hvis Lara ikke fant siden automatisk.
-            </p>
-          </div>
-        )}
-      </Card>
 
     </div>
   );
