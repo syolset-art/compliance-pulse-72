@@ -1617,6 +1617,68 @@ function PartnerSelectionBlock({
             </div>
           )}
 
+          {(name.trim().length > 0 || additionalPartners.length > 0) && (
+            <div className="space-y-2 pt-1">
+              {additionalPartners.map((p, idx) => (
+                <div key={idx} className="rounded-md border border-border bg-background/60 p-2.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Partner {idx + 2}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAdditionalPartners((prev) => prev.filter((_, i) => i !== idx))
+                      }
+                      className="text-muted-foreground hover:text-destructive transition-colors"
+                      aria-label="Fjern partner"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      value={p.name}
+                      onChange={(e) =>
+                        setAdditionalPartners((prev) =>
+                          prev.map((it, i) => (i === idx ? { ...it, name: e.target.value, companyId: null } : it)),
+                        )
+                      }
+                      placeholder="Partnernavn"
+                      className="h-9 text-sm"
+                    />
+                    <Select
+                      value={p.type ?? ""}
+                      onValueChange={(v) =>
+                        setAdditionalPartners((prev) =>
+                          prev.map((it, i) => (i === idx ? { ...it, type: v as PartnerType } : it)),
+                        )
+                      }
+                    >
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue placeholder="Velg type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PARTNER_TYPE_OPTIONS.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  setAdditionalPartners((prev) => [...prev, { name: "", companyId: null, type: null }])
+                }
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+              >
+                <Plus className="h-3.5 w-3.5" /> Legg til en partner til
+              </button>
+            </div>
+          )}
+
           <label className="flex items-start gap-2 cursor-pointer select-none rounded-md bg-background/60 border border-border p-2.5">
             <Checkbox
               checked={showOnProfile}
@@ -1627,6 +1689,7 @@ function PartnerSelectionBlock({
               Vis partner-tilknytningen på Trust Profilen min
             </span>
           </label>
+
         </Card>
       )}
     </div>
