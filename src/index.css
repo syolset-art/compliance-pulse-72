@@ -102,7 +102,33 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --crit-critical: 0 58% 41%;        /* #A32D2D border */
     --crit-critical-soft: 0 79% 96%;   /* #FCEBEB bg */
     --crit-critical-fg: 0 60% 19%;     /* #501313 text */
+
+    /* Framework-farger – Mynder-tilpasset palett for regelverk-piller */
+    --fw-gdpr: 239 41% 51%;            /* mynder-blue/primary purple */
+    --fw-gdpr-soft: 247 71% 96%;
+    --fw-gdpr-fg: 240 53% 28%;
+
+    --fw-iso: 165 76% 25%;             /* vendor-claimed deep green */
+    --fw-iso-soft: 153 56% 92%;
+    --fw-iso-fg: 165 76% 18%;
+
+    --fw-nis2: 245 43% 35%;            /* deep indigo-purple */
+    --fw-nis2-soft: 245 60% 95%;
+    --fw-nis2-fg: 245 53% 25%;
+
+    --fw-aiact: 28 79% 41%;            /* vendor-invited warm amber */
+    --fw-aiact-soft: 33 84% 92%;
+    --fw-aiact-fg: 28 79% 28%;
+
+    --fw-dora: 247 50% 45%;            /* accent purple deepened */
+    --fw-dora-soft: 247 60% 95%;
+    --fw-dora-fg: 247 53% 28%;
+
+    --fw-transparency: 1 60% 45%;      /* destructive deepened */
+    --fw-transparency-soft: 0 79% 96%;
+    --fw-transparency-fg: 0 60% 28%;
   }
+
 
   .dark {
     --background: 240 53% 23%;        /* purple-900 */
@@ -150,7 +176,33 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
     --sidebar-ring: 270 40% 70%;
     
     --gradient-mynder: linear-gradient(135deg, hsl(0 0% 7%) 0%, hsl(0 0% 15%) 100%);
+
+    /* Framework-farger – mørk modus (lysere tekst, dempet bakgrunn) */
+    --fw-gdpr: 247 60% 75%;
+    --fw-gdpr-soft: 240 30% 28%;
+    --fw-gdpr-fg: 247 71% 92%;
+
+    --fw-iso: 161 60% 55%;
+    --fw-iso-soft: 165 30% 22%;
+    --fw-iso-fg: 153 56% 88%;
+
+    --fw-nis2: 245 60% 75%;
+    --fw-nis2-soft: 245 30% 28%;
+    --fw-nis2-fg: 245 60% 92%;
+
+    --fw-aiact: 33 87% 65%;
+    --fw-aiact-soft: 28 30% 25%;
+    --fw-aiact-fg: 33 84% 90%;
+
+    --fw-dora: 247 60% 75%;
+    --fw-dora-soft: 247 30% 28%;
+    --fw-dora-fg: 247 60% 92%;
+
+    --fw-transparency: 1 73% 70%;
+    --fw-transparency-soft: 0 30% 25%;
+    --fw-transparency-fg: 0 79% 92%;
   }
+
 }
 
 @layer base {
