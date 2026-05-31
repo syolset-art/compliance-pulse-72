@@ -543,6 +543,7 @@ export function MSPMaturityServiceMatrix({
     defaultTasks?: TaskEstimate[];
     hourlyRate?: number;
     coveredControls?: Array<{ frameworkId: string; frameworkLabel: string; controlIds: string[] }>;
+    coveredGaps?: { frameworkId: string; frameworkLabel: string; preselectedControlIds?: string[] };
     initialView?: "edit" | "preview";
   }>({ open: false });
   const [gapOpen, setGapOpen] = useState(false);
