@@ -11,8 +11,9 @@ import { Progress } from "@/components/ui/progress";
 import {
   Sparkles, ArrowRight, ArrowLeft, ShieldCheck, Building2, Globe, Loader2,
   CheckCircle2, Search, Mail, Lock, FileText, Users, Eye, AlertCircle, Lightbulb, Info,
-  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil,
+  Upload, Check, X, Clock, HelpCircle, Handshake, Pencil, Plus, Trash2,
 } from "lucide-react";
+
 import { toast } from "sonner";
 import { useBrregLookup } from "@/hooks/useBrregLookup";
 import { getLaraScanForDomain, SCAN_STEPS_MS, type LaraScanResult } from "@/lib/demoTrustActivation";
@@ -110,6 +111,9 @@ export default function ActivateTrustProfileWizard({
   const [partnerCompanyId, setPartnerCompanyId] = useState<string | null>(null);
   const [partnerType, setPartnerType] = useState<PartnerType | null>(null);
   const [showPartnerOnProfile, setShowPartnerOnProfile] = useState(true);
+  type AdditionalPartner = { name: string; companyId: string | null; type: PartnerType | null };
+  const [additionalPartners, setAdditionalPartners] = useState<AdditionalPartner[]>([]);
+
   const { activeOrg } = useActiveOrganization();
 
   // Publishing
@@ -363,9 +367,11 @@ export default function ActivateTrustProfileWizard({
             companyId: partnerCompanyId,
             type: partnerType,
             showOnProfile: showPartnerOnProfile,
+            additional: additionalPartners.filter((p) => p.name.trim().length > 0),
           }
         : undefined,
     };
+
     try {
       await seedFromActivation(values);
       try { localStorage.setItem("mynder.trustprofile.activated", "1"); } catch {}
@@ -487,7 +493,10 @@ export default function ActivateTrustProfileWizard({
             setPartnerType={setPartnerType}
             showOnProfile={showPartnerOnProfile}
             setShowOnProfile={setShowPartnerOnProfile}
+            additionalPartners={additionalPartners}
+            setAdditionalPartners={setAdditionalPartners}
           />
+
           <div className="border-t border-border pt-4">
             <h3 className="text-sm font-semibold">Hvem skal se Trust Profilen?</h3>
             <p className="text-xs text-muted-foreground mt-1 mb-3">
@@ -1373,12 +1382,15 @@ const PARTNER_TYPE_OPTIONS: { value: PartnerType; label: string }[] = [
   { value: "other", label: "Annet" },
 ];
 
+type AdditionalPartnerItem = { name: string; companyId: string | null; type: PartnerType | null };
+
 function PartnerSelectionBlock({
   status, setStatus,
   name, setName,
   companyId, setCompanyId,
   partnerType, setPartnerType,
   showOnProfile, setShowOnProfile,
+  additionalPartners, setAdditionalPartners,
 }: {
   status: "auto" | "yes" | "no" | "unknown" | null;
   setStatus: (s: "auto" | "yes" | "no" | "unknown" | null) => void;
@@ -1390,7 +1402,10 @@ function PartnerSelectionBlock({
   setPartnerType: (v: PartnerType | null) => void;
   showOnProfile: boolean;
   setShowOnProfile: (v: boolean) => void;
+  additionalPartners: AdditionalPartnerItem[];
+  setAdditionalPartners: (v: AdditionalPartnerItem[] | ((p: AdditionalPartnerItem[]) => AdditionalPartnerItem[])) => void;
 }) {
+
   const [search, setSearch] = useState("");
   const [results, setResults] = useState<{ id: string; name: string; type?: string | null }[]>([]);
   const [searching, setSearching] = useState(false);
@@ -1439,8 +1454,9 @@ function PartnerSelectionBlock({
               Lara har sett at <strong>{name || "en partner"}</strong> forvalter sikkerheten din.
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Bekreft at dette skal vises på Trust Profilen din. Det styrker tilliten hos kunder og partnere.
+              Bekreft at dette skal vises på Trust Profilen din.
             </p>
+
           </div>
           <Button
             variant="ghost"
@@ -1470,11 +1486,12 @@ function PartnerSelectionBlock({
       <div className="flex items-start gap-2">
         <Handshake className="h-4 w-4 text-primary mt-0.5 shrink-0" />
         <div>
-          <h3 className="text-sm font-semibold">Er du knyttet til en partner?</h3>
+          <h3 className="text-sm font-semibold">IT- og/eller sikkerhetspartner</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Mange virksomheter får hjelp av en MSP, MSSP, IT-partner eller konsulent. Hvis du har en, viser vi det på profilen — det styrker tilliten.
+            Her kan du oppgi om du bruker en IT- og/eller sikkerhetspartner. Du kan legge til flere.
           </p>
         </div>
+
       </div>
 
       <div className="grid grid-cols-3 gap-2">
@@ -1600,6 +1617,68 @@ function PartnerSelectionBlock({
             </div>
           )}
 
+          {(name.trim().length > 0 || additionalPartners.length > 0) && (
+            <div className="space-y-2 pt-1">
+              {additionalPartners.map((p, idx) => (
+                <div key={idx} className="rounded-md border border-border bg-background/60 p-2.5 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                      Partner {idx + 2}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAdditionalPartners((prev) => prev.filter((_, i) => i !== idx))
+                      }
+                      className="text-muted-foreground hover:text-destructive transition-colors"
+                      aria-label="Fjern partner"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      value={p.name}
+                      onChange={(e) =>
+                        setAdditionalPartners((prev) =>
+                          prev.map((it, i) => (i === idx ? { ...it, name: e.target.value, companyId: null } : it)),
+                        )
+                      }
+                      placeholder="Partnernavn"
+                      className="h-9 text-sm"
+                    />
+                    <Select
+                      value={p.type ?? ""}
+                      onValueChange={(v) =>
+                        setAdditionalPartners((prev) =>
+                          prev.map((it, i) => (i === idx ? { ...it, type: v as PartnerType } : it)),
+                        )
+                      }
+                    >
+                      <SelectTrigger className="h-9 text-sm">
+                        <SelectValue placeholder="Velg type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PARTNER_TYPE_OPTIONS.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  setAdditionalPartners((prev) => [...prev, { name: "", companyId: null, type: null }])
+                }
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+              >
+                <Plus className="h-3.5 w-3.5" /> Legg til en partner til
+              </button>
+            </div>
+          )}
+
           <label className="flex items-start gap-2 cursor-pointer select-none rounded-md bg-background/60 border border-border p-2.5">
             <Checkbox
               checked={showOnProfile}
@@ -1610,6 +1689,7 @@ function PartnerSelectionBlock({
               Vis partner-tilknytningen på Trust Profilen min
             </span>
           </label>
+
         </Card>
       )}
     </div>

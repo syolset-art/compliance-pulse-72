@@ -144,7 +144,9 @@ export interface ActivationValues {
     companyId?: string | null;
     type?: string | null;
     showOnProfile?: boolean;
+    additional?: Array<{ name: string; companyId: string | null; type: string | null }>;
   };
+
 }
 
 export async function seedFromActivation(values: ActivationValues) {
