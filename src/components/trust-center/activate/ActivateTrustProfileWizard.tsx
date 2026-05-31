@@ -1179,10 +1179,6 @@ function MaturityStep({ answers, sources, onChange }: {
   sources: Record<string, string>;
   onChange: (id: string, answer: MaturityAnswer) => void;
 }) {
-  const fromRegelverkCount = Object.values(sources).filter((s) => s?.includes("Regelverk")).length;
-  const laraPrefillIds = Object.keys(sources).filter((id) => !sources[id]?.includes("Regelverk"));
-  const laraYes = laraPrefillIds.filter((id) => answers[id] === "yes").length;
-  const laraNa = laraPrefillIds.filter((id) => answers[id] === "n_a").length;
   const [openAreas, setOpenAreas] = useState<Record<string, boolean>>({});
   const toggleArea = (id: string) => setOpenAreas((prev) => ({ ...prev, [id]: !prev[id] }));
 
