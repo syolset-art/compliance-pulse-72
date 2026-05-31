@@ -386,19 +386,19 @@ export function MSPCreateOfferDialog({
               <div className="space-y-2 pt-2">
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
-                    <Label className="text-[11px] text-muted-foreground">Timepris</Label>
+                    <Label className="text-xs font-medium text-foreground">Timepris</Label>
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
                         value={editableHourlyRate}
                         onChange={e => setEditableHourlyRate(Number(e.target.value))}
-                        className="h-7 text-[13px] tabular-nums"
+                        className="h-8 text-sm tabular-nums"
                       />
-                      <span className="text-xs text-muted-foreground">kr</span>
+                      <span className="text-sm text-muted-foreground">kr</span>
                     </div>
                   </div>
                   <div className="w-24">
-                    <Label className="text-[11px] text-muted-foreground">Rabatt</Label>
+                    <Label className="text-xs font-medium text-foreground">Rabatt</Label>
                     <div className="flex items-center gap-1">
                       <Input
                         type="number"
@@ -406,24 +406,25 @@ export function MSPCreateOfferDialog({
                         max={100}
                         value={discountPercent}
                         onChange={e => setDiscountPercent(Math.max(0, Math.min(100, Number(e.target.value))))}
-                        className="h-7 text-[13px] tabular-nums"
+                        className="h-8 text-sm tabular-nums"
                       />
-                      <span className="text-xs text-muted-foreground">%</span>
+                      <span className="text-sm text-muted-foreground">%</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-baseline justify-between px-1">
                   {discountPercent > 0 ? (
-                    <div className="text-[12px] text-muted-foreground">
+                    <div className="text-sm text-muted-foreground">
                       <div>Delsum {subtotal.toLocaleString("nb-NO")} kr</div>
                       <div className="text-destructive">Rabatt {discountPercent}% · -{discountAmount.toLocaleString("nb-NO")} kr</div>
                     </div>
                   ) : (
-                    <span className="text-[12px] text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                    <span className="text-sm text-muted-foreground">Timepris {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
                   )}
-                  <span className="text-sm font-semibold text-foreground tabular-nums">
+                  <span className="text-base font-semibold text-foreground tabular-nums">
                     {totalHours} timer · {totalPrice.toLocaleString("nb-NO")} kr
                   </span>
+
                 </div>
               </div>
             </div>
