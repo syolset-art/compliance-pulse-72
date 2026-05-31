@@ -532,6 +532,17 @@ export function MSPCreateOfferDialog({
                   </span>
                 </div>
 
+                {/* Vis i tilbudet? */}
+                <div className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/20 px-3 py-2">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground">Vis manglene i tilbudet</p>
+                    <p className="text-xs text-muted-foreground">
+                      Når av: kunden ser kun aktivitetene, ikke listen over mangler som lukkes.
+                    </p>
+                  </div>
+                  <Switch checked={showGapsInOffer} onCheckedChange={setShowGapsInOffer} />
+                </div>
+
                 {/* Tydelig dekningsstatus-banner */}
                 <div className={cn("rounded-md border px-3 py-2 flex items-center gap-2 flex-wrap", coverageClass)}>
                   <ShieldCheck className="h-4 w-4 shrink-0" />
