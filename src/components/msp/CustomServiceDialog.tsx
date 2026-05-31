@@ -395,13 +395,49 @@ export function CustomServiceDialog({
             )}
           </div>
 
-          <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-sm flex items-center justify-between">
-            <span className="text-muted-foreground inline-flex items-center gap-1.5">
-              <Link2 className="h-3.5 w-3.5" /> Estimert pris ({totalHours} t × {defaultHourlyRate.toLocaleString("nb-NO")} kr)
-            </span>
-            <span className="font-semibold tabular-nums">
-              {new Intl.NumberFormat("nb-NO").format(Math.round(estimate))} kr
-            </span>
+          <div className="rounded-md border border-border bg-muted/30 px-3 py-2 space-y-2">
+            <div className="text-sm flex items-center justify-between">
+              <span className="text-muted-foreground inline-flex items-center gap-1.5">
+                <Link2 className="h-3.5 w-3.5" /> Estimert pris ({totalHours} t × {defaultHourlyRate.toLocaleString("nb-NO")} kr/t)
+              </span>
+              <span className="font-semibold tabular-nums">
+                {new Intl.NumberFormat("nb-NO").format(Math.round(estimate))} kr
+              </span>
+            </div>
+            <div className="flex items-center gap-3 pt-1 border-t border-border/50">
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="price-override"
+                  checked={usePriceOverride}
+                  onCheckedChange={setUsePriceOverride}
+                  className="data-[state=checked]:bg-primary"
+                />
+                <Label htmlFor="price-override" className="text-sm cursor-pointer">
+                  Sett egen pris
+                </Label>
+              </div>
+              {usePriceOverride && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <Input
+                    type="number"
+                    min={0}
+                    step={100}
+                    value={priceOverride}
+                    onChange={(e) => setPriceOverride(Math.max(0, Number(e.target.value) || 0))}
+                    className="h-8 w-28 text-sm tabular-nums"
+                  />
+                  <span className="text-sm text-muted-foreground">kr</span>
+                </div>
+              )}
+            </div>
+            {usePriceOverride && (
+              <div className="text-sm flex items-center justify-between">
+                <span className="text-muted-foreground">Endelig pris</span>
+                <span className="font-semibold tabular-nums">
+                  {new Intl.NumberFormat("nb-NO").format(Math.round(priceOverride))} kr
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
