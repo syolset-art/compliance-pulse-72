@@ -490,6 +490,14 @@ export default function ActivateTrustProfileWizard({
           onPick={pickRegistry}
           companyNameLocked={hasPrefill}
           orgPrefilled={hasOrgPrefill}
+          hasWebsite={hasWebsite}
+          setHasWebsite={(v: "yes" | "no") => {
+            setHasWebsite(v);
+            if (v === "no") {
+              setWebsite("");
+              setWebsiteVerified(false);
+            }
+          }}
         />
       )}
       {step === 2 && scan && (
