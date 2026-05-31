@@ -1253,6 +1253,9 @@ function MaturityStep({ answers, sources, onChange }: {
   onChange: (id: string, answer: MaturityAnswer) => void;
 }) {
   const fromRegelverkCount = Object.values(sources).filter((s) => s?.includes("Regelverk")).length;
+  const laraPrefillIds = Object.keys(sources).filter((id) => !sources[id]?.includes("Regelverk"));
+  const laraYes = laraPrefillIds.filter((id) => answers[id] === "yes").length;
+  const laraNa = laraPrefillIds.filter((id) => answers[id] === "n_a").length;
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-3">
@@ -1265,7 +1268,10 @@ function MaturityStep({ answers, sources, onChange }: {
               </p>
             ) : (
               <p className="text-xs text-foreground/80 leading-relaxed">
-                Lara har forhåndsutfylt det hun fant i kartleggingen. Bekreft, overstyr eller marker «Senere» — alt er valgfritt nå.
+                Lara har svart på <span className="font-medium">{laraYes + laraNa}</span> spørsmål basert på sikre kilder fra kartleggingen
+                {laraYes > 0 && <> — <span className="font-medium">{laraYes}</span> bekreftet</>}
+                {laraNa > 0 && <>, <span className="font-medium">{laraNa}</span> markert som ikke aktuelt</>}.
+                Du kan overstyre alle svar. Resten er satt til «Senere» — fyll inn det du vet.
               </p>
             )}
             <p className="text-xs text-foreground/70 leading-relaxed">
@@ -1273,6 +1279,7 @@ function MaturityStep({ answers, sources, onChange }: {
             </p>
           </div>
         </div>
+
 
         {MATURITY_AREAS.map((area) => {
           const Icon = area.icon;
@@ -1305,18 +1312,22 @@ function MaturityStep({ answers, sources, onChange }: {
                             </TooltipContent>
                           </Tooltip>
                         </div>
-                        {laraSrc && !laraSrc.includes("Regelverk") && (
+                        {laraSrc && !laraSrc.includes("Regelverk") && (val === "yes" || val === "n_a") && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary cursor-help">
-                                <Sparkles className="h-2.5 w-2.5" /> Foreslått av Lara
+                              <span className={`inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium cursor-help ${
+                                val === "n_a" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary"
+                              }`}>
+                                <Sparkles className="h-2.5 w-2.5" />
+                                {val === "n_a" ? "Lara: ikke aktuelt (sikker kilde)" : "Svart av Lara (sikker kilde)"}
                               </span>
                             </TooltipTrigger>
                             <TooltipContent side="bottom" className="max-w-xs text-xs">
-                              {laraSrc}
+                              {laraSrc} · Du kan overstyre svaret.
                             </TooltipContent>
                           </Tooltip>
                         )}
+
                       </div>
                       <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 shrink-0">
                         {[

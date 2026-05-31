@@ -80,8 +80,12 @@ export const ALL_MATURITY_QUESTIONS: MaturityQuestion[] = MATURITY_AREAS.flatMap
 
 export type MaturityAnswers = Record<string, MaturityAnswer>;
 
-/** Build defaults from Lara scan. Anything not derivable defaults to "later". */
+/** Build defaults from Lara scan. Anything not derivable defaults to "later".
+ *  Only HIGH-CONFIDENCE signals from public sources trigger an answer — these
+ *  are the ones Lara "svarer på" automatisk. Brukeren kan alltid overstyre.
+ */
 export function deriveDefaultAnswers(scan: {
+  contacts?: { dpoName?: string; dpoEmail?: string };
   privacy?: { policyUrl?: string };
   security?: { encryption?: string; mfa?: string };
   dataStorage?: { subProcessors: string[] };
@@ -91,23 +95,39 @@ export function deriveDefaultAnswers(scan: {
   for (const q of ALL_MATURITY_QUESTIONS) answers[q.id] = "later";
   if (!scan) return answers;
 
+  // HIGH-CONFIDENCE: publisert personvernerklæring funnet på domenet
   if (scan.privacy?.policyUrl) answers["gov.privacy_policy"] = "yes";
-  // Drift og sikkerhet: Lara skal ikke gjette basert på generelle nettside-omtaler.
-  // ops.encryption / ops.mfa forblir "later" og settes kun via faktiske bevis
-  // (Regelverk-data eller offentlig verifiserbare kilder som ISO-sertifikat).
+
+  // HIGH-CONFIDENCE: navngitt personvernkontakt / DPO i offentlig kilde
+  if (scan.contacts?.dpoEmail || scan.contacts?.dpoName) answers["gov.dpo"] = "yes";
+
+  // HIGH-CONFIDENCE: underleverandører listet offentlig (subprocessor page)
   if ((scan.dataStorage?.subProcessors?.length ?? 0) > 0) answers["tp.inventory"] = "yes";
 
+  // HIGH-CONFIDENCE: DPA-mal funnet
   const hasDpa = (scan.documents ?? []).some((d) => d.type === "dpa");
   if (hasDpa) answers["tp.dpa"] = "yes";
 
+  // HIGH-CONFIDENCE: publisert sikkerhets-/personvernpolicy
   const hasSecPolicy = (scan.documents ?? []).some((d) => d.type === "policy");
   if (hasSecPolicy) answers["gov.internal_policy"] = "yes";
+
+  // HIGH-CONFIDENCE «ikke aktuelt»: ingen tredjepartsoverføringer indikert
+  // i kartleggingen (ingen kjente underleverandører utenfor EØS, ingen
+  // transfer-omtale). Brukeren kan overstyre om de likevel overfører data.
+  const subs = scan.dataStorage?.subProcessors ?? [];
+  const hasNonEEA = subs.some((s) => /microsoft|google|aws|amazon|hubspot|slack|zoom|salesforce|stripe|openai/i.test(s));
+  if (subs.length > 0 && !hasNonEEA) answers["pri.transfer"] = "n_a";
+
+  // Drift og sikkerhet: Lara skal ikke gjette basert på generelle nettside-omtaler.
+  // ops.encryption / ops.mfa forblir "later" og settes kun via faktiske bevis.
 
   return answers;
 }
 
 /** Returns map of questionId -> Lara source label, used to show an "i" tooltip. */
 export function deriveLaraSources(scan: {
+  contacts?: { dpoName?: string; dpoEmail?: string };
   privacy?: { policyUrl?: string };
   security?: { encryption?: string; mfa?: string };
   dataStorage?: { subProcessors: string[] };
@@ -116,12 +136,20 @@ export function deriveLaraSources(scan: {
   const sources: Record<string, string> = {};
   if (!scan) return sources;
   if (scan.privacy?.policyUrl) sources["gov.privacy_policy"] = "Personvernerklæring funnet på hjemmesiden";
-  // ops.encryption / ops.mfa: ingen forslag fra generell nettside-omtale.
+  if (scan.contacts?.dpoEmail || scan.contacts?.dpoName) {
+    sources["gov.dpo"] = `Personvernkontakt funnet${scan.contacts?.dpoName ? `: ${scan.contacts.dpoName}` : ""}`;
+  }
   if ((scan.dataStorage?.subProcessors?.length ?? 0) > 0) sources["tp.inventory"] = `${scan.dataStorage!.subProcessors.length} underleverandører identifisert`;
   const dpa = (scan.documents ?? []).find((d) => d.type === "dpa");
   if (dpa) sources["tp.dpa"] = `Funnet i: ${dpa.title}`;
   const sec = (scan.documents ?? []).find((d) => d.type === "policy");
   if (sec) sources["gov.internal_policy"] = `Funnet i: ${sec.title}`;
+
+  const subs = scan.dataStorage?.subProcessors ?? [];
+  const hasNonEEA = subs.some((s) => /microsoft|google|aws|amazon|hubspot|slack|zoom|salesforce|stripe|openai/i.test(s));
+  if (subs.length > 0 && !hasNonEEA) {
+    sources["pri.transfer"] = "Ingen underleverandører utenfor EØS funnet i kartleggingen";
+  }
   return sources;
 }
 
