@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, AlertCircle, ArrowRight, ClipboardEdit, Eye, ShieldCheck } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { BaselineAreaProgress } from "@/hooks/useCustomerBaseline";
 
 interface Props {
@@ -11,7 +10,6 @@ interface Props {
   activeFrameworkCount: number;
   onFillBaseline: () => void;
   onReviewBaseline: () => void;
-  onStartGapAnalysis: () => void;
   onGoToRegulations: () => void;
 }
 
@@ -26,7 +24,6 @@ export function BaselineReadinessCard({
   activeFrameworkCount,
   onFillBaseline,
   onReviewBaseline,
-  onStartGapAnalysis,
   onGoToRegulations,
 }: Props) {
   const completeness = totalQuestions === 0 ? 0 : totalAnswered / totalQuestions;
@@ -110,30 +107,7 @@ export function BaselineReadinessCard({
           </Button>
         )}
 
-        {hasFramework ? (
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="sm"
-                  variant={isReady ? "default" : "secondary"}
-                  className="gap-1.5"
-                  onClick={onStartGapAnalysis}
-                >
-                  Kjør gap-analyse
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </TooltipTrigger>
-              {!isReady && (
-                <TooltipContent>
-                  <span className="text-xs">
-                    Anbefalt: fyll ut baseline først for mer presis gap-analyse.
-                  </span>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        ) : (
+        {!hasFramework && (
           <Button size="sm" variant="outline" className="gap-1.5" onClick={onGoToRegulations}>
             Gå til Regelverk
             <ArrowRight className="h-3.5 w-3.5" />
