@@ -18,7 +18,7 @@ import {
   Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
   Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users,
   ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
-  Info, Settings, Package, Sparkles, Settings2, Database,
+  Info, Settings, Package, Sparkles, Settings2, Database, MinusCircle,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
