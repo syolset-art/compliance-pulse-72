@@ -959,7 +959,7 @@ function ConfirmStep(props: any) {
 }
 
 function PreviewStep({ name, orgNumber, description, website, contactName, contactEmail, privacyUrl, encryption, certifications, subProcessors, maturityAnswers, documents }: any) {
-  const answered = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "yes" || v === "no").length : 0;
+  const answered = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "yes" || v === "no" || v === "n_a").length : 0;
   const later = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "later").length : 0;
   const docCount = documents ? documents.filter((d: ActivationDocument) => d.status === "uploaded" || d.status === "found").length : 0;
   return (
@@ -1117,6 +1117,7 @@ function MaturityStep({ answers, sources, onChange }: {
                         {[
                           { v: "yes" as const, label: "Ja" },
                           { v: "no" as const, label: "Nei" },
+                          { v: "n_a" as const, label: "Ikke aktuelt" },
                           { v: "later" as const, label: "Senere" },
                         ].map((opt) => {
                           const active = val === opt.v;
@@ -1129,6 +1130,7 @@ function MaturityStep({ answers, sources, onChange }: {
                                 active
                                   ? opt.v === "yes" ? "bg-success text-success-foreground"
                                   : opt.v === "no" ? "bg-destructive text-destructive-foreground"
+                                  : opt.v === "n_a" ? "bg-muted text-muted-foreground border border-border"
                                   : "bg-background text-foreground shadow-sm"
                                   : "text-muted-foreground hover:text-foreground"
                               }`}

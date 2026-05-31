@@ -135,7 +135,7 @@ export interface ActivationValues {
   dpoName?: string;
   dpoEmail?: string;
   securityEmail?: string;
-  maturityAnswers?: Record<string, "yes" | "no" | "later">;
+  maturityAnswers?: Record<string, "yes" | "no" | "later" | "n_a">;
   documents?: ActivationDocument[];
   visibility: "private" | "ecosystem" | "public";
   partner?: {
