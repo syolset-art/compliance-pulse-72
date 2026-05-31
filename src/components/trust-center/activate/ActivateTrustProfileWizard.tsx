@@ -675,7 +675,6 @@ export default function ActivateTrustProfileWizard({
     if (!open) return null;
     if (conversation) {
       const laraIntro =
-        step === 1 ? "Hei! Jeg er Lara. La oss sette opp Trust Profile-en din sammen — det tar bare et par minutter." :
         step === 2 ? "Jeg leter gjennom hjemmesiden din og offentlige kilder nå …" :
         step === 3 ? "Her er det jeg fant. Bekreft eller juster gjerne — alt er forhåndsutfylt." :
         step === 4 ? "La oss gå gjennom modenheten din. Jeg har gjettet basert på det jeg fant." :
