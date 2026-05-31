@@ -27,7 +27,7 @@ import {
 } from "@/lib/trustMaturityQuestions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import {
   findVendorSuggestions,
   findVendorByName,
@@ -1552,31 +1552,30 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
       {/* Vendor name with autosuggest */}
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">Navn på leverandør</Label>
-        <Popover open={open && suggestions.length > 0} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Input
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                onChange({ name: e.target.value });
-                setOpen(true);
-              }}
-              onFocus={() => setOpen(true)}
-              placeholder="Begynn å skriv — f.eks. Microsoft, Tripletex, AWS …"
-              className="text-sm"
-            />
-          </PopoverTrigger>
-          <PopoverContent
-            className="p-1 w-[--radix-popover-trigger-width]"
-            align="start"
-            onOpenAutoFocus={(e) => e.preventDefault()}
-          >
-            <ul className="max-h-64 overflow-auto">
+        <div className="relative">
+          <Input
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              onChange({ name: e.target.value });
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            onBlur={() => window.setTimeout(() => setOpen(false), 120)}
+            placeholder="Begynn å skriv — f.eks. Microsoft, Tripletex, AWS …"
+            className="text-sm"
+            autoComplete="off"
+          />
+          {open && query.length > 0 && suggestions.length > 0 && (
+            <ul className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-auto rounded-md border bg-popover p-1 shadow-md">
               {suggestions.map((v) => (
                 <li key={v.name}>
                   <button
                     type="button"
-                    onClick={() => selectVendor(v)}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      selectVendor(v);
+                    }}
                     className="w-full text-left px-2 py-1.5 rounded-md hover:bg-muted text-sm flex flex-col"
                   >
                     <span className="font-medium">{v.name}</span>
@@ -1585,8 +1584,8 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
                 </li>
               ))}
             </ul>
-          </PopoverContent>
-        </Popover>
+          )}
+        </div>
         {knownVendor && (
           <p className="text-[11px] text-muted-foreground">
             Gjenkjent: {knownVendor.category}
