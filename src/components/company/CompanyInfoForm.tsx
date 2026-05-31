@@ -46,10 +46,20 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     { name: "Mynder MSP-partner AS", type: "msp", roleDescription: "Drift, sikkerhetsovervåking og brukerstøtte" },
     { name: "Acme IT AS", type: "it_partner", roleDescription: "IT-drift og support" },
     { name: "NordSec AS", type: "mssp", roleDescription: "24/7 SOC, EDR og hendelseshåndtering" },
+    { name: "Hult-IT", type: "it_partner", roleDescription: "IT-drift, support og brukerstøtte" },
+    { name: "Hult-IT Security", type: "mssp", roleDescription: "Sikkerhetsovervåking og hendelseshåndtering" },
+    { name: "7 Security MSP", type: "msp", roleDescription: "Drift av sikkerhetsplattformer og endepunkter" },
     { name: "7 Security", type: "mssp", roleDescription: "Sikkerhetsovervåking og compliance-rådgivning" },
     { name: "Bouvet Sikkerhet", type: "consultant", roleDescription: "Rådgivning innen informasjonssikkerhet og GDPR" },
     { name: "Atea Managed Services", type: "msp", roleDescription: "Skytjenester, drift og support" },
     { name: "Sopra Steria Cyber", type: "mssp", roleDescription: "Cybersikkerhet og hendelseshåndtering" },
+    { name: "Visma Sikkerhet", type: "mssp", roleDescription: "Managed security og compliance" },
+    { name: "TietoEvry Managed Security", type: "mssp", roleDescription: "SOC, trusseldeteksjon og respons" },
+    { name: "Crayon Managed Services", type: "msp", roleDescription: "Sky- og lisensdrift" },
+    { name: "Itera Cybersecurity", type: "mssp", roleDescription: "Sikkerhetsrådgivning og overvåking" },
+    { name: "Advania Operations", type: "msp", roleDescription: "IT-drift og arbeidsplasstjenester" },
+    { name: "Basefarm Managed Cloud", type: "msp", roleDescription: "Drift av kritisk skyinfrastruktur" },
+    { name: "Netsecurity", type: "mssp", roleDescription: "SOC-tjenester og hendelseshåndtering" },
   ];
 
   const { data: companyProfile, isLoading: loadingProfile } = useQuery({
