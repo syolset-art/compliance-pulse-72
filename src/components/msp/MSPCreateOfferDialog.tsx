@@ -710,7 +710,7 @@ export function MSPCreateOfferDialog({
               </div>
               <div className="space-y-1">
                 <h3 className="text-base font-semibold text-foreground">Tilbudet er lagret</h3>
-                <p className="text-[13px] text-muted-foreground max-w-sm">
+                <p className="text-sm text-muted-foreground max-w-sm">
                   <span className="font-medium text-foreground">{offerNumber}</span> · {offerName} ·{" "}
                   <span className="tabular-nums">{totalPrice.toLocaleString("nb-NO")} kr</span>
                   {savedAt && <> · lagret {savedAt}</>}
@@ -722,25 +722,26 @@ export function MSPCreateOfferDialog({
               <div className="flex items-start gap-3 p-3">
                 <Inbox className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-foreground">Lagret på kundekortet</p>
-                  <p className="text-[12px] text-muted-foreground">Du finner det igjen under <span className="text-foreground font-medium">Tilbud</span>-fanen på {customerContactName}.</p>
+                  <p className="text-sm font-medium text-foreground">Lagret på kundekortet</p>
+                  <p className="text-sm text-muted-foreground">Du finner det igjen under <span className="text-foreground font-medium">Tilbud</span>-fanen på {customerContactName}.</p>
                 </div>
                 <Badge variant="outline" className="bg-warning/10 text-warning border-warning/30 text-xs shrink-0">Utkast</Badge>
               </div>
               <div className="flex items-start gap-3 p-3">
                 <ClipboardList className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-foreground">Aktivitet opprettet for Lara</p>
-                  <p className="text-[12px] text-muted-foreground">Lara følger opp status og minner deg på oppfølging etter 7 dager.</p>
+                  <p className="text-sm font-medium text-foreground">Aktivitet opprettet for Lara</p>
+                  <p className="text-sm text-muted-foreground">Lara følger opp status og minner deg på oppfølging etter 7 dager.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 p-3">
                 <Send className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-foreground">Ikke sendt til kunden ennå</p>
-                  <p className="text-[12px] text-muted-foreground">Last ned PDF og send fra ditt eget tilbudssystem når du er klar.</p>
+                  <p className="text-sm font-medium text-foreground">Ikke sendt til kunden ennå</p>
+                  <p className="text-sm text-muted-foreground">Last ned PDF og send fra ditt eget tilbudssystem når du er klar.</p>
                 </div>
               </div>
+
             </div>
           </div>
         )}
