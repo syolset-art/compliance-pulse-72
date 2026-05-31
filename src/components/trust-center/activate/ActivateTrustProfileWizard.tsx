@@ -855,7 +855,7 @@ function WebsiteChoice({
 }) {
   return (
     <div className="space-y-2">
-      <Label>Har dere en hjemmeside?</Label>
+      <Label>Har du en hjemmeside?</Label>
       <div className="flex gap-2">
         <Button
           type="button"
@@ -875,7 +875,7 @@ function WebsiteChoice({
           disabled={disabled}
           onClick={() => setHasWebsite("no")}
         >
-          Nei, vi har ingen hjemmeside
+          Nei, jeg har ingen hjemmeside
         </Button>
       </div>
       {hasWebsite === "no" && (
@@ -1339,7 +1339,7 @@ function CriticalVendorsStep({ rows, onChange }: {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Har dere databehandleravtale (DPA) med dem?</Label>
+              <Label className="text-xs text-muted-foreground">Har du databehandleravtale (DPA) med dem?</Label>
               <div className="flex gap-1.5">
                 {dpaOptions.map((opt) => (
                   <Button
@@ -1704,7 +1704,7 @@ function PartnerSelectionBlock({
       <div className="grid grid-cols-3 gap-2">
         {[
           { v: "yes" as const, label: "Ja, koblet til partner" },
-          { v: "no" as const, label: "Nei, vi forvalter selv" },
+          { v: "no" as const, label: "Nei, jeg forvalter selv" },
           { v: "unknown" as const, label: "Vet ikke ennå" },
         ].map((opt) => {
           const selected = status === opt.v;
