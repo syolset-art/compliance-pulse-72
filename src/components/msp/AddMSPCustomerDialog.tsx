@@ -481,7 +481,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <div className="text-center text-xs text-muted-foreground">— eller lim inn —</div>
 
                 <Textarea
-                  placeholder={`936431127;Framdrift Innovasjon AS;Marte Solberg;marte@framdrift.no\n998877665;Eksempel AS;Ola Nordmann;ola@eksempel.no`}
+                  placeholder={`936431127;DIPS Arena AS;Kari Lien;kari.lien@dipsarena.no\n998877665;Eksempel AS;Ola Nordmann;ola@eksempel.no`}
                   value={bulkText}
                   onChange={(e) => setBulkText(e.target.value)}
                   rows={6}
