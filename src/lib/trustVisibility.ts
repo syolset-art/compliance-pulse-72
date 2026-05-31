@@ -17,16 +17,6 @@ type Meta = {
 };
 
 export const VISIBILITY_META: Record<TrustVisibility, Meta> = {
-  private: {
-    level: "private",
-    icon: Lock,
-    labelNb: "Privat",
-    labelEn: "Private",
-    shortNb: "Privat",
-    shortEn: "Private",
-    descNb: "Profilen er privat. Andre Mynder-brukere kan finne deg og be om tilgang — du godkjenner hver forespørsel.",
-    descEn: "The profile is private. Other Mynder users can find you and request access — you approve each request.",
-  },
   ecosystem: {
     level: "ecosystem",
     icon: Sparkles,
@@ -49,11 +39,12 @@ export const VISIBILITY_META: Record<TrustVisibility, Meta> = {
   },
 };
 
-export const ALL_VISIBILITY_LEVELS: TrustVisibility[] = ["private", "ecosystem", "public"];
+export const ALL_VISIBILITY_LEVELS: TrustVisibility[] = ["ecosystem", "public"];
 
 export function getVisibilityFromAsset(asset: { publish_mode?: string | null } | null | undefined): TrustVisibility {
   const v = asset?.publish_mode;
-  if (v === "private" || v === "ecosystem" || v === "public") return v;
+  if (v === "ecosystem" || v === "public") return v;
+  // legacy "private" values map to ecosystem
   return DEFAULT_VISIBILITY;
 }
 
