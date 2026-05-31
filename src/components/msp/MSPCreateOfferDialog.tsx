@@ -772,7 +772,7 @@ export function MSPCreateOfferDialog({
               </div>
 
 
-              {coveredGaps && selectedCount > 0 && (
+              {showGapsInOffer && coveredGaps && selectedCount > 0 && (
                 <div className="pt-3 border-t border-border space-y-2">
                   <div className="flex items-baseline justify-between gap-2">
                     <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
