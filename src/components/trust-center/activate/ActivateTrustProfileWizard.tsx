@@ -106,7 +106,10 @@ export default function ActivateTrustProfileWizard({
   const [maturityAnswers, setMaturityAnswers] = useState<MaturityAnswers>({});
   const [laraSources, setLaraSources] = useState<Record<string, string>>({});
 
-  // Step 5: documents
+  // Step 5: critical vendors
+  const [criticalVendors, setCriticalVendors] = useState<CriticalVendorRow[]>([{ ...EMPTY_VENDOR_ROW }]);
+
+  // Step 6: documents
   const [documents, setDocuments] = useState<ActivationDocument[]>([]);
 
   // Step 6: visibility
