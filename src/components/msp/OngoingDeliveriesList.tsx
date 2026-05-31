@@ -113,6 +113,8 @@ export const OngoingDeliveriesList = ({
     controlId?: string;
     activityId?: string;
     readOnly?: boolean;
+    /** Forhåndsvalgt status — settes når dialogen åpnes via en status-knapp (f.eks. "Fullført"). */
+    intendedStatus?: ActivityStatus;
   }>({ open: false });
   const [summaryCtx, setSummaryCtx] = useState<{ open: boolean; deliveryId?: string }>({
     open: false,
@@ -130,9 +132,11 @@ export const OngoingDeliveriesList = ({
     deliveryId: string,
     controlId: string,
     activityId: string,
+    intendedStatus?: ActivityStatus,
   ) => {
-    setConfirmCtx({ open: true, deliveryId, controlId, activityId });
+    setConfirmCtx({ open: true, deliveryId, controlId, activityId, intendedStatus });
   };
+
 
   const confirmCtxResolved = useMemo(() => {
     if (!confirmCtx.open) return null;
