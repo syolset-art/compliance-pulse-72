@@ -594,7 +594,7 @@ export function MSPCreateOfferDialog({
                         {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
                       </div>
                       <span className="text-right tabular-nums text-foreground">{hrs}</span>
-                      <span className="text-right tabular-nums text-foreground">{(hrs * hourlyRate).toLocaleString("nb-NO")} kr</span>
+                      <span className="text-right tabular-nums text-foreground">{(hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
                     </div>
                   );
                 })}
