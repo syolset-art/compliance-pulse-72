@@ -3,28 +3,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import {
   Shield, Lock, Brain, Server, FileCheck, Scale,
-  Download, FileText, ChevronDown, ArrowRight,
+  Download, ChevronDown, ArrowRight,
   Sparkles, Loader2, Check, BookOpen, Database, GitCompare, AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { DEMO_GAPS, severityDotClass, type FrameworkGap, type GapItem } from "@/lib/gapData";
 
-export interface FrameworkGap {
-  framework_id: string;
-  framework_name: string;
-  score: number;
-  total: number;
-  fulfilled: number;
-  gaps: GapItem[];
-}
-
-export interface GapItem {
-  id: string;
-  title: string;
-  domain: string;
-  reference?: string;
-  severity: "critical" | "high" | "medium" | "low";
-}
+export type { FrameworkGap, GapItem };
 
 const FRAMEWORK_ICONS: Record<string, React.ReactNode> = {
   iso27001: <Shield className="h-4 w-4 text-primary" />,
@@ -36,81 +22,7 @@ const FRAMEWORK_ICONS: Record<string, React.ReactNode> = {
   popplyl: <Scale className="h-4 w-4 text-primary" />,
 };
 
-const DEMO_GAPS: FrameworkGap[] = [
-  {
-    framework_id: "nis2",
-    framework_name: "NIS2",
-    score: 18,
-    total: 24,
-    fulfilled: 4,
-    gaps: [
-      { id: "n1", title: "Mangler dokumentert hendelsesrapporteringsrutine til myndigheter", domain: "Hendelseshåndtering", reference: "Artikkel 23", severity: "critical" },
-      { id: "n2", title: "Ingen formell risikoanalyse av nettverk og informasjonssystemer", domain: "Risiko", reference: "Artikkel 21(2)(a)", severity: "critical" },
-      { id: "n3", title: "Ledelsen ikke involvert i cybersikkerhetsbeslutninger", domain: "Styring", reference: "Artikkel 20", severity: "critical" },
-      { id: "n4", title: "Leverandørstyring ikke dokumentert", domain: "Tredjepart", reference: "Artikkel 21(2)(d)", severity: "high" },
-      { id: "n5", title: "Tilgangskontroll og autentisering uten MFA-policy", domain: "Tilgang", reference: "Artikkel 21(2)(j)", severity: "high" },
-      { id: "n6", title: "Kontinuitetsplan og backup-strategi mangler", domain: "Drift", reference: "Artikkel 21(2)(c)", severity: "high" },
-      { id: "n7", title: "Sårbarhetshåndteringsprosess ikke etablert", domain: "Drift", reference: "Artikkel 21(2)(e)", severity: "high" },
-      { id: "n8", title: "Kryptering av data ikke implementert systematisk", domain: "Drift", reference: "Artikkel 21(2)(h)", severity: "medium" },
-      { id: "n9", title: "Awareness-trening ikke gjennomført", domain: "HR", reference: "Artikkel 21(2)(g)", severity: "medium" },
-    ],
-  },
-  {
-    framework_id: "gdpr",
-    framework_name: "GDPR",
-    score: 42,
-    total: 18,
-    fulfilled: 8,
-    gaps: [
-      { id: "g1", title: "Behandlingsprotokoll ikke ferdigstilt", domain: "Dokumentasjon", reference: "Artikkel 30", severity: "critical" },
-      { id: "g2", title: "Databehandleravtaler mangler for 3 leverandører", domain: "Tredjepart", reference: "Artikkel 28", severity: "high" },
-      { id: "g3", title: "Rutine for innsynsbegjæringer", domain: "Rettigheter", reference: "Artikkel 15", severity: "medium" },
-      { id: "g4", title: "DPIA mangler for HR-system", domain: "Risiko", reference: "Artikkel 35", severity: "high" },
-      { id: "g5", title: "Slettingsrutiner ikke implementert", domain: "Drift", reference: "Artikkel 17", severity: "medium" },
-    ],
-  },
-  {
-    framework_id: "iso27001",
-    framework_name: "ISO 27001",
-    score: 53,
-    total: 93,
-    fulfilled: 49,
-    gaps: [
-      { id: "i1", title: "Ledelsens gjennomgang ikke utført siste 12 mnd", domain: "Styring", reference: "Krav 9.3", severity: "high" },
-      { id: "i2", title: "Risikobehandlingsplan mangler", domain: "Risiko", reference: "Krav 6.1.3", severity: "high" },
-      { id: "i3", title: "Awareness-trening ikke dokumentert", domain: "HR", reference: "Vedlegg A.7.2", severity: "medium" },
-      { id: "i4", title: "Penetrasjonstest mangler", domain: "Drift", reference: "Vedlegg A.8.8", severity: "high" },
-      { id: "i5", title: "Klassifisering av informasjon", domain: "Eiendeler", reference: "Vedlegg A.5.12", severity: "medium" },
-      { id: "i6", title: "Beredskapsøvelse ikke gjennomført", domain: "Kontinuitet", reference: "Vedlegg A.5.30", severity: "medium" },
-    ],
-  },
-  {
-    framework_id: "aiact",
-    framework_name: "EU AI Act",
-    score: 0,
-    total: 12,
-    fulfilled: 0,
-    gaps: [
-      { id: "a1", title: "AI-systemregister ikke etablert", domain: "Styring", reference: "Artikkel 49", severity: "critical" },
-      { id: "a2", title: "Risikoklassifisering av AI-systemer mangler", domain: "Risiko", reference: "Artikkel 6", severity: "critical" },
-      { id: "a3", title: "Menneskelig tilsyn ikke definert", domain: "Drift", reference: "Artikkel 14", severity: "high" },
-      { id: "a4", title: "Transparens overfor brukere", domain: "Dokumentasjon", reference: "Artikkel 13", severity: "high" },
-    ],
-  },
-];
-
-const SEVERITY_LABEL: Record<GapItem["severity"], string> = {
-  critical: "Kritisk",
-  high: "Vesentlig",
-  medium: "Mindre",
-  low: "Mindre",
-};
-
-function severityDot(s: GapItem["severity"]) {
-  if (s === "critical") return "bg-destructive";
-  if (s === "high") return "bg-warning";
-  return "bg-muted-foreground/40";
-}
+const severityDot = severityDotClass;
 
 const INITIAL_VISIBLE = 5;
 
