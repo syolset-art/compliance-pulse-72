@@ -350,16 +350,17 @@ export function MSPCreateOfferDialog({
                         <Input
                           value={t.label}
                           onChange={e => updateTask(i, { label: e.target.value })}
-                          className="h-7 text-[13px] font-medium border-0 bg-transparent px-0 focus-visible:ring-0"
+                          className="h-8 text-sm font-medium border-0 bg-transparent px-0 focus-visible:ring-0"
                         />
-                        {t.note && <p className="text-xs text-muted-foreground -mt-0.5">{t.note}</p>}
+                        {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
                       </div>
                       <Input
                         type="number"
                         value={t.hours}
                         onChange={e => updateTask(i, { hours: Number(e.target.value) })}
-                        className="h-7 text-[13px] text-right tabular-nums"
+                        className="h-8 text-sm text-right tabular-nums"
                       />
+
                       <button
                         type="button"
                         onClick={() => removeTask(i)}
