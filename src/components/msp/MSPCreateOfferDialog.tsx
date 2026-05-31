@@ -590,10 +590,12 @@ export function MSPCreateOfferDialog({
                           <span className={cn("h-2 w-2 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
                           <label htmlFor={`gap-${g.id}`} className="flex-1 min-w-0 cursor-pointer space-y-0.5">
                             <div className="flex items-baseline gap-2 flex-wrap">
-                              {g.reference && (
-                                <span className="font-mono text-xs text-muted-foreground shrink-0">{g.reference}</span>
-                              )}
-                              <span className="text-sm text-foreground leading-snug">{g.title}</span>
+                              <span className="text-sm text-foreground leading-snug">
+                                {g.title}
+                                {g.reference && (
+                                  <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                                )}
+                              </span>
                             </div>
                           </label>
                           <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
@@ -793,10 +795,12 @@ export function MSPCreateOfferDialog({
                     {sortedGaps.filter(g => selectedGapIds.has(g.id)).map(g => (
                       <li key={g.id} className="flex items-start gap-2 text-sm text-foreground">
                         <span className={cn("h-1.5 w-1.5 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
-                        {g.reference && (
-                          <span className="font-mono text-xs text-muted-foreground shrink-0 mt-0.5">{g.reference}</span>
-                        )}
-                        <span className="leading-snug">— {g.title}</span>
+                        <span className="leading-snug">
+                          {g.title}
+                          {g.reference && (
+                            <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                          )}
+                        </span>
                       </li>
                     ))}
                   </ul>
