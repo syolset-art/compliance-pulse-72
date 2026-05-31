@@ -54,6 +54,10 @@ interface Recommendation {
   urgent?: boolean;
   /** Knytt anbefalingen til ett regelverk så partner kan se relevante gap. */
   frameworkId?: string;
+  /** Lesbar etikett for regelverket – brukes i tilbudet. */
+  frameworkLabel?: string;
+  /** Kontrollpunkter denne leveransen dekker (vises i tilbudet). */
+  controlIds?: string[];
   /** Antall åpne gap (vises på "Vis gap"-knapp). */
   openGaps?: number;
   /** Forslag til tiltak med estimerte timer. */
