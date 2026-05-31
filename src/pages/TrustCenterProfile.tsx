@@ -77,7 +77,7 @@ import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { EvidenceStatusBadge, deriveWorstStatus } from "@/components/trust-controls/EvidenceStatusBadge";
 import type { EvidenceStatus } from "@/components/trust-controls/EvidenceStatusBadge";
-import { seedDemoTrustProfile } from "@/lib/demoSeedTrustProfile";
+import { seedDemoTrustProfile, resetTrustProfileForDemo } from "@/lib/demoSeedTrustProfile";
 import ActivateTrustProfileWizard from "@/components/trust-center/activate/ActivateTrustProfileWizard";
 import { usePartnerInfo, PARTNER_TYPE_LABEL } from "@/hooks/usePartnerInfo";
 
