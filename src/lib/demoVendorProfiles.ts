@@ -139,7 +139,7 @@ const DEMO_VENDOR_PROFILES: DemoVendor[] = [
     risk_score: 65,
     risk_level: "high",
     criticality: "low",
-    publish_mode: "private",
+    publish_mode: "ecosystem",
     contact_person: "Daglig leder",
     contact_email: "post@ulriken643-demo.no",
     description: "Fasilitetsselskap som drifter kontorlokaler og fellesarealer. Begrenset digital modenhet og compliance-dokumentasjon.",
