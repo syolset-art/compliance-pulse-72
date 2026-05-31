@@ -164,7 +164,7 @@ export function BaselineQuestionsDrawer({
                           size="sm"
                           variant={current === opt.value ? "default" : "outline"}
                           className="h-8 flex-1"
-                          onClick={() => onAnswer(q.id, opt.value)}
+                          onClick={() => setDraftAnswer(q.id, opt.value)}
                         >
                           {opt.label}
                         </Button>
