@@ -60,9 +60,9 @@ export const LaraDraftDialog = ({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground truncate">{draft.title}</p>
-              <p className="text-[11px] text-muted-foreground font-mono truncate">{draft.fileName}</p>
+              <p className="text-xs text-muted-foreground font-mono truncate">{draft.fileName}</p>
             </div>
-            <Badge variant="outline" className="text-[10px] gap-1 shrink-0">
+            <Badge variant="outline" className="text-xs gap-1 shrink-0">
               <Sparkles className="h-3 w-3" />
               Generert
             </Badge>
@@ -77,7 +77,7 @@ export const LaraDraftDialog = ({
                 </li>
               ))}
             </ul>
-            <p className="pt-2 text-[11px] text-muted-foreground italic border-t border-border/60">
+            <p className="pt-2 text-xs text-muted-foreground italic border-t border-border/60">
               Lara · {new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" })}
             </p>
           </div>

@@ -177,7 +177,7 @@ export function ServiceTableRow({
             <div className="text-sm font-semibold text-foreground truncate">
               {service.name}
             </div>
-            <div className="text-[11px] text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               {points.length} kontrollpunkter
             </div>
           </div>
@@ -191,7 +191,7 @@ export function ServiceTableRow({
               <span
                 key={m.frameworkId}
                 className={cn(
-                  "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border",
+                  "inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border",
                   theme.chip,
                 )}
               >
@@ -214,7 +214,7 @@ export function ServiceTableRow({
             onChange={(e) => setHourlyRate(Math.max(0, Number(e.target.value) || 0))}
             className="h-8 w-20 px-2 text-sm text-right tabular-nums"
           />
-          <span className="text-[11px] text-muted-foreground">kr/t</span>
+          <span className="text-xs text-muted-foreground">kr/t</span>
         </div>
 
         {/* Totalpris */}
@@ -238,7 +238,7 @@ export function ServiceTableRow({
         <div className="border-t border-border bg-muted/20 px-4 py-3 space-y-3">
           {/* Sub-header + action-rad */}
           <div className="flex items-center justify-between flex-wrap gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Kontrollpunkter denne tjenesten dekker
             </span>
             <div className="flex items-center gap-1">
@@ -259,14 +259,14 @@ export function ServiceTableRow({
                   checked={!!service.publishedToCustomers}
                   onCheckedChange={onTogglePublished}
                 />
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {service.publishedToCustomers ? "Synlig" : "Skjult"}
                 </span>
               </label>
-              <Button size="sm" variant="ghost" className="h-7 gap-1 px-2 text-[11px]" onClick={onEdit}>
+              <Button size="sm" variant="ghost" className="h-7 gap-1 px-2 text-xs" onClick={onEdit}>
                 <Pencil className="h-3.5 w-3.5" /> Rediger
               </Button>
-              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground ml-1">
+              <span className="inline-flex items-center gap-1 text-xs text-muted-foreground ml-1">
                 <Info className="h-3 w-3" /> Velg fra Mynders bibliotek
               </span>
             </div>
@@ -291,7 +291,7 @@ export function ServiceTableRow({
                   >
                     <span
                       className={cn(
-                        "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border",
+                        "inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border",
                         theme.chip,
                       )}
                     >
@@ -299,7 +299,7 @@ export function ServiceTableRow({
                     </span>
                     <span className="text-sm text-foreground truncate">
                       {p.title}
-                      <span className="text-muted-foreground ml-2 text-[11px]">
+                      <span className="text-muted-foreground ml-2 text-xs">
                         · {hours} t totalt
                       </span>
                     </span>
@@ -335,7 +335,7 @@ export function ServiceTableRow({
                   {/* Aktiviteter */}
                   {open && (
                     <div className="border-t border-border/60 px-3 py-2 bg-muted/10 space-y-1.5">
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground pl-2">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pl-2">
                         Aktiviteter
                       </div>
                       <ul className="space-y-1">
@@ -362,7 +362,7 @@ export function ServiceTableRow({
                                 }
                                 className="h-7 w-14 px-1.5 text-[12px] text-right tabular-nums"
                               />
-                              <span className="text-[11px] text-muted-foreground">t</span>
+                              <span className="text-xs text-muted-foreground">t</span>
                             </div>
                             <span className="text-[12px] font-medium text-foreground tabular-nums w-20 text-right">
                               {formatNOK(a.hours * hourlyRate)}
@@ -387,7 +387,7 @@ export function ServiceTableRow({
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-7 gap-1 px-2 text-[11px] mt-1"
+                        className="h-7 gap-1 px-2 text-xs mt-1"
                         onClick={() => addActivity(p.key)}
                       >
                         <Plus className="h-3 w-3" /> Legg til aktivitet
@@ -429,7 +429,7 @@ export function ServiceTableRow({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 text-[11px] text-muted-foreground hover:text-destructive"
+                className="h-7 text-xs text-muted-foreground hover:text-destructive"
                 onClick={onDelete}
               >
                 Slett tjeneste

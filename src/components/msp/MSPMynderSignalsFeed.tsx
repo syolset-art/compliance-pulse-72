@@ -81,7 +81,7 @@ export function MSPMynderSignalsFeed({ customerName, signals }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
                   <p className="text-sm font-medium text-foreground">{s.title}</p>
-                  <span className="text-[11px] text-muted-foreground shrink-0">{s.when}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">{s.when}</span>
                 </div>
                 <p className="text-[13px] text-muted-foreground mt-0.5">{s.detail}</p>
               </div>

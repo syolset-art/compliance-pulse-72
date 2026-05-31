@@ -580,7 +580,7 @@ function Step1({
                     <span className="text-xs text-muted-foreground">· {c.contactName}</span>
                   )}
                   {c.criticality === "critical" && (
-                    <Badge variant="outline" className="text-[10px] ml-auto">
+                    <Badge variant="outline" className="text-xs ml-auto">
                       Kritisk
                     </Badge>
                   )}
@@ -743,7 +743,7 @@ function Step3({
                 e.stopPropagation();
                 onRemove(c.id);
               }}
-              className="text-[10px] text-muted-foreground hover:text-destructive"
+              className="text-xs text-muted-foreground hover:text-destructive"
               title="Hopp over"
             >
               ×
@@ -754,7 +754,7 @@ function Step3({
 
       {active && (
         <div className="space-y-2">
-          <div className="text-[11px] text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             Forhåndsvisning for <span className="font-semibold text-foreground">{active.name}</span>
             {active.contactEmail && <> · {active.contactEmail}</>}
           </div>

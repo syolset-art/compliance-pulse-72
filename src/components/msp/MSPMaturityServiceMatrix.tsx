@@ -701,15 +701,15 @@ export function MSPMaturityServiceMatrix({
         <TabsList>
           <TabsTrigger value="recommended" className="gap-2">
             Anbefalte tjenester
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{RECOMMENDATIONS.length}</Badge>
+            <Badge variant="secondary" className="h-5 px-1.5 text-xs">{RECOMMENDATIONS.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="ongoing" className="gap-2">
             Tilbud
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{savedOffers.length}</Badge>
+            <Badge variant="secondary" className="h-5 px-1.5 text-xs">{savedOffers.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="deliveries" className="gap-2">
             Pågående oppdrag
-            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{DELIVERIES.length}</Badge>
+            <Badge variant="secondary" className="h-5 px-1.5 text-xs">{DELIVERIES.length}</Badge>
           </TabsTrigger>
         </TabsList>
 
@@ -735,7 +735,7 @@ export function MSPMaturityServiceMatrix({
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-semibold text-foreground">{r.title}</span>
                       {r.urgent && (
-                        <Badge variant="outline" className="text-[10px] bg-destructive/10 text-destructive border-destructive/30">
+                        <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/30">
                           Tidskritisk
                         </Badge>
                       )}
@@ -782,7 +782,7 @@ export function MSPMaturityServiceMatrix({
                           <FileText className="h-3.5 w-3.5" />
                           Vis gap
                           {typeof r.openGaps === "number" && (
-                            <Badge variant="secondary" className="h-4 px-1 text-[10px] ml-0.5">
+                            <Badge variant="secondary" className="h-4 px-1 text-xs ml-0.5">
                               {r.openGaps}
                             </Badge>
                           )}
@@ -844,13 +844,13 @@ export function MSPMaturityServiceMatrix({
                         </TableCell>
                         <TableCell>
                           <div className="font-medium text-foreground text-sm">{o.serviceTitle}</div>
-                          <div className="text-[11px] text-muted-foreground">
+                          <div className="text-xs text-muted-foreground">
                             {o.taskCount} tiltak · {o.totalHours} timer
                           </div>
                         </TableCell>
                         <TableCell>
                           {o.frameworkLabel ? (
-                            <Badge variant="outline" className="text-[10px] gap-1">
+                            <Badge variant="outline" className="text-xs gap-1">
                               <FileText className="h-3 w-3" />
                               {o.frameworkLabel}
                             </Badge>
@@ -1014,11 +1014,11 @@ function ControlRow({ c, frameworkLabel }: { c: ControlPoint; frameworkLabel?: s
           </div>
           <p className="text-[12px] text-muted-foreground line-clamp-2 mt-0.5">{c.desc}</p>
         </div>
-        <Badge variant="outline" className={cn("text-[10px] gap-1 shrink-0", cap.cls)}>
+        <Badge variant="outline" className={cn("text-xs gap-1 shrink-0", cap.cls)}>
           <CapIcon className="h-3 w-3" />
           {cap.label}
         </Badge>
-        <span className="text-[11px] text-muted-foreground tabular-nums shrink-0 w-9 text-right">
+        <span className="text-xs text-muted-foreground tabular-nums shrink-0 w-9 text-right">
           {c.progress ?? 0}%
         </span>
         <ChevronDown className={cn("h-4 w-4 text-muted-foreground shrink-0 transition-transform", open && "rotate-180")} />
@@ -1037,7 +1037,7 @@ function ControlRow({ c, frameworkLabel }: { c: ControlPoint; frameworkLabel?: s
                     {c.status === "partial" ? "Lara har delvis data — dette gjenstår" : "Lara kan hjelpe deg å fylle inn dette"}
                   </p>
                   {c.source && (
-                    <p className="text-[11px] text-muted-foreground mt-0.5">Lara henter dette fra: {c.source}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Lara henter dette fra: {c.source}</p>
                   )}
                   <p className="text-[12px] text-muted-foreground mt-1">
                     Lara kan forberede et utkast basert på dataene, men trenger din godkjenning før det regnes som oppfylt.
@@ -1057,7 +1057,7 @@ function ControlRow({ c, frameworkLabel }: { c: ControlPoint; frameworkLabel?: s
           )}
 
           {frameworkLabel && (
-            <p className="text-[11px] text-muted-foreground">Referanse: {frameworkLabel} · {c.id}</p>
+            <p className="text-xs text-muted-foreground">Referanse: {frameworkLabel} · {c.id}</p>
           )}
         </div>
       )}

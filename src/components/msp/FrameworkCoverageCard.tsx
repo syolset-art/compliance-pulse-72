@@ -201,7 +201,7 @@ export function FrameworkCoverageCard({
         </div>
 
         <div className="text-right">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">KP valgt</div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">KP valgt</div>
           <div className="text-sm font-semibold text-foreground tabular-nums">
             {enabledCount} / {framework.controlPoints.length}
             {includedCustomCount > 0 && (
@@ -213,7 +213,7 @@ export function FrameworkCoverageCard({
         </div>
 
         <div className="text-right">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Timer</div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">Timer</div>
           <div className="text-sm font-semibold text-foreground tabular-nums">{controlHours} t</div>
         </div>
 
@@ -227,7 +227,7 @@ export function FrameworkCoverageCard({
       {expanded && (
         <div className="border-t border-border bg-muted/20 px-4 py-3 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Velg kontrollpunkter dere leverer på
             </span>
             <div className="flex items-center gap-1">
@@ -309,7 +309,7 @@ export function FrameworkCoverageCard({
                   {enabled && (
                     <div className="px-2 pb-2 pl-8">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-[11px] uppercase tracking-wider text-muted-foreground mr-1">
+                        <span className="text-xs uppercase tracking-wider text-muted-foreground mr-1">
                           Typiske aktiviteter
                         </span>
                         {builtinActivities.map((act, i) => (
@@ -350,7 +350,7 @@ export function FrameworkCoverageCard({
           {/* Egendefinerte kostnader */}
           <div className="pt-3 mt-1 border-t border-border space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground inline-flex items-center gap-1.5">
                 <Tag className="h-3 w-3" />
                 Egendefinerte kostnader
               </span>
@@ -371,7 +371,7 @@ export function FrameworkCoverageCard({
             ) : (
               <>
                 {/* Kolonneoverskrifter */}
-                <div className="grid items-center gap-2 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_140px_100px_70px_110px_auto]">
+                <div className="grid items-center gap-2 px-2 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground grid-cols-[auto_1fr_140px_100px_70px_110px_auto]">
                   <span className="w-4" />
                   <span>Navn</span>
                   <span>Type</span>

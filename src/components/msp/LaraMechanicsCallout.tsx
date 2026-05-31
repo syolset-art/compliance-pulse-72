@@ -49,7 +49,7 @@ export const LaraMechanicsCallout = () => {
         <span className="text-[12px] font-medium text-foreground flex-1">
           Hvordan Lara jobber for deg
         </span>
-        <span className="text-[11px] text-muted-foreground hidden sm:inline">
+        <span className="text-xs text-muted-foreground hidden sm:inline">
           {open ? "Skjul" : "Vis"} integrasjoner og arbeidsdeling
         </span>
         <ChevronDown
@@ -71,11 +71,11 @@ export const LaraMechanicsCallout = () => {
 
           <div className="grid sm:grid-cols-2 gap-2.5">
             <div className="rounded-md border border-primary/15 bg-background/60 p-2.5">
-              <p className="text-[10px] font-medium text-primary uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
+              <p className="text-xs font-medium text-primary uppercase tracking-wide flex items-center gap-1.5 mb-1.5">
                 <Sparkles className="h-3 w-3" />
                 Lara automatisk
               </p>
-              <ul className="space-y-0.5 text-[11px] text-foreground">
+              <ul className="space-y-0.5 text-xs text-foreground">
                 <li>· Henter data via API-er</li>
                 <li>· Trigger kampanjer og workflows</li>
                 <li>· Genererer rapport-utkast og policies</li>
@@ -83,10 +83,10 @@ export const LaraMechanicsCallout = () => {
               </ul>
             </div>
             <div className="rounded-md border border-border bg-background/60 p-2.5">
-              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
                 Partner manuelt
               </p>
-              <ul className="space-y-0.5 text-[11px] text-foreground">
+              <ul className="space-y-0.5 text-xs text-foreground">
                 <li>· Etisk/juridisk godkjenning</li>
                 <li>· 1:1-samtaler og opplæring</li>
                 <li>· Presentasjon for ledergruppe</li>
@@ -96,7 +96,7 @@ export const LaraMechanicsCallout = () => {
           </div>
 
           <div>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-1.5">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1.5">
               Aktiverte integrasjoner
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -104,7 +104,7 @@ export const LaraMechanicsCallout = () => {
                 <Badge
                   key={i}
                   variant="outline"
-                  className="text-[10px] font-mono bg-primary/5 border-primary/15 text-primary"
+                  className="text-xs font-mono bg-primary/5 border-primary/15 text-primary"
                 >
                   {i}
                 </Badge>

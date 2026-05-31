@@ -249,7 +249,7 @@ function TemplateCard({
         {template.mappings.map((m, i) => (
           <span key={i} className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
             <span className="font-semibold text-foreground">{m.frameworkLabel}</span>
-            <span className="text-[9px]">{m.controlIds.slice(0, 2).join(", ")}{m.controlIds.length > 2 ? "…" : ""}</span>
+            <span className="text-xs">{m.controlIds.slice(0, 2).join(", ")}{m.controlIds.length > 2 ? "…" : ""}</span>
           </span>
         ))}
       </div>
@@ -257,7 +257,7 @@ function TemplateCard({
       {/* Lara-grunner */}
       {reasons && reasons.length > 0 && (
         <div className="rounded-md bg-primary/5 border border-primary/15 px-2 py-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
             <Sparkles className="h-2.5 w-2.5" /> Hvorfor relevant
           </p>
           <ul className="text-xs text-foreground mt-0.5 space-y-0.5">
@@ -319,7 +319,7 @@ function TemplateTable({
           <col className="w-[90px]" />
         </colgroup>
         <thead>
-          <tr className="text-[10px] uppercase tracking-wide text-muted-foreground border-b border-border">
+          <tr className="text-xs uppercase tracking-wide text-muted-foreground border-b border-border">
             <th className="h-8 px-3 text-left font-medium">Tjeneste</th>
             <th className="h-8 px-3 text-left font-medium hidden lg:table-cell">Regelverk</th>
             <th className="h-8 px-3 text-left font-medium hidden md:table-cell">Marked</th>
@@ -350,7 +350,7 @@ function TemplateTable({
                     )}
                     <span className="font-medium text-foreground truncate">{template.name}</span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                  <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                     {template.shortDescription}
                   </p>
                 </td>

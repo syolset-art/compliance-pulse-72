@@ -43,7 +43,7 @@ export function MSPServiceSettingsTab() {
 
         <div className="grid gap-3 md:grid-cols-[200px_1fr] md:items-end">
           <div className="space-y-1.5">
-            <Label htmlFor="default-hourly-rate" className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
+            <Label htmlFor="default-hourly-rate" className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
               Timepris (kr)
             </Label>
             <div className="relative">
@@ -56,7 +56,7 @@ export function MSPServiceSettingsTab() {
                 onChange={(e) => setRate(e.target.value)}
                 className="h-9 text-sm tabular-nums pr-12"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground">kr/t</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">kr/t</span>
             </div>
           </div>
           <div>

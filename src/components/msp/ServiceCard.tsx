@@ -76,7 +76,7 @@ export function ServiceCard({
           title={selectable.selected ? "Valgt for import" : "Klikk for å velge"}
         >
           <Checkbox checked={selectable.selected} tabIndex={-1} className="pointer-events-none" />
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {selectable.selected ? "Valgt" : "Velg"}
           </span>
         </button>
@@ -97,19 +97,19 @@ export function ServiceCard({
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-sm font-semibold text-foreground">{s.name}</span>
                 {s.deliveryType === "questionnaire" && (
-                  <Badge variant="outline" className="text-[10px] gap-1 bg-primary/10 text-primary border-primary/30">
+                  <Badge variant="outline" className="text-xs gap-1 bg-primary/10 text-primary border-primary/30">
                     <ClipboardList className="h-3 w-3" />
                     Spørreskjema
                   </Badge>
                 )}
                 {(s.price != null || s.priceNote) && (
-                  <Badge variant="outline" className="text-[10px] gap-1 bg-success/5 text-success border-success/30">
+                  <Badge variant="outline" className="text-xs gap-1 bg-success/5 text-success border-success/30">
                     <Tag className="h-3 w-3" />
                     {formatServicePrice(s)}
                   </Badge>
                 )}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {s.deliveryType === "questionnaire" && s.questionnaireId ? (
                   <>
                     {getQuestionnaire(s.questionnaireId).totalQuestions} spørsmål
@@ -152,14 +152,14 @@ export function ServiceCard({
                 checked={!!s.publishedToCustomers}
                 onCheckedChange={onTogglePublished}
               />
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {s.publishedToCustomers ? "Synlig" : "Skjult"}
               </span>
             </label>
             <Button
               size="sm"
               variant="ghost"
-              className="h-7 gap-1 px-2 text-[11px]"
+              className="h-7 gap-1 px-2 text-xs"
               onClick={onEdit}
               title="Rediger tjeneste"
             >
@@ -170,7 +170,7 @@ export function ServiceCard({
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-7 gap-1 px-2 text-[11px] text-muted-foreground hover:text-destructive ml-auto"
+                className="h-7 gap-1 px-2 text-xs text-muted-foreground hover:text-destructive ml-auto"
                 onClick={selectable.onRemove}
                 title="Fjern forslag"
               >

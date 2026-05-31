@@ -37,7 +37,7 @@ export function ServiceEvidenceSection({ mappings, compact }: Props) {
 
   return (
     <div className={cn("space-y-1", compact ? "pt-1" : "pt-1.5")}>
-      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
+      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
         Evidens på
       </span>
       <div className="space-y-1">
@@ -73,13 +73,13 @@ function FrameworkRow({ mapping }: { mapping: ServiceFrameworkMapping }) {
       <div className="flex items-center justify-between gap-2">
         <span
           className={cn(
-            "inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold border shrink-0",
+            "inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border shrink-0",
             theme.chip,
           )}
         >
           {mapping.frameworkLabel}
         </span>
-        <span className="text-[10px] text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {total} kontrollpunkt{total === 1 ? "" : "er"} · {sumHours}t totalt
         </span>
       </div>
@@ -93,7 +93,7 @@ function FrameworkRow({ mapping }: { mapping: ServiceFrameworkMapping }) {
               className="flex items-center justify-between gap-2 py-1"
             >
               <span
-                className="text-[11px] text-foreground/80 font-mono truncate"
+                className="text-xs text-foreground/80 font-mono truncate"
                 title={`${mapping.frameworkLabel} ${id}`}
               >
                 {id}
@@ -101,7 +101,7 @@ function FrameworkRow({ mapping }: { mapping: ServiceFrameworkMapping }) {
               <div className="flex items-center gap-1.5 shrink-0">
                 {!isOverride && (
                   <span
-                    className="inline-flex items-center gap-1 text-[10px] text-muted-foreground"
+                    className="inline-flex items-center gap-1 text-xs text-muted-foreground"
                     title="Foreslått av Lara"
                   >
                     <Sparkles className="h-2.5 w-2.5" />
@@ -119,9 +119,9 @@ function FrameworkRow({ mapping }: { mapping: ServiceFrameworkMapping }) {
                       [id]: Math.max(0, Number(e.target.value) || 0),
                     }))
                   }
-                  className="h-6 w-14 px-1.5 text-[11px] text-right"
+                  className="h-6 w-14 px-1.5 text-xs text-right"
                 />
-                <span className="text-[10px] text-muted-foreground w-3">t</span>
+                <span className="text-xs text-muted-foreground w-3">t</span>
               </div>
             </li>
           );
@@ -132,7 +132,7 @@ function FrameworkRow({ mapping }: { mapping: ServiceFrameworkMapping }) {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           {expanded ? (
             <>

@@ -73,12 +73,12 @@ export const SendDeliveryReportDialog = ({
               {fileName}
             </span>
             {frameworkLabel && (
-              <Badge variant="outline" className="text-[10px]">
+              <Badge variant="outline" className="text-xs">
                 {frameworkLabel}
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span>{controlsCount} kontrollpunkter</span>
             <span>·</span>
             <span>{activitiesCount} aktiviteter</span>
@@ -109,7 +109,7 @@ export const SendDeliveryReportDialog = ({
               onChange={(e) => setMessage(e.target.value)}
             />
           </div>
-          <div className="flex items-start gap-2 rounded-md bg-primary/5 border border-primary/15 p-2.5 text-[11px] text-muted-foreground">
+          <div className="flex items-start gap-2 rounded-md bg-primary/5 border border-primary/15 p-2.5 text-xs text-muted-foreground">
             <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
             <span>
               Når kunden klikker «Godkjenn» i sin meldingsboks blir rapporten

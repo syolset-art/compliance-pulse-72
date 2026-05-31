@@ -109,12 +109,12 @@ export function QuestionnaireDispatchCard({ customerId, customerName, partnerNam
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-[13px] font-semibold text-foreground truncate">{service.name}</p>
-                    <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
+                    <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
                       {def.totalQuestions} spørsmål · <Clock className="h-3 w-3" /> {service.estimatedMinutes} min
                     </p>
                   </div>
                   {service.price && (
-                    <Badge variant="outline" className="text-[10px] bg-success/5 text-success border-success/30 shrink-0">
+                    <Badge variant="outline" className="text-xs bg-success/5 text-success border-success/30 shrink-0">
                       {new Intl.NumberFormat("nb-NO").format(service.price)} kr
                     </Badge>
                   )}
@@ -126,14 +126,14 @@ export function QuestionnaireDispatchCard({ customerId, customerName, partnerNam
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       Fullført · {score}% modenhet
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Lara har generert gap-liste nedenfor.
                     </p>
                   </div>
                 ) : isPending ? (
                   <div className="rounded-md bg-warning/10 border border-warning/20 p-2 space-y-1">
                     <p className="text-[12px] text-warning font-medium">Lagret som aktivt tilbud</p>
-                    <p className="text-[11px] text-muted-foreground">Lagt til {formatRelative(latest?.sentAt)}</p>
+                    <p className="text-xs text-muted-foreground">Lagt til {formatRelative(latest?.sentAt)}</p>
                   </div>
                 ) : (
                   <Button
@@ -180,7 +180,7 @@ export function QuestionnaireDispatchCard({ customerId, customerName, partnerNam
                   </Badge>
                 )}
                 {detailsFor.frameworkMappings.map((fm) => (
-                  <Badge key={fm.frameworkId} variant="secondary" className="text-[10px]">
+                  <Badge key={fm.frameworkId} variant="secondary" className="text-xs">
                     {fm.frameworkLabel}
                   </Badge>
                 ))}
@@ -199,7 +199,7 @@ export function QuestionnaireDispatchCard({ customerId, customerName, partnerNam
                     <div key={section.id}>
                       <p className="text-[12px] font-semibold text-foreground mb-1.5">
                         {sIdx + 1}. {section.title}
-                        <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                        <span className="ml-2 text-xs font-normal text-muted-foreground">
                           ({section.items.length} spørsmål)
                         </span>
                       </p>
@@ -208,7 +208,7 @@ export function QuestionnaireDispatchCard({ customerId, customerName, partnerNam
                           <li key={item.key} className="text-[12px] text-foreground/90">
                             {item.text}
                             {item.reference && (
-                              <span className="ml-1 text-[11px] text-muted-foreground">
+                              <span className="ml-1 text-xs text-muted-foreground">
                                 — {item.reference}
                               </span>
                             )}

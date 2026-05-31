@@ -119,7 +119,7 @@ export function MSPLaraServiceSuggestions({
 
       {/* Filter chips */}
       <div className="flex flex-wrap items-center gap-1.5">
-        <span className="text-[11px] font-medium text-muted-foreground mr-1">Filter:</span>
+        <span className="text-xs font-medium text-muted-foreground mr-1">Filter:</span>
         <FilterChip
           label="Alle"
           count={suggestions.length}
@@ -160,7 +160,7 @@ export function MSPLaraServiceSuggestions({
           return (
             <div key={s.id} className="relative">
               {isTop && (
-                <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-primary text-primary-foreground shadow-sm">
+                <span className="absolute -top-2 left-3 z-10 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide bg-primary text-primary-foreground shadow-sm">
                   <Award className="h-2.5 w-2.5" />
                   Mest dekning
                 </span>
@@ -233,7 +233,7 @@ function FilterChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium border transition-colors",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border transition-colors",
         active
           ? "bg-foreground text-background border-foreground"
           : theme

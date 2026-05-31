@@ -70,11 +70,11 @@ export function PartnerBrandingCard() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-sm font-semibold text-foreground truncate">Tilbudsmerking</h3>
-              <Badge variant="outline" className="text-[10px] gap-1 bg-primary/10 text-primary border-primary/30">
+              <Badge variant="outline" className="text-xs gap-1 bg-primary/10 text-primary border-primary/30">
                 <Sparkles className="h-2.5 w-2.5" /> Auto-fylt fra trust-profil
               </Badge>
             </div>
-            <p className="text-[11px] text-muted-foreground truncate">
+            <p className="text-xs text-muted-foreground truncate">
               {branding.name || "Mangler navn"}
               {branding.orgNumber ? ` · Org.nr ${branding.orgNumber}` : ""}
               {branding.domain ? ` · ${branding.domain}` : ""}
@@ -94,7 +94,7 @@ export function PartnerBrandingCard() {
             </p>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
                 Partnernavn
               </Label>
               <div className="flex gap-2">
@@ -111,7 +111,7 @@ export function PartnerBrandingCard() {
                   </Button>
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {branding.isAutoName
                   ? (branding.autoName
                       ? "Hentet automatisk fra organisasjonsprofilen."
@@ -121,7 +121,7 @@ export function PartnerBrandingCard() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
                 Organisasjonsnummer
               </Label>
               <div className="flex gap-2">
@@ -138,7 +138,7 @@ export function PartnerBrandingCard() {
                   </Button>
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {branding.isAutoOrg
                   ? (branding.autoOrgNumber ? "Hentet automatisk fra organisasjonsprofilen." : "Mangler — fyll inn i organisasjonsprofilen.")
                   : "Overstyrt manuelt."}
@@ -146,7 +146,7 @@ export function PartnerBrandingCard() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
                 Webadresse
               </Label>
               <div className="flex gap-2">
@@ -163,7 +163,7 @@ export function PartnerBrandingCard() {
                   </Button>
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {branding.isAutoDomain
                   ? (branding.autoDomain ? "Hentet automatisk fra organisasjonsprofilen." : "Valgfritt — kan fylles inn i organisasjonsprofilen.")
                   : "Overstyrt manuelt."}
@@ -171,7 +171,7 @@ export function PartnerBrandingCard() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
                 Slagord <span className="text-muted-foreground/70 normal-case">(valgfritt)</span>
               </Label>
               <Input
@@ -181,11 +181,11 @@ export function PartnerBrandingCard() {
                 className="h-9 text-sm"
                 maxLength={80}
               />
-              <p className="text-[10px] text-muted-foreground">Vises under partnernavnet i tilbudet.</p>
+              <p className="text-xs text-muted-foreground">Vises under partnernavnet i tilbudet.</p>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">Logo</Label>
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Logo</Label>
               <div className="flex flex-wrap gap-2">
                 <input
                   ref={fileRef}
@@ -212,7 +212,7 @@ export function PartnerBrandingCard() {
                   </Button>
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 {branding.isAutoLogo
                   ? (branding.autoLogoUrl
                       ? "Bruker logo fra organisasjonsprofilen. Last opp en egen hvis du vil ha noe annet i tilbudet."
@@ -230,7 +230,7 @@ export function PartnerBrandingCard() {
 
           {/* Mini-preview */}
           <div className="space-y-1.5">
-            <Label className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
+            <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
               Slik vises det i tilbudet
             </Label>
             <div className="rounded-md border border-border bg-background p-4 shadow-sm">
@@ -248,23 +248,23 @@ export function PartnerBrandingCard() {
                       {previewName || "Mangler navn"}
                     </p>
                     {previewTagline && (
-                      <p className="text-[10px] text-muted-foreground italic truncate">
+                      <p className="text-xs text-muted-foreground italic truncate">
                         {previewTagline}
                       </p>
                     )}
                     {previewOrg && (
-                      <p className="text-[10px] text-muted-foreground tabular-nums">
+                      <p className="text-xs text-muted-foreground tabular-nums">
                         Org.nr {previewOrg}
                       </p>
                     )}
                     {previewDomain && (
-                      <p className="text-[10px] text-muted-foreground truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {previewDomain}
                       </p>
                     )}
                   </div>
                 </div>
-                <div className="text-right text-[10px] text-muted-foreground">
+                <div className="text-right text-xs text-muted-foreground">
                   <div>Tilbud T-2026-1234</div>
                   <div>{new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" })}</div>
                 </div>

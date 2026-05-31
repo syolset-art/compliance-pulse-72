@@ -58,7 +58,7 @@ export function MSPCustomerOpportunityCard({
           </p>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Total</p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Total</p>
           <p className="text-xl font-bold text-primary tabular-nums">
             {total.toLocaleString("nb-NO")} kr
           </p>
@@ -75,7 +75,7 @@ export function MSPCustomerOpportunityCard({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-foreground truncate">{o.name}</span>
-                <Badge variant="secondary" className="text-[11px] h-5">
+                <Badge variant="secondary" className="text-xs h-5">
                   {o.gapPoints}/{o.points} KP å dekke
                 </Badge>
               </div>

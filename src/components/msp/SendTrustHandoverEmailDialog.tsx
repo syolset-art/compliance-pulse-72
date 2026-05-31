@@ -49,15 +49,15 @@ export function SendTrustHandoverEmailDialog({
 
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">Til</Label>
+            <Label className="text-xs uppercase tracking-wide text-muted-foreground">Til</Label>
             <Input value={to} onChange={(e) => setTo(e.target.value)} className="h-9 text-[13px]" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">Emne</Label>
+            <Label className="text-xs uppercase tracking-wide text-muted-foreground">Emne</Label>
             <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="h-9 text-[13px]" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[11px] uppercase tracking-wide text-muted-foreground">Melding</Label>
+            <Label className="text-xs uppercase tracking-wide text-muted-foreground">Melding</Label>
             <Textarea value={body} onChange={(e) => setBody(e.target.value)} rows={10} className="text-[13px] resize-none" />
           </div>
         </div>

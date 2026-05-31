@@ -301,7 +301,7 @@ export const OngoingDeliveriesList = ({
                     {d.title}
                   </p>
                   {frameworkLabel && (
-                    <Badge variant="outline" className="text-[10px] gap-1">
+                    <Badge variant="outline" className="text-xs gap-1">
                       <FileText className="h-3 w-3" />
                       {frameworkLabel}
                     </Badge>
@@ -310,7 +310,7 @@ export const OngoingDeliveriesList = ({
                 <p className="text-[12px] text-muted-foreground">{d.meta}</p>
                 <div className="mt-1.5 flex items-center gap-2">
                   <Progress value={resolvedPct} className="h-1.5 flex-1" />
-                  <span className="text-[11px] text-muted-foreground tabular-nums whitespace-nowrap">
+                  <span className="text-xs text-muted-foreground tabular-nums whitespace-nowrap">
                     {resolved}/{total} svart ut · {resolvedPct}%
                   </span>
                 </div>
@@ -318,7 +318,7 @@ export const OngoingDeliveriesList = ({
               <Badge
                 variant="outline"
                 className={cn(
-                  "text-[10px] shrink-0",
+                  "text-xs shrink-0",
                   reportSent
                     ? "bg-primary/10 text-primary border-primary/30"
                     : reportReady
@@ -373,7 +373,7 @@ export const OngoingDeliveriesList = ({
                         type="button"
                         onClick={() => setFilter((s) => ({ ...s, [d.id]: p.v }))}
                         className={cn(
-                          "h-7 px-2.5 rounded-full text-[11px] border transition-colors",
+                          "h-7 px-2.5 rounded-full text-xs border transition-colors",
                           active
                             ? toneCls
                             : "bg-background text-muted-foreground border-border hover:text-foreground",
@@ -401,7 +401,7 @@ export const OngoingDeliveriesList = ({
                           <Badge
                             variant="outline"
                             className={cn(
-                              "font-mono text-[10px]",
+                              "font-mono text-xs",
                               controlDone && "bg-success/10 text-success border-success/30",
                             )}
                           >
@@ -410,10 +410,10 @@ export const OngoingDeliveriesList = ({
                           <span className="text-[13px] font-medium text-foreground">
                             {c.name}
                           </span>
-                          <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
                             {controlDone ? "Kontrollpunkt lukkes" : `Lukker ${c.id}${frameworkLabel ? ` i ${frameworkLabel}` : ""}`}
                           </Badge>
-                          <span className="ml-auto text-[11px] text-muted-foreground tabular-nums">
+                          <span className="ml-auto text-xs text-muted-foreground tabular-nums">
                             {c.progress}%
                           </span>
                         </div>
@@ -449,7 +449,7 @@ export const OngoingDeliveriesList = ({
                     <span className="text-[12px] font-medium text-foreground">
                       Totalt svart ut
                     </span>
-                    <span className="ml-auto text-[11px] text-muted-foreground tabular-nums">
+                    <span className="ml-auto text-xs text-muted-foreground tabular-nums">
                       {resolved}/{total} · {resolvedPct}%
                     </span>
                   </div>
@@ -493,7 +493,7 @@ export const OngoingDeliveriesList = ({
                           </Button>
                         )}
                         {reportSent && (
-                          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                             Sendt til {customerName} – venter godkjenning
                           </div>
@@ -501,18 +501,18 @@ export const OngoingDeliveriesList = ({
                       </>
                     )}
                     {allResolved && !reportReady && (
-                      <span className="text-[11px] text-success flex items-center gap-1">
+                      <span className="text-xs text-success flex items-center gap-1">
                         <PartyPopper className="h-3 w-3" />
                         Alle spørsmål er svart ut · {statusCounts.done} fullført, {statusCounts.not_relevant} ikke aktuelt
                       </span>
                     )}
                     {!allResolved && (
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         Alle spørsmål må svares ut (fullført eller ikke aktuelt) før rapporten kan genereres.
                       </span>
                     )}
                     {evidenceCount > 0 && (
-                      <span className="text-[11px] text-muted-foreground ml-auto inline-flex items-center gap-1">
+                      <span className="text-xs text-muted-foreground ml-auto inline-flex items-center gap-1">
                         <Paperclip className="h-3 w-3" />
                         {evidenceCount} bevis lastet opp
                       </span>
@@ -658,19 +658,19 @@ const ActivityRow = ({
             >
               {activity.label}
             </span>
-            <Badge variant="outline" className="text-[10px] gap-1 h-5">
+            <Badge variant="outline" className="text-xs gap-1 h-5">
               <UserIcon className="h-2.5 w-2.5" />
               {activity.owner ?? "Partner"}
             </Badge>
             {activity.date && (
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 {activity.date}
               </span>
             )}
             {evidenceCount > 0 && (
               <Badge
                 variant="outline"
-                className="text-[10px] gap-1 h-5 bg-primary/5 text-primary border-primary/20"
+                className="text-xs gap-1 h-5 bg-primary/5 text-primary border-primary/20"
               >
                 <Paperclip className="h-2.5 w-2.5" />
                 {evidenceCount}
@@ -678,7 +678,7 @@ const ActivityRow = ({
             )}
           </div>
           {hasNote && (
-            <p className="text-[11px] text-muted-foreground mt-1 line-clamp-1">
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
               {activity.note}
             </p>
           )}
@@ -686,7 +686,7 @@ const ActivityRow = ({
         <button
           type="button"
           onClick={onOpenDetails}
-          className="text-[11px] text-muted-foreground hover:text-primary shrink-0 underline-offset-2 hover:underline mt-0.5"
+          className="text-xs text-muted-foreground hover:text-primary shrink-0 underline-offset-2 hover:underline mt-0.5"
         >
           Detaljer
         </button>
@@ -707,7 +707,7 @@ const ActivityRow = ({
                 onSetStatus(s);
               }}
               className={cn(
-                "inline-flex items-center gap-1 h-6 px-2 rounded-full border text-[11px] transition-colors",
+                "inline-flex items-center gap-1 h-6 px-2 rounded-full border text-xs transition-colors",
                 active
                   ? meta.activeCls
                   : "bg-background text-muted-foreground border-border hover:text-foreground hover:bg-muted/40",

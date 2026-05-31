@@ -131,7 +131,7 @@ export function ShareOfferDialog({
                       <div className="text-sm font-medium text-foreground">{c.name}</div>
                       <div className="text-xs text-muted-foreground">{c.email}</div>
                     </div>
-                    {c.role && <Badge variant="outline" className="text-[10px]">{c.role}</Badge>}
+                    {c.role && <Badge variant="outline" className="text-xs">{c.role}</Badge>}
                   </Label>
                 ))}
               </RadioGroup>
@@ -151,7 +151,7 @@ export function ShareOfferDialog({
                     <div className="text-sm font-medium text-foreground">{u.name}</div>
                     <div className="text-xs text-muted-foreground">{u.email}</div>
                   </div>
-                  {u.role && <Badge variant="outline" className="text-[10px]">{u.role}</Badge>}
+                  {u.role && <Badge variant="outline" className="text-xs">{u.role}</Badge>}
                 </Label>
               ))}
             </RadioGroup>

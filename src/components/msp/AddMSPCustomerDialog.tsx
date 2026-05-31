@@ -502,12 +502,12 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
             {bulkRows.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Badge variant="action" className="text-[10px]">{bulkRows.filter(r => r.status === "ok").length} klar</Badge>
+                  <Badge variant="action" className="text-xs">{bulkRows.filter(r => r.status === "ok").length} klar</Badge>
                   {bulkRows.some(r => r.status === "duplicate") && (
-                    <Badge variant="warning" className="text-[10px]">{bulkRows.filter(r => r.status === "duplicate").length} duplikat</Badge>
+                    <Badge variant="warning" className="text-xs">{bulkRows.filter(r => r.status === "duplicate").length} duplikat</Badge>
                   )}
                   {bulkRows.some(r => r.status === "invalid") && (
-                    <Badge variant="destructive" className="text-[10px]">{bulkRows.filter(r => r.status === "invalid").length} feil</Badge>
+                    <Badge variant="destructive" className="text-xs">{bulkRows.filter(r => r.status === "invalid").length} feil</Badge>
                   )}
                 </div>
 
@@ -524,7 +524,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                         <p className="text-muted-foreground tabular-nums">
                           {r.org_number || "—"} {r.contact_email && `· ${r.contact_email}`}
                         </p>
-                        {r.reason && <p className="text-[11px] text-muted-foreground italic">{r.reason}</p>}
+                        {r.reason && <p className="text-xs text-muted-foreground italic">{r.reason}</p>}
                       </div>
                       <button
                         onClick={() => setBulkRows(bulkRows.filter((_, idx) => idx !== i))}
