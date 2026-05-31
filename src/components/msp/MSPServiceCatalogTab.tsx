@@ -333,7 +333,7 @@ export function MSPServiceCatalogTab() {
                     </td>
                     <td className="px-3 py-2.5">
                       <div className="font-medium text-foreground">{pick.label}</div>
-                      <div className="text-xs text-muted-foreground line-clamp-1">
+                      <div className="text-sm text-muted-foreground line-clamp-1">
                         {template.shortDescription}
                       </div>
                     </td>
@@ -341,26 +341,26 @@ export function MSPServiceCatalogTab() {
                       <div className="flex flex-wrap gap-1">
                         {frameworks.length > 0 ? (
                           frameworks.map((f) => (
-                            <span key={f} className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                            <span key={f} className="text-sm px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                               {f}
                             </span>
                           ))
                         ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
+                          <span className="text-sm text-muted-foreground">—</span>
                         )}
                       </div>
                     </td>
                     <td className="px-3 py-2.5 text-right">
                       {isAdopted ? (
-                        <Badge variant="secondary" className="text-xs h-5">Lagt til</Badge>
+                        <Badge variant="secondary" className="text-sm h-6">Lagt til</Badge>
                       ) : (
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => adoptTemplate(template)}
-                          className="h-7 gap-1"
+                          className="h-8 gap-1 text-sm"
                         >
-                          <Plus className="h-3.5 w-3.5" />
+                          <Plus className="h-4 w-4" />
                           Legg til
                         </Button>
                       )}
