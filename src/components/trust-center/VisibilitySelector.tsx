@@ -136,7 +136,7 @@ export default function VisibilitySelector({ assetId, current, onChange, compact
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-medium">{m.labelNb}</span>
-                      {level === "private" && (
+                      {level === "ecosystem" && (
                         <span className="text-[10px] text-[hsl(var(--mynder-blue))]">· Anbefalt</span>
                       )}
                     </div>
