@@ -189,19 +189,19 @@ export default function MSPPartnerSettings() {
                 <div className="rounded-xl border border-border divide-y divide-border">
                   {team.map((m) => (
                     <div key={m.id} className="flex items-center gap-3 px-4 py-3">
-                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-[12px] font-medium text-foreground shrink-0">
+                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground shrink-0">
                         {m.initials}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-medium text-foreground truncate">{m.name}</p>
-                        <p className="text-[12px] text-muted-foreground truncate">{m.email}</p>
+                        <p className="text-base font-medium text-foreground truncate">{m.name}</p>
+                        <p className="text-sm text-muted-foreground truncate">{m.email}</p>
                       </div>
                       <Badge
                         variant="outline"
                         className={
                           m.role === "Partner-admin"
-                            ? "bg-primary/5 text-primary border-primary/30 text-[10px]"
-                            : "text-[10px]"
+                            ? "bg-primary/5 text-primary border-primary/30 text-xs"
+                            : "text-xs"
                         }
                       >
                         <Shield className="h-3 w-3 mr-1" /> {m.role}
@@ -218,8 +218,8 @@ export default function MSPPartnerSettings() {
                     <Mail className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-sm font-semibold text-foreground">Videresend meldinger til e-post</h2>
-                    <p className="text-[12px] text-muted-foreground mt-0.5">
+                    <h2 className="text-base font-semibold text-foreground">Videresend meldinger til e-post</h2>
+                    <p className="text-base text-muted-foreground mt-0.5">
                       Du får alt — kundesvar, aksepterte tilbud, påminnelser — rett i innboksen din. Slipp å
                       logge inn i Mynder for å holde deg oppdatert.
                     </p>
@@ -229,10 +229,10 @@ export default function MSPPartnerSettings() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
                     <div>
-                      <p className="text-[13px] font-medium text-foreground">
+                      <p className="text-base font-medium text-foreground">
                         Videresend alle innkommende meldinger
                       </p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         Skru av for å bare lese meldinger inne i Mynder.
                       </p>
                     </div>
