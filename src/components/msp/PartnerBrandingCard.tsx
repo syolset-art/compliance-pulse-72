@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Upload, RotateCcw, Image as ImageIcon, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 
 const MAX_LOGO_BYTES = 300 * 1024;
@@ -14,6 +15,7 @@ export function PartnerBrandingCard() {
   const { branding, save, clearField } = usePartnerBranding();
   const [name, setName] = useState(branding.isAutoName ? "" : branding.name);
   const [orgNumber, setOrgNumber] = useState(branding.isAutoOrg ? "" : branding.orgNumber);
+  const [domain, setDomain] = useState(branding.isAutoDomain ? "" : branding.domain);
   const [tagline, setTagline] = useState(branding.tagline);
   const [expanded, setExpanded] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -30,7 +32,7 @@ export function PartnerBrandingCard() {
     const reader = new FileReader();
     reader.onload = () => {
       save({ logoDataUrl: String(reader.result) });
-      toast.success("Logo lagret", { description: "Brukes i alle nye tilbud." });
+      toast.success("Egen tilbudslogo lagret");
     };
     reader.readAsDataURL(file);
   };
@@ -39,10 +41,16 @@ export function PartnerBrandingCard() {
     save({
       name: name.trim() || undefined,
       orgNumber: orgNumber.trim() || undefined,
+      domain: domain.trim() || undefined,
       tagline: tagline.trim() || undefined,
     });
     toast.success("Tilbudsmerking lagret");
   };
+
+  const previewName = name.trim() || branding.autoName;
+  const previewOrg = orgNumber.trim() || branding.autoOrgNumber;
+  const previewDomain = domain.trim() || branding.autoDomain;
+  const previewTagline = tagline.trim() || branding.tagline;
 
   return (
     <Card className="p-4 space-y-3">
@@ -53,8 +61,8 @@ export function PartnerBrandingCard() {
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="h-9 w-9 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
-            {branding.logoDataUrl ? (
-              <img src={branding.logoDataUrl} alt="" className="h-full w-full object-contain" />
+            {branding.logoUrl ? (
+              <img src={branding.logoUrl} alt="" className="h-full w-full object-contain" />
             ) : (
               <ImageIcon className="h-4 w-4 text-muted-foreground" />
             )}
@@ -63,11 +71,13 @@ export function PartnerBrandingCard() {
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-sm font-semibold text-foreground truncate">Tilbudsmerking</h3>
               <Badge variant="outline" className="text-[10px] gap-1 bg-primary/10 text-primary border-primary/30">
-                <Sparkles className="h-2.5 w-2.5" /> Auto-fylt
+                <Sparkles className="h-2.5 w-2.5" /> Auto-fylt fra trust-profil
               </Badge>
             </div>
             <p className="text-[11px] text-muted-foreground truncate">
-              {branding.name}{branding.orgNumber ? ` · Org.nr ${branding.orgNumber}` : ""}
+              {branding.name || "Mangler navn"}
+              {branding.orgNumber ? ` · Org.nr ${branding.orgNumber}` : ""}
+              {branding.domain ? ` · ${branding.domain}` : ""}
             </p>
           </div>
         </div>
@@ -78,8 +88,9 @@ export function PartnerBrandingCard() {
         <div className="grid gap-4 md:grid-cols-[1fr_280px] pt-2 border-t border-border">
           <div className="space-y-3">
             <p className="text-[12px] text-muted-foreground">
-              Navn, organisasjonsnummer og logo vises automatisk i alle tilbud du genererer. Vi henter det fra
-              partnerprofilen din — du kan overstyre når som helst.
+              Navn, organisasjonsnummer, webadresse og logo hentes automatisk fra organisasjonsprofilen din.
+              Du kan overstyre per felt under, eller{" "}
+              <Link to="/settings" className="text-primary hover:underline">oppdatere profilen</Link>.
             </p>
 
             <div className="space-y-1.5">
@@ -90,7 +101,7 @@ export function PartnerBrandingCard() {
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={branding.autoName}
+                  placeholder={branding.autoName || "Fyll inn i organisasjonsprofilen"}
                   className="h-9 text-sm"
                 />
                 {!branding.isAutoName && (
@@ -101,7 +112,11 @@ export function PartnerBrandingCard() {
                 )}
               </div>
               <p className="text-[10px] text-muted-foreground">
-                {branding.isAutoName ? "Hentet automatisk fra partnerprofilen." : "Overstyrt manuelt."}
+                {branding.isAutoName
+                  ? (branding.autoName
+                      ? "Hentet automatisk fra organisasjonsprofilen."
+                      : "Mangler — fyll inn juridisk navn i organisasjonsprofilen.")
+                  : "Overstyrt manuelt."}
               </p>
             </div>
 
@@ -125,7 +140,32 @@ export function PartnerBrandingCard() {
               </div>
               <p className="text-[10px] text-muted-foreground">
                 {branding.isAutoOrg
-                  ? (branding.autoOrgNumber ? "Hentet automatisk fra partnerprofilen." : "Mangler — legg inn for at det skal vises i tilbudet.")
+                  ? (branding.autoOrgNumber ? "Hentet automatisk fra organisasjonsprofilen." : "Mangler — fyll inn i organisasjonsprofilen.")
+                  : "Overstyrt manuelt."}
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
+                Webadresse
+              </Label>
+              <div className="flex gap-2">
+                <Input
+                  value={domain}
+                  onChange={(e) => setDomain(e.target.value)}
+                  placeholder={branding.autoDomain || "f.eks. firma.no"}
+                  className="h-9 text-sm"
+                />
+                {!branding.isAutoDomain && (
+                  <Button type="button" variant="ghost" size="sm" className="h-9 text-xs gap-1"
+                    onClick={() => { clearField("domain"); setDomain(""); toast.success("Tilbakestilt til auto"); }}>
+                    <RotateCcw className="h-3 w-3" /> Auto
+                  </Button>
+                )}
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                {branding.isAutoDomain
+                  ? (branding.autoDomain ? "Hentet automatisk fra organisasjonsprofilen." : "Valgfritt — kan fylles inn i organisasjonsprofilen.")
                   : "Overstyrt manuelt."}
               </p>
             </div>
@@ -160,16 +200,25 @@ export function PartnerBrandingCard() {
                 />
                 <Button type="button" variant="outline" size="sm" className="h-9 text-xs gap-1.5"
                   onClick={() => fileRef.current?.click()}>
-                  <Upload className="h-3.5 w-3.5" /> {branding.logoDataUrl ? "Bytt logo" : "Last opp logo"}
+                  <Upload className="h-3.5 w-3.5" />
+                  {branding.isAutoLogo
+                    ? (branding.autoLogoUrl ? "Bytt til egen tilbudslogo" : "Last opp logo")
+                    : "Bytt logo"}
                 </Button>
                 {!branding.isAutoLogo && (
                   <Button type="button" variant="ghost" size="sm" className="h-9 text-xs gap-1"
-                    onClick={() => { clearField("logoDataUrl"); toast.success("Logo fjernet"); }}>
-                    <RotateCcw className="h-3 w-3" /> Fjern
+                    onClick={() => { clearField("logoDataUrl"); toast.success("Tilbakestilt til auto"); }}>
+                    <RotateCcw className="h-3 w-3" /> Auto
                   </Button>
                 )}
               </div>
-              <p className="text-[10px] text-muted-foreground">PNG eller JPG, maks 300 KB. Vises øverst i tilbudet.</p>
+              <p className="text-[10px] text-muted-foreground">
+                {branding.isAutoLogo
+                  ? (branding.autoLogoUrl
+                      ? "Bruker logo fra organisasjonsprofilen. Last opp en egen hvis du vil ha noe annet i tilbudet."
+                      : "PNG eller JPG, maks 300 KB. Vises øverst i tilbudet.")
+                  : "Egen tilbudslogo i bruk."}
+              </p>
             </div>
 
             <div className="pt-1">
@@ -187,8 +236,8 @@ export function PartnerBrandingCard() {
             <div className="rounded-md border border-border bg-background p-4 shadow-sm">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-2.5 min-w-0">
-                  {branding.logoDataUrl ? (
-                    <img src={branding.logoDataUrl} alt="" className="h-9 w-9 object-contain rounded" />
+                  {branding.logoUrl ? (
+                    <img src={branding.logoUrl} alt="" className="h-9 w-9 object-contain rounded" />
                   ) : (
                     <div className="h-9 w-9 rounded bg-muted flex items-center justify-center">
                       <ImageIcon className="h-3.5 w-3.5 text-muted-foreground" />
@@ -196,16 +245,21 @@ export function PartnerBrandingCard() {
                   )}
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold text-foreground truncate">
-                      {name.trim() || branding.autoName}
+                      {previewName || "Mangler navn"}
                     </p>
-                    {(tagline.trim() || branding.tagline) && (
+                    {previewTagline && (
                       <p className="text-[10px] text-muted-foreground italic truncate">
-                        {tagline.trim() || branding.tagline}
+                        {previewTagline}
                       </p>
                     )}
-                    {(orgNumber.trim() || branding.autoOrgNumber) && (
+                    {previewOrg && (
                       <p className="text-[10px] text-muted-foreground tabular-nums">
-                        Org.nr {orgNumber.trim() || branding.autoOrgNumber}
+                        Org.nr {previewOrg}
+                      </p>
+                    )}
+                    {previewDomain && (
+                      <p className="text-[10px] text-muted-foreground truncate">
+                        {previewDomain}
                       </p>
                     )}
                   </div>
