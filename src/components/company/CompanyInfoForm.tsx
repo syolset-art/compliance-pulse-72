@@ -104,6 +104,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     partner_role_description: "",
     partner_since: "",
     show_partner_on_trust_profile: true,
+    additional_partners: [] as Array<{ name: string; type: string; roleDescription: string; since: string }>,
   });
 
   const matchedPartner = PARTNER_DIRECTORY.find(
