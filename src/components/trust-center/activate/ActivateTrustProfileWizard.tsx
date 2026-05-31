@@ -167,8 +167,8 @@ export default function ActivateTrustProfileWizard({
     if (!open) {
       setTimeout(() => {
         setStep(1);
-        setCompanyName(initialCompanyName ?? "");
-        setOrgNumber(initialOrgNumber ?? "");
+        setCompanyName(hasOrgPrefill ? (initialCompanyName ?? "") : "");
+        setOrgNumber(hasOrgPrefill ? (initialOrgNumber ?? "") : "");
         setWebsite(initialDomain ? normalizeUrl(initialDomain) : "");
         setWebsiteVerified(false);
         setVerified(hasOrgPrefill);
