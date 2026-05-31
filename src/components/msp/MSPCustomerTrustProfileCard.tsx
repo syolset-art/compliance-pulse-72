@@ -107,7 +107,7 @@ export function MSPCustomerTrustProfileCard({
             </TooltipTrigger>
             {!isPublished && (
               <TooltipContent side="bottom" className="max-w-[240px] text-xs">
-                Profilen blir offentlig først når kunden har overtatt (claimet) profilen og publisert den selv.
+                Profilen blir offentlig først når kunden har aktivert profilen og publisert den selv.
               </TooltipContent>
             )}
           </Tooltip>
