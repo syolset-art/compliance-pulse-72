@@ -147,9 +147,47 @@ export function MSPCreateOfferDialog({
     setTasks(p => [...p, { label: "Ny oppgave", hours: 8, owner: "Partner", weeks: "" }]);
 
   const offerName = serviceTitle || domainName;
-  const gapCount = 9; // demo
   const offerNumber = `T-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
   const todayLabel = new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+  const snapshotLabel = snapshotDate.toLocaleDateString("nb-NO", { day: "numeric", month: "long", year: "numeric" });
+
+  // Gap-statistikk og sorteringsrekkefølge (kritiske først)
+  const severityRank: Record<GapItem["severity"], number> = { critical: 0, high: 1, medium: 2, low: 3 };
+  const sortedGaps = [...gapList].sort((a, b) => severityRank[a.severity] - severityRank[b.severity]);
+  const selectedCount = sortedGaps.filter(g => selectedGapIds.has(g.id)).length;
+  const totalGapCount = sortedGaps.length;
+  const criticalSelected = sortedGaps.filter(g => selectedGapIds.has(g.id) && g.severity === "critical").length;
+  const gapCount = totalGapCount > 0 ? totalGapCount : 9;
+  const gapPercent = totalGapCount > 0 ? Math.round((selectedCount / totalGapCount) * 100) : 0;
+
+  const toggleGap = (id: string) => {
+    setSelectedGapIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  // Samle cross-walk refs fra valgte gap (én chip per regelverk/kontroll)
+  const crosswalkChips = useMemo(() => {
+    if (!coveredGaps) return [] as { frameworkId: string; frameworkLabel: string; controlId: string }[];
+    const seen = new Set<string>();
+    const out: { frameworkId: string; frameworkLabel: string; controlId: string }[] = [];
+    for (const g of sortedGaps) {
+      if (!selectedGapIds.has(g.id)) continue;
+      for (const cid of g.relatedControlIds) {
+        const related = getRelatedControls(coveredGaps.frameworkId, cid);
+        for (const r of related) {
+          const key = `${r.frameworkId}:${r.controlId}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          out.push(r);
+        }
+      }
+    }
+    return out.slice(0, 8);
+  }, [coveredGaps, sortedGaps, selectedGapIds]);
 
   const handleGenerate = () => {
     if (tasks.length === 0) {
