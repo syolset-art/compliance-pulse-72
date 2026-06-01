@@ -135,6 +135,9 @@ export interface ActivationValues {
   dpoName?: string;
   dpoEmail?: string;
   securityEmail?: string;
+  incidentEmail?: string;
+  incidentPhone?: string;
+  postalAddress?: string;
   maturityAnswers?: Record<string, "yes" | "no" | "later" | "n_a" | "unsure">;
   criticalVendors?: Array<{ name: string; purpose?: string; processesPersonalData?: "yes" | "no" | null; dataCategories?: string[]; dpa: "yes" | "no" | "unknown" }>;
   subprocessorList?: import("./demoSubprocessorAnalysis").SubprocessorListData | null;
@@ -194,9 +197,11 @@ export async function seedFromActivation(values: ActivationValues) {
     general: values.contactEmail || `kontakt@${domain}`,
     privacy: values.dpoEmail || `personvern@${domain}`,
     security: values.securityEmail || `sikkerhet@${domain}`,
-    incident_email: `hendelse@${domain}`,
-    incident_phone: "+47 23 00 00 00",
-    postal_address: `${values.name}\n${values.region ? values.region + ", " : ""}${values.country || "Norge"}`,
+    incident_email: values.incidentEmail || `hendelse@${domain}`,
+    incident_phone: values.incidentPhone || "+47 23 00 00 00",
+    postal_address:
+      values.postalAddress ||
+      `${values.name}\n${values.region ? values.region + ", " : ""}${values.country || "Norge"}`,
   };
 
   const selfAsset: any = {
