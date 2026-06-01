@@ -173,7 +173,7 @@ export default function TrustEngine() {
                 ? "Forhåndsvisning — slik ser siden ut når den er aktivert"
                 : "Preview — how the page looks once activated"}
             </p>
-            <Badge variant="outline" className="text-[10px] uppercase tracking-wider">
+            <Badge variant="outline" className="text-[11px] uppercase tracking-wider">
               {isNb ? "Kommer snart" : "Coming soon"}
             </Badge>
           </div>
@@ -208,7 +208,7 @@ export default function TrustEngine() {
                   { c: "ES", nNb: "Spania", nEn: "Spain", x: 0 },
                 ].map((l) => (
                   <div key={l.c} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted/40 text-foreground">
-                    <span className="text-[10px] font-semibold text-muted-foreground">{l.c}</span>
+                    <span className="text-[11px] font-semibold text-muted-foreground">{l.c}</span>
                     <span>{isNb ? l.nNb : l.nEn}</span>
                     <span className="text-muted-foreground">({l.x})</span>
                   </div>
@@ -236,7 +236,7 @@ export default function TrustEngine() {
                     <User className="h-5 w-5 text-primary dark:text-accent" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-primary dark:text-accent">
+                    <p className="text-[12px] font-semibold uppercase tracking-wider text-primary dark:text-accent">
                       {isNb ? "Min Trust Profile" : "My Trust Profile"}
                     </p>
                     <h3 className="text-base font-semibold text-foreground truncate">

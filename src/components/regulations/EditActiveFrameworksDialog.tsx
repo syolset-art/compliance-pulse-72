@@ -169,7 +169,7 @@ export const EditActiveFrameworksDialog = ({
                 <SlidersHorizontal className="h-3.5 w-3.5" />
                 Filtre
                 {(categoryFilter || countryFilter.length) && (
-                  <span className="ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                  <span className="ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-semibold text-primary-foreground">
                     {(categoryFilter ? 1 : 0) + countryFilter.length}
                   </span>
                 )}
@@ -178,7 +178,7 @@ export const EditActiveFrameworksDialog = ({
             <PopoverContent align="start" className="w-72 p-3">
               <div className="space-y-3">
                 <div>
-                  <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Kategori</div>
+                  <div className="mb-1.5 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Kategori</div>
                   <div className="flex flex-wrap gap-1.5">
                     {categories.map((cat) => {
                       const active = categoryFilter === cat.id;
@@ -204,7 +204,7 @@ export const EditActiveFrameworksDialog = ({
 
                 {availableCountries.length > 0 && (
                   <div>
-                    <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Land</div>
+                    <div className="mb-1.5 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">Land</div>
                     <div className="flex flex-wrap gap-1.5">
                       {availableCountries.map((c) => {
                         const active = countryFilter.includes(c.code);
@@ -274,7 +274,7 @@ export const EditActiveFrameworksDialog = ({
                         return (
                           <li
                             key={f.id}
-                            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] ${
+                            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[12px] ${
                               on
                                 ? "border-primary/30 bg-primary/10 text-foreground"
                                 : "border-border bg-background text-muted-foreground"
@@ -350,7 +350,7 @@ export const EditActiveFrameworksDialog = ({
                                 <TooltipTrigger>
                                   {countryScope?.mode === "multi" ? (
                                     <span
-                                      className="inline-flex items-center gap-1 rounded-md border border-status-followup/30 bg-status-followup/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-status-followup"
+                                      className="inline-flex items-center gap-1 rounded-md border border-status-followup/30 bg-status-followup/10 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-status-followup"
                                       aria-label="Påkrevd ved lov"
                                     >
                                       <Lock className="h-2.5 w-2.5" />

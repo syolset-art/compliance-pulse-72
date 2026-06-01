@@ -234,7 +234,7 @@ export const DownloadReportDialog = ({
                       <ScoreCircle score={fw.score} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{fw.name}</p>
-                        <p className="text-[11px] text-muted-foreground">
+                        <p className="text-[12px] text-muted-foreground">
                           {fw.fulfilled}/{fw.total} krav
                         </p>
                       </div>
@@ -242,7 +242,7 @@ export const DownloadReportDialog = ({
                   );
                 })}
               </div>
-              <p className="text-[11px] text-muted-foreground mt-1.5">
+              <p className="text-[12px] text-muted-foreground mt-1.5">
                 {selectedFrameworks.size} av {reportData.frameworks.length} valgt
               </p>
             </div>

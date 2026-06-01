@@ -49,7 +49,7 @@ export function SourcesPanel({ assetId, controlArea, assetWebsite }: SourcesPane
       rejected:  { label: ["Forkastet", "Rejected"], cls: "bg-muted/60 text-muted-foreground border-border" },
     };
     const m = map[s.status];
-    return <Badge variant="outline" className={`text-[11px] ${m.cls}`}>{isNb ? m.label[0] : m.label[1]}</Badge>;
+    return <Badge variant="outline" className={`text-[12px] ${m.cls}`}>{isNb ? m.label[0] : m.label[1]}</Badge>;
   };
 
   return (
@@ -61,7 +61,7 @@ export function SourcesPanel({ assetId, controlArea, assetWebsite }: SourcesPane
           <p className="text-xs font-semibold uppercase tracking-wider text-foreground">
             {isNb ? "Kilder" : "Sources"}
           </p>
-          <Badge variant="secondary" className="text-[11px]">
+          <Badge variant="secondary" className="text-[12px]">
             {active.length} {isNb ? "aktive" : "active"}
             {rejected.length > 0 && ` · ${rejected.length} ${isNb ? "forkastet" : "rejected"}`}
           </Badge>
@@ -70,14 +70,14 @@ export function SourcesPanel({ assetId, controlArea, assetWebsite }: SourcesPane
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 text-[11px] gap-1"
+            className="h-7 text-[12px] gap-1"
             onClick={() => discover.mutate()}
             disabled={discover.isPending}
           >
             {discover.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
             {isNb ? "Be Lara analysere" : "Run Lara analysis"}
           </Button>
-          <Button variant="outline" size="sm" className="h-7 text-[11px] gap-1" onClick={() => setShowAdd((v) => !v)}>
+          <Button variant="outline" size="sm" className="h-7 text-[12px] gap-1" onClick={() => setShowAdd((v) => !v)}>
             <Plus className="h-3 w-3" />
             {isNb ? "Legg til kilde" : "Add source"}
           </Button>
@@ -85,7 +85,7 @@ export function SourcesPanel({ assetId, controlArea, assetWebsite }: SourcesPane
       </div>
 
       {/* Explainer */}
-      <div className="mb-2 p-2.5 rounded-md bg-muted/40 border border-border flex gap-2 text-[11px] text-muted-foreground">
+      <div className="mb-2 p-2.5 rounded-md bg-muted/40 border border-border flex gap-2 text-[12px] text-muted-foreground">
         <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-primary" />
         <p>
           {isNb
@@ -139,7 +139,7 @@ export function SourcesPanel({ assetId, controlArea, assetWebsite }: SourcesPane
           <Button
             variant="outline"
             size="sm"
-            className="h-7 text-[11px] gap-1"
+            className="h-7 text-[12px] gap-1"
             onClick={() => discover.mutate()}
             disabled={discover.isPending}
           >
@@ -166,14 +166,14 @@ export function SourcesPanel({ assetId, controlArea, assetWebsite }: SourcesPane
                     href={s.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline truncate"
+                    className="inline-flex items-center gap-1 text-[12px] text-primary hover:underline truncate"
                   >
                     <ExternalLink className="h-2.5 w-2.5" />
                     {s.url}
                   </a>
                 )}
                 {s.snippet && (
-                  <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{s.snippet}</p>
+                  <p className="text-[12px] text-muted-foreground mt-0.5 line-clamp-2">{s.snippet}</p>
                 )}
               </div>
               <div className="flex items-center gap-1 shrink-0">

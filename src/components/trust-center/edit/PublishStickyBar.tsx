@@ -63,7 +63,7 @@ export function PublishStickyBar({
           )}
           <div className="min-w-0">
             <p className="text-sm font-medium text-foreground truncate">{statusLabel}</p>
-            <p className="text-[11px] text-muted-foreground truncate">
+            <p className="text-[12px] text-muted-foreground truncate">
               {passedCount}/{totalCount} {isNb ? "områder fylt ut" : "areas completed"}
             </p>
           </div>

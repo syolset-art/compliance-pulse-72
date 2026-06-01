@@ -103,7 +103,7 @@ export function TasksFilterBar({
             <Filter className="h-3.5 w-3.5" />
             Filter
             {activeCount > 0 && (
-              <Badge className="ml-1 h-4 min-w-4 px-1 text-[10px] bg-primary text-primary-foreground">
+              <Badge className="ml-1 h-4 min-w-4 px-1 text-[11px] bg-primary text-primary-foreground">
                 {activeCount}
               </Badge>
             )}

@@ -175,7 +175,7 @@ export function SystemsPriorityChart() {
               {/* X-axis label */}
               <div className="text-center">
                 <p className="text-xs font-bold text-foreground tracking-wide">{k}</p>
-                <p className="text-[11px] text-muted-foreground leading-tight">{meta.helper}</p>
+                <p className="text-[12px] text-muted-foreground leading-tight">{meta.helper}</p>
               </div>
             </button>
           );

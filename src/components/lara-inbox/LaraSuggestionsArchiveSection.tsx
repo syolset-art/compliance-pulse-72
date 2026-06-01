@@ -50,7 +50,7 @@ export function LaraSuggestionsArchiveSection() {
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground truncate">{ctx.title || s.suggestion_key}</p>
           {ctx.insight && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{ctx.insight}</p>}
-          <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1.5">
+          <p className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1.5">
             <StatusIcon className="h-3 w-3" />
             {statusLabel}
             {ctx.category && <><span className="mx-1">·</span>{ctx.category}</>}
@@ -96,7 +96,7 @@ export function LaraSuggestionsArchiveSection() {
         <div className="mt-3 space-y-5">
           {snoozedDue.length > 0 && (
             <div>
-              <p className="text-[11px] font-bold tracking-wider text-muted-foreground mb-1">
+              <p className="text-[12px] font-bold tracking-wider text-muted-foreground mb-1">
                 {isNb ? "FORFALT — KOMMER TILBAKE" : "DUE — WILL REAPPEAR"}
               </p>
               <ul className="divide-y divide-border/40">{snoozedDue.map(s => renderRow(s, "snoozed-due"))}</ul>
@@ -104,7 +104,7 @@ export function LaraSuggestionsArchiveSection() {
           )}
           {snoozedActive.length > 0 && (
             <div>
-              <p className="text-[11px] font-bold tracking-wider text-muted-foreground mb-1">
+              <p className="text-[12px] font-bold tracking-wider text-muted-foreground mb-1">
                 {isNb ? "UTSATT" : "SNOOZED"}
               </p>
               <ul className="divide-y divide-border/40">{snoozedActive.map(s => renderRow(s, "snoozed-active"))}</ul>
@@ -112,7 +112,7 @@ export function LaraSuggestionsArchiveSection() {
           )}
           {dismissed.length > 0 && (
             <div>
-              <p className="text-[11px] font-bold tracking-wider text-muted-foreground mb-1">
+              <p className="text-[12px] font-bold tracking-wider text-muted-foreground mb-1">
                 {isNb ? "AVVIST" : "DISMISSED"}
               </p>
               <ul className="divide-y divide-border/40">{dismissed.map(s => renderRow(s, "dismissed"))}</ul>

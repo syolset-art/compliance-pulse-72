@@ -273,7 +273,7 @@ export function DashboardLaraRecommendation() {
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Priority — neutral pill, drives ordering */}
                 <span
-                  className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 px-2 py-0.5 text-[11px] font-semibold text-foreground"
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 px-2 py-0.5 text-[12px] font-semibold text-foreground"
                   title={isNb ? "Prioritet" : "Priority"}
                 >
                   <span className="text-foreground/60">{isNb ? "Prioritet" : "Priority"}</span>
@@ -366,7 +366,7 @@ export function DashboardLaraRecommendation() {
         <div className="rounded-xl bg-card border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+              <thead className="bg-muted/40 text-[12px] uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="text-left font-medium px-3 py-2 w-10">#</th>
                   <th className="text-left font-medium px-3 py-2 w-16">
@@ -391,14 +391,14 @@ export function DashboardLaraRecommendation() {
                     <tr key={`${tsk.vendor}-${i}`} className="hover:bg-muted/30 transition-colors">
                       <td className="px-3 py-2.5 text-xs text-muted-foreground tabular-nums">{i + 1}</td>
                       <td className="px-3 py-2.5">
-                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full border border-border bg-muted/70 text-[11px] font-bold tabular-nums">
+                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full border border-border bg-muted/70 text-[12px] font-bold tabular-nums">
                           {PRIORITY_META[tsk.priority].letter}
                         </span>
                       </td>
                       <td className="px-3 py-2.5">
                         <span className="inline-flex items-center gap-1.5">
                           <span className={cn("h-2 w-2 rounded-full", sevRow.dot)} />
-                          <span className={cn("text-[11px] font-semibold tracking-wider", sevRow.text)}>
+                          <span className={cn("text-[12px] font-semibold tracking-wider", sevRow.text)}>
                             {sevRow.label}
                           </span>
                         </span>

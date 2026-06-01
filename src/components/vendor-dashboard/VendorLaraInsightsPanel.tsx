@@ -276,7 +276,7 @@ export function VendorLaraInsightsPanel({
       <div className="rounded-xl bg-card border border-border p-4 shadow-sm">
         <div className="flex items-center gap-2 mb-2">
           <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
-          <span className={cn("text-[11px] font-bold tracking-wider", sev.text)}>{sev.label}</span>
+          <span className={cn("text-[12px] font-bold tracking-wider", sev.text)}>{sev.label}</span>
         </div>
         <h4 className="text-lg font-semibold text-foreground leading-tight">
           <button
@@ -289,7 +289,7 @@ export function VendorLaraInsightsPanel({
         {current.meta && <p className="text-[13px] text-muted-foreground mt-0.5">{current.meta}</p>}
 
         <div className="mt-3 rounded-lg bg-primary/[0.06] border border-primary/10 px-3 py-2.5">
-          <p className="text-[10px] font-bold tracking-wider text-muted-foreground mb-1 flex items-center gap-1.5">
+          <p className="text-[11px] font-bold tracking-wider text-muted-foreground mb-1 flex items-center gap-1.5">
             <TaskIcon className="h-3 w-3" />
             LARA SER
           </p>
@@ -353,7 +353,7 @@ export function VendorLaraInsightsPanel({
             }}
           />
         )}
-        <p className="text-[11px] text-muted-foreground mt-2">
+        <p className="text-[12px] text-muted-foreground mt-2">
           Utsatte og avviste forslag finner du i <button className="text-primary hover:underline" onClick={() => navigate("/lara-inbox")}>Lara-innboksen</button>.
         </p>
       </div>
@@ -388,7 +388,7 @@ export function VendorLaraInsightsPanel({
           onClick={() => navigate("/tasks")}
         >
           Vis alle oppgaver
-          <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold">
+          <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[12px] font-bold">
             {total}
           </span>
         </button>

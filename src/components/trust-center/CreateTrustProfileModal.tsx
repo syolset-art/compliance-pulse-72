@@ -119,7 +119,7 @@ export default function CreateTrustProfileModal({ open, onOpenChange }: Props) {
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Sparkles className="h-4 w-4 text-primary" />
             </div>
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <span className="text-[12px] font-semibold uppercase tracking-wider text-primary">
               Steg {step} av 3
             </span>
           </div>
@@ -165,7 +165,7 @@ export default function CreateTrustProfileModal({ open, onOpenChange }: Props) {
                     <SelectItem key={c.code} value={c.code}>
                       <span className="inline-flex items-center gap-2">
                         {c.label}
-                        <span className="text-[11px] text-muted-foreground">· {c.registry}</span>
+                        <span className="text-[12px] text-muted-foreground">· {c.registry}</span>
                       </span>
                     </SelectItem>
                   ))}

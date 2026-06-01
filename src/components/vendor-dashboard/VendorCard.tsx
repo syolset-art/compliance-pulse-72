@@ -154,12 +154,12 @@ export function VendorCard({ vendor, connectedSystemsCount = 0, hasDPA = false, 
                   <div className={cn("absolute inset-0 flex items-center justify-center", ringText)}>
                     {hasScore ? (
                       scoreDisplay === "percent" ? (
-                        <span className="text-[11px] font-bold tabular-nums leading-none">{score}</span>
+                        <span className="text-[12px] font-bold tabular-nums leading-none">{score}</span>
                       ) : (
-                        <span className="text-[9px] font-semibold leading-none">{scoreToLabel(score)}</span>
+                        <span className="text-[11px] font-semibold leading-none">{scoreToLabel(score)}</span>
                       )
                     ) : (
-                      <span className="text-[11px] font-medium leading-none">–</span>
+                      <span className="text-[12px] font-medium leading-none">–</span>
                     )}
                   </div>
                 </div>

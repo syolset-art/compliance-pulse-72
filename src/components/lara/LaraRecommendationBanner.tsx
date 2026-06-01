@@ -223,7 +223,7 @@ export function LaraRecommendationBanner({
                     <TableCell>
                       <div className="flex items-center gap-1.5">
                         <span className={cn("h-2 w-2 rounded-full", s.dot)} />
-                        <span className={cn("text-[11px] font-bold tracking-wider", s.text)}>{s.label}</span>
+                        <span className={cn("text-[12px] font-bold tracking-wider", s.text)}>{s.label}</span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -322,7 +322,7 @@ export function LaraRecommendationBanner({
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-[12px] text-muted-foreground">
           {isNb ? "Utsatte og avviste forslag finner du i " : "Snoozed and dismissed suggestions live in the "}
           <button className="text-primary hover:underline" onClick={() => navigate("/lara-inbox")}>
             {isNb ? "Lara-innboksen" : "Lara inbox"}

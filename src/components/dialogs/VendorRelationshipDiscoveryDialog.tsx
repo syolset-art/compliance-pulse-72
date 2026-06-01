@@ -192,7 +192,7 @@ export function VendorRelationshipDiscoveryDialog({
                                 <Badge
                                   variant="outline"
                                   className={cn(
-                                    "text-[10px] h-4 shrink-0",
+                                    "text-[11px] h-4 shrink-0",
                                     c.matchKind === "strong"
                                       ? "bg-primary/10 text-primary border-primary/20"
                                       : "bg-muted text-muted-foreground border-border"

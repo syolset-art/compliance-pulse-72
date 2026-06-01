@@ -121,7 +121,7 @@ export default function TrustProfileFreshness({
               {isNb ? "Lara oppdaterer…" : "Lara is updating…"}
             </p>
           </div>
-          <Badge variant="outline" className="text-[10px] tabular-nums">
+          <Badge variant="outline" className="text-[11px] tabular-nums">
             {pct}%
           </Badge>
         </div>
@@ -134,7 +134,7 @@ export default function TrustProfileFreshness({
             return (
               <div
                 key={i}
-                className={`flex items-center gap-1 text-[10px] ${
+                className={`flex items-center gap-1 text-[11px] ${
                   done
                     ? "text-muted-foreground"
                     : active
@@ -177,7 +177,7 @@ export default function TrustProfileFreshness({
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 text-[11px] gap-1 px-2"
+          className="h-6 text-[12px] gap-1 px-2"
           onClick={() => setStatus("idle")}
         >
           <RefreshCw className="h-3 w-3" />
@@ -190,7 +190,7 @@ export default function TrustProfileFreshness({
   // Idle state — compact action bar
   return (
     <div className="flex items-center justify-between gap-2 flex-wrap">
-      <span className="text-[11px] text-muted-foreground">
+      <span className="text-[12px] text-muted-foreground">
         {isNb ? "Sist oppdatert" : "Last updated"} {formatRelative(lastUpdate, isNb)}
         {isStale && (
           <span className="ml-1.5 text-warning">
@@ -202,7 +202,7 @@ export default function TrustProfileFreshness({
         <Button
           size="sm"
           variant="outline"
-          className="h-7 text-[11px] gap-1.5 rounded-full px-3"
+          className="h-7 text-[12px] gap-1.5 rounded-full px-3"
           onClick={runEnrichment}
         >
           <Sparkles className="h-3 w-3" />

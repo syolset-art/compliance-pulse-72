@@ -44,7 +44,7 @@ export function CommunityRequests() {
         onClick={() => setCollapsed((c) => !c)}
         className="flex w-full items-center justify-between rounded-lg border bg-muted/20 px-3 py-2 text-left transition-colors hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
-        <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <div className="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wide text-muted-foreground">
           <Users className="h-3 w-3" aria-hidden /> Regelverk som kommer
         </div>
         <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", !collapsed && "rotate-180")} aria-hidden />
@@ -62,14 +62,14 @@ export function CommunityRequests() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium text-foreground">{r.country}</span>
-                      <Badge variant="outline" className={cn("text-[10px] px-1.5 py-0 h-4", meta.className)}>
+                      <Badge variant="outline" className={cn("text-[11px] px-1.5 py-0 h-4", meta.className)}>
                         {meta.label}
                       </Badge>
-                      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
                         <CalendarDays className="h-3 w-3" aria-hidden /> Bestilt {r.requestedAt}
                       </span>
                       {r.eta && (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <span className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
                           <Clock className="h-3 w-3" aria-hidden /> {r.eta}
                         </span>
                       )}
@@ -77,7 +77,7 @@ export function CommunityRequests() {
                     {r.frameworks.length > 0 && (
                       <div className="mt-1 flex flex-wrap gap-1">
                         {r.frameworks.map((f) => (
-                          <span key={f} className="inline-flex items-center rounded-full bg-background border px-1.5 py-0 text-[10px] text-muted-foreground">
+                          <span key={f} className="inline-flex items-center rounded-full bg-background border px-1.5 py-0 text-[11px] text-muted-foreground">
                             {f}
                           </span>
                         ))}
@@ -104,7 +104,7 @@ export function CommunityRequests() {
               );
             })}
           </ul>
-          <p className="text-[11px] text-muted-foreground text-center">Stem opp – vi prioriterer det mest etterspurte</p>
+          <p className="text-[12px] text-muted-foreground text-center">Stem opp – vi prioriterer det mest etterspurte</p>
         </>
       )}
     </div>

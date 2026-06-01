@@ -384,7 +384,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                   </div>
                 </div>
                 <div className="flex items-center gap-2 pl-6">
-                  <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <span className="text-[12px] uppercase tracking-wider text-muted-foreground">
                     {isNb ? "Språk" : "Language"}:
                   </span>
                   <div className="inline-flex rounded-md border border-border bg-background p-0.5">
@@ -404,7 +404,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                     </button>
                   </div>
                   {!languageOverridden && (
-                    <Badge variant="secondary" className="text-[10px] gap-1">
+                    <Badge variant="secondary" className="text-[11px] gap-1">
                       <Sparkles className="h-2.5 w-2.5" />
                       {isNb ? "Foreslått av Lara" : "Suggested by Lara"}
                     </Badge>
@@ -600,7 +600,7 @@ export function SendRequestWizard({ open, onOpenChange, onSend }: SendRequestWiz
                     {messageLanguage === "en" ? "English" : (isNb ? "Norsk" : "Norwegian")}
                   </span>
                   {suggestEnglish && !languageOverridden && messageLanguage === "en" && (
-                    <Badge variant="secondary" className="text-[10px] gap-1">
+                    <Badge variant="secondary" className="text-[11px] gap-1">
                       <Sparkles className="h-2.5 w-2.5" />
                       {isNb ? "Lara" : "Lara"}
                     </Badge>

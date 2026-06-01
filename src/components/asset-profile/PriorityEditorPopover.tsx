@@ -175,7 +175,7 @@ export function PriorityEditorPopover({
                 className="text-xs resize-none bg-background"
               />
               {isPriorityDeviation(selected, suggested) && (
-                <p className="text-[11px] text-warning">
+                <p className="text-[12px] text-warning">
                   Stort avvik fra Laras forslag — vises som markør i listen.
                 </p>
               )}

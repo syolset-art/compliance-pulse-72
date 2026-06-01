@@ -92,7 +92,7 @@ export function EmailPreviewModal({ open, onClose }: EmailPreviewModalProps) {
           </p>
 
           {/* Footer */}
-          <div className="border-t border-neutral-200 mt-8 pt-4 text-[11px] text-neutral-400 text-center space-x-2">
+          <div className="border-t border-neutral-200 mt-8 pt-4 text-[12px] text-neutral-400 text-center space-x-2">
             <span>© 2026 Mynder AS</span>
             <span>·</span>
             <span>{isNb ? "Org.nr" : "Org. no."} 925 478 123</span>

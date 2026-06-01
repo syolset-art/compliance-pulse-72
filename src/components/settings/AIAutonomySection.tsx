@@ -135,9 +135,9 @@ export function AIAutonomySection({ isNb }: { isNb: boolean }) {
                   : "You're in full control. Defaults follow ISO/IEC 42001 guidance on meaningful human oversight. Higher autonomy means more speed but fewer control points — Mynder recommends 'Assisted' as a balanced starting point."}
               </p>
               <div className="flex flex-wrap gap-1.5 pt-1">
-                <Badge variant="outline" className="text-[10px] font-medium">ISO/IEC 42001</Badge>
-                <Badge variant="outline" className="text-[10px] font-medium">NIST AI RMF</Badge>
-                <Badge variant="outline" className="text-[10px] font-medium">EU AI Act art. 14</Badge>
+                <Badge variant="outline" className="text-[11px] font-medium">ISO/IEC 42001</Badge>
+                <Badge variant="outline" className="text-[11px] font-medium">NIST AI RMF</Badge>
+                <Badge variant="outline" className="text-[11px] font-medium">EU AI Act art. 14</Badge>
               </div>
             </div>
           </div>
@@ -202,7 +202,7 @@ export function AIAutonomySection({ isNb }: { isNb: boolean }) {
                       </span>
                     </div>
                     {isRecommended && (
-                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0">
+                      <Badge variant="secondary" className="text-[11px] px-1.5 py-0">
                         {isNb ? "Anbefalt" : "Recommended"}
                       </Badge>
                     )}
@@ -212,11 +212,11 @@ export function AIAutonomySection({ isNb }: { isNb: boolean }) {
                   </p>
                   <Separator className="mb-2" />
                   <div className="space-y-1">
-                    <div className="flex items-start gap-1.5 text-[11px]">
+                    <div className="flex items-start gap-1.5 text-[12px]">
                       <CheckCircle2 className="h-3 w-3 text-success mt-0.5 shrink-0" />
                       <span className="text-muted-foreground">{isNb ? tradeoffs[lvl].save.nb : tradeoffs[lvl].save.en}</span>
                     </div>
-                    <div className="flex items-start gap-1.5 text-[11px]">
+                    <div className="flex items-start gap-1.5 text-[12px]">
                       <AlertTriangle className="h-3 w-3 text-warning mt-0.5 shrink-0" />
                       <span className="text-muted-foreground">{isNb ? tradeoffs[lvl].give.nb : tradeoffs[lvl].give.en}</span>
                     </div>
@@ -244,7 +244,7 @@ export function AIAutonomySection({ isNb }: { isNb: boolean }) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-success flex items-center gap-1.5">
+              <h4 className="text-[12px] font-semibold uppercase tracking-wider text-success flex items-center gap-1.5">
                 <CheckCircle2 className="h-3 w-3" /> {isNb ? "Fordeler" : "Benefits"}
               </h4>
               <ul className="space-y-1.5">
@@ -254,7 +254,7 @@ export function AIAutonomySection({ isNb }: { isNb: boolean }) {
               </ul>
             </div>
             <div className="space-y-2">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-warning flex items-center gap-1.5">
+              <h4 className="text-[12px] font-semibold uppercase tracking-wider text-warning flex items-center gap-1.5">
                 <AlertTriangle className="h-3 w-3" /> {isNb ? "Risiko" : "Risks"}
               </h4>
               <ul className="space-y-1.5">
@@ -264,7 +264,7 @@ export function AIAutonomySection({ isNb }: { isNb: boolean }) {
               </ul>
             </div>
             <div className="space-y-2">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
+              <h4 className="text-[12px] font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
                 <ShieldCheck className="h-3 w-3" /> {isNb ? "Kontrollpunkter" : "Controls"}
               </h4>
               <ul className="space-y-1.5">
@@ -333,7 +333,7 @@ export function AIAutonomySection({ isNb }: { isNb: boolean }) {
                   {exceedsRecommended && (
                     <div className="mt-3 flex items-start gap-2 rounded-lg bg-warning/10 border border-warning/30 p-2.5">
                       <AlertTriangle className="h-3.5 w-3.5 text-warning mt-0.5 shrink-0" />
-                      <p className="text-[11px] text-foreground leading-relaxed">
+                      <p className="text-[12px] text-foreground leading-relaxed">
                         {isNb
                           ? `Høyere enn anbefalt (${LEVEL_META[task.recommendedMax].nb}) for denne oppgaven. Mynder vil logge alle handlinger for revisjon.`
                           : `Higher than recommended (${LEVEL_META[task.recommendedMax].en}) for this task. Mynder will log all actions for audit.`}
@@ -378,9 +378,9 @@ export function AIAutonomySection({ isNb }: { isNb: boolean }) {
                         <Switch checked={config.killSwitch} onCheckedChange={toggleKill} />
                       )}
                     </div>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{isNb ? item.descNb : item.descEn}</p>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">{isNb ? item.descNb : item.descEn}</p>
                     {isKill && config.killSwitch && (
-                      <Badge variant="destructive" className="mt-1.5 text-[9px]">
+                      <Badge variant="destructive" className="mt-1.5 text-[11px]">
                         {isNb ? "AKTIV — All KI er pauset" : "ACTIVE — All AI paused"}
                       </Badge>
                     )}
@@ -397,7 +397,7 @@ export function AIAutonomySection({ isNb }: { isNb: boolean }) {
         <CardContent className="p-4">
           <div className="flex items-start gap-2.5">
             <Info className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
+            <p className="text-[12px] text-muted-foreground leading-relaxed">
               {isNb
                 ? "Designet etter ISO/IEC 42001 §6.1 (AI risk treatment) og §8.3 (human oversight). EU AI Act art. 14 krever meningsfull menneskelig overvåking for høyrisiko-systemer. NIST AI RMF (Govern/Manage) brukes som risikobasert styringsrammeverk."
                 : "Designed per ISO/IEC 42001 §6.1 (AI risk treatment) and §8.3 (human oversight). EU AI Act art. 14 requires meaningful human oversight for high-risk systems. NIST AI RMF (Govern/Manage) used as risk-based governance framework."}

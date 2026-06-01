@@ -20,7 +20,7 @@ export function CountryScopeBar({ scope, onEdit, onRequest }: Props) {
           >
             <span aria-hidden className="text-[13px] leading-none">{c.flag}</span>
             <span className="text-[13px] font-medium text-foreground">{c.name}</span>
-            <span className="text-[11px] text-muted-foreground">· {c.frameworkIds.length} regler</span>
+            <span className="text-[12px] text-muted-foreground">· {c.frameworkIds.length} regler</span>
           </div>
         ))}
 

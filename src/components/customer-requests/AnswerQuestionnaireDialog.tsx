@@ -89,7 +89,7 @@ export function AnswerQuestionnaireDialog({ delivery, open, onOpenChange }: Prop
         <div className="space-y-6 py-2">
           {def.sections.map((section) => (
             <section key={section.id} className="space-y-3">
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <h4 className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {section.title}
               </h4>
               <div className="space-y-2.5">
@@ -98,7 +98,7 @@ export function AnswerQuestionnaireDialog({ delivery, open, onOpenChange }: Prop
                     <div className="flex items-start justify-between gap-2">
                       <p className="text-[13px] text-foreground leading-snug">{q.text}</p>
                       {q.reference && (
-                        <Badge variant="outline" className="text-[10px] shrink-0">
+                        <Badge variant="outline" className="text-[11px] shrink-0">
                           {q.reference}
                         </Badge>
                       )}

@@ -196,7 +196,7 @@ export default function ShareTrustProfileDialog({
             </Button>
           </div>
           {detectedType && !draftDuplicate && (
-            <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1.5">
+            <p className="text-[12px] text-muted-foreground inline-flex items-center gap-1.5">
               {detectedType === "internal" ? (
                 <>
                   <Building2 className="h-3 w-3" aria-hidden="true" />
@@ -228,11 +228,11 @@ export default function ShareTrustProfileDialog({
             </Label>
             {access.length > 0 && (
               <div className="flex items-center gap-1.5">
-                <Badge variant="secondary" className="h-5 px-1.5 gap-1 text-[10px]">
+                <Badge variant="secondary" className="h-5 px-1.5 gap-1 text-[11px]">
                   <Building2 className="h-3 w-3" aria-hidden="true" />
                   {internalCount}
                 </Badge>
-                <Badge variant="secondary" className="h-5 px-1.5 gap-1 text-[10px]">
+                <Badge variant="secondary" className="h-5 px-1.5 gap-1 text-[11px]">
                   <Globe className="h-3 w-3" aria-hidden="true" />
                   {externalCount}
                 </Badge>
@@ -265,7 +265,7 @@ export default function ShareTrustProfileDialog({
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-foreground truncate">{a.email}</p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-[12px] text-muted-foreground">
                         {isNb ? "Lagt til " : "Added "}
                         {new Date(a.addedAt).toLocaleDateString(isNb ? "nb-NO" : "en-US", {
                           day: "2-digit", month: "short", year: "numeric",
@@ -274,7 +274,7 @@ export default function ShareTrustProfileDialog({
                     </div>
                     <Badge
                       variant="secondary"
-                      className="h-6 px-2 gap-1 text-[11px] shrink-0"
+                      className="h-6 px-2 gap-1 text-[12px] shrink-0"
                     >
                       {a.type === "internal" ? (
                         <>
@@ -312,7 +312,7 @@ export default function ShareTrustProfileDialog({
               <Link2 className="h-3.5 w-3.5" aria-hidden="true" />
               {isNb ? "Invitasjonslenke" : "Invite link"}
             </Label>
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-[12px] text-muted-foreground">
               {isNb ? "Alle med lenken kan se profilen" : "Anyone with the link can view"}
             </span>
           </div>

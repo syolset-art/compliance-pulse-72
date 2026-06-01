@@ -156,7 +156,7 @@ export default function VendorReports() {
         </Card>
         <Card variant="flat" className="p-4">
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-            <Badge variant="outline" className="h-4 px-1 text-[10px]">
+            <Badge variant="outline" className="h-4 px-1 text-[11px]">
               Høy risiko
             </Badge>
           </div>

@@ -81,7 +81,7 @@ export function VendorInlinePillSelect({ assetId, field, value }: Props) {
         <span
           className={cn(
             "inline-flex items-center justify-center rounded-full border font-semibold tabular-nums",
-            size === "sm" ? "h-5 w-5 text-[11px]" : "h-5 w-5 text-[11px]",
+            size === "sm" ? "h-5 w-5 text-[12px]" : "h-5 w-5 text-[12px]",
             o.iconColor
           )}
           aria-hidden

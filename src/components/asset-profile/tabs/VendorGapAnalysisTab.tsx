@@ -204,7 +204,7 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
       {/* Header: framework picker + actions */}
       <div className="flex flex-col sm:flex-row sm:items-end gap-3">
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+          <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
             {isNb ? "Aktivt rammeverk" : "Active framework"}
           </p>
           <Select
@@ -406,13 +406,13 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
                       {/* Header line: id + status + priority + risk */}
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-mono text-muted-foreground">{gap.requirement_id}</span>
-                        <Badge variant="outline" className={cn("text-[11px] h-5 px-1.5", statusPill)}>
+                        <Badge variant="outline" className={cn("text-[12px] h-5 px-1.5", statusPill)}>
                           {statusLabel}
                         </Badge>
-                        <Badge variant="outline" className="text-[11px] h-5 px-1.5">
+                        <Badge variant="outline" className="text-[12px] h-5 px-1.5">
                           {isNb ? "Prioritet" : "Priority"} {priority}
                         </Badge>
-                        <Badge variant="outline" className={cn("text-[11px] h-5 px-1.5 gap-1", riskMeta.pill)}>
+                        <Badge variant="outline" className={cn("text-[12px] h-5 px-1.5 gap-1", riskMeta.pill)}>
                           <RiskIcon className="h-3 w-3" />
                           {isNb ? riskMeta.nb : riskMeta.en}
                         </Badge>
@@ -439,7 +439,7 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
                         <div className="rounded-lg bg-primary/[0.04] border border-primary/15 p-3">
                           <div className="flex items-start gap-2.5">
                             <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
-                              <span className="text-[10px] font-semibold text-primary">L</span>
+                              <span className="text-[11px] font-semibold text-primary">L</span>
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-medium">
@@ -469,7 +469,7 @@ export function VendorGapAnalysisTab({ assetId, assetName, onOpenActivityLog }: 
                       )}
 
                       {/* Meta footer */}
-                      <div className="flex items-center gap-4 flex-wrap text-[11px] text-muted-foreground pt-1">
+                      <div className="flex items-center gap-4 flex-wrap text-[12px] text-muted-foreground pt-1">
                         <span className="flex items-center gap-1">
                           <User className="h-3 w-3" />
                           {isNb ? "Ansvarlig: ikke tildelt" : "Owner: unassigned"}

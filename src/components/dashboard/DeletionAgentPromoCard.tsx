@@ -51,7 +51,7 @@ export function DeletionAgentPromoCard({ onActivate }: DeletionAgentPromoCardPro
               </h3>
             </div>
           </div>
-          <Badge variant="outline" className="text-[11px] border-primary/30 text-primary gap-1 whitespace-nowrap">
+          <Badge variant="outline" className="text-[12px] border-primary/30 text-primary gap-1 whitespace-nowrap">
             <CheckCircle2 className="h-2.5 w-2.5" />
             {isNb ? "Inkludert i Profesjonell" : "Included in Professional"}
           </Badge>

@@ -155,7 +155,7 @@ export function InviteVendorDialog({ open, onOpenChange, vendor }: InviteVendorD
                     </div>
                   </div>
                   {state === "done" && (
-                    <span className="text-[11px] text-muted-foreground shrink-0 mt-1">Ferdig</span>
+                    <span className="text-[12px] text-muted-foreground shrink-0 mt-1">Ferdig</span>
                   )}
                 </li>
               );

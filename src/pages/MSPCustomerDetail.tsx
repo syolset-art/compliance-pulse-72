@@ -399,9 +399,9 @@ export default function MSPCustomerDetail() {
                 <li key={idx} className="rounded-lg border border-border p-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-[13px] font-medium text-foreground">{g.title}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{g.ref}</p>
+                    <p className="text-[12px] text-muted-foreground mt-0.5">{g.ref}</p>
                   </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-destructive shrink-0">Åpen</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-destructive shrink-0">Åpen</span>
                 </li>
               ))}
             </ul>

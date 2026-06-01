@@ -47,7 +47,7 @@ export function SavedIndicator({ lastEditedAt }: Props) {
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 text-[11px] transition-colors ${
+      className={`inline-flex items-center gap-1.5 text-[12px] transition-colors ${
         isPulsing ? "text-success" : "text-muted-foreground"
       }`}
       aria-live="polite"

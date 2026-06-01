@@ -112,7 +112,7 @@ function ScoreCircle({ score }: { score: number }) {
         <circle cx="18" cy="18" r={r} fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/30" />
         <circle cx="18" cy="18" r={r} fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={dash} className={color} strokeLinecap="round" />
       </svg>
-      <span className={cn("absolute text-[10px] font-semibold tabular-nums", color)}>{pct}%</span>
+      <span className={cn("absolute text-[11px] font-semibold tabular-nums", color)}>{pct}%</span>
     </div>
   );
 }
@@ -150,7 +150,7 @@ function ColumnFilter({
           {!iconOnly && <span>{label}</span>}
           <Filter className={cn("h-3.5 w-3.5 shrink-0", active ? "opacity-100" : "opacity-60")} aria-hidden="true" />
           {active && (
-            <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[11px] font-semibold h-4 min-w-4 px-1 tabular-nums">
+            <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[12px] font-semibold h-4 min-w-4 px-1 tabular-nums">
               {selected.length}
             </span>
           )}
@@ -484,7 +484,7 @@ export default function MSPDashboard() {
                                 )}
                               </svg>
                               <span className={cn(
-                                "absolute text-[10px] font-semibold tabular-nums leading-none",
+                                "absolute text-[11px] font-semibold tabular-nums leading-none",
                                 score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"
                               )}>
                                 {score > 0 ? `${score}%` : "—"}
@@ -582,7 +582,7 @@ export default function MSPDashboard() {
                               <span className="inline-flex items-center gap-2">
                                 {c.customer_name}
                                 {isNew && (
-                                  <Badge variant="outline" className="bg-primary text-primary-foreground border-primary text-[10px] px-1.5 py-0 h-4 font-medium animate-pulse">
+                                  <Badge variant="outline" className="bg-primary text-primary-foreground border-primary text-[11px] px-1.5 py-0 h-4 font-medium animate-pulse">
                                     Ny
                                   </Badge>
                                 )}
@@ -608,7 +608,7 @@ export default function MSPDashboard() {
                                       className="inline-flex"
                                       title={`Åpne tjenester for ${c.customer_name}`}
                                     >
-                                      <Badge variant="outline" className="font-normal bg-primary/5 text-primary border-primary/20 text-[11px] cursor-pointer hover:bg-primary/10 transition-colors">
+                                      <Badge variant="outline" className="font-normal bg-primary/5 text-primary border-primary/20 text-[12px] cursor-pointer hover:bg-primary/10 transition-colors">
                                         {s}
                                       </Badge>
                                     </button>
@@ -689,7 +689,7 @@ export default function MSPDashboard() {
                           aria-pressed={campaignView === opt.value}
                         >
                           {opt.label}
-                          <span className="text-[11px] text-muted-foreground tabular-nums">({opt.count})</span>
+                          <span className="text-[12px] text-muted-foreground tabular-nums">({opt.count})</span>
                         </button>
                       ))}
                     </div>
@@ -722,7 +722,7 @@ export default function MSPDashboard() {
                                 </Badge>
                               </div>
                               <div className="mt-3 flex items-center justify-between">
-                                <p className="text-[11px] text-muted-foreground truncate">
+                                <p className="text-[12px] text-muted-foreground truncate">
                                   {matches.slice(0, 3).map((m) => m.name).join(", ")}
                                   {matches.length > 3 && ` +${matches.length - 3}`}
                                 </p>

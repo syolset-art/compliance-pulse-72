@@ -208,7 +208,7 @@ export function InlineAgentProposal({
         <div className="pl-8 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div>
-              <label className="text-[11px] text-muted-foreground">
+              <label className="text-[12px] text-muted-foreground">
                 {t.recipientLabel}
               </label>
               <Input
@@ -219,7 +219,7 @@ export function InlineAgentProposal({
               />
             </div>
             <div>
-              <label className="text-[11px] text-muted-foreground">{t.dueLabel}</label>
+              <label className="text-[12px] text-muted-foreground">{t.dueLabel}</label>
               <Input
                 type="number"
                 value={dueDays}
@@ -229,7 +229,7 @@ export function InlineAgentProposal({
             </div>
           </div>
           <div>
-            <label className="text-[11px] text-muted-foreground">
+            <label className="text-[12px] text-muted-foreground">
               {t.instructionLabel}
             </label>
             <Textarea

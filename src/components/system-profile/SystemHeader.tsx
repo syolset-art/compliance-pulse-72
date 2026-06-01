@@ -213,10 +213,10 @@ export const SystemHeader = ({ system, trustMetrics }: SystemHeaderProps) => {
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className={`text-xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>{score}</span>
-                  <span className="text-[9px] font-bold text-muted-foreground tracking-wide leading-none mt-0.5">/100</span>
+                  <span className="text-[11px] font-bold text-muted-foreground tracking-wide leading-none mt-0.5">/100</span>
                 </div>
               </div>
-              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
             </div>
           );
         })()}

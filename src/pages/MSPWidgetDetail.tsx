@@ -369,7 +369,7 @@ function WidgetBody({ id }: { id: string }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2">
                     <div className="font-medium text-foreground">{c.title}</div>
-                    <Badge variant={c.status === "Aktiv" ? "default" : "secondary"} className="text-[10px]">{c.status}</Badge>
+                    <Badge variant={c.status === "Aktiv" ? "default" : "secondary"} className="text-[11px]">{c.status}</Badge>
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">{c.accepted} av {c.reach} svar · responsrate {c.responseRate}%</div>
                 </div>
@@ -389,7 +389,7 @@ function WidgetBody({ id }: { id: string }) {
           <Card className="divide-y divide-border">
             {NEWS.map((n, i) => (
               <div key={i} className="p-4 flex items-start gap-4">
-                <Badge variant="outline" className="text-[10px] shrink-0">{n.kind}</Badge>
+                <Badge variant="outline" className="text-[11px] shrink-0">{n.kind}</Badge>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-foreground">{n.title}</div>
                   <div className="text-xs text-muted-foreground mt-0.5">{n.meta}</div>

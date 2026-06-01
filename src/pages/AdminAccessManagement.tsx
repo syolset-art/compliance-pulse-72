@@ -243,14 +243,14 @@ const AdminAccessManagement = () => {
                       <TabsTrigger value="active" className="gap-2">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         {isNb ? "Aktive" : "Active"}
-                        <Badge variant="secondary" className="ml-1 text-[11px]">
+                        <Badge variant="secondary" className="ml-1 text-[12px]">
                           {members.filter(m => m.status === "active").length}
                         </Badge>
                       </TabsTrigger>
                       <TabsTrigger value="invited" className="gap-2">
                         <Clock className="h-3.5 w-3.5" />
                         {isNb ? "Inviterte" : "Invited"}
-                        <Badge variant="secondary" className="ml-1 text-[11px]">
+                        <Badge variant="secondary" className="ml-1 text-[12px]">
                           {members.filter(m => m.status === "invited").length}
                         </Badge>
                       </TabsTrigger>
@@ -317,7 +317,7 @@ const AdminAccessManagement = () => {
                                       <p className="text-xs font-semibold text-foreground">
                                         {isNb ? "Roller for" : "Roles for"} {member.name}
                                       </p>
-                                      <p className="text-[11px] text-muted-foreground">
+                                      <p className="text-[12px] text-muted-foreground">
                                         {isNb ? "En bruker kan ha flere roller." : "A user can hold multiple roles."}
                                       </p>
                                     </div>
@@ -356,7 +356,7 @@ const AdminAccessManagement = () => {
                                               <p className="text-xs font-medium leading-tight">
                                                 {isNb ? r.labelNb : r.labelEn}
                                               </p>
-                                              <p className="text-[11px] text-muted-foreground leading-snug">
+                                              <p className="text-[12px] text-muted-foreground leading-snug">
                                                 {isNb ? r.descNb : r.descEn}
                                               </p>
                                             </div>
@@ -581,7 +581,7 @@ const AdminAccessManagement = () => {
                       />
                       <div className="min-w-0">
                         <p className="text-xs font-medium leading-tight">{isNb ? role.labelNb : role.labelEn}</p>
-                        <p className="text-[11px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
+                        <p className="text-[12px] text-muted-foreground leading-snug">{isNb ? role.descNb : role.descEn}</p>
                       </div>
                     </label>
                   );

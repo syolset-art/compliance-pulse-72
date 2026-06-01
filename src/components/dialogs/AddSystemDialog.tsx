@@ -721,7 +721,7 @@ export function AddSystemDialog({ open, onOpenChange, onSystemAdded }: AddSystem
               <div className="flex-1 space-y-1.5">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-foreground">Lara</span>
-                  <Badge variant="secondary" className="h-5 px-1.5 text-[10px] bg-primary/10 text-primary border-primary/20">
+                  <Badge variant="secondary" className="h-5 px-1.5 text-[11px] bg-primary/10 text-primary border-primary/20">
                     {isNb ? "Mynder-agent" : "Mynder agent"}
                   </Badge>
                   <span className="text-xs text-muted-foreground">· {isNb ? "analyserte 4 kilder" : "analyzed 4 sources"}</span>

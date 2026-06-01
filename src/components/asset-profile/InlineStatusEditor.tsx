@@ -34,7 +34,7 @@ export function InlineStatusEditor({ currentStatus, onSave, onCancel }: Props) {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
           {isNb ? "Endre status til:" : "Change status to:"}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -47,7 +47,7 @@ export function InlineStatusEditor({ currentStatus, onSave, onCancel }: Props) {
                 type="button"
                 onClick={() => setSelected(s)}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider transition-all",
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold uppercase tracking-wider transition-all",
                   isActive ? conf.pill + " ring-2 ring-offset-1 ring-offset-background ring-current/40" : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/40"
                 )}
               >

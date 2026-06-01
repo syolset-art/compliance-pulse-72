@@ -164,7 +164,7 @@ export function InlineDeviationAgent({
                   </Badge>
                 )}
                 {agent.proposal.frameworks.map((fw) => (
-                  <Badge key={fw} variant="outline" className="text-[11px]">
+                  <Badge key={fw} variant="outline" className="text-[12px]">
                     {fw}
                   </Badge>
                 ))}
@@ -233,7 +233,7 @@ export function InlineDeviationAgent({
                     </li>
                   ))}
                 </ul>
-                <p className="text-[11px] text-muted-foreground italic">
+                <p className="text-[12px] text-muted-foreground italic">
                   Tiltakene opprettes som aktiviteter når du bekrefter
                 </p>
               </div>

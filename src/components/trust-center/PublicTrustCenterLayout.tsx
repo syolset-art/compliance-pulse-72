@@ -111,7 +111,7 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
           {/* Sidebar */}
           <aside className="md:w-56 shrink-0 md:pt-4">
             <div className="md:sticky md:top-20 space-y-1">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2 mt-2">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2 mt-2">
                 {isNb ? "Trust Center" : "Trust Center"}
               </p>
               <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible">
@@ -136,7 +136,7 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
               </nav>
 
               <div className="mt-6 px-3 space-y-2">
-                <div className="flex items-start gap-2 text-[11px] text-muted-foreground leading-relaxed">
+                <div className="flex items-start gap-2 text-[12px] text-muted-foreground leading-relaxed">
                   <Lock className="h-3.5 w-3.5 text-primary dark:text-accent shrink-0 mt-0.5" />
                   <span>
                     {isNb
@@ -144,7 +144,7 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
                       : "Content is encrypted and verified by the owner."}
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                <p className="text-[12px] text-muted-foreground leading-relaxed">
                   {isNb
                     ? "All informasjon vises her — du forlater ikke Trust Centeret når du leser dokumentasjon."
                     : "Everything stays here — you don't leave the Trust Center when reading documentation."}

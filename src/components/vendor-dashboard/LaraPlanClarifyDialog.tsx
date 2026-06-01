@@ -139,7 +139,7 @@ export function LaraPlanClarifyDialog({ open, onOpenChange, isNb, proposals, onS
                           >
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium truncate">{u.name}</p>
-                              <p className="text-[11px] text-muted-foreground truncate">
+                              <p className="text-[12px] text-muted-foreground truncate">
                                 {u.email}
                                 {(isNb ? u.roleLabelNb : u.roleLabelEn) && (
                                   <> · {isNb ? u.roleLabelNb : u.roleLabelEn}</>

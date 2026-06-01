@@ -160,11 +160,11 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
           <Table className="min-w-[580px]">
             <TableHeader>
               <TableRow className="hover:bg-transparent border-b border-border">
-                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Dokument" : "Document"}</TableHead>
-                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Type" : "Type"}</TableHead>
-                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9 hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
-                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Status" : "Status"}</TableHead>
-                <TableHead className="text-[11px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Tilgang" : "Access"}</TableHead>
+                <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Dokument" : "Document"}</TableHead>
+                <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Type" : "Type"}</TableHead>
+                <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9 hidden sm:table-cell">{isNb ? "Gyldig til" : "Valid to"}</TableHead>
+                <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Status" : "Status"}</TableHead>
+                <TableHead className="text-[12px] font-medium text-muted-foreground tracking-wide h-9">{isNb ? "Tilgang" : "Access"}</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
@@ -190,7 +190,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
                           <span className={`text-sm font-medium truncate block max-w-[220px] ${isExpired ? "text-destructive" : "text-foreground"}`}>
                             {doc.file_name}
                           </span>
-                          <span className="text-[11px] text-muted-foreground hidden md:block">
+                          <span className="text-[12px] text-muted-foreground hidden md:block">
                             {doc.version || "v1.0"} · {new Date(doc.created_at).toLocaleDateString(locale)}
                             {replacement && (
                               <> · {isNb ? "erstattet av" : "replaced by"} <span className="text-foreground/80">{replacement.file_name}</span></>
@@ -345,7 +345,7 @@ export function DocumentsTab({ assetId, assetName, vendorName, hideUploadButton,
               {historyCount > 0 && (
                 <div className="flex items-center gap-1.5">
                   <Switch id="show-history" checked={showHistory} onCheckedChange={setShowHistory} className="scale-75" />
-                  <Label htmlFor="show-history" className="text-[11px] text-muted-foreground cursor-pointer">
+                  <Label htmlFor="show-history" className="text-[12px] text-muted-foreground cursor-pointer">
                     {isNb ? `Vis historikk (${historyCount})` : `Show history (${historyCount})`}
                   </Label>
                 </div>

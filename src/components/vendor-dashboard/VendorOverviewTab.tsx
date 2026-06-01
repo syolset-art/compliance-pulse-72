@@ -242,7 +242,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
         <Card variant="flat" className="p-5">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-sm font-semibold text-foreground">Risikofordeling</h2>
-            <Badge variant="outline" className="text-[11px] font-normal">
+            <Badge variant="outline" className="text-[12px] font-normal">
               {vendors.length} leverandører
             </Badge>
           </div>
@@ -270,7 +270,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
                 <span className="text-3xl font-semibold text-foreground tabular-nums">
                   {metrics.highRisk}
                 </span>
-                <span className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                <span className="text-[12px] uppercase tracking-wider text-muted-foreground mt-0.5">
                   høy risiko
                 </span>
               </div>
@@ -308,7 +308,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
               <Globe className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
               Geografi
             </h2>
-            <Badge variant="outline" className="text-[11px] font-normal">
+            <Badge variant="outline" className="text-[12px] font-normal">
               {countryBreakdown.length} land
             </Badge>
           </div>
@@ -317,7 +317,7 @@ export function VendorOverviewTab({ vendors, relationships, onAddVendor, onDisco
               const pct = vendors.length > 0 ? Math.round((c.count / vendors.length) * 100) : 0;
               return (
                 <div key={c.country} className="flex items-center gap-3">
-                  <span className="inline-flex items-center justify-center h-9 w-9 rounded-md bg-primary/5 border border-primary/10 text-[11px] font-mono font-semibold text-primary uppercase shrink-0">
+                  <span className="inline-flex items-center justify-center h-9 w-9 rounded-md bg-primary/5 border border-primary/10 text-[12px] font-mono font-semibold text-primary uppercase shrink-0">
                     {c.country.slice(0, 2)}
                   </span>
                   <div className="flex-1 min-w-0">
@@ -440,14 +440,14 @@ function CriticalVendorsCard({
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{v.name}</p>
                   {v.vendor_category && (
-                    <p className="text-[11px] text-muted-foreground truncate">
+                    <p className="text-[12px] text-muted-foreground truncate">
                       {CATEGORY_LABELS[v.vendor_category] || v.vendor_category}
                     </p>
                   )}
                 </div>
                 <Badge
                   variant="outline"
-                  className={`text-[11px] h-5 font-normal ${
+                  className={`text-[12px] h-5 font-normal ${
                     isCritical
                       ? "bg-destructive/10 text-destructive border-destructive/30"
                       : "bg-warning/15 text-warning border-warning/30"

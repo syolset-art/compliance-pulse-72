@@ -70,7 +70,7 @@ export function AgentFitChip({ rec, workAreaId, processName }: Props) {
             setOpen(true);
           }}
           className={cn(
-            "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium transition-colors",
+            "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[12px] font-medium transition-colors",
             "border-border bg-muted/40 text-foreground hover:bg-muted",
             isRecruited && "border-foreground/20 bg-foreground/5",
             isDismissed && "opacity-50"
@@ -96,7 +96,7 @@ export function AgentFitChip({ rec, workAreaId, processName }: Props) {
         )}
         {rec.suggested_agent_role && (
           <div className="rounded-md border border-border bg-muted/40 px-2 py-1.5">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+            <p className="text-[12px] uppercase tracking-wide text-muted-foreground">
               {isNb ? "Foreslått agent-rolle" : "Suggested agent role"}
             </p>
             <p className="text-sm">{rec.suggested_agent_role}</p>

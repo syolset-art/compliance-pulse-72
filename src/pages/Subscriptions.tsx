@@ -324,7 +324,7 @@ export default function Subscriptions() {
                 )}
               >
                 Årlig
-                <Badge className="bg-success/10 text-success border-0 text-[11px] px-1.5">
+                <Badge className="bg-success/10 text-success border-0 text-[12px] px-1.5">
                   Spar 2 mnd
                 </Badge>
               </button>

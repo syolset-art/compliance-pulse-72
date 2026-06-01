@@ -76,7 +76,7 @@ export function LaraPlanReviewDialog({ task, open, onOpenChange, onApprove, onRe
               <Diamond className="h-3.5 w-3.5 text-primary" />
             </div>
             <span className="text-xs font-bold tracking-wider text-muted-foreground">LARAS PLAN</span>
-            <span className={cn("ml-auto inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider", sev.text)}>
+            <span className={cn("ml-auto inline-flex items-center gap-1.5 text-[12px] font-bold tracking-wider", sev.text)}>
               <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
               {sev.label}
             </span>
@@ -87,12 +87,12 @@ export function LaraPlanReviewDialog({ task, open, onOpenChange, onApprove, onRe
 
         <div className="space-y-3">
           <div className="rounded-lg bg-muted/60 border border-border/50 p-3">
-            <p className="text-[10px] font-bold tracking-wider text-muted-foreground mb-1">LARA SER</p>
+            <p className="text-[11px] font-bold tracking-wider text-muted-foreground mb-1">LARA SER</p>
             <p className="text-sm text-foreground leading-relaxed">{task.laraSees}</p>
           </div>
 
           <div className="rounded-lg bg-primary/[0.06] border border-primary/15 p-3">
-            <p className="text-[10px] font-bold tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1.5">
+            <p className="text-[11px] font-bold tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1.5">
               <Icon className="h-3 w-3" /> LARA FORESLÅR
             </p>
             <p className="text-sm text-foreground leading-relaxed mb-2.5">{plan.action}</p>
@@ -106,7 +106,7 @@ export function LaraPlanReviewDialog({ task, open, onOpenChange, onApprove, onRe
             </ul>
           </div>
 
-          <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+          <p className="text-[12px] text-muted-foreground flex items-center gap-1.5">
             <Mail className="h-3 w-3" />
             Du kan alltid hente forslaget tilbake fra Lara-innboksen.
           </p>

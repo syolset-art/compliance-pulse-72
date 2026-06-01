@@ -107,11 +107,11 @@ export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }:
           <h3 className="text-sm font-semibold text-foreground">
             {isNb ? "Underleverandører" : "Subprocessors"}
           </h3>
-          <Badge variant="secondary" className="text-[10px] font-normal">
+          <Badge variant="secondary" className="text-[11px] font-normal">
             {data.vendors.length} {isNb ? "totalt" : "total"} · {tpCount} {isNb ? "med Trust Profile" : "with Trust Profile"}
           </Badge>
         </div>
-        <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
           {analyzedDate && (
             <span>
               {isNb ? "Sist analysert" : "Last analysed"} {analyzedDate}
@@ -157,7 +157,7 @@ export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }:
             key={f.id}
             type="button"
             onClick={() => setFilter(f.id)}
-            className={`text-[11px] px-2.5 py-1 rounded-full border transition-colors ${
+            className={`text-[12px] px-2.5 py-1 rounded-full border transition-colors ${
               filter === f.id
                 ? "bg-primary text-primary-foreground border-primary"
                 : "border-border text-muted-foreground hover:text-foreground"
@@ -170,7 +170,7 @@ export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }:
 
       <div className="overflow-x-auto border-t border-border">
         <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <thead className="bg-muted/40 text-[12px] uppercase tracking-wider text-muted-foreground">
             <tr>
               {([
                 { key: "name", label: isNb ? "Leverandør" : "Vendor" },
@@ -213,7 +213,7 @@ export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }:
                       <Button
                         size="sm"
                         variant="ghost"
-                        className="h-6 px-1.5 text-[10px] gap-1 text-muted-foreground hover:text-primary"
+                        className="h-6 px-1.5 text-[11px] gap-1 text-muted-foreground hover:text-primary"
                       >
                         <Mail className="h-3 w-3" />
                         {isNb ? "Inviter" : "Invite"}

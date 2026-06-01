@@ -21,7 +21,7 @@ export function AgentTable({ title, icon, agents }: Props) {
     <section className="rounded-lg border bg-card overflow-hidden">
       <header className="flex items-center gap-2 px-4 py-2.5 bg-muted/30 border-b">
         <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-        <h3 className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+        <h3 className="text-[12px] uppercase tracking-wider font-semibold text-muted-foreground">
           {title}
         </h3>
       </header>
