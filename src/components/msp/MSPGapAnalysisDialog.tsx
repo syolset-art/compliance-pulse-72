@@ -55,13 +55,13 @@ export function MSPGapAnalysisDialog({
   const [phase, setPhase] = useState<Phase>("running");
   const [stepIndex, setStepIndex] = useState(0);
 
-  const PROCESS_STEPS: { icon: React.ReactNode; label: string; detail: string }[] = [
-    { icon: <Shield className="h-4 w-4" />, label: `Leser ${customerName}s Trust Profile`, detail: "Henter modenhet, kontroller og bevis fra profilen" },
-    { icon: <BookOpen className="h-4 w-4" />, label: `Laster kravsett for ${frameworkLabel}`, detail: `Henter aktive kontroller fra ${frameworkLabel}-rammeverket` },
-    { icon: <Database className="h-4 w-4" />, label: "Samler bevis fra aktiverte regelverk", detail: "Gjenbruker dokumentasjon fra GDPR, ISO 27001 og andre aktive regelverk" },
-    { icon: <GitCompare className="h-4 w-4" />, label: `Sammenligner Trust Profile mot ${frameworkLabel}`, detail: `Lara matcher kundens kontroller mot ${frameworkLabel}-krav` },
-    { icon: <AlertTriangle className="h-4 w-4" />, label: "Identifiserer gap og kritikalitet", detail: "Klassifiserer mangler etter alvorlighet" },
-    { icon: <Sparkles className="h-4 w-4" />, label: "Foreslår tjenester som lukker gap", detail: "Kobler gap til tjenestekatalogen din" },
+  const PROCESS_STEPS = [
+    `Leser ${customerName}s Trust Profile`,
+    `Laster kravsett for ${frameworkLabel}`,
+    "Samler bevis fra aktiverte regelverk",
+    `Sammenligner Trust Profile mot ${frameworkLabel}`,
+    "Identifiserer gap og kritikalitet",
+    "Foreslår tjenester som lukker gap",
   ];
 
   // Open/closed state per framework — første åpen, resten lukket (multi-mode)
