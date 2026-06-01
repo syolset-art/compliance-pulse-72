@@ -135,6 +135,9 @@ export interface ActivationValues {
   dpoName?: string;
   dpoEmail?: string;
   securityEmail?: string;
+  incidentEmail?: string;
+  incidentPhone?: string;
+  postalAddress?: string;
   maturityAnswers?: Record<string, "yes" | "no" | "later" | "n_a" | "unsure">;
   criticalVendors?: Array<{ name: string; purpose?: string; processesPersonalData?: "yes" | "no" | null; dataCategories?: string[]; dpa: "yes" | "no" | "unknown" }>;
   subprocessorList?: import("./demoSubprocessorAnalysis").SubprocessorListData | null;
