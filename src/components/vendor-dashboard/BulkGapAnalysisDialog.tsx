@@ -337,7 +337,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
           {results.length === 0 && (
             <>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1.5">
+                <p className="text-sm font-medium text-muted-foreground uppercase mb-1.5">
                   {isNb ? "Rammeverk" : "Framework"}
                 </p>
                 <Select value={framework} onValueChange={setFramework}>
