@@ -2201,10 +2201,20 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         sub: isNb ? "For spørsmål om dine personopplysninger" : "For questions about your personal data",
                         primary: { text: privacyEmail, href: `mailto:${privacyEmail}` },
                       },
+                      privacyUrl && {
+                        label: isNb ? "Personvernerklæring" : "Privacy policy",
+                        sub: isNb ? "Hvordan vi behandler personopplysninger" : "How we process personal data",
+                        primary: { text: privacyUrl.replace(/^https?:\/\//, ""), href: privacyUrl, external: true },
+                      },
                       securityEmail && {
                         label: isNb ? "Sikkerhetskontakt" : "Security contact",
                         sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues",
                         primary: { text: securityEmail, href: `mailto:${securityEmail}` },
+                      },
+                      incidentUrl && {
+                        label: isNb ? "Avviksrapportering" : "Incident reporting",
+                        sub: isNb ? "Rapportér sikkerhetshendelser eller avvik" : "Report security incidents or deviations",
+                        primary: { text: incidentUrl.replace(/^https?:\/\//, ""), href: incidentUrl, external: true },
                       },
                       privacyAddress && {
                         label: isNb ? "Postadresse" : "Postal address",
