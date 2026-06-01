@@ -102,7 +102,7 @@ export function MSPGapAnalysisStep({
           </p>
           {Object.entries(gapsByCategory).map(([cat, items]) => (
             <div key={cat} className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 {ASSESSMENT_CATEGORIES[cat as keyof typeof ASSESSMENT_CATEGORIES]?.label || cat}
               </p>
               {items.map((g) => (
