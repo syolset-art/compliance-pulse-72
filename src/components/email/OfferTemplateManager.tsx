@@ -584,40 +584,39 @@ export function OfferTemplateManager({
                 />
               </EmailPreviewFrame>
             </div>
-
-            <div className="rounded-lg border border-border bg-background p-4 space-y-3">
-              <div className="text-sm font-semibold">Send denne malen</div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="r-name">{`Mottakernavn ({{kontaktnavn}})`}</Label>
-                  <Input
-                    id="r-name"
-                    value={recipientName}
-                    onChange={(e) => setRecipientName(e.target.value)}
-                    placeholder="Kari"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="r-email">Mottaker e-post</Label>
-                  <Input
-                    id="r-email"
-                    type="email"
-                    value={recipientEmail}
-                    onChange={(e) => setRecipientEmail(e.target.value)}
-                    placeholder="kari@dipsarena.no"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Endringer her påvirker kun denne utsendelsen. Bruk "Oppdater mal" for å lagre tilbake.
-                </p>
-                <Button onClick={handleSend} disabled={sending} className="gap-1.5">
-                  <SendIcon className="h-4 w-4" /> {sending ? "Sender…" : "Send e-post"}
-                </Button>
-              </div>
-            </div>
           </section>
+        </div>
+
+        {/* Sticky send bar */}
+        <div className="border-t border-border bg-background px-5 py-3 flex flex-wrap items-end gap-3">
+          <div className="text-xs text-muted-foreground mr-auto self-center">
+            <span className="font-medium text-foreground">Valgt mal:</span>{" "}
+            {selected ? (selected.name ?? "Uten navn") : <em>Ulagret utkast</em>}
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="r-name" className="text-[11px]">{`Mottakernavn ({{kontaktnavn}})`}</Label>
+            <Input
+              id="r-name"
+              value={recipientName}
+              onChange={(e) => setRecipientName(e.target.value)}
+              placeholder="Kari"
+              className="h-9 w-44"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="r-email" className="text-[11px]">Mottaker e-post</Label>
+            <Input
+              id="r-email"
+              type="email"
+              value={recipientEmail}
+              onChange={(e) => setRecipientEmail(e.target.value)}
+              placeholder="kari@dipsarena.no"
+              className="h-9 w-60"
+            />
+          </div>
+          <Button onClick={handleSend} disabled={sending} size="lg" className="gap-2 h-10">
+            <SendIcon className="h-4 w-4" /> {sending ? "Sender…" : "Send e-post"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
