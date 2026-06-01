@@ -980,8 +980,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
-        <Sidebar />
-        <main className="flex-1 overflow-auto pt-11">
+        {!autoPlayDemo && <Sidebar />}
+        <main className={`flex-1 overflow-auto ${autoPlayDemo ? "pt-4" : "pt-11"}`}>
+
           {showActivateWizard ? (
             <div className="container max-w-3xl mx-auto p-4 md:p-6">
               <ActivateTrustProfileWizard
