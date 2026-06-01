@@ -62,7 +62,7 @@ export function GapAnalysisSummary({
           </p>
         </div>
         <div>
-          <p className="text-[12px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
             <Activity className="h-3 w-3" /> {isNb ? "Største risiko" : "Top risk"}
           </p>
           <p className="text-sm font-medium text-foreground truncate">
