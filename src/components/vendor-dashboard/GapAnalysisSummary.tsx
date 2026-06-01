@@ -75,7 +75,7 @@ export function GapAnalysisSummary({
           )}
         </div>
         <div>
-          <p className="text-[12px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
             <TrendingUp className="h-3 w-3" /> {isNb ? "Tid til mål" : "Time to target"}
           </p>
           <p className="text-2xl font-semibold tabular-nums text-foreground">
