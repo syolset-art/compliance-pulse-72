@@ -295,6 +295,10 @@ export default function MSPDashboard() {
     () => Array.from(new Set((customers as any[]).flatMap((c) => deriveNeededServices(c)))).sort(),
     [customers],
   );
+  const planOptions = useMemo(
+    () => Array.from(new Set((customers as any[]).map((c) => c.subscription_plan || "Gratis").filter(Boolean))).sort(),
+    [customers],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -303,6 +307,9 @@ export default function MSPDashboard() {
       if (countryCodeFilter.length && !countryCodeFilter.includes(c.country_code || "NO")) return false;
       if (criticalityFilter.length && !criticalityFilter.includes(deriveCriticality(c).key)) return false;
       if (tpStatusFilter.length && !tpStatusFilter.includes(deriveTPStatus(c))) return false;
+      if (serviceTypeFilter.length && !serviceTypeFilter.includes(deriveServiceType(c))) return false;
+      if (planFilter.length && !planFilter.includes(c.subscription_plan || "Gratis")) return false;
+      if (segmentFilter.length && !segmentFilter.includes(deriveSegment(c))) return false;
       if (serviceFilter.length) {
         const svcs = deriveNeededServices(c);
         if (!serviceFilter.some((s) => svcs.includes(s))) return false;
@@ -338,7 +345,7 @@ export default function MSPDashboard() {
       });
     }
     return sorted;
-  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir, highlightIds]);
+  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, serviceTypeFilter, planFilter, segmentFilter, sortKey, sortDir, highlightIds]);
 
   const clearAllFilters = () => {
     setIndustryFilter([]);
@@ -346,8 +353,11 @@ export default function MSPDashboard() {
     setCriticalityFilter([]);
     setTpStatusFilter([]);
     setServiceFilter([]);
+    setServiceTypeFilter([]);
+    setPlanFilter([]);
+    setSegmentFilter([]);
   };
-  const activeFilterCount = industryFilter.length + countryCodeFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length;
+  const activeFilterCount = industryFilter.length + countryCodeFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length + serviceTypeFilter.length + planFilter.length + segmentFilter.length;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
