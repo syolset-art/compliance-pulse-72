@@ -1,37 +1,35 @@
-## Mål
-I aktiveringsveiviseren for Trust Profile skal brukeren under **Organisasjon** (steg 1) også svare på om de har en partner som jobber med IT og sikkerhet. Svarer de ja, må de oppgi partnerens navn og aktivt akseptere at partneren får fullmakt til å oppdatere profilen.
+## Endring: Leverandørrad i aktivering av Trust Profile
 
-## Endringer (kun frontend)
+På hver leverandørrad i aktiveringsveiviseren (steg "Kritiske leverandører") gjør vi to ting:
 
-Fil: `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx`
+### 1. Fjern feltet "Dette er vår IT-/sikkerhetspartner"
+Hele boksen med avkrysning + betinget "Type partner"-nedtrekk (linjene ca. 1798–1838 i `ActivateTrustProfileWizard.tsx`) tas bort.
 
-1. **Flytt partner-blokken fra steg 6 til steg 1 (Organisasjon).**
-   - Eksisterende state (`partnerStatus`, `partnerName`, `partnerCompanyId`, `partnerType`, `showPartnerOnProfile`) gjenbrukes.
-   - Legg til ny state: `partnerGrantAuthority: boolean` (default `false`) og `partnerAuthorityAccepted: boolean` (default `false`).
-   - Auto-deteksjon (`managed_by_partner` / `msp_customers`) beholdes og forhåndsutfyller "Ja".
+### 2. Gjør "Hva gjør de for dere?" om til en nedtrekksliste
+I stedet for et fritekstfelt blir dette en `Select` der brukeren velger leverandørtype. Listen inkluderer MSP og MSSP, samt vanlige kategorier:
 
-2. **UI under nettsted-verifisering i steg 1:**
-   - Spørsmål: «Har dere en partner som jobber med IT og sikkerhet for dere?» med valg Ja / Nei / Vet ikke.
-   - Ved **Ja**:
-     - Tekstfelt: «Navn på partner» (påkrevd).
-     - Checkbox: «Gi partneren fullmakt til å oppdatere Trust Profile på vegne av oss.»
-     - Når checkbox er på vises kort forklaring + ekstra påkrevd checkbox: «Jeg bekrefter at jeg har myndighet til å gi denne fullmakten» (aksept).
-   - Ved **Nei / Vet ikke**: ingen ekstra felter.
+- MSP (Managed Service Provider)
+- MSSP (Managed Security Service Provider)
+- IT-partner
+- Skytjeneste / hosting
+- HR-system
+- Økonomi / fakturering
+- Kommunikasjon / e-post
+- Markedsføring
+- Konsulent
+- Annet
 
-3. **Valideringsregel i `canNext` for steg 1:**
-   - Krev at `partnerStatus` er valgt.
-   - Hvis `partnerStatus === "yes"`: krev `partnerName.trim()`. Hvis `partnerGrantAuthority` er true: krev `partnerAuthorityAccepted`.
+"Annet" viser et lite fritekstfelt så brukeren kan presisere.
 
-4. **Steg 6:** fjern partner-spørsmålet derfra (vises kun i steg 1 nå). Synlighet-delen beholdes uendret.
+### 3. Datamodell
+- `CriticalVendorRow` beholder `purpose` (nå satt fra valgt nedtrekksverdi, ev. fritekst når "Annet").
+- `isSecurityPartner` fjernes fra typen og default-rad.
+- `partnerType` beholdes og settes automatisk når brukeren velger MSP / MSSP / IT-partner / Konsulent — slik at `handlePublish` fortsatt kan plukke ut sikkerhetspartner basert på `partnerType` i stedet for `isSecurityPartner`.
 
-5. **Publisering (`handlePublish` / `seedFromActivation`-kall):** send med `partnerGrantAuthority` og `partnerAuthorityAccepted` der `partnerName`/`partnerStatus` allerede sendes, slik at fullmakts-status lagres sammen med partner-info. Ingen schema-endring i denne omgangen — feltene logges/persisteres på samme måte som dagens partner-felter.
+### 4. `handlePublish`
+Logikken som i dag filtrerer på `v.isSecurityPartner` byttes til å filtrere på `v.partnerType` i settet `{msp, mssp, it_partner}`. Resten av partner-payloaden (showOnProfile, grantAuthority, additional[]) er uendret.
 
-## Tekst (norsk, kort og presis)
-- Spørsmål: **«Har dere en partner som jobber med IT og sikkerhet?»**
-- Fullmakt-tekst: **«Vi gir [partner] fullmakt til å oppdatere og vedlikeholde vår Trust Profile.»**
-- Aksept: **«Jeg bekrefter at jeg har myndighet til å gi denne fullmakten.»**
+### Filer som endres
+- `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx` — fjerne checkbox-blokk, erstatte purpose-input med Select + valgfri "Annet"-input, oppdatere `CriticalVendorRow`-type, `EMPTY_ROW`, og `handlePublish`.
 
-## Ikke-mål
-- Ingen endring i backend-tabeller eller RLS.
-- Ingen endring i e-post/overlevering-flyt.
-- Ingen endring i andre wizard-steg utover å fjerne duplisert partner-blokk fra steg 6.
+Ingen DB-endringer; `partner`-objektet som lagres beholder samme form.
