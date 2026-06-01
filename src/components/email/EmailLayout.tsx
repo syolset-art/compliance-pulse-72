@@ -1,11 +1,20 @@
 import { ReactNode } from "react";
+import { Paperclip, FileText } from "lucide-react";
 
 export type EmailLanguage = "no" | "en";
+
+export interface EmailAttachment {
+  filename: string;
+  sizeLabel?: string;
+}
 
 interface EmailLayoutProps {
   subject: string;
   body: ReactNode;
   cta?: { text: string; url: string } | null;
+  replyInstruction?: ReactNode | null;
+  attachments?: EmailAttachment[];
+  signature?: ReactNode | null;
   senderOrganization?: string;
   language?: EmailLanguage;
 }
@@ -31,10 +40,14 @@ export function EmailLayout({
   subject,
   body,
   cta,
+  replyInstruction,
+  attachments,
+  signature,
   senderOrganization,
   language = "no",
 }: EmailLayoutProps) {
   const footer = FOOTER_COPY[language];
+  const attachLabel = language === "no" ? "Vedlegg" : "Attachment";
 
   return (
     <div className="w-full bg-muted/40 py-8 px-4">
@@ -53,14 +66,53 @@ export function EmailLayout({
             {body}
           </div>
 
+          {replyInstruction && (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-[14px] leading-relaxed text-foreground/90">
+              {replyInstruction}
+            </div>
+          )}
+
           {cta && cta.text && cta.url && (
-            <div className="pt-3">
+            <div className="pt-1">
               <a
                 href={cta.url}
                 className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground no-underline shadow-sm transition hover:bg-primary/90"
               >
                 {cta.text}
               </a>
+            </div>
+          )}
+
+          {signature && (
+            <div className="pt-2 text-[15px] leading-relaxed text-foreground/85 whitespace-pre-line">
+              {signature}
+            </div>
+          )}
+
+          {attachments && attachments.length > 0 && (
+            <div className="pt-4 border-t border-border space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <Paperclip className="h-3.5 w-3.5" />
+                {attachLabel}
+              </div>
+              <div className="space-y-2">
+                {attachments.map((a) => (
+                  <div
+                    key={a.filename}
+                    className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2.5"
+                  >
+                    <div className="flex h-9 w-9 items-center justify-center rounded-md bg-destructive/10 text-destructive">
+                      <FileText className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">{a.filename}</div>
+                      {a.sizeLabel && (
+                        <div className="text-xs text-muted-foreground">PDF · {a.sizeLabel}</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

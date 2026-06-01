@@ -40,28 +40,28 @@ export const DEFAULT_TEMPLATES: DefaultEmailTemplate[] = [
     language: "no",
     title: TEMPLATE_META.offer.titleNo,
     description: TEMPLATE_META.offer.descNo,
-    subject: "Aktivér Trust Profile for {{organisasjon}}",
-    body: `Hei {{navn}},
+    subject: "Tilbud fra {{avsender_selskap}} – klart for godkjenning",
+    body: `Hei {{kontaktnavn}},
 
-Vi har satt opp en Trust Profile for {{organisasjon}} i Mynder. Profilen samler dokumentasjon, sikkerhetsstatus og leverandøroversikt på ett sted — slik at dere enkelt kan dele den med kunder, revisorer og partnere.
+Vedlagt finner du tilbudet vi har utarbeidet for {{kunde_selskap}}. PDF-en beskriver leveranse, omfang, tidslinje og pris.
 
-Trykk på knappen under for å se forslaget og aktivere profilen.`,
-    cta_text: "Se tilbudet",
-    cta_url: "https://mynder.no/aktiver",
+Du godkjenner enkelt ved å svare «OK» på denne e-posten – så setter vi i gang leveransen umiddelbart. Har du spørsmål eller ønsker justeringer, svarer du bare her.`,
+    cta_text: "Godkjenn tilbud →",
+    cta_url: "https://mynder.no/godkjenn-tilbud",
   },
   {
     type: "offer",
     language: "en",
     title: TEMPLATE_META.offer.titleEn,
     description: TEMPLATE_META.offer.descEn,
-    subject: "Activate Trust Profile for {{organization}}",
-    body: `Hi {{name}},
+    subject: "Your proposal from {{avsender_selskap}} – ready for approval",
+    body: `Hi {{kontaktnavn}},
 
-We've prepared a Trust Profile for {{organization}} in Mynder. It gathers documentation, security status and vendor overview in one place — so you can easily share it with customers, auditors and partners.
+Please find attached the proposal we've prepared for {{kunde_selskap}}. The PDF covers the scope of delivery, timeline and pricing.
 
-Click the button below to review the proposal and activate the profile.`,
-    cta_text: "Review offer",
-    cta_url: "https://mynder.no/activate",
+To approve, simply reply "OK" to this email and we'll begin delivery right away. If you have any questions or would like adjustments, just reply here.`,
+    cta_text: "Approve proposal →",
+    cta_url: "https://mynder.no/approve-proposal",
   },
   {
     type: "vendor_trust_profile",
