@@ -74,7 +74,7 @@ export function DashboardFrameworkStatus() {
                   <span className={cn("text-sm font-bold tabular-nums", scoreColor(fw.score))}>
                     {fw.score}%
                   </span>
-                  <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full", chip.className)}>
+                  <span className={cn("text-sm font-medium px-2 py-0.5 rounded-full", chip.className)}>
                     {chip.label}
                   </span>
                 </div>

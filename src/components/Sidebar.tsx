@@ -187,7 +187,7 @@ const TrustCenterMenu = () => {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
                   itemActive
                     ? "bg-sidebar-accent text-sidebar-primary"
                     : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -476,7 +476,7 @@ const SidebarContent = () => {
                 key={item.name}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                  "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
                   isActive
                     ? "bg-sidebar-accent text-sidebar-primary"
                     : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -619,7 +619,7 @@ const SidebarContent = () => {
                       <Link
                         to={vendorLink.href}
                         className={cn(
-                          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
                           vIsActive
                             ? "bg-sidebar-accent text-sidebar-primary"
                             : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -632,7 +632,7 @@ const SidebarContent = () => {
                       <Link
                         to="/vendors/reports"
                         className={cn(
-                          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
                           isReportsActive
                             ? "bg-sidebar-accent text-sidebar-primary"
                             : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -646,13 +646,13 @@ const SidebarContent = () => {
                         <>
                           <button
                             onClick={handleSeed}
-                            className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground px-2.5 py-1.5 rounded-md hover:bg-sidebar-accent/40 transition-colors"
+                            className="w-full text-left text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground px-2.5 py-1.5 rounded-md hover:bg-sidebar-accent/40 transition-colors"
                           >
                             {isNb ? "Last inn demo-data" : "Load demo data"}
                           </button>
                           <button
                             onClick={handleDelete}
-                            className="w-full text-left text-xs text-sidebar-foreground/60 hover:text-destructive px-2.5 py-1.5 rounded-md hover:bg-sidebar-accent/40 transition-colors"
+                            className="w-full text-left text-sm text-sidebar-foreground/60 hover:text-destructive px-2.5 py-1.5 rounded-md hover:bg-sidebar-accent/40 transition-colors"
                           >
                             {isNb ? "Fjern demo-data" : "Remove demo data"}
                           </button>
@@ -715,7 +715,7 @@ const SidebarContent = () => {
                    <span className="text-sm font-semibold">{t("nav.moreServices", "Flere tjenester")}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Badge variant="outline" className="text-[13px] px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
+                  <Badge variant="outline" className="text-sm px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
                     {t("nav.exploreBadge", "Utforsk")}
                   </Badge>
                   <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", exploreOpen && "rotate-180")} />
@@ -728,7 +728,7 @@ const SidebarContent = () => {
                 <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
                   {exploreCoreItems.length > 0 && (
                     <>
-                      <p className="px-2.5 pt-2 pb-1 text-[13px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      <p className="px-2.5 pt-2 pb-1 text-sm uppercase tracking-wider text-muted-foreground font-semibold">
                         Mynder Core
                       </p>
                       {exploreCoreItems.map((item) => {
@@ -738,7 +738,7 @@ const SidebarContent = () => {
                             key={item.name}
                             to={item.href}
                             className={cn(
-                              "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                              "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
                               isActive
                                 ? "bg-sidebar-accent text-sidebar-primary"
                                 : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -754,7 +754,7 @@ const SidebarContent = () => {
                   )}
                   {exploreRegistryItems.length > 0 && (
                     <>
-                      <p className="px-2.5 pt-2 pb-1 text-[13px] uppercase tracking-wider text-muted-foreground font-semibold">
+                      <p className="px-2.5 pt-2 pb-1 text-sm uppercase tracking-wider text-muted-foreground font-semibold">
                         {t("nav.registries", "Registre")}
                       </p>
                       {exploreRegistryItems.map((item) => {
@@ -764,7 +764,7 @@ const SidebarContent = () => {
                             key={item.name}
                             to={item.href}
                             className={cn(
-                              "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-all duration-150",
+                              "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150",
                               isActive
                                 ? "bg-sidebar-accent text-sidebar-primary"
                                 : "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
@@ -834,7 +834,7 @@ const SidebarContent = () => {
                   }, 100);
                 }}
                 title={isNb ? "Demonstrasjon: aktiver Trust Profile med Lara" : "Demo: activate Trust Profile with Lara"}
-                className="w-full px-2 py-1.5 flex items-center gap-1.5 text-[12px] text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md hover:bg-sidebar-accent/40 transition-colors text-left"
+                className="w-full px-2 py-1.5 flex items-center gap-1.5 text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md hover:bg-sidebar-accent/40 transition-colors text-left"
               >
                 <Sparkles className="h-3 w-3" />
                 {isNb ? "Aktiver Trust Profile" : "Activate Trust Profile"}
@@ -842,7 +842,7 @@ const SidebarContent = () => {
               <button
                 onClick={() => window.dispatchEvent(new CustomEvent("start-customer-request-demo"))}
                 title={isNb ? "Spill av demonstrasjon: motta og besvar leverandøroppdatering" : "Play demo: receive and respond to vendor update"}
-                className="w-full px-2 py-1.5 flex items-center gap-1.5 text-[12px] text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md hover:bg-sidebar-accent/40 transition-colors text-left"
+                className="w-full px-2 py-1.5 flex items-center gap-1.5 text-sm text-sidebar-foreground/60 hover:text-sidebar-foreground rounded-md hover:bg-sidebar-accent/40 transition-colors text-left"
               >
                 <Sparkles className="h-3 w-3" />
                 {isNb ? "Kundemelding" : "Customer message"}
@@ -851,7 +851,7 @@ const SidebarContent = () => {
                 onClick={() => navigate("/demo/vendor-activation")}
                 title={isNb ? "Demonstrasjon: aktivere leverandørmodulen" : "Demo: activate vendor module"}
                 className={cn(
-                  "w-full px-2 py-1.5 flex items-center gap-1.5 text-[12px] rounded-md transition-colors text-left",
+                  "w-full px-2 py-1.5 flex items-center gap-1.5 text-sm rounded-md transition-colors text-left",
                   location.pathname === "/demo/vendor-activation"
                     ? "text-sidebar-primary bg-sidebar-accent/40"
                     : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/40"
@@ -941,7 +941,7 @@ const SidebarContent = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-sidebar-foreground/70">{t("nav.notRegistered")}</p>
-                <p className="text-xs text-sidebar-foreground/50">{t("nav.clickLaraToStart")}</p>
+                <p className="text-sm text-sidebar-foreground/50">{t("nav.clickLaraToStart")}</p>
               </div>
             </div>
           </div>
