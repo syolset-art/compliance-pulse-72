@@ -146,7 +146,7 @@ await supabase.from('trust_profile_authorities').insert({
 
       {/* Modalt vindu: bekreft fullmakt */}
       {showModal && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 backdrop-blur-sm p-4">
           <div className="w-full max-w-md rounded-2xl bg-background border border-border shadow-2xl overflow-hidden">
             <div className="flex items-start justify-between gap-3 p-5 border-b border-border">
               <div className="flex items-center gap-3">
