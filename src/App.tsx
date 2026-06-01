@@ -58,6 +58,7 @@ import MSPInvoices from "./pages/MSPInvoices";
 import MSPMessages from "./pages/MSPMessages";
 import MSPROICalculator from "./pages/MSPROICalculator";
 import MSPServiceCatalog from "./pages/MSPServiceCatalog";
+import MSPCustomerView from "./pages/MSPCustomerView";
 import MSPSalesGuide from "./pages/MSPSalesGuide";
 import BliPartner from "./pages/BliPartner";
 import MSPCustomerROI from "./pages/MSPCustomerROI";
@@ -166,6 +167,7 @@ const App = () => (
                   <Route path="/msp-invoices" element={<MSPInvoices />} />
                   <Route path="/msp-messages" element={<MSPMessages />} />
                   <Route path="/msp-services" element={<MSPServiceCatalog />} />
+                  <Route path="/msp-customer-view" element={<MSPCustomerView />} />
                   <Route path="/msp-roi" element={<MSPROICalculator />} />
                   <Route path="/msp-sales-guide" element={<MSPSalesGuide />} />
                   <Route path="/bli-partner" element={<BliPartner />} />
