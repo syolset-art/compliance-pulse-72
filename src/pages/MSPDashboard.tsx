@@ -96,6 +96,38 @@ function deriveNeededServices(c: any): string[] {
   return Array.from(new Set(services)).slice(0, 3);
 }
 
+// Typical MSP/MSSP groupings — derived from existing customer data
+const SECURITY_FRAMEWORKS = new Set(["ISO 27001", "NIS2", "NIS 2", "CIS", "SOC 2", "Cyber Essentials"]);
+function deriveServiceType(c: any): "mssp" | "msp" | "hybrid" {
+  const frameworks: string[] = c.active_frameworks || [];
+  const securityHits = frameworks.filter((f) => SECURITY_FRAMEWORKS.has(f)).length;
+  const otherHits = frameworks.length - securityHits;
+  if (securityHits >= 2 || (securityHits >= 1 && otherHits === 0 && frameworks.length > 0)) return "mssp";
+  if (securityHits >= 1 && otherHits >= 1) return "hybrid";
+  return "msp";
+}
+const SERVICE_TYPE_LABEL: Record<"mssp" | "msp" | "hybrid", string> = {
+  mssp: "MSSP (sikkerhet)",
+  msp: "MSP (drift/IT)",
+  hybrid: "Hybrid",
+};
+
+function deriveSegment(c: any): "smb" | "midmarket" | "enterprise" {
+  const emp = String(c.employees || "");
+  if (/500|1000|\+/.test(emp)) return "enterprise";
+  if (/201|51-|11-50/.test(emp)) {
+    if (/201|500/.test(emp)) return "midmarket";
+  }
+  if (/201/.test(emp)) return "midmarket";
+  if (/51-200|51-/.test(emp)) return "midmarket";
+  return "smb";
+}
+const SEGMENT_LABEL: Record<"smb" | "midmarket" | "enterprise", string> = {
+  smb: "SMB (≤50)",
+  midmarket: "Mid-market (51–200)",
+  enterprise: "Enterprise (200+)",
+};
+
 
 function ScoreCircle({ score }: { score: number }) {
   const r = 14;
