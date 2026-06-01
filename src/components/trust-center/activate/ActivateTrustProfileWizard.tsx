@@ -782,9 +782,6 @@ export default function ActivateTrustProfileWizard({
             publicAcknowledged={publicAcknowledged}
             setPublicAcknowledged={setPublicAcknowledged}
           />
-          <p className="text-[12px] text-muted-foreground pt-2 border-t border-border">
-            Partner-relasjon kan legges til senere i Rediger profil.
-          </p>
         </div>
       )}
       {step === 7 && isCalculating && (
