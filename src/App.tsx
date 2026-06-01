@@ -170,6 +170,7 @@ const App = () => (
                   <Route path="/msp-messages" element={<MSPMessages />} />
                   <Route path="/msp-services" element={<MSPServiceCatalog />} />
                   <Route path="/msp-customer-view" element={<MSPCustomerView />} />
+                  <Route path="/emails" element={<EmailTemplates />} />
                   <Route path="/msp-roi" element={<MSPROICalculator />} />
                   <Route path="/msp-sales-guide" element={<MSPSalesGuide />} />
                   <Route path="/bli-partner" element={<BliPartner />} />
