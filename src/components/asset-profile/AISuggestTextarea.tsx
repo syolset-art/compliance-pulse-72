@@ -48,7 +48,8 @@ export function AISuggestTextarea({
   const isNb = i18n.language === "nb";
 
   const [draft, setDraft] = useState(value);
-  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [suggestionItems, setSuggestionItems] = useState<string[] | null>(null);
+  const [selected, setSelected] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -68,7 +69,10 @@ export function AISuggestTextarea({
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      setSuggestion(data?.suggestion || "");
+      const items = parseSuggestionItems(data?.suggestion || "");
+      setSuggestionItems(items);
+      // Pre-check all items by default
+      setSelected(Object.fromEntries(items.map((_, i) => [i, true])));
     } catch (e: any) {
       toast.error(e.message || (isNb ? "Kunne ikke hente forslag" : "Could not fetch suggestion"));
     } finally {
@@ -76,10 +80,17 @@ export function AISuggestTextarea({
     }
   };
 
-  const acceptSuggestion = (replace: boolean) => {
-    if (!suggestion) return;
-    setDraft(replace ? suggestion : (draft ? `${draft}\n${suggestion}` : suggestion));
-    setSuggestion(null);
+  const applySelection = (replace: boolean) => {
+    if (!suggestionItems) return;
+    const chosen = suggestionItems.filter((_, i) => selected[i]);
+    if (chosen.length === 0) {
+      toast.error(isNb ? "Velg minst ett forslag" : "Select at least one suggestion");
+      return;
+    }
+    const block = chosen.map((c) => `• ${c}`).join("\n");
+    setDraft(replace ? block : (draft ? `${draft}\n${block}` : block));
+    setSuggestionItems(null);
+    setSelected({});
   };
 
   const handleSave = async () => {
