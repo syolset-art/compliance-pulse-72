@@ -449,6 +449,41 @@ export default function MSPDashboard() {
                     className="pl-9"
                   />
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground">Grupper:</span>
+                  <div className="rounded-full border border-border bg-background px-2.5 py-1">
+                    <ColumnFilter
+                      label="Tjenestetype"
+                      options={[
+                        { value: "mssp", label: SERVICE_TYPE_LABEL.mssp },
+                        { value: "msp", label: SERVICE_TYPE_LABEL.msp },
+                        { value: "hybrid", label: SERVICE_TYPE_LABEL.hybrid },
+                      ]}
+                      selected={serviceTypeFilter}
+                      onChange={setServiceTypeFilter}
+                    />
+                  </div>
+                  <div className="rounded-full border border-border bg-background px-2.5 py-1">
+                    <ColumnFilter
+                      label="Abonnement"
+                      options={planOptions.map((v) => ({ value: v, label: v }))}
+                      selected={planFilter}
+                      onChange={setPlanFilter}
+                    />
+                  </div>
+                  <div className="rounded-full border border-border bg-background px-2.5 py-1">
+                    <ColumnFilter
+                      label="Segment"
+                      options={[
+                        { value: "smb", label: SEGMENT_LABEL.smb },
+                        { value: "midmarket", label: SEGMENT_LABEL.midmarket },
+                        { value: "enterprise", label: SEGMENT_LABEL.enterprise },
+                      ]}
+                      selected={segmentFilter}
+                      onChange={setSegmentFilter}
+                    />
+                  </div>
+                </div>
                 {activeFilterCount > 0 && (
                   <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1.5 text-muted-foreground">
                     <X className="h-3.5 w-3.5" /> Nullstill filtre ({activeFilterCount})
