@@ -132,6 +132,7 @@ export default function ActivateTrustProfileWizard({
   const [encryption, setEncryption] = useState("");
   const [mfa, setMfa] = useState("");
   const [subProcessors, setSubProcessors] = useState("");
+  const [postalAddress, setPostalAddress] = useState("");
 
   // Step 4: maturity answers
   const [maturityAnswers, setMaturityAnswers] = useState<MaturityAnswers>({});
