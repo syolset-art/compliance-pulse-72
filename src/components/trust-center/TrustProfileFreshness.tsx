@@ -67,8 +67,6 @@ export default function TrustProfileFreshness({
   const [signalsFound, setSignalsFound] = useState(0);
   const [justUpdatedAt, setJustUpdatedAt] = useState<string | null>(null);
 
-  const currentVisibility = getVisibilityFromAsset({ publish_mode: publishMode });
-
   const lastUpdate = justUpdatedAt || lastEnrichedAt || updatedAt || null;
   const ageDays = useMemo(() => {
     if (!lastUpdate) return 999;
