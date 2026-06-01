@@ -486,23 +486,33 @@ export default function ActivateTrustProfileWizard({
           processesPersonalData: v.processesPersonalData,
           dataCategories: v.dataCategories,
           dpa: v.dpa ?? "unknown",
+          isSecurityPartner: v.isSecurityPartner,
+          partnerType: v.partnerType,
         })),
       subprocessorList: analyzedSubprocessors,
       documents,
       visibility,
-      partner: partnerStatus
-        ? {
-            status: partnerStatus,
-            name: partnerName || null,
-            companyId: partnerCompanyId,
-            type: partnerType,
-            showOnProfile: showPartnerOnProfile,
-            grantAuthority: partnerGrantAuthority,
-            authorityAccepted: partnerAuthorityAccepted,
-
-            additional: additionalPartners.filter((p) => p.name.trim().length > 0),
-          }
-        : undefined,
+      partner: (() => {
+        const securityPartners = criticalVendors.filter(
+          (v) => v.isSecurityPartner && v.name.trim().length > 0,
+        );
+        if (securityPartners.length === 0) return undefined;
+        const [primary, ...rest] = securityPartners;
+        return {
+          status: "yes" as const,
+          name: primary.name.trim(),
+          companyId: null,
+          type: primary.partnerType,
+          showOnProfile: true,
+          grantAuthority: false,
+          authorityAccepted: false,
+          additional: rest.map((p) => ({
+            name: p.name.trim(),
+            companyId: null,
+            type: p.partnerType,
+          })),
+        };
+      })(),
     };
 
     try {
