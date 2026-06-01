@@ -68,7 +68,7 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {AREAS.map(({ key, icon: Icon, nb, en }) => {
           const score = evaluation.areaScore(key as any);
-          const c = colorFor(score);
+          const c = colorFor(score, key);
           return (
             <button
               key={key}
