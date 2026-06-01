@@ -63,6 +63,7 @@ import MSPSalesGuide from "./pages/MSPSalesGuide";
 import BliPartner from "./pages/BliPartner";
 import MSPCustomerROI from "./pages/MSPCustomerROI";
 import MynderMe from "./pages/MynderMe";
+import EmailTemplates from "./pages/EmailTemplates";
 import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture";
 import DashboardV2 from "./pages/DashboardV2";
 import FeatureGuide from "./pages/FeatureGuide";
@@ -169,6 +170,7 @@ const App = () => (
                   <Route path="/msp-messages" element={<MSPMessages />} />
                   <Route path="/msp-services" element={<MSPServiceCatalog />} />
                   <Route path="/msp-customer-view" element={<MSPCustomerView />} />
+                  <Route path="/emails" element={<EmailTemplates />} />
                   <Route path="/msp-roi" element={<MSPROICalculator />} />
                   <Route path="/msp-sales-guide" element={<MSPSalesGuide />} />
                   <Route path="/bli-partner" element={<BliPartner />} />

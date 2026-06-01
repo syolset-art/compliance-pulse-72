@@ -1232,6 +1232,101 @@ export type Database = {
           },
         ]
       }
+      email_sends: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          error: string | null
+          id: string
+          language: string
+          recipient_email: string
+          recipient_name: string | null
+          sent_at: string | null
+          status: string
+          subject: string | null
+          template_id: string | null
+          variables: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          language?: string
+          recipient_email: string
+          recipient_name?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          variables?: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          id?: string
+          language?: string
+          recipient_email?: string
+          recipient_name?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          variables?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_sends_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_templates: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string | null
+          cta_text: string | null
+          cta_url: string | null
+          id: string
+          is_default: boolean
+          language: string
+          subject: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: string | null
+          cta_text?: string | null
+          cta_url?: string | null
+          id?: string
+          is_default?: boolean
+          language?: string
+          subject: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          cta_text?: string | null
+          cta_url?: string | null
+          id?: string
+          is_default?: boolean
+          language?: string
+          subject?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       employee_connections: {
         Row: {
           company_id: string | null
