@@ -1176,95 +1176,103 @@ function ConfirmStep(props: any) {
         </div>
       </FieldGroup>
 
-      <FieldGroup icon={Users} title="Kontaktpunkter">
+      <FieldGroup icon={Users} title="Kontaktinformasjon">
         <p className="text-[12px] text-muted-foreground -mt-1">
-          Disse rollene vises på Trust Profile slik at kunder, partnere og myndigheter vet hvem de skal kontakte.
+          Rollebaserte kontaktveier som vises på Trust Profile. Bruk e-postadresser knyttet til funksjon — ikke personer.
         </p>
 
-        <ContactRow
-          label="Hovedkontakt"
-          hint="Avtaler og DPA-er"
-          name={props.contactName} setName={props.setContactName}
-          email={props.contactEmail} setEmail={props.setContactEmail}
-          emailPlaceholder="kontakt@firma.no"
+        <ContactEmailRow
+          label="Generell kontakt"
+          helper="Hovedkontakt for henvendelser, avtaler og DPA-er"
+          value={props.contactEmail} onChange={props.setContactEmail}
+          placeholder="kontakt@firma.no"
           laraHint={sources.primary}
         />
-        <ContactRow
-          label="Personvern / DPO"
-          hint="GDPR og personvernspørsmål"
-          name={props.dpoName} setName={props.setDpoName}
-          email={props.dpoEmail} setEmail={props.setDpoEmail}
-          emailPlaceholder="personvern@firma.no"
+        <ContactEmailRow
+          label="Personvernkontakt"
+          helper="For spørsmål om personopplysninger (GDPR / DPO)"
+          value={props.dpoEmail} onChange={props.setDpoEmail}
+          placeholder="personvern@firma.no"
           laraHint={sources.dpo}
         />
-        <ContactRow
+        <ContactEmailRow
           label="Sikkerhetskontakt"
-          hint="Sårbarheter og varsler"
-          name={props.securityName} setName={props.setSecurityName}
-          email={props.securityEmail} setEmail={props.setSecurityEmail}
-          emailPlaceholder="sikkerhet@firma.no"
+          helper="For å rapportere sårbarheter og sikkerhetshendelser"
+          value={props.securityEmail} onChange={props.setSecurityEmail}
+          placeholder="sikkerhet@firma.no"
           laraHint={sources.security}
         />
-        <ContactRow
-          emphasis
-          label="Beredskapsansvarlig"
-          hint="Hvem leder håndteringen ved en hendelse — og kan nås døgnet rundt"
-          name={props.incidentName} setName={props.setIncidentName}
-          email={props.incidentEmail} setEmail={props.setIncidentEmail}
-          emailPlaceholder="hendelse@firma.no"
-          phone={props.incidentPhone} setPhone={props.setIncidentPhone}
-          phonePlaceholder="+47 23 00 00 00"
-        />
-      </FieldGroup>
 
-      <FieldGroup icon={Mail} title="Postadresse">
-        <p className="text-[12px] text-muted-foreground -mt-1">
-          Brukes for skriftlige forespørsler om personvern, sikkerhet og innsynsrettigheter.
-        </p>
-        <Textarea
-          value={props.postalAddress}
-          onChange={(e) => props.setPostalAddress(e.target.value)}
-          rows={3}
-          placeholder={"Firmanavn AS\nGateadresse 1\n0150 Oslo, Norge"}
-        />
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+          <div>
+            <p className="text-sm font-semibold text-foreground">Beredskapsansvarlig</p>
+            <p className="text-[12px] text-muted-foreground">
+              Hvem leder håndteringen ved en hendelse — og kan nås døgnet rundt.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <Label className="text-[11px] text-muted-foreground">E-post</Label>
+              <Input
+                type="email"
+                value={props.incidentEmail || ""}
+                onChange={(e) => props.setIncidentEmail(e.target.value)}
+                placeholder="hendelse@firma.no"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[11px] text-muted-foreground">Telefon (24/7)</Label>
+              <Input
+                type="tel"
+                value={props.incidentPhone || ""}
+                onChange={(e) => props.setIncidentPhone(e.target.value)}
+                placeholder="+47 23 00 00 00"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-background p-3 space-y-2">
+          <div>
+            <p className="text-sm font-medium text-foreground">Postadresse</p>
+            <p className="text-[12px] text-muted-foreground">
+              Juridisk postadresse for skriftlige forespørsler om personvern og innsynsrettigheter.
+            </p>
+          </div>
+          <Textarea
+            value={props.postalAddress || ""}
+            onChange={(e) => props.setPostalAddress(e.target.value)}
+            rows={3}
+            placeholder={"Firmanavn AS\nGateadresse 1\n0150 Oslo, Norge"}
+          />
+        </div>
       </FieldGroup>
     </div>
   );
 }
 
-function ContactRow({
-  label, hint, name, setName, email, setEmail, emailPlaceholder,
-  phone, setPhone, phonePlaceholder, laraHint, emphasis,
-}: any) {
+function ContactEmailRow({ label, helper, value, onChange, placeholder, laraHint }: any) {
   return (
-    <div className={`rounded-lg border ${emphasis ? "border-primary/30 bg-primary/5" : "border-border bg-background"} p-3 space-y-2`}>
+    <div className="rounded-lg border border-border bg-background p-3 space-y-1.5">
       <div className="flex items-baseline justify-between gap-3">
-        <p className={`text-sm ${emphasis ? "font-semibold text-foreground" : "font-medium text-foreground"}`}>{label}</p>
-        <p className="text-[12px] text-muted-foreground text-right">{hint}</p>
-      </div>
-      <div className={`grid ${phone !== undefined ? "grid-cols-3" : "grid-cols-2"} gap-2`}>
-        <div className="space-y-1">
-          <Label className="text-[11px] text-muted-foreground">Navn</Label>
-          <Input value={name || ""} onChange={(e) => setName(e.target.value)} placeholder="Navn" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-            E-post
-            {laraHint && <Sparkles className="h-3 w-3 text-primary" />}
-          </Label>
-          <Input type="email" value={email || ""} onChange={(e) => setEmail(e.target.value)} placeholder={emailPlaceholder} />
-        </div>
-        {phone !== undefined && (
-          <div className="space-y-1">
-            <Label className="text-[11px] text-muted-foreground">Telefon (24/7)</Label>
-            <Input value={phone || ""} onChange={(e) => setPhone(e.target.value)} placeholder={phonePlaceholder} />
-          </div>
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        {laraHint && (
+          <span className="inline-flex items-center gap-1 text-[11px] text-primary">
+            <Sparkles className="h-3 w-3" /> Forhåndsutfylt
+          </span>
         )}
       </div>
-      {laraHint && <PrefilledHint source={laraHint} />}
+      <p className="text-[12px] text-muted-foreground">{helper}</p>
+      <Input
+        type="email"
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+      />
     </div>
   );
 }
+
 
 
 
