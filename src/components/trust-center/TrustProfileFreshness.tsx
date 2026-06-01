@@ -15,8 +15,6 @@ import {
   FileSearch,
   Wand2,
 } from "lucide-react";
-import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
-import { getVisibilityFromAsset, type TrustVisibility } from "@/lib/trustVisibility";
 
 type Props = {
   assetId: string;
@@ -68,8 +66,6 @@ export default function TrustProfileFreshness({
   const [activeStep, setActiveStep] = useState(0);
   const [signalsFound, setSignalsFound] = useState(0);
   const [justUpdatedAt, setJustUpdatedAt] = useState<string | null>(null);
-
-  const currentVisibility = getVisibilityFromAsset({ publish_mode: publishMode });
 
   const lastUpdate = justUpdatedAt || lastEnrichedAt || updatedAt || null;
   const ageDays = useMemo(() => {
@@ -198,22 +194,6 @@ export default function TrustProfileFreshness({
           </span>
         )}
       </span>
-      <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 text-[12px] gap-1.5 rounded-full px-3"
-          onClick={runEnrichment}
-        >
-          <Sparkles className="h-3 w-3" />
-          {isNb ? "Oppdater" : "Update"}
-        </Button>
-        <VisibilitySelector
-          assetId={assetId}
-          current={currentVisibility}
-          compact
-        />
-      </div>
     </div>
   );
 }
