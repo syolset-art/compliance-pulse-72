@@ -517,30 +517,42 @@ export default function ActivateTrustProfileWizard({
   // ─── Auto-play (demo mode) ─────────────────────────────────────────────
   // Drives the wizard forward on a calm rhythm so the activation flow can be
   // filmed without manual clicks. Each step's timer waits long enough for the
-  // viewer to read the screen, then calls the same handlers a real user would.
-  // Step 2 is skipped here because the Lara-scan effect already auto-advances
-  // when all findings are revealed.
+  // viewer to read the screen, moves the demo cursor to the primary CTA,
+  // emits a click pulse, then calls the same handler a real user would.
+  // Step 2 is skipped here because the Lara-scan effect already auto-advances.
+  const cursorRef = useRef<DemoCursorHandle | null>(null);
   useEffect(() => {
     if (!autoPlay || !open) return;
     if (isCalculating || isPublishing) return;
-    const delays: Record<number, number> = {
-      1: 4200,
-      3: 5000,
-      4: 4000,
-      5: 4000,
-      6: 6000,
-      7: 5000,
+    // Read-time before the cursor starts moving (lets the viewer see the step).
+    const readDelays: Record<number, number> = {
+      1: 3200,
+      3: 4000,
+      4: 3000,
+      5: 3000,
+      6: 5000,
+      7: 4000,
     };
-    const delay = delays[step];
-    if (!delay) return;
-    const t = window.setTimeout(() => {
+    const readDelay = readDelays[step];
+    if (!readDelay) return;
+    let cancelled = false;
+    const t = window.setTimeout(async () => {
+      if (cancelled) return;
+      try {
+        await cursorRef.current?.moveToSelector('[data-demo-target="wizard-primary-cta"]');
+        if (cancelled) return;
+        await cursorRef.current?.click();
+        if (cancelled) return;
+      } catch {
+        // ignore — fall through to advance even if cursor failed
+      }
       if (step === 7) {
         handlePublish();
       } else {
         next();
       }
-    }, delay);
-    return () => window.clearTimeout(t);
+    }, readDelay);
+    return () => { cancelled = true; window.clearTimeout(t); };
   }, [autoPlay, open, step, isCalculating, isPublishing]);
 
 
