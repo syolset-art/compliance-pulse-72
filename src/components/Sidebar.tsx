@@ -149,6 +149,16 @@ const TrustCenterMenu = () => {
 
   const trustCenterItems = [
     { name: "Trust Profile", href: "/trust-center/profile", icon: Shield },
+    {
+      name: isNb ? "Aktiver Trust Profile" : "Activate Trust Profile",
+      icon: Sparkles,
+      action: () => {
+        navigate("/trust-center/profile");
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("open-activate-trust-wizard"));
+        }, 100);
+      },
+    },
     { name: isNb ? "Rediger profil" : "Edit Profile", href: "/trust-center/edit", icon: Pencil },
     { name: "Products & Services", href: "/trust-center/products", icon: Layers },
     { name: isNb ? "Dokumentasjon" : "Documentation", href: "/trust-center/evidence", icon: FileText },
