@@ -123,7 +123,7 @@ export function MSPGapAnalysisDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-0 gap-0 max-h-[88vh] overflow-hidden flex flex-col">
         <DialogHeader className="px-6 pt-5 pb-4 border-b border-border space-y-1">
-          <p className="text-xs text-muted-foreground">{customerName} · Gap-analyse</p>
+          <p className="text-sm text-muted-foreground">{customerName} · Gap-analyse</p>
           <DialogTitle className="text-lg font-semibold">
             {isProcessing
               ? `Lara analyserer ${frameworkLabel}`
