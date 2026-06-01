@@ -120,12 +120,34 @@ export function CriticalVendorsSection({ asset }: CriticalVendorsSectionProps) {
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-sm font-medium text-foreground">Hva gjør de for dere</label>
-                    <Input
-                      defaultValue={row.purpose || ""}
-                      placeholder="Skylagring, HR-system, Fakturering …"
-                      className="text-sm"
-                      onBlur={(e) => e.target.value.trim() !== (row.purpose || "") && update(i, { purpose: e.target.value.trim() })}
-                    />
+                    <Select
+                      value={row.vendorTypeKey ?? ""}
+                      onValueChange={(key) => {
+                        const opt = VENDOR_TYPE_OPTIONS.find((o) => o.key === key);
+                        update(i, {
+                          vendorTypeKey: key,
+                          // For "Annet" lar vi brukeren skrive selv; ellers sett label
+                          purpose: key === "other" ? (row.purpose || "") : (opt?.label ?? ""),
+                        });
+                      }}
+                    >
+                      <SelectTrigger className="text-sm">
+                        <SelectValue placeholder="Velg leverandørtype…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VENDOR_TYPE_OPTIONS.map((o) => (
+                          <SelectItem key={o.key} value={o.key}>{o.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {row.vendorTypeKey === "other" && (
+                      <Input
+                        defaultValue={row.purpose || ""}
+                        placeholder="Beskriv kort hva de gjør for dere"
+                        className="text-sm mt-1.5"
+                        onBlur={(e) => e.target.value.trim() !== (row.purpose || "") && update(i, { purpose: e.target.value.trim() })}
+                      />
+                    )}
                   </div>
                 </div>
                 <Button
