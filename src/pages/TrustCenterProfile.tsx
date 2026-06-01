@@ -2278,7 +2278,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <div className="flex items-center gap-2 px-5 py-3.5">
                           <Users className="h-4 w-4 text-primary" />
                           <h3 className="text-sm font-semibold text-foreground">
-                            {isNb ? "Partner" : "Partner"}
+                            {isNb ? "Leverandører" : "Vendors"}
                           </h3>
                         </div>
                         <div className="border-t border-border px-5 py-4 flex items-start gap-3">
