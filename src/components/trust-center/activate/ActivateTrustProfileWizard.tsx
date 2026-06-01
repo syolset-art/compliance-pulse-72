@@ -685,7 +685,7 @@ export default function ActivateTrustProfileWizard({
 
       )}
       {step === 6 && (
-        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
+        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} autoPlay={autoPlay} />
       )}
       {step === 7 && !isCalculating && (
         <div className="space-y-3">
