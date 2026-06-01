@@ -331,7 +331,7 @@ export function VendorTableView({
                 <TableRow
                   key={v.id}
                   className="cursor-pointer group"
-                  onClick={() => navigate(`/vendor/${v.id}`)}
+                  onClick={() => navigate(`/assets/${v.id}`)}
                 >
                   <TableCell className="w-1.5 p-0">
                     <TooltipProvider delayDuration={200}>
