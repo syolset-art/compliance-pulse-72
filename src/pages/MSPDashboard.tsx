@@ -256,8 +256,10 @@ export default function MSPDashboard() {
   useEffect(() => {
     const currentIds = new Set((customers as any[]).map((c) => c.id));
     if (seenIdsRef.current === null) {
-      // First load — don't highlight existing rows
-      seenIdsRef.current = currentIds;
+      // First load — don't highlight existing rows, but wait for actual data
+      if (currentIds.size > 0) {
+        seenIdsRef.current = currentIds;
+      }
       return;
     }
     const newOnes: string[] = [];
