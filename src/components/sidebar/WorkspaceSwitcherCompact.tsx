@@ -64,12 +64,12 @@ export function WorkspaceSwitcherCompact() {
           </div>
           <div className="min-w-0 text-left hidden sm:block">
             <div className={cn(
-              "text-[12px] font-semibold leading-tight truncate",
+              "text-sm font-semibold leading-tight truncate",
               isPartner ? "text-accent" : "text-primary"
             )}>
               {label}
             </div>
-            <div className="text-[11px] text-muted-foreground truncate leading-tight">
+            <div className="text-sm text-muted-foreground truncate leading-tight">
               {subtitle}
             </div>
           </div>
@@ -77,7 +77,7 @@ export function WorkspaceSwitcherCompact() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-muted-foreground font-normal">
+        <DropdownMenuLabel className="text-sm uppercase tracking-wide text-muted-foreground font-normal">
           {isNb ? "Arbeidsområde" : "Workspace"}
         </DropdownMenuLabel>
 
@@ -87,8 +87,8 @@ export function WorkspaceSwitcherCompact() {
               <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-medium">{isNb ? "Min organisasjon" : "My organization"}</div>
-              <div className="text-[12px] text-muted-foreground truncate">
+              <div className="text-sm font-medium">{isNb ? "Min organisasjon" : "My organization"}</div>
+              <div className="text-sm text-muted-foreground truncate">
                 {isNb ? "Compliance og styring" : "Compliance & governance"}
               </div>
             </div>
@@ -102,8 +102,8 @@ export function WorkspaceSwitcherCompact() {
               <Handshake className="h-3.5 w-3.5 text-accent" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-medium">{isNb ? "Partner" : "Partner"}</div>
-              <div className="text-[12px] text-muted-foreground truncate">
+              <div className="text-sm font-medium">{isNb ? "Partner" : "Partner"}</div>
+              <div className="text-sm text-muted-foreground truncate">
                 {isNb ? "Kunder og tjenester" : "Customers & services"}
               </div>
             </div>
@@ -114,7 +114,7 @@ export function WorkspaceSwitcherCompact() {
         {mode === "compliance" && ownOrgs.length > 1 && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-muted-foreground font-normal">
+            <DropdownMenuLabel className="text-sm uppercase tracking-wide text-muted-foreground font-normal">
               {isNb ? "Bytt virksomhet" : "Switch organization"}
             </DropdownMenuLabel>
             {ownOrgs.map((org) => {
@@ -128,7 +128,7 @@ export function WorkspaceSwitcherCompact() {
                   {isActive
                     ? <Check className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                     : <Building2 className="h-3.5 w-3.5 flex-shrink-0 opacity-50" />}
-                  <span className="truncate text-[13px]">{org.name}</span>
+                  <span className="truncate text-sm">{org.name}</span>
                 </DropdownMenuItem>
               );
             })}

@@ -103,7 +103,7 @@ export function TopBar() {
           </button>
         </TooltipTrigger>
         <TooltipContent side="bottom">
-          <p className="text-xs">{isNb ? "Hjelp og handlinger" : "Help & actions"}</p>
+          <p className="text-sm">{isNb ? "Hjelp og handlinger" : "Help & actions"}</p>
         </TooltipContent>
       </Tooltip>
 
@@ -131,7 +131,7 @@ export function TopBar() {
           {/* User info */}
           <DropdownMenuLabel className="font-normal">
             <p className="text-sm font-medium truncate">{user?.email}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {isNb ? currentRoleLabel?.labelNb : currentRoleLabel?.labelEn}
             </p>
           </DropdownMenuLabel>

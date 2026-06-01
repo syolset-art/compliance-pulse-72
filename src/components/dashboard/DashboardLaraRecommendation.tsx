@@ -217,7 +217,7 @@ export function DashboardLaraRecommendation() {
             <button
               onClick={() => setViewMode("step")}
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs transition-colors",
+                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm transition-colors",
                 viewMode === "step"
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground"
@@ -231,7 +231,7 @@ export function DashboardLaraRecommendation() {
             <button
               onClick={() => setViewMode("table")}
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs transition-colors",
+                "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm transition-colors",
                 viewMode === "table"
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground"
@@ -273,7 +273,7 @@ export function DashboardLaraRecommendation() {
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Priority — neutral pill, drives ordering */}
                 <span
-                  className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 px-2 py-0.5 text-[12px] font-semibold text-foreground"
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/70 px-2 py-0.5 text-sm font-semibold text-foreground"
                   title={isNb ? "Prioritet" : "Priority"}
                 >
                   <span className="text-foreground/60">{isNb ? "Prioritet" : "Priority"}</span>
@@ -284,7 +284,7 @@ export function DashboardLaraRecommendation() {
                 {/* Risk severity — status colour */}
                 <span className="inline-flex items-center gap-1.5">
                   <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
-                  <span className={cn("text-xs font-bold tracking-wider", sev.text)}>
+                  <span className={cn("text-sm font-bold tracking-wider", sev.text)}>
                     {sev.label}
                   </span>
                 </span>
@@ -294,7 +294,7 @@ export function DashboardLaraRecommendation() {
             </div>
 
             <div className="rounded-lg bg-muted/60 p-3 sm:p-4 space-y-1.5 border border-border/50">
-              <p className="text-xs font-bold text-foreground/60 tracking-wider">
+              <p className="text-sm font-bold text-foreground/60 tracking-wider">
                 {isNb ? "LARA SER" : "LARA SEES"}
               </p>
               <p className="text-sm text-foreground leading-relaxed">{current.insight}</p>
@@ -355,7 +355,7 @@ export function DashboardLaraRecommendation() {
             >
               <span className="hidden sm:inline">{isNb ? "Vis alle oppgaver" : "Show all tasks"}</span>
               <span className="sm:hidden">{isNb ? "Alle" : "All"}</span>
-              <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-primary text-primary-foreground text-xs font-bold tabular-nums">
+              <span className="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full bg-primary text-primary-foreground text-sm font-bold tabular-nums">
                 {count}
               </span>
             </button>
@@ -366,7 +366,7 @@ export function DashboardLaraRecommendation() {
         <div className="rounded-xl bg-card border border-border overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-[12px] uppercase tracking-wider text-muted-foreground">
+              <thead className="bg-muted/40 text-sm uppercase tracking-wider text-muted-foreground">
                 <tr>
                   <th className="text-left font-medium px-3 py-2 w-10">#</th>
                   <th className="text-left font-medium px-3 py-2 w-16">
@@ -389,32 +389,32 @@ export function DashboardLaraRecommendation() {
                   const sevRow = severityChip(tsk.severity);
                   return (
                     <tr key={`${tsk.vendor}-${i}`} className="hover:bg-muted/30 transition-colors">
-                      <td className="px-3 py-2.5 text-xs text-muted-foreground tabular-nums">{i + 1}</td>
+                      <td className="px-3 py-2.5 text-sm text-muted-foreground tabular-nums">{i + 1}</td>
                       <td className="px-3 py-2.5">
-                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full border border-border bg-muted/70 text-[12px] font-bold tabular-nums">
+                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full border border-border bg-muted/70 text-sm font-bold tabular-nums">
                           {PRIORITY_META[tsk.priority].letter}
                         </span>
                       </td>
                       <td className="px-3 py-2.5">
                         <span className="inline-flex items-center gap-1.5">
                           <span className={cn("h-2 w-2 rounded-full", sevRow.dot)} />
-                          <span className={cn("text-[12px] font-semibold tracking-wider", sevRow.text)}>
+                          <span className={cn("text-sm font-semibold tracking-wider", sevRow.text)}>
                             {sevRow.label}
                           </span>
                         </span>
                       </td>
                       <td className="px-3 py-2.5">
                         <p className="text-sm font-medium text-foreground truncate">{tsk.vendor}</p>
-                        <p className="text-xs text-muted-foreground truncate">{tsk.category}</p>
+                        <p className="text-sm text-muted-foreground truncate">{tsk.category}</p>
                       </td>
-                      <td className="px-3 py-2.5 hidden md:table-cell text-xs text-foreground/80 max-w-xs">
+                      <td className="px-3 py-2.5 hidden md:table-cell text-sm text-foreground/80 max-w-xs">
                         <p className="line-clamp-2">{tsk.insight}</p>
                       </td>
                       <td className="px-3 py-2.5 text-right">
                         <Button
                           size="sm"
                           variant="outline"
-                          className="rounded-full h-7 px-3 text-xs"
+                          className="rounded-full h-7 px-3 text-sm"
                           onClick={() => {
                             setStep(i);
                             setViewMode("step");
@@ -430,12 +430,12 @@ export function DashboardLaraRecommendation() {
             </table>
           </div>
           <div className="flex items-center justify-between gap-3 px-3 py-2 border-t border-border bg-muted/20">
-            <span className="text-xs text-muted-foreground tabular-nums">
+            <span className="text-sm text-muted-foreground tabular-nums">
               {total} {isNb ? "planlagte oppgaver" : "planned tasks"}
             </span>
             <button
               onClick={() => navigate("/tasks")}
-              className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
               {isNb ? "Vis alle oppgaver →" : "Show all tasks →"}
             </button>
@@ -457,7 +457,7 @@ export function DashboardLaraRecommendation() {
                   ? isNb ? `E-post sendt til ${current.vendor}` : `Email sent to ${current.vendor}`
                   : isNb ? `Send DPA-forespørsel til ${current.vendor.split(" ")[0]}` : `Send DPA request to ${current.vendor.split(" ")[0]}`}
               </p>
-              <p className="text-xs text-primary mt-0.5">
+              <p className="text-sm text-primary mt-0.5">
                 {phase === "working"
                   ? isNb ? "Jeg klargjør utkastet…" : "Preparing your draft…"
                   : phase === "draft"
@@ -523,7 +523,7 @@ export function DashboardLaraRecommendation() {
                   },
                 ].map((row) => (
                   <div key={row.label} className="flex items-center justify-between px-4 py-2">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                       {row.label}
                     </span>
                     <span className={cn("text-sm", row.accent ? "text-primary font-semibold" : "text-foreground")}>
@@ -536,7 +536,7 @@ export function DashboardLaraRecommendation() {
               {/* Email preview */}
               <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
                 <div className="px-4 py-3 border-b border-border bg-muted/30">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                     {isNb ? "Emne" : "Subject"}
                   </p>
                   <p className="text-sm font-semibold text-foreground mt-0.5 leading-snug">
@@ -574,7 +574,7 @@ export function DashboardLaraRecommendation() {
           {/* Footer */}
           {phase === "draft" && (
             <div className="border-t border-border bg-muted/20 px-4 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {isNb ? "Ingenting sendes før du godkjenner" : "Nothing is sent until you approve"}
               </p>
               <div className="flex items-center gap-2 justify-end">

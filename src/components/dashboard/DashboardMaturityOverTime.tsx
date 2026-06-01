@@ -176,11 +176,11 @@ export function DashboardMaturityOverTime() {
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold text-foreground tracking-tight leading-none">{overall}%</span>
-            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-success/15 text-success">
+            <span className="text-sm font-semibold px-2 py-0.5 rounded-full bg-success/15 text-success">
               +{delta}
             </span>
           </div>
-          <span className="text-xs text-muted-foreground">{rangeLabelMap[range]}</span>
+          <span className="text-sm text-muted-foreground">{rangeLabelMap[range]}</span>
         </div>
       </div>
 
@@ -193,7 +193,7 @@ export function DashboardMaturityOverTime() {
               key={r.key}
               onClick={() => setRange(r.key)}
               className={cn(
-                "px-3 py-1 rounded-full text-xs font-medium transition-all",
+                "px-3 py-1 rounded-full text-sm font-medium transition-all",
                 active
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
@@ -218,7 +218,7 @@ export function DashboardMaturityOverTime() {
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 14, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
             />
@@ -226,7 +226,7 @@ export function DashboardMaturityOverTime() {
               domain={[40, 100]}
               ticks={[50, 65, 80, 95]}
               tickFormatter={(v) => `${v}%`}
-              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 14, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
               width={36}
@@ -236,7 +236,7 @@ export function DashboardMaturityOverTime() {
                 backgroundColor: "hsl(var(--card))",
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "8px",
-                fontSize: "12px",
+                fontSize: "14px",
               }}
               formatter={(value: number) => [`${value}%`, isNb ? "Score" : "Score"]}
             />
@@ -261,7 +261,7 @@ export function DashboardMaturityOverTime() {
 
       {/* Activities */}
       <div className="mt-5">
-        <p className="text-xs font-semibold text-muted-foreground tracking-wider uppercase mb-2">
+        <p className="text-sm font-semibold text-muted-foreground tracking-wider uppercase mb-2">
           {isNb ? "Aktiviteter som påvirket score" : "Activities that affected the score"}
         </p>
         <div className="divide-y divide-border">
@@ -271,7 +271,7 @@ export function DashboardMaturityOverTime() {
               <div key={i} className="flex items-start sm:items-center gap-3 py-3">
                 <div
                   className={cn(
-                    "h-9 w-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0",
+                    "h-9 w-9 rounded-full flex items-center justify-center text-sm font-semibold shrink-0",
                     isLara ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
                   )}
                 >
@@ -281,7 +281,7 @@ export function DashboardMaturityOverTime() {
                   <p className="text-sm font-medium text-foreground line-clamp-2 sm:truncate">
                     {isNb ? a.title_no : a.title_en}
                   </p>
-                  <div className="flex items-center gap-x-2 gap-y-1 text-xs text-muted-foreground mt-1 flex-wrap">
+                  <div className="flex items-center gap-x-2 gap-y-1 text-sm text-muted-foreground mt-1 flex-wrap">
                     {isLara ? (
                       <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
                         Lara · {a.type === "lara-approved"
