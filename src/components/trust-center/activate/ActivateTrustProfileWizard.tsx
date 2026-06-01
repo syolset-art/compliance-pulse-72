@@ -1266,9 +1266,7 @@ function ContactRow({
   );
 }
 
-    </div>
-  );
-}
+
 
 function PreviewStep({ name, orgNumber, description, website, contactName, contactEmail, privacyUrl, encryption, certifications, subProcessors, maturityAnswers, documents }: any) {
   const answered = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "yes" || v === "no" || v === "n_a").length : 0;
