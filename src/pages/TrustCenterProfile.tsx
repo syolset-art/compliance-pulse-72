@@ -84,6 +84,7 @@ import { usePartnerInfo, PARTNER_TYPE_LABEL } from "@/hooks/usePartnerInfo";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
+import { CriticalVendorsSection } from "@/components/trust-center/CriticalVendorsSection";
 import { buildPublicTrustUrl, buildSlug } from "@/lib/publicTrustUrl";
 import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
 import { getVisibilityFromAsset, VISIBILITY_META, type TrustVisibility } from "@/lib/trustVisibility";
