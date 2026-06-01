@@ -645,7 +645,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   {searchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 </Button>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setStep("method")} className="gap-1">
+              <Button variant="ghost" size="sm" onClick={() => setStep("country")} className="gap-1">
                 <ArrowLeft className="h-4 w-4" /> Tilbake
               </Button>
             </div>
