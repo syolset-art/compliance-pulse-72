@@ -530,7 +530,7 @@ export default function ActivateTrustProfileWizard({
       3: 4000,
       4: 3000,
       5: 7000,
-      6: 5000,
+      6: 12000,
       7: 4000,
     };
     const readDelay = readDelays[step];
