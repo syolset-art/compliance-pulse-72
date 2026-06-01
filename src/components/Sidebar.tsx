@@ -28,7 +28,8 @@ import {
   Settings as SettingsIcon,
   Sparkles,
   Landmark,
-  Bot
+  Bot,
+  Eye
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -240,6 +241,7 @@ const PartnerNav = () => {
     { name: isNb ? "Dashbord" : "Dashboard", href: "/msp-partner", icon: LayoutDashboard },
     { name: isNb ? "Kunder" : "Customers", href: "/msp-dashboard", icon: Users },
     { name: isNb ? "Tjenester" : "Services", href: "/msp-services", icon: Package },
+    { name: isNb ? "Kundevisning" : "Customer view", href: "/msp-customer-view", icon: Eye },
     { name: isNb ? "Meldinger" : "Messages", href: "/msp-messages", icon: Inbox },
     { name: isNb ? "Fakturagrunnlag" : "Billing basis", href: "/msp-invoices", icon: FileText },
     { name: isNb ? "Innstillinger" : "Settings", href: "/msp-settings", icon: SettingsIcon },

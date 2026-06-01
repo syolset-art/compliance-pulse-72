@@ -1,57 +1,55 @@
-# Kritiske leverandører — ny seksjon i Trust Profile
 
-Legg til en egen seksjon på Trust Profile som viser de mest kritiske leverandørene fra det vi allerede har kartlagt i aktiveringen (Third-party & supply chain).
+## Mål
 
-## Hvor
+Lage en intern demo-/referansevisning som viser hvordan tilbudet (offer/leveranse) fremstår for kunden som mottar det. Tenkt brukt av utviklere og implementerings­ansvarlige for å forstå touchpoints. Ingen ny forretnings­logikk — kun presentasjon med eksempeldata.
 
-`src/pages/TrustCenterProfile.tsx` — ny seksjon plassert rett etter "Kontaktinformasjon" og før "Sammendrag", i samme korthierarki som de andre seksjonene (rounded-xl border bg-card, med `MessageSquare`/`Building2`-ikon i header). Ny komponent: `src/components/trust-center/CriticalVendorsSection.tsx`.
+## Navigasjon
 
-## Datakilde
+- Nytt sidebar-punkt under MSP-seksjonen: **"Kundevisning"** (`/msp-customer-view`), ikon `Eye`, plassert rett etter "Tjenester".
+- Ny rute i `src/App.tsx` til ny side `MSPCustomerView`.
 
-Henter fra eksisterende `assets`-tabell — ingen migrasjoner.
+## Side: `src/pages/MSPCustomerView.tsx`
 
-```ts
-supabase
-  .from("assets")
-  .select("id, name, description, criticality, risk_level, compliance_score, vendor_category, country, data_categories")
-  .eq("asset_type", "vendor")
-```
+Layout som `MSPServiceCatalog` (Sidebar + container, `pt-11`). Header forklarer formålet:
 
-Sortering/filtrering i klienten:
-1. Kritikalitet (critical → high) først, via `getCriticality()` fra `src/lib/criticality.ts`.
-2. Sekundært: avledet risiko via `getDerivedRisk()` fra `src/lib/derivedRisk.ts`.
-3. Begrens til topp 5. "Vis alle (N)"-lenke til `/vendors` når det finnes flere.
+> "Slik ser tilbudet ut fra kundens side. Bruk dette som referanse når du implementerer touchpoints."
 
-Hvis ingen leverandører er kartlagt: vis tom-tilstand med CTA "Legg til leverandør" → `/vendors/new` (kun når `!readOnly`).
+Under headeren en `Tabs`-meny med 5 visninger. Hver tab har en kort "Når kunden ser dette"-beskrivelse + en `<Card>` med live preview av komponenten, og en grå "Implementeringsnotat"-boks (filsti + props + når den trigges).
 
-## UI
+### Tabs
 
-Hver rad (kompakt, samme stil som kontaktinformasjon-radene):
+1. **E-post med tilbud** — gjenbruker `CustomerCatalogPreview` med `asEmail` + demo-tjenester. Notat: trigges av `ShareOfferDialog` → utgående e-post.
+2. **Tjenestekatalog (innlogget)** — samme `CustomerCatalogPreview` uten `asEmail`. Notat: vises i kundens Trust Center.
+3. **Offentlig Trust Profile** — embed av `PublicTrustProfile` i en innrammet "browser chrome"-container (URL-bar med `trust.mynder.no/<slug>`). Notat: rute `/trust/:slug`.
+4. **Trust handover-e-post** — render av e-post-malen brukt i `SendTrustHandoverEmailDialog` (statisk preview av subject/body).
+5. **Leveranserapport (PDF)** — thumbnail/iframe av rapport generert via `generateInvoicePdf` / `PortfolioReportView`. Statisk eksempel.
 
-```text
-[Bygning-ikon]  Leverandørnavn              Kritikalitet-pille (nøytral)
-                Kategori · Land             Risiko-pille (status-farge + Lara-ikon)
-```
+Hver tab bruker DIPS Arena AS som default kunde, og partner = innlogget org.
 
-- Leverandørnavn klikker til `/vendors/:id` når `!readOnly`; ren tekst i publisert visning.
-- Kritikalitet bruker `criticalityLabel()` + nøytral pille (per Core memory: Kritikalitet = brukervalg, nøytral).
-- Risiko bruker `bg-success`/`bg-warning`/`bg-destructive` per terskler i Core memory, med Lara-ikon + tooltip "Avledet av Mynder/Lara".
-- Header: `Building2`-ikon, tittel "Kritiske leverandører" / "Critical vendors", liten undertittel "Tredjeparter med høyest kritikalitet for virksomheten" / "Third parties with highest criticality".
-- Edit-knapp (kun `!readOnly`) → `/vendors`.
+## Felles UI-komponent
 
-## Visning i delt/publisert Trust Profile
+`src/components/msp/customer-view/PreviewFrame.tsx` — wrapper som tegner:
+- toolbar (tab-navn + "Slik ser kunden det")
+- preview-area med subtil sjakkbrett-bakgrunn
+- collapsible "Implementeringsnotat" (fil, komponent, trigger, props-eksempel)
 
-- I `readOnly`-modus: vis kun navn, kategori/land og en kort risiko-indikator (ingen interne kommentarer eller compliance_score-tall). Respekterer publiseringen som allerede styrer profilen.
-- Skjul seksjonen helt hvis brukeren har valgt å ikke dele leverandørliste (sjekk eksisterende `tab visibility preferences`-mønster i `Trust Profile Tabs` — vi gjenbruker samme preference-nøkkel `vendors`).
+## Filer som opprettes
 
-## Lokalisering
+- `src/pages/MSPCustomerView.tsx`
+- `src/components/msp/customer-view/PreviewFrame.tsx`
+- `src/components/msp/customer-view/EmailOfferView.tsx`
+- `src/components/msp/customer-view/CatalogView.tsx`
+- `src/components/msp/customer-view/PublicProfileView.tsx`
+- `src/components/msp/customer-view/HandoverEmailView.tsx`
+- `src/components/msp/customer-view/DeliveryReportView.tsx`
 
-i18next-nøkler i `src/locales/{nb,en}.json` under `trustProfile.criticalVendors.*`: `title`, `subtitle`, `empty`, `emptyCta`, `viewAll`, `riskTooltip`.
+## Filer som endres
 
-## Filer som endres / opprettes
+- `src/App.tsx` — registrer rute.
+- `src/components/Sidebar.tsx` — nytt menypunkt under MSP.
 
-- `src/components/trust-center/CriticalVendorsSection.tsx` — ny.
-- `src/pages/TrustCenterProfile.tsx` — importer og monter komponenten etter Kontaktinformasjon-blokken (rundt linje 884), inkl. en `<div className="border-t border-border" />`-separator som andre seksjoner bruker.
-- `src/locales/nb.json` + `src/locales/en.json` — nye nøkler.
+## Avgrensning
 
-Ingen database-, RLS- eller backend-endringer.
+- Kun visuelt; ingen DB-endringer, ingen edge functions, ingen ny logikk.
+- Bruker eksisterende design tokens og shadcn-komponenter.
+- i18n: NB primært, EN-streng på menypunktet.
