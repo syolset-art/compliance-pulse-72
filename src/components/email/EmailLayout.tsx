@@ -1,11 +1,20 @@
 import { ReactNode } from "react";
+import { Paperclip, FileText } from "lucide-react";
 
 export type EmailLanguage = "no" | "en";
+
+export interface EmailAttachment {
+  filename: string;
+  sizeLabel?: string;
+}
 
 interface EmailLayoutProps {
   subject: string;
   body: ReactNode;
   cta?: { text: string; url: string } | null;
+  replyInstruction?: ReactNode | null;
+  attachments?: EmailAttachment[];
+  signature?: ReactNode | null;
   senderOrganization?: string;
   language?: EmailLanguage;
 }
