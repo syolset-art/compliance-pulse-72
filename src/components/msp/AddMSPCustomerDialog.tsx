@@ -46,9 +46,20 @@ interface BrregResult {
   forretningsadresse?: { kommune: string; poststed: string };
 }
 
-type Step = "method" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success";
+type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success";
 
-const STEP_LABELS = ["method", "search", "contact", "assessment", "gap", "confirm"];
+const STEP_LABELS = ["method", "country", "search", "contact", "assessment", "gap", "confirm"];
+
+const COUNTRIES: { code: string; name: string; registry: string; supported: boolean }[] = [
+  { code: "NO", name: "Norge", registry: "Brønnøysundregistrene", supported: true },
+  { code: "SE", name: "Sverige", registry: "Bolagsverket", supported: false },
+  { code: "DK", name: "Danmark", registry: "CVR", supported: false },
+  { code: "FI", name: "Finland", registry: "PRH", supported: false },
+  { code: "DE", name: "Tyskland", registry: "Handelsregister", supported: false },
+  { code: "GB", name: "Storbritannia", registry: "Companies House", supported: false },
+  { code: "NL", name: "Nederland", registry: "KVK", supported: false },
+  { code: "US", name: "USA", registry: "SEC EDGAR", supported: false },
+];
 
 interface BulkRow {
   org_number: string;
