@@ -202,8 +202,11 @@ export default function ActivateTrustProfileWizard({
         setPartnerCompanyId(null);
         setPartnerType(null);
         setShowPartnerOnProfile(true);
+        setPartnerGrantAuthority(false);
+        setPartnerAuthorityAccepted(false);
       }, 200);
     }
+
   }, [open, hasPrefill, hasOrgPrefill, initialCompanyName, initialOrgNumber, initialDomain]);
 
   // Auto-detect partner relationship when wizard opens
