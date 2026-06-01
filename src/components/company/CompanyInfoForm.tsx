@@ -188,7 +188,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           partner_role_description: form.managed_by_partner ? form.partner_role_description || null : null,
           partner_since: form.managed_by_partner && form.partner_since ? form.partner_since : null,
           show_partner_on_trust_profile: form.show_partner_on_trust_profile,
+          partner_maturity_authority: form.managed_by_partner ? form.partner_maturity_authority : false,
           additional_partners: form.managed_by_partner ? form.additional_partners : [],
+
         } as any)
         .eq("id", companyProfile.id);
       if (profileErr) throw profileErr;
