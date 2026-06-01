@@ -357,7 +357,7 @@ export function useTrustControlEvaluation(assetId: string) {
     const typeDefinitions = getTypeSpecificControls(effectiveType);
     const evaluatedType: EvaluatedControl[] = typeDefinitions.map((c) => applyNotApplicable({
       ...c,
-      status: evaluateTypeControl(c.key, effectiveType, assetLike, docsCount),
+      status: evaluateTypeControl(c.key, effectiveType, assetLike, docsCount, companyProfile),
       verificationSource: inferVerificationSource(c.key, assetLike, docsCount),
     }));
     
