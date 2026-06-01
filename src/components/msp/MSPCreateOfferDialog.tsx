@@ -586,7 +586,8 @@ export function MSPCreateOfferDialog({
                       </button>
                     </div>
 
-                    {/* Mangelliste (forhåndsvisning – alltid synlig) */}
+                    {/* Mangelliste (forhåndsvisning – kun når brukeren velger å vise) */}
+                    {showGapsInOffer && (
                     <div className="border-t border-border">
                       <div className="px-3 py-2 bg-muted/40 border-b border-border space-y-1.5">
                         <div className="flex items-center justify-between gap-2 text-xs">
