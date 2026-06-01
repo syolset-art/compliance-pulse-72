@@ -1602,5 +1602,115 @@
     "error": "Kunne ikke legge til leverandør",
     "added": "Lagt til",
     "internalDb": "Vår database"
+  },
+  "mspServices": {
+    "page": {
+      "title": "Tjenester",
+      "subtitle": "Definer dine egne tjenester og se hvordan de treffer kontrollpunkter på tvers av regelverk."
+    },
+    "tabs": {
+      "catalog": "Tjenestekatalog",
+      "settings": "Innstillinger",
+      "howItWorks": "Hvordan virker det"
+    },
+    "catalog": {
+      "suggestedTitle": "Foreslåtte tjenester",
+      "suggestedSubtitle": "Basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.",
+      "describeOwn": "Beskriv egen tjeneste",
+      "colService": "Tjeneste",
+      "colFrameworks": "Regelverk",
+      "added": "Lagt til",
+      "addBtn": "Legg til",
+      "advancedToggle": "Avansert: hele biblioteket og regelverks-bygger",
+      "mynderTitle": "Mynder-tjenester",
+      "mynderIncluded": "Inkludert i alle leveranser",
+      "myTitle": "Mine tjenester",
+      "servicesCount_one": "{{count}} tjeneste",
+      "servicesCount_other": "{{count}} tjenester",
+      "editAria": "Rediger tjeneste",
+      "removeAria": "Fjern tjeneste",
+      "hoursShort": "t",
+      "customBuilderHint": "Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.",
+      "tag": {
+        "recommended": "Anbefalt for deg",
+        "popular": "Populært",
+        "trending": "Trender nå"
+      },
+      "toast": {
+        "adopted": "{{name}} adoptert",
+        "adoptedDesc": "Rediger for å justere aktiviteter — pris beregnes fra timepris.",
+        "updated": "\"{{name}}\" oppdatert",
+        "added": "\"{{name}}\" lagt til i katalogen"
+      }
+    },
+    "settings": {
+      "hourlyTitle": "Standard timepris",
+      "hourlyDesc": "Brukes som utgangspunkt for alle nye tjenester og tilbud. Du kan overstyre timeprisen pr tjeneste senere.",
+      "currency": "Valuta",
+      "hourly": "Timepris",
+      "save": "Lagre standard timepris",
+      "invalidTitle": "Ugyldig timepris",
+      "invalidDesc": "Skriv inn et positivt tall.",
+      "savedToast": "Standard timepris lagret",
+      "currencyUpdated": "Valuta oppdatert",
+      "currencyUpdatedDesc": "Bruker nå {{code}}.",
+      "templateTitle": "Tilbudsmal",
+      "templateDesc": "Logo, partnernavn og slagord som vises i tilbud du sender til kunder."
+    },
+    "howItWorks": {
+      "heroTitle": "Gjør eksisterende IT- og sikkerhetstjenester om til målbar compliance-leveranse",
+      "heroBody": "Tjenestene du allerede leverer mappes mot kontrollpunkter i kundens valgte regelverk — og dokumenteres automatisk mens du jobber.",
+      "outcomesTitle": "Slik berikes kundens trust profile",
+      "outcomesBody": "Når du leverer, oppdateres kundens trust profile automatisk.",
+      "ctaTitle": "Klar til å sette opp dine tjenester?",
+      "ctaBody": "Start med katalogen, eller juster standard timepris og tilbudsmal først.",
+      "ctaPrimary": "Gå til tjenestekatalog",
+      "ctaSecondary": "Sett standard timepris",
+      "steps": {
+        "0": {
+          "title": "Definer dine tjenester",
+          "body": "Beskriv IT- og sikkerhetstjenestene du allerede leverer i dag — backup, MDR, identitetsstyring, drift og mer. Legg inn aktiviteter, timeestimat og hvilke kontroller de dekker."
+        },
+        "1": {
+          "title": "Auto-mapping mot regelverk",
+          "body": "Lara mapper hver tjeneste mot kontrollpunkter på tvers av kundens valgte regelverk (NIS2, ISO 27001, GDPR m.fl.) — én tjeneste kan dekke kontroller i flere regelverk samtidig."
+        },
+        "2": {
+          "title": "Bli en del av tilbudet",
+          "body": "Tjenestene blir byggeklosser i tilbudet til kunden. Pris og omfang beregnes fra dine standard timesatser, og kunden ser tydelig hvilke kontrollpunkter som dekkes."
+        },
+        "3": {
+          "title": "Lever og dokumenter underveis",
+          "body": "Når du utfører arbeidet, besvarer du korte spørsmål knyttet til hver aktivitet. Svarene mappes automatisk til kontrollpunkter på tvers av alle valgte regelverk — uten dobbeltarbeid."
+        },
+        "4": {
+          "title": "Sluttrapport til kunden",
+          "body": "Når leveransen er ferdig, genereres en sluttrapport automatisk med utført arbeid, bevis og oppdatert modenhetsstatus. Last ned og send til kunden i ett klikk."
+        }
+      },
+      "outcomes": {
+        "0": {
+          "title": "Modenhet øker",
+          "body": "Hvert kontrollpunkt du leverer på, hever kundens modenhet i berørte regelverk."
+        },
+        "1": {
+          "title": "Synlig leverandør",
+          "body": "Kunden ser tydelig hvilke kontroller du som partner står bak — du blir en synlig del av deres compliance-historie."
+        },
+        "2": {
+          "title": "Automatisk bevis",
+          "body": "Svar og dokumentasjon fra leveransen blir bevis i kundens trust profile — alltid oppdatert, alltid sporbart."
+        }
+      }
+    },
+    "defaults": {
+      "coreName": "Mynder Core",
+      "coreDesc": "Grunnpakke for compliance, styring og rapportering — fundamentet alle kunder starter med.",
+      "vendorName": "Leverandørmodulen (Mynder)",
+      "vendorDesc": "Helhetlig styring av tredjeparter: kartlegging, risikovurdering og oppfølging av leverandører.",
+      "agentsName": "Agentstyring (Mynder)",
+      "agentsDesc": "Register, klassifisering og kontroll av AI-agenter — MACF-nivå, eierskap og løpende oppfølging."
+    }
   }
 }
+
