@@ -1,60 +1,75 @@
 ## Mål
 
-På den publiserte Trust Profilen skal "Kritiske leverandører" og system-listen slås sammen til **én** seksjon som ruller opp på leverandørnivå. Hver rad viser leverandøren (f.eks. "Microsoft — skyinfrastruktur og samhandling · databehandler · DPA ✓"), og kan ekspanderes for å vise systemene som leverandøren leverer — hvert med eget behandlingssted.
+På framework detail-siden (f.eks. GDPR) får brukeren et nytt alternativ ved siden av "Krav og evaluatorer": et brukervennlig spørreskjema de kan klikke seg igjennom for å gjøre en **gap-analyse**. Resultatet vises som gap-rapport per regelverk, i tillegg til eksisterende modenhetsberegning. GDPR-skjemaet er malen for hvordan vi senere autogenererer skjema for øvrige regelverk.
 
-## Nåværende tilstand
+## Endringer på `/regulations/:frameworkId` (FrameworkDetail.tsx)
 
-- `CriticalVendorsSection` (rendert i `TrustCenterProfile.tsx` linje 894) viser topp 5 vendor-assets med kritikalitet og risikopille.
-- Systemer vises i dag som egen liste/komponent i intern visning, men er ikke knyttet til vendor-raden på publisert profil.
-- I databasen er `systems.vendor_asset_id → assets.id` (leverandør). `system_data_handling.data_locations[]` inneholder behandlingssted per system. `assets.gdpr_role` brukes for «databehandler»-etiketten, og DPA finnes som `vendor_documents` av type DPA knyttet til leverandøren.
+Legg til en top-level visningsbryter med tre faner:
 
-## Endring
+```text
+[ Krav og evaluatorer ]  [ Spørreskjema (gap-analyse) ]  [ Gap-rapport ]
+```
 
-### 1. Ny komponent: `VendorSystemsRollupSection`
-Erstatter `CriticalVendorsSection` på Trust Profile-visningen.
+- **Krav og evaluatorer** — dagens visning, uendret.
+- **Spørreskjema** — ny guided wizard (se under).
+- **Gap-rapport** — vises etter at skjemaet er fullført (eller delvis besvart).
 
-Hver rad (collapsed) viser:
-- Leverandørnavn (`assets.name`)
-- Kort beskrivelse / kategori (`vendor_category` eller `description`)
-- GDPR-rolle som chip («Databehandler» / «Behandlingsansvarlig» fra `gdpr_role`)
-- DPA-status (`✓` hvis det finnes et `vendor_documents`-dokument av DPA-type for leverandøren, ellers `–`)
-- Land/region om tilgjengelig
-- Kritikalitets- og risikopille (gjenbruk `getCriticality` + `computeRisk` som i dag)
-- Chevron + antall systemer (f.eks. «3 systemer»)
+## Spørreskjema-wizard (ny komponent `FrameworkQuestionnaire.tsx`)
 
-Ekspandert tilstand viser en innfelt liste over systemer (`systems` der `vendor_asset_id = vendor.id`), hvor hvert system viser:
-- Systemnavn + kort beskrivelse
-- Behandlingssted (`system_data_handling.data_locations`) som badges
-- Eventuelt risiko/kritikalitet på systemet
+Gjenbruker eksisterende `MATURITY_AREAS` fra `src/lib/trustMaturityQuestions.ts` for GDPR (4 områder, 19 spørsmål med Art.-referanse). Dette er den "auto-genererbare" strukturen: hvert regelverk leverer sections → questions → article reference.
 
-### 2. Data
-Én Supabase-spørring som henter alle vendor-assets sortert etter kritikalitet/risiko (som i dag), pluss to parallelle spørringer:
-- `systems` filtrert på `vendor_asset_id IN (...)` for å gruppere per leverandør
-- `system_data_handling` for behandlingssteder
-- `vendor_documents` (kun `document_type` for DPA-flagg) per `vendor_id`
+Brukervennlig flyt:
+- Ett spørsmål om gangen, stort kort midt på skjermen.
+- Stor fremdriftslinje øverst: "Spørsmål 4 av 19 · Styring".
+- Svaralternativer som store knapper: **Ja / Nei / Delvis / Vet ikke / Ikke aktuelt** (gjenbruker `MaturityAnswer`-typen).
+- Valgfri kommentar-felt under hvert spørsmål (collapsable).
+- "i"-tooltip viser GDPR-artikkel + Lara-kilde hvis tilgjengelig (`deriveLaraSources`).
+- Lara forhåndsutfyller svar fra `deriveDefaultAnswers` (scan) — brukeren bekrefter eller endrer.
+- Navigasjon: Tilbake / Hopp over / Neste. "Lagre og fortsett senere" lagrer til localStorage.
+- Etter siste spørsmål: "Se gap-rapport" knapp.
 
-Bygges som tre `useQuery`-kall, eller én kombinert med `select`-joins der det er enkelt. Resultatet mappes til `{ vendor, systems: [{system, locations[]}], hasDpa }[]`.
+Lagres i localStorage med nøkkel `mynder-framework-questionnaire-{frameworkId}`.
 
-### 3. UI / interaksjon
-- Bruker eksisterende `Collapsible` (`@/components/ui/collapsible`) for ekspander/kollapser.
-- Beholder Apple-minimal stilen og semantiske tokens (`bg-card`, `border-border`, success/warning/destructive for DPA og risiko).
-- I `readOnly` (publisert) modus: ingen «Administrer»/«Legg til»-knapper, ingen navigasjon til `/vendors/:id`. Rad er kun trykkbar for å ekspandere.
-- I redigeringsmodus (intern): beholder dagens «Administrer»-knapp.
+## Gap-rapport (ny komponent `FrameworkGapReport.tsx`)
 
-### 4. Filer som skal endres / opprettes
-- **Ny**: `src/components/trust-center/VendorSystemsRollupSection.tsx` — komponenten beskrevet over.
-- **Endret**: `src/pages/TrustCenterProfile.tsx` linje 87 + 894 — bytt import og bruk fra `CriticalVendorsSection` til `VendorSystemsRollupSection`.
-- **Slettet/avviklet**: `CriticalVendorsSection.tsx` (eller la stå hvis brukt andre steder — sjekkes; om kun her, fjernes).
+Vises i "Gap-rapport"-fanen. Per regelverk:
 
-Ingen DB-endringer. Ren frontend.
+- **Sammendrag øverst**: gap-score (% nei + delvis vektet), modenhetsnivå (0–4), antall gap funnet, sist oppdatert.
+- **Per kontrollområde** (Styring / Drift / Personvern / Tredjepart): mini score-bar + antall ja/nei/delvis.
+- **Gap-liste**: alle "nei"- og "delvis"-svar listet som actionable items med:
+  - Spørsmålstekst + Art-referanse
+  - Anbefalt tiltak (mappes fra `KEY_TO_SUGGESTED_SERVICE` i `questionnaireRegistry.ts` der mulig, ellers generisk tekst)
+  - "Opprett aktivitet"-knapp (gjenbruker `RegisterActivityDialog`-mønsteret)
+- **Eksportknapp**: "Last ned gap-rapport (PDF)" — stub for nå, viser toast.
 
-### 5. Tekster
-- Seksjonstittel: «Leverandører og systemer» (NB) / «Vendors and systems» (EN).
-- Undertekst: «Tredjeparter vi bruker, med tilhørende systemer og behandlingssted» / «Third parties we use, with their systems and processing locations».
-- DPA-chip: «DPA ✓» / «DPA –».
-- GDPR-rolle: «Databehandler» / «Behandlingsansvarlig» (mapping fra `gdpr_role`).
+Modenhetsberegning forblir uendret; gap-analysen er et **tillegg** som vises sammen med modenhet.
 
-## Ut av scope
-- Endringer i intern leverandør- eller systemside.
-- Endringer i datamodellen.
-- Redigering av systemer fra Trust Profile-visningen.
+## Autogenerering for øvrige regelverk
+
+Introduserer en lett `FrameworkQuestionnaireDefinition`-type i `src/lib/frameworkQuestionnaires.ts`:
+
+```ts
+{ frameworkId, title, sections: [{ id, title, questions: [{ id, text, reference, suggestedAction? }] }] }
+```
+
+- GDPR-definisjonen bygges fra eksisterende `MATURITY_AREAS` (ingen duplisering av innhold).
+- Andre regelverk uten egen definisjon faller tilbake til auto-generert skjema basert på `getRequirementsByFramework(frameworkId)` — én ja/nei/delvis per krav, gruppert på `req.category` eller `req.agent_capability`. Dette gir gap-analyse "gratis" for alle regelverk.
+
+## Filer som opprettes / endres
+
+**Nye:**
+- `src/lib/frameworkQuestionnaires.ts` — registry + auto-generator.
+- `src/components/regulations/FrameworkQuestionnaire.tsx` — wizard.
+- `src/components/regulations/FrameworkGapReport.tsx` — gap-rapport.
+- `src/hooks/useFrameworkQuestionnaire.ts` — localStorage-state + score-utregning.
+
+**Endret:**
+- `src/pages/FrameworkDetail.tsx` — wrapper med 3 faner (Krav / Spørreskjema / Gap-rapport).
+
+Ingen DB-endringer i denne iterasjonen — alt lagres lokalt (samme mønster som `useQuestionnaireDeliveries`). Backend-persistering kan legges på senere.
+
+## Out of scope
+
+- PDF-eksport av gap-rapport (kun stub-knapp).
+- Deling av gap-rapport eksternt.
+- Auto-mapping av gap-svar tilbake til "Krav og evaluatorer"-status (kan vurderes i neste iterasjon).
