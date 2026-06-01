@@ -366,6 +366,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     setAutoPlayDemo(false);
                     queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
                     queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
+                    // Ensure the demo lands cleanly on /trust-center/profile with
+                    // the freshly activated profile visible from the top.
+                    try {
+                      if (window.location.pathname !== "/trust-center/profile") {
+                        window.history.replaceState({}, "", "/trust-center/profile");
+                      }
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    } catch {}
                   }, 700);
                 }}
               />
