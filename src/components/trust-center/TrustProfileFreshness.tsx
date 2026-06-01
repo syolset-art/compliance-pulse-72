@@ -15,8 +15,6 @@ import {
   FileSearch,
   Wand2,
 } from "lucide-react";
-import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
-import { getVisibilityFromAsset, type TrustVisibility } from "@/lib/trustVisibility";
 
 type Props = {
   assetId: string;
