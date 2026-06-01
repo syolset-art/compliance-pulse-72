@@ -76,6 +76,8 @@ export type CriticalVendorRow = {
   processesPersonalData: "yes" | "no" | null;
   dataCategories: string[];
   dpa: "yes" | "no" | "unknown" | null;
+  isSecurityPartner: boolean;
+  partnerType: PartnerType | null;
 };
 const EMPTY_VENDOR_ROW: CriticalVendorRow = {
   name: "",
@@ -83,6 +85,8 @@ const EMPTY_VENDOR_ROW: CriticalVendorRow = {
   processesPersonalData: null,
   dataCategories: [],
   dpa: null,
+  isSecurityPartner: false,
+  partnerType: null,
 };
 const DATA_CATEGORY_OPTIONS = ["Ansattdata", "Kundedata", "Pasientdata", "Annet"];
 const MAX_CRITICAL_VENDORS = 5;
@@ -373,11 +377,6 @@ export default function ActivateTrustProfileWizard({
       if (!orgOk || hasWebsite === null) return false;
       const websiteOk = hasWebsite === "no" || (website.trim().length > 3 && websiteVerified);
       if (!websiteOk) return false;
-      if (partnerStatus === null) return false;
-      if (partnerStatus === "yes") {
-        if (partnerName.trim().length === 0) return false;
-        if (partnerGrantAuthority && !partnerAuthorityAccepted) return false;
-      }
       return true;
     }
     if (step === 2) return revealed >= (scan?.findings.length ?? 0) && scan != null;
@@ -487,23 +486,33 @@ export default function ActivateTrustProfileWizard({
           processesPersonalData: v.processesPersonalData,
           dataCategories: v.dataCategories,
           dpa: v.dpa ?? "unknown",
+          isSecurityPartner: v.isSecurityPartner,
+          partnerType: v.partnerType,
         })),
       subprocessorList: analyzedSubprocessors,
       documents,
       visibility,
-      partner: partnerStatus
-        ? {
-            status: partnerStatus,
-            name: partnerName || null,
-            companyId: partnerCompanyId,
-            type: partnerType,
-            showOnProfile: showPartnerOnProfile,
-            grantAuthority: partnerGrantAuthority,
-            authorityAccepted: partnerAuthorityAccepted,
-
-            additional: additionalPartners.filter((p) => p.name.trim().length > 0),
-          }
-        : undefined,
+      partner: (() => {
+        const securityPartners = criticalVendors.filter(
+          (v) => v.isSecurityPartner && v.name.trim().length > 0,
+        );
+        if (securityPartners.length === 0) return undefined;
+        const [primary, ...rest] = securityPartners;
+        return {
+          status: "yes" as const,
+          name: primary.name.trim(),
+          companyId: null,
+          type: primary.partnerType,
+          showOnProfile: true,
+          grantAuthority: false,
+          authorityAccepted: false,
+          additional: rest.map((p) => ({
+            name: p.name.trim(),
+            companyId: null,
+            type: p.partnerType,
+          })),
+        };
+      })(),
     };
 
     try {
@@ -706,26 +715,6 @@ export default function ActivateTrustProfileWizard({
                 setWebsiteVerified(false);
               }
             }}
-          />
-          <OrgPartnerQuestion
-            status={partnerStatus}
-            setStatus={(s) => {
-              setPartnerStatus(s);
-              if (s !== "yes") {
-                setPartnerName("");
-                setPartnerGrantAuthority(false);
-                setPartnerAuthorityAccepted(false);
-              }
-            }}
-            name={partnerName}
-            setName={setPartnerName}
-            grantAuthority={partnerGrantAuthority}
-            setGrantAuthority={(v) => {
-              setPartnerGrantAuthority(v);
-              if (!v) setPartnerAuthorityAccepted(false);
-            }}
-            authorityAccepted={partnerAuthorityAccepted}
-            setAuthorityAccepted={setPartnerAuthorityAccepted}
           />
         </div>
       )}
@@ -1803,6 +1792,48 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
               </p>
             )}
           </>
+        )}
+      </div>
+
+      {/* IT-/sikkerhetspartner */}
+      <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
+        <label className="flex items-start gap-2 cursor-pointer">
+          <Checkbox
+            checked={row.isSecurityPartner}
+            onCheckedChange={(v) =>
+              onChange({
+                isSecurityPartner: !!v,
+                ...(v ? {} : { partnerType: null }),
+              })
+            }
+            className="mt-0.5"
+          />
+          <div className="space-y-0.5">
+            <div className="text-xs font-medium">Dette er vår IT-/sikkerhetspartner</div>
+            <p className="text-[12px] text-muted-foreground">
+              Marker hvis leverandøren forvalter IT eller sikkerhet for dere.
+            </p>
+          </div>
+        </label>
+        {row.isSecurityPartner && (
+          <div className="pl-6 space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Type partner</Label>
+            <Select
+              value={row.partnerType ?? ""}
+              onValueChange={(v) => onChange({ partnerType: v as PartnerType })}
+            >
+              <SelectTrigger className="h-8 text-sm">
+                <SelectValue placeholder="Velg type…" />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(PARTNER_TYPE_LABEL) as PartnerType[]).map((k) => (
+                  <SelectItem key={k} value={k}>
+                    {PARTNER_TYPE_LABEL[k]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         )}
       </div>
     </Card>

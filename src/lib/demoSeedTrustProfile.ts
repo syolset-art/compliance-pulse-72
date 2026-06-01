@@ -139,7 +139,7 @@ export interface ActivationValues {
   incidentPhone?: string;
   postalAddress?: string;
   maturityAnswers?: Record<string, "yes" | "no" | "later" | "n_a" | "unsure">;
-  criticalVendors?: Array<{ name: string; purpose?: string; processesPersonalData?: "yes" | "no" | null; dataCategories?: string[]; dpa: "yes" | "no" | "unknown" }>;
+  criticalVendors?: Array<{ name: string; purpose?: string; processesPersonalData?: "yes" | "no" | null; dataCategories?: string[]; dpa: "yes" | "no" | "unknown"; isSecurityPartner?: boolean; partnerType?: string | null }>;
   subprocessorList?: import("./demoSubprocessorAnalysis").SubprocessorListData | null;
   documents?: ActivationDocument[];
   visibility: "private" | "ecosystem" | "public";
