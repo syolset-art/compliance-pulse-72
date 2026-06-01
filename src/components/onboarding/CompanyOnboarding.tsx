@@ -589,7 +589,7 @@ export function CompanyOnboarding({ onComplete }: CompanyOnboardingProps) {
               <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm font-medium mb-2 flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-success" />
-                  Mynder vil foreslå disse rollene:
+                  Lara vil foreslå disse rollene:
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {suggestedRolesPreview.map((role) => (
