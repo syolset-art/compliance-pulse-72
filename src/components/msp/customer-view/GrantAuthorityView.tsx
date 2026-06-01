@@ -1,6 +1,8 @@
-import { Sparkles, ShieldCheck, FileText, ClipboardList, Building2, TrendingUp, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, ShieldCheck, FileText, ClipboardList, Building2, TrendingUp, ChevronRight, X, Check } from "lucide-react";
 import { PreviewFrame } from "./PreviewFrame";
 import { DEMO_CUSTOMER_NAME, DEMO_PARTNER_NAME } from "./demoServices";
+
 
 export function GrantAuthorityView() {
   return (
