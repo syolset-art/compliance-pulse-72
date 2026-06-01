@@ -79,10 +79,14 @@ const FrameworkDetailPage = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "not_met" | "partial" | "met">("all");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
+  const [view, setView] = useState<"requirements" | "questionnaire" | "report">("requirements");
 
   const framework = frameworkId ? getFrameworkById(frameworkId) : null;
   const category = framework ? getCategoryById(framework.category) : null;
   const CategoryIcon = category?.icon;
+
+  const questionnaire = useFrameworkQuestionnaire(frameworkId);
+
 
   // Merge requirements from both sources
   const requirements = useMemo(() => {
