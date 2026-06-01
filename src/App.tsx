@@ -91,6 +91,7 @@ import BusinessRiskDetail from "./pages/BusinessRiskDetail";
 import FrameworkDetail from "./pages/FrameworkDetail";
 import ComplianceOverview from "./pages/ComplianceOverview";
 import TrustCenterActivate from "./pages/TrustCenterActivate";
+import TrustCenterProfile from "./pages/TrustCenterProfile";
 import TrustCenterServiceProfile from "./pages/TrustCenterServiceProfile";
 import TrustCenterEditProfile from "./pages/TrustCenterEditProfile";
 import TrustEngine from "./pages/TrustEngine";
