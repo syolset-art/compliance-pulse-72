@@ -304,8 +304,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     return (
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
-          <Sidebar />
-          <main className="flex-1 p-6 pt-16">
+          {!autoPlayDemo && <Sidebar />}
+          <main className={`flex-1 p-6 ${autoPlayDemo ? "pt-6" : "pt-16"}`}>
+
             <div className="max-w-3xl mx-auto mt-6 mb-6">
               <h1 className="text-2xl font-semibold text-foreground">
                 {isNb ? "Din Trust Profile gjør deg klar" : "Your Trust Profile gets you ready"}
