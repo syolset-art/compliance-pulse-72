@@ -2,6 +2,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { Layers, Plus, Trash2, ShieldCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAssetMetadata } from "./useAssetMetadata";
@@ -13,6 +16,7 @@ interface CriticalVendorsSectionProps {
 type VendorRow = {
   name: string;
   purpose?: string;
+  vendorTypeKey?: string | null;
   processesPersonalData?: "yes" | "no" | null;
   dataCategories?: string[];
   dpa?: "yes" | "no" | "unknown" | null;
@@ -20,9 +24,26 @@ type VendorRow = {
 
 const DATA_CATEGORY_OPTIONS = ["Ansattdata", "Kundedata", "Pasientdata", "Annet"];
 
+// Leverandørtyper. Når valget er MSP/MSSP/IT-partner anses leverandøren
+// også som virksomhetens IT-/sikkerhetspartner.
+const VENDOR_TYPE_OPTIONS: Array<{ key: string; label: string }> = [
+  { key: "msp", label: "MSP (Managed Service Provider)" },
+  { key: "mssp", label: "MSSP (Managed Security Service Provider)" },
+  { key: "it_partner", label: "IT-partner" },
+  { key: "drift", label: "Drift" },
+  { key: "cloud", label: "Skytjeneste / hosting" },
+  { key: "hr", label: "HR-system" },
+  { key: "finance", label: "Økonomi / fakturering" },
+  { key: "comms", label: "Kommunikasjon / e-post" },
+  { key: "marketing", label: "Markedsføring" },
+  { key: "consultant", label: "Konsulent" },
+  { key: "other", label: "Annet" },
+];
+
 const EMPTY_ROW: VendorRow = {
   name: "",
   purpose: "",
+  vendorTypeKey: null,
   processesPersonalData: null,
   dataCategories: [],
   dpa: null,
