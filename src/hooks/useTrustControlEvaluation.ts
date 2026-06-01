@@ -319,6 +319,21 @@ export function useTrustControlEvaluation(assetId: string) {
     enabled: !!assetId,
   });
 
+  // Company profile is used to derive partial/implemented fallbacks for "self"-type assets
+  // when the asset metadata does not yet store explicit answers (e.g. straight after onboarding).
+  const { data: companyProfile = null } = useQuery({
+    queryKey: ["company-profile-for-trust-eval"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("company_profile" as any)
+        .select("governance_level, compliance_organization, compliance_officer, compliance_officer_email, dpo_name, dpo_email, ciso_name, ciso_email")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as any) || null;
+    },
+  });
+
   return useMemo(() => {
     if (!asset) return null;
 
