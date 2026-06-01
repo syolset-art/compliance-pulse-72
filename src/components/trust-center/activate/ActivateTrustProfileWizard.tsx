@@ -462,6 +462,9 @@ export default function ActivateTrustProfileWizard({
       contactEmail,
       dpoEmail,
       securityEmail,
+      incidentEmail,
+      incidentPhone,
+      postalAddress,
       maturityAnswers,
       criticalVendors: criticalVendors
         .filter((v) => v.name.trim().length > 0)
