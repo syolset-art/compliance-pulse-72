@@ -230,6 +230,9 @@ export default function MSPDashboard() {
   const [criticalityFilter, setCriticalityFilter] = useState<string[]>([]);
   const [tpStatusFilter, setTpStatusFilter] = useState<TPStatusKey[]>([]);
   const [serviceFilter, setServiceFilter] = useState<string[]>([]);
+  const [serviceTypeFilter, setServiceTypeFilter] = useState<string[]>([]);
+  const [planFilter, setPlanFilter] = useState<string[]>([]);
+  const [segmentFilter, setSegmentFilter] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("customer_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [campaignView, setCampaignView] = useState<"all" | "framework" | "service" | "product">("all");
