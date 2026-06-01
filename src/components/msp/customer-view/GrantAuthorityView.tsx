@@ -5,8 +5,14 @@ import { DEMO_CUSTOMER_NAME, DEMO_PARTNER_NAME } from "./demoServices";
 
 
 export function GrantAuthorityView() {
+  const [showModal, setShowModal] = useState(false);
+  const [granted, setGranted] = useState(false);
+  const [consents, setConsents] = useState({ scope: false, revoke: false });
+  const allChecked = consents.scope && consents.revoke;
+
   return (
     <PreviewFrame
+
       title="Gi fullmakt — kundens Trust Profile"
       subtitle="Slik ser kunden sin Trust Profile etter at partner har opprettet den. Lara foreslår å gi fullmakt øverst."
       channel="Innlogget visning"
