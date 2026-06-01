@@ -57,9 +57,10 @@ export function MSPGapAnalysisDialog({
   const [stepIndex, setStepIndex] = useState(0);
 
   const PROCESS_STEPS: { icon: React.ReactNode; label: string; detail: string }[] = [
-    { icon: <BookOpen className="h-4 w-4" />, label: "Henter aktive kontroller", detail: `Laster kravsett for ${frameworkLabel}` },
-    { icon: <Database className="h-4 w-4" />, label: "Samler bevis fra kunden", detail: "Dokumenter, integrasjoner og tidligere svar" },
-    { icon: <GitCompare className="h-4 w-4" />, label: "Matcher kontroller mot bevis", detail: "Lara sammenligner krav med tilgjengelig dokumentasjon" },
+    { icon: <Shield className="h-4 w-4" />, label: `Leser ${customerName}s Trust Profile`, detail: "Henter modenhet, kontroller og bevis fra profilen" },
+    { icon: <BookOpen className="h-4 w-4" />, label: `Laster kravsett for ${frameworkLabel}`, detail: `Henter aktive kontroller fra ${frameworkLabel}-rammeverket` },
+    { icon: <Database className="h-4 w-4" />, label: "Samler bevis fra aktiverte regelverk", detail: "Gjenbruker dokumentasjon fra GDPR, ISO 27001 og andre aktive regelverk" },
+    { icon: <GitCompare className="h-4 w-4" />, label: `Sammenligner Trust Profile mot ${frameworkLabel}`, detail: `Lara matcher kundens kontroller mot ${frameworkLabel}-krav` },
     { icon: <AlertTriangle className="h-4 w-4" />, label: "Identifiserer gap og kritikalitet", detail: "Klassifiserer mangler etter alvorlighet" },
     { icon: <Sparkles className="h-4 w-4" />, label: "Foreslår tjenester som lukker gap", detail: "Kobler gap til tjenestekatalogen din" },
   ];
@@ -131,7 +132,7 @@ export function MSPGapAnalysisDialog({
           </DialogTitle>
           <DialogDescription className="text-[13px] text-muted-foreground">
             {isProcessing
-              ? "Tar normalt 10–20 sekunder. Du kan trygt lukke — analysen kjører videre i bakgrunnen."
+              ? `Lara tester ${customerName}s Trust Profile og aktiverte regelverk mot ${frameworkLabel}. Tar normalt 10–20 sekunder.`
               : "Basert på kundens vurderinger. Kan legges ved tilbud som dokumentasjon."}
           </DialogDescription>
         </DialogHeader>
