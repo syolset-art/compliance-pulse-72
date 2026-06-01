@@ -691,11 +691,10 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           </>
         )}
 
-        {/* Step: Verifying */}
+        {/* Step: Verifying — Lara baseline analysis */}
         {step === "verifying" && (
-          <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <img src={laraButterfly} alt="Lara Soft" className="h-16 w-16 animate-pulse" />
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <div className="flex flex-col items-center justify-center py-10 gap-4">
+            <img src={laraButterfly} alt="Lara" className="h-16 w-16 animate-pulse" />
             {duplicateFound ? (
               <div className="text-center space-y-1">
                 <p className="font-medium text-destructive">Kunden finnes allerede</p>
@@ -704,9 +703,31 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 </p>
               </div>
             ) : (
-              <div className="text-center space-y-1">
-                <p className="font-medium text-foreground">Lara Soft sjekker...</p>
-                <p className="text-sm text-muted-foreground">Verifiserer {selectedCompany?.navn}</p>
+              <div className="text-center space-y-3 w-full max-w-sm">
+                <div>
+                  <p className="font-medium text-foreground">Lara analyserer {selectedCompany?.navn}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Henter offentlig informasjon og klargjør baseline for Trust Profile
+                  </p>
+                </div>
+                <div className="space-y-1.5 text-left text-xs">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                    <span>Verifisert i {COUNTRIES.find(c => c.code === form.country_code)?.registry || "registeret"}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                    <span>Henter bransje, ansatte og adresse</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                    <span>Foreslår regelverk basert på bransje</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                    <span>Klargjør baseline for Trust Profile</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
