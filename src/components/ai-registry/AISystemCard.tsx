@@ -53,7 +53,7 @@ export function AISystemCard({ system, onClick }: AISystemCardProps) {
       <CardContent className="p-5">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${RISK_COLORS[riskCategory].split(" ")[0]}`} />
+            <div className={`w-3 h-3 rounded-full ${(RISK_COLORS[riskCategory] ?? RISK_COLORS.not_assessed).split(" ")[0]}`} />
             <div>
               <h3 className="font-semibold text-lg">{system.name}</h3>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
