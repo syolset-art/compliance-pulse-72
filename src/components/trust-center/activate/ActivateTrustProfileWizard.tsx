@@ -678,32 +678,55 @@ export default function ActivateTrustProfileWizard({
   const body = (
     <div className="flex-1 overflow-y-auto py-2 pr-1">
       {step === 1 && (
-        <OrgStep
-          companyName={companyName}
-          setCompanyName={setCompanyName}
-          orgNumber={orgNumber}
-          setOrgNumber={setOrgNumber}
-          website={website}
-          setWebsite={(v: string) => { setWebsite(v); setWebsiteVerified(false); }}
-          websiteVerified={websiteVerified}
-          onVerifyWebsite={() => setWebsiteVerified(true)}
-          verified={verified}
-          isLoading={isLoading}
-          searchResults={searchResults}
-          onSearch={handleSearchName}
-          onPick={pickRegistry}
-          companyNameLocked={hasOrgPrefill}
-          orgPrefilled={hasOrgPrefill}
-          hasWebsite={hasWebsite}
-          setHasWebsite={(v: "yes" | "no") => {
-            setHasWebsite(v);
-            if (v === "no") {
-              setWebsite("");
-              setWebsiteVerified(false);
-            }
-          }}
-        />
+        <div className="space-y-5">
+          <OrgStep
+            companyName={companyName}
+            setCompanyName={setCompanyName}
+            orgNumber={orgNumber}
+            setOrgNumber={setOrgNumber}
+            website={website}
+            setWebsite={(v: string) => { setWebsite(v); setWebsiteVerified(false); }}
+            websiteVerified={websiteVerified}
+            onVerifyWebsite={() => setWebsiteVerified(true)}
+            verified={verified}
+            isLoading={isLoading}
+            searchResults={searchResults}
+            onSearch={handleSearchName}
+            onPick={pickRegistry}
+            companyNameLocked={hasOrgPrefill}
+            orgPrefilled={hasOrgPrefill}
+            hasWebsite={hasWebsite}
+            setHasWebsite={(v: "yes" | "no") => {
+              setHasWebsite(v);
+              if (v === "no") {
+                setWebsite("");
+                setWebsiteVerified(false);
+              }
+            }}
+          />
+          <OrgPartnerQuestion
+            status={partnerStatus}
+            setStatus={(s) => {
+              setPartnerStatus(s);
+              if (s !== "yes") {
+                setPartnerName("");
+                setPartnerGrantAuthority(false);
+                setPartnerAuthorityAccepted(false);
+              }
+            }}
+            name={partnerName}
+            setName={setPartnerName}
+            grantAuthority={partnerGrantAuthority}
+            setGrantAuthority={(v) => {
+              setPartnerGrantAuthority(v);
+              if (!v) setPartnerAuthorityAccepted(false);
+            }}
+            authorityAccepted={partnerAuthorityAccepted}
+            setAuthorityAccepted={setPartnerAuthorityAccepted}
+          />
+        </div>
       )}
+
       {step === 2 && scan && (
         <ScanStep scan={scan} revealed={revealed} progress={scanProgress} domain={website || companyName} />
       )}
