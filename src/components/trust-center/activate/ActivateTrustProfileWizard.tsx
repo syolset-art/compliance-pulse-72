@@ -76,6 +76,8 @@ export type CriticalVendorRow = {
   processesPersonalData: "yes" | "no" | null;
   dataCategories: string[];
   dpa: "yes" | "no" | "unknown" | null;
+  isSecurityPartner: boolean;
+  partnerType: PartnerType | null;
 };
 const EMPTY_VENDOR_ROW: CriticalVendorRow = {
   name: "",
@@ -83,6 +85,8 @@ const EMPTY_VENDOR_ROW: CriticalVendorRow = {
   processesPersonalData: null,
   dataCategories: [],
   dpa: null,
+  isSecurityPartner: false,
+  partnerType: null,
 };
 const DATA_CATEGORY_OPTIONS = ["Ansattdata", "Kundedata", "Pasientdata", "Annet"];
 const MAX_CRITICAL_VENDORS = 5;
