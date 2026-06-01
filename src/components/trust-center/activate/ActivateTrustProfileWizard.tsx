@@ -161,8 +161,11 @@ export default function ActivateTrustProfileWizard({
   const [partnerCompanyId, setPartnerCompanyId] = useState<string | null>(null);
   const [partnerType, setPartnerType] = useState<PartnerType | null>(null);
   const [showPartnerOnProfile, setShowPartnerOnProfile] = useState(true);
+  const [partnerGrantAuthority, setPartnerGrantAuthority] = useState(false);
+  const [partnerAuthorityAccepted, setPartnerAuthorityAccepted] = useState(false);
   type AdditionalPartner = { name: string; companyId: string | null; type: PartnerType | null };
   const [additionalPartners, setAdditionalPartners] = useState<AdditionalPartner[]>([]);
+
 
   const { activeOrg } = useActiveOrganization();
 
