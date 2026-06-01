@@ -130,23 +130,59 @@ export function AISuggestTextarea({
           className="text-sm resize-y min-h-[110px]"
         />
 
-        {suggestion && (
-          <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-2 animate-in fade-in-0 slide-in-from-top-1 duration-200">
-            <div className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-primary">
-              <Sparkles className="h-3 w-3" />
-              {isNb ? "Forslag fra Lara" : "Suggestion from Lara"}
+        {suggestionItems && (
+          <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-3 animate-in fade-in-0 slide-in-from-top-1 duration-200">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-primary">
+                <Sparkles className="h-3 w-3" />
+                {isNb ? "Forslag fra Lara" : "Suggestion from Lara"}
+              </div>
+              <div className="flex gap-2 text-[11px]">
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                  onClick={() => setSelected(Object.fromEntries(suggestionItems.map((_, i) => [i, true])))}
+                >
+                  {isNb ? "Velg alle" : "Select all"}
+                </button>
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                  onClick={() => setSelected({})}
+                >
+                  {isNb ? "Fjern alle" : "Clear"}
+                </button>
+              </div>
             </div>
-            <pre className="text-xs whitespace-pre-wrap font-sans text-foreground leading-relaxed">{suggestion}</pre>
+            {suggestionItems.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{isNb ? "Ingen forslag" : "No suggestions"}</p>
+            ) : (
+              <ul className="space-y-1.5">
+                {suggestionItems.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <Checkbox
+                      id={`sugg-${i}`}
+                      checked={!!selected[i]}
+                      onCheckedChange={(c) => setSelected((s) => ({ ...s, [i]: !!c }))}
+                      className="mt-0.5"
+                    />
+                    <label htmlFor={`sugg-${i}`} className="text-xs leading-relaxed text-foreground cursor-pointer flex-1">
+                      {item}
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
             <div className="flex flex-wrap gap-2 pt-1">
-              <Button type="button" size="sm" variant="default" className="gap-1.5 h-8" onClick={() => acceptSuggestion(true)}>
+              <Button type="button" size="sm" variant="default" className="gap-1.5 h-8" onClick={() => applySelection(false)}>
                 <Check className="h-3.5 w-3.5" />
-                {isNb ? "Erstatt" : "Replace"}
+                {isNb ? "Legg til valgte" : "Add selected"}
               </Button>
-              <Button type="button" size="sm" variant="outline" className="gap-1.5 h-8" onClick={() => acceptSuggestion(false)}>
+              <Button type="button" size="sm" variant="outline" className="gap-1.5 h-8" onClick={() => applySelection(true)}>
                 <Check className="h-3.5 w-3.5" />
-                {isNb ? "Legg til" : "Append"}
+                {isNb ? "Erstatt med valgte" : "Replace with selected"}
               </Button>
-              <Button type="button" size="sm" variant="ghost" className="gap-1.5 h-8" onClick={() => setSuggestion(null)}>
+              <Button type="button" size="sm" variant="ghost" className="gap-1.5 h-8" onClick={() => { setSuggestionItems(null); setSelected({}); }}>
                 <X className="h-3.5 w-3.5" />
                 {isNb ? "Avvis" : "Dismiss"}
               </Button>
