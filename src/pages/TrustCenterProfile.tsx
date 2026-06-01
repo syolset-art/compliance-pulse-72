@@ -825,13 +825,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   primary: { text: privacyUrl.replace(/^https?:\/\//, ""), href: privacyUrl, external: true },
                 });
               }
-              if (incidentUrl) {
-                rows.push({
-                  label: isNb ? "Avviksrapportering" : "Incident reporting",
-                  sub: isNb ? "Rapportér sikkerhetshendelser eller avvik" : "Report security incidents or deviations",
-                  primary: { text: incidentUrl.replace(/^https?:\/\//, ""), href: incidentUrl, external: true },
-                });
-              }
               if (privacyAddress) {
                 rows.push({ label: isNb ? "Postadresse" : "Postal address", block: privacyAddress });
               }
@@ -2210,11 +2203,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         label: isNb ? "Sikkerhetskontakt" : "Security contact",
                         sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues",
                         primary: { text: securityEmail, href: `mailto:${securityEmail}` },
-                      },
-                      incidentUrl && {
-                        label: isNb ? "Avviksrapportering" : "Incident reporting",
-                        sub: isNb ? "Rapportér sikkerhetshendelser eller avvik" : "Report security incidents or deviations",
-                        primary: { text: incidentUrl.replace(/^https?:\/\//, ""), href: incidentUrl, external: true },
                       },
                       privacyAddress && {
                         label: isNb ? "Postadresse" : "Postal address",
