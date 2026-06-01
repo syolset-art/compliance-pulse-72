@@ -363,6 +363,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 onCompleted={() => {
                   setJustActivated(true);
                   setTimeout(() => {
+                    try { localStorage.setItem("mynder.trustprofile.activated", "1"); } catch {}
+                    setShowActivateWizard(false);
                     setIsActivated(true);
                     // Keep autoPlayDemo true after activation so the sidebar
                     // stays hidden through the landing — clean "content only" view.
