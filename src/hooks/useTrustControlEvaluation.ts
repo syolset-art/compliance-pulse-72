@@ -43,7 +43,94 @@ function evaluateGenericControl(key: string, asset: AssetLike, docsCount: number
   }
 }
 
-function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, docsCount: number): TrustControlStatus {
+/**
+ * For "self"-type assets, many control keys are not directly stored on the asset.metadata.
+ * Onboarding writes data into `company_profile` (key personnel, governance level, compliance org).
+ * This function derives a partial/implemented fallback for self-controls based on that profile,
+ * so the Trust Profile maturity-per-area widget is populated immediately after onboarding instead
+ * of showing zeros for every domain.
+ */
+function deriveSelfFromProfile(key: string, profile: Record<string, any> | null): TrustControlStatus | null {
+  if (!profile) return null;
+  const level: string | null = profile.governance_level || null;
+  const isStructuredOrUp = level === "structured" || level === "certification_ready";
+  const isCertReady = level === "certification_ready";
+  const hasDpo = !!(profile.dpo_name && profile.dpo_email);
+  const hasCiso = !!(profile.ciso_name && profile.ciso_email);
+  const hasCompliance = !!(profile.compliance_officer && profile.compliance_officer_email);
+  const hasComplianceOrg = !!profile.compliance_organization;
+
+  switch (key) {
+    // Governance — anchored on key personnel + governance level
+    case "security_responsibility":
+      if (hasCiso && hasDpo) return "implemented";
+      if (hasCiso || hasDpo || hasCompliance) return "partial";
+      return null;
+    case "documented_policies":
+      if (isCertReady) return "implemented";
+      if (isStructuredOrUp || hasComplianceOrg) return "partial";
+      return level === "foundation" ? "partial" : null;
+    case "risk_assessment_recent":
+      if (isCertReady) return "implemented";
+      if (isStructuredOrUp) return "partial";
+      return null;
+    case "incident_handling":
+      if (isCertReady && hasCiso) return "implemented";
+      if (isStructuredOrUp || hasCiso) return "partial";
+      return null;
+    // Security posture — proxied by governance level
+    case "access_control":
+    case "mfa_org":
+    case "encryption_org":
+      if (isCertReady) return "implemented";
+      if (isStructuredOrUp) return "partial";
+      return level === "foundation" ? "partial" : null;
+    case "logging_monitoring":
+    case "security_testing":
+      if (isCertReady) return "partial";
+      return null;
+    // Privacy & data — anchored on DPO + governance level
+    case "ropa":
+      if (hasDpo && isStructuredOrUp) return "implemented";
+      if (hasDpo) return "partial";
+      return null;
+    case "dpa_org":
+      if (isCertReady) return "implemented";
+      if (isStructuredOrUp || hasDpo) return "partial";
+      return null;
+    case "dpia":
+    case "data_subject_rights":
+      if (hasDpo && isCertReady) return "implemented";
+      if (hasDpo || isStructuredOrUp) return "partial";
+      return null;
+    case "data_storage_control":
+      if (isCertReady) return "implemented";
+      if (isStructuredOrUp) return "partial";
+      return null;
+    // Supplier governance — proxied by governance level
+    case "vendor_inventory":
+      if (isCertReady) return "implemented";
+      if (isStructuredOrUp) return "partial";
+      return level === "foundation" ? "partial" : null;
+    case "vendor_risk_assessment":
+      if (isCertReady) return "implemented";
+      if (isStructuredOrUp) return "partial";
+      return null;
+    case "vendor_followup":
+      if (isCertReady) return "partial";
+      return null;
+    default:
+      return null;
+  }
+}
+
+function evaluateTypeControl(
+  key: string,
+  assetType: string,
+  asset: AssetLike,
+  docsCount: number,
+  profile: Record<string, any> | null,
+): TrustControlStatus {
   const meta = (asset.metadata || {}) as Record<string, any>;
   const maps: Record<string, Record<string, () => TrustControlStatus>> = {
     vendor: {
@@ -87,71 +174,104 @@ function evaluateTypeControl(key: string, assetType: string, asset: AssetLike, d
         if (hasSecurityContact && hasPrivacyContact) return "implemented";
         if (hasSecurityContact || hasPrivacyContact) return "partial";
         if (asset.asset_manager || meta.security_responsibility_defined) return "implemented";
-        return "missing";
+        return deriveSelfFromProfile("security_responsibility", profile) ?? "missing";
       },
       documented_policies: () => {
         const val = meta.documented_policies;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("documented_policies", profile) ?? "missing";
       },
       risk_assessment_recent: () => {
         const val = meta.risk_assessment_recent;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("risk_assessment_recent", profile) ?? "missing";
       },
       incident_handling: () => {
         const val = meta.incident_handling;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : (meta.incident_reporting_defined ? "implemented" : "missing");
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        if (meta.incident_reporting_defined) return "implemented";
+        return deriveSelfFromProfile("incident_handling", profile) ?? "missing";
       },
       access_control: () => {
         const val = meta.access_control;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("access_control", profile) ?? "missing";
       },
       mfa_org: () => {
         const val = meta.mfa_org;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("mfa_org", profile) ?? "missing";
       },
       encryption_org: () => {
         const val = meta.encryption_org;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("encryption_org", profile) ?? "missing";
       },
       logging_monitoring: () => {
         const val = meta.logging_monitoring;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("logging_monitoring", profile) ?? "missing";
       },
       security_testing: () => {
         const val = meta.security_testing;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("security_testing", profile) ?? "missing";
       },
       ropa: () => {
         const val = meta.ropa;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("ropa", profile) ?? "missing";
       },
       dpa_org: () => {
         const val = meta.dpa_org;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("dpa_org", profile) ?? "missing";
       },
       dpia: () => {
         const val = meta.dpia;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("dpia", profile) ?? "missing";
       },
       data_subject_rights: () => {
         const val = meta.data_subject_rights;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("data_subject_rights", profile) ?? "missing";
       },
       data_storage_control: () => {
         const val = meta.data_storage_control;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("data_storage_control", profile) ?? "missing";
       },
       vendor_inventory: () => {
         const val = meta.vendor_inventory;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("vendor_inventory", profile) ?? "missing";
       },
       vendor_risk_assessment: () => {
         const val = meta.vendor_risk_assessment;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("vendor_risk_assessment", profile) ?? "missing";
       },
       vendor_followup: () => {
         const val = meta.vendor_followup;
-        return val === "yes" ? "implemented" : val === "partial" ? "partial" : "missing";
+        if (val === "yes") return "implemented";
+        if (val === "partial") return "partial";
+        return deriveSelfFromProfile("vendor_followup", profile) ?? "missing";
       },
     },
   };
@@ -199,6 +319,21 @@ export function useTrustControlEvaluation(assetId: string) {
     enabled: !!assetId,
   });
 
+  // Company profile is used to derive partial/implemented fallbacks for "self"-type assets
+  // when the asset metadata does not yet store explicit answers (e.g. straight after onboarding).
+  const { data: companyProfile = null } = useQuery({
+    queryKey: ["company-profile-for-trust-eval"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("company_profile" as any)
+        .select("governance_level, compliance_organization, compliance_officer, compliance_officer_email, dpo_name, dpo_email, ciso_name, ciso_email")
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as any) || null;
+    },
+  });
+
   return useMemo(() => {
     if (!asset) return null;
 
@@ -222,7 +357,7 @@ export function useTrustControlEvaluation(assetId: string) {
     const typeDefinitions = getTypeSpecificControls(effectiveType);
     const evaluatedType: EvaluatedControl[] = typeDefinitions.map((c) => applyNotApplicable({
       ...c,
-      status: evaluateTypeControl(c.key, effectiveType, assetLike, docsCount),
+      status: evaluateTypeControl(c.key, effectiveType, assetLike, docsCount, companyProfile),
       verificationSource: inferVerificationSource(c.key, assetLike, docsCount),
     }));
     
@@ -285,5 +420,5 @@ export function useTrustControlEvaluation(assetId: string) {
       evidenceSummary,
       evidenceChecks,
     };
-  }, [asset, docsCount, evidenceChecks]);
+  }, [asset, docsCount, evidenceChecks, companyProfile]);
 }
