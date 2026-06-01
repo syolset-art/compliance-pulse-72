@@ -45,7 +45,7 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
   }
 
   const overall = evaluation.trustScore;
-  const overallColor = colorFor(overall);
+  const overallColor = colorFor(overall, "overall");
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
