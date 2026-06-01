@@ -353,7 +353,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
               </div>
 
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1.5">
+                <p className="text-sm font-medium text-muted-foreground uppercase mb-1.5">
                   {isNb
                     ? `Velg leverandører (${selected.size}/${vendors.length})`
                     : `Select vendors (${selected.size}/${vendors.length})`}
