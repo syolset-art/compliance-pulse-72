@@ -1458,6 +1458,21 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
   const suggestions = useMemo(() => findVendorSuggestions(query, 6), [query]);
   const knownVendor = useMemo(() => findVendorByName(row.name), [row.name]);
 
+  // Sync external changes (demo auto-play) into local query + open suggestions
+  useEffect(() => {
+    if (row.name !== query) {
+      setQuery(row.name);
+      if (row.name.length > 0 && !row.purpose.trim()) {
+        setOpen(true);
+      }
+    }
+    // Close dropdown once the row has been "selected" (purpose filled)
+    if (row.purpose.trim() && open) {
+      setOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [row.name, row.purpose]);
+
   const selectVendor = (v: VendorSuggestion) => {
     const patch: Partial<CriticalVendorRow> = { name: v.name };
     if (!row.purpose.trim()) patch.purpose = v.category;
