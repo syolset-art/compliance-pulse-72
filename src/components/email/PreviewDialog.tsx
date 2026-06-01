@@ -22,6 +22,14 @@ const OFFER_VARS = {
   tilbud_pdf: "Tilbud-DIPS-Arena.pdf",
 };
 
+const CUSTOMER_PROFILE_INVITATION_VARS = {
+  avsender_selskap: "Nordlys Sikkerhet AS",
+  avsender_navn: "Ola Nordmann",
+  kontaktnavn: "Kari",
+  mottaker_selskap: "Hult IT AS",
+  profil_lenke: "https://mynder.no/profil/hult-it-as",
+};
+
 function substitute(text: string, vars: Record<string, string>): string {
   return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => vars[k] ?? `{{${k}}}`);
 }
@@ -38,12 +46,24 @@ export function PreviewDialog({
   const meta = TEMPLATE_META[type];
   const title = language === "no" ? meta.titleNo : meta.titleEn;
 
-  const vars = type === "offer" ? OFFER_VARS : {};
+  const isOffer = type === "offer";
+  const isCustomerProfileInvitation = type === "customer_profile_invitation";
+
+  const vars = isOffer
+    ? OFFER_VARS
+    : isCustomerProfileInvitation
+    ? CUSTOMER_PROFILE_INVITATION_VARS
+    : {};
   const subject = substitute(template.subject, vars);
   const body = substitute(template.body, vars);
-  const senderOrg = senderOrganization ?? (type === "offer" ? OFFER_VARS.avsender_selskap : "Mynder AS");
+  const senderOrg =
+    senderOrganization ??
+    (isOffer
+      ? OFFER_VARS.avsender_selskap
+      : isCustomerProfileInvitation
+      ? CUSTOMER_PROFILE_INVITATION_VARS.avsender_selskap
+      : "Mynder AS");
 
-  const isOffer = type === "offer";
   const attachments: EmailAttachment[] | undefined = isOffer
     ? [{ filename: OFFER_VARS.tilbud_pdf, sizeLabel: "248 KB" }]
     : undefined;
@@ -58,7 +78,22 @@ export function PreviewDialog({
     ? language === "no"
       ? `Med vennlig hilsen,\n${OFFER_VARS.avsender_navn}\n${OFFER_VARS.avsender_selskap}`
       : `Kind regards,\n${OFFER_VARS.avsender_navn}\n${OFFER_VARS.avsender_selskap}`
+    : isCustomerProfileInvitation
+    ? language === "no"
+      ? `Med vennlig hilsen,\n${CUSTOMER_PROFILE_INVITATION_VARS.avsender_navn}\n${CUSTOMER_PROFILE_INVITATION_VARS.avsender_selskap}`
+      : `Kind regards,\n${CUSTOMER_PROFILE_INVITATION_VARS.avsender_navn}\n${CUSTOMER_PROFILE_INVITATION_VARS.avsender_selskap}`
     : null;
+
+  const fromName = isOffer
+    ? OFFER_VARS.avsender_navn
+    : isCustomerProfileInvitation
+    ? CUSTOMER_PROFILE_INVITATION_VARS.avsender_navn
+    : "Mynder";
+  const fromEmail = isOffer
+    ? "ola.nordmann@nordlys-sikkerhet.no"
+    : isCustomerProfileInvitation
+    ? "ola.nordmann@nordlys-sikkerhet.no"
+    : "no-reply@mynder.no";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -87,8 +122,8 @@ export function PreviewDialog({
         <div className="px-6 pb-6">
           <EmailPreviewFrame
             subject={subject}
-            fromName={isOffer ? OFFER_VARS.avsender_navn : "Mynder"}
-            fromEmail={isOffer ? "ola.nordmann@nordlys-sikkerhet.no" : "no-reply@mynder.no"}
+            fromName={fromName}
+            fromEmail={fromEmail}
           >
             <EmailLayout
               subject={subject}
