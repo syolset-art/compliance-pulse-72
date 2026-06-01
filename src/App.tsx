@@ -63,6 +63,7 @@ import MSPSalesGuide from "./pages/MSPSalesGuide";
 import BliPartner from "./pages/BliPartner";
 import MSPCustomerROI from "./pages/MSPCustomerROI";
 import MynderMe from "./pages/MynderMe";
+import EmailTemplates from "./pages/EmailTemplates";
 import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture";
 import DashboardV2 from "./pages/DashboardV2";
 import FeatureGuide from "./pages/FeatureGuide";
