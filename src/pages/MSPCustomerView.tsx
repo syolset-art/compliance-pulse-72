@@ -4,11 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmailOfferView } from "@/components/msp/customer-view/EmailOfferView";
 import { CatalogView } from "@/components/msp/customer-view/CatalogView";
 import { PublicProfileView } from "@/components/msp/customer-view/PublicProfileView";
+import { GrantAuthorityView } from "@/components/msp/customer-view/GrantAuthorityView";
 import { HandoverEmailView } from "@/components/msp/customer-view/HandoverEmailView";
 import { DeliveryReportView } from "@/components/msp/customer-view/DeliveryReportView";
 import { Eye } from "lucide-react";
 
-type ViewTab = "email-offer" | "catalog" | "public-profile" | "handover" | "report";
+type ViewTab = "email-offer" | "catalog" | "public-profile" | "grant-authority" | "handover" | "report";
 
 export default function MSPCustomerView() {
   const [tab, setTab] = useState<ViewTab>("email-offer");
@@ -36,13 +37,15 @@ export default function MSPCustomerView() {
               <TabsTrigger value="email-offer">1. Tilbud (e-post)</TabsTrigger>
               <TabsTrigger value="catalog">2. Tjenestekatalog</TabsTrigger>
               <TabsTrigger value="public-profile">3. Trust Profile (offentlig)</TabsTrigger>
-              <TabsTrigger value="handover">4. Overlevering (e-post)</TabsTrigger>
-              <TabsTrigger value="report">5. Leveranserapport (PDF)</TabsTrigger>
+              <TabsTrigger value="grant-authority">4. Gi fullmakt</TabsTrigger>
+              <TabsTrigger value="handover">5. Overlevering (e-post)</TabsTrigger>
+              <TabsTrigger value="report">6. Leveranserapport (PDF)</TabsTrigger>
             </TabsList>
 
             <TabsContent value="email-offer"><EmailOfferView /></TabsContent>
             <TabsContent value="catalog"><CatalogView /></TabsContent>
             <TabsContent value="public-profile"><PublicProfileView /></TabsContent>
+            <TabsContent value="grant-authority"><GrantAuthorityView /></TabsContent>
             <TabsContent value="handover"><HandoverEmailView /></TabsContent>
             <TabsContent value="report"><DeliveryReportView /></TabsContent>
           </Tabs>
