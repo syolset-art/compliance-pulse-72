@@ -767,7 +767,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               const privacyEmail = a.privacy_contact_email || cp.dpo_email || mc.privacy;
               const securityEmail = a.security_contact_email || cp.ciso_email || mc.security;
               const privacyUrl = a.privacy_policy_url;
-              const incidentUrl = a.incident_report_url;
               const incidentEmail = mc.incident_email;
               const incidentPhone = mc.incident_phone;
               const privacyAddress = a.privacy_contact_address || mc.postal_address;
@@ -2176,7 +2175,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     const privacyEmail = a.privacy_contact_email || cp.dpo_email;
                     const securityEmail = a.security_contact_email || cp.ciso_email;
                     const privacyUrl = a.privacy_policy_url;
-                    const incidentUrl = a.incident_report_url;
                     const privacyAddress = a.privacy_contact_address;
 
                     const generalName = a.contact_name || cp.ceo_name;

@@ -24,7 +24,6 @@ export function ContactsSection({ asset }: ContactsSectionProps) {
     security_contact_email: asset?.security_contact_email || contacts.security || "",
     incident_email: contacts.incident_email || "",
     incident_phone: contacts.incident_phone || "",
-    incident_report_url: asset?.incident_report_url || "",
     privacy_contact_address: asset?.privacy_contact_address || contacts.postal_address || "",
   });
 
@@ -38,7 +37,6 @@ export function ContactsSection({ asset }: ContactsSectionProps) {
       security_contact_email: asset?.security_contact_email || contacts.security || "",
       incident_email: contacts.incident_email || "",
       incident_phone: contacts.incident_phone || "",
-      incident_report_url: asset?.incident_report_url || "",
       privacy_contact_address: asset?.privacy_contact_address || contacts.postal_address || "",
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,19 +172,6 @@ export function ContactsSection({ asset }: ContactsSectionProps) {
               onBlur={(e) => {
                 const v = e.target.value.trim();
                 if (v !== form.incident_phone) { setField("incident_phone", v); saveMetaOnly("incident_phone", v); }
-              }}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">Lenke til avviksrapportering <span className="text-muted-foreground font-normal">(valgfri)</span></label>
-            <Input
-              type="url"
-              defaultValue={form.incident_report_url}
-              placeholder="https://firma.no/rapporter-hendelse"
-              className="text-sm"
-              onBlur={(e) => {
-                const v = e.target.value.trim();
-                if (v !== form.incident_report_url) { setField("incident_report_url", v); saveColumn("incident_report_url", v); }
               }}
             />
           </div>
