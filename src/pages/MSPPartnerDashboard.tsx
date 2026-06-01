@@ -178,7 +178,7 @@ function ClaimRateWidget() {
       onClick={() => navigate("/msp-partner/widget/claim-rate")}
       className="relative overflow-hidden border-0 p-0 cursor-pointer group"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary via-purple-600 to-fuchsia-600" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary via-indigo-700 to-primary/80" />
       <div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
       <div className="relative flex items-center gap-4 p-5 text-white">
         <div className="relative h-24 w-24 shrink-0">
