@@ -2330,3 +2330,104 @@ function PartnerSelectionBlock({
     </div>
   );
 }
+
+/* -------------------- Org step partner question -------------------- */
+
+function OrgPartnerQuestion({
+  status, setStatus,
+  name, setName,
+  grantAuthority, setGrantAuthority,
+  authorityAccepted, setAuthorityAccepted,
+}: {
+  status: "auto" | "yes" | "no" | "unknown" | null;
+  setStatus: (s: "yes" | "no" | "unknown") => void;
+  name: string;
+  setName: (v: string) => void;
+  grantAuthority: boolean;
+  setGrantAuthority: (v: boolean) => void;
+  authorityAccepted: boolean;
+  setAuthorityAccepted: (v: boolean) => void;
+}) {
+  const isYes = status === "yes" || status === "auto";
+  return (
+    <div className="space-y-3 pt-4 border-t border-border">
+      <div className="flex items-start gap-2">
+        <Handshake className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <div>
+          <h3 className="text-sm font-semibold">Har dere en partner som jobber med IT og sikkerhet?</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Hvis ja, kan dere gi partneren fullmakt til å oppdatere Trust Profilen på vegne av dere.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        {[
+          { v: "yes" as const, label: "Ja" },
+          { v: "no" as const, label: "Nei" },
+          { v: "unknown" as const, label: "Vet ikke" },
+        ].map((opt) => {
+          const selected = (opt.v === "yes" && isYes) || status === opt.v;
+          return (
+            <button
+              key={opt.v}
+              type="button"
+              onClick={() => setStatus(opt.v)}
+              className={`text-left rounded-xl border p-3 text-xs font-medium transition-all ${
+                selected
+                  ? "border-[hsl(var(--mynder-blue))] bg-[hsl(var(--mynder-blue))]/5 ring-2 ring-[hsl(var(--mynder-blue))]/20"
+                  : "border-border hover:border-foreground/20"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {isYes && (
+        <Card className="p-3 space-y-3 border-primary/20 bg-primary/5">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Navn på partner</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="F.eks. Atea, Sopra Steria"
+              className="h-9 text-sm"
+            />
+          </div>
+
+          <label className="flex items-start gap-2 cursor-pointer select-none rounded-md bg-background/60 border border-border p-2.5">
+            <Checkbox
+              checked={grantAuthority}
+              onCheckedChange={(v) => setGrantAuthority(v === true)}
+              className="mt-0.5"
+            />
+            <span className="text-xs text-foreground leading-snug">
+              Gi <strong>{name.trim() || "partneren"}</strong> fullmakt til å oppdatere og vedlikeholde vår Trust Profile.
+            </span>
+          </label>
+
+          {grantAuthority && (
+            <div className="rounded-md bg-warning/10 border border-warning/30 p-2.5 space-y-2">
+              <p className="text-[12px] text-foreground leading-snug">
+                Partneren får tilgang til å redigere innhold, laste opp dokumenter og endre svar i Trust Profilen. Tilgangen kan trekkes tilbake når som helst.
+              </p>
+              <label className="flex items-start gap-2 cursor-pointer select-none">
+                <Checkbox
+                  checked={authorityAccepted}
+                  onCheckedChange={(v) => setAuthorityAccepted(v === true)}
+                  className="mt-0.5"
+                />
+                <span className="text-xs text-foreground leading-snug">
+                  Jeg bekrefter at jeg har myndighet til å gi denne fullmakten.
+                </span>
+              </label>
+            </div>
+          )}
+        </Card>
+      )}
+    </div>
+  );
+}
+
