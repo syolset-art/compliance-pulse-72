@@ -1601,5 +1601,115 @@
     "error": "Could not add vendor",
     "added": "Added",
     "internalDb": "Our database"
+  },
+  "mspServices": {
+    "page": {
+      "title": "Services",
+      "subtitle": "Define your own services and see how they map to controls across regulations."
+    },
+    "tabs": {
+      "catalog": "Service catalog",
+      "settings": "Settings",
+      "howItWorks": "How it works"
+    },
+    "catalog": {
+      "suggestedTitle": "Suggested services",
+      "suggestedSubtitle": "Based on what we know about your partner profile and the services you deliver today.",
+      "describeOwn": "Describe your own service",
+      "colService": "Service",
+      "colFrameworks": "Regulations",
+      "added": "Added",
+      "addBtn": "Add",
+      "advancedToggle": "Advanced: full library and regulation builder",
+      "mynderTitle": "Mynder services",
+      "mynderIncluded": "Included in every delivery",
+      "myTitle": "My services",
+      "servicesCount_one": "{{count}} service",
+      "servicesCount_other": "{{count}} services",
+      "editAria": "Edit service",
+      "removeAria": "Remove service",
+      "hoursShort": "h",
+      "customBuilderHint": "Build a custom service by ticking controls across regulations. Lara estimates scope from selected CPs.",
+      "tag": {
+        "recommended": "Recommended for you",
+        "popular": "Popular",
+        "trending": "Trending"
+      },
+      "toast": {
+        "adopted": "{{name}} adopted",
+        "adoptedDesc": "Edit to adjust activities — price is calculated from hourly rate.",
+        "updated": "\"{{name}}\" updated",
+        "added": "\"{{name}}\" added to the catalog"
+      }
+    },
+    "settings": {
+      "hourlyTitle": "Standard hourly rate",
+      "hourlyDesc": "Used as the baseline for every new service and offer. You can override the rate per service later.",
+      "currency": "Currency",
+      "hourly": "Hourly rate",
+      "save": "Save default hourly rate",
+      "invalidTitle": "Invalid hourly rate",
+      "invalidDesc": "Enter a positive number.",
+      "savedToast": "Default hourly rate saved",
+      "currencyUpdated": "Currency updated",
+      "currencyUpdatedDesc": "Now using {{code}}.",
+      "templateTitle": "Offer template",
+      "templateDesc": "Logo, partner name and tagline shown in offers you send to customers."
+    },
+    "howItWorks": {
+      "heroTitle": "Turn existing IT and security services into measurable compliance delivery",
+      "heroBody": "The services you already deliver are mapped to controls in your customer's chosen regulations — and documented automatically as you work.",
+      "outcomesTitle": "How the customer's trust profile is enriched",
+      "outcomesBody": "When you deliver, the customer's trust profile updates automatically.",
+      "ctaTitle": "Ready to set up your services?",
+      "ctaBody": "Start with the catalog, or adjust the default hourly rate and offer template first.",
+      "ctaPrimary": "Go to service catalog",
+      "ctaSecondary": "Set default hourly rate",
+      "steps": {
+        "0": {
+          "title": "Define your services",
+          "body": "Describe the IT and security services you deliver today — backup, MDR, identity, operations and more. Add activities, hour estimates and which controls they cover."
+        },
+        "1": {
+          "title": "Auto-mapping to regulations",
+          "body": "Lara maps each service to controls across the customer's chosen regulations (NIS2, ISO 27001, GDPR and more) — a single service can cover controls in several regulations at once."
+        },
+        "2": {
+          "title": "Become part of the offer",
+          "body": "Your services become building blocks in the customer offer. Price and scope are calculated from your default hourly rates, and the customer clearly sees which controls are covered."
+        },
+        "3": {
+          "title": "Deliver and document as you go",
+          "body": "When you do the work, you answer short questions tied to each activity. Answers are automatically mapped to controls across all chosen regulations — no double work."
+        },
+        "4": {
+          "title": "Final report to the customer",
+          "body": "When delivery is complete, a final report is generated automatically with work done, evidence and updated maturity status. Download and send to the customer in one click."
+        }
+      },
+      "outcomes": {
+        "0": {
+          "title": "Maturity grows",
+          "body": "Every control you deliver lifts the customer's maturity in the affected regulations."
+        },
+        "1": {
+          "title": "Visible partner",
+          "body": "The customer clearly sees which controls you as a partner stand behind — you become a visible part of their compliance story."
+        },
+        "2": {
+          "title": "Automatic evidence",
+          "body": "Answers and documentation from the delivery become evidence in the customer's trust profile — always up to date, always traceable."
+        }
+      }
+    },
+    "defaults": {
+      "coreName": "Mynder Core",
+      "coreDesc": "Base package for compliance, governance and reporting — the foundation every customer starts with.",
+      "vendorName": "Vendor module (Mynder)",
+      "vendorDesc": "End-to-end third-party management: discovery, risk assessment and vendor follow-up.",
+      "agentsName": "Agent governance (Mynder)",
+      "agentsDesc": "Register, classification and control of AI agents — MACF level, ownership and ongoing follow-up."
+    }
   }
 }
+
