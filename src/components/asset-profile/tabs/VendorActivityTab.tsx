@@ -281,27 +281,24 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                           </div>
                           <div className="flex-1 min-w-0 pb-3">
                             <div className="flex items-center justify-between gap-3">
-                              <p className="text-sm font-medium text-foreground break-words min-w-0 flex-1">
-                                {isNb ? act.titleNb : act.titleEn}
-                              </p>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <span
-                                  className={cn("h-2 w-2 rounded-full", statusConf.dot)}
-                                  aria-label={isNb ? statusConf.nb : statusConf.en}
-                                  title={isNb ? statusConf.nb : statusConf.en}
-                                />
-                                <span className="text-xs text-muted-foreground whitespace-nowrap tabular-nums">
-                                  {formatRelativeDate(act.date, isNb)}
-                                </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium text-foreground break-words">
+                                  {isNb ? act.titleNb : act.titleEn}
+                                </p>
+                                {act.actor && (
+                                  <p className="text-xs text-muted-foreground mt-0.5 break-words">
+                                    {isNb ? "av " : "by "}
+                                    <span className="text-foreground/80">{act.actor}</span>
+                                    {act.actorRole && <span>, {act.actorRole}</span>}
+                                  </p>
+                                )}
                               </div>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap tabular-nums shrink-0">
+                                {formatRelativeDate(act.date, isNb)}
+                              </span>
                             </div>
-                            {shouldShowAction(act.outcomeStatus) && (
-                              <ActivityActionAffordance
-                                activity={act}
-                                onLaraStart={() => updateActivity(act.id, { outcomeStatus: "in_progress", outcomeNb: ACTIVITY_STATUS_CONFIG.in_progress.nb, outcomeEn: ACTIVITY_STATUS_CONFIG.in_progress.en })}
-                              />
-                            )}
                           </div>
+
 
                         </div>
                         {isStatusEditing && (
