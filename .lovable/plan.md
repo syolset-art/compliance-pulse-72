@@ -1,29 +1,37 @@
-## Overta kundens Trust Profile (Veiledning fra Mynder)
+## Mål
+I aktiveringsveiviseren for Trust Profile skal brukeren under **Organisasjon** (steg 1) også svare på om de har en partner som jobber med IT og sikkerhet. Svarer de ja, må de oppgi partnerens navn og aktivt akseptere at partneren får fullmakt til å oppdatere profilen.
 
-Legg til et nytt kort øverst på fanen «Veiledning fra Mynder» i `MSPCustomerDetail.tsx` som lar partner overta kundens Trust Profile på to måter:
+## Endringer (kun frontend)
 
-1. **Bekreft eksisterende avtale** — partner huker av at de allerede har en signert leveranseavtale med kunden, og bekrefter overtakelse umiddelbart.
-2. **Be om fullmakt fra kunden** — partner sender en e-post til kunden som ber dem gi fullmakt. Status settes til «Venter på fullmakt».
+Fil: `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx`
 
-### Ny komponent
-`src/components/msp/TakeoverTrustProfileCard.tsx`
-- Header: «Overta kundens Trust Profile» med Lara-/`ShieldCheck`-ikon og kort forklaring: «For å jobbe i kundens profil må du ha fullmakt — enten via signert avtale, eller ved å be kunden bekrefte direkte.»
-- Tre tilstander (lagret i `localStorage`-nøkkel `mynder:takeover:<customerId>` for demo):
-  - **`none`** — viser to CTA-knapper:
-    - «Jeg har avtale med kunden» (primær) → åpner en `Dialog` med avkrysning av to vilkår («Vi har signert leveranseavtale» + «Jeg bekrefter at jeg har fullmakt på vegne av kunden»), aktiverer «Bekreft overtakelse».
-    - «Be kunden om fullmakt» (sekundær) → åpner en `Dialog` med forhåndsutfylt e-postutkast (emne/innhold som matcher Kundevisning > Overlevering-e-posten), redigerbart, og «Send forespørsel».
-  - **`pending`** — viser status-pille «Venter på fullmakt fra [kontaktnavn]», tidspunkt sendt, knapper «Send påminnelse» og «Avbryt forespørsel».
-  - **`granted`** — viser grønn status «Fullmakt aktiv» med kilde («Signert avtale bekreftet …» eller «Kunde ga fullmakt …»), tidspunkt, og knapp «Trekk tilbake».
+1. **Flytt partner-blokken fra steg 6 til steg 1 (Organisasjon).**
+   - Eksisterende state (`partnerStatus`, `partnerName`, `partnerCompanyId`, `partnerType`, `showPartnerOnProfile`) gjenbrukes.
+   - Legg til ny state: `partnerGrantAuthority: boolean` (default `false`) og `partnerAuthorityAccepted: boolean` (default `false`).
+   - Auto-deteksjon (`managed_by_partner` / `msp_customers`) beholdes og forhåndsutfyller "Ja".
 
-### Endringer i `MSPCustomerDetail.tsx`
-- Importer og monter `<TakeoverTrustProfileCard customerId={customerId} customerName={...} contactName={...} contactEmail={...} />` som første element i `<TabsContent value="guidance">`, før `LaraRecommendationBanner`.
-- Ingen andre endringer i sidens logikk.
+2. **UI under nettsted-verifisering i steg 1:**
+   - Spørsmål: «Har dere en partner som jobber med IT og sikkerhet for dere?» med valg Ja / Nei / Vet ikke.
+   - Ved **Ja**:
+     - Tekstfelt: «Navn på partner» (påkrevd).
+     - Checkbox: «Gi partneren fullmakt til å oppdatere Trust Profile på vegne av oss.»
+     - Når checkbox er på vises kort forklaring + ekstra påkrevd checkbox: «Jeg bekrefter at jeg har myndighet til å gi denne fullmakten» (aksept).
+   - Ved **Nei / Vet ikke**: ingen ekstra felter.
 
-### Implementering / scope
-- Kun frontend. Demo-state i `localStorage`, ingen database-/edge-endringer.
-- Bruker eksisterende shadcn-komponenter (`Card`, `Dialog`, `Button`, `Checkbox`, `Textarea`, `Input`, `Badge`) og semantiske design-tokens (primær lilla, `bg-success`/`bg-warning`).
-- E-postutkastet i fullmakts-dialogen gjenbruker tekstmalen fra `HandoverEmailView` (samme språk: «gi [Partner] fullmakt til å jobbe i profilen»), men sendes ikke faktisk — vi viser bare en `toast.success` for demo.
+3. **Valideringsregel i `canNext` for steg 1:**
+   - Krev at `partnerStatus` er valgt.
+   - Hvis `partnerStatus === "yes"`: krev `partnerName.trim()`. Hvis `partnerGrantAuthority` er true: krev `partnerAuthorityAccepted`.
 
-### Filer
-- Opprettes: `src/components/msp/TakeoverTrustProfileCard.tsx`
-- Endres: `src/pages/MSPCustomerDetail.tsx` (én import + ett element øverst i guidance-tabben)
+4. **Steg 6:** fjern partner-spørsmålet derfra (vises kun i steg 1 nå). Synlighet-delen beholdes uendret.
+
+5. **Publisering (`handlePublish` / `seedFromActivation`-kall):** send med `partnerGrantAuthority` og `partnerAuthorityAccepted` der `partnerName`/`partnerStatus` allerede sendes, slik at fullmakts-status lagres sammen med partner-info. Ingen schema-endring i denne omgangen — feltene logges/persisteres på samme måte som dagens partner-felter.
+
+## Tekst (norsk, kort og presis)
+- Spørsmål: **«Har dere en partner som jobber med IT og sikkerhet?»**
+- Fullmakt-tekst: **«Vi gir [partner] fullmakt til å oppdatere og vedlikeholde vår Trust Profile.»**
+- Aksept: **«Jeg bekrefter at jeg har myndighet til å gi denne fullmakten.»**
+
+## Ikke-mål
+- Ingen endring i backend-tabeller eller RLS.
+- Ingen endring i e-post/overlevering-flyt.
+- Ingen endring i andre wizard-steg utover å fjerne duplisert partner-blokk fra steg 6.
