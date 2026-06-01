@@ -57,7 +57,7 @@ export function GapAnalysisSummary({
             <AlertTriangle className="h-3 w-3" /> {isNb ? "Åpne gap" : "Open gaps"}
           </p>
           <p className="text-2xl font-semibold tabular-nums text-foreground">{totalGaps}</p>
-          <p className="text-[12px] text-destructive">
+          <p className="text-sm text-destructive">
             {criticalGaps} {isNb ? "kritiske" : "critical"}
           </p>
         </div>
