@@ -114,7 +114,7 @@ export function MSPGapAnalysisStep({
                   <div>
                     <p className="text-sm text-foreground">{g.question_no}</p>
                     {g.iso_reference && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         {g.iso_reference}
                       </p>
                     )}
