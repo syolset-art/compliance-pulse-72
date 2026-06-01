@@ -246,7 +246,7 @@ export function MSPGapAnalysisDialog({
 function StatCard({ label, value, valueClass }: { label: string; value: number; valueClass?: string }) {
   return (
     <div className="rounded-md border border-border bg-background px-3 py-2.5">
-      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm text-muted-foreground">{label}</p>
       <p className={cn("text-xl font-semibold tabular-nums text-foreground", valueClass)}>{value}</p>
     </div>
   );
