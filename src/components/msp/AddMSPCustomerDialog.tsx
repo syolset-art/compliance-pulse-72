@@ -422,7 +422,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
             {stepIndicator}
             <div className="space-y-3">
               <button
-                onClick={() => setStep("search")}
+                onClick={() => setStep("country")}
                 className="w-full flex items-center gap-4 rounded-lg border border-border p-4 text-left hover:border-primary hover:bg-primary/5 transition-colors"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
