@@ -909,23 +909,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 </div>
               </div>
 
-              {/* Plan & billing */}
-              {(() => {
-                const tier = MSP_SUBSCRIPTION_TIERS.find((t) => t.name === form.subscription_plan);
-                return (
-                  <div className="rounded-lg border border-border p-3 space-y-1.5">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-foreground">Abonnement</span>
-                      <span className="font-medium text-foreground">
-                        {tier?.monthlyPriceKr === 0 ? "Gratis" : `${formatKr(tier?.monthlyPriceKr ?? 0)}/mnd`}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Credits-bruk faktureres løpende basert på kundens aktivitet.
-                    </p>
-                  </div>
-                );
-              })()}
 
               <div className="flex justify-between pt-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep("gap")} className="gap-1">
