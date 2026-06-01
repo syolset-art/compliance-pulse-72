@@ -589,7 +589,7 @@ export function OfferTemplateManager({
               <div className="text-sm font-semibold">Send denne malen</div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="r-name">Mottakernavn ("{{kontaktnavn}}")</Label>
+                  <Label htmlFor="r-name">{`Mottakernavn ({{kontaktnavn}})`}</Label>
                   <Input
                     id="r-name"
                     value={recipientName}
