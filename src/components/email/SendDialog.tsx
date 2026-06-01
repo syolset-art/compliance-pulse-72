@@ -38,6 +38,51 @@ export function SendDialog({
   const [ctaUrl, setCtaUrl] = useState(base.cta_url);
   const [submitting, setSubmitting] = useState(false);
 
+  type SavedTemplate = {
+    id: string;
+    name: string | null;
+    language: string;
+    subject: string;
+    body: string;
+    cta_text: string | null;
+    cta_url: string | null;
+    is_default: boolean;
+  };
+  const [savedTemplates, setSavedTemplates] = useState<SavedTemplate[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("__default__");
+
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      const { data } = await supabase
+        .from("email_templates")
+        .select("id,name,language,subject,body,cta_text,cta_url,is_default")
+        .eq("type", type)
+        .order("is_default", { ascending: false })
+        .order("updated_at", { ascending: false });
+      setSavedTemplates((data ?? []) as SavedTemplate[]);
+    })();
+  }, [open, type]);
+
+  const applyTemplate = (id: string) => {
+    setSelectedTemplateId(id);
+    if (id === "__default__") {
+      const b = getDefaultTemplate(type, language);
+      setSubject(b.subject);
+      setBody(b.body);
+      setCtaText(b.cta_text);
+      setCtaUrl(b.cta_url);
+      return;
+    }
+    const t = savedTemplates.find((x) => x.id === id);
+    if (!t) return;
+    setLanguage((t.language as EmailLanguage) || language);
+    setSubject(t.subject);
+    setBody(t.body);
+    setCtaText(t.cta_text ?? "");
+    setCtaUrl(t.cta_url ?? "");
+  };
+
   const meta = TEMPLATE_META[type];
   const title = language === "no" ? meta.titleNo : meta.titleEn;
 
