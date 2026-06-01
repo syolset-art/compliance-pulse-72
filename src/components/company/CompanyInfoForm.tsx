@@ -721,6 +721,22 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                   className="data-[state=checked]:bg-primary"
                 />
               </div>
+
+              <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
+                <div className="pr-3">
+                  <p className="text-xs font-medium text-foreground">Gi partneren fullmakt til modenhetsarbeid</p>
+                  <p className="text-[12px] text-muted-foreground">
+                    Lar partneren oppdatere modenhetssvar, laste opp dokumentasjon og vedlikeholde Trust Profilen på vegne av dere.
+                  </p>
+                </div>
+                <Switch
+                  checked={form.partner_maturity_authority}
+                  onCheckedChange={(v) => update("partner_maturity_authority", v as any)}
+                  disabled={!isEditing}
+                  className="data-[state=checked]:bg-primary"
+                />
+              </div>
+
             </div>
           );
         })()}
