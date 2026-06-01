@@ -382,7 +382,10 @@ const FrameworkDetailPage = () => {
               <p>Ingen krav i denne kategorien.</p>
             </div>
           )}
+          </>
+          )}
         </div>
+
       </main>
 
       {/* Manual documentation dialog */}
