@@ -3,9 +3,10 @@ import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Send, Mail, FileText, Building2, Users } from "lucide-react";
+import { Eye, Send, Mail, FileText, Building2, Users, Pencil } from "lucide-react";
 import { PreviewDialog } from "@/components/email/PreviewDialog";
 import { SendDialog } from "@/components/email/SendDialog";
+import { OfferTemplateManager } from "@/components/email/OfferTemplateManager";
 import { EmailLanguage } from "@/components/email/EmailLayout";
 import { EmailTemplateType, TEMPLATE_META } from "@/lib/emailTemplates";
 
