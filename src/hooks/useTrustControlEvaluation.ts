@@ -326,7 +326,7 @@ export function useTrustControlEvaluation(assetId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("company_profile" as any)
-        .select("governance_level, compliance_organization, compliance_officer, compliance_officer_email, dpo_name, dpo_email, ciso_name, ciso_email")
+        .select("governance_level, compliance_organization, compliance_officer, compliance_officer_email, dpo_name, dpo_email, ciso_name, ciso_email, org_number")
         .limit(1)
         .maybeSingle();
       if (error) throw error;
