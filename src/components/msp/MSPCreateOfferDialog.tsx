@@ -657,6 +657,7 @@ export function MSPCreateOfferDialog({
                         </div>
                       )}
                     </div>
+                    )}
 
                   </div>
                 </div>
