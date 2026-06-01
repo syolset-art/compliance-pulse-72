@@ -789,47 +789,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label className="text-sm mb-2 block">Land</Label>
-                <Select value={form.country_code} onValueChange={(v) => setForm({ ...form, country_code: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {["NO", "SE", "DK", "FI", "DE", "GB", "NL", "FR", "US"].map((cc) => (
-                      <SelectItem key={cc} value={cc}>{cc}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-sm mb-2 block">Abonnement</Label>
-                <RadioGroup
-                  value={form.subscription_plan}
-                  onValueChange={(v) => setForm({ ...form, subscription_plan: v })}
-                  className="grid gap-2"
-                >
-                  {MSP_SUBSCRIPTION_TIERS.map((tier) => (
-                    <label
-                      key={tier.id}
-                      className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
-                        form.subscription_plan === tier.name
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      <RadioGroupItem value={tier.name} className="mt-0.5" />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-foreground text-sm">{tier.name}</span>
-                          <span className="text-sm font-medium text-foreground">
-                            {tier.monthlyPriceKr === 0 ? "Gratis" : `${formatKr(tier.monthlyPriceKr)}/mnd`}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{tier.description}</p>
-                      </div>
-                    </label>
-                  ))}
-                </RadioGroup>
-              </div>
               <div className="flex justify-between pt-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep("results")} className="gap-1">
                   <ArrowLeft className="h-4 w-4" /> Tilbake
