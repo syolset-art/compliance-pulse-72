@@ -775,40 +775,54 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               const generalRole = a.contact_role || (cp.ceo_name ? (isNb ? "Daglig leder" : "CEO") : null);
               const generalSub = [generalName, generalRole].filter(Boolean).join(" · ");
 
-              const rows = [
-                generalEmail && {
-                  label: isNb ? "Generell kontakt" : "General contact",
-                  sub: generalSub || undefined,
-                  primary: { text: generalEmail, href: `mailto:${generalEmail}` },
+              const baseRoles = [
+                {
+                  key: "main",
+                  label: isNb ? "Hovedkontakt" : "Main contact",
+                  sub: isNb ? "Avtaler og DPA-er" : "Agreements and DPAs",
+                  email: generalEmail,
+                  extraSub: generalSub || undefined,
                 },
-                privacyEmail && {
-                  label: isNb ? "Personvernkontakt" : "Privacy contact",
-                  sub: isNb ? "For spørsmål om dine personopplysninger" : "For questions about your personal data",
-                  primary: { text: privacyEmail, href: `mailto:${privacyEmail}` },
+                {
+                  key: "privacy",
+                  label: isNb ? "Personvern / DPO" : "Privacy / DPO",
+                  sub: isNb ? "GDPR og personvernspørsmål" : "GDPR and privacy questions",
+                  email: privacyEmail,
                 },
-                securityEmail && {
+                {
+                  key: "security",
                   label: isNb ? "Sikkerhetskontakt" : "Security contact",
-                  sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues",
-                  primary: { text: securityEmail, href: `mailto:${securityEmail}` },
+                  sub: isNb ? "Sårbarheter og varsler" : "Vulnerabilities and alerts",
+                  email: securityEmail,
                 },
-                (incidentEmail || incidentPhone) && {
-                  label: isNb ? "Hendelseskontakt" : "Incident contact",
-                  sub: isNb ? "Døgnbemannet kontakt for aktive hendelser" : "24/7 contact for active incidents",
-                  primary: incidentEmail ? { text: incidentEmail, href: `mailto:${incidentEmail}` } : undefined,
-                  secondary: incidentPhone ? { text: incidentPhone, href: `tel:${incidentPhone}` } : undefined,
+                {
+                  key: "incident",
+                  label: isNb ? "Beredskapsansvarlig" : "Incident response lead",
+                  sub: isNb ? "Leder håndteringen ved hendelser — døgnet rundt" : "Leads incident response — 24/7",
+                  email: incidentEmail,
+                  phone: incidentPhone,
+                  emphasis: true,
                 },
-                privacyAddress && {
-                  label: isNb ? "Postadresse" : "Postal address",
-                  block: privacyAddress,
-                },
-              ].filter(Boolean) as any[];
-
-              const placeholders = [
-                { label: isNb ? "Generell kontakt" : "General contact", sub: isNb ? "Hovedkontakt for henvendelser" : "Main point of contact", missing: true },
-                { label: isNb ? "Personvernkontakt" : "Privacy contact", sub: isNb ? "For spørsmål om dine personopplysninger" : "For questions about your personal data", missing: true },
-                { label: isNb ? "Sikkerhetskontakt" : "Security contact", sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues", missing: true },
               ];
-              const display = rows.length > 0 ? rows : placeholders;
+
+              const rows = baseRoles.map((r) => {
+                const hasContact = !!(r.email || r.phone);
+                return {
+                  label: r.label,
+                  sub: r.extraSub || r.sub,
+                  emphasis: r.emphasis,
+                  missing: !hasContact,
+                  primary: r.email ? { text: r.email, href: `mailto:${r.email}` } : undefined,
+                  secondary: r.phone ? { text: r.phone, href: `tel:${r.phone}` } : undefined,
+                };
+              }) as any[];
+
+              if (privacyAddress) {
+                rows.push({ label: isNb ? "Postadresse" : "Postal address", block: privacyAddress });
+              }
+
+              const display = rows;
+
 
               return (
                 <>
@@ -827,10 +841,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     </div>
                     <div className="divide-y divide-border border-t border-border">
                       {display.map((r: any, i: number) => (
-                        <div key={i} className={`px-5 py-3.5 ${r.block ? "" : "flex items-start justify-between gap-6"}`}>
+                        <div key={i} className={`px-5 py-3.5 ${r.block ? "" : "flex items-start justify-between gap-6"} ${r.emphasis ? "bg-muted/30" : ""}`}>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-foreground">{r.label}</p>
-                            {r.sub && <p className="text-xs text-muted-foreground mt-0.5">{r.sub}</p>}
+                            {r.sub && <p className={`text-xs mt-0.5 ${r.emphasis ? "text-foreground font-medium" : "text-muted-foreground"}`}>{r.sub}</p>}
                             {r.block && <p className="text-xs text-muted-foreground mt-1">{r.block}</p>}
                           </div>
                           {!r.block && r.primary && (
