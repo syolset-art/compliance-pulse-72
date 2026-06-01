@@ -218,7 +218,7 @@ export function DashboardMaturityOverTime() {
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
             <XAxis
               dataKey="label"
-              tick={{ fontSize: 13, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 14, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
             />
@@ -226,7 +226,7 @@ export function DashboardMaturityOverTime() {
               domain={[40, 100]}
               ticks={[50, 65, 80, 95]}
               tickFormatter={(v) => `${v}%`}
-              tick={{ fontSize: 13, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 14, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
               width={36}
