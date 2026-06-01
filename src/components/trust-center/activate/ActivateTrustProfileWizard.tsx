@@ -1834,47 +1834,6 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
         )}
       </div>
 
-      {/* IT-/sikkerhetspartner */}
-      <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
-        <label className="flex items-start gap-2 cursor-pointer">
-          <Checkbox
-            checked={row.isSecurityPartner}
-            onCheckedChange={(v) =>
-              onChange({
-                isSecurityPartner: !!v,
-                ...(v ? {} : { partnerType: null }),
-              })
-            }
-            className="mt-0.5"
-          />
-          <div className="space-y-0.5">
-            <div className="text-xs font-medium">Dette er vår IT-/sikkerhetspartner</div>
-            <p className="text-[12px] text-muted-foreground">
-              Marker hvis leverandøren forvalter IT eller sikkerhet for dere.
-            </p>
-          </div>
-        </label>
-        {row.isSecurityPartner && (
-          <div className="pl-6 space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Type partner</Label>
-            <Select
-              value={row.partnerType ?? ""}
-              onValueChange={(v) => onChange({ partnerType: v as PartnerType })}
-            >
-              <SelectTrigger className="h-8 text-sm">
-                <SelectValue placeholder="Velg type…" />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(PARTNER_TYPE_LABEL) as PartnerType[]).map((k) => (
-                  <SelectItem key={k} value={k}>
-                    {PARTNER_TYPE_LABEL[k]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </div>
     </Card>
   );
 }
