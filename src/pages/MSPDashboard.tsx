@@ -455,14 +455,13 @@ export default function MSPDashboard() {
                       <button
                         type="button"
                         className={cn(
-                          "inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium hover:text-foreground transition-colors",
+                          "inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1.5 text-sm font-medium hover:text-foreground transition-colors",
                           (serviceTypeFilter.length || planFilter.length || segmentFilter.length) ? "text-primary border-primary/30" : "text-foreground/80"
                         )}
                       >
                         <Filter className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                        <span>Grupper</span>
                         {(serviceTypeFilter.length + planFilter.length + segmentFilter.length) > 0 && (
-                          <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[12px] font-semibold h-4 min-w-4 px-1 tabular-nums">
+                          <span className="inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[12px] font-semibold h-4 min-w-4 px-1 tabular-nums">
                             {serviceTypeFilter.length + planFilter.length + segmentFilter.length}
                           </span>
                         )}
