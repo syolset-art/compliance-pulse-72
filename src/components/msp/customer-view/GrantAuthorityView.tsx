@@ -34,45 +34,70 @@ await supabase.from('trust_profile_authorities').insert({
       }}
     >
       <div className="space-y-5">
-        {/* Lara-banner */}
-        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 md:p-5 space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="h-9 w-9 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0">
-              <Sparkles className="h-4.5 w-4.5" />
+        {/* Lara-banner / bekreftelse */}
+        {!granted ? (
+          <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 md:p-5 space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="h-9 w-9 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0">
+                <Sparkles className="h-4.5 w-4.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+                    Lara foreslår
+                  </span>
+                </div>
+                <h2 className="text-base font-semibold text-foreground">
+                  Gi din partner fullmakt til å øke modenheten
+                </h2>
+                <p className="text-sm text-foreground/80 mt-1 leading-relaxed">
+                  Gi <strong>{DEMO_PARTNER_NAME}</strong> fullmakt til å utføre aktiviteter på din
+                  Trust Profile. De kan da dokumentere kontroller, laste opp bevis og svare på
+                  henvendelser — slik at modenheten øker raskere uten at du må gjøre alt selv.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 pl-12">
+              <button
+                type="button"
+                onClick={() => setShowModal(true)}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Gi fullmakt
+              </button>
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                Les mer
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-success/30 bg-success/5 p-4 flex items-start gap-3">
+            <div className="h-9 w-9 rounded-full bg-success/15 text-success flex items-center justify-center shrink-0">
+              <Check className="h-4.5 w-4.5" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 mb-0.5">
-                <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  Lara foreslår
-                </span>
-              </div>
               <h2 className="text-base font-semibold text-foreground">
-                Gi din partner fullmakt til å øke modenheten
+                Fullmakt gitt til {DEMO_PARTNER_NAME}
               </h2>
-              <p className="text-sm text-foreground/80 mt-1 leading-relaxed">
-                Gi <strong>{DEMO_PARTNER_NAME}</strong> fullmakt til å utføre aktiviteter på din
-                Trust Profile. De kan da dokumentere kontroller, laste opp bevis og svare på
-                henvendelser — slik at modenheten øker raskere uten at du må gjøre alt selv.
+              <p className="text-sm text-foreground/80 mt-0.5">
+                Partner kan nå jobbe i din Trust Profile. Du kan når som helst trekke tilbake fullmakten i innstillinger.
               </p>
             </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 pl-12">
             <button
               type="button"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90"
+              onClick={() => { setGranted(false); setConsents({ scope: false, revoke: false }); }}
+              className="text-xs font-medium text-muted-foreground hover:text-foreground"
             >
-              <ShieldCheck className="h-4 w-4" />
-              Gi fullmakt
-            </button>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
-            >
-              Les mer
-              <ChevronRight className="h-3.5 w-3.5" />
+              Tilbakestill demo
             </button>
           </div>
-        </div>
+        )}
+
 
         {/* Trust Profile header */}
         <div className="space-y-3">
