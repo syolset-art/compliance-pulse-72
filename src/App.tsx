@@ -183,6 +183,7 @@ const App = () => (
                   <Route path="/resources/maturity" element={<MaturityMethodology />} />
                   <Route path="/resources/controls" element={<MynderControls />} />
                   <Route path="/trust-center/activate" element={<TrustCenterActivate />} />
+                  <Route path="/trust-center/profile" element={<TrustCenterProfile />} />
                   <Route path="/trust-center/profile/:id" element={<TrustCenterServiceProfile />} />
                   <Route path="/trust-center/edit" element={<TrustCenterEditProfile />} />
                   <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
