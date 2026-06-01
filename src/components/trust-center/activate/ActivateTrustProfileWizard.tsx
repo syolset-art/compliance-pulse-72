@@ -711,26 +711,6 @@ export default function ActivateTrustProfileWizard({
               }
             }}
           />
-          <OrgPartnerQuestion
-            status={partnerStatus}
-            setStatus={(s) => {
-              setPartnerStatus(s);
-              if (s !== "yes") {
-                setPartnerName("");
-                setPartnerGrantAuthority(false);
-                setPartnerAuthorityAccepted(false);
-              }
-            }}
-            name={partnerName}
-            setName={setPartnerName}
-            grantAuthority={partnerGrantAuthority}
-            setGrantAuthority={(v) => {
-              setPartnerGrantAuthority(v);
-              if (!v) setPartnerAuthorityAccepted(false);
-            }}
-            authorityAccepted={partnerAuthorityAccepted}
-            setAuthorityAccepted={setPartnerAuthorityAccepted}
-          />
         </div>
       )}
 
