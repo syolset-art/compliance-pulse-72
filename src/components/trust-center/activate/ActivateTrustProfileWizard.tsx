@@ -498,6 +498,9 @@ export default function ActivateTrustProfileWizard({
             companyId: partnerCompanyId,
             type: partnerType,
             showOnProfile: showPartnerOnProfile,
+            grantAuthority: partnerGrantAuthority,
+            authorityAccepted: partnerAuthorityAccepted,
+
             additional: additionalPartners.filter((p) => p.name.trim().length > 0),
           }
         : undefined,
