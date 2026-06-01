@@ -290,8 +290,6 @@ const TrustCenterEditProfile = () => {
             {/* Kontaktinformasjon */}
             <ContactsSection asset={asset} />
 
-            {/* Kritiske leverandører — Partner og leveranse er nå en del av leverandørtypen (MSP/MSSP/IT-partner) */}
-            <CriticalVendorsSection asset={asset} />
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Modenhet per kontrollområde */}
