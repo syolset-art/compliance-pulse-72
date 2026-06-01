@@ -421,7 +421,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
               )}
 
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1.5">
+                <p className="text-sm font-medium text-muted-foreground uppercase mb-1.5">
                   {isNb ? "Per leverandør" : "Per vendor"}
                 </p>
                 <div className="border border-border rounded-lg overflow-hidden">
