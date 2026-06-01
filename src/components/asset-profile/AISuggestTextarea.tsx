@@ -4,9 +4,17 @@ import { Sparkles, Loader2, Check, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+function parseSuggestionItems(raw: string): string[] {
+  return raw
+    .split(/\r?\n/)
+    .map((l) => l.replace(/^\s*[-*•\d.)]+\s*/, "").trim())
+    .filter((l) => l.length > 0);
+}
 
 interface Props {
   icon: React.ReactNode;
