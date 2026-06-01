@@ -46,9 +46,20 @@ interface BrregResult {
   forretningsadresse?: { kommune: string; poststed: string };
 }
 
-type Step = "method" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success";
+type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success";
 
-const STEP_LABELS = ["method", "search", "contact", "assessment", "gap", "confirm"];
+const STEP_LABELS = ["method", "country", "search", "contact", "assessment", "gap", "confirm"];
+
+const COUNTRIES: { code: string; name: string; registry: string; supported: boolean }[] = [
+  { code: "NO", name: "Norge", registry: "Brønnøysundregistrene", supported: true },
+  { code: "SE", name: "Sverige", registry: "Bolagsverket", supported: false },
+  { code: "DK", name: "Danmark", registry: "CVR", supported: false },
+  { code: "FI", name: "Finland", registry: "PRH", supported: false },
+  { code: "DE", name: "Tyskland", registry: "Handelsregister", supported: false },
+  { code: "GB", name: "Storbritannia", registry: "Companies House", supported: false },
+  { code: "NL", name: "Nederland", registry: "KVK", supported: false },
+  { code: "US", name: "USA", registry: "SEC EDGAR", supported: false },
+];
 
 interface BulkRow {
   org_number: string;
@@ -411,7 +422,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
             {stepIndicator}
             <div className="space-y-3">
               <button
-                onClick={() => setStep("search")}
+                onClick={() => setStep("country")}
                 className="w-full flex items-center gap-4 rounded-lg border border-border p-4 text-left hover:border-primary hover:bg-primary/5 transition-colors"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -445,6 +456,48 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <Badge variant="outline" className="text-xs">Kommer snart</Badge>
               </button>
             </div>
+          </>
+        )}
+
+        {/* Step: Country selection */}
+        {step === "country" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-lg">Velg land</DialogTitle>
+              <DialogDescription className="text-sm">
+                Lara søker i det offentlige virksomhetsregisteret i landet du velger
+              </DialogDescription>
+            </DialogHeader>
+            {stepIndicator}
+            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+              {COUNTRIES.map((c) => (
+                <button
+                  key={c.code}
+                  disabled={!c.supported}
+                  onClick={() => {
+                    setForm({ ...form, country_code: c.code });
+                    setStep("search");
+                  }}
+                  className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
+                    c.supported
+                      ? "border-border hover:border-primary hover:bg-primary/5"
+                      : "border-border opacity-50 cursor-not-allowed"
+                  } ${form.country_code === c.code ? "border-primary bg-primary/5" : ""}`}
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <MapPin className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground">{c.name}</p>
+                    <p className="text-xs text-muted-foreground">{c.registry}</p>
+                  </div>
+                  {!c.supported && <Badge variant="outline" className="text-xs">Kommer snart</Badge>}
+                </button>
+              ))}
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setStep("method")} className="gap-1 mt-2">
+              <ArrowLeft className="h-4 w-4" /> Tilbake
+            </Button>
           </>
         )}
 
@@ -592,7 +645,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   {searchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 </Button>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setStep("method")} className="gap-1">
+              <Button variant="ghost" size="sm" onClick={() => setStep("country")} className="gap-1">
                 <ArrowLeft className="h-4 w-4" /> Tilbake
               </Button>
             </div>
@@ -638,11 +691,10 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           </>
         )}
 
-        {/* Step: Verifying */}
+        {/* Step: Verifying — Lara baseline analysis */}
         {step === "verifying" && (
-          <div className="flex flex-col items-center justify-center py-12 gap-4">
-            <img src={laraButterfly} alt="Lara Soft" className="h-16 w-16 animate-pulse" />
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <div className="flex flex-col items-center justify-center py-10 gap-4">
+            <img src={laraButterfly} alt="Lara" className="h-16 w-16 animate-pulse" />
             {duplicateFound ? (
               <div className="text-center space-y-1">
                 <p className="font-medium text-destructive">Kunden finnes allerede</p>
@@ -651,9 +703,31 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 </p>
               </div>
             ) : (
-              <div className="text-center space-y-1">
-                <p className="font-medium text-foreground">Lara Soft sjekker...</p>
-                <p className="text-sm text-muted-foreground">Verifiserer {selectedCompany?.navn}</p>
+              <div className="text-center space-y-3 w-full max-w-sm">
+                <div>
+                  <p className="font-medium text-foreground">Lara analyserer {selectedCompany?.navn}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Henter offentlig informasjon og klargjør baseline for Trust Profile
+                  </p>
+                </div>
+                <div className="space-y-1.5 text-left text-xs">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                    <span>Verifisert i {COUNTRIES.find(c => c.code === form.country_code)?.registry || "registeret"}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                    <span>Henter bransje, ansatte og adresse</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                    <span>Foreslår regelverk basert på bransje</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                    <span>Klargjør baseline for Trust Profile</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -714,47 +788,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div>
-                <Label className="text-sm mb-2 block">Land</Label>
-                <Select value={form.country_code} onValueChange={(v) => setForm({ ...form, country_code: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {["NO", "SE", "DK", "FI", "DE", "GB", "NL", "FR", "US"].map((cc) => (
-                      <SelectItem key={cc} value={cc}>{cc}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-sm mb-2 block">Abonnement</Label>
-                <RadioGroup
-                  value={form.subscription_plan}
-                  onValueChange={(v) => setForm({ ...form, subscription_plan: v })}
-                  className="grid gap-2"
-                >
-                  {MSP_SUBSCRIPTION_TIERS.map((tier) => (
-                    <label
-                      key={tier.id}
-                      className={`flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors ${
-                        form.subscription_plan === tier.name
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                    >
-                      <RadioGroupItem value={tier.name} className="mt-0.5" />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-foreground text-sm">{tier.name}</span>
-                          <span className="text-sm font-medium text-foreground">
-                            {tier.monthlyPriceKr === 0 ? "Gratis" : `${formatKr(tier.monthlyPriceKr)}/mnd`}
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{tier.description}</p>
-                      </div>
-                    </label>
-                  ))}
-                </RadioGroup>
               </div>
               <div className="flex justify-between pt-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep("results")} className="gap-1">
@@ -876,23 +909,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 </div>
               </div>
 
-              {/* Plan & billing */}
-              {(() => {
-                const tier = MSP_SUBSCRIPTION_TIERS.find((t) => t.name === form.subscription_plan);
-                return (
-                  <div className="rounded-lg border border-border p-3 space-y-1.5">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-foreground">Abonnement</span>
-                      <span className="font-medium text-foreground">
-                        {tier?.monthlyPriceKr === 0 ? "Gratis" : `${formatKr(tier?.monthlyPriceKr ?? 0)}/mnd`}
-                      </span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Credits-bruk faktureres løpende basert på kundens aktivitet.
-                    </p>
-                  </div>
-                );
-              })()}
 
               <div className="flex justify-between pt-2">
                 <Button variant="ghost" size="sm" onClick={() => setStep("gap")} className="gap-1">
