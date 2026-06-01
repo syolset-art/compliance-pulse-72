@@ -420,5 +420,5 @@ export function useTrustControlEvaluation(assetId: string) {
       evidenceSummary,
       evidenceChecks,
     };
-  }, [asset, docsCount, evidenceChecks]);
+  }, [asset, docsCount, evidenceChecks, companyProfile]);
 }
