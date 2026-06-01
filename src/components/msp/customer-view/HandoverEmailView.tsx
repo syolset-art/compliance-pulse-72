@@ -58,7 +58,7 @@ export function HandoverEmailView() {
               type="button"
               className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90"
             >
-              Åpne Trust Profile og gi fullmakt
+              Logg inn og gi fullmakt
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
