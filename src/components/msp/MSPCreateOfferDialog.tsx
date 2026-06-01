@@ -112,7 +112,7 @@ export function MSPCreateOfferDialog({
   );
   const [message, setMessage] = useState(defaultMessage || "");
   const [attachGap, setAttachGap] = useState(attachGapProp);
-  const [showGapsInOffer, setShowGapsInOffer] = useState(true);
+  const [showGapsInOffer, setShowGapsInOffer] = useState(false);
   const [gapPreviewOpen, setGapPreviewOpen] = useState(false);
   const [gapsExpanded, setGapsExpanded] = useState(false);
   const [view, setView] = useState<"edit" | "preview" | "saved">(initialView);
@@ -549,7 +549,14 @@ export function MSPCreateOfferDialog({
                     </div>
 
                     {/* Brytere */}
-                    <div className="border-t border-border px-3 py-2 space-y-2">
+                    <div className="border-t border-border px-3 py-2 space-y-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-foreground">Vis mangelliste i tilbudet</p>
+                          <p className="text-xs text-muted-foreground">Inkluder mangellisten direkte i tilbudsteksten.</p>
+                        </div>
+                        <Switch checked={showGapsInOffer} onCheckedChange={setShowGapsInOffer} />
+                      </div>
                       <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-foreground">Legg ved som vedlegg i PDF</p>
@@ -579,7 +586,8 @@ export function MSPCreateOfferDialog({
                       </button>
                     </div>
 
-                    {/* Mangelliste (forhåndsvisning – alltid synlig) */}
+                    {/* Mangelliste (forhåndsvisning – kun når brukeren velger å vise) */}
+                    {showGapsInOffer && (
                     <div className="border-t border-border">
                       <div className="px-3 py-2 bg-muted/40 border-b border-border space-y-1.5">
                         <div className="flex items-center justify-between gap-2 text-xs">
@@ -649,6 +657,7 @@ export function MSPCreateOfferDialog({
                         </div>
                       )}
                     </div>
+                    )}
 
                   </div>
                 </div>
