@@ -556,27 +556,35 @@ export default function ActivateTrustProfileWizard({
   }, [autoPlay, open, step, isCalculating, isPublishing]);
 
   // ─── Auto-play: pre-fill a critical vendor on step 5 ──────────────────
-  // Demonstrates that a leverandør can be added. Fills the first empty row
-  // progressively so the viewer sees the input animate in.
+  // Demonstrates typing "Microsoft Azure" character by character so the
+  // viewer sees the autosuggest list appear, then selection happens.
   useEffect(() => {
     if (!autoPlay || !open || step !== 5) return;
     if (criticalVendors[0]?.name?.trim()) return;
     let cancelled = false;
     const timers: number[] = [];
-    timers.push(window.setTimeout(() => {
-      if (cancelled) return;
-      setCriticalVendors((rows) => {
-        const next = [...rows];
-        next[0] = { ...next[0], name: "Microsoft Azure" };
-        return next;
-      });
-    }, 1400));
+    const target = "Microsoft Azure";
+    const startDelay = 900;
+    const perChar = 85;
+    for (let i = 1; i <= target.length; i++) {
+      timers.push(window.setTimeout(() => {
+        if (cancelled) return;
+        setCriticalVendors((rows) => {
+          const next = [...rows];
+          next[0] = { ...next[0], name: target.slice(0, i) };
+          return next;
+        });
+      }, startDelay + i * perChar));
+    }
+    // After fully typed, pause so the suggestion list is visible, then "select"
+    const selectAt = startDelay + target.length * perChar + 700;
     timers.push(window.setTimeout(() => {
       if (cancelled) return;
       setCriticalVendors((rows) => {
         const next = [...rows];
         next[0] = {
           ...next[0],
+          name: target,
           purpose: "Skyinfrastruktur og dataplattform",
           processesPersonalData: "yes",
           dataCategories: ["Ansattdata", "Kundedata"],
@@ -584,7 +592,7 @@ export default function ActivateTrustProfileWizard({
         };
         return next;
       });
-    }, 2800));
+    }, selectAt));
     return () => {
       cancelled = true;
       timers.forEach((t) => window.clearTimeout(t));
