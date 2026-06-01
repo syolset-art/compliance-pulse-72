@@ -149,8 +149,11 @@ export interface ActivationValues {
     companyId?: string | null;
     type?: string | null;
     showOnProfile?: boolean;
+    grantAuthority?: boolean;
+    authorityAccepted?: boolean;
     additional?: Array<{ name: string; companyId: string | null; type: string | null }>;
   };
+
 
 }
 
