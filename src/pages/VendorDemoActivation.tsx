@@ -230,7 +230,7 @@ function PreviewStage({ onStart }: { onStart: () => void }) {
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">Leverandørstyring (TPRM)</h2>
-              <Badge variant="outline" className="text-[10px] gap-1 border-warning/30 text-warning">
+              <Badge variant="outline" className="text-[11px] gap-1 border-warning/30 text-warning">
                 <Lock className="h-3 w-3" /> Ikke aktivert
               </Badge>
             </div>

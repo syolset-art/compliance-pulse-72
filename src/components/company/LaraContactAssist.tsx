@@ -165,7 +165,7 @@ export function LaraContactAssist({ role, currentName, currentEmail, companyProf
     return (
       <div className="rounded-lg border border-primary/20 bg-primary/[0.04] p-3 space-y-2.5">
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="secondary" className={`${meta.tone} gap-1 text-[11px] font-medium`}>
+          <Badge variant="secondary" className={`${meta.tone} gap-1 text-[12px] font-medium`}>
             <Icon className="h-3 w-3" />
             {meta.label}
           </Badge>
@@ -208,7 +208,7 @@ export function LaraContactAssist({ role, currentName, currentEmail, companyProf
             : "La Lara fylle ut"}
       </Button>
       {searched && !loading && !suggestion && (
-        <span className="text-[11px] text-muted-foreground ml-2">
+        <span className="text-[12px] text-muted-foreground ml-2">
           Lara fant ingenting — fyll ut manuelt eller prøv igjen.
         </span>
       )}

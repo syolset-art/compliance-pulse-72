@@ -86,7 +86,7 @@ function ColumnFilter({
       <PopoverTrigger asChild>
         <button
           className={cn(
-            "inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors",
+            "inline-flex items-center gap-1 text-[12px] font-medium uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors",
             active && "text-primary"
           )}
           aria-label={`Filter ${label}`}
@@ -161,7 +161,7 @@ function ScoreRing({ score }: { score: number }) {
           className={tone} fill="none"
         />
       </svg>
-      <span className={cn("absolute inset-0 flex items-center justify-center text-[10px] font-semibold tabular-nums", tone)}>
+      <span className={cn("absolute inset-0 flex items-center justify-center text-[11px] font-semibold tabular-nums", tone)}>
         {pct}
       </span>
     </div>
@@ -274,7 +274,7 @@ export function VendorTableView({
                   options={countries.map(c => ({ value: c, label: c }))}
                 />
               </TableHead>
-              <TableHead className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <TableHead className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
                 {tl("name")}
               </TableHead>
               <TableHead>
@@ -303,7 +303,7 @@ export function VendorTableView({
                   }))}
                 />
               </TableHead>
-              <TableHead className="text-center text-[11px] font-medium uppercase tracking-wide text-muted-foreground w-16">
+              <TableHead className="text-center text-[12px] font-medium uppercase tracking-wide text-muted-foreground w-16">
                 {tl("score")}
               </TableHead>
               <TableHead>
@@ -344,7 +344,7 @@ export function VendorTableView({
                         </TooltipTrigger>
                         <TooltipContent side="right">
                           <p className="text-xs font-medium">{status.label}</p>
-                          <p className="text-[11px] text-muted-foreground">{status.description}</p>
+                          <p className="text-[12px] text-muted-foreground">{status.description}</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -358,14 +358,14 @@ export function VendorTableView({
                   </TableCell>
                   <TableCell>
                     {v.priority ? (
-                      <Badge variant="outline" className={cn("font-normal text-[11px]", PRIORITY_PILL[v.priority] || "")}>
+                      <Badge variant="outline" className={cn("font-normal text-[12px]", PRIORITY_PILL[v.priority] || "")}>
                         {PRIORITY_LABEL[v.priority] || v.priority}
                       </Badge>
                     ) : <span className="text-xs text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell>
                     {crit ? (
-                      <Badge variant="outline" className={cn("font-normal text-[11px]", crit.pillClass)}>
+                      <Badge variant="outline" className={cn("font-normal text-[12px]", crit.pillClass)}>
                         {isNb ? crit.labelNb : crit.labelEn}
                       </Badge>
                     ) : <span className="text-xs text-muted-foreground">—</span>}

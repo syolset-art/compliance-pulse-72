@@ -74,7 +74,7 @@ export function GapAnalysisVendorRow({ isNb, vendor }: Props) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{vendor.name}</p>
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
+          <div className="flex items-center gap-3 text-[12px] text-muted-foreground mt-0.5">
             <span className="flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3 text-success" />
               {vendor.implemented}
@@ -104,17 +104,17 @@ export function GapAnalysisVendorRow({ isNb, vendor }: Props) {
         <div className="px-3 pb-3 pt-1 space-y-3 bg-muted/20">
           {/* Status chips */}
           <div className="flex flex-wrap gap-1.5">
-            <Badge variant="outline" className={cn("text-[11px]", dpa.cls)}>
+            <Badge variant="outline" className={cn("text-[12px]", dpa.cls)}>
               DPA · {dpa.label}
             </Badge>
-            <Badge variant="outline" className={cn("text-[11px]", sla.cls)}>
+            <Badge variant="outline" className={cn("text-[12px]", sla.cls)}>
               SLA · {sla.label}
             </Badge>
             {vendor.certifications.map((c) => (
               <Badge
                 key={c}
                 variant="outline"
-                className="text-[11px] bg-success/10 text-success border-success/30"
+                className="text-[12px] bg-success/10 text-success border-success/30"
               >
                 <ShieldAlert className="h-3 w-3 mr-1" />
                 {c}
@@ -125,7 +125,7 @@ export function GapAnalysisVendorRow({ isNb, vendor }: Props) {
           {/* Top missing controls */}
           {vendor.topMissing.length > 0 && (
             <div>
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1.5">
+              <p className="text-[12px] uppercase tracking-wide text-muted-foreground mb-1.5">
                 {isNb ? "Topp manglende kontroller" : "Top missing controls"}
               </p>
               <ul className="space-y-1">
@@ -136,7 +136,7 @@ export function GapAnalysisVendorRow({ isNb, vendor }: Props) {
                   >
                     <Badge
                       variant="outline"
-                      className={cn("text-[10px] shrink-0", sevBadge(m.severity))}
+                      className={cn("text-[11px] shrink-0", sevBadge(m.severity))}
                     >
                       {m.ref}
                     </Badge>
@@ -149,7 +149,7 @@ export function GapAnalysisVendorRow({ isNb, vendor }: Props) {
 
           {/* Triggered articles */}
           {vendor.triggeredArticles.length > 0 && (
-            <div className="flex items-start gap-2 text-[11px] text-muted-foreground">
+            <div className="flex items-start gap-2 text-[12px] text-muted-foreground">
               <FileText className="h-3 w-3 mt-0.5 shrink-0" />
               <span>
                 {isNb ? "Berørte artikler: " : "Triggered articles: "}

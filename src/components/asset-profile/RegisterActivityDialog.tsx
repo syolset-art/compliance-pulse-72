@@ -320,17 +320,17 @@ function PickStep({
                       {isNb ? s.reasonNb : s.reasonEn}
                     </p>
                     <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                         {isNb ? TYPE_LABELS[s.type].nb : TYPE_LABELS[s.type].en}
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                         <span className={cn("h-1.5 w-1.5 rounded-full", lvl.dot)} />
                         {isNb ? lvl.nb : lvl.en}
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                         {isNb ? th.nb : th.en}
                       </span>
-                      <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold", crit.pill)}>
+                      <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold", crit.pill)}>
                         {isNb ? crit.nb : crit.en}
                       </span>
                     </div>
@@ -406,7 +406,7 @@ function ConfirmStep(props: {
             {isNb ? "Tilbake" : "Back"}
           </button>
           {selectedSuggestion && (
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[11px] font-medium">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-[12px] font-medium">
               <Sparkles className="h-3 w-3" />
               {isNb ? "Forhåndsutfylt av Lara" : "Pre-filled by Lara"}
             </div>
@@ -552,7 +552,7 @@ function ConfirmStep(props: {
                       type="button"
                       onClick={() => setOutcome(s)}
                       className={cn(
-                        "flex items-center gap-2 w-full rounded-md border px-2.5 py-1.5 text-[11px] font-medium uppercase tracking-wider transition-all",
+                        "flex items-center gap-2 w-full rounded-md border px-2.5 py-1.5 text-[12px] font-medium uppercase tracking-wider transition-all",
                         outcome === s ? conf.pill : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40"
                       )}
                     >
@@ -600,7 +600,7 @@ function ConfirmStep(props: {
               </p>
             )}
             {isManual && title.trim() && (
-              <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
+              <p className="text-[12px] text-muted-foreground inline-flex items-center gap-1">
                 <Sparkles className="h-3 w-3 text-primary" />
                 {isNb ? "Lara fyller chips automatisk basert på tittelen — du kan overstyre." : "Lara fills the chips from your title — you can override."}
               </p>
@@ -628,7 +628,7 @@ function ConfirmStep(props: {
             <div className="rounded-md border border-border bg-muted/20 p-3 space-y-2">
               <div className="grid sm:grid-cols-[1fr_auto] gap-2 items-end">
                 <div className="space-y-1.5">
-                  <Label className="text-[11px] text-muted-foreground">
+                  <Label className="text-[12px] text-muted-foreground">
                     {isNb ? "Bytt e-postmal" : "Switch email template"}
                   </Label>
                   <Select
@@ -668,7 +668,7 @@ function ConfirmStep(props: {
                 />
               </div>
               {uploadedTemplateName && (
-                <div className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground">
+                <div className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-[12px] text-muted-foreground">
                   <FileText className="h-3 w-3" />
                   {isNb ? "Mal: " : "Template: "}{uploadedTemplateName}
                 </div>

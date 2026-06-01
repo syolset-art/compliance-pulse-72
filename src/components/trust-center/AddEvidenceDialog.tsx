@@ -345,7 +345,7 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
                   <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(0)} KB</p>
                 </div>
                 {classification && classification.confidence > 0.7 && (
-                  <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[11px] gap-1">
+                  <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[12px] gap-1">
                     <CheckCircle2 className="h-3 w-3" />
                     {Math.round(classification.confidence * 100)}%
                   </Badge>
@@ -446,7 +446,7 @@ export const AddEvidenceDialog = ({ open, onOpenChange, assetId }: Props) => {
                 <div className="flex flex-wrap gap-1.5">
                   {classification.relevantRegulations.map((r, i) => (
                     <Badge key={i} variant="outline" className={cn(
-                      "text-[11px]",
+                      "text-[12px]",
                       r.relevance === "high" ? "bg-primary/10 text-primary border-primary/20"
                         : r.relevance === "medium" ? "bg-accent text-accent-foreground"
                         : "bg-muted text-muted-foreground"

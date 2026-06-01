@@ -92,7 +92,7 @@ export function VendorContactsBlock(props: Props) {
 
   return (
     <div className="space-y-1.5">
-      <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider">
+      <p className="text-[12px] text-muted-foreground font-semibold uppercase tracking-wider">
         {isNb ? "Kontakter for kjøper" : "Contacts for buyers"}
       </p>
       <div className="space-y-1">
@@ -183,7 +183,7 @@ function ContactRow({ role, name, email, phone, isNb, isEditing, onStartEdit, on
   if (isEditing) {
     return (
       <div className="rounded-md border bg-muted/30 p-2.5 space-y-2">
-        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-foreground">
+        <div className="flex items-center gap-2 text-[12px] font-semibold uppercase tracking-wider text-foreground">
           <Icon className="h-3.5 w-3.5" />
           {label}
         </div>
@@ -203,7 +203,7 @@ function ContactRow({ role, name, email, phone, isNb, isEditing, onStartEdit, on
             className={cn("h-7 text-xs", errors.email && "border-destructive")}
             maxLength={255}
           />
-          {errors.email && <p className="text-[11px] text-destructive mt-0.5">{errors.email}</p>}
+          {errors.email && <p className="text-[12px] text-destructive mt-0.5">{errors.email}</p>}
         </div>
         {role === "main" && (
           <div>
@@ -215,7 +215,7 @@ function ContactRow({ role, name, email, phone, isNb, isEditing, onStartEdit, on
               className={cn("h-7 text-xs", errors.phone && "border-destructive")}
               maxLength={20}
             />
-            {errors.phone && <p className="text-[11px] text-destructive mt-0.5">{errors.phone}</p>}
+            {errors.phone && <p className="text-[12px] text-destructive mt-0.5">{errors.phone}</p>}
           </div>
         )}
         <div className="flex gap-1 pt-0.5">
@@ -255,7 +255,7 @@ function ContactRow({ role, name, email, phone, isNb, isEditing, onStartEdit, on
         <TooltipContent side="top" className="max-w-[260px] text-[12px]">{hint}</TooltipContent>
       </Tooltip>
       <div className="flex items-baseline gap-2 min-w-0 flex-1 flex-wrap">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">{label}</span>
+        <span className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">{label}</span>
         {isEmpty ? (
           <button
             onClick={startEdit}

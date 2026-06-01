@@ -47,7 +47,7 @@ export function OrganizationSwitcher() {
                 {activeOrg.name}
               </div>
               {partner?.hasPartner && partner.partnerName && (
-                <div className="flex items-center gap-1 mt-0.5 text-[11px] text-sidebar-foreground/60 truncate">
+                <div className="flex items-center gap-1 mt-0.5 text-[12px] text-sidebar-foreground/60 truncate">
                   <Handshake className="h-2.5 w-2.5 flex-shrink-0" />
                   <span className="truncate">Adm. av {partner.partnerName}</span>
                 </div>

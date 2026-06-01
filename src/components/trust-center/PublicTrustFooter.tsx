@@ -38,7 +38,7 @@ export default function PublicTrustFooter() {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-border/60">
-          <div className="flex items-center gap-4 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-4 text-[12px] text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-success" />
               Verifisert av Mynder
@@ -48,7 +48,7 @@ export default function PublicTrustFooter() {
               Kryptert og signert av eier
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[12px] text-muted-foreground">
             © {year} Mynder. Alle profiler er publisert frivillig av eieren.
           </p>
         </div>

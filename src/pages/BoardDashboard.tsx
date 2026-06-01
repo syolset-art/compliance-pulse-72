@@ -259,7 +259,7 @@ const BoardDashboard = () => {
             </div>
             <div>
               <h1 className="text-xl font-semibold tracking-tight">Styrerom</h1>
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wider">{currentPeriod()}</p>
+              <p className="text-[12px] text-muted-foreground uppercase tracking-wider">{currentPeriod()}</p>
             </div>
           </div>
           <Button
@@ -280,7 +280,7 @@ const BoardDashboard = () => {
             <CardContent className="relative p-6">
               <div className="grid grid-cols-2 gap-6">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-300/80 mb-2 font-medium">Modenhet</p>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/80 mb-2 font-medium">Modenhet</p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-7xl font-bold bg-gradient-to-r from-emerald-300 to-cyan-300 bg-clip-text text-transparent tabular-nums leading-none">
                       {overallScore}
@@ -295,12 +295,12 @@ const BoardDashboard = () => {
                   </div>
                 </div>
                 <div className="border-l border-white/10 pl-6">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-300/80 mb-2 font-medium">Risiko</p>
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/80 mb-2 font-medium">Risiko</p>
                   <div className="flex items-center gap-3">
                     <span className={`h-3 w-3 rounded-full ${exposure.dot}`} />
                     <span className="text-5xl font-bold leading-none">{exposure.label}</span>
                   </div>
-                  <p className="mt-3 text-[11px] text-slate-400 uppercase tracking-wider">
+                  <p className="mt-3 text-[12px] text-slate-400 uppercase tracking-wider">
                     {incidents.length} åpne · {criticalIncidents.length} kritiske
                   </p>
                 </div>
@@ -314,7 +314,7 @@ const BoardDashboard = () => {
           <button onClick={() => setDrawer("compliance")} className="text-left group">
             <Card className="h-full border-border/60 hover:border-emerald-500/40 hover:shadow-md transition-all">
               <CardContent className="p-4">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Etterlevelse</p>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Etterlevelse</p>
                 <p className="text-3xl font-bold tabular-nums leading-none">
                   {inControl}<span className="text-lg text-muted-foreground font-normal">/{frameworksWithScore.length}</span>
                 </p>
@@ -325,7 +325,7 @@ const BoardDashboard = () => {
           <button onClick={() => setDrawer("risk")} className="text-left group">
             <Card className="h-full border-border/60 hover:border-cyan-500/40 hover:shadow-md transition-all">
               <CardContent className="p-4">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Hendelser</p>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Hendelser</p>
                 <p className="text-3xl font-bold tabular-nums leading-none">{incidents.length}</p>
               </CardContent>
             </Card>
@@ -334,7 +334,7 @@ const BoardDashboard = () => {
           <button onClick={() => setDrawer("costs")} className="text-left group">
             <Card className="h-full border-border/60 hover:border-cyan-500/40 hover:shadow-md transition-all">
               <CardContent className="p-4">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Kost/mnd</p>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Kost/mnd</p>
                 <p className="text-3xl font-bold tabular-nums leading-none">
                   {(totalMonthlyCost / 1000).toFixed(0)}<span className="text-lg text-muted-foreground font-normal">k</span>
                 </p>
@@ -346,10 +346,10 @@ const BoardDashboard = () => {
         {/* Beslutningskø – slim rows */}
         <section className="mb-5">
           <div className="flex items-baseline justify-between mb-2">
-            <h2 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
               Beslutninger · {decisions.length}
             </h2>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{NEXT_MEETING}</span>
+            <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{NEXT_MEETING}</span>
           </div>
           <Card className="border-border/60">
             <CardContent className="p-0 divide-y divide-border/50">
@@ -361,7 +361,7 @@ const BoardDashboard = () => {
               )}
               {decisions.map((d) => (
                 <div key={d.id} className="px-4 py-3 flex items-center gap-3">
-                  <Badge variant="outline" className="text-[9px] uppercase tracking-wider shrink-0">
+                  <Badge variant="outline" className="text-[11px] uppercase tracking-wider shrink-0">
                     {d.category}
                   </Badge>
                   <p className="font-medium text-sm flex-1 min-w-0 truncate">{d.title}</p>
@@ -378,7 +378,7 @@ const BoardDashboard = () => {
             </CardContent>
           </Card>
           {processedToday.length > 0 && (
-            <div className="mt-2 text-[11px] text-muted-foreground">
+            <div className="mt-2 text-[12px] text-muted-foreground">
               {processedToday.map((p) => (
                 <span key={p.id} className="inline-flex items-center gap-1 mr-3">
                   <CheckCircle2 className="h-3 w-3 text-emerald-500" />
@@ -393,8 +393,8 @@ const BoardDashboard = () => {
         {/* Regelverk snapshot – slim rows */}
         <section className="mb-5">
           <div className="flex items-baseline justify-between mb-2">
-            <h2 className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Regelverk</h2>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{frameworksWithScore.length} aktive</span>
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">Regelverk</h2>
+            <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{frameworksWithScore.length} aktive</span>
           </div>
           <Card className="border-border/60">
             <CardContent className="p-0 divide-y divide-border/50">
@@ -411,7 +411,7 @@ const BoardDashboard = () => {
                       <div className={`h-full ${t.bar}`} style={{ width: `${fw.score}%` }} />
                     </div>
                     <span className={`text-base font-bold w-14 text-right tabular-nums ${t.text}`}>
-                      {fw.score}<span className="text-[10px] font-normal">%</span>
+                      {fw.score}<span className="text-[11px] font-normal">%</span>
                     </span>
                   </div>
                 );

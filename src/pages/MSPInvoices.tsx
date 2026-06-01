@@ -128,11 +128,11 @@ export default function MSPInvoices() {
                   </div>
                   <div className="flex gap-6 sm:text-right">
                     <div>
-                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Til Mynder</div>
+                      <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Til Mynder</div>
                       <div className="text-sm font-semibold text-foreground">{fmt(g.mynderTotal)} kr</div>
                     </div>
                     <div>
-                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Tilbudt din kunde</div>
+                      <div className="text-[12px] uppercase tracking-wide text-muted-foreground">Tilbudt din kunde</div>
                       <div className="text-sm font-semibold text-foreground">{fmt(g.offerTotal)} kr</div>
                     </div>
                   </div>
@@ -163,16 +163,16 @@ export default function MSPInvoices() {
 
                         <div className="flex flex-wrap items-center gap-2">
                           {c.vendorModule ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] text-success">
+                            <span className="inline-flex items-center gap-1 text-[12px] text-success">
                               <CheckCircle2 className="h-3.5 w-3.5" /> Leverandørmodul
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                            <span className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
                               <Minus className="h-3.5 w-3.5" /> Ingen modul
                             </span>
                           )}
                           {c.frameworks.map((f) => (
-                            <span key={f} className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                            <span key={f} className="text-[12px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                               {f}
                             </span>
                           ))}
@@ -180,11 +180,11 @@ export default function MSPInvoices() {
 
                         <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border">
                           <div>
-                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Abonnement</div>
+                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Abonnement</div>
                             <div className="text-sm font-semibold text-foreground tabular-nums">{fmt(c.mynderKr)}</div>
                           </div>
                           <div>
-                            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Tilbud</div>
+                            <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Tilbud</div>
                             <div className="text-sm text-foreground tabular-nums">
                               {c.offerPriceKr !== null ? fmt(c.offerPriceKr) : "—"}
                             </div>
@@ -192,7 +192,7 @@ export default function MSPInvoices() {
                         </div>
 
                         <div className="flex items-center justify-between gap-2">
-                          <span className={cn("inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border", status.cls)}>
+                          <span className={cn("inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full border", status.cls)}>
                             <StatusIcon className="h-3 w-3" />
                             {status.label}
                           </span>
@@ -292,7 +292,7 @@ export default function MSPInvoices() {
                             <td className="px-4 py-3">
                               <div className="flex flex-wrap gap-1">
                                 {c.frameworks.map((f) => (
-                                  <span key={f} className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                                  <span key={f} className="text-[12px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
                                     {f}
                                   </span>
                                 ))}
@@ -307,7 +307,7 @@ export default function MSPInvoices() {
                                 <span className="text-foreground tabular-nums">
                                   {c.offerPriceKr !== null ? fmt(c.offerPriceKr) : "—"}
                                 </span>
-                                <span className={cn("inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border", status.cls)}>
+                                <span className={cn("inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded-full border", status.cls)}>
                                   <StatusIcon className="h-3 w-3" />
                                   {status.label}
                                 </span>

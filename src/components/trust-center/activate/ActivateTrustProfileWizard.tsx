@@ -611,7 +611,7 @@ export default function ActivateTrustProfileWizard({
     step === 7 ? "Hvem skal kunne se profilen?" : "";
 
   const header = (
-    <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+    <div className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-wider text-muted-foreground">
       <span className="text-primary">Steg {step}</span>
       <span>·</span>
       <span>{stepHint}</span>
@@ -698,7 +698,7 @@ export default function ActivateTrustProfileWizard({
             publicAcknowledged={publicAcknowledged}
             setPublicAcknowledged={setPublicAcknowledged}
           />
-          <p className="text-[11px] text-muted-foreground pt-2 border-t border-border">
+          <p className="text-[12px] text-muted-foreground pt-2 border-t border-border">
             Partner-relasjon kan legges til senere i Rediger profil.
           </p>
         </div>
@@ -766,7 +766,7 @@ export default function ActivateTrustProfileWizard({
                   <li key={label} className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <div
-                        className={`h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-semibold shrink-0 transition-colors ${
+                        className={`h-6 w-6 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0 transition-colors ${
                           isCurrent
                             ? "bg-primary text-primary-foreground"
                             : isDone
@@ -781,7 +781,7 @@ export default function ActivateTrustProfileWizard({
                       )}
                     </div>
                     <div
-                      className={`mt-1.5 text-[11px] leading-tight truncate ${
+                      className={`mt-1.5 text-[12px] leading-tight truncate ${
                         isCurrent ? "text-foreground font-medium" : "text-muted-foreground"
                       }`}
                       title={label}
@@ -800,7 +800,7 @@ export default function ActivateTrustProfileWizard({
               <Sparkles className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[11px] text-muted-foreground">Lara · Steg {step} av {TOTAL_STEPS}</div>
+              <div className="text-[12px] text-muted-foreground">Lara · Steg {step} av {TOTAL_STEPS}</div>
               <p className="text-sm text-foreground leading-snug">{laraIntro}</p>
             </div>
           </div>
@@ -871,7 +871,7 @@ function OrgStep({
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <p className="text-sm font-semibold truncate">{companyName}</p>
-                <Badge variant="outline" className="text-[10px] gap-1 border-success/40 text-success">
+                <Badge variant="outline" className="text-[11px] gap-1 border-success/40 text-success">
                   <CheckCircle2 className="h-2.5 w-2.5" /> Verifisert
                 </Badge>
               </div>
@@ -929,7 +929,7 @@ function OrgStep({
 
       {searchResults?.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
             {companyNameLocked ? "Velg riktig organisasjon" : "Treff i registeret"}
           </p>
           {searchResults.slice(0, 4).map((r: any) => (
@@ -1039,7 +1039,7 @@ function WebsiteVerifyField({
       <div className="flex items-center justify-between">
         <Label>Hjemmeside</Label>
         {enabled && website && !websiteVerified && (
-          <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
+          <Badge variant="outline" className="text-[11px] gap-1 border-primary/30 text-primary">
             <Sparkles className="h-2.5 w-2.5" /> Forslag fra Lara
           </Badge>
         )}
@@ -1127,7 +1127,7 @@ function FieldGroup({ icon: Icon, title, children }: any) {
 
 function PrefilledHint({ source }: { source: string }) {
   return (
-    <p className="text-[11px] text-muted-foreground flex items-center gap-1 mt-1">
+    <p className="text-[12px] text-muted-foreground flex items-center gap-1 mt-1">
       <Sparkles className="h-3 w-3 text-primary" />
       <span>Fra {source}</span>
     </p>
@@ -1179,7 +1179,7 @@ function ConfirmStep(props: any) {
             <Input type="email" value={props.contactEmail} onChange={(e) => props.setContactEmail(e.target.value)} placeholder="kontakt@firma.no" />
           </div>
         </div>
-        <p className="text-[11px] text-muted-foreground mt-2">
+        <p className="text-[12px] text-muted-foreground mt-2">
           Du kan legge til personvern-, sikkerhets- og beredskapskontakter senere i Rediger profil.
         </p>
       </FieldGroup>
@@ -1231,7 +1231,7 @@ function PreviewStep({ name, orgNumber, description, website, contactName, conta
               <p className="text-xs">{encryption || "—"}</p>
               {certifications?.length > 0 && (
                 <div className="flex gap-1 flex-wrap mt-1">
-                  {certifications.map((c: string) => <Badge key={c} variant="secondary" className="text-[10px]">{c}</Badge>)}
+                  {certifications.map((c: string) => <Badge key={c} variant="secondary" className="text-[11px]">{c}</Badge>)}
                 </div>
               )}
             </div>
@@ -1317,7 +1317,7 @@ function MaturityStep({ answers, sources, onChange, autoPlay }: {
                 <Icon className="h-4 w-4 text-primary shrink-0" />
                 <div className="flex-1 min-w-0">
                   <h4 className="text-sm font-semibold leading-tight">{area.title}</h4>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-[12px] text-muted-foreground mt-0.5">
                     {total} spørsmål{laraAnswered > 0 ? ` · ${laraAnswered} bekreftet av Lara` : ""}
                   </p>
                 </div>
@@ -1345,7 +1345,7 @@ function MaturityStep({ answers, sources, onChange, autoPlay }: {
                             </Tooltip>
                           </div>
                           {laraSrc && !laraSrc.includes("Regelverk") && (val === "yes" || val === "n_a") && (
-                            <span className={`inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                            <span className={`inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[11px] font-medium ${
                               val === "n_a" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary"
                             }`}>
                               <Sparkles className="h-2.5 w-2.5" />
@@ -1451,7 +1451,7 @@ function CriticalVendorsStep({ rows, onChange, subprocessorList, onSubprocessorC
         </Button>
       )}
 
-      <p className="text-[11px] text-muted-foreground pt-1">
+      <p className="text-[12px] text-muted-foreground pt-1">
         Samlet liste over alle underleverandører kan lastes opp senere i Rediger profil.
       </p>
 
@@ -1519,7 +1519,7 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
   return (
     <Card className="p-4 space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        <span className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
           Leverandør {index + 1}
         </span>
         {canRemove && (
@@ -1565,7 +1565,7 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
                     className="w-full text-left px-2 py-1.5 rounded-md hover:bg-muted text-sm flex flex-col"
                   >
                     <span className="font-medium">{v.name}</span>
-                    <span className="text-[11px] text-muted-foreground">{v.category}</span>
+                    <span className="text-[12px] text-muted-foreground">{v.category}</span>
                   </button>
                 </li>
               ))}
@@ -1587,7 +1587,7 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
           <button
             type="button"
             onClick={() => onChange({ purpose: knownVendor.category })}
-            className="text-[11px] px-2 py-0.5 rounded-full border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+            className="text-[12px] px-2 py-0.5 rounded-full border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
           >
             + Bruk forslag: {knownVendor.category}
           </button>
@@ -1673,7 +1673,7 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
               ))}
             </div>
             {row.processesPersonalData === "no" && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[12px] text-muted-foreground">
                 DPA er normalt ikke påkrevd når leverandøren ikke behandler personopplysninger.
               </p>
             )}
@@ -1712,19 +1712,19 @@ function DocumentsStep({ documents, onUpload }: {
                   <FileText className="h-4 w-4 text-primary" />
                   <h4 className="text-sm font-semibold">{slot.title}</h4>
                   {status === "found" && (
-                    <Badge variant="secondary" className="bg-success/15 text-success border-success/30 gap-1 text-[10px]">
+                    <Badge variant="secondary" className="bg-success/15 text-success border-success/30 gap-1 text-[11px]">
                       <Check className="h-2.5 w-2.5" /> Funnet av Lara
                     </Badge>
                   )}
                   {status === "uploaded" && (
-                    <Badge variant="secondary" className="bg-primary/15 text-primary border-primary/30 gap-1 text-[10px]">
+                    <Badge variant="secondary" className="bg-primary/15 text-primary border-primary/30 gap-1 text-[11px]">
                       <Check className="h-2.5 w-2.5" /> Lastet opp
                     </Badge>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">{slot.description}</p>
                 {doc?.fileName && (
-                  <p className="text-[11px] text-muted-foreground mt-1.5 italic truncate">{doc.fileName}</p>
+                  <p className="text-[12px] text-muted-foreground mt-1.5 italic truncate">{doc.fileName}</p>
                 )}
               </div>
               <div className="shrink-0">
@@ -1861,7 +1861,7 @@ function VisibilityStep({
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold text-sm">{meta.labelNb}</h3>
                   {level === "ecosystem" && (
-                    <Badge variant="outline" className="text-[10px] border-[hsl(var(--mynder-blue))]/40 text-[hsl(var(--mynder-blue))]">
+                    <Badge variant="outline" className="text-[11px] border-[hsl(var(--mynder-blue))]/40 text-[hsl(var(--mynder-blue))]">
                       Anbefalt
                     </Badge>
                   )}
@@ -2043,7 +2043,7 @@ function PartnerSelectionBlock({
                 />
               </div>
               {searching && (
-                <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                <p className="text-[12px] text-muted-foreground flex items-center gap-1.5">
                   <Loader2 className="h-3 w-3 animate-spin" /> Søker…
                 </p>
               )}
@@ -2063,7 +2063,7 @@ function PartnerSelectionBlock({
                       <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-sm flex-1 truncate">{r.name}</span>
                       {r.type && (
-                        <Badge variant="outline" className="text-[10px]">
+                        <Badge variant="outline" className="text-[11px]">
                           {PARTNER_TYPE_LABEL[r.type as PartnerType] ?? r.type}
                         </Badge>
                       )}
@@ -2074,7 +2074,7 @@ function PartnerSelectionBlock({
               <button
                 type="button"
                 onClick={() => setManualEntry(true)}
-                className="text-[11px] text-primary hover:underline"
+                className="text-[12px] text-primary hover:underline"
               >
                 Ikke i listen? Skriv inn manuelt →
               </button>
@@ -2111,7 +2111,7 @@ function PartnerSelectionBlock({
                 </div>
               </div>
               {companyId && (
-                <p className="text-[11px] text-success flex items-center gap-1">
+                <p className="text-[12px] text-success flex items-center gap-1">
                   <CheckCircle2 className="h-3 w-3" /> Koblet til partner i Mynder-økosystemet
                 </p>
               )}
@@ -2119,7 +2119,7 @@ function PartnerSelectionBlock({
                 <button
                   type="button"
                   onClick={() => { setManualEntry(false); setName(""); setCompanyId(null); setPartnerType(null); }}
-                  className="text-[11px] text-muted-foreground hover:underline"
+                  className="text-[12px] text-muted-foreground hover:underline"
                 >
                   ← Tilbake til søk
                 </button>
@@ -2132,7 +2132,7 @@ function PartnerSelectionBlock({
               {additionalPartners.map((p, idx) => (
                 <div key={idx} className="rounded-md border border-border bg-background/60 p-2.5 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                       Partner {idx + 2}
                     </span>
                     <button

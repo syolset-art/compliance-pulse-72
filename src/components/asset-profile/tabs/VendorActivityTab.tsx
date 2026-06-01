@@ -249,11 +249,11 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
             {grouped.map((group, gIdx) => (
               <div key={group.label}>
                 <div className="flex items-center gap-3 mb-3">
-                  <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                  <h4 className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {group.label}
                   </h4>
                   <div className="h-px flex-1 bg-border/70" />
-                  <span className="text-[11px] text-muted-foreground/70 tabular-nums">
+                  <span className="text-[12px] text-muted-foreground/70 tabular-nums">
                     {group.items.length}
                   </span>
                 </div>
@@ -286,20 +286,20 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   {isNb ? act.titleNb : act.titleEn}
                                 </p>
                                 <div className="flex items-center gap-1.5 flex-wrap mt-1">
-                                  <Badge variant="outline" className={`text-[11px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
+                                  <Badge variant="outline" className={`text-[12px] px-1.5 py-0 border-0 ${phaseConf.color}`}>
                                     {isNb ? phaseConf.nb : phaseConf.en}
                                   </Badge>
                                   {act.linkedGapId && (
-                                    <Badge className="text-[11px] px-1.5 py-0 bg-success/15 text-success border border-success/20 hover:bg-success/20">
+                                    <Badge className="text-[12px] px-1.5 py-0 bg-success/15 text-success border border-success/20 hover:bg-success/20">
                                       {isNb ? "Lukker gap" : "Closes gap"}
                                     </Badge>
                                   )}
                                   {act.isManual && !act.linkedGapId && (
-                                    <Badge variant="outline" className="text-[11px] px-1.5 py-0 border-dashed text-muted-foreground">
+                                    <Badge variant="outline" className="text-[12px] px-1.5 py-0 border-dashed text-muted-foreground">
                                       {isNb ? "Manuell" : "Manual"}
                                     </Badge>
                                   )}
-                                  <span className="text-[11px] text-muted-foreground whitespace-nowrap sm:hidden">
+                                  <span className="text-[12px] text-muted-foreground whitespace-nowrap sm:hidden">
                                     · {formatRelativeDate(act.date, isNb)}
                                   </span>
                                 </div>
@@ -321,7 +321,7 @@ export function VendorActivityTab({ assetId, assetName, baselinePercent = 19, en
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); toggleStatusEditor(act.id); }}
                                   className={cn(
-                                    "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition-all hover:opacity-80",
+                                    "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider transition-all hover:opacity-80",
                                     statusConf.pill
                                   )}
                                   aria-label={isNb ? "Endre status" : "Change status"}

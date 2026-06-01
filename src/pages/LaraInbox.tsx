@@ -268,7 +268,7 @@ const LaraInbox = () => {
                               {item.subject || item.file_name}
                             </p>
                             {incident && sevConfig && (
-                              <span className={`text-[11px] px-1.5 py-0.5 rounded ${sevConfig.className} border-0 bg-opacity-50`}>
+                              <span className={`text-[12px] px-1.5 py-0.5 rounded ${sevConfig.className} border-0 bg-opacity-50`}>
                                 {sevConfig.label}
                               </span>
                             )}
@@ -332,7 +332,7 @@ const LaraInbox = () => {
                           {incident ? <ShieldAlert className="h-3.5 w-3.5" /> : <FileText className="h-3.5 w-3.5" />}
                           <span className="truncate flex-1">{item.subject || item.file_name}</span>
                           <span className="truncate">{asset?.name || "Ukjent"}</span>
-                          <span className="text-[11px]">
+                          <span className="text-[12px]">
                             {item.status === "manually_assigned" ? (incident ? "Avvik" : "Godkjent") : "Avvist"}
                           </span>
                         </li>

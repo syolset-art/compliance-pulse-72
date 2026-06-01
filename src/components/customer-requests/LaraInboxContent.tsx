@@ -221,7 +221,7 @@ export function LaraInboxContent() {
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {summary.score_impact && (
-                        <Badge variant="secondary" className="gap-1 text-[11px]">
+                        <Badge variant="secondary" className="gap-1 text-[12px]">
                           <TrendingUp className="h-3 w-3" />+{summary.score_impact} poeng
                         </Badge>
                       )}

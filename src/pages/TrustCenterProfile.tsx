@@ -64,7 +64,7 @@ const TrustScoreRing = ({ score, size = 36, stroke = 3, color = "hsl(45, 90%, 55
         <circle cx={size / 2} cy={size / 2} r={r} stroke={trackColor} strokeWidth={stroke} fill="none" />
         <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none" strokeLinecap="round" strokeDasharray={`${dash} ${c}`} />
       </svg>
-      <span className="absolute text-[10px] font-bold tabular-nums" style={{ color }}>{score}</span>
+      <span className="absolute text-[11px] font-bold tabular-nums" style={{ color }}>{score}</span>
     </div>
   );
 };
@@ -640,7 +640,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className={`text-4xl font-bold tabular-nums leading-none ${trustColor}`}>{trustScore}</span>
-                    <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
+                    <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -1209,7 +1209,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </span>
                       </div>
                       <div className="relative pt-6 pb-6">
-                        <div className="absolute -top-1 text-[11px] font-medium text-primary -translate-x-1/2" style={{ left: markerLeft }}>
+                        <div className="absolute -top-1 text-[12px] font-medium text-primary -translate-x-1/2" style={{ left: markerLeft }}>
                           {isNb ? "Dere er her" : "You are here"}
                         </div>
                         <div
@@ -1435,21 +1435,21 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           {/* Stats grid */}
                           <div className="grid grid-cols-3 gap-3">
                             <div className="rounded-lg border border-border bg-card/50 p-3">
-                              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground uppercase tracking-wide">
+                              <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground uppercase tracking-wide">
                                 <Eye className="h-3 w-3" />
                                 {isNb ? "Visninger 30d" : "Views 30d"}
                               </div>
                               <div className="text-xl font-bold text-foreground mt-1">12</div>
                             </div>
                             <div className="rounded-lg border border-border bg-card/50 p-3">
-                              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground uppercase tracking-wide">
+                              <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground uppercase tracking-wide">
                                 <FileText className="h-3 w-3" />
                                 {isNb ? "Dokumenter" : "Documents"}
                               </div>
                               <div className="text-xl font-bold text-foreground mt-1">{docsCount + certsCount + otherDocsCount}</div>
                             </div>
                             <div className="rounded-lg border border-border bg-card/50 p-3">
-                              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground uppercase tracking-wide">
+                              <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground uppercase tracking-wide">
                                 <Clock className="h-3 w-3" />
                                 {isNb ? "Sist oppdatert" : "Last updated"}
                               </div>
@@ -1693,7 +1693,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <ButterflyMark size={16} color={t.gold} />
                             </span>
                             <span className="flex flex-col leading-tight">
-                              <span className="text-[10px] uppercase tracking-[0.14em]" style={{ color: t.goldSoft }}>Mynder Verified</span>
+                              <span className="text-[11px] uppercase tracking-[0.14em]" style={{ color: t.goldSoft }}>Mynder Verified</span>
                               <span className="text-[12px] font-semibold" style={{ color: t.textMain, opacity: 0.9 }}>Trust Score</span>
                             </span>
                             <TrustScoreRing score={trustScore} size={32} stroke={2.5} color={t.gold} trackColor={t.ringTrack} />
@@ -1747,16 +1747,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 <ButterflyMark size={26} color={t.gold} />
                               </div>
                               <div className="flex-1">
-                                <div className="text-[10px] uppercase tracking-[0.18em]" style={{ color: t.goldSoft }}>Mynder Verified</div>
+                                <div className="text-[11px] uppercase tracking-[0.18em]" style={{ color: t.goldSoft }}>Mynder Verified</div>
                                 <div className="text-base font-semibold leading-tight" style={{ color: t.textMain }}>Trust Profile</div>
-                                <div className="text-[11px]" style={{ color: t.textSub }}>Compliance · Security</div>
+                                <div className="text-[12px]" style={{ color: t.textSub }}>Compliance · Security</div>
                               </div>
                               <div className="flex flex-col items-center gap-0.5">
                                 <TrustScoreRing score={trustScore} size={42} stroke={3} color={t.gold} trackColor={t.ringTrack} />
-                                <span className="text-[9px] uppercase tracking-wider" style={{ color: t.textSub }}>Trust Score</span>
+                                <span className="text-[11px] uppercase tracking-wider" style={{ color: t.textSub }}>Trust Score</span>
                               </div>
                             </div>
-                            <div className="mt-2 pt-2 border-t text-center text-[9px] uppercase tracking-[0.22em]" style={{ borderColor: t.dividerSoft, color: t.goldSoft }}>
+                            <div className="mt-2 pt-2 border-t text-center text-[11px] uppercase tracking-[0.22em]" style={{ borderColor: t.dividerSoft, color: t.goldSoft }}>
                               Trust · Compliance · Verified
                             </div>
                           </div>
@@ -1775,7 +1775,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                         <div className="space-y-2">
                           <div className="flex justify-center">
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-[11px] font-medium text-success">
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-[12px] font-medium text-success">
                               <Sparkles className="h-3 w-3" />
                               {isNb ? "Gratis i lanseringsperioden" : "Free during launch period"}
                             </span>
@@ -1943,7 +1943,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <span className={`text-4xl font-bold tabular-nums leading-none ${trustColor}`}>{trustScore}</span>
-                          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
+                          <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
@@ -2238,7 +2238,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <p className="text-sm font-semibold text-foreground truncate">
                                 {partnerName}
                               </p>
-                              <Badge variant="outline" className="text-[10px]">
+                              <Badge variant="outline" className="text-[11px]">
                                 {partnerTypeLabel}
                               </Badge>
                             </div>
@@ -2246,7 +2246,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               {partnerDesc}
                             </p>
                             {partnerSince && (
-                              <p className="text-[11px] text-muted-foreground/70 mt-1">
+                              <p className="text-[12px] text-muted-foreground/70 mt-1">
                                 {isNb ? "Partner siden" : "Partner since"} {partnerSince}
                               </p>
                             )}
@@ -2881,7 +2881,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <Shield className="h-5 w-5 text-primary" />
                   <span className="text-sm font-semibold tracking-wide">{isNb ? "DEMO – DOKUMENTUTDRAG" : "DEMO – DOCUMENT EXCERPT"}</span>
                 </div>
-                <span className="text-[11px] text-muted-foreground">v1.0</span>
+                <span className="text-[12px] text-muted-foreground">v1.0</span>
               </div>
 
               <h1 className="text-2xl font-bold text-foreground">
@@ -2921,7 +2921,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </ul>
               </div>
 
-              <div className="border-t border-border pt-4 mt-6 flex items-center justify-between text-[11px] text-muted-foreground">
+              <div className="border-t border-border pt-4 mt-6 flex items-center justify-between text-[12px] text-muted-foreground">
                 <span>{isNb ? "Generert av Mynder for demo-formål" : "Generated by Mynder for demo purposes"}</span>
                 <span>{isNb ? "Side 1 av 1" : "Page 1 of 1"}</span>
               </div>
@@ -2948,17 +2948,17 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-3 gap-3">
               <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{isNb ? "Status" : "Status"}</p>
+                <p className="text-[12px] uppercase tracking-wide text-muted-foreground">{isNb ? "Status" : "Status"}</p>
                 <p className="text-sm font-semibold text-success flex items-center gap-1.5 mt-1">
                   <CheckCircle2 className="h-3.5 w-3.5" /> {isNb ? "Verifisert" : "Verified"}
                 </p>
               </div>
               <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{isNb ? "Algoritme" : "Algorithm"}</p>
+                <p className="text-[12px] uppercase tracking-wide text-muted-foreground">{isNb ? "Algoritme" : "Algorithm"}</p>
                 <p className="text-sm font-semibold mt-1">Ed25519</p>
               </div>
               <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{isNb ? "Sist signert" : "Last signed"}</p>
+                <p className="text-[12px] uppercase tracking-wide text-muted-foreground">{isNb ? "Sist signert" : "Last signed"}</p>
                 <p className="text-sm font-semibold mt-1">{isNb ? "3. mai 2026" : "May 3, 2026"}</p>
               </div>
             </div>
@@ -2978,7 +2978,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <Copy className="h-3 w-3 mr-1" /> {isNb ? "Kopier" : "Copy"}
                 </Button>
               </div>
-              <pre className="px-4 py-3 text-[11px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
+              <pre className="px-4 py-3 text-[12px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
 8f4b2c1a9d6e3f7b5a8c2d4e6f1a9b3c5d7e9f1b3a5c7e9d1f3b5a7c9e1d3f5b
               </pre>
             </div>
@@ -2987,7 +2987,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <div className="px-4 py-2 bg-muted/40 border-b border-border">
                 <span className="text-xs font-medium">{isNb ? "Signatur" : "Signature"}</span>
               </div>
-              <pre className="px-4 py-3 text-[11px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
+              <pre className="px-4 py-3 text-[12px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
 MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b
               </pre>
             </div>
@@ -3003,7 +3003,7 @@ MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d
                 <span className="text-muted-foreground/50">·</span>
                 <span className="text-xs text-muted-foreground">trust.mynder.no</span>
               </div>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[12px] text-muted-foreground">
                 {isNb
                   ? "Hver publisert versjon får en unik hash og signatur. Mottakere kan verifisere autentisitet via Mynder Trust Engine."
                   : "Each published version receives a unique hash and signature. Recipients can verify authenticity via Mynder Trust Engine."}

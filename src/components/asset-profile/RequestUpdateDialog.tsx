@@ -255,7 +255,7 @@ export function RequestUpdateDialog({
               <span className="text-sm font-medium text-foreground">
                 {isNb ? "La Lara håndtere dette automatisk" : "Let Lara handle this automatically"}
               </span>
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+              <Badge variant="secondary" className="text-[11px] px-1.5 py-0">
                 {isNb ? "Kommer snart" : "Coming soon"}
               </Badge>
             </div>
@@ -274,7 +274,7 @@ export function RequestUpdateDialog({
             </div>
             <div className="grid grid-cols-3 gap-2 opacity-40 pointer-events-none">
               <div className="space-y-1">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                   {isNb ? "Purrefrekvens" : "Reminder"}
                 </span>
                 <div className="h-8 rounded-md border border-border bg-background px-2 flex items-center text-xs text-muted-foreground">
@@ -282,7 +282,7 @@ export function RequestUpdateDialog({
                 </div>
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                   {isNb ? "Maks purringer" : "Max reminders"}
                 </span>
                 <div className="h-8 rounded-md border border-border bg-background px-2 flex items-center text-xs text-muted-foreground">
@@ -290,7 +290,7 @@ export function RequestUpdateDialog({
                 </div>
               </div>
               <div className="space-y-1">
-                <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
                   {isNb ? "Eskaler til" : "Escalate to"}
                 </span>
                 <div className="h-8 rounded-md border border-border bg-background px-2 flex items-center text-xs text-muted-foreground">

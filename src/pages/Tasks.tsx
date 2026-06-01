@@ -414,7 +414,7 @@ export default function Tasks() {
           />
 
           {/* Column header */}
-          <div className="hidden md:grid grid-cols-[140px_1fr_200px_160px_24px] gap-4 px-4 py-2 mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground border-b border-border">
+          <div className="hidden md:grid grid-cols-[140px_1fr_200px_160px_24px] gap-4 px-4 py-2 mb-2 text-[12px] font-medium uppercase tracking-wide text-muted-foreground border-b border-border">
             <span>Status</span>
             <span>Oppgave</span>
             <span>Arbeidsområde / Eiendel</span>
@@ -448,14 +448,14 @@ export default function Tasks() {
                     <div className="grid grid-cols-1 md:grid-cols-[140px_1fr_200px_160px_24px] gap-4 items-start">
                       {/* Col 1: Status */}
                       <div className="flex flex-col gap-1.5">
-                        <Badge variant="outline" className={`text-[11px] w-fit ${stat.className}`}>
+                        <Badge variant="outline" className={`text-[12px] w-fit ${stat.className}`}>
                           {stat.label}
                         </Badge>
-                        <Badge variant="outline" className={`text-[11px] w-fit ${prio.className}`}>
+                        <Badge variant="outline" className={`text-[12px] w-fit ${prio.className}`}>
                           {prio.label}
                         </Badge>
                         {overdue && (
-                          <Badge variant="destructive" className="text-[11px] w-fit gap-1">
+                          <Badge variant="destructive" className="text-[12px] w-fit gap-1">
                             <AlertTriangle className="h-2.5 w-2.5" />
                             Forfalt
                           </Badge>
@@ -467,7 +467,7 @@ export default function Tasks() {
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <AgentCapabilityBadge capability={taskCapability(task)} size="sm" />
                           {draftsReady[task.id] && (
-                            <Badge variant="outline" className="text-[11px] gap-1 bg-status-closed/10 text-status-closed border-status-closed/30">
+                            <Badge variant="outline" className="text-[12px] gap-1 bg-status-closed/10 text-status-closed border-status-closed/30">
                               <CheckCircle2 className="h-2.5 w-2.5" />
                               Utkast klart
                             </Badge>
@@ -497,7 +497,7 @@ export default function Tasks() {
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">{task.linkedEntity}</p>
-                            <p className="text-[11px] text-muted-foreground">{cat.label}</p>
+                            <p className="text-[12px] text-muted-foreground">{cat.label}</p>
                           </div>
                         </div>
                       </div>
@@ -505,13 +505,13 @@ export default function Tasks() {
                       {/* Col 4: Ansvarlig */}
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[11px] font-semibold">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-[12px] font-semibold">
                             {task.assignee.split(" ").map((n) => n[0]).slice(0, 2).join("")}
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm text-foreground truncate">{task.assignee}</p>
                             {(task as any).collaborators?.length > 0 && (
-                              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                              <p className="text-[12px] text-muted-foreground flex items-center gap-1">
                                 <Users className="h-3 w-3" />
                                 +{(task as any).collaborators.length}
                               </p>

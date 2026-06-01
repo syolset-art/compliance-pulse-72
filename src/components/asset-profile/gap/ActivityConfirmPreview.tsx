@@ -57,7 +57,7 @@ export function ActivityConfirmPreview({
       {/* Lara header */}
       <div className="flex items-start gap-3">
         <div className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
-          <span className="text-[11px] font-semibold text-primary">L</span>
+          <span className="text-[12px] font-semibold text-primary">L</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -112,15 +112,15 @@ export function ActivityConfirmPreview({
                     <p className="text-xs text-muted-foreground">{subtitle}</p>
                   </div>
                   {state === "confirmed" ? (
-                    <Badge variant="outline" className="gap-1 text-success border-success/30 bg-success/5 text-[11px]">
+                    <Badge variant="outline" className="gap-1 text-success border-success/30 bg-success/5 text-[12px]">
                       <Check className="h-3 w-3" /> {isNb ? "Bekreftet" : "Confirmed"}
                     </Badge>
                   ) : state === "skipped" ? (
-                    <Badge variant="outline" className="gap-1 text-muted-foreground text-[11px]">
+                    <Badge variant="outline" className="gap-1 text-muted-foreground text-[12px]">
                       <X className="h-3 w-3" /> {isNb ? "Hoppet over" : "Skipped"}
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="text-[11px]">
+                    <Badge variant="secondary" className="text-[12px]">
                       {idx + 1} {isNb ? "av" : "of"} {activities.length}
                     </Badge>
                   )}
@@ -156,7 +156,7 @@ export function ActivityConfirmPreview({
                 {/* Email preview */}
                 {act.emailPreview && (
                   <div className="mx-4 mb-3 mt-2 rounded-md bg-muted/40 p-3 text-xs">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
                       {isNb ? "Forhåndsvisning av e-post" : "Email preview"}
                     </p>
                     <div className={cn(
@@ -167,7 +167,7 @@ export function ActivityConfirmPreview({
                     </div>
                     {act.emailPreview.split("\n").length > 4 && (
                       <button
-                        className="text-[11px] text-muted-foreground hover:text-foreground mt-1.5"
+                        className="text-[12px] text-muted-foreground hover:text-foreground mt-1.5"
                         onClick={() => setShowFullEmail((s) => ({ ...s, [idx]: !s[idx] }))}
                       >
                         {showFullEmail[idx]
@@ -195,7 +195,7 @@ export function ActivityConfirmPreview({
                     <Button size="sm" variant="ghost" onClick={() => setOne(idx, "skipped")}>
                       {isNb ? "Hopp over" : "Skip"}
                     </Button>
-                    <span className="ml-auto text-[11px] text-muted-foreground flex items-center gap-1">
+                    <span className="ml-auto text-[12px] text-muted-foreground flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {isNb ? "Ikke sendt enda" : "Not sent yet"}
                     </span>
@@ -212,7 +212,7 @@ export function ActivityConfirmPreview({
         <Button size="sm" variant="ghost" onClick={onCancel}>
           {isNb ? "Avbryt alt" : "Cancel all"}
         </Button>
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-[12px] text-muted-foreground">
           {isNb
             ? `${confirmedCount} bekreftet · ${pendingCount} venter`
             : `${confirmedCount} confirmed · ${pendingCount} pending`}

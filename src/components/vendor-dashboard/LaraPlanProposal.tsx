@@ -149,28 +149,28 @@ export function LaraPlanProposal({
                     <span className="text-sm font-medium text-foreground">
                       {isNb ? p.titleNb : p.titleEn}
                     </span>
-                    <Badge variant="outline" className={cn("text-[10px]", prio.cls)}>
+                    <Badge variant="outline" className={cn("text-[11px]", prio.cls)}>
                       {prio.label}
                     </Badge>
-                    <Badge variant="outline" className="text-[10px] gap-1">
+                    <Badge variant="outline" className="text-[11px] gap-1">
                       <Icon className="h-2.5 w-2.5" />
                       {channelLabel(p.channel, isNb)}
                     </Badge>
                     {p.needsClarification && (
                       <Badge
                         variant="outline"
-                        className="text-[10px] gap-1 bg-warning/10 text-warning border-warning/30"
+                        className="text-[11px] gap-1 bg-warning/10 text-warning border-warning/30"
                       >
                         <HelpCircle className="h-2.5 w-2.5" />
                         {isNb ? "Trenger info" : "Needs info"}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-[12px] text-muted-foreground mt-0.5">
                     {isNb ? p.rationaleNb : p.rationaleEn}
                   </p>
                   {p.affectedVendors.length > 0 && (
-                    <p className="text-[11px] text-muted-foreground mt-0.5 italic">
+                    <p className="text-[12px] text-muted-foreground mt-0.5 italic">
                       {isNb ? "Berører" : "Affects"}: {p.affectedVendors.slice(0, 3).join(", ")}
                       {p.affectedVendors.length > 3 && ` +${p.affectedVendors.length - 3}`}
                     </p>

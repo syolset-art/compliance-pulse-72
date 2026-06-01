@@ -488,7 +488,7 @@ function Step1({
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-semibold text-foreground">{opt.label}</p>
                       {opt.recommended && (
-                        <Badge variant="outline" className="text-[10px] gap-1 border-primary/30 text-primary">
+                        <Badge variant="outline" className="text-[11px] gap-1 border-primary/30 text-primary">
                           <Sparkles className="h-3 w-3" />
                           Lara anbefaler
                         </Badge>

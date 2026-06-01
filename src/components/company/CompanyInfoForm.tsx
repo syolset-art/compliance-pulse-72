@@ -308,7 +308,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           </p>
         </div>
         {showEditControls && (
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-[12px] text-muted-foreground">
             {saving ? "Lagrer..." : savedAt ? `Lagret ${savedAt.toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit" })}` : "Endringer lagres automatisk"}
           </span>
         )}
@@ -319,7 +319,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         <label className="text-xs font-medium text-foreground flex items-center gap-2">
           Logo
           {!selfAsset?.logo_url && (
-            <Badge variant="outline" className="text-[11px] gap-1 border-warning/40 text-warning">
+            <Badge variant="outline" className="text-[12px] gap-1 border-warning/40 text-warning">
               <AlertCircle className="h-2.5 w-2.5" /> Mangler
             </Badge>
           )}
@@ -615,7 +615,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
               <div className="rounded-md border border-border overflow-hidden">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/40">
-                    <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <tr className="text-left text-[12px] uppercase tracking-wider text-muted-foreground">
                       <th className="px-3 py-2 font-medium">Partner</th>
                       <th className="px-3 py-2 font-medium">Type</th>
                       <th className="px-3 py-2 font-medium">Siden</th>
@@ -631,7 +631,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                             <span className="font-medium text-foreground truncate">{row.name}</span>
                           </div>
                           {row.roleDescription && (
-                            <p className="text-[11px] text-muted-foreground mt-0.5 truncate pl-5">
+                            <p className="text-[12px] text-muted-foreground mt-0.5 truncate pl-5">
                               {row.roleDescription}
                             </p>
                           )}
@@ -764,14 +764,14 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                             className="w-full text-left px-3 py-2 hover:bg-muted focus:bg-muted focus:outline-none"
                           >
                             <div className="text-sm font-medium text-foreground truncate">{p.name}</div>
-                            <p className="text-[11px] text-muted-foreground truncate">{p.roleDescription}</p>
+                            <p className="text-[12px] text-muted-foreground truncate">{p.roleDescription}</p>
                           </button>
                         ))}
                       </div>
                     );
                   })()}
                 </div>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-[12px] text-muted-foreground">
                   Type partner, leveranseområde og partner siden kan fylles ut etterpå (valgfritt).
                 </p>
               </div>

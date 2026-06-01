@@ -370,7 +370,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
                         <p className="text-xs text-muted-foreground truncate">{v.vendor || v.country || ""}</p>
                       </div>
                       {(v.criticality === "high" || v.criticality === "critical") && (
-                        <Badge variant="outline" className="text-[10px] text-warning">
+                        <Badge variant="outline" className="text-[11px] text-warning">
                           {isNb ? "Høy kritikalitet" : "High criticality"}
                         </Badge>
                       )}

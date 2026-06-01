@@ -94,7 +94,7 @@ export function WorkspaceSwitcher() {
                 </div>
                 <div className="text-left min-w-0">
                   <div className="text-[13px] font-medium truncate">{isNb ? "Min virksomhet" : "My organization"}</div>
-                  <div className="text-[11px] text-sidebar-foreground/50 truncate">
+                  <div className="text-[12px] text-sidebar-foreground/50 truncate">
                     {isNb ? "Compliance og styring" : "Compliance & governance"}
                   </div>
                 </div>
@@ -119,7 +119,7 @@ export function WorkspaceSwitcher() {
                 </div>
                 <div className="text-left min-w-0">
                   <div className="text-[13px] font-medium truncate">{isNb ? "Partner" : "Partner"}</div>
-                  <div className="text-[11px] text-sidebar-foreground/50 truncate">
+                  <div className="text-[12px] text-sidebar-foreground/50 truncate">
                     {isNb ? "Kunder og tjenester" : "Customers & services"}
                   </div>
                 </div>
@@ -132,7 +132,7 @@ export function WorkspaceSwitcher() {
           {mode === "compliance" && ownOrgs.length > 1 && (
             <>
               <div className="border-t border-sidebar-border my-1.5" />
-              <div className="px-3 py-1 text-[10px] uppercase tracking-wide text-sidebar-foreground/40">
+              <div className="px-3 py-1 text-[11px] uppercase tracking-wide text-sidebar-foreground/40">
                 {isNb ? "Bytt virksomhet" : "Switch organization"}
               </div>
               {ownOrgs.map((org) => {

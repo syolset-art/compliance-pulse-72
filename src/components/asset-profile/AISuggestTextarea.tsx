@@ -113,7 +113,7 @@ export function AISuggestTextarea({
 
         {suggestion && (
           <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-2 animate-in fade-in-0 slide-in-from-top-1 duration-200">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <div className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-primary">
               <Sparkles className="h-3 w-3" />
               {isNb ? "Forslag fra Mynder" : "Suggestion from Mynder"}
             </div>

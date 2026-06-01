@@ -206,9 +206,9 @@ export function OutboundRequestsTab({ wizardOpen: externalWizardOpen, onWizardOp
             return groups.map((g) => ({ ...g, items: map.get(g.key)!.items })).map((group) => (
               <div key={group.key} className="space-y-1">
                 <div className="flex items-center gap-3 mb-1">
-                  <span className="text-[11px] font-semibold tracking-wider text-muted-foreground">{group.label}</span>
+                  <span className="text-[12px] font-semibold tracking-wider text-muted-foreground">{group.label}</span>
                   <div className="flex-1 h-px bg-border" />
-                  <span className="text-[11px] text-muted-foreground tabular-nums">{group.items.length}</span>
+                  <span className="text-[12px] text-muted-foreground tabular-nums">{group.items.length}</span>
                 </div>
                 <div className="divide-y divide-border/60">
                   {group.items.map((req) => (

@@ -161,19 +161,19 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
             {/* KPI cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <Card variant="flat" className="p-2.5">
-                <p className="text-[11px] text-muted-foreground">Leverandører</p>
+                <p className="text-[12px] text-muted-foreground">Leverandører</p>
                 <p className="text-lg font-bold text-foreground tabular-nums">{stats.total}</p>
               </Card>
               <Card variant="flat" className="p-2.5">
-                <p className="text-[11px] text-muted-foreground">Snitt trust score</p>
+                <p className="text-[12px] text-muted-foreground">Snitt trust score</p>
                 <p className={cn("text-lg font-bold tabular-nums", scoreColor(stats.avg))}>{stats.avg}%</p>
               </Card>
               <Card variant="flat" className="p-2.5">
-                <p className="text-[11px] text-muted-foreground">Prioritet</p>
+                <p className="text-[12px] text-muted-foreground">Prioritet</p>
                 <p className={cn("text-lg font-bold tabular-nums", stats.prioritized > 0 ? "text-destructive" : "text-foreground")}>{stats.prioritized}</p>
               </Card>
               <Card variant="flat" className="p-2.5">
-                <p className="text-[11px] text-muted-foreground">Høy risiko</p>
+                <p className="text-[12px] text-muted-foreground">Høy risiko</p>
                 <p className={cn("text-lg font-bold tabular-nums", stats.highRisk > 0 ? "text-destructive" : "text-foreground")}>{stats.highRisk}</p>
               </Card>
             </div>
@@ -186,7 +186,7 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
                 {stats.buckets.medium > 0 && <div className="bg-warning" style={{ width: `${(stats.buckets.medium / totalForBar) * 100}%` }} />}
                 {stats.buckets.high > 0 && <div className="bg-destructive" style={{ width: `${(stats.buckets.high / totalForBar) * 100}%` }} />}
               </div>
-              <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+              <div className="flex flex-wrap gap-3 text-[12px] text-muted-foreground">
                 <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-success" />Lav ({stats.buckets.low})</span>
                 <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-warning" />Middels ({stats.buckets.medium})</span>
                 <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-destructive" />Høy ({stats.buckets.high})</span>
@@ -225,11 +225,11 @@ export function ShareVendorPortfolioDialog({ open, onOpenChange, vendors }: Shar
                 </table>
               </div>
               {sorted.length > 8 && (
-                <p className="text-[11px] text-muted-foreground">+ {sorted.length - 8} flere leverandører i rapporten</p>
+                <p className="text-[12px] text-muted-foreground">+ {sorted.length - 8} flere leverandører i rapporten</p>
               )}
             </div>
 
-            <p className="text-[11px] text-muted-foreground italic">
+            <p className="text-[12px] text-muted-foreground italic">
               Underliggende dokumenter, kommentarer og intern kommunikasjon deles ikke.
             </p>
           </Card>

@@ -77,7 +77,7 @@ export function DirectSalesView() {
           <div className="space-y-2.5">
             {planCounts.map(({ plan, count }) => (
               <div key={plan} className="flex items-center gap-3">
-                <Badge variant="outline" className={cn("text-[11px] w-24 justify-center", PLAN_META[plan].color)}>{plan}</Badge>
+                <Badge variant="outline" className={cn("text-[12px] w-24 justify-center", PLAN_META[plan].color)}>{plan}</Badge>
                 <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full bg-primary"
@@ -133,14 +133,14 @@ export function DirectSalesView() {
                     <td className="px-4 py-2.5">
                       <div className="flex flex-wrap gap-1">
                         {c.modules.map((m) => (
-                          <span key={m} className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{m}</span>
+                          <span key={m} className="text-[12px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{m}</span>
                         ))}
                       </div>
                     </td>
                     <td className="px-4 py-2.5">
                       <div className="flex flex-wrap gap-1">
                         {c.frameworks.map((f) => (
-                          <span key={f} className="text-[11px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{f}</span>
+                          <span key={f} className="text-[12px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{f}</span>
                         ))}
                       </div>
                     </td>

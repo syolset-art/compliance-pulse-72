@@ -810,12 +810,12 @@ export default function WorkAreas() {
                 {selectedWorkArea.responsible_person && (
                   <div className="flex items-center gap-2 shrink-0">
                     <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center">
-                      <span className="text-[11px] font-semibold text-primary">
+                      <span className="text-[12px] font-semibold text-primary">
                         {selectedWorkArea.responsible_person.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
                       </span>
                     </div>
                     <span className="text-xs font-medium text-foreground">{selectedWorkArea.responsible_person}</span>
-                    <Badge variant="outline" className="text-[11px] px-1.5 py-0 font-normal text-muted-foreground">Eier</Badge>
+                    <Badge variant="outline" className="text-[12px] px-1.5 py-0 font-normal text-muted-foreground">Eier</Badge>
                   </div>
                 )}
               </div>
@@ -924,7 +924,7 @@ export default function WorkAreas() {
                           {enabled && (
                             <span
                               className={cn(
-                                "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[10px] font-semibold tabular-nums border",
+                                "inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[11px] font-semibold tabular-nums border",
                                 isSelected
                                   ? "bg-primary text-primary-foreground border-primary/40"
                                   : "bg-muted text-muted-foreground border-border"

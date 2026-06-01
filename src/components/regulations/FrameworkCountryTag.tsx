@@ -36,7 +36,7 @@ function Tag({ code, className }: { code: string; className?: string }) {
     <span
       title={TITLES[code] ?? code}
       className={cn(
-        "inline-flex items-center justify-center align-middle rounded-sm border px-1 py-0 text-[9px] font-semibold leading-[14px] tracking-wider tabular-nums",
+        "inline-flex items-center justify-center align-middle rounded-sm border px-1 py-0 text-[11px] font-semibold leading-[14px] tracking-wider tabular-nums",
         style,
         className
       )}

@@ -494,7 +494,7 @@ const AssetTrustProfile = () => {
                         <div className="p-2">
                           <div className="flex items-center gap-2 px-2 py-1">
                             <Settings2 className="h-3.5 w-3.5 text-muted-foreground" />
-                            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                            <p className="text-[12px] font-medium uppercase tracking-wide text-muted-foreground">
                               {isNb ? "Tilpass faner" : "Customize tabs"}
                             </p>
                           </div>

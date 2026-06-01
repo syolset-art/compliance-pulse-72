@@ -50,7 +50,7 @@ export function PendingQuestionnaireCard() {
                       {d.partnerName} har bestilt: {service?.name ?? def.title}
                     </span>
                     {isInProgress && (
-                      <Badge variant="outline" className="text-[10px] bg-warning/10 text-warning border-warning/30">
+                      <Badge variant="outline" className="text-[11px] bg-warning/10 text-warning border-warning/30">
                         Pågår
                       </Badge>
                     )}
@@ -58,7 +58,7 @@ export function PendingQuestionnaireCard() {
                   <p className="text-[13px] text-muted-foreground leading-snug">
                     {d.intro || def.intro}
                   </p>
-                  <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
+                  <p className="text-[12px] text-muted-foreground inline-flex items-center gap-1">
                     {def.totalQuestions} spørsmål
                     {service?.estimatedMinutes && (
                       <> · <Clock className="h-3 w-3" /> ca. {service.estimatedMinutes} min</>

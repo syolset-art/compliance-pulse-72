@@ -85,7 +85,7 @@ const CustomerRequests = () => {
                   <Inbox className="h-4 w-4" />
                   {isNb ? "Innboks" : "Inbox"}
                   {pendingCount > 0 && (
-                    <Badge variant="secondary" className="ml-1 h-4 min-w-4 px-1 text-[10px]">{pendingCount}</Badge>
+                    <Badge variant="secondary" className="ml-1 h-4 min-w-4 px-1 text-[11px]">{pendingCount}</Badge>
                   )}
                 </TabsTrigger>
                 <TabsTrigger value="outbound" className="gap-1.5">

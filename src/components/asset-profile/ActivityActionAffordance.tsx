@@ -100,7 +100,7 @@ export function ActivityActionAffordance({ activity, onLaraStart }: Props) {
 
   return (
     <div className="mt-1.5 flex flex-wrap items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-      <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 text-[11px] font-medium text-foreground">
+      <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-1.5 py-0.5 text-[12px] font-medium text-foreground">
         <Icon className="h-3 w-3" />
         {isNb ? conf.nb : conf.en}
       </span>
@@ -109,7 +109,7 @@ export function ActivityActionAffordance({ activity, onLaraStart }: Props) {
           type="button"
           onClick={() => setOpen(v => !v)}
           className={cn(
-            "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium transition-all",
+            "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[12px] font-medium transition-all",
             "border-primary/30 bg-primary/5 text-primary hover:bg-primary/10"
           )}
         >
@@ -117,7 +117,7 @@ export function ActivityActionAffordance({ activity, onLaraStart }: Props) {
           {isNb ? conf.laraNb : conf.laraEn}
         </button>
       ) : (
-        <span className="inline-flex items-center gap-1 rounded-md border border-success/30 bg-success/5 px-1.5 py-0.5 text-[11px] font-medium text-success">
+        <span className="inline-flex items-center gap-1 rounded-md border border-success/30 bg-success/5 px-1.5 py-0.5 text-[12px] font-medium text-success">
           <Check className="h-3 w-3" />
           {isNb ? "Lara jobber med utkast" : "Lara drafting"}
         </span>

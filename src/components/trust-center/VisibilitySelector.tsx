@@ -112,7 +112,7 @@ export default function VisibilitySelector({ assetId, current, onChange, compact
         <PopoverContent className="w-80 p-2" align="end">
           <div className="px-2 py-1.5">
             <p className="text-xs font-semibold">Synlighet for Trust Profile</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">
+            <p className="text-[12px] text-muted-foreground mt-0.5">
               Profilen er synlig i Mynder-økosystemet som standard. Alle innloggede brukere kan se den.
             </p>
           </div>
@@ -137,10 +137,10 @@ export default function VisibilitySelector({ assetId, current, onChange, compact
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-medium">{m.labelNb}</span>
                       {level === "ecosystem" && (
-                        <span className="text-[10px] text-[hsl(var(--mynder-blue))]">· Anbefalt</span>
+                        <span className="text-[11px] text-[hsl(var(--mynder-blue))]">· Anbefalt</span>
                       )}
                     </div>
-                    <p className="text-[11px] text-muted-foreground leading-snug mt-0.5">{m.descNb}</p>
+                    <p className="text-[12px] text-muted-foreground leading-snug mt-0.5">{m.descNb}</p>
                   </div>
                   {isSaving ? (
                     <Loader2 className="h-4 w-4 animate-spin text-[hsl(var(--mynder-blue))]" />
@@ -177,7 +177,7 @@ export default function VisibilitySelector({ assetId, current, onChange, compact
 
           <div className="space-y-3">
             <div className="rounded-lg border border-border bg-muted/40 p-3 space-y-1.5">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Profilen blir tilgjengelig på
               </p>
               <div className="flex items-center justify-between gap-2">
@@ -189,7 +189,7 @@ export default function VisibilitySelector({ assetId, current, onChange, compact
                     href={publicUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="shrink-0 inline-flex items-center gap-1 text-[11px] text-[hsl(var(--mynder-blue))] hover:underline"
+                    className="shrink-0 inline-flex items-center gap-1 text-[12px] text-[hsl(var(--mynder-blue))] hover:underline"
                   >
                     Åpne <ExternalLink className="h-3 w-3" />
                   </a>

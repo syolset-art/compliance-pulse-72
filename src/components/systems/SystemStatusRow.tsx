@@ -233,7 +233,7 @@ export function SystemStatusRow({
             />
           )}
           <span
-            className={cn("absolute text-[10px] font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
+            className={cn("absolute text-[11px] font-bold tracking-[0.18em] whitespace-nowrap", status.stripeText)}
             style={{ transform: "rotate(-90deg)" }}
           >
             {status.stripeLabel}
@@ -280,7 +280,7 @@ export function SystemStatusRow({
             <div className="hidden md:flex items-center gap-3 shrink-0 pl-3 border-l border-border/60">
               <SystemDonut score={score} tone={status.tone} frozen={isArchived} />
               <div className="text-right space-y-1">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
                   {isArchived ? "Siste modenhet" : "Modenhet"}
                 </p>
                 <p className={cn("text-[12px]", isArchived ? "italic text-muted-foreground" : "text-muted-foreground")}>
@@ -299,7 +299,7 @@ export function SystemStatusRow({
                             type="button"
                             onClick={(e) => e.stopPropagation()}
                             className={cn(
-                              "inline-flex items-center gap-1 rounded-pill px-2 py-0.5 border text-[11px] font-medium",
+                              "inline-flex items-center gap-1 rounded-pill px-2 py-0.5 border text-[12px] font-medium",
                               risk.pillClass
                             )}
                           >
@@ -308,8 +308,8 @@ export function SystemStatusRow({
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="left" className="max-w-[260px]">
-                          <p className="text-[11px] font-semibold mb-1">Beregnet av Mynder</p>
-                          <ul className="text-[11px] space-y-0.5 list-disc pl-4">
+                          <p className="text-[12px] font-semibold mb-1">Beregnet av Mynder</p>
+                          <ul className="text-[12px] space-y-0.5 list-disc pl-4">
                             {risk.reasons.map((r, i) => <li key={i}>{r}</li>)}
                           </ul>
                         </TooltipContent>

@@ -160,7 +160,7 @@ const ITEMS: InboxItem[] = [
 function KindIcon({ kind, customer }: { kind: ItemKind; customer: string }) {
   if (kind === "in") {
     return (
-      <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-semibold shrink-0">
+      <div className="h-7 w-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[12px] font-semibold shrink-0">
         {customer.charAt(0)}
       </div>
     );
@@ -358,7 +358,7 @@ export default function MSPMessages() {
                   {f.label}
                   <span
                     className={cn(
-                      "ml-0.5 min-w-[20px] h-5 px-1.5 rounded-full text-[11px] font-medium tabular-nums flex items-center justify-center",
+                      "ml-0.5 min-w-[20px] h-5 px-1.5 rounded-full text-[12px] font-medium tabular-nums flex items-center justify-center",
                       active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
                     )}
                   >
@@ -437,7 +437,7 @@ export default function MSPMessages() {
                 value={inboxEmail}
                 onChange={(e) => setInboxEmail(e.target.value)}
               />
-              <p className="text-[11px] text-muted-foreground">Hovedadressen som mottar kundens svar og notifikasjoner.</p>
+              <p className="text-[12px] text-muted-foreground">Hovedadressen som mottar kundens svar og notifikasjoner.</p>
             </div>
 
             <div className="space-y-1.5">
@@ -449,7 +449,7 @@ export default function MSPMessages() {
                 value={ccEmail}
                 onChange={(e) => setCcEmail(e.target.value)}
               />
-              <p className="text-[11px] text-muted-foreground">Eks. en delt teampostkasse som skal være med på alle svar.</p>
+              <p className="text-[12px] text-muted-foreground">Eks. en delt teampostkasse som skal være med på alle svar.</p>
             </div>
 
             <div className="space-y-1.5">
@@ -461,21 +461,21 @@ export default function MSPMessages() {
                 value={replyToEmail}
                 onChange={(e) => setReplyToEmail(e.target.value)}
               />
-              <p className="text-[11px] text-muted-foreground">Brukes som «Reply-To» når kunden trykker svar i e-posten.</p>
+              <p className="text-[12px] text-muted-foreground">Brukes som «Reply-To» når kunden trykker svar i e-posten.</p>
             </div>
 
             <div className="rounded-md border border-border p-3 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[13px] font-medium text-foreground">Videresend kundesvar</p>
-                  <p className="text-[11px] text-muted-foreground">Send kundens svar direkte til mottaks-e-posten din.</p>
+                  <p className="text-[12px] text-muted-foreground">Send kundens svar direkte til mottaks-e-posten din.</p>
                 </div>
                 <Switch checked={forwardEnabled} onCheckedChange={setForwardEnabled} />
               </div>
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-[13px] font-medium text-foreground">Daglig sammendrag</p>
-                  <p className="text-[11px] text-muted-foreground">Få én daglig e-post med oversikt over nye svar og tilbud.</p>
+                  <p className="text-[12px] text-muted-foreground">Få én daglig e-post med oversikt over nye svar og tilbud.</p>
                 </div>
                 <Switch checked={dailyDigest} onCheckedChange={setDailyDigest} />
               </div>
@@ -522,7 +522,7 @@ export default function MSPMessages() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <ChannelIcon className="h-3.5 w-3.5 text-muted-foreground" />
                         <p className="text-sm font-semibold text-foreground">{p.title}</p>
-                        <Badge variant="outline" className="text-[10px]">{p.customer}</Badge>
+                        <Badge variant="outline" className="text-[11px]">{p.customer}</Badge>
                       </div>
                       <div className="flex items-start gap-1.5 mt-1.5">
                         <Sparkles className="h-3 w-3 text-primary mt-0.5 shrink-0" />
@@ -584,7 +584,7 @@ export default function MSPMessages() {
 function StatCard({ dot, label, value }: { dot: string; label: string; value: number }) {
   return (
     <Card className="p-3">
-      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+      <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground">
         <span className={cn("h-2 w-2 rounded-full", dot)} />
         {label}
       </div>
@@ -595,7 +595,7 @@ function StatCard({ dot, label, value }: { dot: string; label: string; value: nu
 
 function GroupHeader({ label }: { label: string }) {
   return (
-    <div className="px-4 py-2 bg-muted/40 border-b border-border text-[10px] uppercase tracking-wide text-muted-foreground font-semibold">
+    <div className="px-4 py-2 bg-muted/40 border-b border-border text-[11px] uppercase tracking-wide text-muted-foreground font-semibold">
       {label}
     </div>
   );
@@ -706,7 +706,7 @@ function CampaignRow({
               <Badge
                 variant="outline"
                 className={cn(
-                  "ml-auto text-[10px]",
+                  "ml-auto text-[11px]",
                   r.status === "accepted"
                     ? "bg-success/10 text-success border-success/30"
                     : r.status === "rejected"

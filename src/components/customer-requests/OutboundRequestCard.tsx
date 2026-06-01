@@ -140,7 +140,7 @@ export function OutboundRequestCard({ request, onDelete, onArchive, onToggleVisi
           {request.sent_by_lara && (
             <Badge
               variant="outline"
-              className="bg-primary/5 text-primary border-primary/20 gap-1 text-[10px] py-0 px-1.5 font-normal flex-shrink-0"
+              className="bg-primary/5 text-primary border-primary/20 gap-1 text-[11px] py-0 px-1.5 font-normal flex-shrink-0"
               title={isNb ? "Forberedt og sendt automatisk av Lara" : "Prepared and sent automatically by Lara"}
             >
               <Sparkles className="h-2.5 w-2.5" />
@@ -158,7 +158,7 @@ export function OutboundRequestCard({ request, onDelete, onArchive, onToggleVisi
         </p>
       </div>
 
-      <Badge className={cn(statusCfg.className, "text-[11px] flex-shrink-0")}>
+      <Badge className={cn(statusCfg.className, "text-[12px] flex-shrink-0")}>
         {statusCfg.label}
       </Badge>
 

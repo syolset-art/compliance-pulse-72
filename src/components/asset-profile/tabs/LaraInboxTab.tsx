@@ -298,7 +298,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {summary.score_impact && (
-                        <Badge variant="secondary" className="gap-1 text-[11px]">
+                        <Badge variant="secondary" className="gap-1 text-[12px]">
                           <TrendingUp className="h-3 w-3" />+{summary.score_impact} poeng
                         </Badge>
                       )}
@@ -488,14 +488,14 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                         </div>
                         <div>
                           <p className="text-sm font-semibold">{previewItem.sender_name || "Leverandør"}</p>
-                          <p className="text-[11px] text-muted-foreground">{previewItem.sender_email}</p>
+                          <p className="text-[12px] text-muted-foreground">{previewItem.sender_email}</p>
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-[11px]">CONFIDENTIAL</Badge>
+                      <Badge variant="outline" className="text-[12px]">CONFIDENTIAL</Badge>
                     </div>
 
                     <div className="mt-8 space-y-1">
-                      <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                      <p className="text-[12px] uppercase tracking-wider text-muted-foreground">
                         {DOC_TYPE_LABELS[previewItem.matched_document_type] || "Dokument"}
                       </p>
                       <h1 className="text-2xl font-bold tracking-tight">
@@ -546,7 +546,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                         <div>
                           <p className="text-xs text-muted-foreground">Signert av</p>
                           <p className="font-serif italic text-lg mt-1">{previewItem.sender_name || "Compliance Officer"}</p>
-                          <p className="text-[11px] text-muted-foreground">{previewItem.sender_email}</p>
+                          <p className="text-[12px] text-muted-foreground">{previewItem.sender_email}</p>
                         </div>
                         <div className="text-right">
                           <p className="text-xs text-muted-foreground">Dokument-ID</p>
@@ -555,7 +555,7 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
                       </div>
                     </div>
 
-                    <p className="text-center text-[10px] text-muted-foreground mt-10 pt-4 border-t border-border">
+                    <p className="text-center text-[11px] text-muted-foreground mt-10 pt-4 border-t border-border">
                       — Side 1 av 1 — Demo-forhåndsvisning —
                     </p>
                   </div>

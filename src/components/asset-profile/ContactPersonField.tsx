@@ -114,7 +114,7 @@ export const ContactPersonField = ({
               maxLength={255}
               aria-invalid={!!errors.email}
             />
-            {errors.email && <p className="text-[11px] text-destructive mt-0.5">{errors.email}</p>}
+            {errors.email && <p className="text-[12px] text-destructive mt-0.5">{errors.email}</p>}
           </div>
           <div>
             <Input
@@ -126,14 +126,14 @@ export const ContactPersonField = ({
               maxLength={20}
               aria-invalid={!!errors.phone}
             />
-            {errors.phone && <p className="text-[11px] text-destructive mt-0.5">{errors.phone}</p>}
+            {errors.phone && <p className="text-[12px] text-destructive mt-0.5">{errors.phone}</p>}
           </div>
           {errors.channel && (
-            <p className="text-[11px] text-warning flex items-center gap-1">
+            <p className="text-[12px] text-warning flex items-center gap-1">
               <AlertCircle className="h-3 w-3" /> {errors.channel}
             </p>
           )}
-          <p className="text-[11px] text-muted-foreground italic">
+          <p className="text-[12px] text-muted-foreground italic">
             {isNb ? "Telefon eller e-post er obligatorisk." : "Phone or email is required."}
           </p>
           <div className="flex gap-1 pt-0.5">

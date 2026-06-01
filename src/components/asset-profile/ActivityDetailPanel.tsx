@@ -41,7 +41,7 @@ export function ActivityDetailPanel({ activity: act, onUpdate }: Props) {
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            <p className="text-[12px] uppercase tracking-wider text-muted-foreground">
               {isNb ? "Opprettet av" : "Created by"}
             </p>
             <p className="text-sm font-medium text-foreground truncate">
@@ -59,7 +59,7 @@ export function ActivityDetailPanel({ activity: act, onUpdate }: Props) {
 
         {/* Level selector — editable */}
         <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[12px] uppercase tracking-wider text-muted-foreground">
             <Layers className="h-3 w-3" />
             {isNb ? "Nivå" : "Level"}
           </div>
@@ -127,7 +127,7 @@ export function ActivityDetailPanel({ activity: act, onUpdate }: Props) {
               {isNb ? phaseConf.nb : phaseConf.en}
             </Badge>
           </div>
-          <div className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider", statusConf.pill)}>
+          <div className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider", statusConf.pill)}>
             <span className={cn("h-1.5 w-1.5 rounded-full", statusConf.dot)} />
             {isNb ? statusConf.nb : statusConf.en}
           </div>
@@ -159,7 +159,7 @@ export function ActivityDetailPanel({ activity: act, onUpdate }: Props) {
           <>
             <Separator />
             <div className="space-y-2">
-              <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-[12px] uppercase tracking-wider text-muted-foreground">
                 <History className="h-3 w-3" />
                 {isNb ? "Statusendringer" : "Status changes"}
               </div>
@@ -178,7 +178,7 @@ export function ActivityDetailPanel({ activity: act, onUpdate }: Props) {
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="text-muted-foreground">{isNb ? fromConf.nb : fromConf.en}</span>
                           <span className="text-muted-foreground">→</span>
-                          <span className={cn("inline-flex items-center gap-1 rounded-full border px-1.5 py-0 text-[10px] font-semibold uppercase tracking-wider", toConf.pill)}>
+                          <span className={cn("inline-flex items-center gap-1 rounded-full border px-1.5 py-0 text-[11px] font-semibold uppercase tracking-wider", toConf.pill)}>
                             <span className={cn("h-1 w-1 rounded-full", toConf.dot)} />
                             {isNb ? toConf.nb : toConf.en}
                           </span>

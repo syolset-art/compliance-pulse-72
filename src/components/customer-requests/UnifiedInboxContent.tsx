@@ -268,7 +268,7 @@ export function UnifiedInboxContent() {
             )}
           >
             {t.label}
-            <Badge variant="secondary" className="h-4 min-w-4 px-1 text-[10px]">{t.count}</Badge>
+            <Badge variant="secondary" className="h-4 min-w-4 px-1 text-[11px]">{t.count}</Badge>
           </button>
         ))}
       </div>
@@ -286,9 +286,9 @@ export function UnifiedInboxContent() {
           {groupedByMonth.map((group) => (
             <div key={group.key} className="space-y-2">
               <div className="flex items-center gap-3">
-                <span className="text-[11px] font-semibold tracking-wider text-muted-foreground">{group.label}</span>
+                <span className="text-[12px] font-semibold tracking-wider text-muted-foreground">{group.label}</span>
                 <div className="flex-1 h-px bg-border" />
-                <span className="text-[11px] text-muted-foreground tabular-nums">{group.items.length}</span>
+                <span className="text-[12px] text-muted-foreground tabular-nums">{group.items.length}</span>
               </div>
               <div className="space-y-2">
                 {group.items.map((item: any) =>
@@ -382,11 +382,11 @@ export function UnifiedInboxContent() {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             {summary.score_impact && isAnalyzed && !isDone && (
-              <Badge variant="secondary" className="gap-1 text-[11px]">
+              <Badge variant="secondary" className="gap-1 text-[12px]">
                 <TrendingUp className="h-3 w-3" />+{summary.score_impact}
               </Badge>
             )}
-            <Badge variant="outline" className={cn("text-[11px]", statusClass)}>{statusLabel}</Badge>
+            <Badge variant="outline" className={cn("text-[12px]", statusClass)}>{statusLabel}</Badge>
             {isAnalyzed && !isDone && (
               <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", isExpanded && "rotate-180")} />
             )}
@@ -400,7 +400,7 @@ export function UnifiedInboxContent() {
               {summary.note && (
                 <p className="text-xs text-foreground leading-relaxed">{summary.note}</p>
               )}
-              <div className="flex flex-wrap gap-1.5 text-[11px]">
+              <div className="flex flex-wrap gap-1.5 text-[12px]">
                 {asset?.name ? (
                   <Badge variant="secondary" className="font-normal">
                     {isNb ? "Leverandør" : "Vendor"}: {asset.name}

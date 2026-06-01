@@ -47,7 +47,7 @@ export function LevelChip({ level, isNb = true, size = "sm" }: Props) {
           <span
             className={cn(
               "inline-flex items-center gap-1 rounded-pill border font-medium cursor-help",
-              size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-xs",
+              size === "sm" ? "px-2 py-0.5 text-[12px]" : "px-2.5 py-1 text-xs",
               m.pill
             )}
           >
@@ -56,8 +56,8 @@ export function LevelChip({ level, isNb = true, size = "sm" }: Props) {
           </span>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[240px]">
-          <p className="text-[11px] font-semibold mb-0.5">{isNb ? m.nb : m.en}</p>
-          <p className="text-[11px]">{isNb ? m.tipNb : m.tipEn}</p>
+          <p className="text-[12px] font-semibold mb-0.5">{isNb ? m.nb : m.en}</p>
+          <p className="text-[12px]">{isNb ? m.tipNb : m.tipEn}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

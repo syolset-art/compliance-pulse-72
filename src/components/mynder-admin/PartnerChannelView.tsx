@@ -47,21 +47,21 @@ export function PartnerChannelView() {
                   </div>
                 </div>
               </div>
-              <Badge variant="outline" className={cn("text-[10px]", PARTNER_TYPE_COLOR[p.type])}>
+              <Badge variant="outline" className={cn("text-[11px]", PARTNER_TYPE_COLOR[p.type])}>
                 {p.type}
               </Badge>
               <div className="hidden md:flex items-center gap-6 text-right">
                 <div>
                   <div className="text-lg font-bold tabular-nums text-foreground">{p.customerCount}</div>
-                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Kunder</div>
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Kunder</div>
                 </div>
                 <div>
                   <div className="text-lg font-bold tabular-nums text-foreground">{p.mrr.toLocaleString("nb-NO")}</div>
-                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">MRR kr</div>
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">MRR kr</div>
                 </div>
                 <div>
                   <div className="text-lg font-bold tabular-nums text-foreground">{p.commissionPct}%</div>
-                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Provisjon</div>
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">Provisjon</div>
                 </div>
               </div>
             </button>
@@ -103,14 +103,14 @@ export function PartnerChannelView() {
                             <td className="px-4 py-2">
                               <div className="flex flex-wrap gap-1">
                                 {c.modules.map((m) => (
-                                  <span key={m} className="text-[11px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{m}</span>
+                                  <span key={m} className="text-[12px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{m}</span>
                                 ))}
                               </div>
                             </td>
                             <td className="px-4 py-2">
                               <div className="flex flex-wrap gap-1">
                                 {c.frameworks.map((f) => (
-                                  <span key={f} className="text-[11px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{f}</span>
+                                  <span key={f} className="text-[12px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{f}</span>
                                 ))}
                               </div>
                             </td>

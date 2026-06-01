@@ -71,7 +71,7 @@ export function LaraPlanInline({ task, onApprove, onRejectManual, onClose }: Pro
           <Diamond className="h-3.5 w-3.5 text-primary" />
         </div>
         <span className="text-xs font-bold tracking-wider text-muted-foreground">LARAS PLAN</span>
-        <span className={cn("inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider", sev.text)}>
+        <span className={cn("inline-flex items-center gap-1.5 text-[12px] font-bold tracking-wider", sev.text)}>
           <span className={cn("h-2 w-2 rounded-full", sev.dot)} />
           {sev.label}
         </span>
@@ -87,7 +87,7 @@ export function LaraPlanInline({ task, onApprove, onRejectManual, onClose }: Pro
       </div>
 
       <div className="rounded-lg bg-card border border-border/60 p-3">
-        <p className="text-[10px] font-bold tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1.5">
+        <p className="text-[11px] font-bold tracking-wider text-muted-foreground mb-1.5 flex items-center gap-1.5">
           <Icon className="h-3 w-3" /> LARA FORESLÅR
         </p>
         <p className="text-sm text-foreground leading-relaxed mb-2.5">{plan.action}</p>
@@ -101,7 +101,7 @@ export function LaraPlanInline({ task, onApprove, onRejectManual, onClose }: Pro
         </ul>
       </div>
 
-      <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+      <p className="text-[12px] text-muted-foreground flex items-center gap-1.5">
         <Mail className="h-3 w-3" />
         Du kan alltid hente forslaget tilbake fra Lara-innboksen.
       </p>

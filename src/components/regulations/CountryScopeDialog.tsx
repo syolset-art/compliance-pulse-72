@@ -163,7 +163,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
                       )}
                     >
                       <span aria-hidden>{c.flag}</span>
-                      <span className="text-[10px] uppercase tracking-wide opacity-70" aria-hidden>{c.code}</span>
+                      <span className="text-[11px] uppercase tracking-wide opacity-70" aria-hidden>{c.code}</span>
                       <span>{c.name}</span>
                       {isSel && <X className="h-3 w-3 ml-0.5 opacity-70" aria-hidden />}
                     </button>
@@ -196,7 +196,7 @@ export function CountryScopeDialog({ open, onOpenChange, initialScope, onApply }
           {step === 2 && (
             <div className="space-y-5">
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                <div className="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wide text-primary">
                   <Sparkles className="h-3 w-3" aria-hidden /> Lara spør
                 </div>
                 <h3 className="text-base font-semibold text-foreground">Hvem leverer dere til?</h3>
@@ -313,7 +313,7 @@ function ModeCard({
     >
       <div className="flex items-center justify-between mb-1">
         <span className="font-medium text-foreground">{title}</span>
-        {accent && <Badge variant="outline" className="text-[10px] uppercase">Ekspansjon</Badge>}
+        {accent && <Badge variant="outline" className="text-[11px] uppercase">Ekspansjon</Badge>}
       </div>
       <p className="text-xs text-muted-foreground">{description}</p>
     </button>
@@ -436,7 +436,7 @@ function FrameworkPicker({
 
       {customFrameworks.length > 0 && (
         <section aria-labelledby="cat-custom" className="space-y-2">
-          <h4 id="cat-custom" className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <h4 id="cat-custom" className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
             Bestilte regelverk
           </h4>
           <div className="rounded-lg border border-dashed border-border bg-muted/30 p-3 space-y-2">
@@ -472,7 +472,7 @@ function FrameworkPicker({
           if (!list?.length) return null;
           return (
             <section key={cat} aria-labelledby={`cat-${cat}`} className="space-y-2">
-              <h4 id={`cat-${cat}`} className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <h4 id={`cat-${cat}`} className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {CATEGORY_LABELS[cat] ?? cat}
               </h4>
               <ul className="space-y-1.5 list-none p-0 m-0">
@@ -501,13 +501,13 @@ function FrameworkPicker({
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-sm font-medium text-foreground">{f.name}</span>
                             {isSuggested && (
-                              <Badge variant="outline" className="gap-1 text-[10px] uppercase tracking-wide border-primary/30 text-primary">
+                              <Badge variant="outline" className="gap-1 text-[11px] uppercase tracking-wide border-primary/30 text-primary">
                                 <Sparkles className="h-2.5 w-2.5" aria-hidden />
                                 Foreslått
                               </Badge>
                             )}
                             {f.isMandatory && (
-                              <Badge variant="outline" className="text-[10px] uppercase tracking-wide border-status-followup/40 text-status-followup">
+                              <Badge variant="outline" className="text-[11px] uppercase tracking-wide border-status-followup/40 text-status-followup">
                                 Påkrevd
                               </Badge>
                             )}

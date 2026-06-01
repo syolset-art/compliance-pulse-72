@@ -193,11 +193,11 @@ function ClaimRateWidget() {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="text-2xl font-bold leading-none">{claimPct}%</div>
-            <div className="text-[9px] uppercase tracking-wider text-white/80 mt-0.5">aktive</div>
+            <div className="text-[11px] uppercase tracking-wider text-white/80 mt-0.5">aktive</div>
           </div>
         </div>
         <div className="min-w-0">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-white/80 font-semibold">Aktiveringsgrad</div>
+          <div className="text-[11px] uppercase tracking-[0.15em] text-white/80 font-semibold">Aktiveringsgrad</div>
           <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder har aktivert</div>
           <div className="text-xs text-white/70 mt-1">Kunder som har godkjent compliance-leveranse · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
         </div>
@@ -227,7 +227,7 @@ function NeedsFollowUpWidget() {
           <Target className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Pågående Kampanjer</div>
+          <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Pågående Kampanjer</div>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-bold leading-none tabular-nums">{total}</span>
             <span className="text-xs text-muted-foreground">kunder</span>
@@ -237,7 +237,7 @@ function NeedsFollowUpWidget() {
       </div>
       <div className="space-y-1.5">
         {breakdown.map((b) => (
-          <div key={b.label} className="flex items-center gap-2 text-[11px]">
+          <div key={b.label} className="flex items-center gap-2 text-[12px]">
             <span className="text-muted-foreground flex-1 truncate">{b.label}</span>
             <div className="h-1.5 w-16 rounded-full bg-muted overflow-hidden">
               <div className={`h-full ${b.tone}`} style={{ width: `${(b.count / max) * 100}%` }} />
@@ -281,11 +281,11 @@ function AvgTrustScoreWidget() {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <div className={`text-2xl font-bold leading-none ${tone}`}>{score}</div>
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground mt-0.5">score</div>
+          <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-0.5">score</div>
         </div>
       </div>
       <div className="min-w-0">
-        <div className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Trust score</div>
+        <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Trust score</div>
         <div className="text-sm text-foreground mt-0.5">Snitt portefølje</div>
         <div className="text-xs text-muted-foreground mt-1">
           <span className="text-success font-semibold">+{delta}</span> siste 30 dager
@@ -402,7 +402,7 @@ function LaraSuggestionInline({
           <Icon className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <Badge className="mb-2 bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[10px] tracking-wider">
+          <Badge className="mb-2 bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[11px] tracking-wider">
             <Sparkles className="h-3 w-3 mr-1" />
             LARA-FORSLAG
           </Badge>
@@ -430,7 +430,7 @@ function LaraSuggestionInline({
                   />
                   <div
                     className={
-                      "text-[10px] mt-1 font-semibold tracking-wider " +
+                      "text-[11px] mt-1 font-semibold tracking-wider " +
                       (i <= stepIndex ? "text-primary" : "text-muted-foreground")
                     }
                   >
@@ -447,11 +447,11 @@ function LaraSuggestionInline({
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 rounded-lg bg-muted/50 border border-border">
-                <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">REKKEVIDDE</div>
+                <div className="text-[11px] tracking-wider text-muted-foreground font-semibold">REKKEVIDDE</div>
                 <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.reach}</div>
               </div>
               <div className="p-3 rounded-lg bg-muted/50 border border-border">
-                <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">FORVENTET</div>
+                <div className="text-[11px] tracking-wider text-muted-foreground font-semibold">FORVENTET</div>
                 <div className="text-sm font-semibold text-foreground mt-1">{suggestion.impact.expectedClaims}</div>
               </div>
             </div>
@@ -465,7 +465,7 @@ function LaraSuggestionInline({
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   <h4 className="text-sm font-semibold text-foreground">Slik utfører Lara dette</h4>
-                  <Badge variant="outline" className="text-[10px]">{suggestion.steps.length} steg</Badge>
+                  <Badge variant="outline" className="text-[11px]">{suggestion.steps.length} steg</Badge>
                 </div>
                 <ChevronDown
                   className={`h-4 w-4 text-muted-foreground transition-transform ${showSteps ? "rotate-180" : ""}`}
@@ -534,7 +534,7 @@ function LaraSuggestionInline({
                     <Badge
                       variant="outline"
                       className={
-                        "text-[10px] " +
+                        "text-[11px] " +
                         (c.risk === "Høy"
                           ? "border-destructive/40 text-destructive"
                           : c.risk === "Medium"
@@ -556,7 +556,7 @@ function LaraSuggestionInline({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-sm font-semibold text-foreground">Forhåndsvis e-posten</h4>
-              <Badge variant="outline" className="text-[10px] gap-1">
+              <Badge variant="outline" className="text-[11px] gap-1">
                 <Sparkles className="h-3 w-3 text-primary" />
                 Generert av Lara
               </Badge>
@@ -605,7 +605,7 @@ function LaraSuggestionInline({
                     <div className="text-xs font-semibold text-primary tracking-wider">
                       NIS2-MODUL — 2 490 KR / MND
                     </div>
-                    <Badge className="bg-primary text-primary-foreground text-[10px] hover:bg-primary">
+                    <Badge className="bg-primary text-primary-foreground text-[11px] hover:bg-primary">
                       ANBEFALT
                     </Badge>
                   </div>
@@ -679,7 +679,7 @@ function LaraSuggestionInline({
                     <div className="text-xs text-muted-foreground">{opt.sub}</div>
                   </div>
                   {opt.key === "tomorrow" && (
-                    <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[10px]">
+                    <Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/10 text-[11px]">
                       ANBEFALT
                     </Badge>
                   )}
@@ -711,7 +711,7 @@ function LaraSuggestionInline({
             </div>
 
             <div className="border border-border rounded-lg p-4 space-y-3 bg-muted/20">
-              <div className="text-[10px] tracking-wider text-muted-foreground font-semibold">
+              <div className="text-[11px] tracking-wider text-muted-foreground font-semibold">
                 LARAS NESTE STEG
               </div>
               {[
@@ -1021,12 +1021,12 @@ function CampaignsWidget() {
             >
               <div className="flex items-baseline justify-between gap-3 mb-1.5">
                 <p className="text-sm font-medium text-foreground truncate">{c.title}</p>
-                <span className={`text-[11px] tabular-nums ${textColor}`}>{c.daysLeft}d igjen</span>
+                <span className={`text-[12px] tabular-nums ${textColor}`}>{c.daysLeft}d igjen</span>
               </div>
               <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
                 <div className={`absolute inset-y-0 left-0 ${barColor} rounded-full`} style={{ width: `${acceptPct}%` }} />
               </div>
-              <p className="text-[11px] text-muted-foreground mt-1">{c.accepted} av {c.reach} svar · {acceptPct}%</p>
+              <p className="text-[12px] text-muted-foreground mt-1">{c.accepted} av {c.reach} svar · {acceptPct}%</p>
             </button>
           );
         })}
@@ -1066,7 +1066,7 @@ function NewsWidget() {
           <Newspaper className="h-4 w-4 text-primary" />
           <h3 className="text-base font-semibold">Nyheter</h3>
         </div>
-        <span className="text-[11px] text-muted-foreground">fra Mynder</span>
+        <span className="text-[12px] text-muted-foreground">fra Mynder</span>
       </div>
 
       <ul className="space-y-2.5">
@@ -1083,9 +1083,9 @@ function NewsWidget() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline justify-between gap-2">
                   <p className="text-sm font-medium text-foreground truncate">{n.title}</p>
-                  <span className="text-[11px] text-muted-foreground shrink-0">{n.when}</span>
+                  <span className="text-[12px] text-muted-foreground shrink-0">{n.when}</span>
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{n.meta}</p>
+                <p className="text-[12px] text-muted-foreground mt-0.5">{n.meta}</p>
               </div>
             </li>
           );

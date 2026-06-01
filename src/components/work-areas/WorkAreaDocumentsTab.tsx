@@ -362,7 +362,7 @@ export function WorkAreaDocumentsTab({ workAreaId, workAreaName }: WorkAreaDocum
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-medium truncate">{doc.file_name}</p>
                             {doc.generated && (
-                              <Badge className="text-[11px] bg-accent/10 text-accent border-accent/30 shrink-0">
+                              <Badge className="text-[12px] bg-accent/10 text-accent border-accent/30 shrink-0">
                                 <Sparkles className="h-2.5 w-2.5 mr-0.5" />
                                 AI
                               </Badge>

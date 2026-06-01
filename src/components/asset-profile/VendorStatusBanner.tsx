@@ -81,7 +81,7 @@ function InitialAvatar({ name, color = "bg-primary/15 text-primary" }: { name: s
     .join("")
     .toUpperCase();
   return (
-    <span className={cn("inline-flex items-center justify-center h-6 w-6 rounded-full text-[10px] font-semibold", color)}>
+    <span className={cn("inline-flex items-center justify-center h-6 w-6 rounded-full text-[11px] font-semibold", color)}>
       {initials || "?"}
     </span>
   );
@@ -212,7 +212,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
         <div className={cn("relative w-9 shrink-0", status.stripeBg)}>
           <span
             className={cn(
-              "absolute inset-0 flex items-center justify-center text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap",
+              "absolute inset-0 flex items-center justify-center text-[11px] font-bold uppercase tracking-[0.18em] whitespace-nowrap",
               status.stripeText,
             )}
             style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
@@ -298,11 +298,11 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
             {/* Modenhet — tekst venstre, donut høyre */}
             <div className="hidden md:flex items-center gap-3 shrink-0">
               <div className="flex flex-col items-end text-right">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Modenhet</span>
-                <span className={`mt-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${maturityLevel.cls}`}>
+                <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Modenhet</span>
+                <span className={`mt-1 inline-flex items-center rounded-full border px-2 py-0.5 text-[12px] font-semibold ${maturityLevel.cls}`}>
                   {maturityLevel.label}
                 </span>
-                <span className="mt-1 text-[11px] text-muted-foreground italic">{maturityLabel}</span>
+                <span className="mt-1 text-[12px] text-muted-foreground italic">{maturityLabel}</span>
               </div>
               <Donut score={score} tone={status.tone} />
             </div>
@@ -314,7 +314,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
           {/* Footer: Kontakt hos leverandør · Ansvarlig hos oss */}
           <div className="border-t border-border pt-3 flex flex-wrap items-center gap-x-8 gap-y-2 text-[13px]">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Kontakt hos leverandør:</span>
+              <span className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold">Kontakt hos leverandør:</span>
               {asset.contact_person ? (
                 <span className="inline-flex items-center gap-1.5 text-foreground/90">
                   <InitialAvatar name={asset.contact_person} color="bg-warning/15 text-warning" />
@@ -332,7 +332,7 @@ export function VendorStatusBanner({ asset }: VendorStatusBannerProps) {
             </div>
 
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">Ansvarlig hos oss:</span>
+              <span className="text-[12px] uppercase tracking-wider text-muted-foreground font-semibold">Ansvarlig hos oss:</span>
               {asset.asset_manager ? (
                 <span className="inline-flex items-center gap-1.5 text-foreground/90">
                   <InitialAvatar name={asset.asset_manager} color="bg-primary/15 text-primary" />
