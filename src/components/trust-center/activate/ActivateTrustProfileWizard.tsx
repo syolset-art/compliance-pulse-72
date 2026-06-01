@@ -796,43 +796,7 @@ export default function ActivateTrustProfileWizard({
         <div className="max-w-3xl mx-auto space-y-4">
           {autoPlay && <DemoCursor ref={cursorRef} />}
           {/* Stepper */}
-          <nav aria-label="Aktiveringssteg" className="px-1">
-            <ol className="flex items-start gap-2">
-              {STEP_LABELS.map((label, i) => {
-                const n = i + 1;
-                const isDone = n < step;
-                const isCurrent = n === step;
-                return (
-                  <li key={label} className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`h-6 w-6 rounded-full flex items-center justify-center text-[12px] font-semibold shrink-0 transition-colors ${
-                          isCurrent
-                            ? "bg-primary text-primary-foreground"
-                            : isDone
-                              ? "bg-primary/15 text-primary"
-                              : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {isDone ? <CheckCircle2 className="h-3.5 w-3.5" /> : n}
-                      </div>
-                      {i < STEP_LABELS.length - 1 && (
-                        <div className={`h-px flex-1 ${n < step ? "bg-primary/40" : "bg-border"}`} />
-                      )}
-                    </div>
-                    <div
-                      className={`mt-1.5 text-[12px] leading-tight truncate ${
-                        isCurrent ? "text-foreground font-medium" : "text-muted-foreground"
-                      }`}
-                      title={label}
-                    >
-                      {label}
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          </nav>
+          {stepper}
 
           {/* Lara message */}
           <div className="flex items-center gap-3 px-1">
