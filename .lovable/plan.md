@@ -1,48 +1,29 @@
-## Endringer i Kundevisning (`/msp-customer-view`)
+## Overta kundens Trust Profile (Veiledning fra Mynder)
 
-Oppdaterer de eksisterende visningene og legger til én ny fane, slik at de bedre reflekterer den faktiske kundeopplevelsen.
+Legg til et nytt kort øverst på fanen «Veiledning fra Mynder» i `MSPCustomerDetail.tsx` som lar partner overta kundens Trust Profile på to måter:
 
-### 1. Ny fane: "Gi fullmakt" (Trust Profile + Lara-plan)
+1. **Bekreft eksisterende avtale** — partner huker av at de allerede har en signert leveranseavtale med kunden, og bekrefter overtakelse umiddelbart.
+2. **Be om fullmakt fra kunden** — partner sender en e-post til kunden som ber dem gi fullmakt. Status settes til «Venter på fullmakt».
 
-Ny tab "Gi fullmakt" i `MSPCustomerView.tsx`, plassert etter "Trust Profile (offentlig)".
+### Ny komponent
+`src/components/msp/TakeoverTrustProfileCard.tsx`
+- Header: «Overta kundens Trust Profile» med Lara-/`ShieldCheck`-ikon og kort forklaring: «For å jobbe i kundens profil må du ha fullmakt — enten via signert avtale, eller ved å be kunden bekrefte direkte.»
+- Tre tilstander (lagret i `localStorage`-nøkkel `mynder:takeover:<customerId>` for demo):
+  - **`none`** — viser to CTA-knapper:
+    - «Jeg har avtale med kunden» (primær) → åpner en `Dialog` med avkrysning av to vilkår («Vi har signert leveranseavtale» + «Jeg bekrefter at jeg har fullmakt på vegne av kunden»), aktiverer «Bekreft overtakelse».
+    - «Be kunden om fullmakt» (sekundær) → åpner en `Dialog` med forhåndsutfylt e-postutkast (emne/innhold som matcher Kundevisning > Overlevering-e-posten), redigerbart, og «Send forespørsel».
+  - **`pending`** — viser status-pille «Venter på fullmakt fra [kontaktnavn]», tidspunkt sendt, knapper «Send påminnelse» og «Avbryt forespørsel».
+  - **`granted`** — viser grønn status «Fullmakt aktiv» med kilde («Signert avtale bekreftet …» eller «Kunde ga fullmakt …»), tidspunkt, og knapp «Trekk tilbake».
 
-Ny komponent: `src/components/msp/customer-view/GrantAuthorityView.tsx`
-- Bruker `PreviewFrame` med browser-chrome.
-- Øverst: et Lara-plan-banner (kort med Lara-ikon, lilla aksent, design som matcher andre Lara-bannere) med tittel "Gi din partner fullmakt" og forklaring: «Gi [Partnernavn] fullmakt til å utføre aktiviteter på din Trust Profile slik at modenheten øker raskere.» CTA-knapper: "Gi fullmakt" (primær) og "Les mer".
-- Under banneret: en forenklet mock av kundens egen Trust Profile-side (header med DIPS Arena AS, modenhetsindikator, et par seksjoner som "Rammeverk", "Dokumenter", "Aktiviteter") — statisk, kun visuelt. Gjenbruker tokens og kortstil fra eksisterende Trust Profile-komponenter, men uten å koble til ekte data.
-- Implementeringsnotat peker til: hvor Lara-banneret skal trigges (kundens Trust Profile når en MSP-partner er koblet på), komponent som skal lages (`<GrantPartnerAuthorityBanner partnerName=... />`), og at fullmakt lagres som en relasjon mellom partner og kunde-profil.
+### Endringer i `MSPCustomerDetail.tsx`
+- Importer og monter `<TakeoverTrustProfileCard customerId={customerId} customerName={...} contactName={...} contactEmail={...} />` som første element i `<TabsContent value="guidance">`, før `LaraRecommendationBanner`.
+- Ingen andre endringer i sidens logikk.
 
-### 2. Forenkle "Tilbud (e-post)"
-
-Erstatter dagens `EmailOfferView` innhold (som rendrer hele `CustomerCatalogPreview`) med en enkel e-postmock:
-- Emne: "Vedlagt tilbud fra din partner Nordlys Sikkerhet AS"
-- Avsender: partnerrådgiver
-- Brødtekst: kort hilsen, "Vedlagt finner du tilbudet vi har satt sammen for DIPS Arena AS. Åpne PDF for detaljer. Svar `OK` på denne e-posten for å godkjenne tilbudet."
-- Vedlegg-pille: `Tilbud-DIPS-Arena.pdf` med last-ned-ikon (statisk, åpner ikke noe reelt).
-- Knapp/lenke: "Svar med OK for å godkjenne" (visuell).
-- Implementeringsnotat oppdateres: trigger = partner klikker "Send tilbud", e-posten sendes som transaksjonell e-post med PDF-vedlegg, godkjenning skjer ved svar-e-post som parses og markerer tilbudet som godkjent.
-
-### 3. "Trust Profile (offentlig)"
-
-Ingen endringer — beholdes som i dag.
-
-### 4. Omskriv "Overlevering (e-post)"
-
-Endrer `HandoverEmailView` slik at innholdet handler om at partneren har opprettet en Trust Profile på vegne av kunden:
-- Emne: "Din Trust Profile er klar – gi [Partner] fullmakt til å jobbe i profilen"
-- Brødtekst: "Hei, [Partner] har opprettet en Trust Profile for DIPS Arena AS i Mynder. Logg inn for å se profilen og gi partneren fullmakt til å utføre aktiviteter, oppdatere dokumentasjon og øke modenheten på dine vegne."
-- CTA-knapp: "Åpne Trust Profile og gi fullmakt" → lenker (visuelt) til kundens innloggede visning.
-- Kort seksjon under: "Hva betyr fullmakt?" med 3 punktstreker (utføre aktiviteter, laste opp dokumenter, svare på henvendelser).
-- Implementeringsnotat: trigger = partner fullfører aktiveringsveiviseren, kunden får e-post med engangs-innloggingslenke / magic link til sin Trust Profile-modul.
+### Implementering / scope
+- Kun frontend. Demo-state i `localStorage`, ingen database-/edge-endringer.
+- Bruker eksisterende shadcn-komponenter (`Card`, `Dialog`, `Button`, `Checkbox`, `Textarea`, `Input`, `Badge`) og semantiske design-tokens (primær lilla, `bg-success`/`bg-warning`).
+- E-postutkastet i fullmakts-dialogen gjenbruker tekstmalen fra `HandoverEmailView` (samme språk: «gi [Partner] fullmakt til å jobbe i profilen»), men sendes ikke faktisk — vi viser bare en `toast.success` for demo.
 
 ### Filer
-
-Endres:
-- `src/pages/MSPCustomerView.tsx` — legg til ny tab "Gi fullmakt"
-- `src/components/msp/customer-view/EmailOfferView.tsx` — bytt fra `CustomerCatalogPreview` til enkel e-postmock med PDF-vedlegg
-- `src/components/msp/customer-view/HandoverEmailView.tsx` — nytt innhold om fullmakt
-
-Opprettes:
-- `src/components/msp/customer-view/GrantAuthorityView.tsx`
-
-Ingen endringer i ruter, sidebar, database eller edge functions. Kun frontend/presentasjon.
+- Opprettes: `src/components/msp/TakeoverTrustProfileCard.tsx`
+- Endres: `src/pages/MSPCustomerDetail.tsx` (én import + ett element øverst i guidance-tabben)
