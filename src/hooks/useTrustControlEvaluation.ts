@@ -379,9 +379,13 @@ export function useTrustControlEvaluation(assetId: string) {
     // onboarding (governance setup, key personnel, compliance org, etc.) so the
     // maturity widget is not stuck at 0% before controls are manually answered.
     const isActivated = isSelf && !!(companyProfile?.org_number || asset?.description);
+    // NB: keys must match the ControlArea bindings used by the Trust Profile
+    // maturity card (governance / risk_compliance=Security /
+    // security_posture=Privacy & Data Handling / supplier_governance).
     const AREA_FLOOR: Partial<Record<ControlArea, number>> = {
       governance: 45,
-      security_posture: 30,
+      risk_compliance: 35,
+      security_posture: 60,
       privacy_data: 55,
       supplier_governance: 30,
     };
