@@ -96,6 +96,38 @@ function deriveNeededServices(c: any): string[] {
   return Array.from(new Set(services)).slice(0, 3);
 }
 
+// Typical MSP/MSSP groupings — derived from existing customer data
+const SECURITY_FRAMEWORKS = new Set(["ISO 27001", "NIS2", "NIS 2", "CIS", "SOC 2", "Cyber Essentials"]);
+function deriveServiceType(c: any): "mssp" | "msp" | "hybrid" {
+  const frameworks: string[] = c.active_frameworks || [];
+  const securityHits = frameworks.filter((f) => SECURITY_FRAMEWORKS.has(f)).length;
+  const otherHits = frameworks.length - securityHits;
+  if (securityHits >= 2 || (securityHits >= 1 && otherHits === 0 && frameworks.length > 0)) return "mssp";
+  if (securityHits >= 1 && otherHits >= 1) return "hybrid";
+  return "msp";
+}
+const SERVICE_TYPE_LABEL: Record<"mssp" | "msp" | "hybrid", string> = {
+  mssp: "MSSP (sikkerhet)",
+  msp: "MSP (drift/IT)",
+  hybrid: "Hybrid",
+};
+
+function deriveSegment(c: any): "smb" | "midmarket" | "enterprise" {
+  const emp = String(c.employees || "");
+  if (/500|1000|\+/.test(emp)) return "enterprise";
+  if (/201|51-|11-50/.test(emp)) {
+    if (/201|500/.test(emp)) return "midmarket";
+  }
+  if (/201/.test(emp)) return "midmarket";
+  if (/51-200|51-/.test(emp)) return "midmarket";
+  return "smb";
+}
+const SEGMENT_LABEL: Record<"smb" | "midmarket" | "enterprise", string> = {
+  smb: "SMB (≤50)",
+  midmarket: "Mid-market (51–200)",
+  enterprise: "Enterprise (200+)",
+};
+
 
 function ScoreCircle({ score }: { score: number }) {
   const r = 14;
@@ -198,6 +230,9 @@ export default function MSPDashboard() {
   const [criticalityFilter, setCriticalityFilter] = useState<string[]>([]);
   const [tpStatusFilter, setTpStatusFilter] = useState<TPStatusKey[]>([]);
   const [serviceFilter, setServiceFilter] = useState<string[]>([]);
+  const [serviceTypeFilter, setServiceTypeFilter] = useState<string[]>([]);
+  const [planFilter, setPlanFilter] = useState<string[]>([]);
+  const [segmentFilter, setSegmentFilter] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("customer_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [campaignView, setCampaignView] = useState<"all" | "framework" | "service" | "product">("all");
@@ -260,6 +295,10 @@ export default function MSPDashboard() {
     () => Array.from(new Set((customers as any[]).flatMap((c) => deriveNeededServices(c)))).sort(),
     [customers],
   );
+  const planOptions = useMemo(
+    () => Array.from(new Set((customers as any[]).map((c) => c.subscription_plan || "Gratis").filter(Boolean))).sort(),
+    [customers],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -268,6 +307,9 @@ export default function MSPDashboard() {
       if (countryCodeFilter.length && !countryCodeFilter.includes(c.country_code || "NO")) return false;
       if (criticalityFilter.length && !criticalityFilter.includes(deriveCriticality(c).key)) return false;
       if (tpStatusFilter.length && !tpStatusFilter.includes(deriveTPStatus(c))) return false;
+      if (serviceTypeFilter.length && !serviceTypeFilter.includes(deriveServiceType(c))) return false;
+      if (planFilter.length && !planFilter.includes(c.subscription_plan || "Gratis")) return false;
+      if (segmentFilter.length && !segmentFilter.includes(deriveSegment(c))) return false;
       if (serviceFilter.length) {
         const svcs = deriveNeededServices(c);
         if (!serviceFilter.some((s) => svcs.includes(s))) return false;
@@ -303,7 +345,7 @@ export default function MSPDashboard() {
       });
     }
     return sorted;
-  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, sortKey, sortDir, highlightIds]);
+  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, serviceTypeFilter, planFilter, segmentFilter, sortKey, sortDir, highlightIds]);
 
   const clearAllFilters = () => {
     setIndustryFilter([]);
@@ -311,8 +353,11 @@ export default function MSPDashboard() {
     setCriticalityFilter([]);
     setTpStatusFilter([]);
     setServiceFilter([]);
+    setServiceTypeFilter([]);
+    setPlanFilter([]);
+    setSegmentFilter([]);
   };
-  const activeFilterCount = industryFilter.length + countryCodeFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length;
+  const activeFilterCount = industryFilter.length + countryCodeFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length + serviceTypeFilter.length + planFilter.length + segmentFilter.length;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -403,6 +448,41 @@ export default function MSPDashboard() {
                     placeholder="Søk på navn, bransje, landskode, org.nr eller e-post"
                     className="pl-9"
                   />
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground">Grupper:</span>
+                  <div className="rounded-full border border-border bg-background px-2.5 py-1">
+                    <ColumnFilter
+                      label="Tjenestetype"
+                      options={[
+                        { value: "mssp", label: SERVICE_TYPE_LABEL.mssp },
+                        { value: "msp", label: SERVICE_TYPE_LABEL.msp },
+                        { value: "hybrid", label: SERVICE_TYPE_LABEL.hybrid },
+                      ]}
+                      selected={serviceTypeFilter}
+                      onChange={setServiceTypeFilter}
+                    />
+                  </div>
+                  <div className="rounded-full border border-border bg-background px-2.5 py-1">
+                    <ColumnFilter
+                      label="Abonnement"
+                      options={planOptions.map((v) => ({ value: v, label: v }))}
+                      selected={planFilter}
+                      onChange={setPlanFilter}
+                    />
+                  </div>
+                  <div className="rounded-full border border-border bg-background px-2.5 py-1">
+                    <ColumnFilter
+                      label="Segment"
+                      options={[
+                        { value: "smb", label: SEGMENT_LABEL.smb },
+                        { value: "midmarket", label: SEGMENT_LABEL.midmarket },
+                        { value: "enterprise", label: SEGMENT_LABEL.enterprise },
+                      ]}
+                      selected={segmentFilter}
+                      onChange={setSegmentFilter}
+                    />
+                  </div>
                 </div>
                 {activeFilterCount > 0 && (
                   <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1.5 text-muted-foreground">
