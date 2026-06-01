@@ -367,7 +367,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
                       <Checkbox checked={selected.has(v.id)} onCheckedChange={() => toggle(v.id)} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{v.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{v.vendor || v.country || ""}</p>
+                        <p className="text-sm text-muted-foreground truncate">{v.vendor || v.country || ""}</p>
                       </div>
                       {(v.criticality === "high" || v.criticality === "critical") && (
                         <Badge variant="outline" className="text-[11px] text-warning">
