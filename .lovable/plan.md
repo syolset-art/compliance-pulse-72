@@ -1,61 +1,25 @@
-## Mål
+# Vis modenhet per kontrollområde under demoen
 
-Tre justeringer av Trust Profile-aktiveringsdemoen (`?demo=activation`):
+## Bakgrunn
 
-1. Demoen skal legge til **Microsoft Azure** som kritisk leverandør (ikke Microsoft 365).
-2. Demoen skal lande på **/trust-center/profile** med den ferdig aktiverte profilen synlig — ikke gå tilbake til steg 1.
-3. Kontaktinformasjons-seksjonen skal vises **forhåndsutfylt** i den aktiverte profilen, slik at det ser ut som Lara har kartlagt informasjonen automatisk.
+Wizardens steg 6 (`MaturityStep` i `ActivateTrustProfileWizard.tsx`) viser allerede ett kort per kontrollområde fra `MATURITY_AREAS` med Laras forhåndsutfylte svar. Problemet er at alle kortene starter sammenslått (`openAreas = {}`), så under autoplay-demoen ser det ut som om siden hoppes over — viseren rekker bare å se sammenslåtte titler i ~5 sekunder før demoen går videre til synlighet.
 
----
+Laras svar er allerede seedet via `seedMaturityDefaults` i steg 2/3, så innholdet finnes — det er bare ikke synlig.
 
 ## Endringer
 
-### 1. Microsoft Azure i steg 5
+### 1. `MaturityStep` (samme fil, ca. linje 1274–1280)
+- Legg til prop `autoPlay?: boolean`.
+- Når `autoPlay` er true, kjør en `useEffect` som åpner hvert område i `MATURITY_AREAS` sekvensielt med ~900 ms mellomrom (første åpnes umiddelbart). Bruk `setOpenAreas` slik at brukeren manuelt fortsatt kan toggle.
+- Effekten rydder timere ved unmount.
 
-`src/components/trust-center/activate/ActivateTrustProfileWizard.tsx` (auto-play vendor-effekt, ~linje 561–592):
+### 2. Bruk i wizarden (linje 688)
+- Send `autoPlay={autoPlay}` til `<MaturityStep …/>`.
 
-- Bytt `name: "Microsoft 365"` → `name: "Microsoft Azure"`.
-- Oppdater `purpose` til noe som passer Azure, f.eks. `"Skyinfrastruktur og dataplattform"`.
-- Behold resten av feltene (`processesPersonalData: "yes"`, `dataCategories: ["Ansattdata", "Kundedata"]`, `dpa: "yes"`).
-
-### 2. Landing på /trust-center/profile etter fullføring
-
-I dag kjører auto-play `handlePublish()` på steg 7, men hvis brukeren ser steg 1 etter "fullføring" betyr det at `isActivated`-flagget ikke holder seg. Stabiliser:
-
-`src/pages/TrustCenterProfile.tsx` `onCompleted`-callback (begge forekomster, ~linje 363 og ~998):
-
-- Sett `localStorage.setItem("mynder.trustprofile.activated", "1")` før `setIsActivated(true)` slik at gaten i linje 303 (`if (isOwnProfile && !isActivated)`) ikke kan vise wizard-landingen igjen.
-- Sett `setShowActivateWizard(false)` for sikkerhets skyld.
-- Behold `window.history.replaceState` til `/trust-center/profile` og `scrollTo(top)`.
-- La `autoPlayDemo` forbli `true` (sidebar skjult) frem til neste navigering — uendret.
-
-### 3. Forhåndsutfylte kontakter
-
-`src/lib/demoSeedTrustProfile.ts` — `seedFromActivation`:
-
-- I `selfAsset.metadata`, legg til en `contacts`-blokk som avledes fra `values.url`/domene og `values.contactEmail`, f.eks.:
-
-  ```ts
-  contacts: {
-    general: values.contactEmail || `kontakt@${domain}`,
-    privacy: values.dpoEmail || `personvern@${domain}`,
-    security: values.securityEmail || `sikkerhet@${domain}`,
-    incident_email: `hendelse@${domain}`,
-    incident_phone: "+47 23 00 00 00",
-    postal_address: `${values.name}\n${values.region || values.country || "Norge"}`,
-  },
-  ```
-
-- Sett også `confirmed_fields: ["contacts.general", "contacts.privacy", "contacts.security"]` i metadata, slik at feltene fremstår som verifisert/utfylt av Lara når brukeren lander på profilen.
-
-Dette gjør at `ContactsSection` (som leser `metadata.contacts`) viser ferdig utfylte e-postadresser og postadresse umiddelbart etter at demoen fullføres.
-
----
+### 3. Lengre lesetid på steg 6 (linje 528–535)
+- Øk `readDelays[6]` fra `5000` til ca. `12000` ms slik at alle 4 områdene rekker å åpne seg og viseren får se Lara-badges og ja/nei-knappene per kontrollområde før demoen går videre.
 
 ## Filer som endres
+- `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx` (kun presentasjonslogikk i wizarden)
 
-- `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx` — bytt vendor-navn og formål i auto-play effekten.
-- `src/pages/TrustCenterProfile.tsx` — persistér activated-flagg og lukk wizard i `onCompleted`.
-- `src/lib/demoSeedTrustProfile.ts` — seed `metadata.contacts` og `confirmed_fields` i `seedFromActivation`.
-
-Ingen endringer i selve `ContactsSection`, routing eller backend-skjema.
+Ingen endringer i datamodell, MaturityStep-svar, eller backend.

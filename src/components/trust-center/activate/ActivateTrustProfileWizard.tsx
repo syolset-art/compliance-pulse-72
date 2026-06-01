@@ -530,7 +530,7 @@ export default function ActivateTrustProfileWizard({
       3: 4000,
       4: 3000,
       5: 7000,
-      6: 5000,
+      6: 12000,
       7: 4000,
     };
     const readDelay = readDelays[step];
@@ -685,7 +685,7 @@ export default function ActivateTrustProfileWizard({
 
       )}
       {step === 6 && (
-        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} />
+        <MaturityStep answers={maturityAnswers} sources={laraSources} onChange={updateMaturity} autoPlay={autoPlay} />
       )}
       {step === 7 && !isCalculating && (
         <div className="space-y-3">
@@ -1271,13 +1271,27 @@ function PreviewStep({ name, orgNumber, description, website, contactName, conta
 
 /* -------------------- Maturity step -------------------- */
 
-function MaturityStep({ answers, sources, onChange }: {
+function MaturityStep({ answers, sources, onChange, autoPlay }: {
   answers: MaturityAnswers;
   sources: Record<string, string>;
   onChange: (id: string, answer: MaturityAnswer) => void;
+  autoPlay?: boolean;
 }) {
   const [openAreas, setOpenAreas] = useState<Record<string, boolean>>({});
   const toggleArea = (id: string) => setOpenAreas((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  // Auto-play: progressively open each control area so the viewer sees
+  // Lara's pre-filled answers per kontrollområde.
+  useEffect(() => {
+    if (!autoPlay) return;
+    const timers: number[] = [];
+    MATURITY_AREAS.forEach((area, i) => {
+      timers.push(window.setTimeout(() => {
+        setOpenAreas((prev) => ({ ...prev, [area.id]: true }));
+      }, i * 900));
+    });
+    return () => { timers.forEach((t) => window.clearTimeout(t)); };
+  }, [autoPlay]);
 
   return (
     <TooltipProvider delayDuration={150}>
