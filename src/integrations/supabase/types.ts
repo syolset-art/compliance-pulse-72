@@ -812,6 +812,7 @@ export type Database = {
           name: string
           org_number: string | null
           partner_company_id: string | null
+          partner_maturity_authority: boolean
           partner_name: string | null
           partner_role_description: string | null
           partner_since: string | null
@@ -854,6 +855,7 @@ export type Database = {
           name: string
           org_number?: string | null
           partner_company_id?: string | null
+          partner_maturity_authority?: boolean
           partner_name?: string | null
           partner_role_description?: string | null
           partner_since?: string | null
@@ -896,6 +898,7 @@ export type Database = {
           name?: string
           org_number?: string | null
           partner_company_id?: string | null
+          partner_maturity_authority?: boolean
           partner_name?: string | null
           partner_role_description?: string | null
           partner_since?: string | null
