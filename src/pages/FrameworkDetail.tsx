@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ArrowLeft,
   ChevronDown,
@@ -16,12 +16,19 @@ import {
   Users,
   Bot,
   Sparkles,
+  ListChecks,
+  ClipboardList,
+  FileBarChart,
 } from "lucide-react";
 import { getFrameworkById, getCategoryById } from "@/lib/frameworkDefinitions";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
+import { FrameworkQuestionnaire } from "@/components/regulations/FrameworkQuestionnaire";
+import { FrameworkGapReport } from "@/components/regulations/FrameworkGapReport";
+import { useFrameworkQuestionnaire } from "@/hooks/useFrameworkQuestionnaire";
+
 
 type DemoStatus = "not_met" | "partial" | "met";
 
