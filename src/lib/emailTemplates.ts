@@ -1,6 +1,6 @@
 import { EmailLanguage } from "@/components/email/EmailLayout";
 
-export type EmailTemplateType = "offer" | "vendor_trust_profile" | "customer_profile";
+export type EmailTemplateType = "offer" | "vendor_trust_profile" | "customer_profile" | "customer_profile_invitation";
 
 export interface DefaultEmailTemplate {
   type: EmailTemplateType;
@@ -31,6 +31,12 @@ export const TEMPLATE_META: Record<EmailTemplateType, { titleNo: string; titleEn
     titleEn: "Customer Profile",
     descNo: "Del kundens Trust Profile og status med en interessent.",
     descEn: "Share the customer's Trust Profile and status with a stakeholder.",
+  },
+  customer_profile_invitation: {
+    titleNo: "Kunde Profile – invitasjon",
+    titleEn: "Customer Profile – invitation",
+    descNo: "Invitér en kunde til å overta og verifisere sin Trust Profile.",
+    descEn: "Invite a customer to claim and verify their Trust Profile.",
   },
 };
 
@@ -117,6 +123,38 @@ Lenken er gyldig så lenge profilen er aktiv hos {{organisasjon}}.`,
 
 The link remains valid as long as the profile is active at {{organization}}.`,
     cta_text: "Open Trust Profile",
+    cta_url: "https://mynder.no/profile",
+  },
+  {
+    type: "customer_profile_invitation",
+    language: "no",
+    title: TEMPLATE_META.customer_profile_invitation.titleNo,
+    description: TEMPLATE_META.customer_profile_invitation.descNo,
+    subject: "{{avsender_selskap}} har opprettet en Trust Profile for {{mottaker_selskap}}",
+    body: `Hei {{kontaktnavn}},
+
+Din leverandør {{avsender_selskap}} har opprettet en Trust Profile for {{mottaker_selskap}} i Mynder.
+
+Bakgrunnen er å kartlegge din personvernpraksis og dokumentere sikkerhetsnivået i samarbeidet vårt.
+
+Profilen viser i dag en compliance-modenhet basert på offentlig tilgjengelig informasjon. Ved å overta profilen kan dere verifisere opplysningene selv og øke scoren – og samtidig dokumentere kontroll overfor kunder, bank og revisor med én delt, verifisert status.`,
+    cta_text: "Overta profilen →",
+    cta_url: "https://mynder.no/profil",
+  },
+  {
+    type: "customer_profile_invitation",
+    language: "en",
+    title: TEMPLATE_META.customer_profile_invitation.titleEn,
+    description: TEMPLATE_META.customer_profile_invitation.descEn,
+    subject: "{{avsender_selskap}} has created a Trust Profile for {{mottaker_selskap}}",
+    body: `Hi {{kontaktnavn}},
+
+Your supplier {{avsender_selskap}} has created a Trust Profile for {{mottaker_selskap}} in Mynder.
+
+The purpose is to map your privacy practices and document the security posture of our collaboration.
+
+The profile currently shows a compliance maturity score based on publicly available information. By claiming the profile, you can verify the details yourself and raise the score – and document control toward customers, banks and auditors with one shared, verified status.`,
+    cta_text: "Claim the profile →",
     cta_url: "https://mynder.no/profile",
   },
 ];
