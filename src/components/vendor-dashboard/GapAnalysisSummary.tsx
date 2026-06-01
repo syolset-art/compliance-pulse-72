@@ -45,7 +45,7 @@ export function GapAnalysisSummary({
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
-          <p className="text-[12px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
             <ShieldCheck className="h-3 w-3" /> {isNb ? "Snitt-score" : "Avg score"}
           </p>
           <p className={cn("text-2xl font-semibold tabular-nums", scoreClass(avgScore))}>
