@@ -450,39 +450,93 @@ export default function MSPDashboard() {
                   />
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs uppercase tracking-wide text-muted-foreground">Grupper:</span>
-                  <div className="rounded-full border border-border bg-background px-2.5 py-1">
-                    <ColumnFilter
-                      label="Tjenestetype"
-                      options={[
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        type="button"
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium hover:text-foreground transition-colors",
+                          (serviceTypeFilter.length || planFilter.length || segmentFilter.length) ? "text-primary border-primary/30" : "text-foreground/80"
+                        )}
+                      >
+                        <Filter className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        <span>Grupper</span>
+                        {(serviceTypeFilter.length + planFilter.length + segmentFilter.length) > 0 && (
+                          <span className="ml-0.5 inline-flex items-center justify-center rounded-full bg-primary/15 text-primary text-[12px] font-semibold h-4 min-w-4 px-1 tabular-nums">
+                            {serviceTypeFilter.length + planFilter.length + segmentFilter.length}
+                          </span>
+                        )}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-60 max-h-80 overflow-auto">
+                      <DropdownMenuLabel className="text-xs">Tjenestetype</DropdownMenuLabel>
+                      {[
                         { value: "mssp", label: SERVICE_TYPE_LABEL.mssp },
                         { value: "msp", label: SERVICE_TYPE_LABEL.msp },
                         { value: "hybrid", label: SERVICE_TYPE_LABEL.hybrid },
-                      ]}
-                      selected={serviceTypeFilter}
-                      onChange={setServiceTypeFilter}
-                    />
-                  </div>
-                  <div className="rounded-full border border-border bg-background px-2.5 py-1">
-                    <ColumnFilter
-                      label="Abonnement"
-                      options={planOptions.map((v) => ({ value: v, label: v }))}
-                      selected={planFilter}
-                      onChange={setPlanFilter}
-                    />
-                  </div>
-                  <div className="rounded-full border border-border bg-background px-2.5 py-1">
-                    <ColumnFilter
-                      label="Segment"
-                      options={[
+                      ].map((opt) => (
+                        <DropdownMenuCheckboxItem
+                          key={opt.value}
+                          checked={serviceTypeFilter.includes(opt.value)}
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setServiceTypeFilter((prev) =>
+                              prev.includes(opt.value) ? prev.filter((x) => x !== opt.value) : [...prev, opt.value]
+                            );
+                          }}
+                        >
+                          {opt.label}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="text-xs">Abonnement</DropdownMenuLabel>
+                      {planOptions.map((v) => (
+                        <DropdownMenuCheckboxItem
+                          key={v}
+                          checked={planFilter.includes(v)}
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setPlanFilter((prev) =>
+                              prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]
+                            );
+                          }}
+                        >
+                          {v}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="text-xs">Segment</DropdownMenuLabel>
+                      {[
                         { value: "smb", label: SEGMENT_LABEL.smb },
                         { value: "midmarket", label: SEGMENT_LABEL.midmarket },
                         { value: "enterprise", label: SEGMENT_LABEL.enterprise },
-                      ]}
-                      selected={segmentFilter}
-                      onChange={setSegmentFilter}
-                    />
-                  </div>
+                      ].map((opt) => (
+                        <DropdownMenuCheckboxItem
+                          key={opt.value}
+                          checked={segmentFilter.includes(opt.value)}
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setSegmentFilter((prev) =>
+                              prev.includes(opt.value) ? prev.filter((x) => x !== opt.value) : [...prev, opt.value]
+                            );
+                          }}
+                        >
+                          {opt.label}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                      {(serviceTypeFilter.length || planFilter.length || segmentFilter.length) ? (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onSelect={(e) => { e.preventDefault(); setServiceTypeFilter([]); setPlanFilter([]); setSegmentFilter([]); }}
+                            className="text-xs text-muted-foreground"
+                          >
+                            <X className="h-3 w-3 mr-1.5" /> Nullstill grupper
+                          </DropdownMenuItem>
+                        </>
+                      ) : null}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 {activeFilterCount > 0 && (
                   <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1.5 text-muted-foreground">
