@@ -771,6 +771,7 @@ export default function ActivateTrustProfileWizard({
     }
     return (
       <Card className="max-w-3xl mx-auto p-6 space-y-4">
+        {autoPlay && <DemoCursor ref={cursorRef} />}
         {!isCalculating && header}
         {body}
         {!isCalculating && footer}
@@ -780,6 +781,7 @@ export default function ActivateTrustProfileWizard({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {autoPlay && <DemoCursor ref={cursorRef} />}
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {!isCalculating && (
           <DialogHeader className="space-y-3">
