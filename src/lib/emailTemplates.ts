@@ -1,6 +1,6 @@
 import { EmailLanguage } from "@/components/email/EmailLayout";
 
-export type EmailTemplateType = "offer" | "vendor_trust_profile" | "customer_profile";
+export type EmailTemplateType = "offer" | "vendor_trust_profile" | "customer_profile" | "customer_profile_invitation";
 
 export interface DefaultEmailTemplate {
   type: EmailTemplateType;
@@ -31,6 +31,12 @@ export const TEMPLATE_META: Record<EmailTemplateType, { titleNo: string; titleEn
     titleEn: "Customer Profile",
     descNo: "Del kundens Trust Profile og status med en interessent.",
     descEn: "Share the customer's Trust Profile and status with a stakeholder.",
+  },
+  customer_profile_invitation: {
+    titleNo: "Kunde Profile – invitasjon",
+    titleEn: "Customer Profile – invitation",
+    descNo: "Invitér en kunde til å overta og verifisere sin Trust Profile.",
+    descEn: "Invite a customer to claim and verify their Trust Profile.",
   },
 };
 
