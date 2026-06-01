@@ -89,7 +89,7 @@ export function GapAnalysisSummary({
 
       {/* Domain breakdown */}
       <div>
-        <p className="text-[12px] uppercase tracking-wide text-muted-foreground mb-1.5">
+        <p className="text-sm uppercase tracking-wide text-muted-foreground mb-1.5">
           {isNb ? "Modenhet per domene" : "Maturity per domain"}
         </p>
         <div className="grid grid-cols-4 gap-2">
