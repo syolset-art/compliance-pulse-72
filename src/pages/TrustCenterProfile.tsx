@@ -818,6 +818,20 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 };
               }) as any[];
 
+              if (privacyUrl) {
+                rows.push({
+                  label: isNb ? "Personvernerklæring" : "Privacy policy",
+                  sub: isNb ? "Hvordan vi behandler personopplysninger" : "How we process personal data",
+                  primary: { text: privacyUrl.replace(/^https?:\/\//, ""), href: privacyUrl, external: true },
+                });
+              }
+              if (incidentUrl) {
+                rows.push({
+                  label: isNb ? "Avviksrapportering" : "Incident reporting",
+                  sub: isNb ? "Rapportér sikkerhetshendelser eller avvik" : "Report security incidents or deviations",
+                  primary: { text: incidentUrl.replace(/^https?:\/\//, ""), href: incidentUrl, external: true },
+                });
+              }
               if (privacyAddress) {
                 rows.push({ label: isNb ? "Postadresse" : "Postal address", block: privacyAddress });
               }
@@ -2187,10 +2201,20 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         sub: isNb ? "For spørsmål om dine personopplysninger" : "For questions about your personal data",
                         primary: { text: privacyEmail, href: `mailto:${privacyEmail}` },
                       },
+                      privacyUrl && {
+                        label: isNb ? "Personvernerklæring" : "Privacy policy",
+                        sub: isNb ? "Hvordan vi behandler personopplysninger" : "How we process personal data",
+                        primary: { text: privacyUrl.replace(/^https?:\/\//, ""), href: privacyUrl, external: true },
+                      },
                       securityEmail && {
                         label: isNb ? "Sikkerhetskontakt" : "Security contact",
                         sub: isNb ? "For å rapportere sikkerhetsproblemer" : "To report security issues",
                         primary: { text: securityEmail, href: `mailto:${securityEmail}` },
+                      },
+                      incidentUrl && {
+                        label: isNb ? "Avviksrapportering" : "Incident reporting",
+                        sub: isNb ? "Rapportér sikkerhetshendelser eller avvik" : "Report security incidents or deviations",
+                        primary: { text: incidentUrl.replace(/^https?:\/\//, ""), href: incidentUrl, external: true },
                       },
                       privacyAddress && {
                         label: isNb ? "Postadresse" : "Postal address",
@@ -2254,7 +2278,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <div className="flex items-center gap-2 px-5 py-3.5">
                           <Users className="h-4 w-4 text-primary" />
                           <h3 className="text-sm font-semibold text-foreground">
-                            {isNb ? "Partner" : "Partner"}
+                            {isNb ? "Leverandører" : "Vendors"}
                           </h3>
                         </div>
                         <div className="border-t border-border px-5 py-4 flex items-start gap-3">

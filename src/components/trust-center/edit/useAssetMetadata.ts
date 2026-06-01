@@ -46,5 +46,26 @@ export function useAssetMetadata(assetId: string | undefined, currentMeta: Recor
 
   const isConfirmed = (fieldId: string) => (currentMeta?.confirmed_fields || []).includes(fieldId);
 
-  return { updatePath, confirmField, isConfirmed };
+  const updateColumns = useCallback(
+    async (patch: Record<string, any>, opts?: { silent?: boolean }) => {
+      if (!assetId) return;
+      const { error } = await supabase
+        .from("assets")
+        .update({ ...patch, updated_at: new Date().toISOString() })
+        .eq("id", assetId);
+      if (error) {
+        toast.error("Kunne ikke lagre");
+        return;
+      }
+      qc.invalidateQueries({ queryKey: ["self-asset-edit"] });
+      qc.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
+      try {
+        window.dispatchEvent(new CustomEvent("trust-profile-saved", { detail: { at: new Date().toISOString() } }));
+      } catch {}
+      if (!opts?.silent) toast.success("Lagret");
+    },
+    [assetId, qc]
+  );
+
+  return { updatePath, confirmField, isConfirmed, updateColumns };
 }

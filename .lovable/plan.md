@@ -1,83 +1,44 @@
-## E-postsystem for Mynder
+## Mål
 
-Ny side `/msp-emails` (med header-tall "6" i sidekortet på MSP-kundeoversikten) som lar brukeren bygge, forhåndsvise og sende transaksjonelle e-poster basert på en delt layout.
+1. Kontaktinformasjon skal være identisk mellom rediger-siden (`ContactsSection.tsx`) og visningen på Trust Profile (`TrustCenterProfile.tsx`).
+2. Seksjonen som i dag heter **"Partner"** på Trust Profile-previewen skal hete **"Leverandører"** (NO) / **"Vendors"** (EN).
 
-### 1. Datamodell (Lovable Cloud)
+## Bakgrunn
 
-Migrasjon som oppretter to tabeller (med GRANTs + RLS for `authenticated`):
+Rediger-siden lagrer i dag kun til `asset.metadata.contacts.*` (general, privacy, security, incident_email, incident_phone, postal_address). Visningen leser i tillegg fra kolonnene `contact_name`, `contact_role`, `contact_email`, `privacy_contact_email`, `security_contact_email`, `privacy_contact_address`, `privacy_policy_url`, `incident_report_url` — med metadata som fallback. Resultat: flere felt som vises på profilen kan ikke redigeres, og felt som redigeres i metadata vises ikke alltid riktig.
 
-**`email_templates`**
-- `id`, `type` (`offer` | `vendor_trust_profile` | `customer_profile` | `custom`)
-- `language` (`no` | `en`)
-- `subject`, `body` (markdown/HTML), `cta_text`, `cta_url`
-- `is_default` (bool), `created_by` (uuid), `created_at`, `updated_at`
+## Endringer
 
-**`email_sends`**
-- `id`, `template_id` (fk), `recipient_name`, `recipient_email`
-- `variables` (jsonb), `status` (`queued` | `sent` | `failed`)
-- `sent_at`, `error`, `created_by`
+### 1. `src/components/trust-center/edit/ContactsSection.tsx`
+Utvid skjemaet med full feltparitet, gruppert som i visningen:
 
-### 2. Gjenbrukbar `EmailLayout`-komponent
+- **Hovedkontakt**
+  - Navn (`contact_name`)
+  - Rolle/tittel (`contact_role`) — f.eks. "Daglig leder"
+  - E-post (eksisterende generell e-post — speiles til både kolonne `contact_email` og `metadata.contacts.general`)
+- **Personvern / DPO**
+  - E-post (speiles til `privacy_contact_email` + `metadata.contacts.privacy`)
+  - Lenke til personvernerklæring (`privacy_policy_url`) — nytt felt
+- **Sikkerhetskontakt**
+  - E-post (speiles til `security_contact_email` + `metadata.contacts.security`)
+- **Beredskap / hendelse** (uendret felter, fortsatt i metadata)
+  - E-post (`metadata.contacts.incident_email`)
+  - Telefon (`metadata.contacts.incident_phone`)
+  - Lenke til avviksrapportering (`incident_report_url`) — nytt felt (kolonne)
+- **Postadresse** (speiles til `privacy_contact_address` + `metadata.contacts.postal_address`)
 
-`src/components/email/EmailLayout.tsx` — ren HTML/Tailwind komponent (maks 600px, responsiv), brukt både i preview og ved generering av sendt HTML.
+Tekniske detaljer:
+- `useAssetMetadata.updatePath` håndterer metadata. For å oppdatere kolonner samtidig: gjør en supplerende `supabase.from("assets").update({ <kolonne>: value })` ved siden av metadata-skrivingen (eller utvid hooken med en `updateColumns` helper for å unngå duplisering). Velg sistnevnte for å holde det rent.
+- Behold defaultValue + onBlur-mønsteret som finnes i filen i dag.
+- Hjelpetekster og placeholders på norsk, samme tone som eksisterende felter.
 
-Slots: `subject`, `body`, `cta` (tekst + url), `senderOrganization`, `language`.
+### 2. `src/pages/TrustCenterProfile.tsx`
+- Kontaktseksjonen (linje 761–885 + duplikatet rundt 2164–2230): ingen ny lese-logikk nødvendig — den støtter allerede alle feltene. Verifiser at hovedkontaktens **navn + rolle** vises som undertekst, og legg til to nye rader for **"Personvernerklæring"** (lenke) og **"Avviksrapportering"** (lenke) når feltene finnes. Rendres som `primary` med `external: true` slik eksisterende kode allerede støtter.
+- Linje 2239–2285: bytt seksjonsoverskrift fra `"Partner"`/`"Partner"` til `"Leverandører"`/`"Vendors"`. Ingen annen logikkendring.
 
-Struktur:
-- **Header**: Mynder-logo (`/mynder-logo.svg`) øverst venstre, tynn `border-b`.
-- **Body-area**: hvit bakgrunn, generøs padding (32–40px), seriøs typografi.
-- **CTA**: avrundet primærknapp (`bg-primary` deep purple, hvit tekst, `rounded-lg`, `px-6 py-3`).
-- **Footer**: liten muted tekst — "Sendt via Mynder – infrastrukturen for tillit mellom virksomheter." + lenker (Personvern · Avmelding · mynder.no) + avsenderorganisasjonens navn. Engelsk variant byttes ut når `language === 'en'`.
+### 3. Ingen DB-migrasjon
+Alle kolonner (`contact_name`, `contact_role`, `privacy_policy_url`, `incident_report_url`, etc.) finnes allerede på `assets`-tabellen (brukes alt i visningen).
 
-### 3. Sider og UI
-
-**`src/pages/EmailTemplates.tsx`** (rute `/emails`):
-- H1 "E-postmaler" + kort beskrivelse.
-- Grid med tre scenariokort:
-  1. **Tilbud** (`offer`)
-  2. **Trust Profile (leverandør)** (`vendor_trust_profile`)
-  3. **Kunde Profile** (`customer_profile`)
-- Hvert kort: ikon, tittel, kort beskrivelse, badge for språk (NO/EN), knapper **Forhåndsvis** og **Send**.
-
-**`PreviewDialog`**: åpner modal med `EmailLayout` rendret som mottakeren ser den (rammet "inbox preview" med grå bakgrunn, hvit e-postcontainer). Språkbytter NO/EN i toppen av dialogen.
-
-**`SendDialog`**: skjema med mottakernavn, mottaker-e-post, valgfri overstyring av subject/body/cta, språkvalg. Sender via edge function og lagrer rad i `email_sends`.
-
-**`EmailEditor`** (inline på malsiden eller separat rute): rediger subject/body/cta/url, lagre som mal, sett som standard. Live preview i høyre kolonne.
-
-### 4. Header "6" på MSP Customer View
-
-På `/msp-customer-view` legges et nytt nummerert kort/widget (#6) "E-postmaler" som lenker til `/emails`, i tråd med eksisterende nummererte seksjoner.
-
-### 5. Sending (edge function)
-
-Ny edge function `send-email` som tar `{ template_id, recipient_name, recipient_email, variables, language }`, rendrer `EmailLayout` til HTML, og sender via Lovable Emails (default). Lagrer `email_sends`-rad med status.
-
-Krever oppsett av e-postdomene — håndteres ved første sending via `<presentation-open-email-setup>` om det ikke er konfigurert.
-
-### 6. Norsk/engelsk
-
-`EmailLayout` tar `language`-prop som styrer footer-tekst og CTA-fallback. Maler lagres per språk (samme `type` kan ha både NO og EN rad). UI-bryter i preview og send-dialog.
-
-### Filer som opprettes/endres
-
-**Nye**
-- `supabase/migrations/<ts>_email_system.sql`
-- `src/components/email/EmailLayout.tsx`
-- `src/components/email/EmailPreviewFrame.tsx` (inbox-ramme rundt layout)
-- `src/components/email/EmailEditor.tsx`
-- `src/components/email/PreviewDialog.tsx`
-- `src/components/email/SendDialog.tsx`
-- `src/lib/emailTemplates.ts` (default-maler for de tre scenariene, NO+EN)
-- `src/pages/EmailTemplates.tsx`
-- `supabase/functions/send-email/index.ts`
-
-**Endres**
-- `src/App.tsx` (route `/emails`)
-- `src/components/Sidebar.tsx` (lenke til E-postmaler under MSP-seksjonen)
-- `src/pages/MSPCustomerView.tsx` (nummerert kort "6 – E-postmaler")
-
-### Teknisk valg
-
-- Default e-postløsning: **Lovable Emails** (innebygd). Brukeren slipper å sette opp eksterne nøkler.
-- Layout rendres som HTML-string i edge function via en enkel template-funksjon som speiler `EmailLayout` (slik at preview og faktisk sendt e-post er visuelt identiske).
+## Ut av scope
+- Ingen endringer i e-postmaler, vendor-tabell, eller andre seksjoner.
+- Ingen endring i lagringsmodellen utover å speile kolonne + metadata for de tre eksisterende e-postfeltene.
