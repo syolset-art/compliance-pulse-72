@@ -385,7 +385,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
             <div className="space-y-4">
               {running && (
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between text-sm">
                     <span className="font-medium flex items-center gap-2">
                       <Sparkles className="h-3.5 w-3.5 text-primary" />
                       {statusLine || (isNb ? "Analyserer…" : "Analyzing…")}

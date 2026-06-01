@@ -66,7 +66,7 @@ export function GapAnalysisVendorRow({ isNb, vendor }: Props) {
       >
         <div
           className={cn(
-            "h-9 w-9 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold tabular-nums ring-2",
+            "h-9 w-9 shrink-0 rounded-full flex items-center justify-center text-sm font-semibold tabular-nums ring-2",
             scoreRing(vendor.score)
           )}
         >
@@ -74,7 +74,7 @@ export function GapAnalysisVendorRow({ isNb, vendor }: Props) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{vendor.name}</p>
-          <div className="flex items-center gap-3 text-[12px] text-muted-foreground mt-0.5">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground mt-0.5">
             <span className="flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3 text-success" />
               {vendor.implemented}
@@ -125,14 +125,14 @@ export function GapAnalysisVendorRow({ isNb, vendor }: Props) {
           {/* Top missing controls */}
           {vendor.topMissing.length > 0 && (
             <div>
-              <p className="text-[12px] uppercase tracking-wide text-muted-foreground mb-1.5">
+              <p className="text-sm uppercase tracking-wide text-muted-foreground mb-1.5">
                 {isNb ? "Topp manglende kontroller" : "Top missing controls"}
               </p>
               <ul className="space-y-1">
                 {vendor.topMissing.map((m, i) => (
                   <li
                     key={i}
-                    className="flex items-start gap-2 text-xs p-2 rounded-md bg-background border border-border"
+                    className="flex items-start gap-2 text-sm p-2 rounded-md bg-background border border-border"
                   >
                     <Badge
                       variant="outline"
