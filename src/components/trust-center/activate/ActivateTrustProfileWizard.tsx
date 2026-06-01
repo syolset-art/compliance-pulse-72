@@ -73,22 +73,41 @@ const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Dokumenter", "K
 export type CriticalVendorRow = {
   name: string;
   purpose: string;
+  vendorTypeKey: string | null;
   processesPersonalData: "yes" | "no" | null;
   dataCategories: string[];
   dpa: "yes" | "no" | "unknown" | null;
-  isSecurityPartner: boolean;
   partnerType: PartnerType | null;
 };
 const EMPTY_VENDOR_ROW: CriticalVendorRow = {
   name: "",
   purpose: "",
+  vendorTypeKey: null,
   processesPersonalData: null,
   dataCategories: [],
   dpa: null,
-  isSecurityPartner: false,
   partnerType: null,
 };
 const DATA_CATEGORY_OPTIONS = ["Ansattdata", "Kundedata", "Pasientdata", "Annet"];
+
+// Leverandørtyper for nedtrekksliste i aktiveringsveiviser.
+// `partnerType` settes når valget kvalifiserer som IT-/sikkerhetspartner.
+const VENDOR_TYPE_OPTIONS: Array<{
+  key: string;
+  label: string;
+  partnerType: PartnerType | null;
+}> = [
+  { key: "msp", label: "MSP (Managed Service Provider)", partnerType: "msp" },
+  { key: "mssp", label: "MSSP (Managed Security Service Provider)", partnerType: "mssp" },
+  { key: "it_partner", label: "IT-partner", partnerType: "it_partner" },
+  { key: "cloud", label: "Skytjeneste / hosting", partnerType: null },
+  { key: "hr", label: "HR-system", partnerType: null },
+  { key: "finance", label: "Økonomi / fakturering", partnerType: null },
+  { key: "comms", label: "Kommunikasjon / e-post", partnerType: null },
+  { key: "marketing", label: "Markedsføring", partnerType: null },
+  { key: "consultant", label: "Konsulent", partnerType: "consultant" },
+  { key: "other", label: "Annet", partnerType: null },
+];
 const MAX_CRITICAL_VENDORS = 5;
 
 export default function ActivateTrustProfileWizard({
@@ -486,7 +505,6 @@ export default function ActivateTrustProfileWizard({
           processesPersonalData: v.processesPersonalData,
           dataCategories: v.dataCategories,
           dpa: v.dpa ?? "unknown",
-          isSecurityPartner: v.isSecurityPartner,
           partnerType: v.partnerType,
         })),
       subprocessorList: analyzedSubprocessors,
@@ -494,7 +512,10 @@ export default function ActivateTrustProfileWizard({
       visibility,
       partner: (() => {
         const securityPartners = criticalVendors.filter(
-          (v) => v.isSecurityPartner && v.name.trim().length > 0,
+          (v) =>
+            v.partnerType &&
+            ["msp", "mssp", "it_partner"].includes(v.partnerType) &&
+            v.name.trim().length > 0,
         );
         if (securityPartners.length === 0) return undefined;
         const [primary, ...rest] = securityPartners;
@@ -1688,25 +1709,43 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
         </div>
       </div>
 
-      {/* Purpose — short sentence / category */}
+      {/* Purpose — leverandørtype som nedtrekksliste */}
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">Hva gjør de for dere?</Label>
-        <Input
-          value={row.purpose}
-          onChange={(e) => onChange({ purpose: e.target.value })}
-          placeholder={'f.eks. "Skylagring", "HR-system", "Fakturering"'}
-          className="text-sm"
-        />
-        {knownVendor && row.purpose.trim() !== knownVendor.category && (
-          <button
-            type="button"
-            onClick={() => onChange({ purpose: knownVendor.category })}
-            className="text-[12px] px-2 py-0.5 rounded-full border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-          >
-            + Bruk forslag: {knownVendor.category}
-          </button>
+        <Select
+          value={row.vendorTypeKey ?? ""}
+          onValueChange={(key) => {
+            const opt = VENDOR_TYPE_OPTIONS.find((o) => o.key === key);
+            if (!opt) return;
+            onChange({
+              vendorTypeKey: key,
+              partnerType: opt.partnerType,
+              // For "Annet" lar vi brukeren skrive selv; ellers sett label
+              purpose: key === "other" ? row.purpose : opt.label,
+            });
+          }}
+        >
+          <SelectTrigger className="h-9 text-sm">
+            <SelectValue placeholder="Velg leverandørtype…" />
+          </SelectTrigger>
+          <SelectContent>
+            {VENDOR_TYPE_OPTIONS.map((o) => (
+              <SelectItem key={o.key} value={o.key}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {row.vendorTypeKey === "other" && (
+          <Input
+            value={row.purpose}
+            onChange={(e) => onChange({ purpose: e.target.value })}
+            placeholder="Beskriv kort hva de gjør for dere"
+            className="text-sm mt-1.5"
+          />
         )}
       </div>
+
 
       {/* Personal data processing */}
       <div className="space-y-1.5">
@@ -1795,47 +1834,6 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
         )}
       </div>
 
-      {/* IT-/sikkerhetspartner */}
-      <div className="rounded-md border border-border bg-muted/30 p-3 space-y-2">
-        <label className="flex items-start gap-2 cursor-pointer">
-          <Checkbox
-            checked={row.isSecurityPartner}
-            onCheckedChange={(v) =>
-              onChange({
-                isSecurityPartner: !!v,
-                ...(v ? {} : { partnerType: null }),
-              })
-            }
-            className="mt-0.5"
-          />
-          <div className="space-y-0.5">
-            <div className="text-xs font-medium">Dette er vår IT-/sikkerhetspartner</div>
-            <p className="text-[12px] text-muted-foreground">
-              Marker hvis leverandøren forvalter IT eller sikkerhet for dere.
-            </p>
-          </div>
-        </label>
-        {row.isSecurityPartner && (
-          <div className="pl-6 space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Type partner</Label>
-            <Select
-              value={row.partnerType ?? ""}
-              onValueChange={(v) => onChange({ partnerType: v as PartnerType })}
-            >
-              <SelectTrigger className="h-8 text-sm">
-                <SelectValue placeholder="Velg type…" />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(PARTNER_TYPE_LABEL) as PartnerType[]).map((k) => (
-                  <SelectItem key={k} value={k}>
-                    {PARTNER_TYPE_LABEL[k]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </div>
     </Card>
   );
 }
