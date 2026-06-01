@@ -25,6 +25,7 @@ import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab"
 import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulationsTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
 import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
+import { TakeoverTrustProfileCard } from "@/components/msp/TakeoverTrustProfileCard";
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
@@ -228,6 +229,13 @@ export default function MSPCustomerDetail() {
 
             {/* ── Veiledning fra Mynder ── */}
             <TabsContent value="guidance" className="mt-6 space-y-5">
+              <TakeoverTrustProfileCard
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
+                contactName={customer.contact_name}
+                contactEmail={customer.contact_email}
+              />
+
               {planTasks.length > 0 ? (
                 <LaraRecommendationBanner
                   totalCount={planTasks.length}
