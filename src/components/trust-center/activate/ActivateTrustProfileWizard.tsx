@@ -42,6 +42,7 @@ import { Link2, FileUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PARTNER_TYPE_LABEL, type PartnerType } from "@/hooks/usePartnerInfo";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
+import DemoCursor, { type DemoCursorHandle } from "./DemoCursor";
 
 interface Props {
   open: boolean;
@@ -516,30 +517,42 @@ export default function ActivateTrustProfileWizard({
   // ─── Auto-play (demo mode) ─────────────────────────────────────────────
   // Drives the wizard forward on a calm rhythm so the activation flow can be
   // filmed without manual clicks. Each step's timer waits long enough for the
-  // viewer to read the screen, then calls the same handlers a real user would.
-  // Step 2 is skipped here because the Lara-scan effect already auto-advances
-  // when all findings are revealed.
+  // viewer to read the screen, moves the demo cursor to the primary CTA,
+  // emits a click pulse, then calls the same handler a real user would.
+  // Step 2 is skipped here because the Lara-scan effect already auto-advances.
+  const cursorRef = useRef<DemoCursorHandle | null>(null);
   useEffect(() => {
     if (!autoPlay || !open) return;
     if (isCalculating || isPublishing) return;
-    const delays: Record<number, number> = {
-      1: 4200,
-      3: 5000,
-      4: 4000,
-      5: 4000,
-      6: 6000,
-      7: 5000,
+    // Read-time before the cursor starts moving (lets the viewer see the step).
+    const readDelays: Record<number, number> = {
+      1: 3200,
+      3: 4000,
+      4: 3000,
+      5: 3000,
+      6: 5000,
+      7: 4000,
     };
-    const delay = delays[step];
-    if (!delay) return;
-    const t = window.setTimeout(() => {
+    const readDelay = readDelays[step];
+    if (!readDelay) return;
+    let cancelled = false;
+    const t = window.setTimeout(async () => {
+      if (cancelled) return;
+      try {
+        await cursorRef.current?.moveToSelector('[data-demo-target="wizard-primary-cta"]');
+        if (cancelled) return;
+        await cursorRef.current?.click();
+        if (cancelled) return;
+      } catch {
+        // ignore — fall through to advance even if cursor failed
+      }
       if (step === 7) {
         handlePublish();
       } else {
         next();
       }
-    }, delay);
-    return () => window.clearTimeout(t);
+    }, readDelay);
+    return () => { cancelled = true; window.clearTimeout(t); };
   }, [autoPlay, open, step, isCalculating, isPublishing]);
 
 
@@ -660,7 +673,7 @@ export default function ActivateTrustProfileWizard({
 
       {step < 7 ? (
         <div className="flex gap-2">
-          <Button onClick={next} disabled={!canNext} className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white">
+          <Button data-demo-target="wizard-primary-cta" onClick={next} disabled={!canNext} className="gap-2 rounded-full bg-[hsl(var(--mynder-blue))] hover:bg-[hsl(var(--mynder-blue))]/90 text-white">
             {step === 1 && (<><Sparkles className="h-4 w-4" /> Fortsett — la Lara kartlegge</>)}
             {step === 3 && (<>Til dokumenter <ArrowRight className="h-4 w-4" /></>)}
             {step === 4 && (<>Til kritiske leverandører <ArrowRight className="h-4 w-4" /></>)}
@@ -670,6 +683,7 @@ export default function ActivateTrustProfileWizard({
         </div>
       ) : (
         <Button
+          data-demo-target="wizard-primary-cta"
           onClick={() => handlePublish()}
           disabled={isPublishing}
 
@@ -696,6 +710,7 @@ export default function ActivateTrustProfileWizard({
         "";
       return (
         <div className="max-w-3xl mx-auto space-y-4">
+          {autoPlay && <DemoCursor ref={cursorRef} />}
           {/* Stepper */}
           <nav aria-label="Aktiveringssteg" className="px-1">
             <ol className="flex items-start gap-2">
@@ -756,6 +771,7 @@ export default function ActivateTrustProfileWizard({
     }
     return (
       <Card className="max-w-3xl mx-auto p-6 space-y-4">
+        {autoPlay && <DemoCursor ref={cursorRef} />}
         {!isCalculating && header}
         {body}
         {!isCalculating && footer}
@@ -765,6 +781,7 @@ export default function ActivateTrustProfileWizard({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {autoPlay && <DemoCursor ref={cursorRef} />}
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {!isCalculating && (
           <DialogHeader className="space-y-3">
