@@ -304,8 +304,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     return (
       <SidebarProvider>
         <div className="flex min-h-screen w-full bg-background">
-          <Sidebar />
-          <main className="flex-1 p-6 pt-16">
+          {!autoPlayDemo && <Sidebar />}
+          <main className={`flex-1 p-6 ${autoPlayDemo ? "pt-6" : "pt-16"}`}>
+
             <div className="max-w-3xl mx-auto mt-6 mb-6">
               <h1 className="text-2xl font-semibold text-foreground">
                 {isNb ? "Din Trust Profile gjør deg klar" : "Your Trust Profile gets you ready"}
@@ -363,7 +364,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   setJustActivated(true);
                   setTimeout(() => {
                     setIsActivated(true);
-                    setAutoPlayDemo(false);
+                    // Keep autoPlayDemo true after activation so the sidebar
+                    // stays hidden through the landing — clean "content only" view.
+
                     queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
                     queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
                     // Ensure the demo lands cleanly on /trust-center/profile with
@@ -979,8 +982,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
-        <Sidebar />
-        <main className="flex-1 overflow-auto pt-11">
+        {!autoPlayDemo && <Sidebar />}
+        <main className={`flex-1 overflow-auto ${autoPlayDemo ? "pt-4" : "pt-11"}`}>
+
           {showActivateWizard ? (
             <div className="container max-w-3xl mx-auto p-4 md:p-6">
               <ActivateTrustProfileWizard
