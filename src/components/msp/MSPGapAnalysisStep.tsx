@@ -102,7 +102,7 @@ export function MSPGapAnalysisStep({
           </p>
           {Object.entries(gapsByCategory).map(([cat, items]) => (
             <div key={cat} className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 {ASSESSMENT_CATEGORIES[cat as keyof typeof ASSESSMENT_CATEGORIES]?.label || cat}
               </p>
               {items.map((g) => (
@@ -114,7 +114,7 @@ export function MSPGapAnalysisStep({
                   <div>
                     <p className="text-sm text-foreground">{g.question_no}</p>
                     {g.iso_reference && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         {g.iso_reference}
                       </p>
                     )}
@@ -131,7 +131,7 @@ export function MSPGapAnalysisStep({
         <p className="text-sm font-semibold text-foreground">
           Anbefalte regelverk
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Basert på svarene og bransje ({industry || "ukjent"}). Du kan
           justere før kunden opprettes.
         </p>
@@ -164,7 +164,7 @@ export function MSPGapAnalysisStep({
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-sm text-muted-foreground truncate">
                       {fw.description}
                     </p>
                   </div>

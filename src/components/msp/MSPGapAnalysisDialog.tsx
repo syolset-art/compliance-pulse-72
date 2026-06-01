@@ -123,7 +123,7 @@ export function MSPGapAnalysisDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl p-0 gap-0 max-h-[88vh] overflow-hidden flex flex-col">
         <DialogHeader className="px-6 pt-5 pb-4 border-b border-border space-y-1">
-          <p className="text-xs text-muted-foreground">{customerName} · Gap-analyse</p>
+          <p className="text-sm text-muted-foreground">{customerName} · Gap-analyse</p>
           <DialogTitle className="text-lg font-semibold">
             {isProcessing
               ? `Lara analyserer ${frameworkLabel}`
@@ -147,7 +147,7 @@ export function MSPGapAnalysisDialog({
                 ? "Analyse fullført — viser resultatet …"
                 : `Lara tester ${customerName}s Trust Profile og aktiverte regelverk mot ${frameworkLabel}`}
             </p>
-            <p className="text-[12px] text-muted-foreground mt-1 max-w-sm">
+            <p className="text-sm text-muted-foreground mt-1 max-w-sm">
               {phase === "done"
                 ? ""
                 : "Tar normalt 10–20 sekunder."}
@@ -246,7 +246,7 @@ export function MSPGapAnalysisDialog({
 function StatCard({ label, value, valueClass }: { label: string; value: number; valueClass?: string }) {
   return (
     <div className="rounded-md border border-border bg-background px-3 py-2.5">
-      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm text-muted-foreground">{label}</p>
       <p className={cn("text-xl font-semibold tabular-nums text-foreground", valueClass)}>{value}</p>
     </div>
   );

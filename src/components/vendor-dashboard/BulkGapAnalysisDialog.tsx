@@ -337,7 +337,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
           {results.length === 0 && (
             <>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1.5">
+                <p className="text-sm font-medium text-muted-foreground uppercase mb-1.5">
                   {isNb ? "Rammeverk" : "Framework"}
                 </p>
                 <Select value={framework} onValueChange={setFramework}>
@@ -353,7 +353,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
               </div>
 
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1.5">
+                <p className="text-sm font-medium text-muted-foreground uppercase mb-1.5">
                   {isNb
                     ? `Velg leverandører (${selected.size}/${vendors.length})`
                     : `Select vendors (${selected.size}/${vendors.length})`}
@@ -367,7 +367,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
                       <Checkbox checked={selected.has(v.id)} onCheckedChange={() => toggle(v.id)} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{v.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{v.vendor || v.country || ""}</p>
+                        <p className="text-sm text-muted-foreground truncate">{v.vendor || v.country || ""}</p>
                       </div>
                       {(v.criticality === "high" || v.criticality === "critical") && (
                         <Badge variant="outline" className="text-[11px] text-warning">
@@ -385,7 +385,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
             <div className="space-y-4">
               {running && (
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center justify-between text-sm">
                     <span className="font-medium flex items-center gap-2">
                       <Sparkles className="h-3.5 w-3.5 text-primary" />
                       {statusLine || (isNb ? "Analyserer…" : "Analyzing…")}
@@ -421,7 +421,7 @@ export function BulkGapAnalysisDialog({ open, onOpenChange, vendors }: BulkGapAn
               )}
 
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1.5">
+                <p className="text-sm font-medium text-muted-foreground uppercase mb-1.5">
                   {isNb ? "Per leverandør" : "Per vendor"}
                 </p>
                 <div className="border border-border rounded-lg overflow-hidden">

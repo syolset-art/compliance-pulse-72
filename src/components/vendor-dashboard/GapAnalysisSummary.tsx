@@ -45,7 +45,7 @@ export function GapAnalysisSummary({
       {/* KPI row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
-          <p className="text-[12px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
             <ShieldCheck className="h-3 w-3" /> {isNb ? "Snitt-score" : "Avg score"}
           </p>
           <p className={cn("text-2xl font-semibold tabular-nums", scoreClass(avgScore))}>
@@ -53,29 +53,29 @@ export function GapAnalysisSummary({
           </p>
         </div>
         <div>
-          <p className="text-[12px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
             <AlertTriangle className="h-3 w-3" /> {isNb ? "Åpne gap" : "Open gaps"}
           </p>
           <p className="text-2xl font-semibold tabular-nums text-foreground">{totalGaps}</p>
-          <p className="text-[12px] text-destructive">
+          <p className="text-sm text-destructive">
             {criticalGaps} {isNb ? "kritiske" : "critical"}
           </p>
         </div>
         <div>
-          <p className="text-[12px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
             <Activity className="h-3 w-3" /> {isNb ? "Største risiko" : "Top risk"}
           </p>
           <p className="text-sm font-medium text-foreground truncate">
             {topRiskVendors[0]?.name ?? "–"}
           </p>
           {topRiskVendors[0] && (
-            <p className={cn("text-[12px] tabular-nums", scoreClass(topRiskVendors[0].score))}>
+            <p className={cn("text-sm tabular-nums", scoreClass(topRiskVendors[0].score))}>
               {topRiskVendors[0].score}%
             </p>
           )}
         </div>
         <div>
-          <p className="text-[12px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
             <TrendingUp className="h-3 w-3" /> {isNb ? "Tid til mål" : "Time to target"}
           </p>
           <p className="text-2xl font-semibold tabular-nums text-foreground">
@@ -89,13 +89,13 @@ export function GapAnalysisSummary({
 
       {/* Domain breakdown */}
       <div>
-        <p className="text-[12px] uppercase tracking-wide text-muted-foreground mb-1.5">
+        <p className="text-sm uppercase tracking-wide text-muted-foreground mb-1.5">
           {isNb ? "Modenhet per domene" : "Maturity per domain"}
         </p>
         <div className="grid grid-cols-4 gap-2">
           {domains.map((d) => (
             <div key={d.key}>
-              <div className="flex items-center justify-between text-[12px] mb-1">
+              <div className="flex items-center justify-between text-sm mb-1">
                 <span className="text-muted-foreground">{isNb ? d.labelNb : d.labelEn}</span>
                 <span className={cn("tabular-nums font-medium", scoreClass(d.value))}>
                   {d.value}%
