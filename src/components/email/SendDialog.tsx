@@ -153,6 +153,23 @@ export function SendDialog({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 max-h-[75vh] overflow-hidden">
           {/* Editor */}
           <div className="p-6 overflow-auto space-y-4 border-r border-border">
+            <div className="space-y-1.5">
+              <Label htmlFor="tpl-pick">Velg mal</Label>
+              <Select value={selectedTemplateId} onValueChange={applyTemplate}>
+                <SelectTrigger id="tpl-pick">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__default__">Standard ({language === "no" ? "norsk" : "english"})</SelectItem>
+                  {savedTemplates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {(t.name ?? "Uten navn")} · {t.language}
+                      {t.is_default ? " ★" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="rn">Mottakernavn</Label>
