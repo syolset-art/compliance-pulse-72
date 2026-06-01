@@ -1,25 +1,26 @@
-# Vis modenhet per kontrollområde under demoen
+## Problem
 
-## Bakgrunn
+I "Opprett tilbud"-dialogen er gap-seksjonen overlappende:
 
-Wizardens steg 6 (`MaturityStep` i `ActivateTrustProfileWizard.tsx`) viser allerede ett kort per kontrollområde fra `MATURITY_AREAS` med Laras forhåndsutfylte svar. Problemet er at alle kortene starter sammenslått (`openAreas = {}`), så under autoplay-demoen ser det ut som om siden hoppes over — viseren rekker bare å se sammenslåtte titler i ~5 sekunder før demoen går videre til synlighet.
+- **"Forhåndsvis"-knappen** i headeren åpner `MSPGapAnalysisDialog`, som kjører en ny gap-analyse. Det er feil – analysen er allerede gjort, og "forhåndsvisning" skal kun vise mangellisten.
+- **Collapsible-raden "Vis hvilke mangler aktivitetene lukker"** viser nøyaktig den samme mangellisten – men gjemt bak et klikk.
+- I tillegg ligger en **"Se hele gap-analysen →"**-lenke nederst som også åpner gap-analyse-dialogen.
 
-Laras svar er allerede seedet via `seedMaturityDefaults` i steg 2/3, så innholdet finnes — det er bare ikke synlig.
+Resultat: tre innganger til samme informasjon, og forhåndsvisning gjør noe annet enn brukeren forventer.
 
-## Endringer
+## Endring
 
-### 1. `MaturityStep` (samme fil, ca. linje 1274–1280)
-- Legg til prop `autoPlay?: boolean`.
-- Når `autoPlay` er true, kjør en `useEffect` som åpner hvert område i `MATURITY_AREAS` sekvensielt med ~900 ms mellomrom (første åpnes umiddelbart). Bruk `setOpenAreas` slik at brukeren manuelt fortsatt kan toggle.
-- Effekten rydder timere ved unmount.
+I `src/components/msp/MSPCreateOfferDialog.tsx`, blokken `coveredGaps && totalGapCount > 0` (ca. linje 513–679):
 
-### 2. Bruk i wizarden (linje 688)
-- Send `autoPlay={autoPlay}` til `<MaturityStep …/>`.
+1. **Fjern "Forhåndsvis"-knappen** i headeren (linje 549–551).
+2. **Fjern Collapsible-wrapperen** (linje 586–665). Innholdet – framework-chip + status-linje, progress-bar, mangelliste (`<ul>` med checkboxes) og crosswalk-chips – beholdes, men rendres direkte under dekningsbanneret. Da er mangellisten alltid synlig = det er forhåndsvisningen.
+3. **Fjern bunn-lenken "Se hele gap-analysen →"** (linje 667–675).
+4. Behold header (tittel + snapshot-badge + "X mangler · Y lukkes"), "Legg ved som vedlegg i PDF"-bryteren, dekningsbanneret med "Velg alle/Fjern alle", og selve mangellisten.
 
-### 3. Lengre lesetid på steg 6 (linje 528–535)
-- Øk `readDelays[6]` fra `5000` til ca. `12000` ms slik at alle 4 områdene rekker å åpne seg og viseren får se Lara-badges og ja/nei-knappene per kontrollområde før demoen går videre.
+Resultat: én sammenhengende, ryddig blokk – ingen dobbel innganger, ingen utilsiktet ny analyse.
 
 ## Filer som endres
-- `src/components/trust-center/activate/ActivateTrustProfileWizard.tsx` (kun presentasjonslogikk i wizarden)
 
-Ingen endringer i datamodell, MaturityStep-svar, eller backend.
+- `src/components/msp/MSPCreateOfferDialog.tsx`
+
+Ingen state- eller logikkendringer utover å fjerne `gapsExpanded`-bruken i denne blokken (state-variabelen kan fjernes hvis den ikke brukes andre steder).

@@ -546,9 +546,6 @@ export function MSPCreateOfferDialog({
                           {totalGapCount} mangler · {selectedCount} lukkes av tilbudet
                         </p>
                       </div>
-                      <Button type="button" size="sm" variant="ghost" className="h-8 text-sm gap-1 text-primary" onClick={() => setGapPreviewOpen(true)}>
-                        <Eye className="h-3.5 w-3.5" /> Forhåndsvis
-                      </Button>
                     </div>
 
                     {/* Brytere */}
