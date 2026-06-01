@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,51 @@ export function SendDialog({
   const [ctaText, setCtaText] = useState(base.cta_text);
   const [ctaUrl, setCtaUrl] = useState(base.cta_url);
   const [submitting, setSubmitting] = useState(false);
+
+  type SavedTemplate = {
+    id: string;
+    name: string | null;
+    language: string;
+    subject: string;
+    body: string;
+    cta_text: string | null;
+    cta_url: string | null;
+    is_default: boolean;
+  };
+  const [savedTemplates, setSavedTemplates] = useState<SavedTemplate[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("__default__");
+
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      const { data } = await supabase
+        .from("email_templates")
+        .select("id,name,language,subject,body,cta_text,cta_url,is_default")
+        .eq("type", type)
+        .order("is_default", { ascending: false })
+        .order("updated_at", { ascending: false });
+      setSavedTemplates((data ?? []) as SavedTemplate[]);
+    })();
+  }, [open, type]);
+
+  const applyTemplate = (id: string) => {
+    setSelectedTemplateId(id);
+    if (id === "__default__") {
+      const b = getDefaultTemplate(type, language);
+      setSubject(b.subject);
+      setBody(b.body);
+      setCtaText(b.cta_text);
+      setCtaUrl(b.cta_url);
+      return;
+    }
+    const t = savedTemplates.find((x) => x.id === id);
+    if (!t) return;
+    setLanguage((t.language as EmailLanguage) || language);
+    setSubject(t.subject);
+    setBody(t.body);
+    setCtaText(t.cta_text ?? "");
+    setCtaUrl(t.cta_url ?? "");
+  };
 
   const meta = TEMPLATE_META[type];
   const title = language === "no" ? meta.titleNo : meta.titleEn;
@@ -107,6 +153,23 @@ export function SendDialog({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 max-h-[75vh] overflow-hidden">
           {/* Editor */}
           <div className="p-6 overflow-auto space-y-4 border-r border-border">
+            <div className="space-y-1.5">
+              <Label htmlFor="tpl-pick">Velg mal</Label>
+              <Select value={selectedTemplateId} onValueChange={applyTemplate}>
+                <SelectTrigger id="tpl-pick">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__default__">Standard ({language === "no" ? "norsk" : "english"})</SelectItem>
+                  {savedTemplates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {(t.name ?? "Uten navn")} · {t.language}
+                      {t.is_default ? " ★" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="rn">Mottakernavn</Label>
