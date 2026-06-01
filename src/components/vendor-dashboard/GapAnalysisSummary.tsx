@@ -69,7 +69,7 @@ export function GapAnalysisSummary({
             {topRiskVendors[0]?.name ?? "–"}
           </p>
           {topRiskVendors[0] && (
-            <p className={cn("text-[12px] tabular-nums", scoreClass(topRiskVendors[0].score))}>
+            <p className={cn("text-sm tabular-nums", scoreClass(topRiskVendors[0].score))}>
               {topRiskVendors[0].score}%
             </p>
           )}
