@@ -505,7 +505,6 @@ export default function ActivateTrustProfileWizard({
           processesPersonalData: v.processesPersonalData,
           dataCategories: v.dataCategories,
           dpa: v.dpa ?? "unknown",
-          isSecurityPartner: v.isSecurityPartner,
           partnerType: v.partnerType,
         })),
       subprocessorList: analyzedSubprocessors,
@@ -513,7 +512,10 @@ export default function ActivateTrustProfileWizard({
       visibility,
       partner: (() => {
         const securityPartners = criticalVendors.filter(
-          (v) => v.isSecurityPartner && v.name.trim().length > 0,
+          (v) =>
+            v.partnerType &&
+            ["msp", "mssp", "it_partner"].includes(v.partnerType) &&
+            v.name.trim().length > 0,
         );
         if (securityPartners.length === 0) return undefined;
         const [primary, ...rest] = securityPartners;
