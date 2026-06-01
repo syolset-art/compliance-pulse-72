@@ -3,9 +3,10 @@ import { Sidebar } from "@/components/Sidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Send, Mail, FileText, Building2, Users } from "lucide-react";
+import { Eye, Send, Mail, FileText, Building2, Users, Pencil } from "lucide-react";
 import { PreviewDialog } from "@/components/email/PreviewDialog";
 import { SendDialog } from "@/components/email/SendDialog";
+import { OfferTemplateManager } from "@/components/email/OfferTemplateManager";
 import { EmailLanguage } from "@/components/email/EmailLayout";
 import { EmailTemplateType, TEMPLATE_META } from "@/lib/emailTemplates";
 
@@ -20,6 +21,7 @@ const ORDER: EmailTemplateType[] = ["offer", "vendor_trust_profile", "customer_p
 export default function EmailTemplates() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
+  const [offerEditorOpen, setOfferEditorOpen] = useState(false);
   const [activeType, setActiveType] = useState<EmailTemplateType>("offer");
   const [language, setLanguage] = useState<EmailLanguage>("no");
 
@@ -28,6 +30,10 @@ export default function EmailTemplates() {
     setPreviewOpen(true);
   };
   const openSend = (type: EmailTemplateType) => {
+    if (type === "offer") {
+      setOfferEditorOpen(true);
+      return;
+    }
     setActiveType(type);
     setSendOpen(true);
   };
@@ -95,8 +101,8 @@ export default function EmailTemplates() {
                         Forhåndsvis
                       </Button>
                       <Button size="sm" className="flex-1 gap-1.5" onClick={() => openSend(type)}>
-                        <Send className="h-3.5 w-3.5" />
-                        Send
+                        {type === "offer" ? <Pencil className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
+                        {type === "offer" ? "Maler" : "Send"}
                       </Button>
                     </div>
                   </CardContent>
@@ -117,6 +123,11 @@ export default function EmailTemplates() {
         open={sendOpen}
         onOpenChange={setSendOpen}
         type={activeType}
+        initialLanguage={language}
+      />
+      <OfferTemplateManager
+        open={offerEditorOpen}
+        onOpenChange={setOfferEditorOpen}
         initialLanguage={language}
       />
     </div>

@@ -1295,6 +1295,8 @@ export type Database = {
           id: string
           is_default: boolean
           language: string
+          name: string | null
+          signature: string | null
           subject: string
           type: string
           updated_at: string
@@ -1308,6 +1310,8 @@ export type Database = {
           id?: string
           is_default?: boolean
           language?: string
+          name?: string | null
+          signature?: string | null
           subject: string
           type: string
           updated_at?: string
@@ -1321,6 +1325,8 @@ export type Database = {
           id?: string
           is_default?: boolean
           language?: string
+          name?: string | null
+          signature?: string | null
           subject?: string
           type?: string
           updated_at?: string
