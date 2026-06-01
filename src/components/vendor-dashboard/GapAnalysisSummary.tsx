@@ -95,7 +95,7 @@ export function GapAnalysisSummary({
         <div className="grid grid-cols-4 gap-2">
           {domains.map((d) => (
             <div key={d.key}>
-              <div className="flex items-center justify-between text-[12px] mb-1">
+              <div className="flex items-center justify-between text-sm mb-1">
                 <span className="text-muted-foreground">{isNb ? d.labelNb : d.labelEn}</span>
                 <span className={cn("tabular-nums font-medium", scoreClass(d.value))}>
                   {d.value}%
