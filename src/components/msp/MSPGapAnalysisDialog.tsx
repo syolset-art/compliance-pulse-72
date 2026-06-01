@@ -147,7 +147,7 @@ export function MSPGapAnalysisDialog({
                 ? "Analyse fullført — viser resultatet …"
                 : `Lara tester ${customerName}s Trust Profile og aktiverte regelverk mot ${frameworkLabel}`}
             </p>
-            <p className="text-[12px] text-muted-foreground mt-1 max-w-sm">
+            <p className="text-sm text-muted-foreground mt-1 max-w-sm">
               {phase === "done"
                 ? ""
                 : "Tar normalt 10–20 sekunder."}
