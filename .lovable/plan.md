@@ -1,55 +1,48 @@
+## Endringer i Kundevisning (`/msp-customer-view`)
 
-## Mål
+Oppdaterer de eksisterende visningene og legger til én ny fane, slik at de bedre reflekterer den faktiske kundeopplevelsen.
 
-Lage en intern demo-/referansevisning som viser hvordan tilbudet (offer/leveranse) fremstår for kunden som mottar det. Tenkt brukt av utviklere og implementerings­ansvarlige for å forstå touchpoints. Ingen ny forretnings­logikk — kun presentasjon med eksempeldata.
+### 1. Ny fane: "Gi fullmakt" (Trust Profile + Lara-plan)
 
-## Navigasjon
+Ny tab "Gi fullmakt" i `MSPCustomerView.tsx`, plassert etter "Trust Profile (offentlig)".
 
-- Nytt sidebar-punkt under MSP-seksjonen: **"Kundevisning"** (`/msp-customer-view`), ikon `Eye`, plassert rett etter "Tjenester".
-- Ny rute i `src/App.tsx` til ny side `MSPCustomerView`.
+Ny komponent: `src/components/msp/customer-view/GrantAuthorityView.tsx`
+- Bruker `PreviewFrame` med browser-chrome.
+- Øverst: et Lara-plan-banner (kort med Lara-ikon, lilla aksent, design som matcher andre Lara-bannere) med tittel "Gi din partner fullmakt" og forklaring: «Gi [Partnernavn] fullmakt til å utføre aktiviteter på din Trust Profile slik at modenheten øker raskere.» CTA-knapper: "Gi fullmakt" (primær) og "Les mer".
+- Under banneret: en forenklet mock av kundens egen Trust Profile-side (header med DIPS Arena AS, modenhetsindikator, et par seksjoner som "Rammeverk", "Dokumenter", "Aktiviteter") — statisk, kun visuelt. Gjenbruker tokens og kortstil fra eksisterende Trust Profile-komponenter, men uten å koble til ekte data.
+- Implementeringsnotat peker til: hvor Lara-banneret skal trigges (kundens Trust Profile når en MSP-partner er koblet på), komponent som skal lages (`<GrantPartnerAuthorityBanner partnerName=... />`), og at fullmakt lagres som en relasjon mellom partner og kunde-profil.
 
-## Side: `src/pages/MSPCustomerView.tsx`
+### 2. Forenkle "Tilbud (e-post)"
 
-Layout som `MSPServiceCatalog` (Sidebar + container, `pt-11`). Header forklarer formålet:
+Erstatter dagens `EmailOfferView` innhold (som rendrer hele `CustomerCatalogPreview`) med en enkel e-postmock:
+- Emne: "Vedlagt tilbud fra din partner Nordlys Sikkerhet AS"
+- Avsender: partnerrådgiver
+- Brødtekst: kort hilsen, "Vedlagt finner du tilbudet vi har satt sammen for DIPS Arena AS. Åpne PDF for detaljer. Svar `OK` på denne e-posten for å godkjenne tilbudet."
+- Vedlegg-pille: `Tilbud-DIPS-Arena.pdf` med last-ned-ikon (statisk, åpner ikke noe reelt).
+- Knapp/lenke: "Svar med OK for å godkjenne" (visuell).
+- Implementeringsnotat oppdateres: trigger = partner klikker "Send tilbud", e-posten sendes som transaksjonell e-post med PDF-vedlegg, godkjenning skjer ved svar-e-post som parses og markerer tilbudet som godkjent.
 
-> "Slik ser tilbudet ut fra kundens side. Bruk dette som referanse når du implementerer touchpoints."
+### 3. "Trust Profile (offentlig)"
 
-Under headeren en `Tabs`-meny med 5 visninger. Hver tab har en kort "Når kunden ser dette"-beskrivelse + en `<Card>` med live preview av komponenten, og en grå "Implementeringsnotat"-boks (filsti + props + når den trigges).
+Ingen endringer — beholdes som i dag.
 
-### Tabs
+### 4. Omskriv "Overlevering (e-post)"
 
-1. **E-post med tilbud** — gjenbruker `CustomerCatalogPreview` med `asEmail` + demo-tjenester. Notat: trigges av `ShareOfferDialog` → utgående e-post.
-2. **Tjenestekatalog (innlogget)** — samme `CustomerCatalogPreview` uten `asEmail`. Notat: vises i kundens Trust Center.
-3. **Offentlig Trust Profile** — embed av `PublicTrustProfile` i en innrammet "browser chrome"-container (URL-bar med `trust.mynder.no/<slug>`). Notat: rute `/trust/:slug`.
-4. **Trust handover-e-post** — render av e-post-malen brukt i `SendTrustHandoverEmailDialog` (statisk preview av subject/body).
-5. **Leveranserapport (PDF)** — thumbnail/iframe av rapport generert via `generateInvoicePdf` / `PortfolioReportView`. Statisk eksempel.
+Endrer `HandoverEmailView` slik at innholdet handler om at partneren har opprettet en Trust Profile på vegne av kunden:
+- Emne: "Din Trust Profile er klar – gi [Partner] fullmakt til å jobbe i profilen"
+- Brødtekst: "Hei, [Partner] har opprettet en Trust Profile for DIPS Arena AS i Mynder. Logg inn for å se profilen og gi partneren fullmakt til å utføre aktiviteter, oppdatere dokumentasjon og øke modenheten på dine vegne."
+- CTA-knapp: "Åpne Trust Profile og gi fullmakt" → lenker (visuelt) til kundens innloggede visning.
+- Kort seksjon under: "Hva betyr fullmakt?" med 3 punktstreker (utføre aktiviteter, laste opp dokumenter, svare på henvendelser).
+- Implementeringsnotat: trigger = partner fullfører aktiveringsveiviseren, kunden får e-post med engangs-innloggingslenke / magic link til sin Trust Profile-modul.
 
-Hver tab bruker DIPS Arena AS som default kunde, og partner = innlogget org.
+### Filer
 
-## Felles UI-komponent
+Endres:
+- `src/pages/MSPCustomerView.tsx` — legg til ny tab "Gi fullmakt"
+- `src/components/msp/customer-view/EmailOfferView.tsx` — bytt fra `CustomerCatalogPreview` til enkel e-postmock med PDF-vedlegg
+- `src/components/msp/customer-view/HandoverEmailView.tsx` — nytt innhold om fullmakt
 
-`src/components/msp/customer-view/PreviewFrame.tsx` — wrapper som tegner:
-- toolbar (tab-navn + "Slik ser kunden det")
-- preview-area med subtil sjakkbrett-bakgrunn
-- collapsible "Implementeringsnotat" (fil, komponent, trigger, props-eksempel)
+Opprettes:
+- `src/components/msp/customer-view/GrantAuthorityView.tsx`
 
-## Filer som opprettes
-
-- `src/pages/MSPCustomerView.tsx`
-- `src/components/msp/customer-view/PreviewFrame.tsx`
-- `src/components/msp/customer-view/EmailOfferView.tsx`
-- `src/components/msp/customer-view/CatalogView.tsx`
-- `src/components/msp/customer-view/PublicProfileView.tsx`
-- `src/components/msp/customer-view/HandoverEmailView.tsx`
-- `src/components/msp/customer-view/DeliveryReportView.tsx`
-
-## Filer som endres
-
-- `src/App.tsx` — registrer rute.
-- `src/components/Sidebar.tsx` — nytt menypunkt under MSP.
-
-## Avgrensning
-
-- Kun visuelt; ingen DB-endringer, ingen edge functions, ingen ny logikk.
-- Bruker eksisterende design tokens og shadcn-komponenter.
-- i18n: NB primært, EN-streng på menypunktet.
+Ingen endringer i ruter, sidebar, database eller edge functions. Kun frontend/presentasjon.

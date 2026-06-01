@@ -1,75 +1,96 @@
-import { Mail } from "lucide-react";
+import { Mail, ShieldCheck, FileUp, MessageSquare, ArrowRight } from "lucide-react";
 import { PreviewFrame } from "./PreviewFrame";
 import { DEMO_CUSTOMER_NAME, DEMO_PARTNER_NAME } from "./demoServices";
 
 export function HandoverEmailView() {
   return (
     <PreviewFrame
-      title="Overleveringse-post (Trust handover)"
-      subtitle="Sendes når partner overleverer ferdigstilt Trust Profile til kunden."
+      title="Overleveringse-post — fullmakt til partner"
+      subtitle="Sendes når partner har opprettet Trust Profile på vegne av kunden. Kunden logger inn og gir fullmakt."
       channel="E-post"
       surface="muted"
       note={{
         file: "src/components/msp/SendTrustHandoverEmailDialog.tsx",
         component: "<SendTrustHandoverEmailDialog />",
-        channel: "Utgående e-post med lenke til Trust Profile",
-        trigger: "Partner trykker «Overlever» på kundekortet i MSPCustomerDetail",
-        propsExample: `// Body inkluderer:
-// - customerName, partnerName
-// - trustProfileUrl (publik slug)
-// - completionStats { frameworks, controls, documents }`,
+        channel: "Utgående e-post med engangs-innloggingslenke",
+        trigger: "Partner fullfører aktiveringsveiviseren for kundens Trust Profile",
+        propsExample: `await supabase.functions.invoke('send-transactional-email', {
+  body: {
+    templateName: 'trust-profile-handover',
+    recipientEmail: customer.email,
+    idempotencyKey: 'handover-' + trustProfile.id,
+    templateData: {
+      partnerName: '${DEMO_PARTNER_NAME}',
+      customerName: '${DEMO_CUSTOMER_NAME}',
+      magicLinkUrl, // engangslenke til /trust-profile?grant=<partnerId>
+    },
+  },
+});`,
       }}
     >
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="rounded-lg border border-border bg-card overflow-hidden max-w-2xl mx-auto">
         <div className="px-4 py-3 border-b border-border bg-muted/40 space-y-1">
           <div className="flex items-center gap-2">
             <Mail className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-              E-post til kunde — utkast
+              Innboks
             </span>
           </div>
           <p className="text-sm text-foreground">
-            <span className="text-muted-foreground">Fra:</span> {DEMO_PARTNER_NAME}{" "}
-            <span className="text-muted-foreground">· Til:</span> {DEMO_CUSTOMER_NAME}
+            <span className="text-muted-foreground">Fra:</span> {DEMO_PARTNER_NAME} via Mynder{" "}
+            <span className="text-muted-foreground">· Til:</span> kari.lien@dipsarena.no
           </p>
           <p className="text-sm font-semibold text-foreground">
-            Emne: Din Trust Profile er klar — full oversikt over etterlevelsen
+            Emne: Din Trust Profile er klar — gi {DEMO_PARTNER_NAME} fullmakt til å jobbe i profilen
           </p>
         </div>
-        <div className="px-5 py-5 space-y-3 text-sm text-foreground leading-relaxed">
-          <p>Hei {DEMO_CUSTOMER_NAME},</p>
+
+        <div className="px-5 py-5 space-y-4 text-sm text-foreground leading-relaxed">
+          <p>Hei Kari,</p>
           <p>
-            Vi har nå satt opp Trust Profilen din i Mynder. Den gir deg, dine kunder og revisorer
-            én samlet oversikt over hvordan dere etterlever ISO 27001, GDPR og NSM-grunnprinsippene.
+            <strong>{DEMO_PARTNER_NAME}</strong> har opprettet en Trust Profile for{" "}
+            {DEMO_CUSTOMER_NAME} i Mynder. Logg inn for å se profilen og gi partneren fullmakt til
+            å utføre aktiviteter, oppdatere dokumentasjon og øke modenheten på dine vegne.
           </p>
-          <div className="rounded-md border border-border bg-muted/30 px-4 py-3 grid grid-cols-3 gap-3 text-center">
-            <div>
-              <p className="text-lg font-bold text-foreground">3</p>
-              <p className="text-xs text-muted-foreground">Rammeverk</p>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-foreground">47</p>
-              <p className="text-xs text-muted-foreground">Kontroller dokumentert</p>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-foreground">12</p>
-              <p className="text-xs text-muted-foreground">Dokumenter delt</p>
-            </div>
+
+          <div className="flex justify-center py-2">
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90"
+            >
+              Åpne Trust Profile og gi fullmakt
+              <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
-          <p>Du kan se og dele profilen herfra:</p>
-          <p>
-            <a className="text-primary font-semibold underline underline-offset-2" href="#">
-              https://trust.mynder.no/dips-arena
-            </a>
+
+          <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 space-y-2">
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+              Hva betyr fullmakt?
+            </p>
+            <ul className="space-y-1.5 text-sm">
+              <li className="flex items-start gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>Utføre aktiviteter og kontrolltiltak i din Trust Profile</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <FileUp className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>Laste opp og vedlikeholde dokumentasjon og bevis</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <MessageSquare className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>Svare på henvendelser fra kunder og revisorer</span>
+              </li>
+            </ul>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Du kan når som helst trekke tilbake fullmakten fra innstillingene i Trust Profile.
           </p>
-          <p>
-            Vi følger opp månedlig, men ta gjerne kontakt om du har spørsmål eller ønsker å gi
-            tilgang til en revisor.
-          </p>
-          <p className="text-foreground">
+
+          <p className="text-foreground pt-1">
             Vennlig hilsen,
             <br />
-            Ola Nordmann — {DEMO_PARTNER_NAME}
+            Mynder på vegne av {DEMO_PARTNER_NAME}
           </p>
         </div>
       </div>
