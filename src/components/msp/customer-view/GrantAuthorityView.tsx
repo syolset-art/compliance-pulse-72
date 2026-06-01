@@ -143,7 +143,88 @@ await supabase.from('trust_profile_authorities').insert({
           />
         </div>
       </div>
+
+      {/* Modalt vindu: bekreft fullmakt */}
+      {showModal && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-foreground/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-2xl bg-background border border-border shadow-2xl overflow-hidden">
+            <div className="flex items-start justify-between gap-3 p-5 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-primary/15 text-primary flex items-center justify-center">
+                  <ShieldCheck className="h-4.5 w-4.5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">Gi fullmakt til partner</h3>
+                  <p className="text-xs text-muted-foreground">{DEMO_PARTNER_NAME}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="Lukk"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-foreground/85 leading-relaxed">
+                Du gir <strong>{DEMO_PARTNER_NAME}</strong> tilgang til å jobbe i din Trust Profile på vegne av {DEMO_CUSTOMER_NAME}.
+              </p>
+
+              <div className="rounded-lg bg-muted/50 border border-border p-3 space-y-2 text-sm text-foreground/85">
+                <p className="font-medium text-foreground">Partner kan:</p>
+                <ul className="space-y-1 text-xs">
+                  <li className="flex gap-2"><Check className="h-3.5 w-3.5 text-success mt-0.5 shrink-0" /> Utføre aktiviteter og dokumentere kontroller</li>
+                  <li className="flex gap-2"><Check className="h-3.5 w-3.5 text-success mt-0.5 shrink-0" /> Laste opp bevis og dokumenter</li>
+                  <li className="flex gap-2"><Check className="h-3.5 w-3.5 text-success mt-0.5 shrink-0" /> Svare på henvendelser fra dine kunder</li>
+                </ul>
+              </div>
+
+              <label className="flex items-start gap-2.5 text-sm text-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={consents.scope}
+                  onChange={(e) => setConsents((c) => ({ ...c, scope: e.target.checked }))}
+                  className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
+                />
+                <span>Jeg godkjenner at partner får arbeide i Trust Profilen på mine vegne.</span>
+              </label>
+              <label className="flex items-start gap-2.5 text-sm text-foreground cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={consents.revoke}
+                  onChange={(e) => setConsents((c) => ({ ...c, revoke: e.target.checked }))}
+                  className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
+                />
+                <span>Jeg forstår at jeg når som helst kan trekke tilbake fullmakten.</span>
+              </label>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 p-4 bg-muted/30 border-t border-border">
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                Avbryt
+              </button>
+              <button
+                type="button"
+                disabled={!allChecked}
+                onClick={() => { setGranted(true); setShowModal(false); }}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Bekreft fullmakt
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </PreviewFrame>
+
   );
 }
 
