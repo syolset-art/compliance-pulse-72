@@ -101,8 +101,8 @@ export default function EmailTemplates() {
                         Forhåndsvis
                       </Button>
                       <Button size="sm" className="flex-1 gap-1.5" onClick={() => openSend(type)}>
-                        <Send className="h-3.5 w-3.5" />
-                        Send
+                        {type === "offer" ? <Pencil className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
+                        {type === "offer" ? "Maler" : "Send"}
                       </Button>
                     </div>
                   </CardContent>
