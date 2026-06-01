@@ -1271,13 +1271,27 @@ function PreviewStep({ name, orgNumber, description, website, contactName, conta
 
 /* -------------------- Maturity step -------------------- */
 
-function MaturityStep({ answers, sources, onChange }: {
+function MaturityStep({ answers, sources, onChange, autoPlay }: {
   answers: MaturityAnswers;
   sources: Record<string, string>;
   onChange: (id: string, answer: MaturityAnswer) => void;
+  autoPlay?: boolean;
 }) {
   const [openAreas, setOpenAreas] = useState<Record<string, boolean>>({});
   const toggleArea = (id: string) => setOpenAreas((prev) => ({ ...prev, [id]: !prev[id] }));
+
+  // Auto-play: progressively open each control area so the viewer sees
+  // Lara's pre-filled answers per kontrollområde.
+  useEffect(() => {
+    if (!autoPlay) return;
+    const timers: number[] = [];
+    MATURITY_AREAS.forEach((area, i) => {
+      timers.push(window.setTimeout(() => {
+        setOpenAreas((prev) => ({ ...prev, [area.id]: true }));
+      }, i * 900));
+    });
+    return () => { timers.forEach((t) => window.clearTimeout(t)); };
+  }, [autoPlay]);
 
   return (
     <TooltipProvider delayDuration={150}>
