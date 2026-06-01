@@ -53,7 +53,7 @@ export function GapAnalysisSummary({
           </p>
         </div>
         <div>
-          <p className="text-[12px] uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+          <p className="text-sm uppercase tracking-wide text-muted-foreground flex items-center gap-1">
             <AlertTriangle className="h-3 w-3" /> {isNb ? "Åpne gap" : "Open gaps"}
           </p>
           <p className="text-2xl font-semibold tabular-nums text-foreground">{totalGaps}</p>
