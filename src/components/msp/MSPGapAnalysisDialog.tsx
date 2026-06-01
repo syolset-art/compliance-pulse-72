@@ -132,7 +132,7 @@ export function MSPGapAnalysisDialog({
           </DialogTitle>
           <DialogDescription className="text-[13px] text-muted-foreground">
             {isProcessing
-              ? "Tar normalt 10–20 sekunder. Du kan trygt lukke — analysen kjører videre i bakgrunnen."
+              ? `Lara tester ${customerName}s Trust Profile og aktiverte regelverk mot ${frameworkLabel}. Tar normalt 10–20 sekunder.`
               : "Basert på kundens vurderinger. Kan legges ved tilbud som dokumentasjon."}
           </DialogDescription>
         </DialogHeader>
