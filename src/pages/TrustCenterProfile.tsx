@@ -841,10 +841,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     </div>
                     <div className="divide-y divide-border border-t border-border">
                       {display.map((r: any, i: number) => (
-                        <div key={i} className={`px-5 py-3.5 ${r.block ? "" : "flex items-start justify-between gap-6"}`}>
+                        <div key={i} className={`px-5 py-3.5 ${r.block ? "" : "flex items-start justify-between gap-6"} ${r.emphasis ? "bg-muted/30" : ""}`}>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-foreground">{r.label}</p>
-                            {r.sub && <p className="text-xs text-muted-foreground mt-0.5">{r.sub}</p>}
+                            {r.sub && <p className={`text-xs mt-0.5 ${r.emphasis ? "text-foreground font-medium" : "text-muted-foreground"}`}>{r.sub}</p>}
                             {r.block && <p className="text-xs text-muted-foreground mt-1">{r.block}</p>}
                           </div>
                           {!r.block && r.primary && (
