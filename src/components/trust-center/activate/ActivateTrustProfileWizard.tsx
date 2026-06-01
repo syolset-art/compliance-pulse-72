@@ -377,11 +377,6 @@ export default function ActivateTrustProfileWizard({
       if (!orgOk || hasWebsite === null) return false;
       const websiteOk = hasWebsite === "no" || (website.trim().length > 3 && websiteVerified);
       if (!websiteOk) return false;
-      if (partnerStatus === null) return false;
-      if (partnerStatus === "yes") {
-        if (partnerName.trim().length === 0) return false;
-        if (partnerGrantAuthority && !partnerAuthorityAccepted) return false;
-      }
       return true;
     }
     if (step === 2) return revealed >= (scan?.findings.length ?? 0) && scan != null;
