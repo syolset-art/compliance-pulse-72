@@ -131,7 +131,7 @@ export function MSPGapAnalysisStep({
         <p className="text-sm font-semibold text-foreground">
           Anbefalte regelverk
         </p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Basert på svarene og bransje ({industry || "ukjent"}). Du kan
           justere før kunden opprettes.
         </p>
