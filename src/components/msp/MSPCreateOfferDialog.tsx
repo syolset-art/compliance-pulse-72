@@ -579,97 +579,77 @@ export function MSPCreateOfferDialog({
                       </button>
                     </div>
 
-                    {/* Collapsible: mangler aktivitetene lukker */}
-                    <Collapsible open={gapsExpanded} onOpenChange={setGapsExpanded}>
-                      <CollapsibleTrigger className="w-full flex items-center justify-between gap-2 px-3 py-2 border-t border-border text-sm hover:bg-muted/30 transition-colors">
-                        <span className="font-medium text-foreground">
-                          Vis hvilke mangler aktivitetene lukker
-                          <span className="text-muted-foreground font-normal ml-1">({selectedCount} av {totalGapCount})</span>
-                        </span>
-                        <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", gapsExpanded && "rotate-180")} />
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <div className="border-t border-border">
-                          <div className="px-3 py-2 bg-muted/40 border-b border-border space-y-1.5">
-                            <div className="flex items-center justify-between gap-2 text-xs">
-                              <div className="flex items-center gap-2">
-                                {(() => {
-                                  const theme = getFrameworkTheme(coveredGaps.frameworkId);
-                                  return (
-                                    <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                                      {coveredGaps.frameworkLabel}
-                                    </span>
-                                  );
-                                })()}
-                                <span className="text-muted-foreground">status per {snapshotLabel}</span>
-                              </div>
-                              {criticalSelected > 0 && (
-                                <span className="text-xs text-destructive font-medium">{criticalSelected} kritiske</span>
-                              )}
-                            </div>
-                            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                              <div className="h-full bg-primary transition-all" style={{ width: `${gapPercent}%` }} />
-                            </div>
-                          </div>
-                          <ul className="divide-y divide-border">
-                            {sortedGaps.map(g => {
-                              const checked = selectedGapIds.has(g.id);
+                    {/* Mangelliste (forhåndsvisning – alltid synlig) */}
+                    <div className="border-t border-border">
+                      <div className="px-3 py-2 bg-muted/40 border-b border-border space-y-1.5">
+                        <div className="flex items-center justify-between gap-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            {(() => {
+                              const theme = getFrameworkTheme(coveredGaps.frameworkId);
                               return (
-                                <li key={g.id} className="flex items-start gap-2.5 px-3 py-2 hover:bg-muted/30">
-                                  <Checkbox
-                                    checked={checked}
-                                    onCheckedChange={() => toggleGap(g.id)}
-                                    className="mt-0.5"
-                                    id={`gap-${g.id}`}
-                                  />
-                                  <span className={cn("h-2 w-2 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
-                                  <label htmlFor={`gap-${g.id}`} className="flex-1 min-w-0 cursor-pointer space-y-0.5">
-                                    <div className="flex items-baseline gap-2 flex-wrap">
-                                      <span className="text-sm text-foreground leading-snug">
-                                        {g.title}
-                                        {g.reference && (
-                                          <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
-                                        )}
-                                      </span>
-                                    </div>
-                                  </label>
-                                  <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
-                                    {SEVERITY_LABEL[g.severity]}
-                                  </span>
-                                </li>
+                                <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                                  {coveredGaps.frameworkLabel}
+                                </span>
                               );
-                            })}
-                          </ul>
-                          {crosswalkChips.length > 0 && (
-                            <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-t border-border">
-                              <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
-                              {crosswalkChips.map(r => {
-                                const t = getFrameworkTheme(r.frameworkId);
-                                return (
-                                  <span
-                                    key={`${r.frameworkId}-${r.controlId}`}
-                                    className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
-                                  >
-                                    {r.frameworkLabel} {r.controlId}
-                                  </span>
-                                );
-                              })}
-                            </div>
+                            })()}
+                            <span className="text-muted-foreground">status per {snapshotLabel}</span>
+                          </div>
+                          {criticalSelected > 0 && (
+                            <span className="text-xs text-destructive font-medium">{criticalSelected} kritiske</span>
                           )}
                         </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-
-                    <div className="border-t border-border px-3 py-2">
-                      <button
-                        type="button"
-                        onClick={() => setGapPreviewOpen(true)}
-                        className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                      >
-                        Se hele gap-analysen <ArrowRight className="h-3 w-3" />
-                      </button>
+                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                          <div className="h-full bg-primary transition-all" style={{ width: `${gapPercent}%` }} />
+                        </div>
+                      </div>
+                      <ul className="divide-y divide-border">
+                        {sortedGaps.map(g => {
+                          const checked = selectedGapIds.has(g.id);
+                          return (
+                            <li key={g.id} className="flex items-start gap-2.5 px-3 py-2 hover:bg-muted/30">
+                              <Checkbox
+                                checked={checked}
+                                onCheckedChange={() => toggleGap(g.id)}
+                                className="mt-0.5"
+                                id={`gap-${g.id}`}
+                              />
+                              <span className={cn("h-2 w-2 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
+                              <label htmlFor={`gap-${g.id}`} className="flex-1 min-w-0 cursor-pointer space-y-0.5">
+                                <div className="flex items-baseline gap-2 flex-wrap">
+                                  <span className="text-sm text-foreground leading-snug">
+                                    {g.title}
+                                    {g.reference && (
+                                      <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                                    )}
+                                  </span>
+                                </div>
+                              </label>
+                              <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
+                                {SEVERITY_LABEL[g.severity]}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {crosswalkChips.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-t border-border">
+                          <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
+                          {crosswalkChips.map(r => {
+                            const t = getFrameworkTheme(r.frameworkId);
+                            return (
+                              <span
+                                key={`${r.frameworkId}-${r.controlId}`}
+                                className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium border", t.chip)}
+                              >
+                                {r.frameworkLabel} {r.controlId}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
+
                   </div>
                 </div>
               );
