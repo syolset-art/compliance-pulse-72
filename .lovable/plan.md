@@ -1,26 +1,27 @@
-## Problem
+## Mål
+Når man åpner Trust Center i sidemenyen, skal det ligge en egen menyoppføring «Aktiver Trust Profile» som åpner aktiveringsveiviseren i **manuell modus** (ingen autoplay), slik at brukeren kan klikke seg gjennom punktene selv.
 
-I "Opprett tilbud"-dialogen er gap-seksjonen overlappende:
+## Endringer
 
-- **"Forhåndsvis"-knappen** i headeren åpner `MSPGapAnalysisDialog`, som kjører en ny gap-analyse. Det er feil – analysen er allerede gjort, og "forhåndsvisning" skal kun vise mangellisten.
-- **Collapsible-raden "Vis hvilke mangler aktivitetene lukker"** viser nøyaktig den samme mangellisten – men gjemt bak et klikk.
-- I tillegg ligger en **"Se hele gap-analysen →"**-lenke nederst som også åpner gap-analyse-dialogen.
+### 1. `src/components/Sidebar.tsx` — Trust Center-undermeny
+- Utvid `trustCenterItems` (linje 150) med et nytt punkt øverst eller rett under «Trust Profile»:
+  - Label: `isNb ? "Aktiver Trust Profile" : "Activate Trust Profile"`
+  - Icon: `Sparkles` (samme ikon Lara bruker i wizarden)
+  - Bruker ikke `href`; håndteres som en `onClick`-knapp som:
+    1. Nullstiller `localStorage.removeItem("mynder.trustprofile.activated")`
+    2. Navigerer til `/trust-center/profile?activate=1&mode=manual`
+    3. Dispatcher `window.dispatchEvent(new CustomEvent("open-activate-trust-wizard", { detail: { mode: "manual" } }))`
+- Eksisterende «Demo: Aktiver Trust Profile»-knappen nederst i sidemenyen (linje ~825–840) beholdes uendret — den er for autoplay-demo. Den nye menyoppføringen er for manuell gjennomgang.
+- Render menyoppføringen med samme aktiv-stil som de andre `trustCenterItems`, men som `<button>` i stedet for `<NavLink>` siden den ikke peker på en egen rute.
 
-Resultat: tre innganger til samme informasjon, og forhåndsvisning gjør noe annet enn brukeren forventer.
+### 2. `src/pages/TrustCenterProfile.tsx` — Lytt på manuell modus
+- I `useEffect`-en rundt linje 247–261 som lytter på `open-activate-trust-wizard` og leser `?activate=1`:
+  - Les `event.detail?.mode` og `URLSearchParams.get("mode")`.
+  - Lagre i `useState<boolean>` (f.eks. `wizardAutoPlay`) som settes til `false` når `mode === "manual"`, ellers `true` (uendret default for eksisterende demo-flow).
+- Send denne videre som `autoPlay={wizardAutoPlay}` til `<ActivateTrustProfileWizard …/>`.
 
-## Endring
+### 3. Ingen endringer i selve wizarden
+`ActivateTrustProfileWizard` støtter allerede `autoPlay?: boolean` (linje 63–66). Når den er `false` advancer ikke wizarden automatisk, og brukeren klikker «Neste» selv — akkurat det brukeren ber om.
 
-I `src/components/msp/MSPCreateOfferDialog.tsx`, blokken `coveredGaps && totalGapCount > 0` (ca. linje 513–679):
-
-1. **Fjern "Forhåndsvis"-knappen** i headeren (linje 549–551).
-2. **Fjern Collapsible-wrapperen** (linje 586–665). Innholdet – framework-chip + status-linje, progress-bar, mangelliste (`<ul>` med checkboxes) og crosswalk-chips – beholdes, men rendres direkte under dekningsbanneret. Da er mangellisten alltid synlig = det er forhåndsvisningen.
-3. **Fjern bunn-lenken "Se hele gap-analysen →"** (linje 667–675).
-4. Behold header (tittel + snapshot-badge + "X mangler · Y lukkes"), "Legg ved som vedlegg i PDF"-bryteren, dekningsbanneret med "Velg alle/Fjern alle", og selve mangellisten.
-
-Resultat: én sammenhengende, ryddig blokk – ingen dobbel innganger, ingen utilsiktet ny analyse.
-
-## Filer som endres
-
-- `src/components/msp/MSPCreateOfferDialog.tsx`
-
-Ingen state- eller logikkendringer utover å fjerne `gapsExpanded`-bruken i denne blokken (state-variabelen kan fjernes hvis den ikke brukes andre steder).
+## Resultat
+Brukeren får et tydelig menypunkt under Trust Center → «Aktiver Trust Profile» som åpner aktiveringsveiviseren steg for steg uten autoplay. Demo-knappen for opptak/autoplay forblir tilgjengelig som før.
