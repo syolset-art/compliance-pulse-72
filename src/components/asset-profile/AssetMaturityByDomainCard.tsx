@@ -14,9 +14,16 @@ const AREAS = [
   { key: "supplier_governance", icon: Layers, nb: "Tredjepart og verdikjede",     en: "Third-Party & Supply Chain" },
 ] as const;
 
-function colorFor(score: number) {
-  if (score >= 75) return { text: "text-success", bar: "bg-success" };
-  if (score >= 50) return { text: "text-warning", bar: "bg-warning" };
+function colorFor(score: number, areaKey: string) {
+  const thresholds: Record<string, { green: number; orange: number }> = {
+    governance:          { green: 75, orange: 40 },
+    risk_compliance:     { green: 75, orange: 30 },
+    security_posture:    { green: 60, orange: 40 },
+    supplier_governance: { green: 75, orange: 50 },
+  };
+  const t = thresholds[areaKey] ?? { green: 75, orange: 50 };
+  if (score >= t.green)  return { text: "text-success", bar: "bg-success" };
+  if (score >= t.orange) return { text: "text-warning", bar: "bg-warning" };
   return { text: "text-destructive", bar: "bg-destructive" };
 }
 
@@ -38,7 +45,7 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
   }
 
   const overall = evaluation.trustScore;
-  const overallColor = colorFor(overall);
+  const overallColor = colorFor(overall, "overall");
 
   return (
     <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
@@ -61,7 +68,7 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {AREAS.map(({ key, icon: Icon, nb, en }) => {
           const score = evaluation.areaScore(key as any);
-          const c = colorFor(score);
+          const c = colorFor(score, key);
           return (
             <button
               key={key}
