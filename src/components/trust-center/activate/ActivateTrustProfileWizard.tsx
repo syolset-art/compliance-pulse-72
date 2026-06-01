@@ -710,6 +710,7 @@ export default function ActivateTrustProfileWizard({
         "";
       return (
         <div className="max-w-3xl mx-auto space-y-4">
+          {autoPlay && <DemoCursor ref={cursorRef} />}
           {/* Stepper */}
           <nav aria-label="Aktiveringssteg" className="px-1">
             <ol className="flex items-start gap-2">
