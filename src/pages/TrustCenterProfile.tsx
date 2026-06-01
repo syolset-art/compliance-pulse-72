@@ -1009,12 +1009,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           ) : (
           <div className="container max-w-4xl mx-auto p-4 md:p-6 space-y-5">
             {/* Page Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Shield className="h-4 w-4" />
-                <span>Trust Center</span>
-              </div>
-              <Badge variant="outline" className="text-xs">Free Plan</Badge>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Shield className="h-4 w-4" />
+              <span>Trust Center</span>
             </div>
 
             {isServiceProfile && (
