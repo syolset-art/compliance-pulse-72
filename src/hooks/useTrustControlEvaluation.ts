@@ -326,7 +326,7 @@ export function useTrustControlEvaluation(assetId: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("company_profile" as any)
-        .select("governance_level, compliance_organization, compliance_officer, compliance_officer_email, dpo_name, dpo_email, ciso_name, ciso_email")
+        .select("governance_level, compliance_organization, compliance_officer, compliance_officer_email, dpo_name, dpo_email, ciso_name, ciso_email, org_number")
         .limit(1)
         .maybeSingle();
       if (error) throw error;
@@ -374,15 +374,29 @@ export function useTrustControlEvaluation(assetId: string) {
     const partialCount = allControls.filter(c => c.status === "partial").length;
     const missingCount = allControls.filter(c => c.status === "missing").length;
 
+    // Activation baseline: when a self-profile is activated (org number or description
+    // present), we floor each domain at a baseline reflecting work already done during
+    // onboarding (governance setup, key personnel, compliance org, etc.) so the
+    // maturity widget is not stuck at 0% before controls are manually answered.
+    const isActivated = isSelf && !!(companyProfile?.org_number || asset?.description);
+    const AREA_FLOOR: Partial<Record<ControlArea, number>> = {
+      governance: 45,
+      security_posture: 30,
+      privacy_data: 55,
+      supplier_governance: 30,
+    };
+
     const areaScore = (area: ControlArea) => {
       const controls = grouped[area];
-      if (!controls || controls.length === 0) return 0;
+      const floor = isActivated ? (AREA_FLOOR[area] ?? 0) : 0;
+      if (!controls || controls.length === 0) return floor;
       // Exclude "not_applicable" from both numerator and denominator.
       const scored = controls.filter(c => c.status !== "not_applicable");
-      if (scored.length === 0) return 0;
+      if (scored.length === 0) return floor;
       const impl = scored.filter(c => c.status === "implemented").length;
       const partial = scored.filter(c => c.status === "partial").length;
-      return Math.round(((impl + partial * 0.5) / scored.length) * 100);
+      const raw = Math.round(((impl + partial * 0.5) / scored.length) * 100);
+      return Math.max(raw, floor);
     };
 
     // Derive evidence summary per area
