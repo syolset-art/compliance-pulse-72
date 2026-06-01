@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ArrowLeft,
   ChevronDown,
@@ -16,12 +16,19 @@ import {
   Users,
   Bot,
   Sparkles,
+  ListChecks,
+  ClipboardList,
+  FileBarChart,
 } from "lucide-react";
 import { getFrameworkById, getCategoryById } from "@/lib/frameworkDefinitions";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
+import { FrameworkQuestionnaire } from "@/components/regulations/FrameworkQuestionnaire";
+import { FrameworkGapReport } from "@/components/regulations/FrameworkGapReport";
+import { useFrameworkQuestionnaire } from "@/hooks/useFrameworkQuestionnaire";
+
 
 type DemoStatus = "not_met" | "partial" | "met";
 
@@ -72,10 +79,14 @@ const FrameworkDetailPage = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "not_met" | "partial" | "met">("all");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
+  const [view, setView] = useState<"requirements" | "questionnaire" | "report">("requirements");
 
   const framework = frameworkId ? getFrameworkById(frameworkId) : null;
   const category = framework ? getCategoryById(framework.category) : null;
   const CategoryIcon = category?.icon;
+
+  const questionnaire = useFrameworkQuestionnaire(frameworkId);
+
 
   // Merge requirements from both sources
   const requirements = useMemo(() => {
@@ -147,9 +158,57 @@ const FrameworkDetailPage = () => {
             </div>
           </div>
 
+          {/* View switcher */}
+          <Tabs value={view} onValueChange={(v) => setView(v as typeof view)} className="mb-6">
+            <TabsList className="w-full grid grid-cols-3">
+              <TabsTrigger value="requirements" className="gap-1.5">
+                <ListChecks className="h-3.5 w-3.5" />
+                Krav og evaluatorer
+              </TabsTrigger>
+              <TabsTrigger value="questionnaire" className="gap-1.5" disabled={!questionnaire.definition}>
+                <ClipboardList className="h-3.5 w-3.5" />
+                Spørreskjema
+              </TabsTrigger>
+              <TabsTrigger value="report" className="gap-1.5" disabled={!questionnaire.definition}>
+                <FileBarChart className="h-3.5 w-3.5" />
+                Gap-rapport
+                {questionnaire.score && questionnaire.score.gaps.length > 0 && (
+                  <Badge variant="outline" className="ml-1 h-4 px-1 text-[10px] text-destructive border-destructive/40">
+                    {questionnaire.score.gaps.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {view === "questionnaire" && questionnaire.definition && (
+            <FrameworkQuestionnaire
+              definition={questionnaire.definition}
+              answers={questionnaire.answers}
+              comments={questionnaire.comments}
+              onAnswer={questionnaire.setAnswer}
+              onComment={questionnaire.setComment}
+              onComplete={questionnaire.markCompleted}
+              onReset={questionnaire.reset}
+              onShowReport={() => setView("report")}
+            />
+          )}
+
+          {view === "report" && questionnaire.definition && questionnaire.score && (
+            <FrameworkGapReport
+              definition={questionnaire.definition}
+              score={questionnaire.score}
+              updatedAt={questionnaire.updatedAt}
+              onStartQuestionnaire={() => setView("questionnaire")}
+            />
+          )}
+
+          {view === "requirements" && (
+          <>
           {/* Summary bar */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
             <h2 className="text-lg font-bold text-foreground">Krav og evaluatorer</h2>
+
             <div className="flex items-center gap-3 text-sm">
               <span className="text-muted-foreground">{counts.total} krav totalt</span>
               <Badge variant="outline" className="gap-1 text-status-closed border-status-closed/20 dark:border-status-closed">
@@ -323,7 +382,10 @@ const FrameworkDetailPage = () => {
               <p>Ingen krav i denne kategorien.</p>
             </div>
           )}
+          </>
+          )}
         </div>
+
       </main>
 
       {/* Manual documentation dialog */}
