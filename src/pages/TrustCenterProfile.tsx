@@ -891,7 +891,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               );
             })()}
 
-            <CriticalVendorsSection isNb={isNb} readOnly={readOnly} />
+            <VendorSystemsRollupSection isNb={isNb} readOnly={readOnly} />
 
 
 
