@@ -149,6 +149,16 @@ const TrustCenterMenu = () => {
 
   const trustCenterItems = [
     { name: "Trust Profile", href: "/trust-center/profile", icon: Shield },
+    {
+      name: isNb ? "Aktiver Trust Profile" : "Activate Trust Profile",
+      icon: Sparkles,
+      action: () => {
+        navigate("/trust-center/profile");
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("open-activate-trust-wizard"));
+        }, 100);
+      },
+    },
     { name: isNb ? "Rediger profil" : "Edit Profile", href: "/trust-center/edit", icon: Pencil },
     { name: "Products & Services", href: "/trust-center/products", icon: Layers },
     { name: isNb ? "Dokumentasjon" : "Documentation", href: "/trust-center/evidence", icon: FileText },
@@ -180,7 +190,22 @@ const TrustCenterMenu = () => {
       )}>
         <div className="ml-3 mt-0.5 space-y-0.5 border-l border-sidebar-border/50 pl-3">
           {trustCenterItems.map((item) => {
-            if (!item.href) return null;
+            if (!item.href) {
+              return (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={item.action}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm font-medium transition-all duration-150 text-left",
+                    "text-sidebar-foreground/60 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                  )}
+                >
+                  <item.icon className="h-3.5 w-3.5" />
+                  {item.name}
+                </button>
+              );
+            }
             const itemActive = location.pathname === item.href;
             return (
               <Link
