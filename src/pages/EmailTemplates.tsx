@@ -125,6 +125,11 @@ export default function EmailTemplates() {
         type={activeType}
         initialLanguage={language}
       />
+      <OfferTemplateManager
+        open={offerEditorOpen}
+        onOpenChange={setOfferEditorOpen}
+        initialLanguage={language}
+      />
     </div>
   );
 }
