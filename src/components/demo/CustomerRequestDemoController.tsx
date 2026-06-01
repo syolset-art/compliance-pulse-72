@@ -66,7 +66,7 @@ export function CustomerRequestDemoController() {
     const t2 = window.setTimeout(() => {
       toast.info(
         isNb
-          ? "Mynder har analysert forespørselen og foreslår et utkast"
+          ? "Lara har analysert forespørselen og foreslår et utkast"
           : "Mynder has analyzed the request and prepared a draft",
         { duration: 3500 }
       );
