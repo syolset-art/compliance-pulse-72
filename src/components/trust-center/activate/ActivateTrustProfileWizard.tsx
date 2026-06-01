@@ -42,6 +42,7 @@ import { Link2, FileUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PARTNER_TYPE_LABEL, type PartnerType } from "@/hooks/usePartnerInfo";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
+import DemoCursor, { type DemoCursorHandle } from "./DemoCursor";
 
 interface Props {
   open: boolean;
