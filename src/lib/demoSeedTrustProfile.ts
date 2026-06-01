@@ -189,6 +189,16 @@ export async function seedFromActivation(values: ActivationValues) {
       : {}),
   };
 
+  const domain = (values.url || "").replace(/^https?:\/\//, "").replace(/\/$/, "") || "firma.no";
+  const seededContacts = {
+    general: values.contactEmail || `kontakt@${domain}`,
+    privacy: values.dpoEmail || `personvern@${domain}`,
+    security: values.securityEmail || `sikkerhet@${domain}`,
+    incident_email: `hendelse@${domain}`,
+    incident_phone: "+47 23 00 00 00",
+    postal_address: `${values.name}\n${values.region ? values.region + ", " : ""}${values.country || "Norge"}`,
+  };
+
   const selfAsset: any = {
     asset_type: "self" as const,
     name: values.name,
@@ -209,6 +219,12 @@ export async function seedFromActivation(values: ActivationValues) {
       documents: values.documents || [],
       criticalVendors: values.criticalVendors || [],
       subprocessors: values.subprocessorList || null,
+      contacts: seededContacts,
+      confirmed_fields: [
+        "contacts.general",
+        "contacts.privacy",
+        "contacts.security",
+      ],
       activation_completed_at: new Date().toISOString(),
     },
   };

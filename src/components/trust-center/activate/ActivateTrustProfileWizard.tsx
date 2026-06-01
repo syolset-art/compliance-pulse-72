@@ -567,7 +567,7 @@ export default function ActivateTrustProfileWizard({
       if (cancelled) return;
       setCriticalVendors((rows) => {
         const next = [...rows];
-        next[0] = { ...next[0], name: "Microsoft 365" };
+        next[0] = { ...next[0], name: "Microsoft Azure" };
         return next;
       });
     }, 1400));
@@ -577,9 +577,9 @@ export default function ActivateTrustProfileWizard({
         const next = [...rows];
         next[0] = {
           ...next[0],
-          purpose: "E-post, samarbeid og fillagring",
+          purpose: "Skyinfrastruktur og dataplattform",
           processesPersonalData: "yes",
-          dataCategories: ["Ansattdata"],
+          dataCategories: ["Ansattdata", "Kundedata"],
           dpa: "yes",
         };
         return next;
