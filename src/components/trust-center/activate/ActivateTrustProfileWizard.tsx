@@ -711,6 +711,7 @@ export default function ActivateTrustProfileWizard({
           encryption={encryption} setEncryption={setEncryption}
           mfa={mfa} setMfa={setMfa}
           subProcessors={subProcessors} setSubProcessors={setSubProcessors}
+          postalAddress={postalAddress} setPostalAddress={setPostalAddress}
           hasWebsite={hasWebsite}
           website={website}
           scan={scan}
