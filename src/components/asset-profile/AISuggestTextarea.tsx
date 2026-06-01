@@ -4,9 +4,17 @@ import { Sparkles, Loader2, Check, X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+
+function parseSuggestionItems(raw: string): string[] {
+  return raw
+    .split(/\r?\n/)
+    .map((l) => l.replace(/^\s*[-*•\d.)]+\s*/, "").trim())
+    .filter((l) => l.length > 0);
+}
 
 interface Props {
   icon: React.ReactNode;
@@ -40,7 +48,8 @@ export function AISuggestTextarea({
   const isNb = i18n.language === "nb";
 
   const [draft, setDraft] = useState(value);
-  const [suggestion, setSuggestion] = useState<string | null>(null);
+  const [suggestionItems, setSuggestionItems] = useState<string[] | null>(null);
+  const [selected, setSelected] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -60,7 +69,10 @@ export function AISuggestTextarea({
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      setSuggestion(data?.suggestion || "");
+      const items = parseSuggestionItems(data?.suggestion || "");
+      setSuggestionItems(items);
+      // Pre-check all items by default
+      setSelected(Object.fromEntries(items.map((_, i) => [i, true])));
     } catch (e: any) {
       toast.error(e.message || (isNb ? "Kunne ikke hente forslag" : "Could not fetch suggestion"));
     } finally {
@@ -68,10 +80,17 @@ export function AISuggestTextarea({
     }
   };
 
-  const acceptSuggestion = (replace: boolean) => {
-    if (!suggestion) return;
-    setDraft(replace ? suggestion : (draft ? `${draft}\n${suggestion}` : suggestion));
-    setSuggestion(null);
+  const applySelection = (replace: boolean) => {
+    if (!suggestionItems) return;
+    const chosen = suggestionItems.filter((_, i) => selected[i]);
+    if (chosen.length === 0) {
+      toast.error(isNb ? "Velg minst ett forslag" : "Select at least one suggestion");
+      return;
+    }
+    const block = chosen.map((c) => `• ${c}`).join("\n");
+    setDraft(replace ? block : (draft ? `${draft}\n${block}` : block));
+    setSuggestionItems(null);
+    setSelected({});
   };
 
   const handleSave = async () => {
@@ -111,23 +130,59 @@ export function AISuggestTextarea({
           className="text-sm resize-y min-h-[110px]"
         />
 
-        {suggestion && (
-          <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-2 animate-in fade-in-0 slide-in-from-top-1 duration-200">
-            <div className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-primary">
-              <Sparkles className="h-3 w-3" />
-              {isNb ? "Forslag fra Lara" : "Suggestion from Lara"}
+        {suggestionItems && (
+          <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-3 animate-in fade-in-0 slide-in-from-top-1 duration-200">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-primary">
+                <Sparkles className="h-3 w-3" />
+                {isNb ? "Forslag fra Lara" : "Suggestion from Lara"}
+              </div>
+              <div className="flex gap-2 text-[11px]">
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                  onClick={() => setSelected(Object.fromEntries(suggestionItems.map((_, i) => [i, true])))}
+                >
+                  {isNb ? "Velg alle" : "Select all"}
+                </button>
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+                  onClick={() => setSelected({})}
+                >
+                  {isNb ? "Fjern alle" : "Clear"}
+                </button>
+              </div>
             </div>
-            <pre className="text-xs whitespace-pre-wrap font-sans text-foreground leading-relaxed">{suggestion}</pre>
+            {suggestionItems.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{isNb ? "Ingen forslag" : "No suggestions"}</p>
+            ) : (
+              <ul className="space-y-1.5">
+                {suggestionItems.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <Checkbox
+                      id={`sugg-${i}`}
+                      checked={!!selected[i]}
+                      onCheckedChange={(c) => setSelected((s) => ({ ...s, [i]: !!c }))}
+                      className="mt-0.5"
+                    />
+                    <label htmlFor={`sugg-${i}`} className="text-xs leading-relaxed text-foreground cursor-pointer flex-1">
+                      {item}
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
             <div className="flex flex-wrap gap-2 pt-1">
-              <Button type="button" size="sm" variant="default" className="gap-1.5 h-8" onClick={() => acceptSuggestion(true)}>
+              <Button type="button" size="sm" variant="default" className="gap-1.5 h-8" onClick={() => applySelection(false)}>
                 <Check className="h-3.5 w-3.5" />
-                {isNb ? "Erstatt" : "Replace"}
+                {isNb ? "Legg til valgte" : "Add selected"}
               </Button>
-              <Button type="button" size="sm" variant="outline" className="gap-1.5 h-8" onClick={() => acceptSuggestion(false)}>
+              <Button type="button" size="sm" variant="outline" className="gap-1.5 h-8" onClick={() => applySelection(true)}>
                 <Check className="h-3.5 w-3.5" />
-                {isNb ? "Legg til" : "Append"}
+                {isNb ? "Erstatt med valgte" : "Replace with selected"}
               </Button>
-              <Button type="button" size="sm" variant="ghost" className="gap-1.5 h-8" onClick={() => setSuggestion(null)}>
+              <Button type="button" size="sm" variant="ghost" className="gap-1.5 h-8" onClick={() => { setSuggestionItems(null); setSelected({}); }}>
                 <X className="h-3.5 w-3.5" />
                 {isNb ? "Avvis" : "Dismiss"}
               </Button>
