@@ -13,6 +13,7 @@ import { calculateTPRMImpact } from "@/lib/tprmUtils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface Props {
   assetId: string;
@@ -273,102 +274,58 @@ export function LaraInboxTab({ assetId, assetName }: Props) {
             <p className="text-xs">Ingen dokumenter venter på godkjenning</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            {readyItems.map((item: any) => {
-              const docTypeLabel = DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type;
-              const receivedDate = new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "numeric", year: "numeric" });
-              const isExpanded = expandedIds.has(item.id);
-              const summary = item.analysis_summary || {};
-
-              return (
-                <div key={item.id} className="rounded-lg border border-border bg-card overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => toggleExpanded(item.id)}
-                    className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate text-foreground">{item.file_name || item.subject}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {docTypeLabel} · {receivedDate} · {item.sender_email}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {summary.score_impact && (
-                        <Badge variant="secondary" className="gap-1 text-[12px]">
-                          <TrendingUp className="h-3 w-3" />+{summary.score_impact} poeng
-                        </Badge>
-                      )}
-                      <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                    </div>
-                  </button>
-
-                  {isExpanded && (
-                    <>
-                      <Separator />
-                      <div className="px-4 py-3">
-                        <div className="flex items-center gap-2 mb-3">
-                          <img src={laraButterfly} alt="Lara" className="h-3.5 w-3.5" />
-                          <p className="text-xs font-medium text-foreground">Lara har analysert dokumentet</p>
+          <div className="rounded-lg border border-border bg-card overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="h-9 text-xs font-medium text-muted-foreground">Dokument</TableHead>
+                  <TableHead className="h-9 text-xs font-medium text-muted-foreground w-[120px]">Dato</TableHead>
+                  <TableHead className="h-9 text-xs font-medium text-muted-foreground">Fra</TableHead>
+                  <TableHead className="h-9 text-xs font-medium text-muted-foreground text-right w-[200px]">Handling</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {readyItems.map((item: any) => {
+                  const docTypeLabel = DOC_TYPE_LABELS[item.matched_document_type] || item.matched_document_type;
+                  const receivedDate = new Date(item.received_at).toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" });
+                  const sender = item.sender_name || item.sender_email;
+                  return (
+                    <TableRow key={item.id} className="group">
+                      <TableCell className="py-2.5">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate text-foreground">{item.file_name || item.subject}</p>
+                            <p className="text-[11px] text-muted-foreground truncate">{docTypeLabel}</p>
+                          </div>
                         </div>
-
-                        <dl className="space-y-1.5 text-xs">
-                          {summary.confirms?.length > 0 && (
-                            <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                              <dt className="text-muted-foreground">Bekrefter</dt>
-                              <dd className="text-foreground">{summary.confirms.join(" · ")}</dd>
-                            </div>
-                          )}
-                          {summary.affects?.length > 0 && (
-                            <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                              <dt className="text-muted-foreground">Berører</dt>
-                              <dd className="text-foreground">{summary.affects.join(", ")}</dd>
-                            </div>
-                          )}
-                          {summary.valid_until && (
-                            <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                              <dt className="text-muted-foreground">Gyldig til</dt>
-                              <dd className="text-foreground">{new Date(summary.valid_until).toLocaleDateString(locale)}</dd>
-                            </div>
-                          )}
-                          {summary.score_impact && (
-                            <div className="grid grid-cols-[110px_1fr] gap-3 items-start">
-                              <dt className="text-muted-foreground">Trust score</dt>
-                              <dd className="text-success font-medium">+{summary.score_impact} poeng ved godkjenning</dd>
-                            </div>
-                          )}
-                        </dl>
-
-                        {summary.note && (
-                          <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
-                            <span className="font-medium text-foreground">Merk:</span> {summary.note}
-                          </p>
+                      </TableCell>
+                      <TableCell className="py-2.5 text-xs text-muted-foreground whitespace-nowrap">{receivedDate}</TableCell>
+                      <TableCell className="py-2.5">
+                        <p className="text-xs text-foreground truncate">{sender}</p>
+                        {item.sender_name && item.sender_email && (
+                          <p className="text-[11px] text-muted-foreground truncate">{item.sender_email}</p>
                         )}
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-t border-border">
-                        <Button size="sm" variant="ghost" className="h-8 text-xs gap-1.5 -ml-2" onClick={() => setPreviewItem(item)}>
-                          <Eye className="h-3.5 w-3.5" />
-                          Les dokumentet
-                        </Button>
-                        <div className="flex items-center gap-1">
-                          <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground hover:text-destructive" onClick={() => rejectMutation.mutate(item.id)}>
+                      </TableCell>
+                      <TableCell className="py-2.5 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setPreviewItem(item)}>
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button size="sm" variant="ghost" className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive" onClick={() => rejectMutation.mutate(item.id)}>
                             Avvis
                           </Button>
-                          <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => approveMutation.mutate(item)}>
+                          <Button size="sm" className="h-7 px-2.5 text-xs gap-1" onClick={() => approveMutation.mutate(item)}>
                             <CheckCircle2 className="h-3.5 w-3.5" />
-                            Godkjenn og berik trust score
+                            Godkjenn
                           </Button>
                         </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
         )}
       </section>
