@@ -164,7 +164,7 @@ export function MSPGapAnalysisStep({
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-sm text-muted-foreground truncate">
                       {fw.description}
                     </p>
                   </div>
