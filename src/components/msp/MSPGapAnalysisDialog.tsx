@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Shield, Lock, Brain, Server, FileCheck, Scale,
   Download, ChevronDown, ArrowRight,
-  Sparkles, Loader2, Check, BookOpen, Database, GitCompare, AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -56,13 +55,13 @@ export function MSPGapAnalysisDialog({
   const [phase, setPhase] = useState<Phase>("running");
   const [stepIndex, setStepIndex] = useState(0);
 
-  const PROCESS_STEPS: { icon: React.ReactNode; label: string; detail: string }[] = [
-    { icon: <Shield className="h-4 w-4" />, label: `Leser ${customerName}s Trust Profile`, detail: "Henter modenhet, kontroller og bevis fra profilen" },
-    { icon: <BookOpen className="h-4 w-4" />, label: `Laster kravsett for ${frameworkLabel}`, detail: `Henter aktive kontroller fra ${frameworkLabel}-rammeverket` },
-    { icon: <Database className="h-4 w-4" />, label: "Samler bevis fra aktiverte regelverk", detail: "Gjenbruker dokumentasjon fra GDPR, ISO 27001 og andre aktive regelverk" },
-    { icon: <GitCompare className="h-4 w-4" />, label: `Sammenligner Trust Profile mot ${frameworkLabel}`, detail: `Lara matcher kundens kontroller mot ${frameworkLabel}-krav` },
-    { icon: <AlertTriangle className="h-4 w-4" />, label: "Identifiserer gap og kritikalitet", detail: "Klassifiserer mangler etter alvorlighet" },
-    { icon: <Sparkles className="h-4 w-4" />, label: "Foreslår tjenester som lukker gap", detail: "Kobler gap til tjenestekatalogen din" },
+  const PROCESS_STEPS = [
+    `Leser ${customerName}s Trust Profile`,
+    `Laster kravsett for ${frameworkLabel}`,
+    "Samler bevis fra aktiverte regelverk",
+    `Sammenligner Trust Profile mot ${frameworkLabel}`,
+    "Identifiserer gap og kritikalitet",
+    "Foreslår tjenester som lukker gap",
   ];
 
   // Open/closed state per framework — første åpen, resten lukket (multi-mode)
@@ -138,62 +137,21 @@ export function MSPGapAnalysisDialog({
         </DialogHeader>
 
         {isProcessing ? (
-          <div className="flex-1 overflow-y-auto px-6 py-6">
-            <ol className="space-y-2">
-              {PROCESS_STEPS.map((s, i) => {
-                const status: "done" | "active" | "pending" =
-                  phase === "done" || i < stepIndex ? "done" : i === stepIndex ? "active" : "pending";
-                return (
-                  <li
-                    key={s.label}
-                    className={cn(
-                      "flex items-start gap-3 rounded-lg border p-3 transition-all",
-                      status === "active" && "border-primary/40 bg-primary/5",
-                      status === "done" && "border-border bg-card",
-                      status === "pending" && "border-border/60 bg-muted/20 opacity-60",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
-                        status === "active" && "bg-primary/15 text-primary",
-                        status === "done" && "bg-success/15 text-success",
-                        status === "pending" && "bg-muted text-muted-foreground",
-                      )}
-                    >
-                      {status === "active" ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : status === "done" ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        s.icon
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={cn(
-                        "text-sm font-medium",
-                        status === "pending" ? "text-muted-foreground" : "text-foreground",
-                      )}>
-                        {s.label}
-                      </p>
-                      <p className="text-[12px] text-muted-foreground mt-0.5">{s.detail}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-
-            {phase === "done" && (
-              <div className="mt-5 flex items-center gap-3 rounded-lg border border-success/30 bg-success/10 p-3">
-                <div className="h-8 w-8 rounded-lg bg-success/20 flex items-center justify-center shrink-0">
-                  <Check className="h-4 w-4 text-success" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">Analyse fullført</p>
-                  <p className="text-[12px] text-muted-foreground">Viser resultatet …</p>
-                </div>
-              </div>
-            )}
+          <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
+            <div className="relative h-12 w-12 mb-5">
+              <div className="absolute inset-0 rounded-full border-4 border-primary/15" />
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary animate-spin" />
+            </div>
+            <p className="text-sm font-medium text-foreground max-w-sm">
+              {phase === "done"
+                ? "Analyse fullført — viser resultatet …"
+                : `Lara tester ${customerName}s Trust Profile og aktiverte regelverk mot ${frameworkLabel}`}
+            </p>
+            <p className="text-[12px] text-muted-foreground mt-1 max-w-sm">
+              {phase === "done"
+                ? ""
+                : "Tar normalt 10–20 sekunder."}
+            </p>
           </div>
         ) : (
           <>
