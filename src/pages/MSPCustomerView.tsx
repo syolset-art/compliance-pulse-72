@@ -1,14 +1,16 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { EmailOfferView } from "@/components/msp/customer-view/EmailOfferView";
 import { PublicProfileView } from "@/components/msp/customer-view/PublicProfileView";
 import { GrantAuthorityView } from "@/components/msp/customer-view/GrantAuthorityView";
 import { HandoverEmailView } from "@/components/msp/customer-view/HandoverEmailView";
 import { DeliveryReportView } from "@/components/msp/customer-view/DeliveryReportView";
-import { Eye } from "lucide-react";
+import { Eye, Mail, ArrowRight } from "lucide-react";
 
-type ViewTab = "email-offer" | "public-profile" | "grant-authority" | "handover" | "report";
+type ViewTab = "email-offer" | "public-profile" | "grant-authority" | "handover" | "report" | "email-templates";
 
 export default function MSPCustomerView() {
   const [tab, setTab] = useState<ViewTab>("email-offer");
@@ -38,6 +40,7 @@ export default function MSPCustomerView() {
               <TabsTrigger value="grant-authority">3. Gi fullmakt</TabsTrigger>
               <TabsTrigger value="handover">4. Overlevering (e-post)</TabsTrigger>
               <TabsTrigger value="report">5. Leveranserapport (PDF)</TabsTrigger>
+              <TabsTrigger value="email-templates">6. E-postmaler</TabsTrigger>
             </TabsList>
 
             <TabsContent value="email-offer"><EmailOfferView /></TabsContent>
@@ -45,6 +48,28 @@ export default function MSPCustomerView() {
             <TabsContent value="grant-authority"><GrantAuthorityView /></TabsContent>
             <TabsContent value="handover"><HandoverEmailView /></TabsContent>
             <TabsContent value="report"><DeliveryReportView /></TabsContent>
+            <TabsContent value="email-templates">
+              <div className="rounded-xl border border-border bg-card p-6 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Mail className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-semibold text-foreground">E-postmaler</h2>
+                    <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
+                      Gjenbrukbar layout med Mynder-logo, tydelig CTA og enhetlig footer. Brukes for
+                      Tilbud, Trust Profile (leverandør) og Kunde Profile — på norsk og engelsk.
+                    </p>
+                  </div>
+                </div>
+                <Button asChild className="gap-2">
+                  <Link to="/emails">
+                    Åpne e-postmaler
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </main>
