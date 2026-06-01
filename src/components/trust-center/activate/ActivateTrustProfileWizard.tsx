@@ -529,7 +529,7 @@ export default function ActivateTrustProfileWizard({
       1: 3200,
       3: 4000,
       4: 3000,
-      5: 3000,
+      5: 7000,
       6: 5000,
       7: 4000,
     };
@@ -554,6 +554,42 @@ export default function ActivateTrustProfileWizard({
     }, readDelay);
     return () => { cancelled = true; window.clearTimeout(t); };
   }, [autoPlay, open, step, isCalculating, isPublishing]);
+
+  // ─── Auto-play: pre-fill a critical vendor on step 5 ──────────────────
+  // Demonstrates that a leverandør can be added. Fills the first empty row
+  // progressively so the viewer sees the input animate in.
+  useEffect(() => {
+    if (!autoPlay || !open || step !== 5) return;
+    if (criticalVendors[0]?.name?.trim()) return;
+    let cancelled = false;
+    const timers: number[] = [];
+    timers.push(window.setTimeout(() => {
+      if (cancelled) return;
+      setCriticalVendors((rows) => {
+        const next = [...rows];
+        next[0] = { ...next[0], name: "Microsoft 365" };
+        return next;
+      });
+    }, 1400));
+    timers.push(window.setTimeout(() => {
+      if (cancelled) return;
+      setCriticalVendors((rows) => {
+        const next = [...rows];
+        next[0] = {
+          ...next[0],
+          purpose: "E-post, samarbeid og fillagring",
+          processesPersonalData: "yes",
+          dataCategories: ["Ansattdata"],
+          dpa: "yes",
+        };
+        return next;
+      });
+    }, 2800));
+    return () => {
+      cancelled = true;
+      timers.forEach((t) => window.clearTimeout(t));
+    };
+  }, [autoPlay, open, step]);
 
 
 
