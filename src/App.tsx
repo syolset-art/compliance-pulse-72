@@ -90,6 +90,7 @@ import AdminAccessManagement from "./pages/AdminAccessManagement";
 import BusinessRiskDetail from "./pages/BusinessRiskDetail";
 import FrameworkDetail from "./pages/FrameworkDetail";
 import ComplianceOverview from "./pages/ComplianceOverview";
+import TrustCenterActivate from "./pages/TrustCenterActivate";
 import TrustCenterProfile from "./pages/TrustCenterProfile";
 import TrustCenterServiceProfile from "./pages/TrustCenterServiceProfile";
 import TrustCenterEditProfile from "./pages/TrustCenterEditProfile";
@@ -182,6 +183,7 @@ const App = () => (
                   <Route path="/resources/features/:slug" element={<FeatureGuide />} />
                   <Route path="/resources/maturity" element={<MaturityMethodology />} />
                   <Route path="/resources/controls" element={<MynderControls />} />
+                  <Route path="/trust-center/activate" element={<TrustCenterActivate />} />
                   <Route path="/trust-center/profile" element={<TrustCenterProfile />} />
                   <Route path="/trust-center/profile/:id" element={<TrustCenterServiceProfile />} />
                   <Route path="/trust-center/edit" element={<TrustCenterEditProfile />} />
