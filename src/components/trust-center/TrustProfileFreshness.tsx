@@ -198,22 +198,6 @@ export default function TrustProfileFreshness({
           </span>
         )}
       </span>
-      <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-7 text-[12px] gap-1.5 rounded-full px-3"
-          onClick={runEnrichment}
-        >
-          <Sparkles className="h-3 w-3" />
-          {isNb ? "Oppdater" : "Update"}
-        </Button>
-        <VisibilitySelector
-          assetId={assetId}
-          current={currentVisibility}
-          compact
-        />
-      </div>
     </div>
   );
 }
