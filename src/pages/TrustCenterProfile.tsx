@@ -998,6 +998,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 initialDomain={(companyProfile as any)?.domain || undefined}
                 initialMaturity={(asset as any)?.metadata?.maturity || undefined}
                 onCompleted={() => {
+                  try { localStorage.setItem("mynder.trustprofile.activated", "1"); } catch {}
+                  setShowActivateWizard(false);
+                  setIsActivated(true);
                   queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
                   queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
                 }}
