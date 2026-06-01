@@ -560,13 +560,6 @@ export function MSPCreateOfferDialog({
                         </div>
                         <Switch checked={attachGap} onCheckedChange={setAttachGap} />
                       </div>
-                      <div className="flex items-center justify-between gap-3 pt-1 border-t border-border/60">
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-foreground">Vis mangellisten i tilbudet</p>
-                          <p className="text-xs text-muted-foreground">Når av: kunden ser kun aktivitetene, ikke listen over mangler som lukkes.</p>
-                        </div>
-                        <Switch checked={showGapsInOffer} onCheckedChange={setShowGapsInOffer} />
-                      </div>
                     </div>
 
                     {/* Dekningsbanner */}
