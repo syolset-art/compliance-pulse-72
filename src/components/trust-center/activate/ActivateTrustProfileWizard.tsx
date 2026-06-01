@@ -1709,25 +1709,43 @@ function VendorRowCard({ row, index, canRemove, onChange, onRemove }: {
         </div>
       </div>
 
-      {/* Purpose — short sentence / category */}
+      {/* Purpose — leverandørtype som nedtrekksliste */}
       <div className="space-y-1.5">
         <Label className="text-xs text-muted-foreground">Hva gjør de for dere?</Label>
-        <Input
-          value={row.purpose}
-          onChange={(e) => onChange({ purpose: e.target.value })}
-          placeholder={'f.eks. "Skylagring", "HR-system", "Fakturering"'}
-          className="text-sm"
-        />
-        {knownVendor && row.purpose.trim() !== knownVendor.category && (
-          <button
-            type="button"
-            onClick={() => onChange({ purpose: knownVendor.category })}
-            className="text-[12px] px-2 py-0.5 rounded-full border border-dashed border-border text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-          >
-            + Bruk forslag: {knownVendor.category}
-          </button>
+        <Select
+          value={row.vendorTypeKey ?? ""}
+          onValueChange={(key) => {
+            const opt = VENDOR_TYPE_OPTIONS.find((o) => o.key === key);
+            if (!opt) return;
+            onChange({
+              vendorTypeKey: key,
+              partnerType: opt.partnerType,
+              // For "Annet" lar vi brukeren skrive selv; ellers sett label
+              purpose: key === "other" ? row.purpose : opt.label,
+            });
+          }}
+        >
+          <SelectTrigger className="h-9 text-sm">
+            <SelectValue placeholder="Velg leverandørtype…" />
+          </SelectTrigger>
+          <SelectContent>
+            {VENDOR_TYPE_OPTIONS.map((o) => (
+              <SelectItem key={o.key} value={o.key}>
+                {o.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {row.vendorTypeKey === "other" && (
+          <Input
+            value={row.purpose}
+            onChange={(e) => onChange({ purpose: e.target.value })}
+            placeholder="Beskriv kort hva de gjør for dere"
+            className="text-sm mt-1.5"
+          />
         )}
       </div>
+
 
       {/* Personal data processing */}
       <div className="space-y-1.5">
