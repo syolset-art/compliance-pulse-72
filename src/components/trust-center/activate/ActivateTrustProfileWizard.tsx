@@ -73,22 +73,41 @@ const STEP_LABELS = ["Organisasjon", "Lara skanner", "Bekreft", "Dokumenter", "K
 export type CriticalVendorRow = {
   name: string;
   purpose: string;
+  vendorTypeKey: string | null;
   processesPersonalData: "yes" | "no" | null;
   dataCategories: string[];
   dpa: "yes" | "no" | "unknown" | null;
-  isSecurityPartner: boolean;
   partnerType: PartnerType | null;
 };
 const EMPTY_VENDOR_ROW: CriticalVendorRow = {
   name: "",
   purpose: "",
+  vendorTypeKey: null,
   processesPersonalData: null,
   dataCategories: [],
   dpa: null,
-  isSecurityPartner: false,
   partnerType: null,
 };
 const DATA_CATEGORY_OPTIONS = ["Ansattdata", "Kundedata", "Pasientdata", "Annet"];
+
+// Leverandørtyper for nedtrekksliste i aktiveringsveiviser.
+// `partnerType` settes når valget kvalifiserer som IT-/sikkerhetspartner.
+const VENDOR_TYPE_OPTIONS: Array<{
+  key: string;
+  label: string;
+  partnerType: PartnerType | null;
+}> = [
+  { key: "msp", label: "MSP (Managed Service Provider)", partnerType: "msp" },
+  { key: "mssp", label: "MSSP (Managed Security Service Provider)", partnerType: "mssp" },
+  { key: "it_partner", label: "IT-partner", partnerType: "it_partner" },
+  { key: "cloud", label: "Skytjeneste / hosting", partnerType: null },
+  { key: "hr", label: "HR-system", partnerType: null },
+  { key: "finance", label: "Økonomi / fakturering", partnerType: null },
+  { key: "comms", label: "Kommunikasjon / e-post", partnerType: null },
+  { key: "marketing", label: "Markedsføring", partnerType: null },
+  { key: "consultant", label: "Konsulent", partnerType: "consultant" },
+  { key: "other", label: "Annet", partnerType: null },
+];
 const MAX_CRITICAL_VENDORS = 5;
 
 export default function ActivateTrustProfileWizard({
