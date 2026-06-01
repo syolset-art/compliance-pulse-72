@@ -28,6 +28,7 @@ import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 
 import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
 import { CriticalVendorsSection } from "@/components/trust-center/edit/CriticalVendorsSection";
+import { CriticalSystemsSection } from "@/components/trust-center/edit/CriticalSystemsSection";
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
 import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
