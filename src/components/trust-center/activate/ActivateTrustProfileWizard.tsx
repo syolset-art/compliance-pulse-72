@@ -529,7 +529,7 @@ export default function ActivateTrustProfileWizard({
       1: 3200,
       3: 4000,
       4: 3000,
-      5: 3000,
+      5: 7000,
       6: 5000,
       7: 4000,
     };
