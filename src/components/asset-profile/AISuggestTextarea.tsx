@@ -99,7 +99,7 @@ export function AISuggestTextarea({
           disabled={loading}
         >
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 text-primary" />}
-          {isNb ? "Foreslå med Mynder" : "Suggest with Mynder"}
+          {isNb ? "La Lara foreslå" : "Let Lara suggest"}
         </Button>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -115,7 +115,7 @@ export function AISuggestTextarea({
           <div className="rounded-lg border border-primary/30 bg-primary/[0.04] p-3 space-y-2 animate-in fade-in-0 slide-in-from-top-1 duration-200">
             <div className="flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-wider text-primary">
               <Sparkles className="h-3 w-3" />
-              {isNb ? "Forslag fra Mynder" : "Suggestion from Mynder"}
+              {isNb ? "Forslag fra Lara" : "Suggestion from Lara"}
             </div>
             <pre className="text-xs whitespace-pre-wrap font-sans text-foreground leading-relaxed">{suggestion}</pre>
             <div className="flex flex-wrap gap-2 pt-1">
