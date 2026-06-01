@@ -21,6 +21,7 @@ const ORDER: EmailTemplateType[] = ["offer", "vendor_trust_profile", "customer_p
 export default function EmailTemplates() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
+  const [offerEditorOpen, setOfferEditorOpen] = useState(false);
   const [activeType, setActiveType] = useState<EmailTemplateType>("offer");
   const [language, setLanguage] = useState<EmailLanguage>("no");
 
@@ -29,6 +30,10 @@ export default function EmailTemplates() {
     setPreviewOpen(true);
   };
   const openSend = (type: EmailTemplateType) => {
+    if (type === "offer") {
+      setOfferEditorOpen(true);
+      return;
+    }
     setActiveType(type);
     setSendOpen(true);
   };
