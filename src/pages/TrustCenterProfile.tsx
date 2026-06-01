@@ -364,7 +364,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   setJustActivated(true);
                   setTimeout(() => {
                     setIsActivated(true);
-                    setAutoPlayDemo(false);
+                    // Keep autoPlayDemo true after activation so the sidebar
+                    // stays hidden through the landing — clean "content only" view.
+
                     queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
                     queryClient.invalidateQueries({ queryKey: ["company_profile_trust_center"] });
                     // Ensure the demo lands cleanly on /trust-center/profile with
