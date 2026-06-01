@@ -884,6 +884,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               );
             })()}
 
+            <CriticalVendorsSection isNb={isNb} readOnly={readOnly} />
+
+
+
             {/* Summary */}
             <section className="space-y-5">
               <div className="flex items-center gap-2">
