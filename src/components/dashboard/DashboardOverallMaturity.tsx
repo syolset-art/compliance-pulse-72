@@ -51,6 +51,14 @@ export function DashboardOverallMaturity() {
   const overall = Math.round(stats.overallScore?.score || 0);
   const byDomain = stats.byDomainArea || {};
 
+  // Beregn aggregert score med demo-gulv så samlescore matcher kortene under.
+  const flooredScores = FOCUS_AREAS.map((a) => applyFloor(a.key, Math.round(byDomain[a.key]?.score || 0)));
+  const aggregatedOverall = Math.round(
+    flooredScores.reduce((s, v) => s + v, 0) / Math.max(1, flooredScores.length)
+  );
+  const displayOverall = Math.max(overall, aggregatedOverall);
+
+
   const { data: frameworkCount = 0 } = useQuery({
     queryKey: ["dashboard-active-frameworks-count"],
     queryFn: async () => {
