@@ -42,6 +42,7 @@ function levelTone(level: number) {
 
 import { useState } from "react";
 import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
+import { PartnerEvidenceSection } from "./PartnerEvidenceSection";
 import { toast } from "sonner";
 
 interface Props {
@@ -231,6 +232,11 @@ export function MSPCustomerTrustProfileCard({
           </Card>
         );
       })()}
+
+      {/* Partner-bevis — opplastet av MSP */}
+      {customerId && (
+        <PartnerEvidenceSection customerId={customerId} />
+      )}
 
       {/* Dokumenter og bevis */}
       <Card className="p-4 space-y-4">
