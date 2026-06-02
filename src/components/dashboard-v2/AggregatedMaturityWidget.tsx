@@ -249,7 +249,7 @@ export function AggregatedMaturityWidget() {
           </div>
         </div>
 
-        <Progress value={overall.score} className="h-2 [&>div]:bg-primary" />
+        <Progress value={aggregatedScore} className={cn("h-2", overallLevel.progressClass)} />
       </div>
 
       {/* Content */}
