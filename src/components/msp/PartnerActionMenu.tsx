@@ -86,8 +86,8 @@ export function PartnerActionMenu({
         onSwitchTab("guidance");
         break;
       case "offer":
-        logPartnerActivity(customerId, "offer_created", "Tilbud opprettet (utkast)");
-        toast.success("Tilbud opprettet", { description: "Utkast lagret på kunden." });
+        logPartnerActivity(customerId, "offer_created", "Åpnet Tjenester for å lage tilbud");
+        onSwitchTab("assessment");
         break;
       case "message":
         logPartnerActivity(customerId, "message_sent", "Melding klargjort");
