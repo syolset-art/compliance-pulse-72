@@ -22,7 +22,7 @@ import { MSPCustomerSnapshotCard } from "@/components/msp/MSPCustomerSnapshotCar
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { PartnerActionMenu } from "@/components/msp/PartnerActionMenu";
-import { PartnerMandateCard } from "@/components/msp/PartnerMandateCard";
+import { MandateConfirmDialog, useMandate } from "@/components/msp/PartnerMandateCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
 import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulationsTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
@@ -61,6 +61,7 @@ export default function MSPCustomerDetail() {
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean }>({ open: false, review: false });
+  const [mandateDialogOpen, setMandateDialogOpen] = useState(false);
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
   const { data: customer, isLoading } = useQuery({
