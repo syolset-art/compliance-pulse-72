@@ -1,79 +1,53 @@
-
-# Partner-berikelse: dokumentopplasting og modenhetspåvirkning
+# Plan: Samlet "Legg til aktivitet" for partner
 
 ## Mål
-MSP-partneren skal kunne laste opp dokumentasjon (pentest, risikovurdering, BCP osv.) direkte på kundekortet og umiddelbart se hvilke **regelverk** og **kontrollpunkter** dokumentet beriker — inkludert hvor mye modenheten øker.
+Gjøre det åpenbart hva partneren kan gjøre på en kunde — samle alle handlinger ett sted i stedet for å spre knapper utover Trust Profile-fanen. Partneren skal se mulighetene uten å lete.
 
-## 1. Hvor dokumentet skal ligge
+## Plassering
 
-På `MSPCustomerDetail` (kundekortet) finnes allerede fanen **Trust Profile**. Vi legger berikelsen inn der via en ny underseksjon "Partner-bevis":
+Knappen plasseres to steder, med samme innhold:
 
-```
-Kundekort → Trust Profile (fane)
-   ├─ Modenhet per kontrollområde (eksisterer)
-   ├─ Partner-bevis  ← NY seksjon
-   │    ├─ [Last opp dokument] (knapp)
-   │    └─ Tabell: Dokument · Type · Regelverk · Kontrollområder · Berikelse · Dato · Partner
-   └─ Eksterne dokumenter (eksisterer via LaraInbox)
-```
+1. **Øverst til høyre på kundekortet** — i `CustomerStatusBanner`-raden, ved siden av kundenavnet. Alltid synlig uansett fane.
+2. **Øverst i Veiledning fra Mynder-fanen** — som primær CTA over Lara-anbefalingene, slik at det føles som en naturlig forlengelse av Laras forslag.
 
-Begrunnelse: Dette gjenbruker den eksisterende `vendor_documents`-tabellen og `LaraInboxTab`-mønsteret, men skiller tydelig **partner-leverte bevis** fra både interne (kunden selv) og eksterne (mottatt fra leverandører). Tabellformatet matcher det vi nettopp ryddet opp i for "Eksterne dokumenter".
+Den eksisterende "Last opp partner-bevis"-knappen i Trust Profile-headeren fjernes — funksjonen flyttes inn i menyen.
 
-## 2. Opplastingsflyt (2 steg)
+## Komponent: `PartnerActionMenu`
 
-**Steg 1 — Velg fil + type**
-Kompakt dialog:
-- Filopplaster (drag/drop)
-- Dokumenttype (pentest, DPIA, risikovurdering, BCP, sertifisering, annet)
-- Kort fritekstnotat (valgfritt)
+En primær knapp `[+ Legg til aktivitet ▾]` (variant primary, Sparkles-ikon) som åpner en `DropdownMenu` gruppert i tre seksjoner:
 
-**Steg 2 — Lara foreslår mapping** (med checkboxer, samme mønster som `AISuggestTextarea`)
-Lara leser dokumentet og foreslår:
-- Hvilke **regelverk** det treffer (NIS2, ISO 27001, GDPR, DORA …)
-- Hvilke **kontrollpunkter** innenfor hvert regelverk
-- Estimert **modenhetsløft** pr. kontrollområde (f.eks. "Sikkerhet +8%")
+**Bevis & dokumentasjon**
+- Last opp partner-bevis (pentest, audit, DPIA …) → åpner `PartnerEvidenceUploadDialog`
+- Be om dokument fra kunden → åpner ny "Send forespørsel"-dialog (gjenbruker `MSPCustomerMessagesTab`-flow)
 
-Partneren huker av forslagene de godtar → klikker **Bekreft og berik**.
+**Analyse & vurdering**
+- Kjør gap-analyse mot regelverk → navigerer til Regelverk-fanen med "ny analyse"-state
+- Start sikkerhetsvurdering → setter aktiv fane til `assessment`
+- Be Lara om en anbefaling → trigger Lara-modal med kontekst om kunden
 
-## 3. Hvordan partneren ser at berikelsen skjer
+**Forretning & kommunikasjon**
+- Lag tilbud (oppgradering / nytt regelverk) → åpner enkel tilbudsdialog (lokal demo)
+- Send melding til kunde → åpner Meldinger-fanen med ny melding pre-utfylt
+- Planlegg oppfølging → enkel datovelger som lager en aktivitet (lokal demo)
 
-Tre synlige signaler — alle på Trust Profile-fanen:
+Hver rad har ikon + tittel + kort en-linjes forklaring, slik at partneren skjønner hva valget betyr uten å klikke.
 
-**A. Bekreftelses-toast + inline diff** rett etter bekreftelse:
-> "Pentest-rapport bekreftet. Modenhet for *Sikkerhet*: 62% → 70% (+8). Berører 6 kontrollpunkter i NIS2 og 4 i ISO 27001."
+## UX-detaljer
 
-**B. Modenhet-kortet (`AssetMaturityByDomainCard`)** får en liten "berikelses-puls":
-- Stablet progress-bar (baseline + berikelse) — vi har allerede `StackedProgress`-komponenten
-- Liten "+8" badge ved siden av prosenten i 5 sekunder
-- Hover viser tooltip: "8% kommer fra 2 partner-bevis"
+- Menyen viser badge "Anbefalt" på de 1–2 handlingene Lara mener er mest relevant nå (basert på `tasks`-listen som allerede beregnes i `MSPCustomerDetail`).
+- Etter en handling vises en toast "Aktivitet lagt til på kunden", og handlingen logges i en lett aktivitetslogg (lokal demo, samme localStorage-mønster som `partnerEvidence.ts`).
+- Knappen i Veiledning-fanen får en kort introtekst: "Alt du kan gjøre for {kundenavn} — på ett sted."
 
-**C. Partner-bevis-tabellen** viser status per rad:
-| Dokument | Type | Regelverk | Kontroller | Berikelse | Dato | Av |
-|---|---|---|---|---|---|---|
-| pentest_q1.pdf | Pentest | NIS2, ISO27001 | 10 kontroller | Sikkerhet +8% | 2/6 | Ola (MSP) |
+## Tekniske endringer
 
-Klikk på en rad åpner et drawer som viser **eksakt hvilke kontrollpunkter** dokumentet dekker, med lenke til kontrollen i `TrustControlEvaluation`-visningen.
+- Ny fil: `src/components/msp/PartnerActionMenu.tsx` — dropdown med alle handlinger, mottar `customerId`, `customerName`, `onOpenEvidence`, `onSwitchTab` osv.
+- Ny fil: `src/lib/partnerActivityLog.ts` — enkel localStorage-logg for "siste aktiviteter" (demo).
+- Rediger `src/components/msp/CustomerStatusBanner.tsx` — legg til `PartnerActionMenu` øverst til høyre.
+- Rediger `src/pages/MSPCustomerDetail.tsx` — montér `PartnerActionMenu` øverst i `guidance`-TabsContent, koble `setActiveTab` og åpne-dialog-callbacks. Sentralisér `evidenceOpen`-state her i stedet for i Trust Profile-kortet.
+- Rediger `src/components/msp/MSPCustomerTrustProfileCard.tsx` — fjern den lokale "Last opp partner-bevis"-knappen i headeren (funksjonen flyttes til menyen). `PartnerEvidenceSection` beholdes som visning av opplastede bevis, men uten egen opplastingsknapp.
 
-## 4. Tekniske endringer (kort)
+## Ikke i scope
 
-- **Ny komponent**: `src/components/msp/PartnerEvidenceSection.tsx` (tabell + opplastingsknapp), brukes inne i `MSPCustomerTrustProfile` / Trust Profile-fanen på `MSPCustomerDetail`.
-- **Ny dialog**: `PartnerEvidenceUploadDialog.tsx` (steg 1 + steg 2 med Lara-forslag og checkboxer).
-- **Datamodell**: gjenbruk `vendor_documents` med nye felter (eller `metadata` JSON):
-  - `source = 'partner'`
-  - `uploaded_by_partner_id`
-  - `frameworks: string[]`
-  - `control_ids: string[]`
-  - `maturity_delta: { area: string; delta: number }[]`
-- **Edge function**: ny `analyze-partner-evidence` (eller utvide `classify-framework-doc`) som returnerer foreslåtte regelverk + kontroller + delta — drevet av Lovable AI (`google/gemini-2.5-flash`).
-- **Modenhet**: `useTrustControlEvaluation` får et "enrichment"-lag som summerer godkjente partner-bevis pr. kontrollområde. `AssetMaturityByDomainCard` byttes til `StackedProgress`.
-- **Sporing**: hver berikelse logges som en aktivitet i `VendorActivityTab` ("Partner X la til pentest — beriket 10 kontroller").
-
-## 5. Det vi *ikke* gjør nå
-- Ingen automatisk re-evaluering av modenhet uten partner-bekreftelse (samme prinsipp som "La Lara foreslå").
-- Ingen endring av kundens eksisterende dokumentfaner — partner-bevis er en separat strøm.
-- Ingen ny tabell i databasen før vi vet at `vendor_documents.metadata` ikke holder.
-
-## Åpne spørsmål før bygging
-1. Skal partner-bevis være synlig for **sluttkunden** i deres Trust Center, eller kun internt for partneren?
-2. Skal modenhetsløftet kreve **godkjenning fra kunden** (som "Eksterne dokumenter") før det teller, eller telle umiddelbart fordi partneren er betrodd?
-3. Skal vi vise et eget "Partner-bidrag denne måneden"-widget på MSP-dashboardet, eller holde det isolert på kundekortet?
+- Ingen endringer i datamodell eller edge functions.
+- Ingen ekte tilbuds-/CRM-integrasjon — "Lag tilbud" og "Planlegg oppfølging" er demo-flows som lagrer lokalt.
+- Ingen endringer i andre faner enn det som trengs for å koble menyvalgene til riktig tab/dialog.
