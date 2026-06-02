@@ -294,13 +294,14 @@ export function AggregatedMaturityWidget() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {PILLARS.map((p) => {
                 const Icon = p.icon;
-                const score = Math.round(byDomain[p.key]?.score || 0);
+                const score = applyFloor(p.key, Math.round(byDomain[p.key]?.score || 0));
+                const lvl = maturityLevel(score, isNb);
                 return (
                   <div key={p.key} className="flex items-center gap-2 text-xs">
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: p.color }} />
                     <Icon className="h-3 w-3 text-muted-foreground shrink-0" />
                     <span className="truncate text-foreground">{isNb ? p.label_no : p.label_en}</span>
-                    <span className="font-semibold text-foreground ml-auto tabular-nums">{score}%</span>
+                    <span className={cn("font-semibold ml-auto", lvl.textClass)}>{lvl.shortLabel}</span>
                   </div>
                 );
               })}
