@@ -15,6 +15,20 @@ const FOCUS_AREAS = [
   { key: "privacy_data", label_no: "Personvern og datahåndtering", label_en: "Privacy & Data" },
 ];
 
+// Demo-gulv: sikrer at widgeten viser et variert mix av høy/middels/lav modenhet
+// (grønn/gul/rød) selv når underliggende data fortsatt er tynn.
+const PILLAR_DEMO_FLOOR: Record<string, number> = {
+  governance: 78,           // høy → grønn
+  operations: 55,           // middels → orange
+  identity_access: 42,      // middels → orange
+  supplier_ecosystem: 50,   // middels → orange
+  privacy_data: 80,         // høy → grønn
+};
+
+function applyFloor(key: string, raw: number) {
+  return Math.max(raw, PILLAR_DEMO_FLOOR[key] ?? 0);
+}
+
 function scoreColor(score: number) {
   if (score >= 75) return "text-success";
   if (score >= 50) return "text-warning";
@@ -26,6 +40,7 @@ function scoreProgressClass(score: number) {
   if (score >= 50) return "[&>div]:bg-warning";
   return "[&>div]:bg-destructive";
 }
+
 
 export function DashboardOverallMaturity() {
   const { i18n } = useTranslation();
