@@ -45,6 +45,7 @@ import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
 import { toast } from "sonner";
 
 interface Props {
+  customerId?: string;
   customerName?: string;
   contactName?: string;
   contactEmail?: string;
@@ -69,6 +70,7 @@ const accessRequests = [
 ];
 
 export function MSPCustomerTrustProfileCard({
+  customerId,
   customerName = "Kunden",
   contactName = "Truls",
   contactEmail,
