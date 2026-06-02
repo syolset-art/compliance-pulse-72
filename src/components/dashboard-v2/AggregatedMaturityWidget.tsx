@@ -223,21 +223,16 @@ export function AggregatedMaturityWidget() {
                 );
               })}
             </div>
-            <span className={cn(
-              "text-xl font-bold tabular-nums",
-              overall.score >= 67 ? "text-status-closed dark:text-status-closed" :
-              overall.score >= 34 ? "text-warning dark:text-warning" :
-              "text-warning dark:text-warning"
-            )}>
-              {Math.round(overall.score)}%
+            <span className={cn("text-base font-bold", overallLevel.textClass)}>
+              {overallLevel.shortLabel}
             </span>
           </div>
         </div>
 
-        {/* Coverage badge + summary pills */}
+        {/* Modenhetsnivå-badge + summary pills */}
         <div className="flex flex-wrap items-center gap-2">
-          <Badge className={cn("text-[13px] font-semibold px-2 py-0.5 rounded-full border-0", overallCoverage.className)}>
-            {overallCoverage.label}
+          <Badge className={cn("text-[13px] font-semibold px-2 py-0.5 rounded-full border-0", overallLevel.badgeClass)}>
+            {overallLevel.label.toUpperCase()}
           </Badge>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
