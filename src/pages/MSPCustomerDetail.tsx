@@ -193,7 +193,7 @@ export default function MSPCustomerDetail() {
       cta: "Inviter kunde",
       onClick: () => {},
     },
-  ].filter(Boolean) as Array<{ severity: "critical" | "high" | "medium"; title: string; desc: string; cta: string; onClick: () => void }>;
+  ].filter(Boolean) as Array<{ severity: "critical" | "high" | "medium"; title: string; desc: string; cta: string; onClick: () => void; readMoreLabel?: string; onReadMore?: () => void }>;
 
   const planTasks: LaraPlanTask[] = tasks.map((t, i) => ({
     id: `msp-task-${i}-${t.title}`,
@@ -202,6 +202,8 @@ export default function MSPCustomerDetail() {
     insight: t.desc,
     primaryCtaLabelNb: t.cta,
     primaryCtaLabelEn: t.cta,
+    readMoreCtaLabelNb: t.readMoreLabel,
+    readMoreCtaLabelEn: t.readMoreLabel,
   }));
   const criticalCount = planTasks.filter(t => t.severity === "critical").length;
 
@@ -274,7 +276,12 @@ export default function MSPCustomerDetail() {
                     const idx = planTasks.findIndex(p => p.id === t.id);
                     tasks[idx]?.onClick();
                   }}
+                  onReadMore={(t) => {
+                    const idx = planTasks.findIndex(p => p.id === t.id);
+                    tasks[idx]?.onReadMore?.();
+                  }}
                 />
+
               ) : (
                 <Card className="p-5 border-primary/20 bg-primary/5">
                   <div className="flex items-start gap-3">
