@@ -1,114 +1,97 @@
 import { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, FileSignature, Send, Check } from "lucide-react";
+import { FileSignature, Send } from "lucide-react";
 import { toast } from "sonner";
 import { logPartnerActivity } from "@/lib/partnerActivityLog";
 
-type Mandate = "none" | "confirmed" | "requested";
+export type MandateState = "none" | "confirmed" | "requested";
 
 const KEY = (id: string) => `msp.partnerMandate.${id}`;
 
-interface Props {
+export function getMandate(customerId: string): MandateState {
+  try {
+    const raw = localStorage.getItem(KEY(customerId));
+    if (raw === "confirmed" || raw === "requested") return raw;
+  } catch {}
+  return "none";
+}
+
+export function setMandate(customerId: string, next: MandateState) {
+  try { localStorage.setItem(KEY(customerId), next); } catch {}
+  try { window.dispatchEvent(new CustomEvent("msp:mandate-change", { detail: { customerId, next } })); } catch {}
+}
+
+export function useMandate(customerId: string): MandateState {
+  const [state, setState] = useState<MandateState>(() => getMandate(customerId));
+  useEffect(() => {
+    setState(getMandate(customerId));
+    const onChange = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.customerId === customerId) setState(detail.next);
+    };
+    window.addEventListener("msp:mandate-change", onChange);
+    return () => window.removeEventListener("msp:mandate-change", onChange);
+  }, [customerId]);
+  return state;
+}
+
+interface DialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   customerId: string;
   customerName: string;
   contactName?: string | null;
   contactEmail?: string | null;
 }
 
-export function PartnerMandateCard({ customerId, customerName, contactName, contactEmail }: Props) {
-  const [state, setState] = useState<Mandate>("none");
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(KEY(customerId));
-      if (raw === "confirmed" || raw === "requested") setState(raw);
-    } catch {}
-  }, [customerId]);
-
-  const save = (next: Mandate) => {
-    setState(next);
-    try { localStorage.setItem(KEY(customerId), next); } catch {}
-  };
-
-  if (state === "confirmed") {
-    return (
-      <Card className="p-4 border-success/30 bg-success/5">
-        <div className="flex items-start gap-3">
-          <div className="h-9 w-9 rounded-full bg-success/15 flex items-center justify-center shrink-0">
-            <Check className="h-4.5 w-4.5 text-success" aria-hidden="true" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground">Avtale bekreftet</p>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Du har bekreftet at dere har avtale om å forvalte sikkerhet og etterlevelse for {customerName}.
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 text-xs"
-            onClick={() => save("none")}
-          >
-            Endre
-          </Button>
-        </div>
-      </Card>
-    );
-  }
-
+export function MandateConfirmDialog({ open, onOpenChange, customerId, customerName, contactName, contactEmail }: DialogProps) {
   return (
-    <Card className="p-4 border-warning/30 bg-warning/5">
-      <div className="flex items-start gap-3">
-        <div className="h-9 w-9 rounded-full bg-warning/15 flex items-center justify-center shrink-0">
-          <ShieldCheck className="h-4.5 w-4.5 text-warning" aria-hidden="true" />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Bekreft mandat for {customerName}</DialogTitle>
+          <DialogDescription>
+            Før Lara kan handle på vegne av {customerName}, må du bekrefte at dere har en avtale — eller be kunden om en fullmakt.
+            Dette sikrer at all dokumentasjon og berikelse skjer på riktig grunnlag.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm text-foreground/85 space-y-1.5">
+          <p><span className="font-medium">Avtale</span> — bekreft at dere har en signert leveranseavtale som dekker sikkerhet og etterlevelse.</p>
+          <p><span className="font-medium">Fullmakt</span> — sender en e-post til kundens kontaktperson{contactName ? ` (${contactName})` : ""} med en lenke for å bekrefte direkte.</p>
         </div>
-        <div className="flex-1 min-w-0 space-y-2">
-          <div>
-            <p className="text-sm font-semibold text-foreground">Lara trenger at du bekrefter mandatet</p>
-            <p className="text-sm text-foreground/80 mt-0.5 leading-relaxed">
-              Før Lara kan handle på vegne av {customerName}, må du bekrefte at dere har en avtale —
-              eller be kunden om en fullmakt. Dette sikrer at all dokumentasjon og berikelse skjer på riktig grunnlag.
-            </p>
-            {state === "requested" && (
-              <p className="text-xs text-muted-foreground mt-1.5 italic">
-                Fullmakt sendt{contactName ? ` til ${contactName}` : ""}{contactEmail ? ` (${contactEmail})` : ""} — venter på svar.
-              </p>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              size="sm"
-              className="h-9 text-sm gap-1.5"
-              onClick={() => {
-                save("confirmed");
-                logPartnerActivity(customerId, "offer_created", "Avtale bekreftet av partner");
-                toast.success("Avtale bekreftet", { description: "Lara kan nå handle på vegne av kunden." });
-              }}
-            >
-              <FileSignature className="h-4 w-4" aria-hidden="true" />
-              Bekreft at vi har avtale
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 text-sm gap-1.5"
-              onClick={() => {
-                save("requested");
-                logPartnerActivity(customerId, "document_requested", "Fullmakt etterspurt fra kunde");
-                toast.success("Fullmakt sendt", {
-                  description: contactEmail
-                    ? `Forespørsel sendt til ${contactEmail}.`
-                    : "Forespørsel klargjort.",
-                });
-              }}
-            >
-              <Send className="h-4 w-4" aria-hidden="true" />
-              Be kunden om fullmakt
-            </Button>
-          </div>
-        </div>
-      </div>
-    </Card>
+
+        <DialogFooter className="gap-2 sm:gap-2">
+          <Button
+            variant="outline"
+            className="gap-1.5"
+            onClick={() => {
+              setMandate(customerId, "requested");
+              logPartnerActivity(customerId, "document_requested", "Fullmakt etterspurt fra kunde");
+              toast.success("Fullmakt sendt", {
+                description: contactEmail ? `Forespørsel sendt til ${contactEmail}.` : "Forespørsel klargjort.",
+              });
+              onOpenChange(false);
+            }}
+          >
+            <Send className="h-4 w-4" aria-hidden="true" />
+            Be kunden om fullmakt
+          </Button>
+          <Button
+            className="gap-1.5"
+            onClick={() => {
+              setMandate(customerId, "confirmed");
+              logPartnerActivity(customerId, "offer_created", "Avtale bekreftet av partner");
+              toast.success("Avtale bekreftet", { description: "Lara kan nå handle på vegne av kunden." });
+              onOpenChange(false);
+            }}
+          >
+            <FileSignature className="h-4 w-4" aria-hidden="true" />
+            Bekreft at vi har avtale
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

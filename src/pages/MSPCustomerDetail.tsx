@@ -22,7 +22,7 @@ import { MSPCustomerSnapshotCard } from "@/components/msp/MSPCustomerSnapshotCar
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { PartnerActionMenu } from "@/components/msp/PartnerActionMenu";
-import { PartnerMandateCard } from "@/components/msp/PartnerMandateCard";
+import { MandateConfirmDialog, useMandate } from "@/components/msp/PartnerMandateCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
 import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulationsTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
@@ -61,6 +61,8 @@ export default function MSPCustomerDetail() {
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean }>({ open: false, review: false });
+  const [mandateDialogOpen, setMandateDialogOpen] = useState(false);
+  const mandate = useMandate(customerId || "");
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
   const { data: customer, isLoading } = useQuery({
@@ -141,6 +143,17 @@ export default function MSPCustomerDetail() {
 
   // Works to be done — fra assessment / acronis / dokumenter
   const tasks = [
+    mandate !== "confirmed" && {
+      severity: "critical" as const,
+      title: mandate === "requested"
+        ? "Venter på fullmakt fra kunden"
+        : "Bekreft mandat for å jobbe i kundens profil",
+      desc: mandate === "requested"
+        ? "Fullmakt er sendt til kunden. Du kan også bekrefte direkte at dere har avtale."
+        : "For å jobbe i kundens Trust Profile må du ha fullmakt — enten via signert leveranseavtale, eller ved å be kunden bekrefte direkte.",
+      cta: mandate === "requested" ? "Bekreft avtale i stedet" : "Bekreft mandat",
+      onClick: () => setMandateDialogOpen(true),
+    },
     !trustHandoverSent && {
       severity: "critical" as const,
       title: "Kunden har ikke overtatt sin Trust Profile",
@@ -245,19 +258,7 @@ export default function MSPCustomerDetail() {
 
             {/* ── Veiledning fra Mynder ── */}
             <TabsContent value="guidance" className="mt-6 space-y-5">
-              <TakeoverTrustProfileCard
-                customerId={customerId!}
-                customerName={customer.name || customer.customer_name || "Kunden"}
-                contactName={customer.contact_name}
-                contactEmail={customer.contact_email}
-              />
 
-              <PartnerMandateCard
-                customerId={customerId!}
-                customerName={customer.name || customer.customer_name || "kunden"}
-                contactName={customer.contact_name}
-                contactEmail={customer.contact_email}
-              />
 
               {planTasks.length > 0 ? (
                 <LaraRecommendationBanner
@@ -377,6 +378,17 @@ export default function MSPCustomerDetail() {
             });
           }}
         />
+
+        <MandateConfirmDialog
+          open={mandateDialogOpen}
+          onOpenChange={setMandateDialogOpen}
+          customerId={customerId!}
+          customerName={customer.name || customer.customer_name || "kunden"}
+          contactName={customer.contact_name}
+          contactEmail={customer.contact_email}
+        />
+
+
 
         {/* Skjulte saker – kun synlig for partner */}
         <Dialog open={hiddenIssuesOpen} onOpenChange={setHiddenIssuesOpen}>
