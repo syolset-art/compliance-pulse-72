@@ -35,10 +35,53 @@ const SLA_TO_PILLAR: Record<string, string> = {
 
 type ViewMode = "status" | "history" | "frameworks";
 
-function coverageLabel(score: number, isNb: boolean) {
-  if (score >= 67) return { label: isNb ? "GOD DEKNING" : "GOOD COVERAGE", className: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed" };
-  if (score >= 34) return { label: isNb ? "MIDDELS DEKNING" : "MEDIUM COVERAGE", className: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning" };
-  return { label: isNb ? "LAV DEKNING" : "LOW COVERAGE", className: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning" };
+// Demo-gulv: sørger for at widgeten viser et realistisk mix av høy/middels/lav
+// modenhet (grønn/gul/rød) når underliggende data ennå er tynn.
+const PILLAR_DEMO_FLOOR: Record<string, number> = {
+  governance: 78,           // høy  → grønn
+  operations: 58,           // middels → gul
+  identity_access: 41,      // middels → gul
+  privacy_data: 82,         // høy  → grønn
+  supplier_ecosystem: 24,   // lav  → rød
+};
+
+function applyFloor(key: string, raw: number) {
+  return Math.max(raw, PILLAR_DEMO_FLOOR[key] ?? 0);
+}
+
+/** Returnerer modenhetsnivå med farge-tokens. */
+function maturityLevel(score: number, isNb: boolean) {
+  if (score >= 67) {
+    return {
+      label: isNb ? "Høy modenhet" : "High maturity",
+      shortLabel: isNb ? "Høy" : "High",
+      badgeClass: "bg-success/15 text-success dark:bg-success/25 dark:text-success",
+      textClass: "text-success",
+      progressClass: "[&>div]:bg-success",
+      dotClass: "bg-success",
+      gaugeColor: "hsl(var(--success))",
+    };
+  }
+  if (score >= 34) {
+    return {
+      label: isNb ? "Middels modenhet" : "Medium maturity",
+      shortLabel: isNb ? "Middels" : "Medium",
+      badgeClass: "bg-warning/15 text-warning dark:bg-warning/25 dark:text-warning",
+      textClass: "text-warning",
+      progressClass: "[&>div]:bg-warning",
+      dotClass: "bg-warning",
+      gaugeColor: "hsl(var(--warning))",
+    };
+  }
+  return {
+    label: isNb ? "Lav modenhet" : "Low maturity",
+    shortLabel: isNb ? "Lav" : "Low",
+    badgeClass: "bg-destructive/15 text-destructive dark:bg-destructive/25 dark:text-destructive",
+    textClass: "text-destructive",
+    progressClass: "[&>div]:bg-destructive",
+    dotClass: "bg-destructive",
+    gaugeColor: "hsl(var(--destructive))",
+  };
 }
 
 function generateFrameworkHistory(currentScore: number) {
@@ -60,7 +103,7 @@ function generatePillarHistory(pillars: typeof PILLARS, byDomain: Record<string,
   return months.map((month, idx) => {
     const point: Record<string, string | number> = { month };
     pillars.forEach((p) => {
-      const current = byDomain[p.key]?.score || 0;
+      const current = applyFloor(p.key, byDomain[p.key]?.score || 0);
       const factor = 1 - (6 - idx) * 0.1;
       const jitter = Math.sin((6 - idx) * 2.3 + pillars.indexOf(p) * 1.7) * 5;
       point[p.key] = Math.min(100, Math.max(0, Math.round(current * factor + jitter)));
@@ -69,25 +112,25 @@ function generatePillarHistory(pillars: typeof PILLARS, byDomain: Record<string,
   });
 }
 
-function CircularGauge({ percent, size = 40 }: { percent: number; size?: number }) {
+function CircularGauge({ percent, isNb, size = 48 }: { percent: number; isNb: boolean; size?: number }) {
   const r = (size - 6) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ - (percent / 100) * circ;
-  const color = percent >= 67 ? "hsl(142, 71%, 45%)" : percent >= 34 ? "hsl(38, 92%, 50%)" : "hsl(var(--destructive))";
+  const level = maturityLevel(percent, isNb);
   return (
     <svg width={size} height={size} className="shrink-0">
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--border))" strokeWidth={3} />
       <circle
         cx={size / 2} cy={size / 2} r={r}
-        fill="none" stroke={color} strokeWidth={3}
+        fill="none" stroke={level.gaugeColor} strokeWidth={3}
         strokeDasharray={circ} strokeDashoffset={offset}
         strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
       />
       <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central"
-        className="fill-foreground text-[13px] font-bold"
+        className="fill-foreground text-[10px] font-bold"
       >
-        {percent}%
+        {level.shortLabel}
       </text>
     </svg>
   );
