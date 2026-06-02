@@ -192,29 +192,27 @@ export default function MSPCustomerDetail() {
       <Sidebar />
       <main className="flex-1 overflow-auto pt-11">
         <div className="container max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-5">
-          <Button variant="ghost" onClick={() => navigate("/msp-dashboard")} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Tilbake til partneroversikt
-          </Button>
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <Button variant="ghost" onClick={() => navigate("/msp-dashboard")} className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Tilbake til partneroversikt
+            </Button>
+            <PartnerActionMenu
+              customerId={customerId!}
+              customerName={customer.name || customer.customer_name || "Kunden"}
+              onSwitchTab={handleTabChange}
+              recommendedKinds={
+                tasks.length > 0
+                  ? (tasks[0]?.title?.toLowerCase().includes("vurdering")
+                      ? ["assessment", "evidence"]
+                      : ["evidence", "lara"])
+                  : ["evidence"]
+              }
+            />
+          </div>
 
           {/* Customer status banner — same template as vendor */}
-          <CustomerStatusBanner
-            customer={customer}
-            actionSlot={
-              <PartnerActionMenu
-                customerId={customerId!}
-                customerName={customer.name || customer.customer_name || "Kunden"}
-                onSwitchTab={handleTabChange}
-                recommendedKinds={
-                  tasks.length > 0
-                    ? (tasks[0]?.title?.toLowerCase().includes("vurdering")
-                        ? ["assessment", "evidence"]
-                        : ["evidence", "lara"])
-                    : ["evidence"]
-                }
-              />
-            }
-          />
+          <CustomerStatusBanner customer={customer} />
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full min-w-0">
