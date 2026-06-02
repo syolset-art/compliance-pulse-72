@@ -246,19 +246,7 @@ export default function MSPCustomerDetail() {
 
             {/* ── Veiledning fra Mynder ── */}
             <TabsContent value="guidance" className="mt-6 space-y-5">
-              <TakeoverTrustProfileCard
-                customerId={customerId!}
-                customerName={customer.name || customer.customer_name || "Kunden"}
-                contactName={customer.contact_name}
-                contactEmail={customer.contact_email}
-              />
 
-              <PartnerMandateCard
-                customerId={customerId!}
-                customerName={customer.name || customer.customer_name || "kunden"}
-                contactName={customer.contact_name}
-                contactEmail={customer.contact_email}
-              />
 
               {planTasks.length > 0 ? (
                 <LaraRecommendationBanner
