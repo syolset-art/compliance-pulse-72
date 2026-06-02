@@ -62,6 +62,7 @@ export default function MSPCustomerDetail() {
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean }>({ open: false, review: false });
   const [mandateDialogOpen, setMandateDialogOpen] = useState(false);
+  const mandate = useMandate(customerId || "");
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
   const { data: customer, isLoading } = useQuery({
@@ -142,6 +143,17 @@ export default function MSPCustomerDetail() {
 
   // Works to be done — fra assessment / acronis / dokumenter
   const tasks = [
+    mandate !== "confirmed" && {
+      severity: "critical" as const,
+      title: mandate === "requested"
+        ? "Venter på fullmakt fra kunden"
+        : "Bekreft mandat for å jobbe i kundens profil",
+      desc: mandate === "requested"
+        ? "Fullmakt er sendt til kunden. Du kan også bekrefte direkte at dere har avtale."
+        : "For å jobbe i kundens Trust Profile må du ha fullmakt — enten via signert leveranseavtale, eller ved å be kunden bekrefte direkte.",
+      cta: mandate === "requested" ? "Bekreft avtale i stedet" : "Bekreft mandat",
+      onClick: () => setMandateDialogOpen(true),
+    },
     !trustHandoverSent && {
       severity: "critical" as const,
       title: "Kunden har ikke overtatt sin Trust Profile",
