@@ -399,6 +399,11 @@ export default function MSPCustomerDetail() {
           contactEmail={customer.contact_email}
         />
 
+        <TrustProfileTakeoverInfoDialog
+          open={takeoverInfoOpen}
+          onOpenChange={setTakeoverInfoOpen}
+        />
+
 
 
         {/* Skjulte saker – kun synlig for partner */}
