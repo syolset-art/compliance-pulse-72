@@ -176,7 +176,13 @@ export function AggregatedMaturityWidget() {
   const totalAssessed = PILLARS.reduce((sum, p) => sum + (byDomain[p.key]?.assessed || 0), 0);
   const totalControls = PILLARS.reduce((sum, p) => sum + (byDomain[p.key]?.total || 0), 0);
   const totalRemaining = totalControls - totalAssessed;
-  const overallCoverage = coverageLabel(Math.round(overall.score), isNb);
+
+  // Aggregert score med demo-gulv slik at overordnet nivå reflekterer pilarene.
+  const flooredPillarScores = PILLARS.map((p) => applyFloor(p.key, byDomain[p.key]?.score || 0));
+  const aggregatedScore = Math.round(
+    flooredPillarScores.reduce((s, v) => s + v, 0) / Math.max(1, flooredPillarScores.length)
+  );
+  const overallLevel = maturityLevel(aggregatedScore, isNb);
 
   return (
     <div className="rounded-2xl border border-border bg-card">
