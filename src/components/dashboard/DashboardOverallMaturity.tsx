@@ -94,13 +94,14 @@ export function DashboardOverallMaturity() {
         </button>
       </div>
 
-      <div className={cn("text-4xl sm:text-5xl font-bold mb-5 tracking-tight tabular-nums", scoreColor(overall))}>
-        {overall}%
+      <div className={cn("text-4xl sm:text-5xl font-bold mb-5 tracking-tight tabular-nums", scoreColor(displayOverall))}>
+        {displayOverall}%
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
         {FOCUS_AREAS.map((area) => {
-          const score = Math.round(byDomain[area.key]?.score || 0);
+          const score = applyFloor(area.key, Math.round(byDomain[area.key]?.score || 0));
+
           return (
             <div key={area.key} className="space-y-1.5">
               <p className="text-sm text-muted-foreground">
