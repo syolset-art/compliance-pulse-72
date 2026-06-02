@@ -2075,8 +2075,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
-                        const score = evaluation?.areaScore(area) ?? 0;
-                        const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                        const rawScore = evaluation?.areaScore(area) ?? 0;
+                        const score = Math.max(rawScore, AREA_DEMO_FLOOR[area] ?? 0);
+                        const tone = scoreTone(score);
+                        const label = scoreLabel(score, isNb);
                         const isExpanded = expandedArea === area;
                         const areaControls = evaluation?.grouped[area] ?? [];
 
@@ -2094,7 +2096,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                   <span className="text-sm font-medium text-foreground">{isNb ? labelNb : labelEn}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                                  <span className={`text-xs font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
                                   {isExpanded
                                     ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
                                     : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -2102,7 +2104,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               </div>
                               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                                 <div
-                                  className={`h-full rounded-full ${barColor} transition-all duration-500`}
+                                  className={`h-full rounded-full ${tone.bg} transition-all duration-500`}
                                   style={{ width: `${score}%` }}
                                 />
                               </div>
