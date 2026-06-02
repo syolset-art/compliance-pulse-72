@@ -21,6 +21,8 @@ interface Props {
   onPrimaryAction: (task: LaraPlanTask) => void;
   /** Trykk på "Åpne ..." — får tasken som argument */
   onSecondaryAction?: (task: LaraPlanTask) => void;
+  /** Trykk på "Les mer" — får tasken som argument. Vises kun for tasks med readMoreCtaLabelNb/En. */
+  onReadMore?: (task: LaraPlanTask) => void;
   /** Skjul "Ikke nå"-dismiss-knappen (f.eks. på vendor-profil hvor banneret er fast) */
   hideDismiss?: boolean;
 }
@@ -38,6 +40,7 @@ export function LaraRecommendationBanner({
   onShowAll,
   onPrimaryAction,
   onSecondaryAction,
+  onReadMore,
   hideDismiss = false,
 }: Props) {
   const { i18n } = useTranslation();
