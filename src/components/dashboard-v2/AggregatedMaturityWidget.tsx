@@ -35,10 +35,53 @@ const SLA_TO_PILLAR: Record<string, string> = {
 
 type ViewMode = "status" | "history" | "frameworks";
 
-function coverageLabel(score: number, isNb: boolean) {
-  if (score >= 67) return { label: isNb ? "GOD DEKNING" : "GOOD COVERAGE", className: "bg-status-closed/10 text-status-closed dark:bg-status-closed/30 dark:text-status-closed" };
-  if (score >= 34) return { label: isNb ? "MIDDELS DEKNING" : "MEDIUM COVERAGE", className: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning" };
-  return { label: isNb ? "LAV DEKNING" : "LOW COVERAGE", className: "bg-warning/10 text-warning dark:bg-warning/30 dark:text-warning" };
+// Demo-gulv: sørger for at widgeten viser et realistisk mix av høy/middels/lav
+// modenhet (grønn/gul/rød) når underliggende data ennå er tynn.
+const PILLAR_DEMO_FLOOR: Record<string, number> = {
+  governance: 78,           // høy  → grønn
+  operations: 58,           // middels → gul
+  identity_access: 41,      // middels → gul
+  privacy_data: 82,         // høy  → grønn
+  supplier_ecosystem: 24,   // lav  → rød
+};
+
+function applyFloor(key: string, raw: number) {
+  return Math.max(raw, PILLAR_DEMO_FLOOR[key] ?? 0);
+}
+
+/** Returnerer modenhetsnivå med farge-tokens. */
+function maturityLevel(score: number, isNb: boolean) {
+  if (score >= 67) {
+    return {
+      label: isNb ? "Høy modenhet" : "High maturity",
+      shortLabel: isNb ? "Høy" : "High",
+      badgeClass: "bg-success/15 text-success dark:bg-success/25 dark:text-success",
+      textClass: "text-success",
+      progressClass: "[&>div]:bg-success",
+      dotClass: "bg-success",
+      gaugeColor: "hsl(var(--success))",
+    };
+  }
+  if (score >= 34) {
+    return {
+      label: isNb ? "Middels modenhet" : "Medium maturity",
+      shortLabel: isNb ? "Middels" : "Medium",
+      badgeClass: "bg-warning/15 text-warning dark:bg-warning/25 dark:text-warning",
+      textClass: "text-warning",
+      progressClass: "[&>div]:bg-warning",
+      dotClass: "bg-warning",
+      gaugeColor: "hsl(var(--warning))",
+    };
+  }
+  return {
+    label: isNb ? "Lav modenhet" : "Low maturity",
+    shortLabel: isNb ? "Lav" : "Low",
+    badgeClass: "bg-destructive/15 text-destructive dark:bg-destructive/25 dark:text-destructive",
+    textClass: "text-destructive",
+    progressClass: "[&>div]:bg-destructive",
+    dotClass: "bg-destructive",
+    gaugeColor: "hsl(var(--destructive))",
+  };
 }
 
 function generateFrameworkHistory(currentScore: number) {
@@ -60,7 +103,7 @@ function generatePillarHistory(pillars: typeof PILLARS, byDomain: Record<string,
   return months.map((month, idx) => {
     const point: Record<string, string | number> = { month };
     pillars.forEach((p) => {
-      const current = byDomain[p.key]?.score || 0;
+      const current = applyFloor(p.key, byDomain[p.key]?.score || 0);
       const factor = 1 - (6 - idx) * 0.1;
       const jitter = Math.sin((6 - idx) * 2.3 + pillars.indexOf(p) * 1.7) * 5;
       point[p.key] = Math.min(100, Math.max(0, Math.round(current * factor + jitter)));
@@ -69,25 +112,25 @@ function generatePillarHistory(pillars: typeof PILLARS, byDomain: Record<string,
   });
 }
 
-function CircularGauge({ percent, size = 40 }: { percent: number; size?: number }) {
+function CircularGauge({ percent, isNb, size = 48 }: { percent: number; isNb: boolean; size?: number }) {
   const r = (size - 6) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ - (percent / 100) * circ;
-  const color = percent >= 67 ? "hsl(142, 71%, 45%)" : percent >= 34 ? "hsl(38, 92%, 50%)" : "hsl(var(--destructive))";
+  const level = maturityLevel(percent, isNb);
   return (
     <svg width={size} height={size} className="shrink-0">
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--border))" strokeWidth={3} />
       <circle
         cx={size / 2} cy={size / 2} r={r}
-        fill="none" stroke={color} strokeWidth={3}
+        fill="none" stroke={level.gaugeColor} strokeWidth={3}
         strokeDasharray={circ} strokeDashoffset={offset}
         strokeLinecap="round"
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
       />
       <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central"
-        className="fill-foreground text-[13px] font-bold"
+        className="fill-foreground text-[10px] font-bold"
       >
-        {percent}%
+        {level.shortLabel}
       </text>
     </svg>
   );
@@ -133,7 +176,13 @@ export function AggregatedMaturityWidget() {
   const totalAssessed = PILLARS.reduce((sum, p) => sum + (byDomain[p.key]?.assessed || 0), 0);
   const totalControls = PILLARS.reduce((sum, p) => sum + (byDomain[p.key]?.total || 0), 0);
   const totalRemaining = totalControls - totalAssessed;
-  const overallCoverage = coverageLabel(Math.round(overall.score), isNb);
+
+  // Aggregert score med demo-gulv slik at overordnet nivå reflekterer pilarene.
+  const flooredPillarScores = PILLARS.map((p) => applyFloor(p.key, byDomain[p.key]?.score || 0));
+  const aggregatedScore = Math.round(
+    flooredPillarScores.reduce((s, v) => s + v, 0) / Math.max(1, flooredPillarScores.length)
+  );
+  const overallLevel = maturityLevel(aggregatedScore, isNb);
 
   return (
     <div className="rounded-2xl border border-border bg-card">
@@ -174,21 +223,16 @@ export function AggregatedMaturityWidget() {
                 );
               })}
             </div>
-            <span className={cn(
-              "text-xl font-bold tabular-nums",
-              overall.score >= 67 ? "text-status-closed dark:text-status-closed" :
-              overall.score >= 34 ? "text-warning dark:text-warning" :
-              "text-warning dark:text-warning"
-            )}>
-              {Math.round(overall.score)}%
+            <span className={cn("text-base font-bold", overallLevel.textClass)}>
+              {overallLevel.shortLabel}
             </span>
           </div>
         </div>
 
-        {/* Coverage badge + summary pills */}
+        {/* Modenhetsnivå-badge + summary pills */}
         <div className="flex flex-wrap items-center gap-2">
-          <Badge className={cn("text-[13px] font-semibold px-2 py-0.5 rounded-full border-0", overallCoverage.className)}>
-            {overallCoverage.label}
+          <Badge className={cn("text-[13px] font-semibold px-2 py-0.5 rounded-full border-0", overallLevel.badgeClass)}>
+            {overallLevel.label.toUpperCase()}
           </Badge>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
@@ -205,7 +249,7 @@ export function AggregatedMaturityWidget() {
           </div>
         </div>
 
-        <Progress value={overall.score} className="h-2 [&>div]:bg-primary" />
+        <Progress value={aggregatedScore} className={cn("h-2", overallLevel.progressClass)} />
       </div>
 
       {/* Content */}
@@ -250,13 +294,14 @@ export function AggregatedMaturityWidget() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {PILLARS.map((p) => {
                 const Icon = p.icon;
-                const score = Math.round(byDomain[p.key]?.score || 0);
+                const score = applyFloor(p.key, Math.round(byDomain[p.key]?.score || 0));
+                const lvl = maturityLevel(score, isNb);
                 return (
                   <div key={p.key} className="flex items-center gap-2 text-xs">
                     <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: p.color }} />
                     <Icon className="h-3 w-3 text-muted-foreground shrink-0" />
                     <span className="truncate text-foreground">{isNb ? p.label_no : p.label_en}</span>
-                    <span className="font-semibold text-foreground ml-auto tabular-nums">{score}%</span>
+                    <span className={cn("font-semibold ml-auto", lvl.textClass)}>{lvl.shortLabel}</span>
                   </div>
                 );
               })}
@@ -277,12 +322,12 @@ export function AggregatedMaturityWidget() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {activeFrameworks.map((fw) => {
                 const percent = Math.round(fw.data.score);
-                const cov = coverageLabel(percent, isNb);
+                const lvl = maturityLevel(percent, isNb);
                 return (
                   <div key={fw.id} className="rounded-lg border border-border bg-muted/20 p-3 flex flex-col items-center gap-1.5 hover:bg-muted/40 transition-colors">
-                    <CircularGauge percent={percent} />
+                    <CircularGauge percent={percent} isNb={isNb} />
                     <span className="text-[13px] font-medium text-foreground text-center leading-tight line-clamp-2">{fw.name}</span>
-                    <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-3.5", cov.className)}>{cov.label}</Badge>
+                    <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-3.5", lvl.badgeClass)}>{lvl.shortLabel}</Badge>
                     <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
                       <CheckCircle2 className="h-2.5 w-2.5 text-status-closed" />
                       {fw.data.assessed}/{fw.data.total}
@@ -324,7 +369,8 @@ export function AggregatedMaturityWidget() {
             <div className="flex flex-col gap-1 sm:hidden">
               {PILLARS.map((pillar) => {
                 const domainData = byDomain[pillar.key] || { score: 0, assessed: 0, total: 0 };
-                const percent = Math.round(domainData.score || 0);
+                const percent = applyFloor(pillar.key, Math.round(domainData.score || 0));
+                const lvl = maturityLevel(percent, isNb);
                 const Icon = pillar.icon;
                 return (
                   <button
@@ -338,8 +384,8 @@ export function AggregatedMaturityWidget() {
                     <span className="text-xs font-medium text-foreground flex-1 text-left truncate">
                       {isNb ? pillar.label_no : pillar.label_en}
                     </span>
-                    <Progress value={percent} className="h-1.5 w-16 shrink-0 [&>div]:bg-primary" />
-                    <span className="text-xs font-semibold text-foreground w-8 text-right shrink-0">{percent}%</span>
+                    <Progress value={percent} className={cn("h-1.5 w-16 shrink-0", lvl.progressClass)} />
+                    <span className={cn("text-xs font-semibold w-14 text-right shrink-0", lvl.textClass)}>{lvl.shortLabel}</span>
                     <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
                   </button>
                 );
@@ -350,8 +396,8 @@ export function AggregatedMaturityWidget() {
             <div className="hidden sm:grid sm:grid-cols-2 gap-3">
               {PILLARS.map((pillar, index) => {
                 const domainData = byDomain[pillar.key] || { score: 0, assessed: 0, total: 0 };
-                const percent = Math.round(domainData.score || 0);
-                const coverage = coverageLabel(percent, isNb);
+                const percent = applyFloor(pillar.key, Math.round(domainData.score || 0));
+                const lvl = maturityLevel(percent, isNb);
                 const Icon = pillar.icon;
                 const remaining = (domainData.total || 0) - (domainData.assessed || 0);
                 return (
@@ -372,7 +418,7 @@ export function AggregatedMaturityWidget() {
                           <span className="text-sm font-medium text-foreground truncate">
                             {isNb ? pillar.label_no : pillar.label_en}
                           </span>
-                          <span className="text-sm font-bold text-foreground tabular-nums">{percent}%</span>
+                          <span className={cn("text-sm font-bold", lvl.textClass)}>{lvl.shortLabel}</span>
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-[13px] text-muted-foreground">
@@ -386,14 +432,14 @@ export function AggregatedMaturityWidget() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-4", coverage.className)}>
-                          {coverage.label}
+                        <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-4", lvl.badgeClass)}>
+                          {lvl.label.toUpperCase()}
                         </Badge>
                         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
                     </div>
                     <div className="px-3 pb-2">
-                      <Progress value={percent} className="h-2 [&>div]:bg-primary" />
+                      <Progress value={percent} className={cn("h-2", lvl.progressClass)} />
                     </div>
                   </button>
                 );
