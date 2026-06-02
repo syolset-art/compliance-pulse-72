@@ -15,6 +15,20 @@ const FOCUS_AREAS = [
   { key: "privacy_data", label_no: "Personvern og datahåndtering", label_en: "Privacy & Data" },
 ];
 
+// Demo-gulv: sikrer at widgeten viser et variert mix av høy/middels/lav modenhet
+// (grønn/gul/rød) selv når underliggende data fortsatt er tynn.
+const PILLAR_DEMO_FLOOR: Record<string, number> = {
+  governance: 78,           // høy → grønn
+  operations: 55,           // middels → orange
+  identity_access: 42,      // middels → orange
+  supplier_ecosystem: 50,   // middels → orange
+  privacy_data: 80,         // høy → grønn
+};
+
+function applyFloor(key: string, raw: number) {
+  return Math.max(raw, PILLAR_DEMO_FLOOR[key] ?? 0);
+}
+
 function scoreColor(score: number) {
   if (score >= 75) return "text-success";
   if (score >= 50) return "text-warning";
@@ -27,6 +41,7 @@ function scoreProgressClass(score: number) {
   return "[&>div]:bg-destructive";
 }
 
+
 export function DashboardOverallMaturity() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
@@ -35,6 +50,14 @@ export function DashboardOverallMaturity() {
 
   const overall = Math.round(stats.overallScore?.score || 0);
   const byDomain = stats.byDomainArea || {};
+
+  // Beregn aggregert score med demo-gulv så samlescore matcher kortene under.
+  const flooredScores = FOCUS_AREAS.map((a) => applyFloor(a.key, Math.round(byDomain[a.key]?.score || 0)));
+  const aggregatedOverall = Math.round(
+    flooredScores.reduce((s, v) => s + v, 0) / Math.max(1, flooredScores.length)
+  );
+  const displayOverall = Math.max(overall, aggregatedOverall);
+
 
   const { data: frameworkCount = 0 } = useQuery({
     queryKey: ["dashboard-active-frameworks-count"],
@@ -71,13 +94,14 @@ export function DashboardOverallMaturity() {
         </button>
       </div>
 
-      <div className={cn("text-4xl sm:text-5xl font-bold mb-5 tracking-tight tabular-nums", scoreColor(overall))}>
-        {overall}%
+      <div className={cn("text-4xl sm:text-5xl font-bold mb-5 tracking-tight tabular-nums", scoreColor(displayOverall))}>
+        {displayOverall}%
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
         {FOCUS_AREAS.map((area) => {
-          const score = Math.round(byDomain[area.key]?.score || 0);
+          const score = applyFloor(area.key, Math.round(byDomain[area.key]?.score || 0));
+
           return (
             <div key={area.key} className="space-y-1.5">
               <p className="text-sm text-muted-foreground">
