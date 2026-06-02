@@ -379,6 +379,17 @@ export default function MSPCustomerDetail() {
           }}
         />
 
+        <MandateConfirmDialog
+          open={mandateDialogOpen}
+          onOpenChange={setMandateDialogOpen}
+          customerId={customerId!}
+          customerName={customer.name || customer.customer_name || "kunden"}
+          contactName={customer.contact_name}
+          contactEmail={customer.contact_email}
+        />
+
+
+
         {/* Skjulte saker – kun synlig for partner */}
         <Dialog open={hiddenIssuesOpen} onOpenChange={setHiddenIssuesOpen}>
           <DialogContent className="max-w-lg">
