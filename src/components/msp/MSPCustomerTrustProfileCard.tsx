@@ -171,6 +171,15 @@ export function MSPCustomerTrustProfileCard({
         )}
       </Card>
 
+      {/* Partner-bevis — opplastet av MSP (åpnes fra header-knappen) */}
+      {customerId && (
+        <PartnerEvidenceSection
+          customerId={customerId}
+          hideUploadButton
+          open={evidenceOpen}
+          onOpenChange={setEvidenceOpen}
+        />
+      )}
 
       {/* Kontrollområder per regelverk */}
       {(() => {
@@ -247,11 +256,6 @@ export function MSPCustomerTrustProfileCard({
           </Card>
         );
       })()}
-
-      {/* Partner-bevis — opplastet av MSP */}
-      {customerId && (
-        <PartnerEvidenceSection customerId={customerId} />
-      )}
 
       {/* Dokumenter og bevis */}
       <Card className="p-4 space-y-4">
