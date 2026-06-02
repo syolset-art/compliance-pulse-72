@@ -15,6 +15,7 @@ import {
   Activity,
   Users,
   Sparkles,
+  Upload,
 } from "lucide-react";
 
 type ControlDomain = {
@@ -80,6 +81,7 @@ export function MSPCustomerTrustProfileCard({
   const isPublished = false;
   const [inviteOpen, setInviteOpen] = useState(false);
   const [invited, setInvited] = useState(false);
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -89,32 +91,45 @@ export function MSPCustomerTrustProfileCard({
           <p className="text-sm text-muted-foreground">{customerName} · Trust Profile</p>
           <h2 className="text-xl font-semibold text-foreground">Kundens visningskort utad</h2>
         </div>
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span tabIndex={0}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!isPublished}
-                  className="gap-1.5 h-9 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {isPublished ? (
-                    <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                  ) : (
-                    <Lock className="h-4 w-4" aria-hidden="true" />
-                  )}
-                  {isPublished ? "Se offentlig visning" : "Ikke publisert ennå"}
-                </Button>
-              </span>
-            </TooltipTrigger>
-            {!isPublished && (
-              <TooltipContent side="bottom" className="max-w-[260px] text-sm">
-                Profilen blir offentlig først når kunden har aktivert profilen og publisert den selv.
-              </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex items-center gap-2 shrink-0">
+          {customerId && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 h-9 text-sm"
+              onClick={() => setEvidenceOpen(true)}
+            >
+              <Upload className="h-4 w-4" aria-hidden="true" />
+              Last opp partner-bevis
+            </Button>
+          )}
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={!isPublished}
+                    className="gap-1.5 h-9 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isPublished ? (
+                      <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                      <Lock className="h-4 w-4" aria-hidden="true" />
+                    )}
+                    {isPublished ? "Se offentlig visning" : "Ikke publisert ennå"}
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {!isPublished && (
+                <TooltipContent side="bottom" className="max-w-[260px] text-sm">
+                  Profilen blir offentlig først når kunden har aktivert profilen og publisert den selv.
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       {/* Aktiverings-banner */}
