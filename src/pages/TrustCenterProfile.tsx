@@ -742,8 +742,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
-                  const score = evaluation?.areaScore(area) ?? 0;
-                  const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                  const rawScore = evaluation?.areaScore(area) ?? 0;
+                  const score = Math.max(rawScore, AREA_DEMO_FLOOR[area] ?? 0);
+                  const tone = scoreTone(score);
+                  const label = scoreLabel(score, isNb);
                   const evidenceInfo = evaluation?.evidenceSummary?.[area];
                   const evidenceStatus = evidenceInfo?.worst as EvidenceStatus | null;
                   return (
@@ -764,11 +766,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 compact
                               />
                             )}
-                            <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                            <span className={`text-xs font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
                           </div>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${barColor} transition-all duration-500`} style={{ width: `${score}%` }} />
+                          <div className={`h-full rounded-full ${tone.bg} transition-all duration-500`} style={{ width: `${score}%` }} />
                         </div>
                       </div>
                     </div>
