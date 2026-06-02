@@ -21,6 +21,7 @@ import { MSPCustomerSnapshotCard } from "@/components/msp/MSPCustomerSnapshotCar
 
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
+import { PartnerActionMenu } from "@/components/msp/PartnerActionMenu";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
 import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulationsTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
@@ -197,7 +198,23 @@ export default function MSPCustomerDetail() {
           </Button>
 
           {/* Customer status banner — same template as vendor */}
-          <CustomerStatusBanner customer={customer} />
+          <CustomerStatusBanner
+            customer={customer}
+            actionSlot={
+              <PartnerActionMenu
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
+                onSwitchTab={handleTabChange}
+                recommendedKinds={
+                  tasks.length > 0
+                    ? (tasks[0]?.title?.toLowerCase().includes("vurdering")
+                        ? ["assessment", "evidence"]
+                        : ["evidence", "lara"])
+                    : ["evidence"]
+                }
+              />
+            }
+          />
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full min-w-0">
@@ -229,6 +246,20 @@ export default function MSPCustomerDetail() {
 
             {/* ── Veiledning fra Mynder ── */}
             <TabsContent value="guidance" className="mt-6 space-y-5">
+              <Card className="p-4 border-primary/20 bg-primary/5 flex items-center justify-between gap-3 flex-wrap">
+                <div className="min-w-0">
+                  <h2 className="text-base font-semibold text-foreground">Hva vil du gjøre for {customer.name || customer.customer_name || "kunden"}?</h2>
+                  <p className="text-sm text-muted-foreground mt-0.5">Alt partneren kan gjøre — samlet ett sted.</p>
+                </div>
+                <PartnerActionMenu
+                  customerId={customerId!}
+                  customerName={customer.name || customer.customer_name || "Kunden"}
+                  onSwitchTab={handleTabChange}
+                  recommendedKinds={["evidence", "lara"]}
+                  align="end"
+                />
+              </Card>
+
               <TakeoverTrustProfileCard
                 customerId={customerId!}
                 customerName={customer.name || customer.customer_name || "Kunden"}

@@ -15,7 +15,6 @@ import {
   Activity,
   Users,
   Sparkles,
-  Upload,
 } from "lucide-react";
 
 type ControlDomain = {
@@ -92,17 +91,6 @@ export function MSPCustomerTrustProfileCard({
           <h2 className="text-xl font-semibold text-foreground">Kundens visningskort utad</h2>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {customerId && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1.5 h-9 text-sm"
-              onClick={() => setEvidenceOpen(true)}
-            >
-              <Upload className="h-4 w-4" aria-hidden="true" />
-              Last opp partner-bevis
-            </Button>
-          )}
           <TooltipProvider delayDuration={150}>
             <Tooltip>
               <TooltipTrigger asChild>
