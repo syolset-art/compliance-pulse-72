@@ -15,7 +15,6 @@ import {
   Activity,
   Users,
   Sparkles,
-  Upload,
 } from "lucide-react";
 
 type ControlDomain = {
