@@ -28,6 +28,7 @@ import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulatio
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
 import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
 import { TakeoverTrustProfileCard } from "@/components/msp/TakeoverTrustProfileCard";
+import { TrustProfileTakeoverInfoDialog } from "@/components/msp/TrustProfileTakeoverInfoDialog";
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
@@ -57,6 +58,7 @@ export default function MSPCustomerDetail() {
     setSearchParams(next, { replace: true });
   };
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
+  const [takeoverInfoOpen, setTakeoverInfoOpen] = useState(false);
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
@@ -160,6 +162,8 @@ export default function MSPCustomerDetail() {
       desc: "Send en e-post til kunden og be dem overta og signere Trust Profile selv.",
       cta: "Send e-post",
       onClick: () => setHandoverEmailOpen(true),
+      readMoreLabel: "Les mer",
+      onReadMore: () => setTakeoverInfoOpen(true),
     },
     !customer.has_acronis_integration && {
       severity: "high",
