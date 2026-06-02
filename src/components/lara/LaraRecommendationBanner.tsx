@@ -21,6 +21,8 @@ interface Props {
   onPrimaryAction: (task: LaraPlanTask) => void;
   /** Trykk på "Åpne ..." — får tasken som argument */
   onSecondaryAction?: (task: LaraPlanTask) => void;
+  /** Trykk på "Les mer" — får tasken som argument. Vises kun for tasks med readMoreCtaLabelNb/En. */
+  onReadMore?: (task: LaraPlanTask) => void;
   /** Skjul "Ikke nå"-dismiss-knappen (f.eks. på vendor-profil hvor banneret er fast) */
   hideDismiss?: boolean;
 }
@@ -38,6 +40,7 @@ export function LaraRecommendationBanner({
   onShowAll,
   onPrimaryAction,
   onSecondaryAction,
+  onReadMore,
   hideDismiss = false,
 }: Props) {
   const { i18n } = useTranslation();
@@ -241,6 +244,11 @@ export function LaraRecommendationBanner({
                             {isNb ? (t.secondaryCtaLabelNb ?? "Åpne") : (t.secondaryCtaLabelEn ?? "Open")}
                           </Button>
                         )}
+                        {onReadMore && (t.readMoreCtaLabelNb || t.readMoreCtaLabelEn) && (
+                          <Button size="sm" variant="ghost" className="h-7 rounded-full text-xs" onClick={() => onReadMore(t)}>
+                            {isNb ? (t.readMoreCtaLabelNb ?? "Les mer") : (t.readMoreCtaLabelEn ?? "Read more")}
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -298,6 +306,17 @@ export function LaraRecommendationBanner({
               {isNb
                 ? (current.secondaryCtaLabelNb ?? "Åpne leverandøren")
                 : (current.secondaryCtaLabelEn ?? "Open vendor")}
+            </Button>
+          )}
+          {onReadMore && (current.readMoreCtaLabelNb || current.readMoreCtaLabelEn) && (
+            <Button
+              variant="ghost"
+              className="rounded-full px-5 w-full sm:w-auto text-primary hover:text-primary"
+              onClick={() => onReadMore(current)}
+            >
+              {isNb
+                ? (current.readMoreCtaLabelNb ?? "Les mer")
+                : (current.readMoreCtaLabelEn ?? "Read more")}
             </Button>
           )}
           <div className="hidden sm:block sm:flex-1" />

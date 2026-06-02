@@ -28,6 +28,7 @@ import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulatio
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
 import { QuestionnaireDispatchCard } from "@/components/msp/QuestionnaireDispatchCard";
 import { TakeoverTrustProfileCard } from "@/components/msp/TakeoverTrustProfileCard";
+import { TrustProfileTakeoverInfoDialog } from "@/components/msp/TrustProfileTakeoverInfoDialog";
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
@@ -57,6 +58,7 @@ export default function MSPCustomerDetail() {
     setSearchParams(next, { replace: true });
   };
   const [trustHandoverSent, setTrustHandoverSent] = useState(false);
+  const [takeoverInfoOpen, setTakeoverInfoOpen] = useState(false);
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
@@ -160,6 +162,8 @@ export default function MSPCustomerDetail() {
       desc: "Send en e-post til kunden og be dem overta og signere Trust Profile selv.",
       cta: "Send e-post",
       onClick: () => setHandoverEmailOpen(true),
+      readMoreLabel: "Les mer",
+      onReadMore: () => setTakeoverInfoOpen(true),
     },
     !customer.has_acronis_integration && {
       severity: "high",
@@ -189,7 +193,7 @@ export default function MSPCustomerDetail() {
       cta: "Inviter kunde",
       onClick: () => {},
     },
-  ].filter(Boolean) as Array<{ severity: "critical" | "high" | "medium"; title: string; desc: string; cta: string; onClick: () => void }>;
+  ].filter(Boolean) as Array<{ severity: "critical" | "high" | "medium"; title: string; desc: string; cta: string; onClick: () => void; readMoreLabel?: string; onReadMore?: () => void }>;
 
   const planTasks: LaraPlanTask[] = tasks.map((t, i) => ({
     id: `msp-task-${i}-${t.title}`,
@@ -198,6 +202,8 @@ export default function MSPCustomerDetail() {
     insight: t.desc,
     primaryCtaLabelNb: t.cta,
     primaryCtaLabelEn: t.cta,
+    readMoreCtaLabelNb: t.readMoreLabel,
+    readMoreCtaLabelEn: t.readMoreLabel,
   }));
   const criticalCount = planTasks.filter(t => t.severity === "critical").length;
 
@@ -270,7 +276,12 @@ export default function MSPCustomerDetail() {
                     const idx = planTasks.findIndex(p => p.id === t.id);
                     tasks[idx]?.onClick();
                   }}
+                  onReadMore={(t) => {
+                    const idx = planTasks.findIndex(p => p.id === t.id);
+                    tasks[idx]?.onReadMore?.();
+                  }}
                 />
+
               ) : (
                 <Card className="p-5 border-primary/20 bg-primary/5">
                   <div className="flex items-start gap-3">
@@ -386,6 +397,11 @@ export default function MSPCustomerDetail() {
           customerName={customer.name || customer.customer_name || "kunden"}
           contactName={customer.contact_name}
           contactEmail={customer.contact_email}
+        />
+
+        <TrustProfileTakeoverInfoDialog
+          open={takeoverInfoOpen}
+          onOpenChange={setTakeoverInfoOpen}
         />
 
 

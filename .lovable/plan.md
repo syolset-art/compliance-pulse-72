@@ -1,53 +1,38 @@
-# Plan: Samlet "Legg til aktivitet" for partner
+Add a "Les mer" (Read more) button to the Trust Profile takeover task in the Lara recommendation banner. When clicked, it opens a dialog explaining why the customer should take over their Trust Profile.
 
-## Mål
-Gjøre det åpenbart hva partneren kan gjøre på en kunde — samle alle handlinger ett sted i stedet for å spre knapper utover Trust Profile-fanen. Partneren skal se mulighetene uten å lete.
+### What to build
 
-## Plassering
+1. **Extend `LaraPlanTask` type** (`src/components/lara/types.ts`):
+   - Add optional `readMoreCtaLabelNb?: string` and `readMoreCtaLabelEn?: string` fields.
+   - Add optional `readMoreContent?: string` field for a short content key/identifier.
 
-Knappen plasseres to steder, med samme innhold:
+2. **Extend `LaraRecommendationBanner`** (`src/components/lara/LaraRecommendationBanner.tsx`):
+   - Add optional `onReadMore?: (task: LaraPlanTask) => void` prop.
+   - In the single-task card view (the "Én og én" mode), render a small "Les mer" text button next to the dismiss controls when the current task has `readMoreCtaLabelNb/En` and `onReadMore` is provided.
+   - In table view, add a "Les mer" action button in the actions column for tasks that have the read-more fields set.
 
-1. **Øverst til høyre på kundekortet** — i `CustomerStatusBanner`-raden, ved siden av kundenavnet. Alltid synlig uansett fane.
-2. **Øverst i Veiledning fra Mynder-fanen** — som primær CTA over Lara-anbefalingene, slik at det føles som en naturlig forlengelse av Laras forslag.
+3. **Create a new dialog component** `TrustProfileTakeoverInfoDialog` (`src/components/msp/TrustProfileTakeoverInfoDialog.tsx`):
+   - Dialog with title "Hvorfor bør kunden overta sin Trust Profile?"
+   - Content explaining in clear Norwegian:
+     - Trust Profile lages én gang og kan gjenbrukes overfor leverandører, kunder, ansatte og myndigheter
+     - Hvis kunden ikke overtar profilen, kan konsekvensen være at de blir spurt om å oppgi den samme informasjonen flere ganger
+     - Det er opp til kunden å avgjøre
+   - Close button at the bottom.
 
-Den eksisterende "Last opp partner-bevis"-knappen i Trust Profile-headeren fjernes — funksjonen flyttes inn i menyen.
+4. **Wire it up in `MSPCustomerDetail`** (`src/pages/MSPCustomerDetail.tsx`):
+   - Add `readMoreCtaLabelNb: "Les mer"` to the Trust Profile takeover task (the one with title "Kunden har ikke overtatt sin Trust Profile").
+   - Add state `[readMoreOpen, setReadMoreOpen]`.
+   - Pass `onReadMore={() => setReadMoreOpen(true)}` to `<LaraRecommendationBanner>`.
+   - Render `<TrustProfileTakeoverInfoDialog>` with `open={readMoreOpen}`.
 
-## Komponent: `PartnerActionMenu`
+### Technical details
+- Use the existing `Dialog` primitives from `@/components/ui/dialog`.
+- Use existing color tokens (primary, muted-foreground, etc.) — no new colors.
+- Keep styling consistent with the existing Lara banner card design.
+- The "Les mer" button should be subtle (ghost variant, small text) so it doesn't compete with the primary CTA.
 
-En primær knapp `[+ Legg til aktivitet ▾]` (variant primary, Sparkles-ikon) som åpner en `DropdownMenu` gruppert i tre seksjoner:
-
-**Bevis & dokumentasjon**
-- Last opp partner-bevis (pentest, audit, DPIA …) → åpner `PartnerEvidenceUploadDialog`
-- Be om dokument fra kunden → åpner ny "Send forespørsel"-dialog (gjenbruker `MSPCustomerMessagesTab`-flow)
-
-**Analyse & vurdering**
-- Kjør gap-analyse mot regelverk → navigerer til Regelverk-fanen med "ny analyse"-state
-- Start sikkerhetsvurdering → setter aktiv fane til `assessment`
-- Be Lara om en anbefaling → trigger Lara-modal med kontekst om kunden
-
-**Forretning & kommunikasjon**
-- Lag tilbud (oppgradering / nytt regelverk) → åpner enkel tilbudsdialog (lokal demo)
-- Send melding til kunde → åpner Meldinger-fanen med ny melding pre-utfylt
-- Planlegg oppfølging → enkel datovelger som lager en aktivitet (lokal demo)
-
-Hver rad har ikon + tittel + kort en-linjes forklaring, slik at partneren skjønner hva valget betyr uten å klikke.
-
-## UX-detaljer
-
-- Menyen viser badge "Anbefalt" på de 1–2 handlingene Lara mener er mest relevant nå (basert på `tasks`-listen som allerede beregnes i `MSPCustomerDetail`).
-- Etter en handling vises en toast "Aktivitet lagt til på kunden", og handlingen logges i en lett aktivitetslogg (lokal demo, samme localStorage-mønster som `partnerEvidence.ts`).
-- Knappen i Veiledning-fanen får en kort introtekst: "Alt du kan gjøre for {kundenavn} — på ett sted."
-
-## Tekniske endringer
-
-- Ny fil: `src/components/msp/PartnerActionMenu.tsx` — dropdown med alle handlinger, mottar `customerId`, `customerName`, `onOpenEvidence`, `onSwitchTab` osv.
-- Ny fil: `src/lib/partnerActivityLog.ts` — enkel localStorage-logg for "siste aktiviteter" (demo).
-- Rediger `src/components/msp/CustomerStatusBanner.tsx` — legg til `PartnerActionMenu` øverst til høyre.
-- Rediger `src/pages/MSPCustomerDetail.tsx` — montér `PartnerActionMenu` øverst i `guidance`-TabsContent, koble `setActiveTab` og åpne-dialog-callbacks. Sentralisér `evidenceOpen`-state her i stedet for i Trust Profile-kortet.
-- Rediger `src/components/msp/MSPCustomerTrustProfileCard.tsx` — fjern den lokale "Last opp partner-bevis"-knappen i headeren (funksjonen flyttes til menyen). `PartnerEvidenceSection` beholdes som visning av opplastede bevis, men uten egen opplastingsknapp.
-
-## Ikke i scope
-
-- Ingen endringer i datamodell eller edge functions.
-- Ingen ekte tilbuds-/CRM-integrasjon — "Lag tilbud" og "Planlegg oppfølging" er demo-flows som lagrer lokalt.
-- Ingen endringer i andre faner enn det som trengs for å koble menyvalgene til riktig tab/dialog.
+### Files to change
+- `src/components/lara/types.ts` — extend type
+- `src/components/lara/LaraRecommendationBanner.tsx` — add read-more button rendering
+- `src/components/msp/TrustProfileTakeoverInfoDialog.tsx` — new dialog component
+- `src/pages/MSPCustomerDetail.tsx` — wire read-more to the task and render dialog
