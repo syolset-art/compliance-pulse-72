@@ -322,12 +322,12 @@ export function AggregatedMaturityWidget() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {activeFrameworks.map((fw) => {
                 const percent = Math.round(fw.data.score);
-                const cov = coverageLabel(percent, isNb);
+                const lvl = maturityLevel(percent, isNb);
                 return (
                   <div key={fw.id} className="rounded-lg border border-border bg-muted/20 p-3 flex flex-col items-center gap-1.5 hover:bg-muted/40 transition-colors">
-                    <CircularGauge percent={percent} />
+                    <CircularGauge percent={percent} isNb={isNb} />
                     <span className="text-[13px] font-medium text-foreground text-center leading-tight line-clamp-2">{fw.name}</span>
-                    <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-3.5", cov.className)}>{cov.label}</Badge>
+                    <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-3.5", lvl.badgeClass)}>{lvl.shortLabel}</Badge>
                     <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
                       <CheckCircle2 className="h-2.5 w-2.5 text-status-closed" />
                       {fw.data.assessed}/{fw.data.total}
