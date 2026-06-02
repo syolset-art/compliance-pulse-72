@@ -102,7 +102,7 @@ function InitialAvatar({ name, color = "bg-primary/15 text-primary" }: { name: s
   );
 }
 
-export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
+export function CustomerStatusBanner({ customer, actionSlot }: { customer: CustomerLike; actionSlot?: React.ReactNode }) {
   const navigate = useNavigate();
   const status = deriveStatus(customer);
   const score = customer.compliance_score || 0;
@@ -266,6 +266,12 @@ export function CustomerStatusBanner({ customer }: { customer: CustomerLike }) {
               </div>
               <Donut score={score} tone={status.tone} />
             </div>
+
+            {actionSlot && (
+              <div className="shrink-0 self-start">
+                {actionSlot}
+              </div>
+            )}
           </div>
 
           {/* Context banner */}
