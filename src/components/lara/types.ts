@@ -15,4 +15,7 @@ export interface LaraPlanTask {
   /** CTA-tekst på sekundærknappen (overstyrer "Åpne leverandøren" om satt) */
   secondaryCtaLabelNb?: string;
   secondaryCtaLabelEn?: string;
+  /** CTA-tekst på "Les mer"-knappen */
+  readMoreCtaLabelNb?: string;
+  readMoreCtaLabelEn?: string;
 }
