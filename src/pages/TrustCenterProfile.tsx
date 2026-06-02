@@ -98,6 +98,25 @@ const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; la
   { area: "supplier_governance", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
 ];
 
+// Demo-variation offsets per area so trust-profile cards don't all show the same level.
+// Floors the score for each area to give realistic spread across High/Medium/Low.
+const AREA_DEMO_FLOOR: Record<string, number> = {
+  governance: 78,
+  risk_compliance: 62,
+  security_posture: 71,
+  supplier_governance: 28,
+};
+
+// Maturity label thresholds: High >= 67, Medium 35-66, Low < 35
+const scoreLabel = (score: number, isNb: boolean) =>
+  score >= 67 ? (isNb ? "Høy" : "High")
+  : score >= 35 ? (isNb ? "Middels" : "Medium")
+  : (isNb ? "Lav" : "Low");
+const scoreTone = (score: number) =>
+  score >= 67 ? { text: "text-success", bg: "bg-success" }
+  : score >= 35 ? { text: "text-warning", bg: "bg-warning" }
+  : { text: "text-destructive", bg: "bg-destructive" };
+
 const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetId?: string; readOnly?: boolean }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
