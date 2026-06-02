@@ -22,6 +22,7 @@ import { MSPCustomerSnapshotCard } from "@/components/msp/MSPCustomerSnapshotCar
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
 import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
 import { PartnerActionMenu } from "@/components/msp/PartnerActionMenu";
+import { PartnerMandateCard } from "@/components/msp/PartnerMandateCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
 import { MSPCustomerRegulationsTab } from "@/components/msp/MSPCustomerRegulationsTab";
 import { SendTrustHandoverEmailDialog } from "@/components/msp/SendTrustHandoverEmailDialog";
