@@ -369,7 +369,8 @@ export function AggregatedMaturityWidget() {
             <div className="flex flex-col gap-1 sm:hidden">
               {PILLARS.map((pillar) => {
                 const domainData = byDomain[pillar.key] || { score: 0, assessed: 0, total: 0 };
-                const percent = Math.round(domainData.score || 0);
+                const percent = applyFloor(pillar.key, Math.round(domainData.score || 0));
+                const lvl = maturityLevel(percent, isNb);
                 const Icon = pillar.icon;
                 return (
                   <button
@@ -383,8 +384,8 @@ export function AggregatedMaturityWidget() {
                     <span className="text-xs font-medium text-foreground flex-1 text-left truncate">
                       {isNb ? pillar.label_no : pillar.label_en}
                     </span>
-                    <Progress value={percent} className="h-1.5 w-16 shrink-0 [&>div]:bg-primary" />
-                    <span className="text-xs font-semibold text-foreground w-8 text-right shrink-0">{percent}%</span>
+                    <Progress value={percent} className={cn("h-1.5 w-16 shrink-0", lvl.progressClass)} />
+                    <span className={cn("text-xs font-semibold w-14 text-right shrink-0", lvl.textClass)}>{lvl.shortLabel}</span>
                     <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
                   </button>
                 );
@@ -395,8 +396,8 @@ export function AggregatedMaturityWidget() {
             <div className="hidden sm:grid sm:grid-cols-2 gap-3">
               {PILLARS.map((pillar, index) => {
                 const domainData = byDomain[pillar.key] || { score: 0, assessed: 0, total: 0 };
-                const percent = Math.round(domainData.score || 0);
-                const coverage = coverageLabel(percent, isNb);
+                const percent = applyFloor(pillar.key, Math.round(domainData.score || 0));
+                const lvl = maturityLevel(percent, isNb);
                 const Icon = pillar.icon;
                 const remaining = (domainData.total || 0) - (domainData.assessed || 0);
                 return (
@@ -417,7 +418,7 @@ export function AggregatedMaturityWidget() {
                           <span className="text-sm font-medium text-foreground truncate">
                             {isNb ? pillar.label_no : pillar.label_en}
                           </span>
-                          <span className="text-sm font-bold text-foreground tabular-nums">{percent}%</span>
+                          <span className={cn("text-sm font-bold", lvl.textClass)}>{lvl.shortLabel}</span>
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-[13px] text-muted-foreground">
@@ -431,14 +432,14 @@ export function AggregatedMaturityWidget() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-4", coverage.className)}>
-                          {coverage.label}
+                        <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-4", lvl.badgeClass)}>
+                          {lvl.label.toUpperCase()}
                         </Badge>
                         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                       </div>
                     </div>
                     <div className="px-3 pb-2">
-                      <Progress value={percent} className="h-2 [&>div]:bg-primary" />
+                      <Progress value={percent} className={cn("h-2", lvl.progressClass)} />
                     </div>
                   </button>
                 );
