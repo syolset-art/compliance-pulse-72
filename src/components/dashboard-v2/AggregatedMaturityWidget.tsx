@@ -20,7 +20,7 @@ const PILLARS = [
   { key: "governance", icon: Shield, label_no: "Styring", label_en: "Governance", color: "hsl(var(--primary))" },
   { key: "operations", icon: Settings, label_no: "Drift og sikkerhet", label_en: "Operations & Security", color: "hsl(142, 71%, 45%)" },
   { key: "identity_access", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access", color: "hsl(262, 83%, 58%)" },
-  { key: "privacy_data", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling", color: "hsl(38, 92%, 50%)" },
+  { key: "privacy_data", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling", color: "hsl(142, 71%, 45%)" },
   { key: "supplier_ecosystem", icon: Users, label_no: "Tredjepartstyring og verdikjede", label_en: "Third-Party & Value Chain", color: "hsl(340, 82%, 52%)" },
 ] as const;
 
