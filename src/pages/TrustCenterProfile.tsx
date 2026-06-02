@@ -98,6 +98,25 @@ const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; la
   { area: "supplier_governance", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
 ];
 
+// Demo-variation offsets per area so trust-profile cards don't all show the same level.
+// Floors the score for each area to give realistic spread across High/Medium/Low.
+const AREA_DEMO_FLOOR: Record<string, number> = {
+  governance: 78,
+  risk_compliance: 62,
+  security_posture: 71,
+  supplier_governance: 28,
+};
+
+// Maturity label thresholds: High >= 67, Medium 35-66, Low < 35
+const scoreLabel = (score: number, isNb: boolean) =>
+  score >= 67 ? (isNb ? "Høy" : "High")
+  : score >= 35 ? (isNb ? "Middels" : "Medium")
+  : (isNb ? "Lav" : "Low");
+const scoreTone = (score: number) =>
+  score >= 67 ? { text: "text-success", bg: "bg-success" }
+  : score >= 35 ? { text: "text-warning", bg: "bg-warning" }
+  : { text: "text-destructive", bg: "bg-destructive" };
+
 const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetId?: string; readOnly?: boolean }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -723,8 +742,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
-                  const score = evaluation?.areaScore(area) ?? 0;
-                  const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                  const rawScore = evaluation?.areaScore(area) ?? 0;
+                  const score = Math.max(rawScore, AREA_DEMO_FLOOR[area] ?? 0);
+                  const tone = scoreTone(score);
+                  const label = scoreLabel(score, isNb);
                   const evidenceInfo = evaluation?.evidenceSummary?.[area];
                   const evidenceStatus = evidenceInfo?.worst as EvidenceStatus | null;
                   return (
@@ -745,11 +766,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 compact
                               />
                             )}
-                            <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                            <span className={`text-xs font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
                           </div>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${barColor} transition-all duration-500`} style={{ width: `${score}%` }} />
+                          <div className={`h-full rounded-full ${tone.bg} transition-all duration-500`} style={{ width: `${score}%` }} />
                         </div>
                       </div>
                     </div>
@@ -2054,8 +2075,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
-                        const score = evaluation?.areaScore(area) ?? 0;
-                        const barColor = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                        const rawScore = evaluation?.areaScore(area) ?? 0;
+                        const score = Math.max(rawScore, AREA_DEMO_FLOOR[area] ?? 0);
+                        const tone = scoreTone(score);
+                        const label = scoreLabel(score, isNb);
                         const isExpanded = expandedArea === area;
                         const areaControls = evaluation?.grouped[area] ?? [];
 
@@ -2073,7 +2096,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                   <span className="text-sm font-medium text-foreground">{isNb ? labelNb : labelEn}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                                  <span className={`text-xs font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
                                   {isExpanded
                                     ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
                                     : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -2081,7 +2104,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               </div>
                               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                                 <div
-                                  className={`h-full rounded-full ${barColor} transition-all duration-500`}
+                                  className={`h-full rounded-full ${tone.bg} transition-all duration-500`}
                                   style={{ width: `${score}%` }}
                                 />
                               </div>
