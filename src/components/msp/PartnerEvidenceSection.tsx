@@ -19,11 +19,28 @@ interface Props {
   customerId: string;
   partnerName?: string;
   uploaderName?: string;
+  /** Hide the internal upload button (use when an external trigger controls the dialog). */
+  hideUploadButton?: boolean;
+  /** Controlled open state (optional). When provided, the section uses it instead of internal state. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function PartnerEvidenceSection({ customerId, partnerName, uploaderName }: Props) {
+export function PartnerEvidenceSection({
+  customerId,
+  partnerName,
+  uploaderName,
+  hideUploadButton,
+  open: openProp,
+  onOpenChange,
+}: Props) {
   const [items, setItems] = useState<PartnerEvidence[]>(() => getPartnerEvidence(customerId));
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openProp ?? internalOpen;
+  const setOpen = (o: boolean) => {
+    if (onOpenChange) onOpenChange(o);
+    else setInternalOpen(o);
+  };
 
   useEffect(() => {
     const refresh = () => setItems(getPartnerEvidence(customerId));
@@ -49,10 +66,12 @@ export function PartnerEvidenceSection({ customerId, partnerName, uploaderName }
             </p>
           </div>
         </div>
-        <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setOpen(true)}>
-          <Upload className="h-3.5 w-3.5" />
-          Last opp bevis
-        </Button>
+        {!hideUploadButton && (
+          <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setOpen(true)}>
+            <Upload className="h-3.5 w-3.5" />
+            Last opp bevis
+          </Button>
+        )}
       </div>
 
       {/* Enrichment summary */}
