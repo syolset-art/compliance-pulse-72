@@ -2841,43 +2841,28 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </span>
                 <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
               </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-3 pt-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="rounded-md border border-border bg-muted/30 p-2.5">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{isNb ? "Algoritme" : "Algorithm"}</p>
-                    <p className="text-sm font-semibold mt-0.5">Ed25519</p>
+              <CollapsibleContent className="pt-3">
+                <div className="rounded-md border border-border bg-muted/20 p-3 space-y-3">
+                  <div>
+                    <p className="text-sm text-foreground">
+                      {isNb
+                        ? "Innholds-hash (SHA-256) — unikt fingeravtrykk av innholdet"
+                        : "Content hash (SHA-256) — unique fingerprint of the content"}
+                    </p>
+                    <p className="text-xs font-mono text-foreground/80 break-all mt-1">
+                      8f4b2c1a9d6e3f7b5a8c2d4e6f1a9b3c5d7e9f1b3a5c7e9d1f3b5a7c9e1d3f5b
+                    </p>
                   </div>
-                  <div className="rounded-md border border-border bg-muted/30 p-2.5">
-                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{isNb ? "Utsteder" : "Issuer"}</p>
-                    <p className="text-sm font-semibold mt-0.5">Mynder Trust Engine</p>
+                  <div>
+                    <p className="text-sm text-foreground">
+                      {isNb
+                        ? "Signatur (Ed25519) — bekrefter avsender"
+                        : "Signature (Ed25519) — confirms the sender"}
+                    </p>
+                    <p className="text-xs font-mono text-foreground/80 break-all mt-1">
+                      MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b
+                    </p>
                   </div>
-                </div>
-                <div className="rounded-md border border-border overflow-hidden">
-                  <div className="px-3 py-1.5 bg-muted/40 border-b border-border flex items-center justify-between">
-                    <span className="text-xs font-medium">{isNb ? "Innholdshash (SHA-256)" : "Content hash (SHA-256)"}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 text-xs"
-                      onClick={() => {
-                        navigator.clipboard.writeText("8f4b2c1a9d6e3f7b5a8c2d4e6f1a9b3c5d7e9f1b3a5c7e9d1f3b5a7c9e1d3f5b");
-                        toast.success(isNb ? "Kopiert" : "Copied");
-                      }}
-                    >
-                      <Copy className="h-3 w-3 mr-1" /> {isNb ? "Kopier" : "Copy"}
-                    </Button>
-                  </div>
-                  <pre className="px-3 py-2 text-[11px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
-8f4b2c1a9d6e3f7b5a8c2d4e6f1a9b3c5d7e9f1b3a5c7e9d1f3b5a7c9e1d3f5b
-                  </pre>
-                </div>
-                <div className="rounded-md border border-border overflow-hidden">
-                  <div className="px-3 py-1.5 bg-muted/40 border-b border-border">
-                    <span className="text-xs font-medium">{isNb ? "Signatur" : "Signature"}</span>
-                  </div>
-                  <pre className="px-3 py-2 text-[11px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
-MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b
-                  </pre>
                 </div>
               </CollapsibleContent>
             </Collapsible>
