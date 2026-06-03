@@ -19,6 +19,7 @@ import {
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
   Linkedin, Facebook, Mail, Star, TrendingUp, BarChart3,
 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SubprocessorTable } from "@/components/trust-center/profile/SubprocessorTable";
 import type { SubprocessorListData } from "@/lib/demoSubprocessorAnalysis";
 
