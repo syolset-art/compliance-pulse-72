@@ -32,7 +32,9 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const { user } = useAuth();
   const [active, setActive] = useState<SectionKey>("profile");
+
 
   useEffect(() => {
     const h = window.location.hash.replace("#", "") as SectionKey;
