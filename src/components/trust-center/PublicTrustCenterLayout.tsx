@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowLeft, Shield, FileText, MessageSquare, BarChart3, Lock, ChevronDown, Info, Sparkles,
+  ArrowLeft, Shield, FileText, MessageSquare, BarChart3, Lock, ChevronDown, Info, Sparkles, LogIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import TrustCenterProfile from "@/pages/TrustCenterProfile";
 import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
+import { useAuth } from "@/hooks/useAuth";
+
 
 type SectionKey = "profile" | "maturity" | "documentation" | "contact";
 
