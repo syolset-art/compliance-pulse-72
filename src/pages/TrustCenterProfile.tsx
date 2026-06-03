@@ -2993,7 +2993,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             <Collapsible>
               <CollapsibleTrigger className="w-full flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors group">
                 <span className="flex items-center gap-2 font-medium">
-                  <Code className="h-4 w-4 text-muted-foreground" />
+                  <Code2 className="h-4 w-4 text-muted-foreground" />
                   {isNb ? "Teknisk bevis" : "Technical proof"}
                 </span>
                 <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
