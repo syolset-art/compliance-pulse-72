@@ -2514,230 +2514,72 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           {publishStep === "confirm" && (
             <>
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2 text-xl">
-                  <Globe className="h-5 w-5 text-primary" />
-                  {isNb ? "Publiser din Trust Center" : "Publish your Trust Center"}
+                <DialogTitle className="flex items-center gap-2 text-base">
+                  <Globe className="h-4 w-4 text-primary" />
+                  {isNb ? "Publiser Trust Profile" : "Publish Trust Profile"}
                 </DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="text-sm">
                   {isNb
-                    ? "Når du publiserer, blir din Trust Profile tilgjengelig i Mynder Trust Engine."
-                    : "When you publish, your Trust Profile becomes available in the Mynder Trust Engine."}
+                    ? "Profilen blir tilgjengelig på din unike URL."
+                    : "Your profile becomes available at your unique URL."}
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-5 pt-2">
-                {/* What happens */}
-                <div className="space-y-3">
-                  {[
-                    {
-                      icon: Globe,
-                      title: isNb ? "Tilgjengelig for alle" : "Available to everyone",
-                      desc: isNb
-                        ? "Din Trust Profile publiseres på din unike URL og blir søkbar i Mynder Trust Engine."
-                        : "Your Trust Profile is published at your unique URL and becomes searchable in the Mynder Trust Engine.",
-                    },
-                    {
-                      icon: Eye,
-                      title: isNb ? "Se hvem som ser på profilen" : "See who views your profile",
-                      desc: isNb
-                        ? "Du får innsikt i hvor mange som besøker profilen din – og hvilke organisasjoner som viser interesse."
-                        : "You'll get insights on how many people visit your profile – and which organizations show interest.",
-                    },
-                    {
-                      icon: Clock,
-                      title: isNb ? "Spar tid for alle parter" : "Save time for everyone",
-                      desc: isNb
-                        ? "Kunder og leverandører slipper å etterspørre dokumentasjon manuelt. Alt de trenger ligger i din Trust Center – alltid oppdatert."
-                        : "Customers and vendors no longer need to manually request documentation. Everything they need is in your Trust Center – always up to date.",
-                    },
-                    {
-                      icon: Shield,
-                      title: isNb ? "Bygg tillit proaktivt" : "Build trust proactively",
-                      desc: isNb
-                        ? "Vis at virksomheten tar sikkerhet og personvern på alvor – uten å vente på at noen spør."
-                        : "Show that your organization takes security and privacy seriously – without waiting to be asked.",
-                    },
-                  ].map(item => (
-                    <div key={item.title} className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                        <item.icon className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{item.title}</p>
-                        <p className="text-xs text-muted-foreground">{item.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* URL preview */}
-                <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-center">
-                  <p className="text-[13px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">
-                    {isNb ? "DIN TRUST CENTER URL" : "YOUR TRUST CENTER URL"}
-                  </p>
-                  <code className="text-sm font-mono text-foreground">{publicUrl}</code>
-                </div>
-
-                {/* CTA */}
-                <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1" onClick={() => setPublishDialogOpen(false)}>
-                    {isNb ? "Avbryt" : "Cancel"}
-                  </Button>
-                  <Button className="flex-1 gap-2 bg-primary hover:bg-primary/90" onClick={handlePublish}>
-                    <Share2 className="h-4 w-4" />
-                    {isNb ? "Publiser" : "Publish"}
-                  </Button>
-                </div>
+              <div className="rounded-md border border-border bg-muted/30 px-3 py-2 mt-2">
+                <code className="text-xs font-mono text-foreground break-all">{publicUrl}</code>
+              </div>
+              <div className="flex gap-2 justify-end pt-3">
+                <Button variant="outline" onClick={() => setPublishDialogOpen(false)}>
+                  {isNb ? "Avbryt" : "Cancel"}
+                </Button>
+                <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={handlePublish}>
+                  <Share2 className="h-4 w-4" />
+                  {isNb ? "Publiser" : "Publish"}
+                </Button>
               </div>
             </>
           )}
 
           {publishStep === "publishing" && (
-            <div className="py-10 text-center space-y-4">
-              <div className="h-12 w-12 mx-auto rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
-                <Globe className="h-6 w-6 text-primary" />
+            <div className="py-8 text-center space-y-3">
+              <div className="h-10 w-10 mx-auto rounded-full bg-primary/10 flex items-center justify-center animate-pulse">
+                <Globe className="h-5 w-5 text-primary" />
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">
-                  {isNb ? "Publiserer din Trust Center..." : "Publishing your Trust Center..."}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {isNb ? "Kobler til Mynder Trust Engine" : "Connecting to Mynder Trust Engine"}
-                </p>
-              </div>
-              <Progress value={65} className="h-1.5 max-w-xs mx-auto" />
+              <p className="text-sm text-muted-foreground">
+                {isNb ? "Publiserer…" : "Publishing…"}
+              </p>
+              <Progress value={65} className="h-1 max-w-[200px] mx-auto" />
             </div>
           )}
 
           {publishStep === "success" && (
-            <div className="py-6 text-center space-y-5">
-              <div className="h-16 w-16 mx-auto rounded-full bg-success/10 flex items-center justify-center">
-                <CheckCircle2 className="h-8 w-8 text-success" />
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-base">
+                  <CheckCircle2 className="h-4 w-4 text-success" />
+                  {isNb ? "Publisert" : "Published"}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="rounded-md border border-border bg-muted/30 px-3 py-2 mt-2">
+                <code className="text-xs font-mono text-foreground break-all">{publicUrl}</code>
               </div>
-              <div>
-                <h3 className="text-xl font-bold text-foreground">
-                  {isNb ? "Trust Center publisert! 🎉" : "Trust Center published! 🎉"}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-2 max-w-sm mx-auto">
-                  {isNb
-                    ? "Din Trust Profile er nå tilgjengelig i Mynder Trust Engine. Kunder og partnere kan nå se din sikkerhetsprofil – og du sparer alle parter for tid og manuelle forespørsler."
-                    : "Your Trust Profile is now available in the Mynder Trust Engine. Customers and partners can now view your security profile – saving everyone time and manual requests."}
-                </p>
-              </div>
-
-              {/* URL to share */}
-              <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
-                <code className="text-sm font-mono text-foreground">{publicUrl}</code>
-              </div>
-
-              {/* Stats teaser */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="rounded-lg bg-muted/30 p-3 text-center">
-                  <p className="text-2xl font-bold text-foreground">1 247</p>
-                  <p className="text-[13px] text-muted-foreground">{isNb ? "Visninger" : "Views"}</p>
-                </div>
-                <div className="rounded-lg bg-muted/30 p-3 text-center">
-                  <p className="text-2xl font-bold text-foreground">328</p>
-                  <p className="text-[13px] text-muted-foreground">{isNb ? "Unike besøkende" : "Unique visitors"}</p>
-                </div>
-                <div className="rounded-lg bg-muted/30 p-3 text-center">
-                  <p className="text-2xl font-bold text-foreground">42</p>
-                  <p className="text-[13px] text-muted-foreground">{isNb ? "Timer spart" : "Hours saved"}</p>
-                </div>
-              </div>
-
-              <p className="text-xs text-muted-foreground">
-                {isNb
-                  ? "Du vil motta statistikk om profilvisninger direkte i dashboardet ditt."
-                  : "You'll receive profile view statistics directly in your dashboard."}
-              </p>
-
-              <div className="flex flex-col gap-3 pt-2">
-                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-left">
-                  <div className="flex items-start gap-3">
-                    <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
-                      <Shield className="h-4 w-4 text-primary-foreground" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground">
-                        {isNb ? "Profilen din ligger nå i Mynder Trust Engine" : "Your profile is now in the Mynder Trust Engine"}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {isNb
-                          ? "Mynders åpne register over verifiserte Trust Profiler. Mynder eier og drifter denne siden."
-                          : "Mynder's open register of verified Trust Profiles. Hosted and operated by Mynder."}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <Button variant="outline" className="flex-1 gap-2" onClick={() => {
-                    navigator.clipboard.writeText(`${publicFullUrl}`);
-                    toast.success(isNb ? "Lenke kopiert!" : "Link copied!");
-                  }}>
-                    <Copy className="h-4 w-4" />
-                    {isNb ? "Kopier lenke" : "Copy link"}
-                  </Button>
-                  <Button variant="outline" className="flex-1 gap-2" onClick={() => {
-                    setPublishDialogOpen(false);
-                    setPublishStep("confirm");
-                    navigate("/trust-engine");
-                  }}>
-                    <Globe className="h-4 w-4" />
-                    {isNb ? "Åpne Trust Engine" : "Open Trust Engine"}
-                  </Button>
-                </div>
-
-                {/* Social share */}
-                <div className="rounded-lg border border-border p-4 text-left space-y-3">
-                  <p className="text-sm font-semibold text-foreground">
-                    {isNb ? "Del profilen" : "Share the profile"}
-                  </p>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 gap-2"
-                      onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`${publicFullUrl}`)}`, "_blank", "noopener,noreferrer")}
-                    >
-                      <Linkedin className="h-4 w-4" />
-                      LinkedIn
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 gap-2"
-                      onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${publicFullUrl}`)}`, "_blank", "noopener,noreferrer")}
-                    >
-                      <Facebook className="h-4 w-4" />
-                      Facebook
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 gap-2"
-                      onClick={() => {
-                        const subject = isNb ? "Vår Trust Profile" : "Our Trust Profile";
-                        const body = isNb
-                          ? `Hei,\n\nDu kan se vår Trust Profile her: ${publicFullUrl}\n`
-                          : `Hi,\n\nYou can view our Trust Profile here: ${publicFullUrl}\n`;
-                        window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                      }}
-                    >
-                      <Mail className="h-4 w-4" />
-                      {isNb ? "E-post" : "Email"}
-                    </Button>
-                  </div>
-                </div>
+              <div className="flex gap-2 justify-end pt-3">
+                <Button variant="outline" className="gap-2" onClick={() => {
+                  navigator.clipboard.writeText(`${publicFullUrl}`);
+                  toast.success(isNb ? "Lenke kopiert" : "Link copied");
+                }}>
+                  <Copy className="h-4 w-4" />
+                  {isNb ? "Kopier lenke" : "Copy link"}
+                </Button>
                 <Button className="gap-2 bg-primary hover:bg-primary/90" onClick={() => {
                   setPublishDialogOpen(false);
                   setPublishStep("confirm");
                   if (asset?.id) navigate(`/trust-engine/profile/${asset.id}`);
                 }}>
                   <ExternalLink className="h-4 w-4" />
-                  {isNb ? "Se profilen i Trust Engine" : "View profile in Trust Engine"}
+                  {isNb ? "Se profil" : "View profile"}
                 </Button>
               </div>
-            </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
