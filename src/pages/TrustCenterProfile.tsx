@@ -65,7 +65,7 @@ const TrustScoreRing = ({ score, size = 36, stroke = 3, color = "hsl(45, 90%, 55
         <circle cx={size / 2} cy={size / 2} r={r} stroke={trackColor} strokeWidth={stroke} fill="none" />
         <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth={stroke} fill="none" strokeLinecap="round" strokeDasharray={`${dash} ${c}`} />
       </svg>
-      <span className="absolute text-[11px] font-bold tabular-nums" style={{ color }}>{score}</span>
+      <span className="absolute text-sm font-bold tabular-nums" style={{ color }}>{score}</span>
     </div>
   );
 };
@@ -354,7 +354,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="gap-2 text-xs text-muted-foreground hover:text-foreground"
+                    className="gap-2 text-sm text-muted-foreground hover:text-foreground"
                     onClick={() => {
                       try { localStorage.removeItem("mynder.trustprofile.activated"); } catch {}
                       const url = new URL(window.location.href);
@@ -610,11 +610,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             <div className="flex-1 min-w-0">
           {/* Powered by header */}
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="h-3.5 w-3.5 text-primary" />
               <span className="font-medium">Mynder Trust Engine</span>
             </div>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
               <button
                 type="button"
                 onClick={() => setProofDialogOpen(true)}
@@ -661,7 +661,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className={`text-4xl font-bold tabular-nums leading-none ${trustColor}`}>{trustScore}</span>
-                    <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
+                    <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -672,14 +672,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <Info className="h-3.5 w-3.5" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed">
+                    <TooltipContent side="bottom" className="max-w-xs text-sm leading-relaxed">
                       {isNb
                         ? "Trust Score er en sammenstilt vurdering av modenheten din mot bransjestandard. Den øker etter hvert som du svarer på kontrollpunkter i regelverkene du har aktivert under Regelverk i menyen. 80+ regnes som god dekning."
                         : "Trust Score is an aggregated assessment of your maturity against industry standards. It increases as you answer control points in the frameworks you've activated under Regulations. 80+ is considered solid coverage."}
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
                     <Clock className="h-3 w-3" />
                     {lastUpdated}
@@ -693,7 +693,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </div>
                 {evaluation?.evidenceChecks && evaluation.evidenceChecks.length > 0 && (
                   <div className="flex items-center gap-1.5 mt-1">
-                    <Badge variant="outline" className="text-[13px] gap-1 border-primary/20 text-primary">
+                    <Badge variant="outline" className="text-sm gap-1 border-primary/20 text-primary">
                       <Zap className="h-2.5 w-2.5" />
                       {isNb ? "Agent-verifisert" : "Agent-verified"}
                     </Badge>
@@ -711,7 +711,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 { label: isNb ? "BRANSJE" : "INDUSTRY", value: companyProfile?.industry || "–" },
               ].map(item => (
                 <div key={item.label} className="bg-card px-4 py-3">
-                  <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                  <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
                   {item.isLink ? (
                     <a href={item.value.startsWith("http") ? item.value : `https://${item.value}`} target="_blank" rel="noreferrer" className="text-sm font-medium text-primary hover:underline mt-0.5 truncate block">{item.value}</a>
                   ) : (
@@ -736,9 +736,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <h3 className="text-base font-semibold text-foreground">{isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}</h3>
                 </div>
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-[13px] text-muted-foreground">{isNb ? "Trust Score" : "Trust Score"}</span>
+                  <span className="text-sm text-muted-foreground">{isNb ? "Trust Score" : "Trust Score"}</span>
                   <span className={`text-lg font-bold tabular-nums ${trustColor}`}>{trustScore}</span>
-                  <span className="text-[13px] text-muted-foreground">/100</span>
+                  <span className="text-sm text-muted-foreground">/100</span>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -767,7 +767,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 compact
                               />
                             )}
-                            <span className={`text-xs font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
+                            <span className={`text-sm font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
                           </div>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -862,7 +862,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <h3 className="text-sm font-semibold text-foreground">{isNb ? "Kontaktinformasjon" : "Contact information"}</h3>
                       </div>
                       {!readOnly && (
-                        <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => navigate("/trust-center/profile/edit#contacts")}>
+                        <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-sm" onClick={() => navigate("/trust-center/profile/edit#contacts")}>
                           <Pencil className="h-3 w-3" />
                           {isNb ? "Rediger" : "Edit"}
                         </Button>
@@ -873,8 +873,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <div key={i} className={`px-5 py-3.5 ${r.block ? "" : "flex items-start justify-between gap-6"} ${r.emphasis ? "bg-muted/30" : ""}`}>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-foreground">{r.label}</p>
-                            {r.sub && <p className={`text-xs mt-0.5 ${r.emphasis ? "text-foreground font-medium" : "text-muted-foreground"}`}>{r.sub}</p>}
-                            {r.block && <p className="text-xs text-muted-foreground mt-1">{r.block}</p>}
+                            {r.sub && <p className={`text-sm mt-0.5 ${r.emphasis ? "text-foreground font-medium" : "text-muted-foreground"}`}>{r.sub}</p>}
+                            {r.block && <p className="text-sm text-muted-foreground mt-1">{r.block}</p>}
                           </div>
                           {!r.block && r.primary && (
                             <div className="flex flex-col items-end gap-0.5 shrink-0 text-right">
@@ -891,7 +891,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                   href={r.secondary.href}
                                   target={r.secondary.external ? "_blank" : undefined}
                                   rel="noreferrer"
-                                  className="text-xs text-primary hover:underline"
+                                  className="text-sm text-primary hover:underline"
                                 >
                                   {r.secondary.text}
                                 </a>
@@ -899,7 +899,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             </div>
                           )}
                           {r.missing && (
-                            <span className="text-xs text-muted-foreground italic shrink-0">
+                            <span className="text-sm text-muted-foreground italic shrink-0">
                               {isNb ? "Ikke lagt til" : "Not added"}
                             </span>
                           )}
@@ -931,7 +931,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 ].map((item, i) => (
                   <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
                     <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
-                    <p className="text-[13px] text-muted-foreground mt-0.5">{item.label}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">{item.label}</p>
                   </div>
                 ))}
               </div>
@@ -958,7 +958,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   </div>
                   {allDocs.length === 0 ? (
                     <div className="px-5 pb-5 pt-1 border-t border-border">
-                      <p className="text-xs text-muted-foreground/70 italic">
+                      <p className="text-sm text-muted-foreground/70 italic">
                         {isNb ? "Ingen publisert." : "None published."}
                       </p>
                     </div>
@@ -974,7 +974,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 {doc.display_name || doc.file_name}
                               </p>
                               {updated && (
-                                <p className="text-xs text-muted-foreground mt-0.5">
+                                <p className="text-sm text-muted-foreground mt-0.5">
                                   {isNb ? "Oppdatert" : "Updated"} {fmtDate(updated)}
                                 </p>
                               )}
@@ -1005,7 +1005,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             <div className="flex items-center justify-between p-4 rounded-xl bg-card border border-border">
               <div className="space-y-0.5">
                 <p className="text-sm font-semibold text-foreground">{isNb ? "Trenger du mer informasjon?" : "Need more information?"}</p>
-                <p className="text-xs text-muted-foreground">{isNb ? "Kontakt oss for spørsmål om sikkerhet, compliance eller databehandling." : "Contact us for questions about security, compliance or data handling."}</p>
+                <p className="text-sm text-muted-foreground">{isNb ? "Kontakt oss for spørsmål om sikkerhet, compliance eller databehandling." : "Contact us for questions about security, compliance or data handling."}</p>
               </div>
               <Button variant="outline" size="sm" className="gap-2 shrink-0 rounded-lg">
                 <MessageSquare className="h-4 w-4" />
@@ -1018,7 +1018,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <div className="flex items-center gap-2">
                 <img src={mynderLogo} alt="Mynder" className="h-4 opacity-50" />
               </div>
-              <div className="text-[13px] text-muted-foreground/60">
+              <div className="text-sm text-muted-foreground/60">
                 Org.nr 933 036 729 &middot; mynder.io
               </div>
             </div>
@@ -1155,7 +1155,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             {isNb ? "Publiser på Mynder Trust Engine" : "Publish on Mynder Trust Engine"}
                           </p>
                         </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
+                        <p className="text-sm text-muted-foreground leading-relaxed">
                           {isNb
                             ? "Bli synlig i det offentlige registeret over virksomheters Trust Profiler — så kunder og partnere kan finne dere."
                             : "Become visible in the public registry of company Trust Profiles — so customers and partners can find you."}
@@ -1168,7 +1168,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             {isNb ? "Del kun med utvalgte" : "Share with selected only"}
                           </p>
                         </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
+                        <p className="text-sm text-muted-foreground leading-relaxed">
                           {isNb
                             ? "Hold profilen privat og del den via lenke med utvalgte kunder, partnere og leverandører."
                             : "Keep the profile private and share it via link with selected customers, partners and vendors."}
@@ -1180,7 +1180,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       <Button size="sm" onClick={() => setShowActivateWizard(true)}>
                         {isNb ? "Aktiver profilen" : "Activate profile"}
                       </Button>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         {isNb ? "Du velger synlighet i neste steg." : "You choose visibility in the next step."}
                       </p>
                     </div>
@@ -1275,7 +1275,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <span className="text-2xl font-bold tabular-nums text-foreground">{score}</span>
                             </div>
                           </div>
-                          <span className="text-xs text-muted-foreground mt-1">{level}</span>
+                          <span className="text-sm text-muted-foreground mt-1">{level}</span>
                         </div>
                       </div>
                     </Card>
@@ -1286,12 +1286,12 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <h3 className="text-sm font-semibold text-foreground">
                           {isNb ? "Slik ligger dere an" : "Where you stand"}
                         </h3>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-sm text-muted-foreground">
                           {isNb ? "0 – 100" : "0 – 100"}
                         </span>
                       </div>
                       <div className="relative pt-6 pb-6">
-                        <div className="absolute -top-1 text-[12px] font-medium text-primary -translate-x-1/2" style={{ left: markerLeft }}>
+                        <div className="absolute -top-1 text-sm font-medium text-primary -translate-x-1/2" style={{ left: markerLeft }}>
                           {isNb ? "Dere er her" : "You are here"}
                         </div>
                         <div
@@ -1302,7 +1302,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           }}
                         />
                         <div className="absolute top-4 w-0.5 h-5 bg-foreground -translate-x-1/2" style={{ left: markerLeft }} />
-                        <div className="grid grid-cols-4 mt-3 text-xs text-muted-foreground">
+                        <div className="grid grid-cols-4 mt-3 text-sm text-muted-foreground">
                           <span>{isNb ? "Tidlig" : "Early"}</span>
                           <span className="text-center">{isNb ? "Moderat" : "Moderate"}</span>
                           <span className="text-center">{isNb ? "God" : "Good"}</span>
@@ -1382,7 +1382,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </div>
                         ))}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-4">
+                      <p className="text-sm text-muted-foreground mt-4">
                         {isNb
                           ? "Tallene er retningsgivende gjennomsnitt basert på rammeverk, sertifiseringer og sektorforventninger. Trust Score er ikke en sertifisering — den hjelper dere å se hvor dere står og hva som mangler."
                           : "These are indicative averages based on frameworks, certifications, and sector expectations. Trust Score is not a certification — it helps you see where you stand and what's missing."}
@@ -1437,7 +1437,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               assetId={asset.id}
                               current={getVisibilityFromAsset(asset as any)}
                             />
-                            <p className="text-xs text-muted-foreground max-w-[260px] text-right">
+                            <p className="text-sm text-muted-foreground max-w-[260px] text-right">
                               {isNb
                                 ? "Standard er Mynder-økosystem. Du kan velge å gjøre profilen privat."
                                 : "Default is the Mynder ecosystem. You can choose to make the profile private."}
@@ -1447,10 +1447,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       </div>
 
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-1">
-                        <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">Public URL</p>
+                        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Public URL</p>
                         <div className="flex items-center gap-2">
                           <code className="flex-1 text-sm font-mono text-foreground">{publicUrl}</code>
-                          <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5 shrink-0" onClick={() => setIsEditingSlug(true)}>
+                          <Button variant="outline" size="sm" className="h-8 text-sm gap-1.5 shrink-0" onClick={() => setIsEditingSlug(true)}>
                             <Pencil className="h-3 w-3" />
                             Edit
                           </Button>
@@ -1460,7 +1460,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                       </div>
 
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         {isNb
                           ? "Du kan endre denne når som helst. Del denne lenken med kunder og partnere."
                           : "You can change this at any time. Share this link with customers and partners."}
@@ -1477,7 +1477,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <span className="absolute inline-flex h-full w-full rounded-full bg-success opacity-70 animate-ping" />
                               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-success" />
                             </span>
-                            <span className="text-xs font-semibold uppercase tracking-wide text-success">
+                            <span className="text-sm font-semibold uppercase tracking-wide text-success">
                               {isNb ? "Live på Mynder Trust Engine" : "Live on Mynder Trust Engine"}
                             </span>
                           </div>
@@ -1508,7 +1508,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           {/* Public URL row */}
                           <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2">
                             <Link2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            <code className="flex-1 text-xs font-mono text-foreground truncate">{publicUrl}</code>
+                            <code className="flex-1 text-sm font-mono text-foreground truncate">{publicUrl}</code>
                             <Button variant="ghost" size="sm" className="h-7 w-7 p-0 shrink-0" onClick={handleCopyLink} title={isNb ? "Kopier" : "Copy"}>
                               {copiedLink ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />}
                             </Button>
@@ -1517,21 +1517,21 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           {/* Stats grid */}
                           <div className="grid grid-cols-3 gap-3">
                             <div className="rounded-lg border border-border bg-card/50 p-3">
-                              <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground uppercase tracking-wide">
+                              <div className="flex items-center gap-1.5 text-sm text-muted-foreground uppercase tracking-wide">
                                 <Eye className="h-3 w-3" />
                                 {isNb ? "Visninger 30d" : "Views 30d"}
                               </div>
                               <div className="text-xl font-bold text-foreground mt-1">12</div>
                             </div>
                             <div className="rounded-lg border border-border bg-card/50 p-3">
-                              <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground uppercase tracking-wide">
+                              <div className="flex items-center gap-1.5 text-sm text-muted-foreground uppercase tracking-wide">
                                 <FileText className="h-3 w-3" />
                                 {isNb ? "Dokumenter" : "Documents"}
                               </div>
                               <div className="text-xl font-bold text-foreground mt-1">{docsCount + certsCount + otherDocsCount}</div>
                             </div>
                             <div className="rounded-lg border border-border bg-card/50 p-3">
-                              <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground uppercase tracking-wide">
+                              <div className="flex items-center gap-1.5 text-sm text-muted-foreground uppercase tracking-wide">
                                 <Clock className="h-3 w-3" />
                                 {isNb ? "Sist oppdatert" : "Last updated"}
                               </div>
@@ -1542,7 +1542,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           {/* Audience */}
                           <div className="flex items-center gap-2 rounded-lg bg-primary/5 border border-primary/10 px-3 py-2">
                             <Users className="h-3.5 w-3.5 text-primary shrink-0" />
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-sm text-muted-foreground">
                               {isNb ? "Synlig for: " : "Visible to: "}
                               <span className="font-medium text-foreground">
                                 {(asset as any).publish_mode === "public"
@@ -1583,7 +1583,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     ) : (
                       <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3">
                         <div className="flex items-center justify-between gap-3 flex-wrap">
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm text-muted-foreground">
                             {isNb ? "Offentlig lenke" : "Public link"}:{" "}
                             <span className="font-medium text-foreground">{publicUrl}</span>
                           </p>
@@ -1696,19 +1696,19 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       return (
                         <>
                           <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2">
-                            <span className="text-xs font-medium text-muted-foreground">
+                            <span className="text-sm font-medium text-muted-foreground">
                               {isNb ? "Bakgrunn for forhåndsvisning" : "Preview background"}
                             </span>
                             <div className="inline-flex rounded-md border border-border bg-background p-0.5">
                               <button
                                 onClick={() => setBadgeTheme("dark")}
-                                className={`px-3 py-1 text-xs font-medium rounded ${isDark ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+                                className={`px-3 py-1 text-sm font-medium rounded ${isDark ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
                               >
                                 {isNb ? "Mørk" : "Dark"}
                               </button>
                               <button
                                 onClick={() => setBadgeTheme("light")}
-                                className={`px-3 py-1 text-xs font-medium rounded ${!isDark ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+                                className={`px-3 py-1 text-sm font-medium rounded ${!isDark ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
                               >
                                 {isNb ? "Lys" : "Light"}
                               </button>
@@ -1724,15 +1724,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <div className="flex items-center justify-between">
                           <div>
                             <h3 className="text-base font-semibold text-foreground">Free Badge</h3>
-                            <p className="text-xs text-muted-foreground">{isNb ? "Inkludert i ditt abonnement" : "Included in your plan"}</p>
+                            <p className="text-sm text-muted-foreground">{isNb ? "Inkludert i ditt abonnement" : "Included in your plan"}</p>
                           </div>
                           {selectedBadgeTier === "free" ? (
-                            <Badge variant="default" className="text-[13px] gap-1">
+                            <Badge variant="default" className="text-sm gap-1">
                               <CheckCircle2 className="h-3 w-3" />
                               {isNb ? "Valgt" : "Selected"}
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="text-[13px]">{isNb ? "Velg" : "Select"}</Badge>
+                            <Badge variant="outline" className="text-sm">{isNb ? "Velg" : "Select"}</Badge>
                           )}
                         </div>
                         <div className="flex justify-center py-5">
@@ -1749,8 +1749,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <ButterflyMark size={16} color={t.gold} />
                             </span>
                             <span className="flex flex-col leading-tight">
-                              <span className="text-[11px] uppercase tracking-[0.14em]" style={{ color: t.goldSoft }}>Mynder Verified</span>
-                              <span className="text-[12px] font-semibold" style={{ color: t.textMain, opacity: 0.9 }}>Trust Score</span>
+                              <span className="text-sm uppercase tracking-[0.14em]" style={{ color: t.goldSoft }}>Mynder Verified</span>
+                              <span className="text-sm font-semibold" style={{ color: t.textMain, opacity: 0.9 }}>Trust Score</span>
                             </span>
                             <TrustScoreRing score={trustScore} size={32} stroke={2.5} color={t.gold} trackColor={t.ringTrack} />
                           </span>
@@ -1777,15 +1777,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <div className="flex items-center justify-between">
                           <div>
                             <h3 className="text-base font-semibold text-foreground">Pro Badge</h3>
-                            <p className="text-xs text-muted-foreground">{isNb ? "Full tilpasning" : "Full customization"}</p>
+                            <p className="text-sm text-muted-foreground">{isNb ? "Full tilpasning" : "Full customization"}</p>
                           </div>
                           {selectedBadgeTier === "pro" ? (
-                            <Badge variant="default" className="text-[13px] gap-1">
+                            <Badge variant="default" className="text-sm gap-1">
                               <CheckCircle2 className="h-3 w-3" />
                               {isNb ? "Valgt" : "Selected"}
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="text-[13px]">{isNb ? "Velg" : "Select"}</Badge>
+                            <Badge variant="outline" className="text-sm">{isNb ? "Velg" : "Select"}</Badge>
                           )}
                         </div>
                         <div className="flex justify-center py-4">
@@ -1803,16 +1803,16 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                 <ButterflyMark size={26} color={t.gold} />
                               </div>
                               <div className="flex-1">
-                                <div className="text-[11px] uppercase tracking-[0.18em]" style={{ color: t.goldSoft }}>Mynder Verified</div>
+                                <div className="text-sm uppercase tracking-[0.18em]" style={{ color: t.goldSoft }}>Mynder Verified</div>
                                 <div className="text-base font-semibold leading-tight" style={{ color: t.textMain }}>Trust Profile</div>
-                                <div className="text-[12px]" style={{ color: t.textSub }}>Compliance · Security</div>
+                                <div className="text-sm" style={{ color: t.textSub }}>Compliance · Security</div>
                               </div>
                               <div className="flex flex-col items-center gap-0.5">
                                 <TrustScoreRing score={trustScore} size={42} stroke={3} color={t.gold} trackColor={t.ringTrack} />
-                                <span className="text-[11px] uppercase tracking-wider" style={{ color: t.textSub }}>Trust Score</span>
+                                <span className="text-sm uppercase tracking-wider" style={{ color: t.textSub }}>Trust Score</span>
                               </div>
                             </div>
-                            <div className="mt-2 pt-2 border-t text-center text-[11px] uppercase tracking-[0.22em]" style={{ borderColor: t.dividerSoft, color: t.goldSoft }}>
+                            <div className="mt-2 pt-2 border-t text-center text-sm uppercase tracking-[0.22em]" style={{ borderColor: t.dividerSoft, color: t.goldSoft }}>
                               Trust · Compliance · Verified
                             </div>
                           </div>
@@ -1831,7 +1831,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                         <div className="space-y-2">
                           <div className="flex justify-center">
-                            <span className="inline-flex items-center gap-1.5 rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-[12px] font-medium text-success">
+                            <span className="inline-flex items-center gap-1.5 rounded-full border border-success/20 bg-success/10 px-2.5 py-0.5 text-sm font-medium text-success">
                               <Sparkles className="h-3 w-3" />
                               {isNb ? "Gratis i lanseringsperioden" : "Free during launch period"}
                             </span>
@@ -1860,7 +1860,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           </button>
                         </div>
                         <div className="relative p-4 bg-muted/20">
-                          <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap leading-relaxed">{`<!-- Mynder Trust Badge -->
+                          <pre className="text-sm font-mono text-muted-foreground whitespace-pre-wrap leading-relaxed">{`<!-- Mynder Trust Badge -->
 <div id="mynder-trust-badge"
      data-profile="${slug}${orgSuffix}"
      data-style="compact"
@@ -1879,7 +1879,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <Copy className="h-3.5 w-3.5" />
                           </Button>
                         </div>
-                        <p className="px-4 py-2.5 text-xs text-muted-foreground border-t border-border">
+                        <p className="px-4 py-2.5 text-sm text-muted-foreground border-t border-border">
                           {isNb
                             ? "Script-metoden gir best brukeropplevelse og oppdateres automatisk."
                             : "The script method provides the best user experience and updates automatically."}
@@ -1913,12 +1913,12 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 {/* Powered by header */}
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Shield className="h-3.5 w-3.5 text-primary" />
                       <span className="font-medium">Mynder Trust Engine</span>
                     </div>
                     <span className="text-muted-foreground/40 hidden sm:inline">·</span>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
                       <button
                         type="button"
                         onClick={() => setProofDialogOpen(true)}
@@ -1971,7 +1971,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
                           <span className={`text-4xl font-bold tabular-nums leading-none ${trustColor}`}>{trustScore}</span>
-                          <span className="text-[12px] font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
+                          <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
@@ -1982,14 +1982,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <Info className="h-3.5 w-3.5" />
                             </button>
                           </TooltipTrigger>
-                          <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed">
+                          <TooltipContent side="bottom" className="max-w-xs text-sm leading-relaxed">
                             {isNb
                               ? "Trust Score er en sammenstilt vurdering av modenheten din mot bransjestandard. Den øker etter hvert som du svarer på kontrollpunkter i regelverkene du har aktivert under Regelverk i menyen. 80+ regnes som god dekning."
                               : "Trust Score is an aggregated assessment of your maturity against industry standards. It increases as you answer control points in the frameworks you've activated under Regulations. 80+ is considered solid coverage."}
                           </TooltipContent>
                         </Tooltip>
                       </div>
-                      <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <span className="inline-flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           {lastUpdated}
@@ -2013,7 +2013,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       { label: isNb ? "BRANSJE" : "INDUSTRY", value: companyProfile?.industry || "–" },
                     ].map(item => (
                       <div key={item.label} className="bg-card px-4 py-3">
-                        <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
                         {item.isLink ? (
                           <a href={item.value.startsWith("http") ? item.value : `https://${item.value}`} target="_blank" rel="noreferrer" className="text-sm font-medium text-primary hover:underline mt-0.5 truncate block">{item.value}</a>
                         ) : (
@@ -2040,9 +2040,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </h3>
                       </div>
                       <div className="flex items-baseline gap-1.5">
-                        <span className="text-[13px] text-muted-foreground">{isNb ? "Trust Score" : "Trust Score"}</span>
+                        <span className="text-sm text-muted-foreground">{isNb ? "Trust Score" : "Trust Score"}</span>
                         <span className={`text-lg font-bold tabular-nums ${trustColor}`}>{trustScore}</span>
-                        <span className="text-[13px] text-muted-foreground">/100</span>
+                        <span className="text-sm text-muted-foreground">/100</span>
                       </div>
                     </div>
 
@@ -2069,7 +2069,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                   <span className="text-sm font-medium text-foreground">{isNb ? labelNb : labelEn}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className={`text-xs font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
+                                  <span className={`text-sm font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
                                   {isExpanded
                                     ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
                                     : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -2116,10 +2116,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                         <span className="text-sm text-foreground">{isNb ? control.labelNb : control.labelEn}</span>
                                       </div>
                                       <div className="flex items-center gap-2 shrink-0">
-                                        <Badge variant="outline" className={`text-[13px] ${statusBadgeClass}`}>
+                                        <Badge variant="outline" className={`text-sm ${statusBadgeClass}`}>
                                           {statusBadgeLabel}
                                         </Badge>
-                                        {verificationLabel && <span className="text-[13px] text-muted-foreground">{verificationLabel}</span>}
+                                        {verificationLabel && <span className="text-sm text-muted-foreground">{verificationLabel}</span>}
                                       </div>
                                     </div>
                                   );
@@ -2155,7 +2155,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       ].map((item, i) => (
                         <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
                           <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
-                          <p className="text-[13px] text-muted-foreground mt-0.5">{item.label}</p>
+                          <p className="text-sm text-muted-foreground mt-0.5">{item.label}</p>
                         </div>
                       ))}
                     </div>
@@ -2217,8 +2217,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <div key={i} className={`px-5 py-3.5 ${r.block ? "" : "flex items-start justify-between gap-6"}`}>
                                 <div className="min-w-0">
                                   <p className="text-sm font-semibold text-foreground">{r.label}</p>
-                                  {r.sub && <p className="text-xs text-muted-foreground mt-0.5">{r.sub}</p>}
-                                  {r.block && <p className="text-xs text-muted-foreground mt-1">{r.block}</p>}
+                                  {r.sub && <p className="text-sm text-muted-foreground mt-0.5">{r.sub}</p>}
+                                  {r.block && <p className="text-sm text-muted-foreground mt-1">{r.block}</p>}
                                 </div>
                                 {!r.block && r.primary && (
                                   <div className="flex flex-col items-end gap-0.5 shrink-0 text-right">
@@ -2226,7 +2226,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                       {r.primary.text}
                                     </a>
                                     {r.secondary && (
-                                      <a href={r.secondary.href} target={r.secondary.external ? "_blank" : undefined} rel="noreferrer" className="text-xs text-primary hover:underline">
+                                      <a href={r.secondary.href} target={r.secondary.external ? "_blank" : undefined} rel="noreferrer" className="text-sm text-primary hover:underline">
                                         {r.secondary.text}
                                       </a>
                                     )}
@@ -2272,15 +2272,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <p className="text-sm font-semibold text-foreground truncate">
                                 {partnerName}
                               </p>
-                              <Badge variant="outline" className="text-[11px]">
+                              <Badge variant="outline" className="text-sm">
                                 {partnerTypeLabel}
                               </Badge>
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-sm text-muted-foreground mt-1">
                               {partnerDesc}
                             </p>
                             {partnerSince && (
-                              <p className="text-[12px] text-muted-foreground/70 mt-1">
+                              <p className="text-sm text-muted-foreground/70 mt-1">
                                 {isNb ? "Partner siden" : "Partner since"} {partnerSince}
                               </p>
                             )}
@@ -2311,7 +2311,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         </div>
                         {allDocs.length === 0 ? (
                           <div className="px-5 pb-5 pt-1 border-t border-border">
-                            <p className="text-xs text-muted-foreground/70 italic">
+                            <p className="text-sm text-muted-foreground/70 italic">
                               {isNb ? "Ingen publisert." : "None published."}
                             </p>
                           </div>
@@ -2327,7 +2327,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                                       {doc.display_name || doc.file_name}
                                     </p>
                                     {updated && (
-                                      <p className="text-xs text-muted-foreground mt-0.5">
+                                      <p className="text-sm text-muted-foreground mt-0.5">
                                         {isNb ? "Oppdatert" : "Updated"} {fmtDate(updated)}
                                       </p>
                                     )}
@@ -2354,7 +2354,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       <p className="text-sm font-semibold text-foreground">
                         {isNb ? "Trenger du mer informasjon?" : "Need more information?"}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         {isNb
                           ? "Kontakt oss for spørsmål om sikkerhet, compliance eller databehandling."
                           : "Contact us for questions about security, compliance or data handling."}
@@ -2376,7 +2376,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <Package className="h-4 w-4" />
                         <span>
                           {isNb ? "Produkter og tjenester" : "Products & Services"}
-                          <span className="ml-1.5 text-xs">({services.length})</span>
+                          <span className="ml-1.5 text-sm">({services.length})</span>
                         </span>
                         <ArrowRight className="h-3.5 w-3.5" />
                       </button>
@@ -2388,7 +2388,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     <div className="flex items-center gap-2">
                       <img src={mynderLogo} alt="Mynder" className="h-4 opacity-50" />
                     </div>
-                    <div className="text-[13px] text-muted-foreground/60">
+                    <div className="text-sm text-muted-foreground/60">
                       Org.nr 933 036 729 &middot; mynder.io
                     </div>
                   </div>
@@ -2432,7 +2432,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             {/* Price */}
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-center">
               <p className="text-3xl font-bold text-foreground">990 kr<span className="text-sm font-normal text-muted-foreground"> / {isNb ? "mnd" : "mo"}</span></p>
-              <p className="text-xs text-muted-foreground mt-1">{isNb ? "Faktureres årlig. Ingen bindingstid." : "Billed annually. Cancel anytime."}</p>
+              <p className="text-sm text-muted-foreground mt-1">{isNb ? "Faktureres årlig. Ingen bindingstid." : "Billed annually. Cancel anytime."}</p>
             </div>
 
             {/* Features */}
@@ -2467,7 +2467,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 <Sparkles className="h-4 w-4" />
                 {isNb ? "Oppgrader nå" : "Upgrade now"}
               </Button>
-              <p className="text-[13px] text-center text-muted-foreground">
+              <p className="text-sm text-center text-muted-foreground">
                 {isNb
                   ? "Du kan når som helst nedgradere til gratisplanen."
                   : "You can downgrade to the free plan at any time."}
@@ -2525,7 +2525,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </DialogDescription>
               </DialogHeader>
               <div className="rounded-md border border-border bg-muted/30 px-3 py-2 mt-2">
-                <code className="text-xs font-mono text-foreground break-all">{publicUrl}</code>
+                <code className="text-sm font-mono text-foreground break-all">{publicUrl}</code>
               </div>
               <div className="flex gap-2 justify-end pt-3">
                 <Button variant="outline" onClick={() => setPublishDialogOpen(false)}>
@@ -2560,7 +2560,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </DialogTitle>
               </DialogHeader>
               <div className="rounded-md border border-border bg-muted/30 px-3 py-2 mt-2">
-                <code className="text-xs font-mono text-foreground break-all">{publicUrl}</code>
+                <code className="text-sm font-mono text-foreground break-all">{publicUrl}</code>
               </div>
               <div className="flex gap-2 justify-end pt-3">
                 <Button variant="outline" className="gap-2" onClick={() => {
@@ -2716,15 +2716,15 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             </DialogTitle>
             <DialogDescription className="flex items-center gap-2 flex-wrap">
               {previewDoc?.status && (
-                <Badge variant={previewDoc.status === "verified" ? "default" : "outline"} className="text-[13px]">
+                <Badge variant={previewDoc.status === "verified" ? "default" : "outline"} className="text-sm">
                   {previewDoc.status === "verified" ? (isNb ? "Verifisert" : "Verified") : previewDoc.status}
                 </Badge>
               )}
-              <Badge variant="outline" className="text-[13px] gap-1">
+              <Badge variant="outline" className="text-sm gap-1">
                 <Globe className="h-3 w-3" />{isNb ? "Offentlig" : "Public"}
               </Badge>
               {previewDoc?.created_at && (
-                <span className="text-[13px] text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {isNb ? "Opprettet" : "Created"} {new Date(previewDoc.created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
                 </span>
               )}
@@ -2734,7 +2734,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           {/* Friendly info banner — forklarer at dokumentet samles på eget Trust Center */}
           <div className="mx-1 mt-1 mb-2 flex items-start gap-2.5 rounded-lg border border-primary/15 bg-primary/5 px-3.5 py-2.5">
             <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" aria-hidden />
-            <p className="text-[13px] leading-relaxed text-foreground/90">
+            <p className="text-sm leading-relaxed text-foreground/90">
               {isNb ? (
                 <>
                   Dette er informasjon som nå samles og synliggjøres på ditt eget Trust Center på{" "}
@@ -2757,7 +2757,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <Shield className="h-5 w-5 text-primary" />
                   <span className="text-sm font-semibold tracking-wide">{isNb ? "DEMO – DOKUMENTUTDRAG" : "DEMO – DOCUMENT EXCERPT"}</span>
                 </div>
-                <span className="text-[12px] text-muted-foreground">v1.0</span>
+                <span className="text-sm text-muted-foreground">v1.0</span>
               </div>
 
               <h1 className="text-2xl font-bold text-foreground">
@@ -2797,7 +2797,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </ul>
               </div>
 
-              <div className="border-t border-border pt-4 mt-6 flex items-center justify-between text-[12px] text-muted-foreground">
+              <div className="border-t border-border pt-4 mt-6 flex items-center justify-between text-sm text-muted-foreground">
                 <span>{isNb ? "Generert av Mynder for demo-formål" : "Generated by Mynder for demo purposes"}</span>
                 <span>{isNb ? "Side 1 av 1" : "Page 1 of 1"}</span>
               </div>
@@ -2849,7 +2849,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         ? "Innholds-hash (SHA-256) — unikt fingeravtrykk av innholdet"
                         : "Content hash (SHA-256) — unique fingerprint of the content"}
                     </p>
-                    <p className="text-xs font-mono text-foreground/80 break-all mt-1">
+                    <p className="text-sm font-mono text-foreground/80 break-all mt-1">
                       8f4b2c1a9d6e3f7b5a8c2d4e6f1a9b3c5d7e9f1b3a5c7e9d1f3b5a7c9e1d3f5b
                     </p>
                   </div>
@@ -2859,7 +2859,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         ? "Signatur (Ed25519) — bekrefter avsender"
                         : "Signature (Ed25519) — confirms the sender"}
                     </p>
-                    <p className="text-xs font-mono text-foreground/80 break-all mt-1">
+                    <p className="text-sm font-mono text-foreground/80 break-all mt-1">
                       MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b
                     </p>
                   </div>
@@ -2868,7 +2868,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             </Collapsible>
 
             <div className="flex items-center justify-between gap-2 pt-2">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {isNb ? "Sist signert 2. juni 2026" : "Last signed June 2, 2026"}
               </p>
               <div className="flex items-center gap-2">
