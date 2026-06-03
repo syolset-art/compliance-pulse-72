@@ -748,7 +748,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       <button
                         type="button"
                         onClick={() => setExpandedArea(isExpanded ? null : area)}
-                        className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
+                        className="w-full text-left p-4 cursor-pointer hover:bg-muted/40 hover:border-primary/30 transition-colors group"
                         aria-expanded={isExpanded}
                       >
                         <div className="flex items-center justify-between mb-2">
@@ -756,7 +756,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                               <Icon className="h-4 w-4 text-primary" />
                             </div>
-                            <span className="text-sm font-medium text-foreground">{isNb ? labelNb : labelEn}</span>
+                            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{isNb ? labelNb : labelEn}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             {evidenceStatus && (
@@ -768,13 +768,18 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             )}
                             <span className={`text-sm font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
                             {isExpanded
-                              ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                              : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                              ? <ChevronUp className="h-4 w-4 text-primary" />
+                              : <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />}
                           </div>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className={`h-full rounded-full ${tone.bg} transition-all duration-500`} style={{ width: `${score}%` }} />
                         </div>
+                        {!isExpanded && (
+                          <p className="mt-2 text-[11px] text-muted-foreground/70 group-hover:text-primary transition-colors">
+                            {isNb ? "Klikk for å se kontroller og regelverk" : "Click to see controls and frameworks"}
+                          </p>
+                        )}
                       </button>
 
                       {isExpanded && (
