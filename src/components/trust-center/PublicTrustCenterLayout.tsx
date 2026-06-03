@@ -79,28 +79,47 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
             <span className="text-sm font-semibold text-foreground">Mynder Trust Engine</span>
           </button>
 
-          {user ? (
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(-1)}
-              className="gap-2"
+              onClick={() => navigate("/trust-engine")}
+              className="hidden sm:inline-flex"
             >
-              <ArrowLeft className="h-4 w-4" />
-              {isNb ? "Tilbake" : "Back"}
+              {isNb ? "Om Trust Profile" : "About Trust Profile"}
             </Button>
-          ) : (
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => navigate("/auth")}
-              className="gap-2"
-            >
-              <LogIn className="h-4 w-4" />
-              {isNb ? "Logg inn" : "Log in"}
-            </Button>
-          )}
 
+            {user ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(-1)}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {isNb ? "Tilbake" : "Back"}
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate("/auth")}
+                >
+                  {isNb ? "Opprette din profil" : "Create your profile"}
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => navigate("/auth")}
+                  className="gap-2"
+                >
+                  <LogIn className="h-4 w-4" />
+                  {isNb ? "Logg inn" : "Log in"}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
