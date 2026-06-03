@@ -614,16 +614,14 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <Shield className="h-3.5 w-3.5 text-primary" />
               <span className="font-medium">Mynder Trust Engine</span>
             </div>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-              <button
-                type="button"
-                onClick={() => setProofDialogOpen(true)}
-                className="inline-flex items-center gap-1 text-success font-medium hover:underline"
-              >
-                <CheckCircle2 className="h-3 w-3" />
-                {isNb ? "Kryptografisk verifisert" : "Cryptographically verified"}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setProofDialogOpen(true)}
+              className="inline-flex items-center gap-1.5 text-success font-medium hover:underline"
+            >
+              <Award className="h-4 w-4" />
+              {isNb ? "Verifisert" : "Verified"}
+            </button>
           </div>
 
           <div className="p-6 md:p-8 space-y-8">
@@ -1912,23 +1910,18 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <div className="flex-1 min-w-0">
                 {/* Powered by header */}
                 <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Shield className="h-3.5 w-3.5 text-primary" />
-                      <span className="font-medium">Mynder Trust Engine</span>
-                    </div>
-                    <span className="text-muted-foreground/40 hidden sm:inline">·</span>
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-                      <button
-                        type="button"
-                        onClick={() => setProofDialogOpen(true)}
-                        className="inline-flex items-center gap-1 text-success font-medium hover:underline"
-                      >
-                        <CheckCircle2 className="h-3 w-3" />
-                        {isNb ? "Kryptografisk verifisert" : "Cryptographically verified"}
-                      </button>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Shield className="h-3.5 w-3.5 text-primary" />
+                    <span className="font-medium">Mynder Trust Engine</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setProofDialogOpen(true)}
+                    className="inline-flex items-center gap-1.5 text-success font-medium hover:underline"
+                  >
+                    <Award className="h-4 w-4" />
+                    {isNb ? "Verifisert" : "Verified"}
+                  </button>
                 </div>
 
                 <div className="p-6 md:p-8 space-y-8">
