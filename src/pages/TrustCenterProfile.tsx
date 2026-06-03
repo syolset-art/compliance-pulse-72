@@ -739,9 +739,18 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   const label = scoreLabel(score, isNb);
                   const evidenceInfo = evaluation?.evidenceSummary?.[area];
                   const evidenceStatus = evidenceInfo?.worst as EvidenceStatus | null;
+                  const isExpanded = expandedArea === area;
+                  const areaControls = evaluation?.grouped[area] ?? [];
+                  const filledControls = areaControls.filter(c => c.status === "implemented" || c.status === "partial");
+
                   return (
                     <div key={area} className="rounded-lg border border-border overflow-hidden">
-                      <div className="w-full text-left p-4">
+                      <button
+                        type="button"
+                        onClick={() => setExpandedArea(isExpanded ? null : area)}
+                        className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
+                        aria-expanded={isExpanded}
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2.5">
                             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -758,12 +767,75 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               />
                             )}
                             <span className={`text-sm font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
+                            {isExpanded
+                              ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                              : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                           </div>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                           <div className={`h-full rounded-full ${tone.bg} transition-all duration-500`} style={{ width: `${score}%` }} />
                         </div>
-                      </div>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="border-t border-border bg-muted/10">
+                          {areaControls.length > 0 ? (
+                            <div>
+                              {areaControls.map((control) => {
+                                const statusIcon = control.status === "implemented"
+                                  ? <CheckCircle2 className="h-4 w-4 text-success" />
+                                  : control.status === "partial"
+                                    ? <AlertTriangle className="h-4 w-4 text-warning" />
+                                    : <XCircle className="h-4 w-4 text-destructive" />;
+                                const badgeLabel = control.status === "implemented"
+                                  ? (isNb ? "Fylt ut" : "Filled")
+                                  : control.status === "partial"
+                                    ? (isNb ? "Delvis" : "Partial")
+                                    : (isNb ? "Mangler" : "Missing");
+                                const badgeClass = control.status === "implemented"
+                                  ? "bg-success/10 text-success border-success/20"
+                                  : control.status === "partial"
+                                    ? "bg-warning/10 text-warning border-warning/20"
+                                    : "bg-destructive/10 text-destructive border-destructive/20";
+                                return (
+                                  <div key={control.key} className="flex items-center justify-between px-4 py-2.5 border-b border-border last:border-b-0">
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      {statusIcon}
+                                      <span className="text-sm text-foreground truncate">{isNb ? control.labelNb : control.labelEn}</span>
+                                    </div>
+                                    <Badge variant="outline" className={`text-xs shrink-0 ${badgeClass}`}>{badgeLabel}</Badge>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="px-4 py-3 text-sm text-muted-foreground italic">
+                              {isNb ? "Ingen kontrollpunkter registrert i dette området ennå." : "No control points registered in this area yet."}
+                            </p>
+                          )}
+
+                          {frameworks.length > 0 && (
+                            <div className="px-4 py-3 border-t border-border">
+                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                                {isNb ? "Aktive regelverk som dekker dette området" : "Active frameworks covering this area"}
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {frameworks.map((fw: any) => (
+                                  <Badge key={fw.framework_id} variant="secondary" className="text-xs gap-1">
+                                    <ShieldCheck className="h-3 w-3 text-primary" />
+                                    {fw.framework_name}
+                                  </Badge>
+                                ))}
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                {isNb
+                                  ? `${filledControls.length} av ${areaControls.length} kontrollpunkter fylt ut i dette området.`
+                                  : `${filledControls.length} of ${areaControls.length} control points filled in this area.`}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
