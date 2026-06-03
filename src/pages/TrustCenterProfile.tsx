@@ -611,17 +611,17 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Shield className="h-3.5 w-3.5 text-primary" />
-              <span className="font-medium">Powered by Mynder Trust Center</span>
+              <span className="font-medium">Mynder Trust Engine</span>
             </div>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
-              <span className="inline-flex items-center gap-1 text-success font-medium">
-                <CheckCircle2 className="h-3.5 w-3.5" />
+              <button
+                type="button"
+                onClick={() => setProofDialogOpen(true)}
+                className="inline-flex items-center gap-1 text-success font-medium hover:underline"
+              >
+                <CheckCircle2 className="h-3 w-3" />
                 {isNb ? "Kryptografisk verifisert" : "Cryptographically verified"}
-              </span>
-              <span className="text-muted-foreground/50">·</span>
-              <span>{isNb ? "sist signert 3. mai 2026" : "last signed May 3, 2026"}</span>
-              <span className="text-muted-foreground/50">·</span>
-              <button type="button" onClick={() => setProofDialogOpen(true)} className="text-primary hover:underline">{isNb ? "se bevis" : "view proof"}</button>
+              </button>
             </div>
           </div>
 
@@ -1914,48 +1914,20 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Shield className="h-3.5 w-3.5 text-primary" />
-                      <span className="font-medium">Powered by Mynder Trust Center</span>
+                      <span className="font-medium">Mynder Trust Engine</span>
                     </div>
                     <span className="text-muted-foreground/40 hidden sm:inline">·</span>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
-                      <span className="inline-flex items-center gap-1 text-success font-medium">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
+                      <button
+                        type="button"
+                        onClick={() => setProofDialogOpen(true)}
+                        className="inline-flex items-center gap-1 text-success font-medium hover:underline"
+                      >
+                        <CheckCircle2 className="h-3 w-3" />
                         {isNb ? "Kryptografisk verifisert" : "Cryptographically verified"}
-                      </span>
-                      <span className="text-muted-foreground/50">·</span>
-                      <span>{isNb ? "sist signert 3. mai 2026" : "last signed May 3, 2026"}</span>
-                      <span className="text-muted-foreground/50">·</span>
-                      <button type="button" onClick={() => setProofDialogOpen(true)} className="text-primary hover:underline">{isNb ? "se bevis" : "view proof"}</button>
+                      </button>
                     </div>
                   </div>
-                  {isPublished ? (
-                    <a
-                      href={`/trust-engine/profile/${asset.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={isNb ? "Åpne ditt publiserte Trust Center" : "Open your published Trust Center"}
-                      className="inline-flex items-center gap-1 text-[13px] font-medium text-primary hover:underline"
-                    >
-                      {isNb ? "Utforsk Trust Center" : "Explore Trust Center"}
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </a>
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground/70 cursor-help">
-                          <Lock className="h-3 w-3" />
-                          {isNb ? "Utforsk Trust Center" : "Explore Trust Center"}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="max-w-xs">
-                        <p className="text-xs leading-relaxed">
-                          {isNb
-                            ? "Trust Centeret aktiveres når du publiserer profilen. Da kan kunder og partnere se all informasjonen du har valgt å dele — dokumenter, sertifiseringer, modenhet og kontaktinfo — samlet på ett sted."
-                            : "The Trust Center activates when you publish your profile. Customers and partners can then see all the information you've chosen to share — documents, certifications, maturity and contact info — gathered in one place."}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  )}
                 </div>
 
                 <div className="p-6 md:p-8 space-y-8">
