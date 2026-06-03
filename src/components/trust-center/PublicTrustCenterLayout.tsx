@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  ArrowLeft, Shield, FileText, MessageSquare, BarChart3, Lock, ChevronDown, Info, Sparkles,
+  ArrowLeft, Shield, FileText, MessageSquare, BarChart3, Lock, ChevronDown, Info, Sparkles, LogIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import TrustCenterProfile from "@/pages/TrustCenterProfile";
 import PublicTrustFooter from "@/components/trust-center/PublicTrustFooter";
+import { useAuth } from "@/hooks/useAuth";
+
 
 type SectionKey = "profile" | "maturity" | "documentation" | "contact";
 
@@ -30,7 +32,9 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
   const navigate = useNavigate();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const { user } = useAuth();
   const [active, setActive] = useState<SectionKey>("profile");
+
 
   useEffect(() => {
     const h = window.location.hash.replace("#", "") as SectionKey;
@@ -64,45 +68,39 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
       {/* Trust Engine top bar */}
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container max-w-6xl mx-auto flex items-center justify-between px-6 py-3 gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => navigate("/trust-engine")}
-            className="gap-2"
+            className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-muted/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            aria-label={isNb ? "Gå til Mynder Trust Engine søk" : "Go to Mynder Trust Engine search"}
           >
-            <ArrowLeft className="h-4 w-4" />
-            {isNb ? "Tilbake til søk" : "Back to search"}
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-muted/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                <div className="hidden sm:flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
-                    <Shield className="h-4 w-4 text-primary-foreground" />
-                  </div>
-                  <span className="text-sm font-semibold text-foreground">Mynder Trust Engine</span>
-                </div>
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-60">
-              <DropdownMenuItem asChild className="gap-2 cursor-pointer">
-                <a
-                  href="https://mynder.no/trust-engine"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 w-full"
-                >
-                  <Info className="h-4 w-4 text-primary" />
-                  <span>{isNb ? "Om Trust Engine" : "About Trust Engine"}</span>
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/trust-engine?create=1")} className="gap-2 cursor-pointer">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span>{isNb ? "Opprett din egen Trust Profile" : "Create your own Trust Profile"}</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
+              <Shield className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <span className="text-sm font-semibold text-foreground">Mynder Trust Engine</span>
+          </button>
+
+          {user ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {isNb ? "Tilbake" : "Back"}
+            </Button>
+          ) : (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => navigate("/auth")}
+              className="gap-2"
+            >
+              <LogIn className="h-4 w-4" />
+              {isNb ? "Logg inn" : "Log in"}
+            </Button>
+          )}
+
         </div>
       </header>
 
