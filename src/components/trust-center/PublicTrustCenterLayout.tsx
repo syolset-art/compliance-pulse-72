@@ -107,58 +107,11 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
       </header>
 
       <div className="container max-w-6xl mx-auto px-4 md:px-6 py-6 flex-1">
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar */}
-          <aside className="md:w-56 shrink-0 md:pt-4">
-            <div className="md:sticky md:top-20 space-y-1">
-              <p className="text-[12px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2 mt-2">
-                {isNb ? "Trust Center" : "Trust Center"}
-              </p>
-              <nav className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = active === item.key;
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={() => handleSelect(item.key)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-colors ${
-                        isActive
-                          ? "bg-primary/10 text-primary font-medium dark:bg-accent/15 dark:text-accent"
-                          : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {item.label}
-                    </button>
-                  );
-                })}
-              </nav>
-
-              <div className="mt-6 px-3 space-y-2">
-                <div className="flex items-start gap-2 text-[12px] text-muted-foreground leading-relaxed">
-                  <Lock className="h-3.5 w-3.5 text-primary dark:text-accent shrink-0 mt-0.5" />
-                  <span>
-                    {isNb
-                      ? "Innhold er kryptert og verifisert av eier."
-                      : "Content is encrypted and verified by the owner."}
-                  </span>
-                </div>
-                <p className="text-[12px] text-muted-foreground leading-relaxed">
-                  {isNb
-                    ? "All informasjon vises her — du forlater ikke Trust Centeret når du leser dokumentasjon."
-                    : "Everything stays here — you don't leave the Trust Center when reading documentation."}
-                </p>
-              </div>
-            </div>
-          </aside>
-
-          {/* Main content */}
-          <main className="flex-1 min-w-0">
-            <TrustCenterProfile assetId={assetId} readOnly />
-          </main>
-        </div>
+        <main className="min-w-0">
+          <TrustCenterProfile assetId={assetId} readOnly />
+        </main>
       </div>
+
 
       <PublicTrustFooter />
     </div>
