@@ -2965,92 +2965,93 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
       {/* Cryptographic Proof Dialog */}
       <Dialog open={proofDialogOpen} onOpenChange={setProofDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-success" />
-              {isNb ? "Kryptografisk bevis" : "Cryptographic proof"}
-            </DialogTitle>
-            <DialogDescription>
-              {isNb
-                ? "Denne Trust Profilen er signert digitalt av Mynder Trust Engine. Bevisene under viser at innholdet ikke er endret etter signering."
-                : "This Trust Profile is digitally signed by Mynder Trust Engine. The proofs below confirm the content has not been altered since signing."}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 mt-2">
-            <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-[12px] uppercase tracking-wide text-muted-foreground">{isNb ? "Status" : "Status"}</p>
-                <p className="text-sm font-semibold text-success flex items-center gap-1.5 mt-1">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> {isNb ? "Verifisert" : "Verified"}
+        <DialogContent className="max-w-lg">
+          <DialogHeader className="space-y-2">
+            <div className="flex items-start gap-3">
+              <div className="h-9 w-9 rounded-full bg-success/10 flex items-center justify-center shrink-0">
+                <ShieldCheck className="h-5 w-5 text-success" />
+              </div>
+              <div className="space-y-1">
+                <DialogTitle className="text-base">
+                  {isNb ? "Ekte og uendret" : "Authentic and unchanged"}
+                </DialogTitle>
+                <p className="text-sm text-success flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  {isNb ? "Verifisert av Mynder Trust Engine" : "Verified by Mynder Trust Engine"}
                 </p>
               </div>
-              <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-[12px] uppercase tracking-wide text-muted-foreground">{isNb ? "Algoritme" : "Algorithm"}</p>
-                <p className="text-sm font-semibold mt-1">Ed25519</p>
-              </div>
-              <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-[12px] uppercase tracking-wide text-muted-foreground">{isNb ? "Sist signert" : "Last signed"}</p>
-                <p className="text-sm font-semibold mt-1">{isNb ? "3. mai 2026" : "May 3, 2026"}</p>
-              </div>
             </div>
+          </DialogHeader>
 
-            <div className="rounded-lg border border-border overflow-hidden">
-              <div className="px-4 py-2 bg-muted/40 border-b border-border flex items-center justify-between">
-                <span className="text-xs font-medium">{isNb ? "Innholdshash (SHA-256)" : "Content hash (SHA-256)"}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 text-xs"
-                  onClick={() => {
-                    navigator.clipboard.writeText("8f4b2c1a9d6e3f7b5a8c2d4e6f1a9b3c5d7e9f1b3a5c7e9d1f3b5a7c9e1d3f5b");
-                    toast.success(isNb ? "Kopiert" : "Copied");
-                  }}
-                >
-                  <Copy className="h-3 w-3 mr-1" /> {isNb ? "Kopier" : "Copy"}
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {isNb
+                ? "Signert da den ble publisert. Hadde noen endret én bokstav etterpå, ville signaturen ikke lenger stemme."
+                : "Signed when it was published. If anyone had altered a single letter afterwards, the signature would no longer match."}
+            </p>
+
+            <Collapsible>
+              <CollapsibleTrigger className="w-full flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors group">
+                <span className="flex items-center gap-2 font-medium">
+                  <Code className="h-4 w-4 text-muted-foreground" />
+                  {isNb ? "Teknisk bevis" : "Technical proof"}
+                </span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 pt-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-md border border-border bg-muted/30 p-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{isNb ? "Algoritme" : "Algorithm"}</p>
+                    <p className="text-sm font-semibold mt-0.5">Ed25519</p>
+                  </div>
+                  <div className="rounded-md border border-border bg-muted/30 p-2.5">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{isNb ? "Utsteder" : "Issuer"}</p>
+                    <p className="text-sm font-semibold mt-0.5">Mynder Trust Engine</p>
+                  </div>
+                </div>
+                <div className="rounded-md border border-border overflow-hidden">
+                  <div className="px-3 py-1.5 bg-muted/40 border-b border-border flex items-center justify-between">
+                    <span className="text-xs font-medium">{isNb ? "Innholdshash (SHA-256)" : "Content hash (SHA-256)"}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-xs"
+                      onClick={() => {
+                        navigator.clipboard.writeText("8f4b2c1a9d6e3f7b5a8c2d4e6f1a9b3c5d7e9f1b3a5c7e9d1f3b5a7c9e1d3f5b");
+                        toast.success(isNb ? "Kopiert" : "Copied");
+                      }}
+                    >
+                      <Copy className="h-3 w-3 mr-1" /> {isNb ? "Kopier" : "Copy"}
+                    </Button>
+                  </div>
+                  <pre className="px-3 py-2 text-[11px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
+8f4b2c1a9d6e3f7b5a8c2d4e6f1a9b3c5d7e9f1b3a5c7e9d1f3b5a7c9e1d3f5b
+                  </pre>
+                </div>
+                <div className="rounded-md border border-border overflow-hidden">
+                  <div className="px-3 py-1.5 bg-muted/40 border-b border-border">
+                    <span className="text-xs font-medium">{isNb ? "Signatur" : "Signature"}</span>
+                  </div>
+                  <pre className="px-3 py-2 text-[11px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
+MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b
+                  </pre>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+
+            <div className="flex items-center justify-between gap-2 pt-2">
+              <p className="text-xs text-muted-foreground">
+                {isNb ? "Sist signert 2. juni 2026" : "Last signed June 2, 2026"}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => setProofDialogOpen(false)}>
+                  {isNb ? "Lukk" : "Close"}
+                </Button>
+                <Button onClick={() => window.open("/trust-engine", "_blank")} className="gap-2">
+                  {isNb ? "Åpne i Trust Engine" : "Open in Trust Engine"}
+                  <ExternalLink className="h-4 w-4" />
                 </Button>
               </div>
-              <pre className="px-4 py-3 text-[12px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
-8f4b2c1a9d6e3f7b5a8c2d4e6f1a9b3c5d7e9f1b3a5c7e9d1f3b5a7c9e1d3f5b
-              </pre>
-            </div>
-
-            <div className="rounded-lg border border-border overflow-hidden">
-              <div className="px-4 py-2 bg-muted/40 border-b border-border">
-                <span className="text-xs font-medium">{isNb ? "Signatur" : "Signature"}</span>
-              </div>
-              <pre className="px-4 py-3 text-[12px] font-mono text-muted-foreground break-all whitespace-pre-wrap">
-MEUCIQDx7c2f8a4b9e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b7a9c2e4d6f8b1a3c5e7d9f2b4a6c8e1d3f5b
-              </pre>
-            </div>
-
-            <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-2">
-              <p className="text-xs font-semibold flex items-center gap-1.5">
-                <Shield className="h-3.5 w-3.5 text-primary" />
-                {isNb ? "Utstedt av" : "Issued by"}
-              </p>
-              <div className="flex items-center gap-2 text-sm">
-                <img src={mynderLogo} alt="Mynder" className="h-5 w-auto" />
-                <span className="font-medium">Mynder Trust Engine</span>
-                <span className="text-muted-foreground/50">·</span>
-                <span className="text-xs text-muted-foreground">trust.mynder.no</span>
-              </div>
-              <p className="text-[12px] text-muted-foreground">
-                {isNb
-                  ? "Hver publisert versjon får en unik hash og signatur. Mottakere kan verifisere autentisitet via Mynder Trust Engine."
-                  : "Each published version receives a unique hash and signature. Recipients can verify authenticity via Mynder Trust Engine."}
-              </p>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" onClick={() => setProofDialogOpen(false)}>
-                {isNb ? "Lukk" : "Close"}
-              </Button>
-              <Button onClick={() => window.open("/trust-engine", "_blank")} className="gap-2">
-                <ExternalLink className="h-4 w-4" />
-                {isNb ? "Åpne i Trust Engine" : "Open in Trust Engine"}
-              </Button>
             </div>
           </div>
         </DialogContent>
