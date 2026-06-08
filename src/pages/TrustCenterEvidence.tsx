@@ -19,8 +19,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
+import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
+import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
+import { ShieldCheck as ShieldEvidenceIcon, Network, Users } from "lucide-react";
 
 const statusOptions = [
   { value: "draft", labelNb: "Utkast", labelEn: "Draft" },
