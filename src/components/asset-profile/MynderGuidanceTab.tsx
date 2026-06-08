@@ -7,6 +7,8 @@ import { VendorActivityTab } from "@/components/asset-profile/tabs/VendorActivit
 import { RegisterActivityDialog } from "@/components/asset-profile/RegisterActivityDialog";
 import { MaturityHistoryChart } from "@/components/trust-controls/MaturityHistoryChart";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp, Activity } from "lucide-react";
 import type { LaraPlanTask } from "@/components/lara/types";
 import {
   generateGuidanceForVendor,
