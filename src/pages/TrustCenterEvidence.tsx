@@ -500,11 +500,24 @@ const TrustCenterEvidence = () => {
               <div className="space-y-2">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
             </section>
           )}
+          {evidenceDocs.length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" />
+                {isNb ? "Avtaler & bevis" : "Agreements & evidence"}
+                <Badge variant="secondary" className="text-[13px] px-1.5">{evidenceDocs.length}</Badge>
+                <span className="text-[11px] font-normal normal-case text-muted-foreground/80 ml-1">
+                  {isNb ? "DPA, pentest, SOC 2, revisjon" : "DPA, pentest, SOC 2, audit"}
+                </span>
+              </h2>
+              <div className="space-y-2">{evidenceDocs.map((doc: any) => renderDocRow(doc, <ShieldCheck className="h-4 w-4 text-primary" />))}</div>
+            </section>
+          )}
           {documents.length > 0 && (
             <section>
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
                 <FolderOpen className="h-4 w-4" />
-                {isNb ? "Dokumenter" : "Documents"}
+                {isNb ? "Andre dokumenter" : "Other documents"}
                 <Badge variant="secondary" className="text-[13px] px-1.5">{documents.length}</Badge>
               </h2>
               <div className="space-y-2">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
