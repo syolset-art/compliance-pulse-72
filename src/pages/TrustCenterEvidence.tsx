@@ -100,6 +100,7 @@ const TrustCenterEvidence = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [visibilityFilter, setVisibilityFilter] = useState("all");
+  const [activeMainTab, setActiveMainTab] = useState<"documents" | "access">("documents");
   const queryClient = useQueryClient();
 
   // Edit state
