@@ -157,9 +157,10 @@ const TrustCenterEvidence = () => {
       if (docIds.length === 0) return [];
       const { data } = await (supabase as any)
         .from("trust_document_grants")
-        .select("document_id")
+        .select("document_id, recipient_name, recipient_email, granted_at")
         .in("document_id", docIds)
-        .is("revoked_at", null);
+        .is("revoked_at", null)
+        .order("granted_at", { ascending: false });
       return data || [];
     },
     enabled: docIds.length > 0,
@@ -167,6 +168,18 @@ const TrustCenterEvidence = () => {
 
   const grantsByDoc = (grantsRows as any[]).reduce<Record<string, number>>((acc, r) => {
     acc[r.document_id] = (acc[r.document_id] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Aggregate by recipient for the "Tilganger" tab
+  const grantsByRecipient = (grantsRows as any[]).reduce<Record<string, { name: string; email: string; documents: string[]; latest: string }>>((acc, r) => {
+    const key = (r.recipient_email || r.recipient_name || "ukjent").toLowerCase();
+    if (!acc[key]) {
+      acc[key] = { name: r.recipient_name || r.recipient_email || "—", email: r.recipient_email || "", documents: [], latest: r.granted_at };
+    }
+    const doc = (vendorDocs as any[]).find((d: any) => d.id === r.document_id);
+    if (doc) acc[key].documents.push(doc.display_name || doc.file_name);
+    if (r.granted_at > acc[key].latest) acc[key].latest = r.granted_at;
     return acc;
   }, {});
 
