@@ -157,6 +157,7 @@ const TrustCenterMenu = () => {
       icon: Sparkles,
     },
     { name: isNb ? "Rediger profil" : "Edit Profile", href: "/trust-center/edit", icon: Pencil },
+    { name: isNb ? "Master-dokumenter" : "Master documents", href: "/trust-center/documents", icon: FileText },
     { name: isNb ? "Dokumentasjon" : "Documentation", href: "/trust-center/evidence", icon: FileText },
   ];
 
