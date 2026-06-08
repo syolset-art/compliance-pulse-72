@@ -54,6 +54,7 @@ import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
 import { getEnabledPartnerModules, type PartnerModuleKey } from "@/lib/partnerModules";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 const ModuleSkeletonRow = ({ label }: { label: string }) => (
   <div
@@ -263,6 +264,8 @@ const SidebarContent = () => {
   const { allRoles: _adminRoles } = useUserRole();
   const isMynderAdmin = _adminRoles.includes("super_admin") || _adminRoles.includes("daglig_leder");
   const { mode: workspaceMode } = useWorkspaceMode();
+  const { isServiceActive } = useActivatedServices();
+  const hasAgentsAccess = isServiceActive("agents");
 
   // Check if the current company is already an MSP partner
   const { data: companyProfile } = useQuery({
@@ -376,7 +379,7 @@ const SidebarContent = () => {
   const isAssetsActivating = activatingModules.has("assets") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
 
   // "Flere tjenester" collects anything not shown normally
-  const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal;
+  const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal || !hasAgentsAccess;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-") || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions");
   // partnerOpen fjernet — Partner ligger nå i workspace-bryteren øverst
@@ -398,13 +401,13 @@ const SidebarContent = () => {
     if (isManagementActive) setManagementOpen(true);
   }, [isManagementActive]);
 
-  // Registre: Systemer (følger Core) + Aktiva (følger Assets)
-  const showRegistries = true;
+  // Registre: kun moduler som er aktivert vises (Systemer = Core, Aktiva = Assets, Agenter = eget tillegg)
   const registriesItems = [
     ...(showCoreNormal ? [systemsLink] : []),
     ...(showAssetsNormal ? [assetsLink] : []),
-    agentsLink,
+    ...(hasAgentsAccess ? [agentsLink] : []),
   ];
+  const showRegistries = registriesItems.length > 0;
   const isRegistriesActive = registriesItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
   useEffect(() => {
@@ -416,7 +419,7 @@ const SidebarContent = () => {
   const exploreRegistryItems = [
     ...(!showVendorsNormal ? [vendorLink] : []),
     ...(!showAssetsNormal ? [assetsLink] : []),
-    agentsLink,
+    ...(!hasAgentsAccess ? [agentsLink] : []),
   ];
   const exploreItems = [...exploreCoreItems, ...exploreRegistryItems];
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
@@ -789,24 +792,10 @@ const SidebarContent = () => {
           </>
         )}
 
-        {/* Bli Partner — kun synlig for de som ikke er partner enda */}
-        {!isPartner && !partnerHides("become_partner") && (
-          <Link
-            to="/bli-partner"
-            className={cn(
-              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
-              location.pathname === "/bli-partner"
-                ? "bg-gradient-to-r from-accent/10 to-transparent text-accent border-l-2 border-accent"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-            )}
-          >
-            {location.pathname === "/bli-partner" && <span className="h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />}
-            <Sparkles className="h-4 w-4 text-accent" />
-            {isNb ? "Bli Partner" : "Become a partner"}
-          </Link>
-        )}
-
-        {/* Demoer (inside scrollable nav so Innstillinger stays locked at bottom) */}
+        {/* Bli partner og Demoer fjernet fra hovedmenyen.
+            Bli partner: tilgjengelig via Innstillinger / MSP-workspace.
+            Demoer: kun for interne admin-roller nedenfor. */}
+        {isMynderAdmin && (
         <div className="mt-2">
           <button
             onClick={() => setDemoOpen(!demoOpen)}
@@ -868,6 +857,7 @@ const SidebarContent = () => {
             </div>
           </div>
         </div>
+        )}
       </nav>
       )}
 
