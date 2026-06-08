@@ -19,8 +19,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
+import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
+import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
+import { Network, Users } from "lucide-react";
 
 const statusOptions = [
   { value: "draft", labelNb: "Utkast", labelEn: "Draft" },
@@ -111,6 +113,8 @@ const TrustCenterEvidence = () => {
   const [previewDoc, setPreviewDoc] = useState<any>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  // Access dialog state
+  const [accessDoc, setAccessDoc] = useState<any>(null);
 
   const { data: asset } = useQuery({
     queryKey: ["self-asset-evidence"],
@@ -146,7 +150,30 @@ const TrustCenterEvidence = () => {
     enabled: !!asset?.id,
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["vendor-documents-evidence"] });
+  const docIds = (vendorDocs as any[]).map((d: any) => d.id);
+  const { data: grantsRows = [] } = useQuery({
+    queryKey: ["vendor-document-grants", asset?.id, docIds.length],
+    queryFn: async () => {
+      if (docIds.length === 0) return [];
+      const { data } = await (supabase as any)
+        .from("trust_document_grants")
+        .select("document_id")
+        .in("document_id", docIds)
+        .is("revoked_at", null);
+      return data || [];
+    },
+    enabled: docIds.length > 0,
+  });
+
+  const grantsByDoc = (grantsRows as any[]).reduce<Record<string, number>>((acc, r) => {
+    acc[r.document_id] = (acc[r.document_id] || 0) + 1;
+    return acc;
+  }, {});
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["vendor-documents-evidence"] });
+    queryClient.invalidateQueries({ queryKey: ["vendor-document-grants"] });
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -234,16 +261,20 @@ const TrustCenterEvidence = () => {
     const matchesCategory = categoryFilter === "all" ||
       (categoryFilter === "policy" && policyTypes.includes(d.document_type)) ||
       (categoryFilter === "certification" && certTypes.includes(d.document_type)) ||
-      (categoryFilter === "document" && !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type));
+      (categoryFilter === "evidence" && evidenceTypes.includes(d.document_type)) ||
+      (categoryFilter === "document" && !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type) && !evidenceTypes.includes(d.document_type));
     const matchesVisibility = visibilityFilter === "all" ||
       (visibilityFilter === "published" && d.visibility === "published") ||
-      (visibilityFilter === "hidden" && d.visibility !== "published");
+      (visibilityFilter === "ecosystem" && d.visibility === "ecosystem") ||
+      (visibilityFilter === "restricted" && d.visibility !== "published" && d.visibility !== "ecosystem" && (grantsByDoc[d.id] || 0) > 0) ||
+      (visibilityFilter === "hidden" && d.visibility !== "published" && d.visibility !== "ecosystem" && !(grantsByDoc[d.id] > 0));
     return matchesSearch && matchesCategory && matchesVisibility;
   });
 
   const policies = filteredDocs.filter((d: any) => policyTypes.includes(d.document_type));
   const certifications = filteredDocs.filter((d: any) => certTypes.includes(d.document_type));
-  const documents = filteredDocs.filter((d: any) => !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type));
+  const evidenceDocs = filteredDocs.filter((d: any) => evidenceTypes.includes(d.document_type));
+  const documents = filteredDocs.filter((d: any) => !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type) && !evidenceTypes.includes(d.document_type));
 
   const renderActionMenu = (doc: any) => (
     <DropdownMenu>
@@ -282,53 +313,53 @@ const TrustCenterEvidence = () => {
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
-          
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-1.5">
-                  {doc.visibility === "published" ? (
-                    <Globe className="h-3.5 w-3.5 text-primary" />
-                  ) : (
-                    <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-                  )}
-                  <span className={`text-xs min-w-[42px] ${doc.visibility === "published" ? "text-primary" : "text-muted-foreground"}`}>
-                    {doc.visibility === "published" ? (isNb ? "Offentlig" : "Public") : (isNb ? "Intern" : "Private")}
-                  </span>
-                  <Switch
-                    checked={doc.visibility === "published"}
-                    onCheckedChange={(checked) => {
-                      const docName = doc.display_name || doc.file_name;
-                      updateMutation.mutate({
-                        id: doc.id,
-                        updates: { visibility: checked ? "published" : "hidden" },
-                      }, {
-                        onSuccess: () => {
-                          if (checked) {
-                            toast.success(
-                              isNb ? `«${docName}» er nå offentlig` : `"${docName}" is now public`,
-                              { description: isNb ? "Dokumentet er synlig i din Trust Profile og kan ses av kunder og partnere." : "The document is visible in your Trust Profile and can be viewed by customers and partners." }
-                            );
-                          } else {
-                            toast(
-                              isNb ? `«${docName}» er nå intern` : `"${docName}" is now private`,
-                              { description: isNb ? "Dokumentet er skjult fra Trust Profile og kun synlig for ditt team." : "The document is hidden from your Trust Profile and only visible to your team." }
-                            );
-                          }
-                        }
-                      });
-                    }}
-                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30"
-                  />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                <p className="text-xs">{doc.visibility === "published"
-                  ? (isNb ? "Synlig i Trust Profile — klikk for å skjule" : "Visible in Trust Profile — click to hide")
-                  : (isNb ? "Skjult fra Trust Profile — klikk for å publisere" : "Hidden from Trust Profile — click to publish")}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {(() => {
+            const count = grantsByDoc[doc.id] || 0;
+            const isPublic = doc.visibility === "published";
+            const isEcosystem = doc.visibility === "ecosystem";
+            const isRestricted = !isPublic && !isEcosystem && count > 0;
+            const Icon = isPublic ? Globe : isEcosystem ? Network : isRestricted ? Users : Lock;
+            const label = isPublic
+              ? (isNb ? "Offentlig" : "Public")
+              : isEcosystem
+                ? (isNb ? "Økosystem" : "Ecosystem")
+                : isRestricted
+                  ? (isNb ? `${count} mottaker${count === 1 ? "" : "e"}` : `${count} recipient${count === 1 ? "" : "s"}`)
+                  : (isNb ? "Intern" : "Private");
+            const tone = isPublic
+              ? "text-success border-success/30 bg-success/10"
+              : isEcosystem
+                ? "text-primary border-primary/30 bg-primary/10"
+                : isRestricted
+                  ? "text-foreground border-border bg-muted/60"
+                  : "text-muted-foreground border-border";
+            const tip = isPublic
+              ? (isNb ? "Synlig for alle på Trust Profile" : "Visible to everyone on Trust Profile")
+              : isEcosystem
+                ? (isNb ? "Synlig for innloggede kunder og partnere" : "Visible to signed-in customers and partners")
+                : isRestricted
+                  ? (isNb ? "Synlig for utvalgte mottakere" : "Visible to selected recipients")
+                  : (isNb ? "Kun synlig internt — klikk for å gi tilgang" : "Internal only — click to grant access");
+            return (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => setAccessDoc(doc)}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors hover:opacity-80 ${tone}`}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      <span>{label}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="text-xs">{tip}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })()}
           {renderActionMenu(doc)}
         </div>
       </CardContent>
@@ -422,16 +453,19 @@ const TrustCenterEvidence = () => {
               <SelectItem value="all">{isNb ? "Alle kategorier" : "All categories"}</SelectItem>
               <SelectItem value="policy">{isNb ? "Retningslinjer" : "Policies"}</SelectItem>
               <SelectItem value="certification">{isNb ? "Sertifiseringer" : "Certifications"}</SelectItem>
-              <SelectItem value="document">{isNb ? "Dokumenter" : "Documents"}</SelectItem>
+              <SelectItem value="evidence">{isNb ? "Avtaler & bevis" : "Agreements & evidence"}</SelectItem>
+              <SelectItem value="document">{isNb ? "Andre dokumenter" : "Other documents"}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[160px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{isNb ? "Alle" : "All"}</SelectItem>
+              <SelectItem value="all">{isNb ? "All tilgang" : "All access"}</SelectItem>
               <SelectItem value="published">{isNb ? "Offentlig" : "Public"}</SelectItem>
+              <SelectItem value="ecosystem">{isNb ? "Økosystem" : "Ecosystem"}</SelectItem>
+              <SelectItem value="restricted">{isNb ? "Begrenset" : "Restricted"}</SelectItem>
               <SelectItem value="hidden">{isNb ? "Intern" : "Private"}</SelectItem>
             </SelectContent>
           </Select>
@@ -466,11 +500,24 @@ const TrustCenterEvidence = () => {
               <div className="space-y-2">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
             </section>
           )}
+          {evidenceDocs.length > 0 && (
+            <section>
+              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" />
+                {isNb ? "Avtaler & bevis" : "Agreements & evidence"}
+                <Badge variant="secondary" className="text-[13px] px-1.5">{evidenceDocs.length}</Badge>
+                <span className="text-[11px] font-normal normal-case text-muted-foreground/80 ml-1">
+                  {isNb ? "DPA, pentest, SOC 2, revisjon" : "DPA, pentest, SOC 2, audit"}
+                </span>
+              </h2>
+              <div className="space-y-2">{evidenceDocs.map((doc: any) => renderDocRow(doc, <ShieldCheck className="h-4 w-4 text-primary" />))}</div>
+            </section>
+          )}
           {documents.length > 0 && (
             <section>
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
                 <FolderOpen className="h-4 w-4" />
-                {isNb ? "Dokumenter" : "Documents"}
+                {isNb ? "Andre dokumenter" : "Other documents"}
                 <Badge variant="secondary" className="text-[13px] px-1.5">{documents.length}</Badge>
               </h2>
               <div className="space-y-2">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
@@ -627,6 +674,13 @@ const TrustCenterEvidence = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Access Dialog */}
+      <DocumentAccessDialog
+        open={!!accessDoc}
+        onOpenChange={(open) => !open && setAccessDoc(null)}
+        document={accessDoc}
+      />
     </div>
   );
 
