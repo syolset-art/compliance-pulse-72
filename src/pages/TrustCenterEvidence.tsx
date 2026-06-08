@@ -100,6 +100,7 @@ const TrustCenterEvidence = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [visibilityFilter, setVisibilityFilter] = useState("all");
+  const [activeMainTab, setActiveMainTab] = useState<"documents" | "access">("documents");
   const queryClient = useQueryClient();
 
   // Edit state
@@ -157,9 +158,10 @@ const TrustCenterEvidence = () => {
       if (docIds.length === 0) return [];
       const { data } = await (supabase as any)
         .from("trust_document_grants")
-        .select("document_id")
+        .select("document_id, recipient_name, recipient_email, granted_at")
         .in("document_id", docIds)
-        .is("revoked_at", null);
+        .is("revoked_at", null)
+        .order("granted_at", { ascending: false });
       return data || [];
     },
     enabled: docIds.length > 0,
@@ -167,6 +169,18 @@ const TrustCenterEvidence = () => {
 
   const grantsByDoc = (grantsRows as any[]).reduce<Record<string, number>>((acc, r) => {
     acc[r.document_id] = (acc[r.document_id] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Aggregate by recipient for the "Tilganger" tab
+  const grantsByRecipient = (grantsRows as any[]).reduce<Record<string, { name: string; email: string; documents: string[]; latest: string }>>((acc, r) => {
+    const key = (r.recipient_email || r.recipient_name || "ukjent").toLowerCase();
+    if (!acc[key]) {
+      acc[key] = { name: r.recipient_name || r.recipient_email || "—", email: r.recipient_email || "", documents: [], latest: r.granted_at };
+    }
+    const doc = (vendorDocs as any[]).find((d: any) => d.id === r.document_id);
+    if (doc) acc[key].documents.push(doc.display_name || doc.file_name);
+    if (r.granted_at > acc[key].latest) acc[key].latest = r.granted_at;
     return acc;
   }, {});
 
@@ -409,19 +423,62 @@ const TrustCenterEvidence = () => {
         </div>
       </div>
 
-      {/* Trust Profile summary */}
-      {vendorDocs.length > 0 && !isLoading && (
-        <div className="mb-6 flex items-center gap-3 px-1">
-          <div className="flex items-center gap-1.5 text-sm">
-            <Eye className="h-4 w-4 text-success" />
-            <span className="font-medium">{vendorDocs.filter((d: any) => d.visibility === "published").length}</span>
-            <span className="text-muted-foreground">{isNb ? "publisert i Trust Profile" : "published to Trust Profile"}</span>
+      {/* Trust Profile summary — three states */}
+      {vendorDocs.length > 0 && !isLoading && (() => {
+        const publicCount = vendorDocs.filter((d: any) => d.visibility === "published").length;
+        const ecosystemCount = vendorDocs.filter((d: any) => d.visibility === "ecosystem").length;
+        const restrictedCount = vendorDocs.filter((d: any) =>
+          d.visibility !== "published" && d.visibility !== "ecosystem" && (grantsByDoc[d.id] || 0) > 0
+        ).length;
+        const internalCount = vendorDocs.filter((d: any) =>
+          d.visibility !== "published" && d.visibility !== "ecosystem" && !(grantsByDoc[d.id] > 0)
+        ).length;
+        const sharedCount = ecosystemCount + restrictedCount;
+        const setFilter = (v: string) => { setVisibilityFilter(v); setActiveMainTab("documents"); };
+        return (
+          <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 px-1">
+            <button type="button" onClick={() => setFilter("published")} className="flex items-center gap-1.5 text-sm hover:opacity-80 transition-opacity">
+              <Globe className="h-4 w-4 text-success" />
+              <span className="font-semibold">{publicCount}</span>
+              <span className="text-muted-foreground">{isNb ? "offentlig" : "public"}</span>
+            </button>
+            <span className="text-muted-foreground/40">·</span>
+            <button type="button" onClick={() => setFilter("restricted")} className="flex items-center gap-1.5 text-sm hover:opacity-80 transition-opacity">
+              <Users className="h-4 w-4 text-primary" />
+              <span className="font-semibold">{sharedCount}</span>
+              <span className="text-muted-foreground">{isNb ? "delt med utvalgte" : "shared with selected"}</span>
+            </button>
+            <span className="text-muted-foreground/40">·</span>
+            <button type="button" onClick={() => setFilter("hidden")} className="flex items-center gap-1.5 text-sm hover:opacity-80 transition-opacity">
+              <Lock className="h-4 w-4 text-muted-foreground" />
+              <span className="font-semibold">{internalCount}</span>
+              <span className="text-muted-foreground">{isNb ? "kun internt" : "internal only"}</span>
+            </button>
           </div>
-          <span className="text-muted-foreground">·</span>
-          <div className="flex items-center gap-1.5 text-sm">
-            <Lock className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{vendorDocs.filter((d: any) => d.visibility !== "published").length}</span>
-            <span className="text-muted-foreground">{isNb ? "kun internt" : "internal only"}</span>
+        );
+      })()}
+
+      {/* Main tabs: Documents | Access */}
+      {vendorDocs.length > 0 && !isLoading && (
+        <div className="mb-5 border-b">
+          <div className="flex items-center gap-6">
+            {([
+              { id: "documents" as const, nb: "Dokumenter", en: "Documents" },
+              { id: "access" as const, nb: "Tilganger", en: "Access" },
+            ]).map((t) => {
+              const active = activeMainTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setActiveMainTab(t.id)}
+                  className={`relative py-2.5 text-sm font-medium transition-colors ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {isNb ? t.nb : t.en}
+                  {active && <span className="absolute left-0 right-0 -bottom-px h-0.5 bg-primary" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -433,95 +490,166 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
-      {/* Search and filters */}
-      {vendorDocs.length > 0 && !isLoading && (
-        <div className="mb-6 flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={isNb ? "Søk i dokumenter..." : "Search documents..."}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-[170px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{isNb ? "Alle kategorier" : "All categories"}</SelectItem>
-              <SelectItem value="policy">{isNb ? "Retningslinjer" : "Policies"}</SelectItem>
-              <SelectItem value="certification">{isNb ? "Sertifiseringer" : "Certifications"}</SelectItem>
-              <SelectItem value="evidence">{isNb ? "Avtaler & bevis" : "Agreements & evidence"}</SelectItem>
-              <SelectItem value="document">{isNb ? "Andre dokumenter" : "Other documents"}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{isNb ? "All tilgang" : "All access"}</SelectItem>
-              <SelectItem value="published">{isNb ? "Offentlig" : "Public"}</SelectItem>
-              <SelectItem value="ecosystem">{isNb ? "Økosystem" : "Ecosystem"}</SelectItem>
-              <SelectItem value="restricted">{isNb ? "Begrenset" : "Restricted"}</SelectItem>
-              <SelectItem value="hidden">{isNb ? "Intern" : "Private"}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      {/* Documents tab content */}
+      {activeMainTab === "documents" && (
+        <>
+          {/* Search and filters */}
+          {vendorDocs.length > 0 && !isLoading && (
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <div className="relative flex-1 min-w-[200px] max-w-sm">
+                <FileText className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder={isNb ? "Søk i dokumenter..." : "Search documents..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-[170px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{isNb ? "Alle kategorier" : "All categories"}</SelectItem>
+                  <SelectItem value="policy">{isNb ? "Retningslinjer" : "Policies"}</SelectItem>
+                  <SelectItem value="certification">{isNb ? "Sertifiseringer" : "Certifications"}</SelectItem>
+                  <SelectItem value="evidence">{isNb ? "Avtaler & bevis" : "Agreements & evidence"}</SelectItem>
+                  <SelectItem value="document">{isNb ? "Andre dokumenter" : "Other documents"}</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{isNb ? "Alle nivåer" : "All levels"}</SelectItem>
+                  <SelectItem value="published">{isNb ? "Offentlig" : "Public"}</SelectItem>
+                  <SelectItem value="ecosystem">{isNb ? "Økosystem" : "Ecosystem"}</SelectItem>
+                  <SelectItem value="restricted">{isNb ? "Begrenset" : "Restricted"}</SelectItem>
+                  <SelectItem value="hidden">{isNb ? "Intern" : "Private"}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : vendorDocs.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-12 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
+          ) : (
+            <div className="space-y-8">
+              {evidenceDocs.length > 0 && (
+                <section>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4" />
+                    {isNb ? "Avtaler" : "Agreements"}
+                    <Badge variant="secondary" className="text-[13px] px-1.5">{evidenceDocs.length}</Badge>
+                  </h2>
+                  <div className="space-y-2">{evidenceDocs.map((doc: any) => renderDocRow(doc, <ShieldCheck className="h-4 w-4 text-primary" />))}</div>
+                </section>
+              )}
+              {policies.length > 0 && (
+                <section>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    {isNb ? "Retningslinjer" : "Policies"}
+                    <Badge variant="secondary" className="text-[13px] px-1.5">{policies.length}</Badge>
+                  </h2>
+                  <div className="space-y-2">{policies.map((doc: any) => renderDocRow(doc, <FileText className="h-4 w-4 text-primary" />))}</div>
+                </section>
+              )}
+              {certifications.length > 0 && (
+                <section>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <Award className="h-4 w-4" />
+                    {isNb ? "Sertifiseringer" : "Certifications"}
+                    <Badge variant="secondary" className="text-[13px] px-1.5">{certifications.length}</Badge>
+                  </h2>
+                  <div className="space-y-2">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
+                </section>
+              )}
+              {documents.length > 0 && (
+                <section>
+                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <FolderOpen className="h-4 w-4" />
+                    {isNb ? "Andre dokumenter" : "Other documents"}
+                    <Badge variant="secondary" className="text-[13px] px-1.5">{documents.length}</Badge>
+                  </h2>
+                  <div className="space-y-2">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
+                </section>
+              )}
+            </div>
+          )}
+        </>
       )}
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      ) : vendorDocs.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-12 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
-      ) : (
-        <div className="space-y-8">
-          {policies.length > 0 && (
-            <section>
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                {isNb ? "Retningslinjer" : "Policies"}
-                <Badge variant="secondary" className="text-[13px] px-1.5">{policies.length}</Badge>
-              </h2>
-              <div className="space-y-2">{policies.map((doc: any) => renderDocRow(doc, <FileText className="h-4 w-4 text-primary" />))}</div>
-            </section>
-          )}
-          {certifications.length > 0 && (
-            <section>
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-                <Award className="h-4 w-4" />
-                {isNb ? "Sertifiseringer" : "Certifications"}
-                <Badge variant="secondary" className="text-[13px] px-1.5">{certifications.length}</Badge>
-              </h2>
-              <div className="space-y-2">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
-            </section>
-          )}
-          {evidenceDocs.length > 0 && (
-            <section>
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" />
-                {isNb ? "Avtaler & bevis" : "Agreements & evidence"}
-                <Badge variant="secondary" className="text-[13px] px-1.5">{evidenceDocs.length}</Badge>
-                <span className="text-[11px] font-normal normal-case text-muted-foreground/80 ml-1">
-                  {isNb ? "DPA, pentest, SOC 2, revisjon" : "DPA, pentest, SOC 2, audit"}
-                </span>
-              </h2>
-              <div className="space-y-2">{evidenceDocs.map((doc: any) => renderDocRow(doc, <ShieldCheck className="h-4 w-4 text-primary" />))}</div>
-            </section>
-          )}
-          {documents.length > 0 && (
-            <section>
-              <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-                <FolderOpen className="h-4 w-4" />
-                {isNb ? "Andre dokumenter" : "Other documents"}
-                <Badge variant="secondary" className="text-[13px] px-1.5">{documents.length}</Badge>
-              </h2>
-              <div className="space-y-2">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
-            </section>
+      {/* Access tab content */}
+      {activeMainTab === "access" && !isLoading && (
+        <div className="space-y-3">
+          {Object.keys(grantsByRecipient).length === 0 ? (
+            <Card>
+              <CardContent className="py-12 flex flex-col items-center justify-center text-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                  <Users className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{isNb ? "Ingen tilganger gitt ennå" : "No access granted yet"}</p>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-md">
+                    {isNb
+                      ? "Klikk på tilgangs-merket på et dokument under «Dokumenter» for å dele det med utvalgte mottakere."
+                      : "Click the access chip on a document under \"Documents\" to share it with selected recipients."}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <p className="text-xs text-muted-foreground px-1">
+                {isNb
+                  ? `${Object.keys(grantsByRecipient).length} mottaker(e) har tilgang til ett eller flere dokumenter.`
+                  : `${Object.keys(grantsByRecipient).length} recipient(s) have access to one or more documents.`}
+              </p>
+              {Object.entries(grantsByRecipient).map(([key, info]) => (
+                <Card key={key}>
+                  <CardContent className="py-4 px-5 flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{info.name}</p>
+                      {info.email && info.email !== info.name && (
+                        <p className="text-xs text-muted-foreground truncate">{info.email}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        {isNb ? "Har tilgang til" : "Has access to"}{" "}
+                        <span className="text-foreground font-medium">{info.documents.length}</span>{" "}
+                        {isNb ? `dokument${info.documents.length === 1 ? "" : "er"}` : `document${info.documents.length === 1 ? "" : "s"}`}
+                        {" · "}
+                        {isNb ? "sist delt" : "last shared"}{" "}
+                        {new Date(info.latest).toLocaleDateString(isNb ? "nb-NO" : "en-US")}
+                      </p>
+                      {info.documents.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {info.documents.slice(0, 5).map((d, i) => (
+                            <Badge key={i} variant="outline" className="text-[11px] font-normal">
+                              {d}
+                            </Badge>
+                          ))}
+                          {info.documents.length > 5 && (
+                            <Badge variant="outline" className="text-[11px] font-normal text-muted-foreground">
+                              +{info.documents.length - 5}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <Badge variant="secondary" className="text-[11px] gap-1 shrink-0">
+                      <Users className="h-3 w-3" />
+                      {isNb ? "Aktiv" : "Active"}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
           )}
         </div>
       )}
