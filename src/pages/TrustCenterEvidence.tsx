@@ -313,53 +313,53 @@ const TrustCenterEvidence = () => {
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
-          
-          <TooltipProvider delayDuration={200}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-1.5">
-                  {doc.visibility === "published" ? (
-                    <Globe className="h-3.5 w-3.5 text-primary" />
-                  ) : (
-                    <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-                  )}
-                  <span className={`text-xs min-w-[42px] ${doc.visibility === "published" ? "text-primary" : "text-muted-foreground"}`}>
-                    {doc.visibility === "published" ? (isNb ? "Offentlig" : "Public") : (isNb ? "Intern" : "Private")}
-                  </span>
-                  <Switch
-                    checked={doc.visibility === "published"}
-                    onCheckedChange={(checked) => {
-                      const docName = doc.display_name || doc.file_name;
-                      updateMutation.mutate({
-                        id: doc.id,
-                        updates: { visibility: checked ? "published" : "hidden" },
-                      }, {
-                        onSuccess: () => {
-                          if (checked) {
-                            toast.success(
-                              isNb ? `«${docName}» er nå offentlig` : `"${docName}" is now public`,
-                              { description: isNb ? "Dokumentet er synlig i din Trust Profile og kan ses av kunder og partnere." : "The document is visible in your Trust Profile and can be viewed by customers and partners." }
-                            );
-                          } else {
-                            toast(
-                              isNb ? `«${docName}» er nå intern` : `"${docName}" is now private`,
-                              { description: isNb ? "Dokumentet er skjult fra Trust Profile og kun synlig for ditt team." : "The document is hidden from your Trust Profile and only visible to your team." }
-                            );
-                          }
-                        }
-                      });
-                    }}
-                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30"
-                  />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                <p className="text-xs">{doc.visibility === "published"
-                  ? (isNb ? "Synlig i Trust Profile — klikk for å skjule" : "Visible in Trust Profile — click to hide")
-                  : (isNb ? "Skjult fra Trust Profile — klikk for å publisere" : "Hidden from Trust Profile — click to publish")}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {(() => {
+            const count = grantsByDoc[doc.id] || 0;
+            const isPublic = doc.visibility === "published";
+            const isEcosystem = doc.visibility === "ecosystem";
+            const isRestricted = !isPublic && !isEcosystem && count > 0;
+            const Icon = isPublic ? Globe : isEcosystem ? Network : isRestricted ? Users : Lock;
+            const label = isPublic
+              ? (isNb ? "Offentlig" : "Public")
+              : isEcosystem
+                ? (isNb ? "Økosystem" : "Ecosystem")
+                : isRestricted
+                  ? (isNb ? `${count} mottaker${count === 1 ? "" : "e"}` : `${count} recipient${count === 1 ? "" : "s"}`)
+                  : (isNb ? "Intern" : "Private");
+            const tone = isPublic
+              ? "text-success border-success/30 bg-success/10"
+              : isEcosystem
+                ? "text-primary border-primary/30 bg-primary/10"
+                : isRestricted
+                  ? "text-foreground border-border bg-muted/60"
+                  : "text-muted-foreground border-border";
+            const tip = isPublic
+              ? (isNb ? "Synlig for alle på Trust Profile" : "Visible to everyone on Trust Profile")
+              : isEcosystem
+                ? (isNb ? "Synlig for innloggede kunder og partnere" : "Visible to signed-in customers and partners")
+                : isRestricted
+                  ? (isNb ? "Synlig for utvalgte mottakere" : "Visible to selected recipients")
+                  : (isNb ? "Kun synlig internt — klikk for å gi tilgang" : "Internal only — click to grant access");
+            return (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={() => setAccessDoc(doc)}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors hover:opacity-80 ${tone}`}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      <span>{label}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="text-xs">{tip}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            );
+          })()}
           {renderActionMenu(doc)}
         </div>
       </CardContent>
