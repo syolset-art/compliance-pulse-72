@@ -401,13 +401,13 @@ const SidebarContent = () => {
     if (isManagementActive) setManagementOpen(true);
   }, [isManagementActive]);
 
-  // Registre: Systemer (følger Core) + Aktiva (følger Assets)
-  const showRegistries = true;
+  // Registre: kun moduler som er aktivert vises (Systemer = Core, Aktiva = Assets, Agenter = eget tillegg)
   const registriesItems = [
     ...(showCoreNormal ? [systemsLink] : []),
     ...(showAssetsNormal ? [assetsLink] : []),
-    agentsLink,
+    ...(hasAgentsAccess ? [agentsLink] : []),
   ];
+  const showRegistries = registriesItems.length > 0;
   const isRegistriesActive = registriesItems.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + "/"));
   const [registriesOpen, setRegistriesOpen] = useState(() => isRegistriesActive);
   useEffect(() => {
@@ -419,7 +419,7 @@ const SidebarContent = () => {
   const exploreRegistryItems = [
     ...(!showVendorsNormal ? [vendorLink] : []),
     ...(!showAssetsNormal ? [assetsLink] : []),
-    agentsLink,
+    ...(!hasAgentsAccess ? [agentsLink] : []),
   ];
   const exploreItems = [...exploreCoreItems, ...exploreRegistryItems];
   const isExploreActive = exploreItems.some(item => location.pathname === item.href);
