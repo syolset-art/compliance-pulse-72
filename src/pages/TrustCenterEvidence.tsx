@@ -423,19 +423,62 @@ const TrustCenterEvidence = () => {
         </div>
       </div>
 
-      {/* Trust Profile summary */}
-      {vendorDocs.length > 0 && !isLoading && (
-        <div className="mb-6 flex items-center gap-3 px-1">
-          <div className="flex items-center gap-1.5 text-sm">
-            <Eye className="h-4 w-4 text-success" />
-            <span className="font-medium">{vendorDocs.filter((d: any) => d.visibility === "published").length}</span>
-            <span className="text-muted-foreground">{isNb ? "publisert i Trust Profile" : "published to Trust Profile"}</span>
+      {/* Trust Profile summary — three states */}
+      {vendorDocs.length > 0 && !isLoading && (() => {
+        const publicCount = vendorDocs.filter((d: any) => d.visibility === "published").length;
+        const ecosystemCount = vendorDocs.filter((d: any) => d.visibility === "ecosystem").length;
+        const restrictedCount = vendorDocs.filter((d: any) =>
+          d.visibility !== "published" && d.visibility !== "ecosystem" && (grantsByDoc[d.id] || 0) > 0
+        ).length;
+        const internalCount = vendorDocs.filter((d: any) =>
+          d.visibility !== "published" && d.visibility !== "ecosystem" && !(grantsByDoc[d.id] > 0)
+        ).length;
+        const sharedCount = ecosystemCount + restrictedCount;
+        const setFilter = (v: string) => { setVisibilityFilter(v); setActiveMainTab("documents"); };
+        return (
+          <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 px-1">
+            <button type="button" onClick={() => setFilter("published")} className="flex items-center gap-1.5 text-sm hover:opacity-80 transition-opacity">
+              <Globe className="h-4 w-4 text-success" />
+              <span className="font-semibold">{publicCount}</span>
+              <span className="text-muted-foreground">{isNb ? "offentlig" : "public"}</span>
+            </button>
+            <span className="text-muted-foreground/40">·</span>
+            <button type="button" onClick={() => setFilter("restricted")} className="flex items-center gap-1.5 text-sm hover:opacity-80 transition-opacity">
+              <Users className="h-4 w-4 text-primary" />
+              <span className="font-semibold">{sharedCount}</span>
+              <span className="text-muted-foreground">{isNb ? "delt med utvalgte" : "shared with selected"}</span>
+            </button>
+            <span className="text-muted-foreground/40">·</span>
+            <button type="button" onClick={() => setFilter("hidden")} className="flex items-center gap-1.5 text-sm hover:opacity-80 transition-opacity">
+              <Lock className="h-4 w-4 text-muted-foreground" />
+              <span className="font-semibold">{internalCount}</span>
+              <span className="text-muted-foreground">{isNb ? "kun internt" : "internal only"}</span>
+            </button>
           </div>
-          <span className="text-muted-foreground">·</span>
-          <div className="flex items-center gap-1.5 text-sm">
-            <Lock className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{vendorDocs.filter((d: any) => d.visibility !== "published").length}</span>
-            <span className="text-muted-foreground">{isNb ? "kun internt" : "internal only"}</span>
+        );
+      })()}
+
+      {/* Main tabs: Documents | Access */}
+      {vendorDocs.length > 0 && !isLoading && (
+        <div className="mb-5 border-b">
+          <div className="flex items-center gap-6">
+            {([
+              { id: "documents" as const, nb: "Dokumenter", en: "Documents" },
+              { id: "access" as const, nb: "Tilganger", en: "Access" },
+            ]).map((t) => {
+              const active = activeMainTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setActiveMainTab(t.id)}
+                  className={`relative py-2.5 text-sm font-medium transition-colors ${active ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {isNb ? t.nb : t.en}
+                  {active && <span className="absolute left-0 right-0 -bottom-px h-0.5 bg-primary" />}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
