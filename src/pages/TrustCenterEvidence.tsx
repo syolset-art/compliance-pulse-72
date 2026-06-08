@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
-import { ShieldCheck as ShieldEvidenceIcon, Network, Users } from "lucide-react";
+import { Network, Users } from "lucide-react";
 
 const statusOptions = [
   { value: "draft", labelNb: "Utkast", labelEn: "Draft" },
