@@ -261,16 +261,20 @@ const TrustCenterEvidence = () => {
     const matchesCategory = categoryFilter === "all" ||
       (categoryFilter === "policy" && policyTypes.includes(d.document_type)) ||
       (categoryFilter === "certification" && certTypes.includes(d.document_type)) ||
-      (categoryFilter === "document" && !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type));
+      (categoryFilter === "evidence" && evidenceTypes.includes(d.document_type)) ||
+      (categoryFilter === "document" && !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type) && !evidenceTypes.includes(d.document_type));
     const matchesVisibility = visibilityFilter === "all" ||
       (visibilityFilter === "published" && d.visibility === "published") ||
-      (visibilityFilter === "hidden" && d.visibility !== "published");
+      (visibilityFilter === "ecosystem" && d.visibility === "ecosystem") ||
+      (visibilityFilter === "restricted" && d.visibility !== "published" && d.visibility !== "ecosystem" && (grantsByDoc[d.id] || 0) > 0) ||
+      (visibilityFilter === "hidden" && d.visibility !== "published" && d.visibility !== "ecosystem" && !(grantsByDoc[d.id] > 0));
     return matchesSearch && matchesCategory && matchesVisibility;
   });
 
   const policies = filteredDocs.filter((d: any) => policyTypes.includes(d.document_type));
   const certifications = filteredDocs.filter((d: any) => certTypes.includes(d.document_type));
-  const documents = filteredDocs.filter((d: any) => !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type));
+  const evidenceDocs = filteredDocs.filter((d: any) => evidenceTypes.includes(d.document_type));
+  const documents = filteredDocs.filter((d: any) => !policyTypes.includes(d.document_type) && !certTypes.includes(d.document_type) && !evidenceTypes.includes(d.document_type));
 
   const renderActionMenu = (doc: any) => (
     <DropdownMenu>
