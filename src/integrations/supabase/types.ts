@@ -3523,6 +3523,56 @@ export type Database = {
           },
         ]
       }
+      trust_document_grants: {
+        Row: {
+          created_at: string
+          document_id: string
+          granted_at: string
+          granted_by: string
+          id: string
+          owner_user_id: string
+          recipient_connection_id: string | null
+          recipient_email: string
+          recipient_name: string | null
+          revoked_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          granted_at?: string
+          granted_by: string
+          id?: string
+          owner_user_id: string
+          recipient_connection_id?: string | null
+          recipient_email: string
+          recipient_name?: string | null
+          revoked_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          granted_at?: string
+          granted_by?: string
+          id?: string
+          owner_user_id?: string
+          recipient_connection_id?: string | null
+          recipient_email?: string
+          recipient_name?: string | null
+          revoked_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_document_grants_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trust_profile_sources: {
         Row: {
           asset_id: string
