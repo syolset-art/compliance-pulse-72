@@ -26,16 +26,6 @@ interface Props {
   onActivitySaved: (activity: VendorActivity, fromSuggestion?: SuggestedActivity) => void;
 }
 
-interface Props {
-  assetId: string;
-  assetName?: string;
-  baselinePercent?: number;
-  enrichmentPercent?: number;
-  externalActivities?: VendorActivity[];
-  dismissedSuggestionIds: string[];
-  onActivitySaved: (activity: VendorActivity, fromSuggestion?: SuggestedActivity) => void;
-}
-
 export function MynderGuidanceTab({
   assetId,
   assetName,
