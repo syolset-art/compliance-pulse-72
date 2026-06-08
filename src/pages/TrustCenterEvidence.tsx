@@ -674,6 +674,13 @@ const TrustCenterEvidence = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Access Dialog */}
+      <DocumentAccessDialog
+        open={!!accessDoc}
+        onOpenChange={(open) => !open && setAccessDoc(null)}
+        document={accessDoc}
+      />
     </div>
   );
 
