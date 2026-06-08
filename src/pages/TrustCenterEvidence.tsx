@@ -150,7 +150,30 @@ const TrustCenterEvidence = () => {
     enabled: !!asset?.id,
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["vendor-documents-evidence"] });
+  const docIds = (vendorDocs as any[]).map((d: any) => d.id);
+  const { data: grantsRows = [] } = useQuery({
+    queryKey: ["vendor-document-grants", asset?.id, docIds.length],
+    queryFn: async () => {
+      if (docIds.length === 0) return [];
+      const { data } = await (supabase as any)
+        .from("trust_document_grants")
+        .select("document_id")
+        .in("document_id", docIds)
+        .is("revoked_at", null);
+      return data || [];
+    },
+    enabled: docIds.length > 0,
+  });
+
+  const grantsByDoc = (grantsRows as any[]).reduce<Record<string, number>>((acc, r) => {
+    acc[r.document_id] = (acc[r.document_id] || 0) + 1;
+    return acc;
+  }, {});
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["vendor-documents-evidence"] });
+    queryClient.invalidateQueries({ queryKey: ["vendor-document-grants"] });
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
