@@ -792,24 +792,10 @@ const SidebarContent = () => {
           </>
         )}
 
-        {/* Bli Partner — kun synlig for de som ikke er partner enda */}
-        {!isPartner && !partnerHides("become_partner") && (
-          <Link
-            to="/bli-partner"
-            className={cn(
-              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-[0.9375rem] font-medium transition-all duration-200",
-              location.pathname === "/bli-partner"
-                ? "bg-gradient-to-r from-accent/10 to-transparent text-accent border-l-2 border-accent"
-                : "text-sidebar-foreground/80 hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
-            )}
-          >
-            {location.pathname === "/bli-partner" && <span className="h-1.5 w-1.5 rounded-full bg-accent flex-shrink-0" />}
-            <Sparkles className="h-4 w-4 text-accent" />
-            {isNb ? "Bli Partner" : "Become a partner"}
-          </Link>
-        )}
-
-        {/* Demoer (inside scrollable nav so Innstillinger stays locked at bottom) */}
+        {/* Bli partner og Demoer fjernet fra hovedmenyen.
+            Bli partner: tilgjengelig via Innstillinger / MSP-workspace.
+            Demoer: kun for interne admin-roller nedenfor. */}
+        {isMynderAdmin && (
         <div className="mt-2">
           <button
             onClick={() => setDemoOpen(!demoOpen)}
@@ -871,6 +857,7 @@ const SidebarContent = () => {
             </div>
           </div>
         </div>
+        )}
       </nav>
       )}
 
