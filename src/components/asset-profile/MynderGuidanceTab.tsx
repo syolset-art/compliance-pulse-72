@@ -53,6 +53,22 @@ export function MynderGuidanceTab({
   const [locallyDismissed, setLocallyDismissed] = useState<string[]>([]);
   const [activePrefill, setActivePrefill] = useState<SuggestedActivity | null>(null);
 
+  const [showActivityLog, setShowActivityLog] = useState(() => {
+    try {
+      return localStorage.getItem('mynder_show_activity_log') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleActivityLog = () => {
+    const next = !showActivityLog;
+    setShowActivityLog(next);
+    try {
+      localStorage.setItem('mynder_show_activity_log', String(next));
+    } catch {}
+  };
+
   const allDismissed = useMemo(
     () => [...dismissedSuggestionIds, ...locallyDismissed],
     [dismissedSuggestionIds, locallyDismissed]
