@@ -54,6 +54,7 @@ import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
 import { getEnabledPartnerModules, type PartnerModuleKey } from "@/lib/partnerModules";
+import { useActivatedServices } from "@/hooks/useActivatedServices";
 
 const ModuleSkeletonRow = ({ label }: { label: string }) => (
   <div
