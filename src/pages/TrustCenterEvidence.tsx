@@ -113,6 +113,8 @@ const TrustCenterEvidence = () => {
   const [previewDoc, setPreviewDoc] = useState<any>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  // Access dialog state
+  const [accessDoc, setAccessDoc] = useState<any>(null);
 
   const { data: asset } = useQuery({
     queryKey: ["self-asset-evidence"],
