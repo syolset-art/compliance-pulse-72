@@ -149,21 +149,42 @@ export function MynderGuidanceTab({
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary shrink-0"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
             <span>
               {isNb
-                ? "Se hver enkelt aktivitet i aktivitetsloggen under."
-                : "See each individual activity in the activity log below."}
+                ? "Se detaljer i aktivitetsloggen."
+                : "See details in the activity log."}
             </span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Aktivitetslogg — flyttet hit fra egen fane */}
-      <VendorActivityTab
-        assetId={assetId}
-        assetName={assetName ?? ""}
-        baselinePercent={baselinePercent}
-        enrichmentPercent={enrichmentPercent}
-        externalActivities={externalActivities}
-      />
+      {/* Aktivitetslogg — skjult som standard, brukeren velger selv */}
+      <div className="border rounded-lg bg-card">
+        <button
+          type="button"
+          onClick={toggleActivityLog}
+          className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/40 transition-colors"
+        >
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Activity className="h-4 w-4 text-primary" />
+            {isNb ? "Aktivitetslogg" : "Activity log"}
+          </div>
+          {showActivityLog ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
+        </button>
+        {showActivityLog && (
+          <div className="px-4 pb-4">
+            <VendorActivityTab
+              assetId={assetId}
+              assetName={assetName ?? ""}
+              baselinePercent={baselinePercent}
+              enrichmentPercent={enrichmentPercent}
+              externalActivities={externalActivities}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Manuell aktivitetsdialog — åpnes fra Lara-banneret */}
       <RegisterActivityDialog
