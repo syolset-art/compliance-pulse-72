@@ -95,6 +95,7 @@ import TrustCenterActivate from "./pages/TrustCenterActivate";
 import TrustCenterProfile from "./pages/TrustCenterProfile";
 import TrustCenterServiceProfile from "./pages/TrustCenterServiceProfile";
 import TrustCenterEditProfile from "./pages/TrustCenterEditProfile";
+import TrustCenterMasterDocuments from "./pages/TrustCenterMasterDocuments";
 import TrustEngine from "./pages/TrustEngine";
 import PublicTrustProfile from "./pages/PublicTrustProfile";
 import MynderAdminDashboard from "./pages/MynderAdminDashboard";
@@ -189,6 +190,7 @@ const App = () => (
                   <Route path="/trust-center/profile" element={<TrustCenterProfile />} />
                   <Route path="/trust-center/profile/:id" element={<TrustCenterServiceProfile />} />
                   <Route path="/trust-center/edit" element={<TrustCenterEditProfile />} />
+                  <Route path="/trust-center/documents" element={<TrustCenterMasterDocuments />} />
                   <Route path="/trust-center/saas" element={<TrustCenterSaaS />} />
                   <Route path="/trust-center/shared" element={<TrustCenterShared />} />
                   <Route path="/trust-center/products" element={<TrustCenterProducts />} />
