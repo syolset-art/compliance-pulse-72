@@ -3420,6 +3420,109 @@ export type Database = {
         }
         Relationships: []
       }
+      trust_center_document_versions: {
+        Row: {
+          change_summary: string | null
+          created_at: string
+          document_id: string
+          file_name: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          mime_type: string | null
+          published_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          version_label: string
+        }
+        Insert: {
+          change_summary?: string | null
+          created_at?: string
+          document_id: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          published_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          version_label: string
+        }
+        Update: {
+          change_summary?: string | null
+          created_at?: string
+          document_id?: string
+          file_name?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+          published_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          version_label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_center_document_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "trust_center_master_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trust_center_master_documents: {
+        Row: {
+          audience_scope: string
+          category: string | null
+          created_at: string
+          current_version_id: string | null
+          description: string | null
+          doc_type: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audience_scope?: string
+          category?: string | null
+          created_at?: string
+          current_version_id?: string | null
+          description?: string | null
+          doc_type?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audience_scope?: string
+          category?: string | null
+          created_at?: string
+          current_version_id?: string | null
+          description?: string | null
+          doc_type?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_center_master_documents_current_version_fkey"
+            columns: ["current_version_id"]
+            isOneToOne: false
+            referencedRelation: "trust_center_document_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trust_profile_sources: {
         Row: {
           asset_id: string
