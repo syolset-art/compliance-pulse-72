@@ -453,16 +453,19 @@ const TrustCenterEvidence = () => {
               <SelectItem value="all">{isNb ? "Alle kategorier" : "All categories"}</SelectItem>
               <SelectItem value="policy">{isNb ? "Retningslinjer" : "Policies"}</SelectItem>
               <SelectItem value="certification">{isNb ? "Sertifiseringer" : "Certifications"}</SelectItem>
-              <SelectItem value="document">{isNb ? "Dokumenter" : "Documents"}</SelectItem>
+              <SelectItem value="evidence">{isNb ? "Avtaler & bevis" : "Agreements & evidence"}</SelectItem>
+              <SelectItem value="document">{isNb ? "Andre dokumenter" : "Other documents"}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
-            <SelectTrigger className="w-[150px]">
+            <SelectTrigger className="w-[160px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{isNb ? "Alle" : "All"}</SelectItem>
+              <SelectItem value="all">{isNb ? "All tilgang" : "All access"}</SelectItem>
               <SelectItem value="published">{isNb ? "Offentlig" : "Public"}</SelectItem>
+              <SelectItem value="ecosystem">{isNb ? "Økosystem" : "Ecosystem"}</SelectItem>
+              <SelectItem value="restricted">{isNb ? "Begrenset" : "Restricted"}</SelectItem>
               <SelectItem value="hidden">{isNb ? "Intern" : "Private"}</SelectItem>
             </SelectContent>
           </Select>
