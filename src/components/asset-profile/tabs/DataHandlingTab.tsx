@@ -208,7 +208,7 @@ export const DataHandlingTab = ({ assetId }: DataHandlingTabProps) => {
         </Card>
 
         {/* Personal Data Categories */}
-        <PersonalDataCard assetId={assetId} />
+        <DataCategoriesCard assetId={assetId} />
 
         {/* Retention Keywords → Oppbevaring og sletting */}
         <Card className="lg:col-span-2">
