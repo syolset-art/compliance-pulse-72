@@ -440,14 +440,27 @@ const TrustCenterEvidence = () => {
     <div className="w-full max-w-7xl mx-auto p-4 md:p-10 pt-16 md:pt-20">
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mb-2">
-            {isNb ? "Dokumentasjon og bevis" : "Documentation and Evidence"}
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            {isNb
-              ? "Her samler du alle retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance. Dokumentene fungerer som bevis for kontrollene i din Trust Profile og påvirker Trust Score direkte."
-              : "Collect all policies, certifications and documents that support your organization's compliance. Documents serve as evidence for the controls in your Trust Profile and directly impact your Trust Score."}
-          </p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+              {isNb ? "Dokumentasjon og bevis" : "Documentation and Evidence"}
+            </h1>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className="text-muted-foreground hover:text-foreground transition-colors" aria-label={isNb ? "Mer info" : "More info"}>
+                    <Info className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-sm">
+                  <p className="text-xs leading-relaxed">
+                    {isNb
+                      ? "Her samler du alle retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance. Dokumentene fungerer som bevis for kontrollene i din Trust Profile og påvirker Trust Score direkte."
+                      : "Collect all policies, certifications and documents that support your organization's compliance. Documents serve as evidence for the controls in your Trust Profile and directly impact your Trust Score."}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Button
