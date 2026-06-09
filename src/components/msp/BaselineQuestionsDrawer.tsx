@@ -3,9 +3,25 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Info, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
+import {
+  Info,
+  Sparkles,
+  ShieldCheck,
+  ArrowRight,
+  Circle,
+  CircleDashed,
+  CheckCircle2,
+  MinusCircle,
+  type LucideIcon,
+} from "lucide-react";
 import { MATURITY_AREAS, deriveLaraSources, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Props {
   open: boolean;
@@ -19,12 +35,24 @@ interface Props {
   laraScan?: Parameters<typeof deriveLaraSources>[0];
 }
 
-const ANSWER_OPTIONS: { value: MaturityAnswer; label: string }[] = [
-  { value: "yes", label: "Ja" },
-  { value: "no", label: "Nei" },
-  { value: "n_a", label: "Ikke aktuelt" },
-  { value: "unsure", label: "Usikker" },
+interface AnswerMeta {
+  value: MaturityAnswer;
+  label: string;
+  icon: LucideIcon;
+  className: string;
+}
+
+const ANSWER_META: AnswerMeta[] = [
+  { value: "not_started", label: "Ikke startet", icon: Circle, className: "text-muted-foreground/60" },
+  { value: "in_progress", label: "Pågår", icon: CircleDashed, className: "text-warning" },
+  { value: "done", label: "Fullført", icon: CheckCircle2, className: "text-success" },
+  { value: "not_relevant", label: "Ikke relevant", icon: MinusCircle, className: "text-muted-foreground/40" },
 ];
+
+const META_BY_VALUE = Object.fromEntries(ANSWER_META.map((m) => [m.value, m])) as Record<MaturityAnswer, AnswerMeta>;
+
+const isAnsweredVal = (a: MaturityAnswer | undefined) =>
+  a === "done" || a === "in_progress" || a === "not_relevant";
 
 export function BaselineQuestionsDrawer({
   open,
@@ -40,7 +68,7 @@ export function BaselineQuestionsDrawer({
   const initialArea = (() => {
     if (reviewMode) {
       const firstWithSuggestion = MATURITY_AREAS.find((a) =>
-        a.questions.some((q) => laraSources[q.id] && !(answers[q.id] === "yes" || answers[q.id] === "no")),
+        a.questions.some((q) => laraSources[q.id] && !isAnsweredVal(answers[q.id])),
       );
       if (firstWithSuggestion) return firstWithSuggestion.id;
     }
@@ -48,10 +76,8 @@ export function BaselineQuestionsDrawer({
   })();
 
   const [tab, setTab] = useState<string>(initialArea);
-  // Draft buffer — endringer commit'es først ved "Gå videre"/"Ferdig".
   const [draft, setDraft] = useState<MaturityAnswers>(answers);
 
-  // Synk når drawer åpnes på nytt eller eksterne svar endres.
   useEffect(() => {
     if (open) setDraft(answers);
   }, [open, answers]);
@@ -78,7 +104,7 @@ export function BaselineQuestionsDrawer({
   };
 
   const handleDiscard = () => {
-    setDraft(answers); // forkast endringer
+    setDraft(answers);
     onOpenChange(false);
   };
 
@@ -110,7 +136,7 @@ export function BaselineQuestionsDrawer({
               <>
                 Lara har foreslått svar basert på hva som er typisk for{" "}
                 <span className="font-medium">{customerName}</span>. Gå gjennom hvert
-                spørsmål og bekreft, juster eller marker som usikkert.
+                spørsmål og bekreft, juster eller marker som ikke relevant.
               </>
             ) : (
               <>
@@ -122,78 +148,100 @@ export function BaselineQuestionsDrawer({
           </p>
         </Card>
 
-
-        <Tabs value={tab} onValueChange={setTab} className="mt-4">
-          <TabsList className="grid w-full grid-cols-5 h-auto">
-
-            {MATURITY_AREAS.map((a) => {
-              const answered = a.questions.filter((q) => draft[q.id] === "yes" || draft[q.id] === "no").length;
-              return (
-                <TabsTrigger key={a.id} value={a.id} className="flex-col gap-0.5 py-2 text-xs">
-                  <span className="font-medium truncate max-w-full">{a.title}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {answered}/{a.questions.length}
-                  </span>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-
-          {MATURITY_AREAS.map((area) => (
-            <TabsContent key={area.id} value={area.id} className="space-y-3 mt-4">
-              <p className="text-sm text-muted-foreground">{area.subtitle}</p>
-
-              {area.questions.map((q) => {
-                const current = draft[q.id];
-                const laraSource = laraSources[q.id];
+        <TooltipProvider delayDuration={150}>
+          <Tabs value={tab} onValueChange={setTab} className="mt-4">
+            <TabsList className="grid w-full grid-cols-5 h-auto">
+              {MATURITY_AREAS.map((a) => {
+                const answered = a.questions.filter((q) => isAnsweredVal(draft[q.id])).length;
                 return (
-                  <Card key={q.id} className="p-3 space-y-2.5">
-                    <div className="flex items-start gap-2">
-                      <p className="text-sm text-foreground flex-1">{q.text}</p>
-                      <TooltipProvider delayDuration={150}>
+                  <TabsTrigger key={a.id} value={a.id} className="flex-col gap-0.5 py-2 text-xs">
+                    <span className="font-medium truncate max-w-full">{a.title}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {answered}/{a.questions.length}
+                    </span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+
+            {MATURITY_AREAS.map((area) => (
+              <TabsContent key={area.id} value={area.id} className="mt-4">
+                <p className="text-sm text-muted-foreground mb-2">{area.subtitle}</p>
+
+                <div className="divide-y divide-border/60">
+                  {area.questions.map((q) => {
+                    const current = draft[q.id] ?? "not_started";
+                    const meta = META_BY_VALUE[current];
+                    const Icon = meta.icon;
+                    const laraSource = laraSources[q.id];
+                    return (
+                      <div key={q.id} className="group flex items-start gap-3 py-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-foreground leading-snug">{q.text}</p>
+                          {laraSource && (
+                            <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
+                              <Sparkles className="h-3 w-3" />
+                              Lara: {laraSource}
+                            </p>
+                          )}
+                        </div>
+
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
                               type="button"
-                              className="text-muted-foreground hover:text-foreground shrink-0 mt-0.5"
-                              aria-label={`Mer info: ${q.article}`}
+                              className="mt-0.5 text-muted-foreground/50 hover:text-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                              aria-label={`GDPR ${q.article}`}
                             >
                               <Info className="h-3.5 w-3.5" />
                             </button>
                           </TooltipTrigger>
-                          <TooltipContent>
-                            <span className="text-xs">{q.article}</span>
+                          <TooltipContent side="top" className="text-xs">
+                            GDPR {q.article}
                           </TooltipContent>
                         </Tooltip>
-                      </TooltipProvider>
-                    </div>
 
-                    {laraSource && (
-                      <div className="flex items-center gap-1.5 text-xs text-primary">
-                        <Sparkles className="h-3 w-3" />
-                        <span>Lara foreslår: {laraSource}</span>
+                        <DropdownMenu>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <DropdownMenuTrigger asChild>
+                                <button
+                                  type="button"
+                                  className="shrink-0 h-7 w-7 rounded-md flex items-center justify-center hover:bg-muted transition"
+                                  aria-label={`Status: ${meta.label}`}
+                                >
+                                  <Icon className={`h-4 w-4 ${meta.className}`} />
+                                </button>
+                              </DropdownMenuTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent side="left" className="text-xs">
+                              {meta.label}
+                            </TooltipContent>
+                          </Tooltip>
+                          <DropdownMenuContent align="end" className="w-44">
+                            {ANSWER_META.map((opt) => {
+                              const OptIcon = opt.icon;
+                              return (
+                                <DropdownMenuItem
+                                  key={opt.value}
+                                  onSelect={() => setDraftAnswer(q.id, opt.value)}
+                                  className="gap-2 text-sm"
+                                >
+                                  <OptIcon className={`h-4 w-4 ${opt.className}`} />
+                                  {opt.label}
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                    )}
-
-                    <div className="flex gap-1.5">
-                      {ANSWER_OPTIONS.map((opt) => (
-                        <Button
-                          key={opt.value}
-                          size="sm"
-                          variant={current === opt.value ? "default" : "outline"}
-                          className="h-8 flex-1"
-                          onClick={() => setDraftAnswer(q.id, opt.value)}
-                        >
-                          {opt.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </Card>
-                );
-              })}
-            </TabsContent>
-          ))}
-        </Tabs>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </TooltipProvider>
 
         <div className="flex items-center justify-between gap-4 mt-6 pt-4 border-t border-border">
           <button
