@@ -143,7 +143,7 @@ const TrustCenterEvidence = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, file_path, status, created_at, valid_to, display_name, category, visibility, notes, approved_by, approved_at, external_url, available_on_request")
+        .select("id, document_type, file_name, file_path, status, created_at, valid_to, valid_from, version, display_name, category, visibility, notes, approved_by, approved_at, external_url, available_on_request")
         .eq("asset_id", asset!.id)
         .order("created_at", { ascending: false });
       return data || [];
@@ -658,50 +658,117 @@ const TrustCenterEvidence = () => {
 
       {/* Edit Dialog */}
       <Dialog open={!!editDoc} onOpenChange={(open) => !open && setEditDoc(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{isNb ? "Rediger dokument" : "Edit document"}</DialogTitle>
           </DialogHeader>
           {editDoc && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>{isNb ? "Visningsnavn" : "Display name"}</Label>
-                <Input value={editDoc.display_name || ""} onChange={(e) => setEditDoc({ ...editDoc, display_name: e.target.value })} />
+            <div className="space-y-5">
+              {/* Document context header */}
+              <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+                <div className="flex items-start gap-3">
+                  <div className="h-9 w-9 rounded-md bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium text-sm truncate" title={editDoc.file_name}>
+                      {editDoc.file_name || editDoc.display_name}
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                      <Badge variant="outline" className="text-[11px] font-normal">
+                        {docTypeLabel(editDoc.document_type, isNb)}
+                      </Badge>
+                      <Badge variant="outline" className="text-[11px] font-normal">
+                        v{editDoc.version || 1}
+                      </Badge>
+                      <span className="text-[11px] text-muted-foreground">
+                        {isNb ? "Lastet opp" : "Uploaded"} {editDoc.created_at ? new Date(editDoc.created_at).toLocaleDateString(isNb ? "nb-NO" : "en-US", { day: "numeric", month: "short", year: "numeric" }) : "—"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <span className="text-[11px] text-muted-foreground">
+                    {isNb ? "Trenger du å erstatte filen?" : "Need to replace the file?"}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => { setEditDoc(null); setDialogOpen(true); }}
+                  >
+                    <Plus className="h-3 w-3" />
+                    {isNb ? "Last opp ny versjon" : "Upload new version"}
+                  </Button>
+                </div>
               </div>
+
+              {/* Sharing — the main purpose of editing */}
               <div className="space-y-2">
-                <Label>{isNb ? "Dokumenttype" : "Document type"}</Label>
-                <Select value={editDoc.document_type} onValueChange={(v) => setEditDoc({ ...editDoc, document_type: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {Object.keys({ policy: 1, privacy_policy: 1, acceptable_use: 1, incident_response: 1, security_policy: 1, data_protection_policy: 1, certification: 1, agreement: 1, report: 1, evidence: 1, other: 1 }).map((t) => (
-                      <SelectItem key={t} value={t}>{docTypeLabel(t, isNb)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>{isNb ? "Utløpsdato" : "Expiry date"}</Label>
-                <Input type="date" value={editDoc.valid_to || ""} onChange={(e) => setEditDoc({ ...editDoc, valid_to: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>{isNb ? "Synlighet" : "Visibility"}</Label>
+                <div>
+                  <Label className="text-sm">{isNb ? "Hvem ser dokumentet?" : "Who sees this document?"}</Label>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {isNb ? "Bestem om dokumentet er internt eller delt på din Trust Profile." : "Decide if the document is internal or shared on your Trust Profile."}
+                  </p>
+                </div>
                 <Select value={editDoc.visibility || "hidden"} onValueChange={(v) => setEditDoc({ ...editDoc, visibility: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="published">{isNb ? "Publisert" : "Published"}</SelectItem>
-                    <SelectItem value="hidden">{isNb ? "Skjult" : "Hidden"}</SelectItem>
+                    <SelectItem value="hidden">
+                      <div className="flex items-center gap-2"><Lock className="h-3.5 w-3.5" />{isNb ? "Internt – kun for organisasjonen" : "Internal – organization only"}</div>
+                    </SelectItem>
+                    <SelectItem value="published">
+                      <div className="flex items-center gap-2"><Globe className="h-3.5 w-3.5" />{isNb ? "Publisert på Trust Profile" : "Published on Trust Profile"}</div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start gap-2 h-8 text-xs"
+                  onClick={() => { const d = editDoc; setEditDoc(null); setAccessDoc(d); }}
+                >
+                  <Users className="h-3.5 w-3.5" />
+                  {isNb ? "Administrer hvem dokumentet deles med" : "Manage who this document is shared with"}
+                </Button>
               </div>
-              <div className="space-y-2">
-                <Label>{isNb ? "Notater" : "Notes"}</Label>
-                <Textarea value={editDoc.notes || ""} onChange={(e) => setEditDoc({ ...editDoc, notes: e.target.value })} rows={3} />
+
+              {/* Metadata */}
+              <div className="space-y-3 pt-3 border-t">
+                <div className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                  {isNb ? "Detaljer" : "Details"}
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">{isNb ? "Visningsnavn" : "Display name"}</Label>
+                  <Input value={editDoc.display_name || ""} onChange={(e) => setEditDoc({ ...editDoc, display_name: e.target.value })} />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-2">
+                    <Label className="text-xs">{isNb ? "Dokumenttype" : "Document type"}</Label>
+                    <Select value={editDoc.document_type} onValueChange={(v) => setEditDoc({ ...editDoc, document_type: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {Object.keys({ policy: 1, privacy_policy: 1, acceptable_use: 1, incident_response: 1, security_policy: 1, data_protection_policy: 1, certification: 1, agreement: 1, report: 1, evidence: 1, other: 1 }).map((t) => (
+                          <SelectItem key={t} value={t}>{docTypeLabel(t, isNb)}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs">{isNb ? "Utløpsdato" : "Expiry date"}</Label>
+                    <Input type="date" value={editDoc.valid_to || ""} onChange={(e) => setEditDoc({ ...editDoc, valid_to: e.target.value })} />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">{isNb ? "Notater" : "Notes"}</Label>
+                  <Textarea value={editDoc.notes || ""} onChange={(e) => setEditDoc({ ...editDoc, notes: e.target.value })} rows={2} />
+                </div>
               </div>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditDoc(null)}>{isNb ? "Avbryt" : "Cancel"}</Button>
-            <Button onClick={saveEdit}>{isNb ? "Lagre" : "Save"}</Button>
+            <Button onClick={saveEdit}>{isNb ? "Lagre endringer" : "Save changes"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
