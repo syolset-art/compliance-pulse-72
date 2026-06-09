@@ -31,6 +31,7 @@ import { TakeoverTrustProfileCard } from "@/components/msp/TakeoverTrustProfileC
 import { TrustProfileTakeoverInfoDialog } from "@/components/msp/TrustProfileTakeoverInfoDialog";
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
+import { CustomerDocumentationTab } from "@/components/msp/CustomerDocumentationTab";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { MATURITY_AREAS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 
@@ -68,7 +69,7 @@ export default function MSPCustomerDetail() {
   const [isLaraSuggesting, setIsLaraSuggesting] = useState(false);
   const [mandateDialogOpen, setMandateDialogOpen] = useState(false);
   const mandate = useMandate(customerId || "");
-  const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
+  const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, laraRationales: baselineRationales, setLaraRationales: setBaselineRationales, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
 
   const { data: customer, isLoading } = useQuery({
@@ -263,6 +264,9 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="trust-profile" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Trust Profile
                 </TabsTrigger>
+                <TabsTrigger value="documentation" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
+                  Dokumentasjon
+                </TabsTrigger>
                 <TabsTrigger value="regulations" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Regelverk
                 </TabsTrigger>
@@ -330,14 +334,19 @@ export default function MSPCustomerDetail() {
                       },
                     });
                     if (error) throw error;
-                    const suggestions = (data as { suggestions?: { question_id: string; answer: MaturityAnswer }[] })?.suggestions ?? [];
+                    const suggestions = (data as { suggestions?: { question_id: string; answer: MaturityAnswer; rationale?: string }[] })?.suggestions ?? [];
                     if (suggestions.length === 0) {
                       toast.error("Lara kunne ikke foreslå svar akkurat nå");
                       return;
                     }
                     const next: MaturityAnswers = {};
-                    for (const s of suggestions) next[s.question_id] = s.answer;
+                    const rationales: Record<string, string> = {};
+                    for (const s of suggestions) {
+                      next[s.question_id] = s.answer;
+                      if (s.rationale) rationales[s.question_id] = s.rationale;
+                    }
                     setAllBaselineAnswers(next);
+                    setBaselineRationales(rationales);
                     toast.success(`Lara foreslo ${suggestions.length} svar`, {
                       description: "Gå gjennom og bekreft hvert svar.",
                     });
@@ -359,6 +368,7 @@ export default function MSPCustomerDetail() {
                 answers={baselineAnswers}
                 onAnswer={setBaselineAnswer}
                 reviewMode={baselineDrawer.review}
+                laraRationales={baselineRationales}
               />
 
               {/* 2) Spørreskjema til kunden */}
@@ -395,6 +405,13 @@ export default function MSPCustomerDetail() {
 
             <TabsContent value="messages" className="mt-6">
               <MSPCustomerMessagesTab />
+            </TabsContent>
+
+            <TabsContent value="documentation" className="mt-6">
+              <CustomerDocumentationTab
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
+              />
             </TabsContent>
 
             <TabsContent value="regulations" className="mt-6">

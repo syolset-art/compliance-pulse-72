@@ -33,6 +33,8 @@ interface Props {
   reviewMode?: boolean;
   /** Optional Lara scan to derive suggested-source labels. */
   laraScan?: Parameters<typeof deriveLaraSources>[0];
+  /** Per-question rationales from Laras LLM-suggestion. Takes precedence over scan source. */
+  laraRationales?: Record<string, string>;
 }
 
 interface AnswerMeta {
@@ -62,6 +64,7 @@ export function BaselineQuestionsDrawer({
   onAnswer,
   reviewMode = false,
   laraScan,
+  laraRationales,
 }: Props) {
   const laraSources = deriveLaraSources(laraScan ?? null);
 
@@ -173,15 +176,17 @@ export function BaselineQuestionsDrawer({
                     const current = draft[q.id] ?? "not_started";
                     const meta = META_BY_VALUE[current];
                     const Icon = meta.icon;
+                    const rationale = laraRationales?.[q.id];
                     const laraSource = laraSources[q.id];
+                    const explanation = rationale ?? laraSource;
                     return (
                       <div key={q.id} className="group flex items-start gap-3 py-3">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-foreground leading-snug">{q.text}</p>
-                          {laraSource && (
-                            <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
-                              <Sparkles className="h-3 w-3" />
-                              Lara: {laraSource}
+                          {explanation && (
+                            <p className="mt-1 text-xs text-muted-foreground flex items-start gap-1">
+                              <Sparkles className="h-3 w-3 mt-0.5 shrink-0" />
+                              <span>Lara: {explanation}</span>
                             </p>
                           )}
                         </div>
