@@ -19,7 +19,6 @@ const TYPE_GROUPS: { key: string; labelNb: string; labelEn: string; match: (t: s
   { key: "policy", labelNb: "Policyer", labelEn: "Policies", match: (t) => t === "policy" || t === "guideline" },
   { key: "dpa", labelNb: "Avtaler", labelEn: "Agreements", match: (t) => t === "dpa" },
   { key: "report", labelNb: "Rapporter", labelEn: "Reports", match: (t) => t === "report" },
-  { key: "other", labelNb: "Andre dokumenter", labelEn: "Other documents", match: (t) => !["certificate", "policy", "guideline", "dpa", "report"].includes(t) },
 ];
 
 export function DocumentationSection({ asset }: { asset: any }) {
@@ -67,7 +66,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
         asset_id: asset.id,
         file_name: file.name,
         file_path: filePath,
-        document_type: "other",
+        document_type: "certificate",
         visibility: "visible",
       });
       if (insErr) throw insErr;
