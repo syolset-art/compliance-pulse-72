@@ -8,8 +8,9 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useDemoSyncOptional } from "@/contexts/DemoSyncContext";
 import {
-  Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, Bell,
+  Moon, Sun, Check, Globe, Settings, Shield, LogOut, ChevronRight, HelpCircle, Bell, Compass,
 } from "lucide-react";
+
 import avatarProfile from "../../public/avatar-profile.png";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -189,11 +190,18 @@ export function TopBar() {
 
           <DropdownMenuSeparator />
 
+          {/* About Mynder-score */}
+          <DropdownMenuItem onClick={() => navigate("/resources/maturity")} className="gap-2">
+            <Compass className="h-4 w-4" />
+            {isNb ? "Om Mynder-scoren" : "About the Mynder score"}
+          </DropdownMenuItem>
+
           {/* Settings */}
           <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2">
             <Settings className="h-4 w-4" />
             {isNb ? "Innstillinger" : "Settings"}
           </DropdownMenuItem>
+
 
           {/* Sign out */}
           <DropdownMenuItem
