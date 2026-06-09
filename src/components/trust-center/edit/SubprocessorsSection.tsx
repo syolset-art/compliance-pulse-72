@@ -111,50 +111,31 @@ export function SubprocessorsSection({ asset }: Props) {
           <ul className="divide-y divide-border">
             {vendors.map((v) => {
               const country = getSubprocessorCountry(v.country);
+              const description = v.category && v.category !== "Ukjent" ? v.category : null;
               return (
-                <li key={v.name} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30">
-                  <div className="h-7 w-7 shrink-0 rounded-full bg-primary/10 text-primary text-sm font-medium flex items-center justify-center">
-                    {initialOf(v.name)}
-                  </div>
+                <li key={v.name} className="flex items-start gap-4 px-4 py-3 hover:bg-muted/30">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-medium text-foreground truncate">{v.name}</span>
-                      {v.source === "matched" && (
-                        <Badge variant="outline" className="gap-1 text-[11px] border-primary/30 text-primary">
-                          <Sparkles className="h-2.5 w-2.5" />
-                          {isNb ? "Auto-utfylt" : "Auto-filled"}
-                        </Badge>
-                      )}
-                      {v.hasTrustProfile && (
-                        <Badge variant="outline" className="gap-1 text-[11px] border-success/30 text-success">
-                          <ShieldCheck className="h-2.5 w-2.5" />
-                          Trust Profile
-                        </Badge>
-                      )}
-                    </div>
-                    {v.category && v.category !== "Ukjent" && (
-                      <p className="text-xs text-muted-foreground truncate">{v.category}</p>
+                    <div className="text-sm font-medium text-foreground truncate">{v.name}</div>
+                    {description && (
+                      <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{description}</p>
                     )}
                   </div>
-                  <div className="shrink-0 text-sm text-muted-foreground flex items-center gap-2">
+                  <div className="shrink-0 text-xs text-muted-foreground w-32 pt-0.5">
                     {country ? (
-                      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/60">
-                        <span>{country.flag}</span>
-                        <span className="text-xs">{country.name}</span>
-                      </span>
+                      <span>{country.name}</span>
                     ) : (
-                      <span className="text-xs text-muted-foreground">{isNb ? "Land ukjent" : "Country unknown"}</span>
+                      <span>{isNb ? "Land ukjent" : "Country unknown"}</span>
                     )}
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                      onClick={() => handleRemove(v.name)}
-                      aria-label={isNb ? "Fjern" : "Remove"}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
                   </div>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => handleRemove(v.name)}
+                    aria-label={isNb ? "Fjern" : "Remove"}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
                 </li>
               );
             })}
