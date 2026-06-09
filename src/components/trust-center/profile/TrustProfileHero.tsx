@@ -99,13 +99,23 @@ export function TrustProfileHero({
           <img src={coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
         ) : (
           <>
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary to-[#3a1d5c]" />
+            {/* Professional, neutral base with a subtle Mynder purple accent */}
+            <div className="absolute inset-0 bg-[#0e1320]" />
             <div
-              className="absolute inset-0 opacity-30"
+              className="absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(ellipse 80% 60% at 85% 15%, hsl(var(--primary) / 0.32) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 15% 90%, hsl(var(--primary) / 0.18) 0%, transparent 65%)",
+              }}
+            />
+            <div
+              className="absolute inset-0 opacity-[0.12]"
               style={{
                 backgroundImage:
-                  "radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px)",
-                backgroundSize: "22px 22px",
+                  "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+                backgroundSize: "44px 44px",
+                maskImage:
+                  "radial-gradient(ellipse 70% 70% at 50% 50%, #000 40%, transparent 100%)",
               }}
             />
           </>
@@ -114,7 +124,7 @@ export function TrustProfileHero({
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: `linear-gradient(180deg, rgba(8,8,16,${overlay * 0.55}) 0%, rgba(8,8,16,0) 35%, rgba(8,8,16,0) 100%)`,
+            background: `linear-gradient(180deg, rgba(8,10,18,${overlay * 0.5}) 0%, rgba(8,10,18,0) 40%, rgba(8,10,18,0) 100%)`,
           }}
         />
 
@@ -214,11 +224,11 @@ export function TrustProfileHero({
             <button
               type="button"
               onClick={onVerifiedClick}
-              className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+              className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground/80 transition-colors hover:bg-muted/60 hover:text-foreground"
               aria-label={isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
               title={isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
             >
-              <Award className="h-3.5 w-3.5" />
+              <Award className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
               {isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
             </button>
           </div>
