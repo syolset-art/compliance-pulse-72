@@ -132,10 +132,11 @@ export function BaselineReadinessCard({
 
         {/* Område-fremdrift — 5 kanoniske kontrollområder */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {areaProgress.map((area) => {
+          {areaProgress.map((area, idx) => {
             const pct = area.total === 0 ? 0 : Math.round((area.answered / area.total) * 100);
+            const isLastOdd = idx === areaProgress.length - 1 && areaProgress.length % 2 === 1;
             return (
-              <div key={area.id} className="flex items-center gap-3 rounded-md border border-border bg-muted/30 px-3 py-2">
+              <div key={area.id} className={`flex items-center gap-3 rounded-md border border-border bg-muted/30 px-3 py-2 ${isLastOdd ? "sm:col-span-2" : ""}`}>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground truncate">{area.title}</p>
                   <div className="mt-1 h-1.5 w-full rounded-full bg-muted overflow-hidden">
