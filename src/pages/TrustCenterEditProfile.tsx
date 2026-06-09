@@ -335,11 +335,18 @@ const TrustCenterEditProfile = () => {
                       : "Choose which frameworks appear on the profile. Maturity is calculated from the same frameworks."}
                   </p>
                 </div>
-                <div className="text-right text-xs text-muted-foreground shrink-0 tabular-nums">
-                  <div>{frameworks.filter((fw: any) => !hiddenFrameworkIds.includes(fw.framework_id)).length}/{frameworks.length} {isNb ? "synlig" : "visible"}</div>
-                  <div className="mt-0.5">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</div>
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="text-right text-xs text-muted-foreground tabular-nums">
+                    <div>{frameworks.filter((fw: any) => !hiddenFrameworkIds.includes(fw.framework_id)).length}/{frameworks.length} {isNb ? "synlig" : "visible"}</div>
+                    <div className="mt-0.5">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</div>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/regulations")} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    {isNb ? "Legg til" : "Add"}
+                  </Button>
                 </div>
               </div>
+
 
               {/* Subsection 1: Regelverk i scope */}
               <div className="space-y-2">
@@ -396,15 +403,12 @@ const TrustCenterEditProfile = () => {
                         );
                       })}
                     </ul>
-                    <div className="px-4 py-2.5 border-t border-border flex items-center justify-between bg-muted/20">
+                    <div className="px-4 py-2.5 border-t border-border bg-muted/20">
                       <p className="text-xs text-muted-foreground">
                         {isNb ? "Skjulte regelverk teller fortsatt i modenhet, men vises ikke for besøkende." : "Hidden frameworks still count toward maturity but are not shown to visitors."}
                       </p>
-                      <Button size="sm" variant="ghost" onClick={() => navigate("/regulations")} className="gap-1.5 text-muted-foreground hover:text-foreground">
-                        <Plus className="h-3.5 w-3.5" />
-                        {isNb ? "Legg til" : "Add"}
-                      </Button>
                     </div>
+
                   </Card>
                 )}
               </div>
