@@ -15,6 +15,7 @@ import {
   Activity,
   Users,
   Sparkles,
+  KeyRound,
 } from "lucide-react";
 
 type ControlDomain = {
@@ -26,11 +27,13 @@ type ControlDomain = {
   Icon: typeof ShieldCheck;
 };
 
+// Order matches canonical control areas: governance, operations, identityAccess, vendor, privacy
 const controlDomains: ControlDomain[] = [
   { key: "governance", name: "Styring", description: "Policy, roller og ledelsesforankring", level: 3, source: "lara", Icon: ShieldCheck },
-  { key: "operations", name: "Drift og sikkerhet", description: "Tilgang, logging, hendelseshåndtering", level: 4, source: "self", Icon: Activity },
-  { key: "privacy", name: "Personvern", description: "GDPR-etterlevelse og datahåndtering", level: 2, source: "lara", Icon: Lock },
-  { key: "third_party", name: "Tredjepart", description: "Leverandørstyring og verdikjede", level: 3, source: "lara", Icon: Users },
+  { key: "operations", name: "Drift og bruk", description: "Drift, logging, hendelseshåndtering og sikkerhetskopiering", level: 2, source: "self", Icon: Activity },
+  { key: "identityAccess", name: "Identitet og tilgang", description: "Autentisering, tilgangsstyring og MFA", level: 2, source: "lara", Icon: KeyRound },
+  { key: "vendor", name: "Leverandører og økosystem", description: "Leverandørstyring og verdikjede", level: 2, source: "lara", Icon: Users },
+  { key: "privacy", name: "Personvern og datahåndtering", description: "GDPR-etterlevelse og datahåndtering", level: 3, source: "lara", Icon: Lock },
 ];
 
 function levelTone(level: number) {
