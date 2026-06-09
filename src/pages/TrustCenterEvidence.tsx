@@ -272,7 +272,7 @@ const TrustCenterEvidence = () => {
     mutationFn: async (id: string) => {
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData?.user?.id ?? null;
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("vendor_documents")
         .update({
           valid_from: new Date().toISOString().split("T")[0],
