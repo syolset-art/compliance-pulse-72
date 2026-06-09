@@ -98,9 +98,9 @@ export const EditActiveFrameworksDialog = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="overflow-y-auto w-full sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>Rediger aktive regelverk og standarder</SheetTitle>
+          <SheetTitle>{title ?? "Rediger aktive regelverk og standarder"}</SheetTitle>
           <SheetDescription>
-            Aktiver eller deaktiver regelverk og standarder for din virksomhet
+            {description ?? "Aktiver eller deaktiver regelverk og standarder for din virksomhet"}
           </SheetDescription>
         </SheetHeader>
 
