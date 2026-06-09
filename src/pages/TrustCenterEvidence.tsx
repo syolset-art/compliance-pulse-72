@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Plus, Award, Calendar, CheckCircle2, AlertTriangle, FolderOpen, Loader2, Eye, EyeOff, Lock, Database, MoreHorizontal, Pencil, Trash2, ShieldCheck, Download, X as XIcon, Globe } from "lucide-react";
+import { FileText, Plus, Award, Calendar, CheckCircle2, AlertTriangle, FolderOpen, Loader2, Eye, EyeOff, Lock, Database, MoreHorizontal, Pencil, Trash2, ShieldCheck, Download, X as XIcon, Globe, ChevronDown, Info, SlidersHorizontal } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
 import { DocumentComplianceCard } from "@/components/trust-center/DocumentComplianceCard";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 import { Network, Users } from "lucide-react";
+
+// localStorage helpers for collapsible UI state
+const LS_REQUIRED_OPEN = "trust.evidence.required.open";
+const LS_SECTIONS_OPEN = "trust.evidence.sections.open";
+const readBoolLS = (key: string, fallback: boolean): boolean => {
+  try { const v = localStorage.getItem(key); return v === null ? fallback : v === "1"; } catch { return fallback; }
+};
+const writeBoolLS = (key: string, value: boolean) => {
+  try { localStorage.setItem(key, value ? "1" : "0"); } catch {}
+};
+const readSectionsLS = (): Record<string, boolean> => {
+  try { const v = localStorage.getItem(LS_SECTIONS_OPEN); return v ? JSON.parse(v) : {}; } catch { return {}; }
+};
+const writeSectionsLS = (v: Record<string, boolean>) => {
+  try { localStorage.setItem(LS_SECTIONS_OPEN, JSON.stringify(v)); } catch {}
+};
 
 const statusOptions = [
   { value: "draft", labelNb: "Utkast", labelEn: "Draft" },
