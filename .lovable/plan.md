@@ -1,43 +1,31 @@
-# Lara-begrunnelse + Dokumentasjon-arkfane
+# Mynder-score forklaring — ny side
 
-## Mål
-1. Når Lara fyller ut baseline-svar, skal hvert svar ha en kort begrunnelse synlig under spørsmålet (én linje, muted) — slik at partneren forstår hvorfor.
-2. Ny **Dokumentasjon**-arkfane på kundesiden som forklarer at kunden kan gi Lara tilgang til relevante dokumenter (DPA, policy, hendelsesplan osv.) — i prototypen er det en placeholder-flate uten reell opplasting.
+## Hva som endres
 
-## Endring 1 — Lara-begrunnelse per spørsmål
+**1. `src/pages/MaturityMethodology.tsx` — full rewrite**
 
-**Kjeden i dag:**
-- `supabase/functions/suggest-baseline-answers` returnerer allerede `{ question_id, answer, rationale }` per spørsmål.
-- `MSPCustomerDetail.tsx` (linje 333–339) plukker kun `answer` og kaster `rationale`.
-- `BaselineQuestionsDrawer` viser kun `deriveLaraSources(laraScan)` — som er basert på den eldre web-skanningen, ikke på rationale-feltet fra LLM.
+Erstatt hele dagens 790-linjers side med en stram, ryddig forklaring basert på PDF-en. All annen seksjon (gammel terminologi, dupliserte forklaringer, ekstra ressurslinker) fjernes.
 
-**Endringer:**
-- Ny localStorage-bøtte i `useCustomerBaseline.ts`: `laraRationales: Record<string, string>` med egen setter `setLaraRationales(next)` og getter. Persistert under `msp.customer.laraRationales.<customerId>`.
-- `MSPCustomerDetail.tsx`: ved `setAllBaselineAnswers(next)` etter Lara-forslag, lagre også `rationale`-feltene via den nye setteren.
-- `BaselineQuestionsDrawer.tsx`:
-  - Ny valgfri prop `laraRationales?: Record<string, string>`.
-  - Under hvert spørsmål: hvis det finnes en `rationale` for `q.id`, vis én muted linje med Sparkles-ikon: `Lara: {rationale}`. Den eksisterende `deriveLaraSources`-linjen fjernes som duplikat — `laraRationales` har forrang når den finnes, ellers vis `laraSources[q.id]` som fallback.
-  - Når partneren overstyrer svaret manuelt, fjern `laraRationales[qid]` så begrunnelsen ikke står og lyver. (Skjer i `setDraftAnswer` + commit.)
+Struktur (én kolonne, maks bredde, god luft):
 
-## Endring 2 — Ny "Dokumentasjon"-arkfane på kundesiden
+- **Hero**: Tittel "Hvordan Mynder-scoren fungerer", undertittel "Bygget på bekreftede bevis, ikke påstander." + kort 3-linjers ingress fra PDF.
+- **Slik bygges scoren** — kort tekst + enkel visualisering (Regelverk → Kontrollpunkter → 5 områder). Bygges med Tailwind/lucide (Compass, FileCheck, Layers), ingen tunge bilder.
+- **De fem nivåene** — ren tabell (Card + Table), nivå 0–4 med beskrivelse og prosent.
+- **De fem områdene og vekten** — ren tabell, område / spørsmål / vekt (30/25/20/15/10).
+- **Spørsmål og svar** — `Accordion` (shadcn) med spørsmålene fra PDF, gruppert i tre seksjoner:
+  - Generelt
+  - For deg som vurderer en leverandør
+  - For deg som har en Trust Profile
+- **Fotnote**: "Inspirert av PECB — internasjonalt sertifiseringsorgan for ISO-standarder." + lenke tilbake.
 
-**Plassering:** Som ny `TabsTrigger value="documentation"` i `MSPCustomerDetail.tsx` mellom `trust-profile` og `regulations`.
+Bruker kun semantiske tokens (`text-foreground`, `bg-card`, `border-border`, `text-primary`). Ingen pills, ingen statuspunkter, ingen ekstra CTA-er. i18n holdes på norsk (siden er norsk i dag og PDF-en er norsk).
 
-**Innhold (statisk i prototypen):**
-- Kort forklaringskort øverst: "Gi Lara tilgang til kundens dokumentasjon — DPA-er, policyer, hendelsesplaner og andre filer. Lara leser dokumentene og bruker dem som grunnlag for baseline-svar, gap-analyse og forslag til tiltak."
-- Tydelig samtykke-/tilgangsboks med ikon (`ShieldCheck`/`Sparkles`): "Lara kan få lese-tilgang til opplastede dokumenter" + en toggle-switch (lokal state, persisteres i localStorage `msp.customer.laraDocAccess.<customerId>`).
-- Liste over de samme `DOCUMENT_SLOTS` som finnes i `trustMaturityQuestions.ts` (Personvernerklæring, DPA, Sikkerhetspolicy, Hendelsesplan), hver som en tom plassholder-rad med en "Last opp"-knapp som åpner en toast "Kommer snart — prototype". Status (mangler/lastet opp) vises som et lite ikon til venstre.
-- Liten infoboks nederst: "Når dokumentasjon mangler, baserer Lara svarene på antakelser om typiske norske SMB-er. Last opp dokumenter for høyere presisjon."
+**2. Portal-inngang — én tydelig plassering**
 
-Ingen ekte filopplasting / Supabase storage i denne iterasjonen — det er rent UI for prototypen.
-
-## Filer som endres
-- `src/hooks/useCustomerBaseline.ts` — legg til `laraRationales` + persistens
-- `src/pages/MSPCustomerDetail.tsx` — fang `rationale`, send prop til drawer, legg til ny tab
-- `src/components/msp/BaselineQuestionsDrawer.tsx` — vis rationale per spørsmål, ryd opp ved overstyring
-- `src/components/msp/CustomerDocumentationTab.tsx` — ny komponent for selve fanen
+Legg til menypunkt **"Om Mynder-scoren"** i `src/components/TopBar.tsx` brukermenyen (Dropdown), under språkvalg, med `Compass`-ikon → navigerer til `/resources/maturity`. Dette gir global, alltid-tilgjengelig tilgang uavhengig av side. Eksisterende lenker fra `MaturityDashboard`, `Resources`, `ControlAreaBreakdownDrawer`, `MynderControls` beholdes (peker allerede dit).
 
 ## Ikke i scope
-- Ingen ekte filopplasting eller storage-bucket-oppsett.
-- Ingen endring i edge function — den returnerer allerede `rationale`.
-- Ingen endring i `ActivateTrustProfileWizard` (annen flyt).
+
+- Ingen endring i scoring-logikk eller datamodell.
+- Ingen endring i sidebar-strukturen.
+- Ingen ny route — `/resources/maturity` gjenbrukes.
