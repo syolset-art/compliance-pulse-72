@@ -50,7 +50,7 @@ export function useCustomerBaseline(customerId: string | undefined) {
     [answers, persist],
   );
 
-  const isAnswered = (a: MaturityAnswer | undefined) => a === "yes" || a === "no" || a === "n_a";
+  const isAnswered = (a: MaturityAnswer | undefined) => a === "done" || a === "in_progress" || a === "not_relevant";
 
   const areaProgress: BaselineAreaProgress[] = useMemo(
     () =>

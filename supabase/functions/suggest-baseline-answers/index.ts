@@ -46,12 +46,12 @@ ${customerDomain ? `Domene: ${customerDomain}` : ""}
 ${industry ? `Bransje: ${industry}` : ""}
 
 Du skal foreslå et konservativt utgangspunkt for hvert spørsmål. Bruk:
-- "yes" KUN når det er svært vanlig at en typisk norsk SMB i denne bransjen har dette på plass (f.eks. publisert personvernerklæring for kunder med nettside).
-- "no" når det er sannsynlig at det IKKE er på plass uten aktiv jobb.
-- "n_a" når spørsmålet trolig ikke er aktuelt for denne kunden.
-- "later" når du er usikker — partneren må selv bekrefte.
+- "done" KUN når det er svært vanlig at en typisk norsk SMB i denne bransjen har dette på plass (f.eks. publisert personvernerklæring for kunder med nettside).
+- "in_progress" når det er sannsynlig at noe arbeid er gjort, men ikke ferdig.
+- "not_started" når det er sannsynlig at det IKKE er på plass uten aktiv jobb, eller når du er usikker.
+- "not_relevant" når spørsmålet trolig ikke er relevant for denne kunden.
 
-Vær konservativ: foretrekk "later" framfor å gjette "yes". Partneren skal bekrefte hver suggestion.
+Vær konservativ: foretrekk "not_started" framfor å gjette "done". Partneren skal bekrefte hver suggestion.
 
 For hvert spørsmål gi en kort begrunnelse (maks 1 setning, norsk) som forklarer hvorfor.
 
@@ -87,7 +87,7 @@ Svar ved å kalle suggest_baseline_answers-funksjonen med ett svar per spørsmå
                       type: "object",
                       properties: {
                         question_id: { type: "string" },
-                        answer: { type: "string", enum: ["yes", "no", "later", "n_a"] },
+                        answer: { type: "string", enum: ["not_started", "in_progress", "done", "not_relevant"] },
                         rationale: { type: "string", description: "Kort begrunnelse på norsk, maks 1 setning" },
                       },
                       required: ["question_id", "answer", "rationale"],

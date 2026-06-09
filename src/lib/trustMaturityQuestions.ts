@@ -7,7 +7,7 @@
 import { Shield, Settings, KeyRound, Lock, Users, type LucideIcon } from "lucide-react";
 import type { ControlAreaKey } from "@/lib/controlAreas";
 
-export type MaturityAnswer = "yes" | "no" | "later" | "n_a" | "unsure";
+export type MaturityAnswer = "not_started" | "in_progress" | "done" | "not_relevant";
 
 export interface MaturityQuestion {
   id: string;
@@ -94,10 +94,26 @@ export const ALL_MATURITY_QUESTIONS: MaturityQuestion[] = MATURITY_AREAS.flatMap
 
 export type MaturityAnswers = Record<string, MaturityAnswer>;
 
-/** Migrerer gamle spørsmål-id-er som er endret i denne refaktoreringen. */
-export function migrateLegacyAnswers(answers: MaturityAnswers): MaturityAnswers {
+/** Migrerer gamle spørsmål-id-er og gamle svar-verdier til ny modell. */
+export function migrateLegacyAnswers(answers: MaturityAnswers | Record<string, string>): MaturityAnswers {
   if (!answers || typeof answers !== "object") return {};
-  const migrated: MaturityAnswers = { ...answers };
+  const valueMap: Record<string, MaturityAnswer> = {
+    yes: "done",
+    no: "not_started",
+    later: "not_started",
+    unsure: "not_started",
+    n_a: "not_relevant",
+    // identity (allow new values to pass through)
+    done: "done",
+    in_progress: "in_progress",
+    not_started: "not_started",
+    not_relevant: "not_relevant",
+  };
+  const migrated: MaturityAnswers = {};
+  for (const [k, v] of Object.entries(answers)) {
+    const mapped = valueMap[v as string];
+    if (mapped) migrated[k] = mapped;
+  }
   // ops.mfa flyttet til identityAccess som ia.mfa
   if (migrated["ops.mfa"] !== undefined && migrated["ia.mfa"] === undefined) {
     migrated["ia.mfa"] = migrated["ops.mfa"];
@@ -106,7 +122,7 @@ export function migrateLegacyAnswers(answers: MaturityAnswers): MaturityAnswers 
   return migrated;
 }
 
-/** Build defaults from Lara scan. Anything not derivable defaults to "later".
+/** Build defaults from Lara scan. Anything not derivable defaults to "not_started".
  *  Only HIGH-CONFIDENCE signals from public sources trigger an answer — these
  *  are the ones Lara "svarer på" automatisk. Brukeren kan alltid overstyre.
  */
@@ -118,22 +134,22 @@ export function deriveDefaultAnswers(scan: {
   documents?: { type: string }[];
 } | null | undefined): MaturityAnswers {
   const answers: MaturityAnswers = {};
-  for (const q of ALL_MATURITY_QUESTIONS) answers[q.id] = "later";
+  for (const q of ALL_MATURITY_QUESTIONS) answers[q.id] = "not_started";
   if (!scan) return answers;
 
-  if (scan.privacy?.policyUrl) answers["gov.privacy_policy"] = "yes";
-  if (scan.contacts?.dpoEmail || scan.contacts?.dpoName) answers["gov.dpo"] = "yes";
-  if ((scan.dataStorage?.subProcessors?.length ?? 0) > 0) answers["tp.inventory"] = "yes";
+  if (scan.privacy?.policyUrl) answers["gov.privacy_policy"] = "done";
+  if (scan.contacts?.dpoEmail || scan.contacts?.dpoName) answers["gov.dpo"] = "done";
+  if ((scan.dataStorage?.subProcessors?.length ?? 0) > 0) answers["tp.inventory"] = "done";
 
   const hasDpa = (scan.documents ?? []).some((d) => d.type === "dpa");
-  if (hasDpa) answers["tp.dpa"] = "yes";
+  if (hasDpa) answers["tp.dpa"] = "done";
 
   const hasSecPolicy = (scan.documents ?? []).some((d) => d.type === "policy");
-  if (hasSecPolicy) answers["gov.internal_policy"] = "yes";
+  if (hasSecPolicy) answers["gov.internal_policy"] = "done";
 
   const subs = scan.dataStorage?.subProcessors ?? [];
   const hasNonEEA = subs.some((s) => /microsoft|google|aws|amazon|hubspot|slack|zoom|salesforce|stripe|openai/i.test(s));
-  if (subs.length > 0 && !hasNonEEA) answers["pri.transfer"] = "n_a";
+  if (subs.length > 0 && !hasNonEEA) answers["pri.transfer"] = "not_relevant";
 
   return answers;
 }
