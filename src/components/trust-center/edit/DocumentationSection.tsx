@@ -28,6 +28,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
   const [uploading, setUploading] = useState(false);
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
   const [replacingId, setReplacingId] = useState<string | null>(null);
+  const [pendingType, setPendingType] = useState<string>("certificate");
 
   const { data: documents = [] } = useQuery({
     queryKey: ["self-trust-documents", asset?.id],
@@ -50,6 +51,11 @@ export function DocumentationSection({ asset }: { asset: any }) {
     })).filter((g) => g.items.length > 0);
   }, [documents]);
 
+  const startUpload = (type: string) => {
+    setPendingType(type);
+    setTimeout(() => fileRef.current?.click(), 0);
+  };
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !asset?.id) return;
@@ -66,7 +72,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
         asset_id: asset.id,
         file_name: file.name,
         file_path: filePath,
-        document_type: "certificate",
+        document_type: pendingType,
         visibility: "visible",
       });
       if (insErr) throw insErr;
@@ -139,10 +145,21 @@ export function DocumentationSection({ asset }: { asset: any }) {
         </div>
         <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} />
         <input ref={replaceRef} type="file" className="hidden" onChange={handleReplace} />
-        <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={() => fileRef.current?.click()} disabled={uploading}>
-          <Plus className="h-4 w-4" />
-          {uploading ? "Laster opp..." : "Legg til"}
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="outline" className="gap-2 shrink-0" disabled={uploading}>
+              <Plus className="h-4 w-4" />
+              {uploading ? "Laster opp..." : "Legg til"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            {TYPE_GROUPS.map((g) => (
+              <DropdownMenuItem key={g.key} onClick={() => startUpload(g.key)}>
+                <Upload className="h-3.5 w-3.5 mr-2" /> {g.labelNb}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {grouped.length === 0 ? (
