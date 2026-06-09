@@ -135,7 +135,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
             <h2 className="text-base font-semibold text-foreground">Ressurser</h2>
           </div>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            Sertifikater, policyer og avtaler som dokumenterer din etterlevelse. Velg hvilke som vises på Trust Profile.
+            Sertifikater, policyer og avtaler som dokumenterer din etterlevelse.
           </p>
         </div>
         <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} />
