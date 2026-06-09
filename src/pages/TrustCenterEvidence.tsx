@@ -21,6 +21,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
+import { DocumentComplianceCard } from "@/components/trust-center/DocumentComplianceCard";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 import { Network, Users } from "lucide-react";
 
@@ -141,9 +142,9 @@ const TrustCenterEvidence = () => {
   const { data: vendorDocs = [], isLoading } = useQuery({
     queryKey: ["vendor-documents-evidence", asset?.id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("vendor_documents")
-        .select("id, document_type, file_name, file_path, status, created_at, valid_to, valid_from, version, display_name, category, visibility, notes, approved_by, approved_at, external_url, available_on_request")
+        .select("id, document_type, file_name, file_path, status, created_at, updated_at, valid_to, valid_from, version, display_name, category, visibility, notes, approved_by, approved_at, external_url, available_on_request, reviewed_at, reviewed_by")
         .eq("asset_id", asset!.id)
         .order("created_at", { ascending: false });
       return data || [];
@@ -266,6 +267,33 @@ const TrustCenterEvidence = () => {
     });
     setEditDoc(null);
   };
+
+  const markReviewedMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData?.user?.id ?? null;
+      const { error } = await (supabase as any)
+        .from("vendor_documents")
+        .update({
+          valid_from: new Date().toISOString().split("T")[0],
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: userId,
+        })
+        .eq("id", id);
+      if (error) throw error;
+      return userData?.user?.email ?? null;
+    },
+    onSuccess: (email) => {
+      invalidate();
+      toast.success(
+        isNb
+          ? `Markert som gjennomgått${email ? ` av ${email}` : ""}. Neste anbefalte gjennomgang om 12 mnd.`
+          : `Marked as reviewed${email ? ` by ${email}` : ""}. Next recommended review in 12 months.`,
+      );
+      setEditDoc(null);
+    },
+    onError: () => toast.error(isNb ? "Kunne ikke markere som gjennomgått" : "Failed to mark as reviewed"),
+  });
 
   // Apply search and filters
   const filteredDocs = vendorDocs.filter((d: any) => {
@@ -687,21 +715,16 @@ const TrustCenterEvidence = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t">
-                  <span className="text-[11px] text-muted-foreground">
-                    {isNb ? "Trenger du å erstatte filen?" : "Need to replace the file?"}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 text-xs gap-1"
-                    onClick={() => { setEditDoc(null); setDialogOpen(true); }}
-                  >
-                    <Plus className="h-3 w-3" />
-                    {isNb ? "Last opp ny versjon" : "Upload new version"}
-                  </Button>
-                </div>
               </div>
+
+              {/* Compliance status (advisory) */}
+              <DocumentComplianceCard
+                doc={editDoc}
+                isNb={isNb}
+                onUploadNewVersion={() => { setEditDoc(null); setDialogOpen(true); }}
+                onMarkReviewed={() => markReviewedMutation.mutate(editDoc.id)}
+                markingReviewed={markReviewedMutation.isPending}
+              />
 
               {/* Sharing — the main purpose of editing */}
               <div className="space-y-2">
@@ -774,6 +797,9 @@ const TrustCenterEvidence = () => {
                   <div className="space-y-2">
                     <Label className="text-xs">{isNb ? "Utløpsdato" : "Expiry date"}</Label>
                     <Input type="date" value={editDoc.valid_to || ""} onChange={(e) => setEditDoc({ ...editDoc, valid_to: e.target.value })} />
+                    <p className="text-[10px] text-muted-foreground">
+                      {isNb ? "Brukes for sertifikater og avtaler med fast utløpsdato." : "Used for certificates and agreements with a fixed expiry date."}
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-2">
