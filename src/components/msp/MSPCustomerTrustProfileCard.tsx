@@ -211,12 +211,13 @@ export function MSPCustomerTrustProfileCard({
                 </div>
               </div>
             </div>
-            <div className="space-y-2.5">
-              {controlDomains.map(d => {
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {controlDomains.map((d, idx) => {
                 const tone = levelTone(d.level);
                 const pct = (d.level / 4) * 100;
+                const isLastOdd = idx === controlDomains.length - 1 && controlDomains.length % 2 === 1;
                 return (
-                  <div key={d.key} className="rounded-lg border border-border/60 p-3">
+                  <div key={d.key} className={`rounded-lg border border-border/60 p-3 ${isLastOdd ? "sm:col-span-2" : ""}`}>
                     <div className="flex items-center justify-between gap-2 mb-1.5">
                       <div className="flex items-center gap-2 min-w-0">
                         <d.Icon className="h-4 w-4 text-foreground/70 shrink-0" aria-hidden="true" />
