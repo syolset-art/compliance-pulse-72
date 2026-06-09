@@ -32,6 +32,8 @@ import { TrustProfileTakeoverInfoDialog } from "@/components/msp/TrustProfileTak
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
+import { MATURITY_AREAS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
+
 import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
 import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
