@@ -218,8 +218,6 @@ export default function MSPDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [addOpen, setAddOpen] = useState(false);
-  const [campaignOpen, setCampaignOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"customers" | "campaigns">("customers");
   const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
@@ -232,7 +230,6 @@ export default function MSPDashboard() {
   const [segmentFilter, setSegmentFilter] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("customer_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [campaignView, setCampaignView] = useState<"all" | "framework" | "service" | "product">("all");
   const queryClient = useQueryClient();
 
   const { data: customers = [], refetch } = useQuery({
@@ -426,17 +423,7 @@ export default function MSPDashboard() {
             </div>
           </div>
 
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "customers" | "campaigns")} className="w-full">
-            <TabsList className="bg-muted/30 border border-border rounded-xl p-1 h-auto gap-0.5">
-              <TabsTrigger value="customers" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-1.5 text-sm gap-1.5">
-                <Users className="h-3.5 w-3.5" /> Kunder
-              </TabsTrigger>
-              <TabsTrigger value="campaigns" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm px-3 py-1.5 text-sm gap-1.5">
-                <Megaphone className="h-3.5 w-3.5" /> Aktuelle kampanjer
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="customers" className="mt-5 space-y-5">
+          <div className="mt-5 space-y-5">
               {/* Toolbar: search + filter + view toggle */}
               <div className="flex flex-col md:flex-row md:items-center gap-3">
                 <div className="relative flex-1 max-w-md">
@@ -764,132 +751,9 @@ export default function MSPDashboard() {
                 </div>
                 </>
               )}
-            </TabsContent>
-
-            <TabsContent value="campaigns" className="mt-5 space-y-5">
-              {(() => {
-                const pool = DEMO_CAMPAIGN_CUSTOMERS;
-                const allSegments = CAMPAIGN_SEGMENTS
-                  .map((s) => ({ segment: s, matches: pool.filter((c) => s.predicate(c)) }))
-                  .filter((x) => x.matches.length > 0)
-                  .sort((a, b) => b.matches.length - a.matches.length);
-
-                const segmentsWithMatches = campaignView === "all"
-                  ? allSegments
-                  : allSegments.filter((x) => x.segment.category === campaignView);
-
-                const byCategory = segmentsWithMatches.reduce<Record<string, typeof segmentsWithMatches>>((acc, item) => {
-                  (acc[item.segment.category] ??= []).push(item);
-                  return acc;
-                }, {});
-
-                const viewOptions: { value: typeof campaignView; label: string; count: number }[] = [
-                  { value: "all", label: "Alle", count: allSegments.length },
-                  { value: "product", label: "Mynder-produkter", count: allSegments.filter((x) => x.segment.category === "product").length },
-                  { value: "framework", label: "Regelverk", count: allSegments.filter((x) => x.segment.category === "framework").length },
-                  { value: "service", label: "Tjenester", count: allSegments.filter((x) => x.segment.category === "service").length },
-                ];
-
-                return (
-                  <>
-                    <Card className="p-4 border-primary/20 bg-primary/5 flex items-start gap-3">
-                      <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                        <Sparkles className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-foreground">Lara fant {allSegments.length} aktuelle kampanjer</p>
-                        <p className="text-[13px] text-muted-foreground mt-0.5">
-                          Basert på kundeporteføljen — gap, modenhet, tjenester og aktivitet. Klikk en kampanje for å starte utsendelsen.
-                        </p>
-                      </div>
-                      <Button size="sm" onClick={() => setCampaignOpen(true)} className="gap-1.5 shrink-0">
-                        <Megaphone className="h-3.5 w-3.5" /> Ny kampanje
-                      </Button>
-                    </Card>
-
-                    <div className="inline-flex rounded-md border border-border bg-background overflow-hidden">
-                      {viewOptions.map((opt, i) => (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => setCampaignView(opt.value)}
-                          className={cn(
-                            "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm transition-colors",
-                            i > 0 && "border-l border-border",
-                            campaignView === opt.value ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50",
-                          )}
-                          aria-pressed={campaignView === opt.value}
-                        >
-                          {opt.label}
-                          <span className="text-[12px] text-muted-foreground tabular-nums">({opt.count})</span>
-                        </button>
-                      ))}
-                    </div>
-
-
-                    {Object.entries(byCategory).map(([cat, items]) => (
-                      <div key={cat} className="space-y-2">
-                        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          {SEGMENT_CATEGORY_LABEL[cat as CampaignSegment["category"]]}
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {items.map(({ segment, matches }) => (
-                            <button
-                              key={segment.id}
-                              type="button"
-                              onClick={() => setCampaignOpen(true)}
-                              className="text-left rounded-xl border border-border bg-card hover:border-primary/40 hover:shadow-sm transition-all p-4 group"
-                            >
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-[14px] font-semibold text-foreground group-hover:text-primary transition-colors">
-                                    {segment.label}
-                                  </p>
-                                  <p className="text-[12px] text-muted-foreground mt-1 line-clamp-2">
-                                    {segment.description}
-                                  </p>
-                                </div>
-                                <Badge variant="outline" className="font-normal shrink-0 bg-primary/5 text-primary border-primary/20 tabular-nums">
-                                  {matches.length}
-                                </Badge>
-                              </div>
-                              <div className="mt-3 flex items-center justify-between">
-                                <p className="text-[12px] text-muted-foreground truncate">
-                                  {matches.slice(0, 3).map((m) => m.name).join(", ")}
-                                  {matches.length > 3 && ` +${matches.length - 3}`}
-                                </p>
-                                <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors shrink-0 ml-2" />
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-
-                    {segmentsWithMatches.length === 0 && (
-                      <div className="text-center py-16 text-muted-foreground">
-                        <p className="text-sm">Ingen aktuelle kampanjer akkurat nå.</p>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
-            </TabsContent>
-          </Tabs>
-        </div>
-
+            </div>
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
-        <CampaignWizardDialog
-          open={campaignOpen}
-          onOpenChange={setCampaignOpen}
-          onSend={(draft) => {
-            setCampaignOpen(false);
-            toast.success("Kampanje sendt", {
-              description: `"${draft.name || "Uten navn"}" sendt til ${draft.recipients.length} kunder.`,
-            });
-          }}
-        />
       </main>
     </div>
   );
