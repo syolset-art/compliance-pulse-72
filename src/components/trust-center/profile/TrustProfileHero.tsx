@@ -71,7 +71,7 @@ export function TrustProfileHero({
       : getCoverPreset(presetId)?.overlay ?? DEFAULT_COVER_OVERLAY;
 
   const scrollToFrameworks = () => {
-    document.getElementById("tc-section-regulations")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
