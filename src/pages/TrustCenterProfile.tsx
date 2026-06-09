@@ -659,115 +659,39 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   <span className="text-sm text-muted-foreground">/100</span>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {AREA_CONFIG.map(({ area, icon: Icon, labelEn, labelNb }) => {
-                  const rawScore = evaluation?.areaScore(area) ?? 0;
-                  const score = Math.max(rawScore, AREA_DEMO_FLOOR[area] ?? 0);
-                  const tone = scoreTone(score);
-                  const label = scoreLabel(score, isNb);
-                  const evidenceInfo = evaluation?.evidenceSummary?.[area];
-                  const evidenceStatus = evidenceInfo?.worst as EvidenceStatus | null;
-                  const isExpanded = expandedArea === area;
                   const areaControls = evaluation?.grouped[area] ?? [];
-                  const filledControls = areaControls.filter(c => c.status === "implemented" || c.status === "partial");
+                  // Only "verifisert" controls are visible publicly — concrete evidence the customer has added.
+                  const verifiedControls = areaControls.filter(c => c.status === "implemented");
 
                   return (
-                    <div key={area} className="rounded-lg border border-border overflow-hidden">
-                      <button
-                        type="button"
-                        onClick={() => setExpandedArea(isExpanded ? null : area)}
-                        className="w-full text-left p-4 cursor-pointer hover:bg-muted/40 hover:border-primary/30 transition-colors group"
-                        aria-expanded={isExpanded}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2.5">
-                            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                              <Icon className="h-4 w-4 text-primary" />
-                            </div>
-                            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">{isNb ? labelNb : labelEn}</span>
+                    <div key={area} className="rounded-xl border border-border bg-card p-5">
+                      <div className="flex items-start justify-between gap-2 mb-1">
+                        <div className="flex items-center gap-2.5">
+                          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <Icon className="h-4 w-4 text-primary" />
                           </div>
-                          <div className="flex items-center gap-2">
-                            {evidenceStatus && (
-                              <EvidenceStatusBadge
-                                status={evidenceStatus}
-                                count={evidenceStatus === "stale" ? evidenceInfo?.staleCount : evidenceStatus === "expired" ? evidenceInfo?.expiredCount : undefined}
-                                compact
-                              />
-                            )}
-                            <span className={`text-sm font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
-                            {isExpanded
-                              ? <ChevronUp className="h-4 w-4 text-primary" />
-                              : <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />}
-                          </div>
+                          <h4 className="text-base font-semibold text-foreground">{isNb ? labelNb : labelEn}</h4>
                         </div>
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div className={`h-full rounded-full ${tone.bg} transition-all duration-500`} style={{ width: `${score}%` }} />
-                        </div>
-                        {!isExpanded && (
-                          <p className="mt-2 text-[11px] text-muted-foreground/70 group-hover:text-primary transition-colors">
-                            {isNb ? "Klikk for å se kontroller og regelverk" : "Click to see controls and frameworks"}
-                          </p>
-                        )}
-                      </button>
+                      </div>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-3 ml-[42px]">
+                        {verifiedControls.length} {isNb ? "verifiserte kontroller" : "verified controls"}
+                      </p>
 
-                      {isExpanded && (
-                        <div className="border-t border-border bg-muted/10">
-                          {areaControls.length > 0 ? (
-                            <div>
-                              {areaControls.map((control) => {
-                                const statusIcon = control.status === "implemented"
-                                  ? <CheckCircle2 className="h-4 w-4 text-success" />
-                                  : control.status === "partial"
-                                    ? <AlertTriangle className="h-4 w-4 text-warning" />
-                                    : <XCircle className="h-4 w-4 text-destructive" />;
-                                const badgeLabel = control.status === "implemented"
-                                  ? (isNb ? "Fylt ut" : "Filled")
-                                  : control.status === "partial"
-                                    ? (isNb ? "Delvis" : "Partial")
-                                    : (isNb ? "Mangler" : "Missing");
-                                const badgeClass = control.status === "implemented"
-                                  ? "bg-success/10 text-success border-success/20"
-                                  : control.status === "partial"
-                                    ? "bg-warning/10 text-warning border-warning/20"
-                                    : "bg-destructive/10 text-destructive border-destructive/20";
-                                return (
-                                  <div key={control.key} className="flex items-center justify-between px-4 py-2.5 border-b border-border last:border-b-0">
-                                    <div className="flex items-center gap-2.5 min-w-0">
-                                      {statusIcon}
-                                      <span className="text-sm text-foreground truncate">{isNb ? control.labelNb : control.labelEn}</span>
-                                    </div>
-                                    <Badge variant="outline" className={`text-xs shrink-0 ${badgeClass}`}>{badgeLabel}</Badge>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <p className="px-4 py-3 text-sm text-muted-foreground italic">
-                              {isNb ? "Ingen kontrollpunkter registrert i dette området ennå." : "No control points registered in this area yet."}
-                            </p>
-                          )}
-
-                          {frameworks.length > 0 && (
-                            <div className="px-4 py-3 border-t border-border">
-                              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                                {isNb ? "Aktive regelverk som dekker dette området" : "Active frameworks covering this area"}
-                              </p>
-                              <div className="flex flex-wrap gap-1.5">
-                                {frameworks.map((fw: any) => (
-                                  <Badge key={fw.framework_id} variant="secondary" className="text-xs gap-1">
-                                    <ShieldCheck className="h-3 w-3 text-primary" />
-                                    {fw.framework_name}
-                                  </Badge>
-                                ))}
-                              </div>
-                              <p className="text-xs text-muted-foreground mt-2">
-                                {isNb
-                                  ? `${filledControls.length} av ${areaControls.length} kontrollpunkter fylt ut i dette området.`
-                                  : `${filledControls.length} of ${areaControls.length} control points filled in this area.`}
-                              </p>
-                            </div>
-                          )}
-                        </div>
+                      {verifiedControls.length > 0 ? (
+                        <ul className="space-y-2 ml-[42px]">
+                          {verifiedControls.map((control) => (
+                            <li key={control.key} className="flex items-center justify-between gap-3">
+                              <span className="text-sm text-foreground">{isNb ? control.labelNb : control.labelEn}</span>
+                              <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic ml-[42px]">
+                          {isNb ? "Ingen verifiserte kontroller ennå." : "No verified controls yet."}
+                        </p>
                       )}
                     </div>
                   );
