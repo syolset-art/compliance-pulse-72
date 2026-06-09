@@ -15,8 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 
 import {
-  Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
-  Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users,
+  Shield, ArrowLeft, Eye, EyeOff, CheckCircle2, AlertTriangle, Link2,
+  Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users, BookCheck,
   ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
   Info, Settings, Package, Sparkles, Settings2, Database, MinusCircle,
 } from "lucide-react";
@@ -25,6 +25,7 @@ import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
+import { frameworkChipClass } from "@/lib/frameworkChipClass";
 
 import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
