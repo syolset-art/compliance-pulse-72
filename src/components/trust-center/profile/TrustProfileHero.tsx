@@ -158,40 +158,12 @@ export function TrustProfileHero({
               {companyName}
             </h1>
 
-            {/* Compliance frameworks */}
-            <div className="mt-5 rounded-xl border border-border bg-muted/30 px-4 py-3 shadow-sm">
-              {frameworks.length === 0 ? (
-                <span className="text-xs text-muted-foreground italic">
-                  {isNb ? "Ingen regelverk publisert ennå" : "No frameworks published yet"}
-                </span>
-              ) : (
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mr-2">
-                    {isNb ? "Etterlevelse" : "Compliance"}
-                  </span>
-                  {frameworks.map((fw) => {
-                    const standard = isStandard(fw.framework_name);
-                    const Icon = standard ? BookCheck : Scale;
-                    return (
-                      <button
-                        key={fw.framework_id}
-                        type="button"
-                        onClick={scrollToFrameworks}
-                        className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-transform hover:scale-[1.03] ${frameworkChipClass(fw.framework_name)}`}
-                        title={
-                          standard
-                            ? isNb ? "Sertifisert standard" : "Certified standard"
-                            : isNb ? "Følger regelverket" : "Complies with regulation"
-                        }
-                      >
-                        <Icon className="h-3 w-3" />
-                        {fw.framework_name}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            {/* Company description */}
+            {description ? (
+              <p className="mt-5 text-sm text-muted-foreground leading-relaxed line-clamp-3 max-w-2xl">
+                {description}
+              </p>
+            ) : null}
           </div>
 
           {/* Compact Trust Score card */}

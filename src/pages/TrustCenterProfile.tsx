@@ -18,7 +18,9 @@ import {
   Lock, Layers, Users, Link2, Code2, Copy, Check, Building2, Info, Pencil,
   Sparkles, Zap, Server, Package, ArrowRight, ExternalLink,
   Linkedin, Facebook, Mail, Star, TrendingUp, BarChart3,
+  Scale, BookCheck,
 } from "lucide-react";
+import { frameworkChipClass } from "@/lib/frameworkChipClass";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SubprocessorTable } from "@/components/trust-center/profile/SubprocessorTable";
 import { TrustProfileHero, IdentityStripe } from "@/components/trust-center/profile/TrustProfileHero";
@@ -835,24 +837,37 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
 
 
-            {/* Summary */}
-            <section className="space-y-5">
+            {/* Compliance — frameworks the organisation follows */}
+            <section className="space-y-4">
               <div className="flex items-center gap-2">
-                <Zap className="h-4 w-4 text-primary" />
-                <h3 className="text-base font-semibold text-foreground">{isNb ? "Sammendrag" : "Summary"}</h3>
+                <Scale className="h-4 w-4 text-primary" />
+                <h3 className="text-base font-semibold text-foreground">{isNb ? "Etterlevelse" : "Compliance"}</h3>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {[
-                  { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
-                  { value: String(policies.length), label: isNb ? "Retningslinjer" : "Policies", color: "" },
-                  { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
-                  { value: dpaOk ? "✓" : "–", label: "DPA", color: dpaOk ? "text-success" : "text-muted-foreground" },
-                ].map((item, i) => (
-                  <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
-                    <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
-                    <p className="text-sm text-muted-foreground mt-0.5">{item.label}</p>
+              <div className="rounded-xl border border-border bg-muted/30 px-4 py-4">
+                {recognizedFrameworks.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">
+                    {isNb ? "Ingen regelverk publisert ennå" : "No frameworks published yet"}
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {recognizedFrameworks.map((fw: any) => {
+                      const standard = isStandard(fw.framework_name);
+                      const Icon = standard ? BookCheck : Scale;
+                      return (
+                        <button
+                          key={fw.framework_id}
+                          type="button"
+                          onClick={() => document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-transform hover:scale-[1.03] ${frameworkChipClass(fw.framework_name)}`}
+                          title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
+                        >
+                          <Icon className="h-3 w-3" />
+                          {fw.framework_name}
+                        </button>
+                      );
+                    })}
                   </div>
-                ))}
+                )}
               </div>
             </section>
 
@@ -1968,27 +1983,40 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
 
 
-                  {/* ── Sammendrag ── */}
-                  <section className="space-y-5">
+                  {/* ── Etterlevelse ── */}
+                  <section className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <Zap className="h-4 w-4 text-primary" />
+                      <Scale className="h-4 w-4 text-primary" />
                       <h3 className="text-base font-semibold text-foreground">
-                        {isNb ? "Sammendrag" : "Summary"}
+                        {isNb ? "Etterlevelse" : "Compliance"}
                       </h3>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {[
-                        { value: String(recognizedFrameworks.length), label: isNb ? "Regelverk" : "Frameworks", color: "" },
-                        { value: String(policies.length), label: isNb ? "Retningslinjer" : "Policies", color: "" },
-                        { value: String(certsCount), label: isNb ? "Sertifiseringer" : "Certifications", color: "" },
-                        { value: dpaOk ? "✓" : "–", label: "DPA", color: dpaOk ? "text-success" : "text-muted-foreground" },
-                      ].map((item, i) => (
-                        <div key={i} className="text-center py-4 px-2 rounded-xl bg-muted/30 border border-border/50">
-                          <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
-                          <p className="text-sm text-muted-foreground mt-0.5">{item.label}</p>
+                    <div className="rounded-xl border border-border bg-muted/30 px-4 py-4">
+                      {recognizedFrameworks.length === 0 ? (
+                        <p className="text-sm text-muted-foreground italic">
+                          {isNb ? "Ingen regelverk publisert ennå" : "No frameworks published yet"}
+                        </p>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {recognizedFrameworks.map((fw: any) => {
+                            const standard = isStandard(fw.framework_name);
+                            const Icon = standard ? BookCheck : Scale;
+                            return (
+                              <button
+                                key={fw.framework_id}
+                                type="button"
+                                onClick={() => document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-transform hover:scale-[1.03] ${frameworkChipClass(fw.framework_name)}`}
+                                title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
+                              >
+                                <Icon className="h-3 w-3" />
+                                {fw.framework_name}
+                              </button>
+                            );
+                          })}
                         </div>
-                      ))}
+                      )}
                     </div>
                   </section>
 
