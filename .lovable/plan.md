@@ -1,46 +1,68 @@
+# Nye baseline-svar + reint ikon-UI
+
 ## Mål
+Bytt ut dagens svaralternativer i baseline-kartleggingen og fjern visuell støy. Et spørsmål skal vises som ren tekst med ett lite fargesatt ikon til høyre — ingen pill-rad, ingen knapperad, ingen border per kort.
 
-Gjør Baseline-modulen konsistent med de 5 kanoniske kontrollområdene (samme som Trust Profile-kortet "Kontrollområder per regelverk"), og kommuniser tydelig at **GDPR er inkludert gratis som baseline** så snart en kunde er invitert inn — uten å kreve at partneren først aktiverer et regelverk.
+## Nye svaralternativer
+Erstatt `MaturityAnswer = "yes" | "no" | "later" | "n_a" | "unsure"` med:
 
-## Endring 1 — Baseline-spørsmål speiler de 5 kontrollområdene
+| Verdi | Etikett | Ikon | Farge |
+|---|---|---|---|
+| `not_started` | Ikke startet | `Circle` (tom) | muted-foreground |
+| `in_progress` | Pågår | `CircleDashed` | warning (oransje) |
+| `done` | Fullført | `CheckCircle2` | success (grønn) |
+| `not_relevant` | Ikke relevant | `MinusCircle` | muted-foreground (svak) |
 
-I dag har `src/lib/trustMaturityQuestions.ts` fire områder: `governance`, `operations`, `privacy`, `third_party`. Det mangler **Identitet og tilgang**, og `third_party` matcher ikke den kanoniske nøkkelen `vendor`.
+Ubesvart = vises som "Ikke startet" implisitt (men telles som ikke besvart for fremdrift).
 
-Oppdater `MATURITY_AREAS` til å bruke samme nøkler, titler, ikoner og rekkefølge som `CONTROL_AREAS` i `src/lib/controlAreas.ts`:
+## UI-endring i `BaselineQuestionsDrawer.tsx`
+Per spørsmål, erstatt dagens `<Card>` + knapperad med en kompakt rad:
 
-| Nøkkel | Tittel | Endring |
-|---|---|---|
-| `governance` | Styring og ansvar | Beholdes (5 spørsmål) |
-| `operations` | Drift og sikkerhet | MFA-spørsmål flyttes ut |
-| `identityAccess` | Identitet og tilgang | **Nytt område** – flytter `ops.mfa` hit + 3 nye spørsmål (rollebasert tilgang, minste privilegium, joiner/mover/leaver) |
-| `privacy` | Personvern og datahåndtering | Beholdes (5 spørsmål) |
-| `vendor` | Tredjepart og verdikjede | Rename fra `third_party`, samme spørsmål |
+```
+[spørsmålstekst .................................] [ikon ▾]   (i)
+   ↳ Lara foreslår: … (kun hvis suggestion finnes — liten muted linje)
+```
 
-Spørsmålene knyttes fremdeles til GDPR-artikler (Art. 32 for tilgang/MFA) slik at GDPR-baselinen er meningsfull selv uten andre regelverk aktivert.
+- Ingen `Card`-wrapper, ingen border per spørsmål. Bruk en enkel `div` med vertikal `divide-y divide-border/40` mellom spørsmål i seksjonen.
+- Status velges via en `DropdownMenu` trigget av selve ikonet (knapp 28×28, kun ikon, ingen tekst, ingen border). Menyen viser de 4 alternativene med ikon + label.
+- Info-ikonet (GDPR-artikkel) blir mindre og lever som en `Tooltip` på en `Info` til høyre for status-ikonet, kun synlig på hover av raden (`opacity-0 group-hover:opacity-100`).
+- Lara-suggestion vises som én muted linje under spørsmålet, uten egen `Sparkles`-rad med farger — bare `text-xs text-muted-foreground` med en liten `Sparkles`-ikon inline.
 
-## Endring 2 — GDPR alltid med som "gratis baseline"
+## Endringer per fil
 
-Når kunden er invitert inn vises ikke lenger "0 aktiverte regelverk" som et hinder. I `BaselineReadinessCard`:
+**`src/lib/trustMaturityQuestions.ts`**
+- Endre `MaturityAnswer`-typen til de 4 nye verdiene.
+- Oppdater `migrateLegacyAnswers`: map `"yes" → "done"`, `"no" → "not_started"`, `"later" → "not_started"`, `"n_a" → "not_relevant"`, `"unsure" → "not_started"`.
+- `deriveDefaultAnswers`: default `"not_started"` istedenfor `"later"`; sett `"done"` der hvor det før ble `"yes"`, og `"not_relevant"` der det før ble `"n_a"`.
+- Tilsvarende i `DOCUMENT_SLOTS`-kommentar: "auto-flip to done".
 
-- Legg til en liten "Inkludert gratis"-pill ved siden av tittelen som forklarer at **GDPR-baseline er gratis og tilgjengelig fra kunden er invitert**
-- Endre underteksten når `activeFrameworkCount === 0` til: *"GDPR-baseline er inkludert gratis. Fyll ut spørsmålene for å aktivere kundens Trust Profile — flere regelverk kan legges til etterpå."*
-- Fjern "Gå til Regelverk"-CTAen som primær handling når ingen regelverk er aktivert; "Fyll ut baseline" forblir primær, "Legg til flere regelverk" blir sekundær lenke
-- `isReady`-betingelsen endres fra `completeness >= 0.8 && hasFramework` til `completeness >= 0.8` (GDPR teller alltid)
+**`src/hooks/useCustomerBaseline.ts`**
+- `isAnswered`: returnér `true` for `"done" | "in_progress" | "not_relevant"` (alle eksplisitt satt). `"not_started"` og `undefined` regnes som ikke besvart.
 
-I `MSPCustomerDetail.tsx` justeres `activeFrameworkIds` slik at `gdpr` alltid er inkludert som implisitt baseline når kunden eksisterer (uten å skrive til `customer.active_frameworks` i DB) — kun for visningslogikk i Baseline-kortet og Trust Profile-summen.
+**`src/components/msp/BaselineQuestionsDrawer.tsx`**
+- Erstatt `ANSWER_OPTIONS` med ny liste (4 verdier + ikon + farge-klasse).
+- Bytt fra `Button`-rad til `DropdownMenu` (`@/components/ui/dropdown-menu`) med ikon-trigger.
+- Fjern `Card`-wrapper rundt hvert spørsmål; bruk `group` rad-stil med `py-2.5` og `divide-y`.
+- Oppdater tellingen i `TabsTrigger` (linje 130) til å bruke ny `isAnswered`-logikk.
 
-## Endring 3 — Følgeoppdateringer
+**`src/components/msp/BaselineReadinessCard.tsx`**
+- Oppdater alle steder som teller besvarte spørsmål til å matche ny logikk (`done | in_progress | not_relevant` = besvart).
 
-- `BaselineQuestionsDrawer.tsx` bruker `MATURITY_AREAS` direkte og får derfor automatisk den nye 5-fane-strukturen — verifiseres at tab-rekkefølge stemmer med kanonisk rekkefølge
-- `deriveDefaultAnswers` og `deriveLaraSources` oppdateres slik at `ops.mfa` → `ia.mfa` (ny id), og eventuelle eksisterende localStorage-svar migreres mykt (les begge nøkler ved oppstart)
-- Tooltip på "Inkludert gratis"-pillen forklarer at GDPR alltid er med, og at det er Bekks/Mynders policy at GDPR-baselinen er gratis for alle inviterte kunder
+**`src/pages/MSPCustomerDetail.tsx`**
+- Type-kompatibilitet sjekkes for `suggestions`-mapping fra edge function (linje 333–338). Edge function gir fortsatt gamle verdier — kjør dem gjennom `migrateLegacyAnswers` før de skrives.
 
-## Teknisk
+**`supabase/functions/suggest-baseline-answers/index.ts`**
+- Oppdater prompt og JSON-schema `enum` til de 4 nye verdiene:
+  - `not_started` når sannsynligvis ikke på plass
+  - `in_progress` når noe arbeid er gjort men ikke ferdig
+  - `done` kun når svært vanlig at en typisk norsk SMB har dette
+  - `not_relevant` når ikke aktuelt
+- Beholder konservativ tone (foretrekk `not_started` framfor å gjette `done`).
 
-**Filer som endres:**
-- `src/lib/trustMaturityQuestions.ts` — restrukturer `MATURITY_AREAS` til 5 områder med kanoniske nøkler, flytt MFA, legg til 3 nye identityAccess-spørsmål, oppdater `deriveDefaultAnswers`/`deriveLaraSources`, behold migrering av `ops.mfa`→`ia.mfa`
-- `src/components/msp/BaselineReadinessCard.tsx` — ny "Inkludert gratis"-pill, oppdatert kopi når ingen regelverk er aktivert, justert `isReady`, sekundær lenke til Regelverk
-- `src/pages/MSPCustomerDetail.tsx` — sørg for at GDPR alltid telles i `activeFrameworkIds` for Baseline-visning (uten DB-skriving)
-- `src/components/msp/BaselineQuestionsDrawer.tsx` — kun verifisering, ingen logikk-endringer
+## Bakoverkompatibilitet
+`migrateLegacyAnswers` håndterer alle eksisterende lagrede svar (localStorage) ved første lasting, så ingen brukerdata mistes.
 
-**Ikke i scope:** DB-migrering av `customer.active_frameworks`, endringer i fakturering/credits, endringer i andre Trust Profile-visninger enn Baseline-kortet.
+## Ikke i scope
+- Endrer ikke spørsmålstekstene.
+- Endrer ikke scoring/maturity-tabellen (de fem nivåene i det vedlagte bildet) — kun svaralternativene per spørsmål.
+- Ingen endring i andre kartlegginger utenfor baseline.
