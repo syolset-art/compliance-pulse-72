@@ -68,14 +68,10 @@ export function BaselineReadinessCard({
               {isReady ? "Baseline er klar" : hasStarted ? "Baseline er under arbeid" : "Baseline mangler"}
             </p>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {totalAnswered} av {totalQuestions} spørsmål besvart
-              {additionalFrameworks > 0
-                ? ` · ${additionalFrameworks} regelverk i tillegg til GDPR`
-                : " · GDPR-baseline aktiv"}
-              {". "}
-              {activeFrameworkCount <= 1
-                ? "Lara kan foreslå svarene automatisk — du bekrefter og fullfører."
-                : "Du kan fylle ut baselinen på vegne av kunden — eller se over det Lara allerede har foreslått."}
+              {totalAnswered} av {totalQuestions} spørsmål er besvart.{" "}
+              {hasStarted
+                ? "Du kan fylle ut baselinen på vegne av kunden — eller se over det Lara allerede har foreslått."
+                : "Lara kan foreslå svarene automatisk — du bekrefter og fullfører."}
             </p>
           </div>
         </div>
