@@ -6,19 +6,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Megaphone, Users, Sparkles, ArrowRight, Filter, X } from "lucide-react";
+import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, Filter, X } from "lucide-react";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
-import { CampaignWizardDialog } from "@/components/msp/CampaignWizardDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { seedDemoMSP, deleteDemoMSP } from "@/lib/demoSeedMSP";
-import { CAMPAIGN_SEGMENTS, SEGMENT_CATEGORY_LABEL, DEMO_CAMPAIGN_CUSTOMERS, type CampaignSegment } from "@/lib/campaignSegments";
 import { toast } from "sonner";
 
 type ViewMode = "cards" | "table";
