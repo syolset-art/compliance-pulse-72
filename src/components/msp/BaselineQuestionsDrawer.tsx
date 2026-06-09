@@ -47,7 +47,7 @@ export function BaselineQuestionsDrawer({
     return MATURITY_AREAS[0].id;
   })();
 
-  const [tab, setTab] = useState(initialArea);
+  const [tab, setTab] = useState<string>(initialArea);
   // Draft buffer — endringer commit'es først ved "Gå videre"/"Ferdig".
   const [draft, setDraft] = useState<MaturityAnswers>(answers);
 
