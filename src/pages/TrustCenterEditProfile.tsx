@@ -447,7 +447,7 @@ const TrustCenterEditProfile = () => {
                         </button>
                         {isExpanded && (() => {
                           const implementedControls = areaControls.filter(c =>
-                            c.status === "implemented" || c.verificationSource === "ai_inferred" || c.verificationSource === "customer_asserted" || c.verificationSource === "evidence_verified"
+                            c.status === "implemented" || c.verificationSource === "vendor_verified" || c.verificationSource === "third_party_verified"
                           );
                           const hiddenControls: string[] = (asset?.metadata as any)?.hidden_controls ?? [];
                           const toggleControlVisibility = async (key: string) => {
