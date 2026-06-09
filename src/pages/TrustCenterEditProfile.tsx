@@ -403,15 +403,12 @@ const TrustCenterEditProfile = () => {
                         );
                       })}
                     </ul>
-                    <div className="px-4 py-2.5 border-t border-border flex items-center justify-between bg-muted/20">
+                    <div className="px-4 py-2.5 border-t border-border bg-muted/20">
                       <p className="text-xs text-muted-foreground">
                         {isNb ? "Skjulte regelverk teller fortsatt i modenhet, men vises ikke for besøkende." : "Hidden frameworks still count toward maturity but are not shown to visitors."}
                       </p>
-                      <Button size="sm" variant="ghost" onClick={() => navigate("/regulations")} className="gap-1.5 text-muted-foreground hover:text-foreground">
-                        <Plus className="h-3.5 w-3.5" />
-                        {isNb ? "Legg til" : "Add"}
-                      </Button>
                     </div>
+
                   </Card>
                 )}
               </div>
