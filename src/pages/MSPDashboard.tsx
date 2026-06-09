@@ -752,6 +752,7 @@ export default function MSPDashboard() {
                 </>
               )}
             </div>
+          </div>
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
       </main>
