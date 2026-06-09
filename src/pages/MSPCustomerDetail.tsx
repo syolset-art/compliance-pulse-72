@@ -309,7 +309,6 @@ export default function MSPCustomerDetail() {
                 areaProgress={areaProgress}
                 totalAnswered={totalAnswered}
                 totalQuestions={totalQuestions}
-                activeFrameworkCount={activeFrameworkIds.length}
                 onFillBaseline={() => setBaselineDrawer({ open: true, review: false })}
                 onReviewBaseline={() => setBaselineDrawer({ open: true, review: true })}
                 onGoToRegulations={() => handleTabChange("regulations")}
