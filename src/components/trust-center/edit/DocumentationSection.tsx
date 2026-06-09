@@ -66,7 +66,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
         asset_id: asset.id,
         file_name: file.name,
         file_path: filePath,
-        document_type: "other",
+        document_type: "certificate",
         visibility: "visible",
       });
       if (insErr) throw insErr;
