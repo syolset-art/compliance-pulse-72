@@ -445,63 +445,77 @@ const TrustCenterEditProfile = () => {
                             />
                           </div>
                         </button>
-                        {isExpanded && areaControls.length > 0 && (
-                          <div className="border-t border-border divide-y divide-border bg-muted/10">
-                            {areaControls.map(control => {
-                              const currentStatus = control.status;
-                              return (
-                                <div key={control.key} className="p-4 space-y-3">
-                                  <div>
-                                    <p className="text-sm font-medium text-foreground">{isNb ? control.labelNb : control.labelEn}</p>
-                                    {(control as any).descriptionNb && (
-                                      <p className="text-xs text-muted-foreground mt-0.5">
-                                        {isNb ? (control as any).descriptionNb : (control as any).descriptionEn}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <div className="flex flex-wrap items-center gap-1.5">
-                                    {([
-                                      { value: "implemented", labelNb: "Ja", labelEn: "Yes", icon: CheckCircle2, activeClass: "bg-success/10 text-success border-success/30" },
-                                      { value: "partial", labelNb: "Delvis", labelEn: "Partial", icon: AlertTriangle, activeClass: "bg-warning/10 text-warning border-warning/30" },
-                                      { value: "missing", labelNb: "Nei", labelEn: "No", icon: Shield, activeClass: "bg-destructive/10 text-destructive border-destructive/30" },
-                                      { value: "not_applicable", labelNb: "Ikke relevant", labelEn: "Not applicable", icon: MinusCircle, activeClass: "bg-muted text-foreground border-border" },
-                                    ] as const).map(opt => {
-                                      const isActive = currentStatus === opt.value;
-                                      return (
-                                        <button
-                                          key={opt.value}
-                                          onClick={async () => {
-                                            const metaKey = control.key;
-                                            const metaValue =
-                                              opt.value === "implemented" ? "yes" :
-                                              opt.value === "partial" ? "partial" :
-                                              opt.value === "not_applicable" ? "n_a" : "no";
-                                            const currentMeta = (asset?.metadata || {}) as Record<string, any>;
-                                            const newMeta = { ...currentMeta, [metaKey]: metaValue };
-                                            await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset!.id);
-                                            queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
-                                            queryClient.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
-                                          }}
-                                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium transition-colors ${
-                                            isActive ? opt.activeClass : "border-border text-muted-foreground hover:bg-muted/50"
-                                          }`}
-                                        >
-                                          <opt.icon className="h-3 w-3" />
-                                          {isNb ? opt.labelNb : opt.labelEn}
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                  <button className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors">
-                                    <Upload className="h-3 w-3" />
-                                    {isNb ? "Legg ved dokumentasjon" : "Attach documentation"}
-                                    <span className="text-muted-foreground">({isNb ? "valgfritt" : "optional"})</span>
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                        {isExpanded && (() => {
+                          const implementedControls = areaControls.filter(c =>
+                            c.status === "implemented" || c.verificationSource === "ai_inferred" || c.verificationSource === "customer_asserted" || c.verificationSource === "evidence_verified"
+                          );
+                          const hiddenControls: string[] = (asset?.metadata as any)?.hidden_controls ?? [];
+                          const toggleControlVisibility = async (key: string) => {
+                            const currentMeta = (asset?.metadata || {}) as Record<string, any>;
+                            const current: string[] = currentMeta.hidden_controls ?? [];
+                            const next = current.includes(key) ? current.filter(k => k !== key) : [...current, key];
+                            const newMeta = { ...currentMeta, hidden_controls: next };
+                            await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset!.id);
+                            queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                            queryClient.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
+                          };
+                          if (implementedControls.length === 0) {
+                            return (
+                              <div className="border-t border-border px-4 py-6 text-center text-sm text-muted-foreground bg-muted/10">
+                                {isNb
+                                  ? "Ingen implementerte kontrollpunkter ennå i dette området."
+                                  : "No implemented controls yet in this area."}
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="border-t border-border bg-muted/10">
+                              <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border/60">
+                                {isNb
+                                  ? `${implementedControls.length} av ${areaControls.length} kontrollpunkter implementert eller verifisert. Velg hvilke som vises på Trust Profile.`
+                                  : `${implementedControls.length} of ${areaControls.length} controls implemented or verified. Choose which appear on your Trust Profile.`}
+                              </div>
+                              <ul className="divide-y divide-border">
+                                {implementedControls.map(control => {
+                                  const hidden = hiddenControls.includes(control.key);
+                                  const verified = control.verificationSource === "evidence_verified";
+                                  return (
+                                    <li key={control.key} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/20">
+                                      <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${hidden ? "text-muted-foreground/40" : verified ? "text-success" : "text-success/70"}`} />
+                                      <div className="flex-1 min-w-0">
+                                        <p className={`text-sm font-medium ${hidden ? "text-muted-foreground/60 line-through" : "text-foreground"}`}>
+                                          {isNb ? control.labelNb : control.labelEn}
+                                        </p>
+                                        {(control as any).descriptionNb && (
+                                          <p className="text-xs text-muted-foreground mt-0.5">
+                                            {isNb ? (control as any).descriptionNb : (control as any).descriptionEn}
+                                          </p>
+                                        )}
+                                        <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                                          {verified
+                                            ? (isNb ? "Verifisert med dokumentasjon" : "Verified with documentation")
+                                            : (isNb ? "Implementert" : "Implemented")}
+                                        </span>
+                                      </div>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        onClick={() => toggleControlVisibility(control.key)}
+                                        className="gap-1.5 shrink-0 text-muted-foreground hover:text-foreground"
+                                      >
+                                        {hidden ? (
+                                          <><EyeOff className="h-3.5 w-3.5" />{isNb ? "Vis" : "Show"}</>
+                                        ) : (
+                                          <><Eye className="h-3.5 w-3.5" />{isNb ? "Skjul" : "Hide"}</>
+                                        )}
+                                      </Button>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </div>
+                          );
+                        })()}
                       </Card>
                     );
                   })}
