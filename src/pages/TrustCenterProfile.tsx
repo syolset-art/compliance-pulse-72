@@ -94,9 +94,9 @@ import TrustProfileFreshness from "@/components/trust-center/TrustProfileFreshne
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
-  { area: "risk_compliance", icon: Lock, labelEn: "Security", labelNb: "Security" },
-  { area: "security_posture", icon: Globe, labelEn: "Privacy & Data Handling", labelNb: "Privacy & Data Handling" },
-  { area: "supplier_governance", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
+  { area: "operations", icon: Lock, labelEn: "Security", labelNb: "Security" },
+  { area: "identityAccess", icon: Globe, labelEn: "Privacy & Data Handling", labelNb: "Privacy & Data Handling" },
+  { area: "vendor", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
 ];
 
 // Demo-variation offsets per area so trust-profile cards don't all show the same level.

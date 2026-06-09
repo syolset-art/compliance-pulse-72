@@ -82,9 +82,9 @@ function evaluateVendorControls(vendor: any, docsCount: number) {
     trustScore,
     areas: {
       governance: areaScore("governance"),
-      risk_compliance: areaScore("risk_compliance"),
-      security_posture: areaScore("security_posture"),
-      supplier_governance: areaScore("supplier_governance"),
+      risk_compliance: areaScore("operations"),
+      security_posture: areaScore("identityAccess"),
+      supplier_governance: areaScore("vendor"),
     },
     controls: all,
     grouped,
@@ -93,9 +93,9 @@ function evaluateVendorControls(vendor: any, docsCount: number) {
 
 const AREA_CONFIG: { area: ControlArea; icon: any; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
-  { area: "risk_compliance", icon: Settings, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security" },
-  { area: "security_posture", icon: Key, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling" },
-  { area: "supplier_governance", icon: Users, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain" },
+  { area: "operations", icon: Settings, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security" },
+  { area: "identityAccess", icon: Key, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling" },
+  { area: "vendor", icon: Users, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain" },
 ];
 
 function StatusIcon({ status }: { status: TrustControlStatus }) {
