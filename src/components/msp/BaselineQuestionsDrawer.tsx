@@ -47,7 +47,7 @@ export function BaselineQuestionsDrawer({
     return MATURITY_AREAS[0].id;
   })();
 
-  const [tab, setTab] = useState(initialArea);
+  const [tab, setTab] = useState<string>(initialArea);
   // Draft buffer — endringer commit'es først ved "Gå videre"/"Ferdig".
   const [draft, setDraft] = useState<MaturityAnswers>(answers);
 
@@ -92,7 +92,7 @@ export function BaselineQuestionsDrawer({
           </SheetTitle>
           <SheetDescription>
             Spørsmålene under er de samme som kunden får ved opprettelse av Trust Profile,
-            fordelt på fire kontrollområder.
+            fordelt på fem kontrollområder.
           </SheetDescription>
         </SheetHeader>
 
@@ -107,7 +107,8 @@ export function BaselineQuestionsDrawer({
         </Card>
 
         <Tabs value={tab} onValueChange={setTab} className="mt-4">
-          <TabsList className="grid w-full grid-cols-4 h-auto">
+          <TabsList className="grid w-full grid-cols-5 h-auto">
+
             {MATURITY_AREAS.map((a) => {
               const answered = a.questions.filter((q) => draft[q.id] === "yes" || draft[q.id] === "no").length;
               return (

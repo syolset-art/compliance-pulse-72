@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { MATURITY_AREAS, ALL_MATURITY_QUESTIONS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
+import { MATURITY_AREAS, ALL_MATURITY_QUESTIONS, migrateLegacyAnswers, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 
 const storageKey = (customerId: string) => `msp.customer.baselineAnswers.${customerId}`;
 
@@ -17,12 +17,13 @@ export function useCustomerBaseline(customerId: string | undefined) {
     if (!customerId) return;
     try {
       const raw = localStorage.getItem(storageKey(customerId));
-      if (raw) setAnswers(JSON.parse(raw));
+      if (raw) setAnswers(migrateLegacyAnswers(JSON.parse(raw)));
       else setAnswers({});
     } catch {
       setAnswers({});
     }
   }, [customerId]);
+
 
   const persist = useCallback(
     (next: MaturityAnswers) => {

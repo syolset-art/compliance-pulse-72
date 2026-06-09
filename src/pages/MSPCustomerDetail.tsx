@@ -108,8 +108,11 @@ export default function MSPCustomerDetail() {
         }
       }
     } catch {}
+    // GDPR er alltid inkludert gratis som baseline når kunden er invitert
+    ids.add("gdpr");
     return Array.from(ids);
   }, [customer?.active_frameworks, customerId]);
+
 
 
 
