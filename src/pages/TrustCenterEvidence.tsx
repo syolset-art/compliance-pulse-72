@@ -715,21 +715,16 @@ const TrustCenterEvidence = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t">
-                  <span className="text-[11px] text-muted-foreground">
-                    {isNb ? "Trenger du å erstatte filen?" : "Need to replace the file?"}
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 text-xs gap-1"
-                    onClick={() => { setEditDoc(null); setDialogOpen(true); }}
-                  >
-                    <Plus className="h-3 w-3" />
-                    {isNb ? "Last opp ny versjon" : "Upload new version"}
-                  </Button>
-                </div>
               </div>
+
+              {/* Compliance status (advisory) */}
+              <DocumentComplianceCard
+                doc={editDoc}
+                isNb={isNb}
+                onUploadNewVersion={() => { setEditDoc(null); setDialogOpen(true); }}
+                onMarkReviewed={() => markReviewedMutation.mutate(editDoc.id)}
+                markingReviewed={markReviewedMutation.isPending}
+              />
 
               {/* Sharing — the main purpose of editing */}
               <div className="space-y-2">
