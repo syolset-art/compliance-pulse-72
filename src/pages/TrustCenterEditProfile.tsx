@@ -30,6 +30,7 @@ import { ContactsSection } from "@/components/trust-center/edit/ContactsSection"
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
 import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
 import { SubprocessorsSection } from "@/components/trust-center/edit/SubprocessorsSection";
+import { BrandingSection } from "@/components/trust-center/edit/BrandingSection";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
 import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 
