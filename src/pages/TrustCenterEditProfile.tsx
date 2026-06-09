@@ -29,6 +29,7 @@ import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
 import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
+import { SubprocessorsSection } from "@/components/trust-center/edit/SubprocessorsSection";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
 import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 
@@ -428,6 +429,9 @@ const TrustCenterEditProfile = () => {
                 })}
               </div>
             </section>
+
+            {/* Tredjepartsleverandører */}
+            <SubprocessorsSection asset={asset} />
 
             {/* Dokumentasjon (opplastingsflyt) */}
             <DocumentationSection asset={asset} />
