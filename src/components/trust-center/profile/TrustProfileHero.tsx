@@ -167,16 +167,16 @@ export function TrustProfileHero({
               </p>
             )}
 
-            {/* Framework chips */}
-            <div className="mt-4 flex flex-wrap items-center gap-1.5">
+            {/* Compliance frameworks */}
+            <div className="mt-5 rounded-xl border border-border bg-muted/30 px-4 py-3 shadow-sm">
               {frameworks.length === 0 ? (
                 <span className="text-xs text-muted-foreground italic">
                   {isNb ? "Ingen regelverk publisert ennå" : "No frameworks published yet"}
                 </span>
               ) : (
-                <>
-                  <span className="text-[11px] uppercase tracking-wider text-muted-foreground mr-1">
-                    {isNb ? "Følger" : "Complies with"}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground mr-2">
+                    {isNb ? "Etterlevelse" : "Compliance"}
                   </span>
                   {frameworks.map((fw) => {
                     const standard = isStandard(fw.framework_name);
@@ -198,7 +198,7 @@ export function TrustProfileHero({
                       </button>
                     );
                   })}
-                </>
+                </div>
               )}
             </div>
           </div>
