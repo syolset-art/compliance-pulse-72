@@ -1094,7 +1094,9 @@ export function ChatInterface({ onShowContent, onBackToDashboard, onMessagesChan
                   }`}
                 >
                   {message.role === "assistant" && (
-                    <img src={laraButterfly} alt="Lara" className="w-6 h-6 mt-1 flex-shrink-0" />
+                    <div className="w-6 h-6 mt-1 flex-shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-xs font-semibold text-primary">L</span>
+                    </div>
                   )}
                   <div className="flex-1 max-w-[85%]">
                     {/* Subtle thinking indicator - inline */}
