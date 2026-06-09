@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, AlertCircle, ArrowRight, ClipboardEdit, Eye, ShieldCheck, Gift, Sparkles, Info, Loader2, ChevronDown } from "lucide-react";
+import { CheckCircle2, AlertCircle, ArrowRight, ClipboardEdit, Eye, ShieldCheck, Sparkles, Info, Loader2, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { BaselineAreaProgress } from "@/hooks/useCustomerBaseline";
 
