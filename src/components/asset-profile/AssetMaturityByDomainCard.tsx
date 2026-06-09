@@ -1,27 +1,23 @@
 import { useTranslation } from "react-i18next";
-import { Shield, Lock, Globe, Layers, ChevronDown } from "lucide-react";
+import { Shield, ChevronDown } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { cn } from "@/lib/utils";
+import { CONTROL_AREAS, type ControlAreaKey } from "@/lib/controlAreas";
 
 interface Props {
   assetId: string;
 }
 
-const AREAS = [
-  { key: "governance",          icon: Shield, nb: "Styring og ansvar",            en: "Governance & Accountability" },
-  { key: "operations",     icon: Lock,   nb: "Sikkerhet",                    en: "Security" },
-  { key: "identityAccess",    icon: Globe,  nb: "Personvern og datahåndtering", en: "Privacy & Data Handling" },
-  { key: "vendor", icon: Layers, nb: "Tredjepart og verdikjede",     en: "Third-Party & Supply Chain" },
-] as const;
+const AREA_THRESHOLDS: Record<ControlAreaKey, { green: number; orange: number }> = {
+  governance:     { green: 75, orange: 40 },
+  operations:     { green: 75, orange: 30 },
+  identityAccess: { green: 60, orange: 40 },
+  privacy:        { green: 75, orange: 40 },
+  vendor:         { green: 75, orange: 50 },
+};
 
-function colorFor(score: number, areaKey: string) {
-  const thresholds: Record<string, { green: number; orange: number }> = {
-    governance:          { green: 75, orange: 40 },
-    operations:     { green: 75, orange: 30 },
-    identityAccess:    { green: 60, orange: 40 },
-    vendor: { green: 75, orange: 50 },
-  };
-  const t = thresholds[areaKey] ?? { green: 75, orange: 50 };
+function colorFor(score: number, areaKey: ControlAreaKey | "overall") {
+  const t = AREA_THRESHOLDS[areaKey as ControlAreaKey] ?? { green: 75, orange: 50 };
   if (score >= t.green)  return { text: "text-success", bar: "bg-success" };
   if (score >= t.orange) return { text: "text-warning", bar: "bg-warning" };
   return { text: "text-destructive", bar: "bg-destructive" };
