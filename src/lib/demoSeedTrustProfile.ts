@@ -138,7 +138,7 @@ export interface ActivationValues {
   incidentEmail?: string;
   incidentPhone?: string;
   postalAddress?: string;
-  maturityAnswers?: Record<string, "yes" | "no" | "later" | "n_a" | "unsure">;
+  maturityAnswers?: Record<string, "not_started" | "in_progress" | "done" | "not_relevant">;
   criticalVendors?: Array<{ name: string; purpose?: string; processesPersonalData?: "yes" | "no" | null; dataCategories?: string[]; dpa: "yes" | "no" | "unknown"; isSecurityPartner?: boolean; partnerType?: string | null }>;
   subprocessorList?: import("./demoSubprocessorAnalysis").SubprocessorListData | null;
   documents?: ActivationDocument[];
