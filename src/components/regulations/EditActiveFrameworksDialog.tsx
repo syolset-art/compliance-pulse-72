@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Lock, AlertTriangle, Search, X, ChevronDown, SlidersHorizontal } from "lucide-react";
+import { Lock, AlertTriangle, Search, X, ChevronDown, SlidersHorizontal, Sparkles, Eye } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
@@ -26,6 +26,14 @@ interface EditActiveFrameworksDialogProps {
   updatingId: string | null;
   countryScope?: CountryScope;
   onEditCountries?: () => void;
+  /** MSP: per-framework recommendation reasons keyed by framework id */
+  recommendations?: Map<string, string>;
+  /** MSP: when provided, shows a "Forhåndsvis gap-analyse" button per inactive framework */
+  onPreview?: (framework: Framework) => void;
+  /** Override the sheet title (e.g. for partner context) */
+  title?: string;
+  /** Override the sheet description */
+  description?: string;
 }
 
 export const EditActiveFrameworksDialog = ({
@@ -36,6 +44,10 @@ export const EditActiveFrameworksDialog = ({
   updatingId,
   countryScope,
   onEditCountries,
+  recommendations,
+  onPreview,
+  title,
+  description,
 }: EditActiveFrameworksDialogProps) => {
   const [search, setSearch] = useState("");
   const [requestOpen, setRequestOpen] = useState(false);
@@ -86,9 +98,9 @@ export const EditActiveFrameworksDialog = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="overflow-y-auto w-full sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>Rediger aktive regelverk og standarder</SheetTitle>
+          <SheetTitle>{title ?? "Rediger aktive regelverk og standarder"}</SheetTitle>
           <SheetDescription>
-            Aktiver eller deaktiver regelverk og standarder for din virksomhet
+            {description ?? "Aktiver eller deaktiver regelverk og standarder for din virksomhet"}
           </SheetDescription>
         </SheetHeader>
 
@@ -374,6 +386,19 @@ export const EditActiveFrameworksDialog = ({
                                 </TooltipContent>
                               </Tooltip>
                             )}
+                            {recommendations?.has(fw.id) && !isActive && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                                    <Sparkles className="h-2.5 w-2.5" />
+                                    Anbefalt
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs max-w-[240px]">{recommendations.get(fw.id)}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{fw.description}</p>
                           {isMandatoryButOff && (
@@ -383,6 +408,16 @@ export const EditActiveFrameworksDialog = ({
                                 Lovpålagt regelverk er deaktivert — anbefales å aktivere
                               </span>
                             </div>
+                          )}
+                          {onPreview && !isActive && (
+                            <button
+                              type="button"
+                              onClick={() => onPreview(fw)}
+                              className="mt-1.5 inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Eye className="h-3 w-3" />
+                              Forhåndsvis gap-analyse
+                            </button>
                           )}
                         </div>
                         <Switch
