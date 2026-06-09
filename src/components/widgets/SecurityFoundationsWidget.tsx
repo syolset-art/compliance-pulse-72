@@ -12,19 +12,19 @@ import { LineChart, Line, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveCo
 const PILLARS = [
   { key: "governance", icon: Shield, label_no: "Styring", label_en: "Governance" },
   { key: "operations", icon: Settings, label_no: "Drift og sikkerhet", label_en: "Operations & Security" },
-  { key: "identity_access", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access" },
-  { key: "privacy_data", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
-  { key: "supplier_ecosystem", icon: Users, label_no: "Tredjepartstyring og verdikjede", label_en: "Third-Party & Value Chain" },
+  { key: "identityAccess", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access" },
+  { key: "privacy", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling" },
+  { key: "vendor", icon: Users, label_no: "Tredjepartstyring og verdikjede", label_en: "Third-Party & Value Chain" },
 ] as const;
 
 // Map sla_category to pillar keys
 const SLA_TO_PILLAR: Record<string, string> = {
   governance: "governance",
   operations: "operations",
-  identity_access: "identity_access",
-  privacy_data: "privacy_data",
-  supplier: "supplier_ecosystem",
-  supplier_ecosystem: "supplier_ecosystem",
+  identity_access: "identityAccess",
+  privacy_data: "privacy",
+  supplier: "vendor",
+  supplier_ecosystem: "vendor",
 };
 
 function maturityLabel(percent: number, isNb: boolean) {

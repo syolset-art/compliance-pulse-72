@@ -45,7 +45,7 @@ export default function DashboardV2() {
 
   const focusAreas = useMemo(() => {
     const byDomain = stats.byDomainArea || {};
-    return ["governance", "operations", "identity_access", "supplier_ecosystem", "privacy_data"].map((key) => ({
+    return ["governance", "operations", "identityAccess", "vendor", "privacy"].map((key) => ({
       label_no: FOCUS_AREA_LABELS[key]?.label_no || key,
       label_en: FOCUS_AREA_LABELS[key]?.label_en || key,
       percent: byDomain[key]?.score || 0,

@@ -17,7 +17,7 @@ export type PartnerEvidenceDocType =
 
 export interface MaturityDelta {
   /** Control area key — must match AssetMaturityByDomainCard keys */
-  area: "governance" | "risk_compliance" | "security_posture" | "supplier_governance";
+  area: "governance" | "operations" | "identityAccess" | "vendor";
   /** Percentage points added on top of baseline (e.g. 8 means +8%) */
   delta: number;
 }
@@ -122,8 +122,8 @@ export function laraSuggestForDocType(docType: PartnerEvidenceDocType): LaraSugg
           { framework: "iso27001", label: "ISO 27001:2022", controlIds: ["A.8.8", "A.8.29", "A.5.7"] },
         ],
         maturityDelta: [
-          { area: "risk_compliance", delta: 8 },
-          { area: "security_posture", delta: 3 },
+          { area: "operations", delta: 8 },
+          { area: "identityAccess", delta: 3 },
         ],
       };
     case "dpia":
@@ -133,7 +133,7 @@ export function laraSuggestForDocType(docType: PartnerEvidenceDocType): LaraSugg
           { framework: "nis2", label: "NIS2", controlIds: ["Art. 21.2.a"] },
         ],
         maturityDelta: [
-          { area: "security_posture", delta: 10 },
+          { area: "identityAccess", delta: 10 },
           { area: "governance", delta: 3 },
         ],
       };
@@ -145,7 +145,7 @@ export function laraSuggestForDocType(docType: PartnerEvidenceDocType): LaraSugg
         ],
         maturityDelta: [
           { area: "governance", delta: 6 },
-          { area: "risk_compliance", delta: 5 },
+          { area: "operations", delta: 5 },
         ],
       };
     case "bcp":
@@ -156,7 +156,7 @@ export function laraSuggestForDocType(docType: PartnerEvidenceDocType): LaraSugg
           { framework: "dora", label: "DORA", controlIds: ["Art. 11", "Art. 12"] },
         ],
         maturityDelta: [
-          { area: "risk_compliance", delta: 6 },
+          { area: "operations", delta: 6 },
           { area: "governance", delta: 2 },
         ],
       };
@@ -167,8 +167,8 @@ export function laraSuggestForDocType(docType: PartnerEvidenceDocType): LaraSugg
         ],
         maturityDelta: [
           { area: "governance", delta: 10 },
-          { area: "risk_compliance", delta: 5 },
-          { area: "supplier_governance", delta: 3 },
+          { area: "operations", delta: 5 },
+          { area: "vendor", delta: 3 },
         ],
       };
     case "audit_report":
@@ -178,7 +178,7 @@ export function laraSuggestForDocType(docType: PartnerEvidenceDocType): LaraSugg
         ],
         maturityDelta: [
           { area: "governance", delta: 5 },
-          { area: "supplier_governance", delta: 4 },
+          { area: "vendor", delta: 4 },
         ],
       };
     default:

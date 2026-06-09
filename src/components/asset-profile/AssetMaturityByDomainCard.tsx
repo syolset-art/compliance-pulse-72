@@ -9,9 +9,9 @@ interface Props {
 
 const AREAS = [
   { key: "governance",          icon: Shield, nb: "Styring og ansvar",            en: "Governance & Accountability" },
-  { key: "risk_compliance",     icon: Lock,   nb: "Sikkerhet",                    en: "Security" },
-  { key: "security_posture",    icon: Globe,  nb: "Personvern og datahåndtering", en: "Privacy & Data Handling" },
-  { key: "supplier_governance", icon: Layers, nb: "Tredjepart og verdikjede",     en: "Third-Party & Supply Chain" },
+  { key: "operations",     icon: Lock,   nb: "Sikkerhet",                    en: "Security" },
+  { key: "identityAccess",    icon: Globe,  nb: "Personvern og datahåndtering", en: "Privacy & Data Handling" },
+  { key: "vendor", icon: Layers, nb: "Tredjepart og verdikjede",     en: "Third-Party & Supply Chain" },
 ] as const;
 
 function colorFor(score: number, areaKey: string) {
