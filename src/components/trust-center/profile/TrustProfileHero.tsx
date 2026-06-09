@@ -154,14 +154,9 @@ export function TrustProfileHero({
       <div className="px-6 md:px-10 pt-16 md:pt-20 pb-6">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
           <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-none">
-                {companyName}
-              </h1>
-              <span className="text-2xl md:text-3xl font-medium text-muted-foreground tracking-tight leading-none">
-                Trust Center
-              </span>
-            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-none">
+              {companyName}
+            </h1>
             {description ? (
               <p className="text-sm md:text-base text-muted-foreground mt-3 leading-relaxed line-clamp-2 max-w-2xl">
                 {description}
