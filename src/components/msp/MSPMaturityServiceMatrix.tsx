@@ -791,12 +791,11 @@ export function MSPMaturityServiceMatrix({
                       {r.frameworkId && (
                         <Button
                           size="sm"
-                          variant="ghost"
-                          className="h-8 text-xs gap-1.5 text-primary hover:bg-primary hover:text-primary-foreground"
+                          variant="outline"
+                          className="h-8 text-xs gap-1.5"
                           onClick={() => openGap(r.frameworkId)}
                         >
-                          <FileText className="h-3.5 w-3.5" />
-                          Vis gap
+                          Kjør gap-analyse
                           {typeof r.openGaps === "number" && (
                             <Badge variant="secondary" className="h-4 px-1 text-xs ml-0.5">
                               {r.openGaps}
