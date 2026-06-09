@@ -85,6 +85,7 @@ import { usePartnerInfo, PARTNER_TYPE_LABEL } from "@/hooks/usePartnerInfo";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { POLICY_TYPES as TC_POLICY_TYPES, CERT_TYPES as TC_CERT_TYPES } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
+import { CONTROL_AREAS } from "@/lib/controlAreas";
 
 import { buildPublicTrustUrl, buildSlug } from "@/lib/publicTrustUrl";
 import VisibilitySelector from "@/components/trust-center/VisibilitySelector";
@@ -92,12 +93,13 @@ import { getVisibilityFromAsset, VISIBILITY_META, type TrustVisibility } from "@
 import ShareTrustProfileDialog from "@/components/dialogs/ShareTrustProfileDialog";
 import TrustProfileFreshness from "@/components/trust-center/TrustProfileFreshness";
 
-const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
-  { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
-  { area: "operations", icon: Lock, labelEn: "Security", labelNb: "Security" },
-  { area: "identityAccess", icon: Globe, labelEn: "Privacy & Data Handling", labelNb: "Privacy & Data Handling" },
-  { area: "vendor", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
-];
+const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] =
+  CONTROL_AREAS.map((a) => ({
+    area: a.key as ControlArea,
+    icon: a.icon as typeof Shield,
+    labelEn: a.labelEn,
+    labelNb: a.labelNb,
+  }));
 
 // Demo-variation offsets per area so trust-profile cards don't all show the same level.
 // Floors the score for each area to give realistic spread across High/Medium/Low.
@@ -105,6 +107,7 @@ const AREA_DEMO_FLOOR: Record<string, number> = {
   governance: 78,
   operations: 62,
   identityAccess: 71,
+  privacy: 55,
   vendor: 28,
 };
 
