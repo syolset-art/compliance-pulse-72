@@ -14,7 +14,7 @@ export type AnalyzedSubprocessor = {
 };
 
 export type SubprocessorListData = {
-  source: "upload" | "url";
+  source: "upload" | "url" | "manual";
   fileName?: string;
   url?: string;
   analyzedAt: string;
@@ -77,7 +77,7 @@ function scoreFromName(name: string): number {
   return 72 + (h % 23); // 72–94
 }
 
-function matchVendor(rawName: string): AnalyzedSubprocessor {
+export function matchVendorByName(rawName: string): AnalyzedSubprocessor {
   const name = rawName.trim();
   const lower = name.toLowerCase();
   const hit = VENDOR_CATALOG.find(
@@ -103,6 +103,39 @@ function matchVendor(rawName: string): AnalyzedSubprocessor {
     dpaType: "unknown",
     source: "unmatched",
   };
+}
+
+const matchVendor = matchVendorByName;
+
+/** Country options for the manual-add form. ISO 3166-1 alpha-2 + flag emoji. */
+export const SUBPROCESSOR_COUNTRIES: { code: string; name: string; flag: string }[] = [
+  { code: "NO", name: "Norge", flag: "🇳🇴" },
+  { code: "SE", name: "Sverige", flag: "🇸🇪" },
+  { code: "DK", name: "Danmark", flag: "🇩🇰" },
+  { code: "FI", name: "Finland", flag: "🇫🇮" },
+  { code: "IS", name: "Island", flag: "🇮🇸" },
+  { code: "DE", name: "Tyskland", flag: "🇩🇪" },
+  { code: "FR", name: "Frankrike", flag: "🇫🇷" },
+  { code: "NL", name: "Nederland", flag: "🇳🇱" },
+  { code: "IE", name: "Irland", flag: "🇮🇪" },
+  { code: "ES", name: "Spania", flag: "🇪🇸" },
+  { code: "IT", name: "Italia", flag: "🇮🇹" },
+  { code: "PL", name: "Polen", flag: "🇵🇱" },
+  { code: "BE", name: "Belgia", flag: "🇧🇪" },
+  { code: "AT", name: "Østerrike", flag: "🇦🇹" },
+  { code: "CH", name: "Sveits", flag: "🇨🇭" },
+  { code: "UK", name: "Storbritannia", flag: "🇬🇧" },
+  { code: "US", name: "USA", flag: "🇺🇸" },
+  { code: "CA", name: "Canada", flag: "🇨🇦" },
+  { code: "AU", name: "Australia", flag: "🇦🇺" },
+  { code: "IN", name: "India", flag: "🇮🇳" },
+  { code: "SG", name: "Singapore", flag: "🇸🇬" },
+  { code: "JP", name: "Japan", flag: "🇯🇵" },
+];
+
+export function getSubprocessorCountry(code?: string) {
+  if (!code) return undefined;
+  return SUBPROCESSOR_COUNTRIES.find((c) => c.code.toUpperCase() === code.toUpperCase());
 }
 
 /** Mock list returned for non-CSV uploads / URL fetches in demo mode. */
