@@ -708,30 +708,59 @@ const TrustCenterEvidence = () => {
                 <div>
                   <Label className="text-sm">{isNb ? "Hvem ser dokumentet?" : "Who sees this document?"}</Label>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {isNb ? "Bestem om dokumentet er internt eller delt på din Trust Profile." : "Decide if the document is internal or shared on your Trust Profile."}
+                    {isNb ? "Velg synlighet for dokumentet." : "Choose the document's visibility."}
                   </p>
                 </div>
-                <Select value={editDoc.visibility || "hidden"} onValueChange={(v) => setEditDoc({ ...editDoc, visibility: v })}>
+                <Select
+                  value={
+                    editDoc.visibility === "published" ? "published"
+                    : editDoc.visibility === "ecosystem" ? "ecosystem"
+                    : (grantsByDoc[editDoc.id] || 0) > 0 ? "restricted"
+                    : "hidden"
+                  }
+                  onValueChange={(v) => {
+                    if (v === "restricted") {
+                      // keep visibility hidden; open access manager
+                      setEditDoc({ ...editDoc, visibility: "hidden" });
+                      const d = { ...editDoc, visibility: "hidden" };
+                      setEditDoc(null);
+                      setAccessDoc(d);
+                    } else {
+                      setEditDoc({ ...editDoc, visibility: v });
+                    }
+                  }}
+                >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="hidden">
                       <div className="flex items-center gap-2"><Lock className="h-3.5 w-3.5" />{isNb ? "Internt – kun for organisasjonen" : "Internal – organization only"}</div>
                     </SelectItem>
                     <SelectItem value="published">
-                      <div className="flex items-center gap-2"><Globe className="h-3.5 w-3.5" />{isNb ? "Publisert på Trust Profile" : "Published on Trust Profile"}</div>
+                      <div className="flex items-center gap-2"><Globe className="h-3.5 w-3.5" />{isNb ? "Offentlig – synlig på Trust Profile" : "Public – visible on Trust Profile"}</div>
+                    </SelectItem>
+                    <SelectItem value="ecosystem">
+                      <div className="flex items-center gap-2"><Network className="h-3.5 w-3.5" />{isNb ? "Økosystem – delt med Mynder-nettverket" : "Ecosystem – shared with the Mynder network"}</div>
+                    </SelectItem>
+                    <SelectItem value="restricted">
+                      <div className="flex items-center gap-2"><Users className="h-3.5 w-3.5" />{isNb ? "Begrenset – kun valgte mottakere" : "Restricted – only selected recipients"}</div>
                     </SelectItem>
                   </SelectContent>
                 </Select>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start gap-2 h-8 text-xs"
-                  onClick={() => { const d = editDoc; setEditDoc(null); setAccessDoc(d); }}
-                >
-                  <Users className="h-3.5 w-3.5" />
-                  {isNb ? "Administrer hvem dokumentet deles med" : "Manage who this document is shared with"}
-                </Button>
+                {((grantsByDoc[editDoc.id] || 0) > 0 || editDoc.visibility === "hidden") && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-2 h-8 text-xs"
+                    onClick={() => { const d = editDoc; setEditDoc(null); setAccessDoc(d); }}
+                  >
+                    <Users className="h-3.5 w-3.5" />
+                    {isNb
+                      ? `Administrer mottakere${(grantsByDoc[editDoc.id] || 0) > 0 ? ` (${grantsByDoc[editDoc.id]})` : ""}`
+                      : `Manage recipients${(grantsByDoc[editDoc.id] || 0) > 0 ? ` (${grantsByDoc[editDoc.id]})` : ""}`}
+                  </Button>
+                )}
               </div>
+
 
               {/* Metadata */}
               <div className="space-y-3 pt-3 border-t">
