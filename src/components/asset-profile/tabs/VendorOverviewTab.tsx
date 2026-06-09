@@ -202,15 +202,15 @@ export const VendorOverviewTab = ({ asset, tasksCount, onTrustMetrics, onNavigat
     const { allControls } = evaluation;
     const AREA_LABELS_NB: Record<string, string> = {
       governance: "Styring",
-      risk_compliance: "Drift og sikkerhet",
-      security_posture: "Personvern og datahåndtering",
-      supplier_governance: "Tredjepartstyring",
+      operations: "Drift og sikkerhet",
+      identityAccess: "Personvern og datahåndtering",
+      vendor: "Tredjepart og verdikjede",
     };
     const AREA_LABELS_EN: Record<string, string> = {
       governance: "Governance",
-      risk_compliance: "Operations & Security",
-      security_posture: "Privacy & Data Handling",
-      supplier_governance: "Third-Party & Value Chain",
+      operations: "Drift og sikkerhet",
+      identityAccess: "Privacy & Data Handling",
+      vendor: "Third-Party & Supply Chain",
     };
     const ACTION_NB: Record<string, string> = {
       dpa_verified: "Last opp databehandleravtale i dokumentfanen",

@@ -55,11 +55,11 @@ function getScoreImpact(requestType: string, isNb: boolean) {
   const impacts: Record<string, { label: string; areas: string[] }> = {
     vendor_assessment: {
       label: isNb ? "Styrker kontrollområdet «Styring»" : "Strengthens the Governance control area",
-      areas: isNb ? ["Styring", "Tredjepartstyring"] : ["Governance", "Third-Party Management"],
+      areas: isNb ? ["Styring", "Tredjepart og verdikjede"] : ["Governance", "Third-Party Management"],
     },
     certification: {
-      label: isNb ? "Styrker kontrollområdet «Drift og sikkerhet»" : "Strengthens Operations & Security",
-      areas: isNb ? ["Drift og sikkerhet"] : ["Operations & Security"],
+      label: isNb ? "Styrker kontrollområdet «Drift og sikkerhet»" : "Strengthens Drift og sikkerhet",
+      areas: isNb ? ["Drift og sikkerhet"] : ["Drift og sikkerhet"],
     },
     dpa: {
       label: isNb ? "Styrker kontrollområdet «Personvern og datahåndtering»" : "Strengthens Privacy & Data Handling",

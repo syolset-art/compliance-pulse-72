@@ -9,20 +9,20 @@ import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 type Interval = "day" | "week" | "month" | "quarter" | "year";
 
 const DOMAIN_LABELS: Record<string, { no: string; en: string }> = {
-  governance: { no: "Styring og ledelse", en: "Governance" },
-  operations: { no: "Drift og sikkerhet", en: "Operations & Security" },
-  identity_access: { no: "Identitet og tilgang", en: "Identity & Access" },
-  privacy_data: { no: "Personvern og data", en: "Privacy & Data" },
-  supplier_ecosystem: { no: "Leverandørstyring", en: "Supplier Management" },
+  governance:     { no: "Styring og ansvar",            en: "Governance & Accountability" },
+  operations:     { no: "Drift og sikkerhet",           en: "Drift og sikkerhet" },
+  identityAccess: { no: "Identitet og tilgang",         en: "Identity & Access" },
+  privacy:        { no: "Personvern og datahåndtering", en: "Privacy & Data Handling" },
+  vendor:         { no: "Tredjepart og verdikjede",     en: "Third-Party & Supply Chain" },
 };
 
 // Simulated deltas per interval — replace with real historical data when available
 const SIMULATED_DELTAS: Record<Interval, Record<string, number>> = {
-  day: { governance: 0, operations: 1, identity_access: 0, privacy_data: 0, supplier_ecosystem: 0 },
-  week: { governance: 2, operations: 1, identity_access: 1, privacy_data: 0, supplier_ecosystem: 1 },
-  month: { governance: 3, operations: 2, identity_access: -1, privacy_data: 1, supplier_ecosystem: 2 },
-  quarter: { governance: 5, operations: 4, identity_access: 2, privacy_data: 3, supplier_ecosystem: 3 },
-  year: { governance: 8, operations: 7, identity_access: 5, privacy_data: 6, supplier_ecosystem: 5 },
+  day: { governance: 0, operations: 1, identityAccess: 0, privacy: 0, vendor: 0 },
+  week: { governance: 2, operations: 1, identityAccess: 1, privacy: 0, vendor: 1 },
+  month: { governance: 3, operations: 2, identityAccess: -1, privacy: 1, vendor: 2 },
+  quarter: { governance: 5, operations: 4, identityAccess: 2, privacy: 3, vendor: 3 },
+  year: { governance: 8, operations: 7, identityAccess: 5, privacy: 6, vendor: 5 },
 };
 
 export function ControlsWidget() {

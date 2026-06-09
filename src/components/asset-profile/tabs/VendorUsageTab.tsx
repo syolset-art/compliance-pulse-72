@@ -218,7 +218,7 @@ export const VendorUsageTab = ({ assetId, onNavigateToTab }: VendorUsageTabProps
               className="flex items-center gap-1 text-[13px] text-primary hover:underline"
             >
               <ArrowRight className="h-2.5 w-2.5" />
-              {isNb ? "Påvirker: Tredjepartstyring" : "Affects: Third-party management"}
+              {isNb ? "Påvirker: Tredjepart og verdikjede" : "Affects: Third-party management"}
             </button>
           </CardContent>
         </Card>

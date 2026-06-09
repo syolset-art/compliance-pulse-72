@@ -14,18 +14,18 @@ const AREA_EXPECTED_DOCS: Record<string, { type: string; labelNb: string; labelE
     { type: "other", labelNb: "Roller og ansvarsdokument", labelEn: "Roles & Responsibilities Document" },
     { type: "other", labelNb: "Eget styringsrammeverk (valgfritt)", labelEn: "Custom Governance Framework (optional)" },
   ],
-  risk_compliance: [
+  operations: [
     { type: "penetration_test", labelNb: "Penetrasjonstest / sikkerhetstest", labelEn: "Penetration Test / Security Test" },
     { type: "dpia", labelNb: "DPIA / Personvernkonsekvensvurdering", labelEn: "DPIA / Data Protection Impact Assessment" },
     { type: "other", labelNb: "Risikovurdering", labelEn: "Risk Assessment" },
     { type: "other", labelNb: "Beredskapsplan / BCP", labelEn: "Business Continuity Plan / BCP" },
   ],
-  security_posture: [
+  identityAccess: [
     { type: "dpa", labelNb: "DPA / Databehandleravtale", labelEn: "DPA / Data Processing Agreement" },
     { type: "other", labelNb: "Personvernerklæring", labelEn: "Privacy Policy" },
     { type: "other", labelNb: "Tilgangsstyringspolicy", labelEn: "Access Control Policy" },
   ],
-  supplier_governance: [
+  vendor: [
     { type: "dpa", labelNb: "DPA / Databehandleravtale", labelEn: "DPA / Data Processing Agreement" },
     { type: "nda", labelNb: "NDA / Konfidensialitetsavtale", labelEn: "NDA / Confidentiality Agreement" },
     { type: "soc2", labelNb: "SOC 2 / Sikkerhetsattest", labelEn: "SOC 2 / Security Attestation" },

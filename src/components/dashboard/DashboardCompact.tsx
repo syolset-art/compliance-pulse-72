@@ -108,9 +108,9 @@ function ControlAreasChart({ isNb }: { isNb: boolean }) {
 
   const AREAS = [
     { key: "governance", label: isNb ? "Styring" : "Governance", short: isNb ? "Styr." : "Gov." },
-    { key: "risk_compliance", label: isNb ? "Drift og sikkerhet" : "Ops & Security", short: isNb ? "Drift" : "Ops" },
-    { key: "security_posture", label: isNb ? "Personvern" : "Privacy", short: isNb ? "Pers." : "Priv." },
-    { key: "supplier_governance", label: isNb ? "Tredjepartstyring" : "Third-Party", short: isNb ? "3.part" : "3rd" },
+    { key: "operations", label: isNb ? "Drift og sikkerhet" : "Ops & Security", short: isNb ? "Drift" : "Ops" },
+    { key: "identityAccess", label: isNb ? "Personvern" : "Privacy", short: isNb ? "Pers." : "Priv." },
+    { key: "vendor", label: isNb ? "Tredjepart og verdikjede" : "Third-Party", short: isNb ? "3.part" : "3rd" },
   ];
 
   const chartData = AREAS.map(a => {

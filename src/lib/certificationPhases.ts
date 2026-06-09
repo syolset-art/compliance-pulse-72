@@ -7,7 +7,7 @@ export type CertificationPhase =
   | 'audit'
   | 'certification';
 
-export type SLACategory = 'governance' | 'operations' | 'identity_access' | 'supplier_ecosystem' | 'privacy_data';
+export type SLACategory = 'governance' | 'operations' | 'identityAccess' | 'vendor' | 'privacy';
 
 export type MaturityLevel = 'initial' | 'defined' | 'implemented' | 'measured' | 'optimized';
 
@@ -169,7 +169,7 @@ export function getPhaseForRequirement(
       if (priority === 'critical') return 'foundation';
       return 'implementation';
     }
-    if (slaCategory === 'identity_access') return 'foundation';
+    if (slaCategory === 'identityAccess') return 'foundation';
     return 'operation';
   }
   if (category === 'people') return 'implementation';

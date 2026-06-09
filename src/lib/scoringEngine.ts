@@ -33,7 +33,7 @@ export interface ScoredRequirement {
   requirement_id: string;
   framework_id: string;
   domain: string;           // privacy | security | ai
-  sla_category?: string;    // governance | operations | identity_access | supplier_ecosystem
+  sla_category?: string;    // governance | operations | identityAccess | vendor
   maturity_level: MaturityLevel;
   is_relevant: boolean;
   weight: number;           // default 1, range 1-3
@@ -87,20 +87,20 @@ export const FOUNDATION_CONTROLS: FoundationControlDef[] = [
   { id: "ops_3", label_en: "Incident management", label_no: "Hendelseshåndtering", domain: "operations" },
   { id: "ops_4", label_en: "Change management", label_no: "Endringshåndtering", domain: "operations" },
   // Privacy & Data Handling
-  { id: "iam_1", label_en: "Access control policy", label_no: "Tilgangskontrollpolicy", domain: "identity_access" },
-  { id: "iam_2", label_en: "User provisioning", label_no: "Brukeradministrasjon", domain: "identity_access" },
-  { id: "iam_3", label_en: "Authentication requirements", label_no: "Autentiseringskrav", domain: "identity_access" },
-  { id: "iam_4", label_en: "Access review process", label_no: "Tilgangsgjennomgang", domain: "identity_access" },
-  // Third-Party & Value Chain
-  { id: "sup_1", label_en: "Vendor inventory", label_no: "Leverandøroversikt", domain: "supplier_ecosystem" },
-  { id: "sup_2", label_en: "DPA management", label_no: "Databehandleravtaler", domain: "supplier_ecosystem" },
-  { id: "sup_3", label_en: "Vendor risk assessment", label_no: "Leverandørrisikovurdering", domain: "supplier_ecosystem" },
-  { id: "sup_4", label_en: "Subprocessor oversight", label_no: "Underleverandørkontroll", domain: "supplier_ecosystem" },
+  { id: "iam_1", label_en: "Access control policy", label_no: "Tilgangskontrollpolicy", domain: "identityAccess" },
+  { id: "iam_2", label_en: "User provisioning", label_no: "Brukeradministrasjon", domain: "identityAccess" },
+  { id: "iam_3", label_en: "Authentication requirements", label_no: "Autentiseringskrav", domain: "identityAccess" },
+  { id: "iam_4", label_en: "Access review process", label_no: "Tilgangsgjennomgang", domain: "identityAccess" },
+  // Third-Party & Supply Chain
+  { id: "sup_1", label_en: "Vendor inventory", label_no: "Leverandøroversikt", domain: "vendor" },
+  { id: "sup_2", label_en: "DPA management", label_no: "Databehandleravtaler", domain: "vendor" },
+  { id: "sup_3", label_en: "Vendor risk assessment", label_no: "Leverandørrisikovurdering", domain: "vendor" },
+  { id: "sup_4", label_en: "Subprocessor oversight", label_no: "Underleverandørkontroll", domain: "vendor" },
   // Privacy & Data Handling
-  { id: "prv_1", label_en: "Privacy policy", label_no: "Personvernerklæring", domain: "privacy_data" },
-  { id: "prv_2", label_en: "Data processing records", label_no: "Behandlingsprotokoll", domain: "privacy_data" },
-  { id: "prv_3", label_en: "Data subject rights process", label_no: "Rettigheter for registrerte", domain: "privacy_data" },
-  { id: "prv_4", label_en: "Data retention & deletion", label_no: "Oppbevaring og sletting", domain: "privacy_data" },
+  { id: "prv_1", label_en: "Privacy policy", label_no: "Personvernerklæring", domain: "privacy" },
+  { id: "prv_2", label_en: "Data processing records", label_no: "Behandlingsprotokoll", domain: "privacy" },
+  { id: "prv_3", label_en: "Data subject rights process", label_no: "Rettigheter for registrerte", domain: "privacy" },
+  { id: "prv_4", label_en: "Data retention & deletion", label_no: "Oppbevaring og sletting", domain: "privacy" },
 ];
 
 // ─── Core Scoring Functions ───────────────────────────────────
@@ -193,7 +193,7 @@ export function calculateScoreByRegulationDomain(
 export function calculateFoundation(
   controlLevels: Record<string, MaturityLevel>
 ): FoundationResult {
-  const domains: SLACategory[] = ["governance", "operations", "identity_access", "supplier_ecosystem", "privacy_data"];
+  const domains: SLACategory[] = ["governance", "operations", "identityAccess", "vendor", "privacy"];
   
   const domainResults: FoundationDomainResult[] = domains.map(domain => {
     const domainControls = FOUNDATION_CONTROLS.filter(c => c.domain === domain);

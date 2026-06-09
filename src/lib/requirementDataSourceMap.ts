@@ -145,7 +145,7 @@ export const SLA_CATEGORY_FALLBACK: Record<string, RequirementDataSource> = {
       "Lara henter styrings-dokumentasjon (policyer, retningslinjer, beslutninger) fra dokumentmodulen. Last opp relevant dokumentasjon her.",
     ctaLabel: "Gå til Dokumenter",
   },
-  identity_access: {
+  identityAccess: {
     module: "Systemer",
     route: "/systems",
     whyMissing:

@@ -10,9 +10,9 @@ import { cn } from "@/lib/utils";
 const FOCUS_AREAS = [
   { key: "governance", label_no: "Styring", label_en: "Governance" },
   { key: "operations", label_no: "Drift og bruk", label_en: "Operations & Use" },
-  { key: "identity_access", label_no: "Identitet og tilgang", label_en: "Identity & Access" },
-  { key: "supplier_ecosystem", label_no: "Leverandører og økosystem", label_en: "Vendors & Ecosystem" },
-  { key: "privacy_data", label_no: "Personvern og datahåndtering", label_en: "Privacy & Data" },
+  { key: "identityAccess", label_no: "Identitet og tilgang", label_en: "Identity & Access" },
+  { key: "vendor", label_no: "Leverandører og økosystem", label_en: "Vendors & Ecosystem" },
+  { key: "privacy", label_no: "Personvern og datahåndtering", label_en: "Privacy & Data" },
 ];
 
 // Demo-gulv: sikrer at widgeten viser et variert mix av høy/middels/lav modenhet
@@ -20,9 +20,9 @@ const FOCUS_AREAS = [
 const PILLAR_DEMO_FLOOR: Record<string, number> = {
   governance: 78,           // høy → grønn
   operations: 55,           // middels → orange
-  identity_access: 42,      // middels → orange
-  supplier_ecosystem: 50,   // middels → orange
-  privacy_data: 80,         // høy → grønn
+  identityAccess: 42,      // middels → orange
+  vendor: 50,   // middels → orange
+  privacy: 80,         // høy → grønn
 };
 
 function applyFloor(key: string, raw: number) {

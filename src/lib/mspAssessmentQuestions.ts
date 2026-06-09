@@ -12,7 +12,7 @@ export const ASSESSMENT_CATEGORIES = {
   governance: { label: "Styring og ledelse", icon: "Shield" },
   operations: { label: "Drift og sikkerhet", icon: "Server" },
   privacy: { label: "Personvern og datahåndtering", icon: "Lock" },
-  thirdparty: { label: "Tredjepartstyring", icon: "Users" },
+  thirdparty: { label: "Tredjepart og verdikjede", icon: "Users" },
 } as const;
 
 export const MSP_ASSESSMENT_QUESTIONS: MSPAssessmentQuestion[] = [

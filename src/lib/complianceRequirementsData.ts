@@ -51,7 +51,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Roller og ansvar for informasjonssikkerhet skal defineres og tildeles i henhold til organisasjonens behov.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'assisted',
     sort_order: 2
   },
@@ -65,7 +65,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Motstridende plikter og motstridende ansvarsområder skal adskilles.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'assisted',
     sort_order: 3
   },
@@ -177,7 +177,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Personell og andre interessenter skal returnere alle organisasjonens eiendeler i deres besittelse ved endring eller avslutning av deres ansettelse, kontrakt eller avtale.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'assisted',
     sort_order: 11
   },
@@ -233,7 +233,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Regler for å kontrollere fysisk og logisk tilgang til informasjon og andre tilknyttede eiendeler skal etableres og implementeres basert på forretnings- og informasjonssikkerhetskrav.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'full',
     sort_order: 15
   },
@@ -247,7 +247,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Hele livssyklusen til identiteter skal administreres.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'full',
     sort_order: 16
   },
@@ -261,7 +261,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tildeling og administrasjon av autentiseringsinformasjon skal kontrolleres av en administrasjonsprosess, inkludert rådgivning til personell om hensiktsmessig håndtering av autentiseringsinformasjon.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'full',
     sort_order: 17
   },
@@ -275,7 +275,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tilgangsrettigheter til informasjon og andre tilknyttede eiendeler skal tildeles, gjennomgås, endres og fjernes i samsvar med organisasjonens tematiske policy og regler for tilgangskontroll.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'full',
     sort_order: 18
   },
@@ -289,7 +289,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Prosesser og prosedyrer skal defineres og implementeres for å håndtere informasjonssikkerhetsrisikoer forbundet med bruk av leverandørers produkter eller tjenester.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'supplier_ecosystem',
+    sla_category: 'vendor',
     agent_capability: 'full',
     sort_order: 19
   },
@@ -303,7 +303,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Relevante informasjonssikkerhetskrav skal etableres og avtales med hver leverandør basert på typen leverandørforhold.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'supplier_ecosystem',
+    sla_category: 'vendor',
     agent_capability: 'assisted',
     sort_order: 20
   },
@@ -317,7 +317,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Prosesser og prosedyrer skal defineres og implementeres for å håndtere informasjonssikkerhetsrisikoer forbundet med leverandørkjeden for IKT-produkter og -tjenester.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'supplier_ecosystem',
+    sla_category: 'vendor',
     agent_capability: 'full',
     sort_order: 21
   },
@@ -331,7 +331,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal regelmessig overvåke, gjennomgå, evaluere og administrere endringer i leverandørers informasjonssikkerhetspraksis og tjenesteleveranse.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'supplier_ecosystem',
+    sla_category: 'vendor',
     agent_capability: 'full',
     sort_order: 22
   },
@@ -345,7 +345,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Prosesser for anskaffelse, bruk, administrasjon og avslutning av skytjenester skal etableres i samsvar med organisasjonens informasjonssikkerhetskrav.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'supplier_ecosystem',
+    sla_category: 'vendor',
     agent_capability: 'full',
     sort_order: 23
   },
@@ -557,7 +557,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Bakgrunnsverifiseringskontroller på alle kandidater som skal bli personell, skal gjennomføres før de begynner i organisasjonen og på løpende basis.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'manual',
     sort_order: 38
   },
@@ -571,7 +571,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Ansettelseskontraktsavtaler skal angi personellets og organisasjonens ansvar for informasjonssikkerhet.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'assisted',
     sort_order: 39
   },
@@ -585,7 +585,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Personell i organisasjonen og relevante interessenter skal motta passende bevissthet, utdanning og opplæring i informasjonssikkerhet og regelmessige oppdateringer av organisasjonens informasjonssikkerhetspolicy.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'manual',
     sort_order: 40
   },
@@ -613,7 +613,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Informasjonssikkerhetsansvar og -plikter som forblir gyldige etter opphør eller endring av ansettelse, skal defineres, håndheves og kommuniseres til relevant personell og andre interessenter.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'assisted',
     sort_order: 42
   },
@@ -685,7 +685,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikre områder skal beskyttes av passende adgangskontroller og adgangspunkter.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'manual',
     sort_order: 47
   },
@@ -883,7 +883,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tildeling og bruk av privilegerte tilgangsrettigheter skal begrenses og administreres.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'full',
     sort_order: 61
   },
@@ -897,7 +897,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Tilgang til informasjon og andre tilknyttede eiendeler skal begrenses i samsvar med den etablerte tematiske policyen for tilgangskontroll.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'full',
     sort_order: 62
   },
@@ -911,7 +911,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Lese- og skrivetilgang til kildekode, utviklingsverktøy og programvarebiblioteker skal administreres på passende måte.',
     priority: 'high',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'full',
     sort_order: 63
   },
@@ -925,7 +925,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Sikker autentiseringsteknologier og -prosedyrer skal implementeres basert på informasjonstilgangsbegrensninger og den tematiske policyen for tilgangskontroll.',
     priority: 'critical',
     domain: 'security',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'full',
     sort_order: 64
   },
@@ -1275,7 +1275,7 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     description_no: 'Organisasjonen skal styre, overvåke og gjennomgå aktiviteter relatert til utkontraktert systemutvikling.',
     priority: 'medium',
     domain: 'security',
-    sla_category: 'supplier_ecosystem',
+    sla_category: 'vendor',
     agent_capability: 'assisted',
     sort_order: 89
   },
@@ -1408,7 +1408,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Vurder og dokumenter passende sikkerhetstiltak for internasjonale dataoverføringer utenfor EU/EØS.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'supplier_ecosystem',
+    sla_category: 'vendor',
     agent_capability: 'full',
     sort_order: 5
   },
@@ -1450,7 +1450,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Sørg for at databehandleravtaler er på plass med alle databehandlere som behandler personopplysninger på dine vegne.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'supplier_ecosystem',
+    sla_category: 'vendor',
     agent_capability: 'assisted',
     sort_order: 8
   },
@@ -1478,7 +1478,7 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     description_no: 'Utnevn et personvernombud hvis påkrevd, eller dokumenter beslutningen om å ikke utnevne et med begrunnelse.',
     priority: 'high',
     domain: 'privacy',
-    sla_category: 'identity_access',
+    sla_category: 'identityAccess',
     agent_capability: 'manual',
     sort_order: 10
   },

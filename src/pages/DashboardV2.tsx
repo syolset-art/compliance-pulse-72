@@ -22,10 +22,10 @@ const MATURITY_LEVELS = [
 
 const FOCUS_AREA_LABELS: Record<string, { label_no: string; label_en: string }> = {
   governance: { label_no: "Styring", label_en: "Governance" },
-  operations: { label_no: "Drift og sikkerhet", label_en: "Operations & Security" },
-  identity_access: { label_no: "Identitet og tilgang", label_en: "Identity & Access" },
-  supplier_ecosystem: { label_no: "Tredjepartstyring", label_en: "Third-Party Management" },
-  privacy_data: { label_no: "Personvern og data", label_en: "Privacy & Data" },
+  operations: { label_no: "Drift og sikkerhet", label_en: "Drift og sikkerhet" },
+  identityAccess: { label_no: "Identitet og tilgang", label_en: "Identity & Access" },
+  vendor: { label_no: "Tredjepart og verdikjede", label_en: "Third-Party Management" },
+  privacy: { label_no: "Personvern og data", label_en: "Privacy & Data" },
 };
 
 const PRIORITY_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
@@ -45,7 +45,7 @@ export default function DashboardV2() {
 
   const focusAreas = useMemo(() => {
     const byDomain = stats.byDomainArea || {};
-    return ["governance", "operations", "identity_access", "supplier_ecosystem", "privacy_data"].map((key) => ({
+    return ["governance", "operations", "identityAccess", "vendor", "privacy"].map((key) => ({
       label_no: FOCUS_AREA_LABELS[key]?.label_no || key,
       label_en: FOCUS_AREA_LABELS[key]?.label_en || key,
       percent: byDomain[key]?.score || 0,

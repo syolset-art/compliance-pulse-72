@@ -18,19 +18,19 @@ import {
 
 const PILLARS = [
   { key: "governance", icon: Shield, label_no: "Styring", label_en: "Governance", color: "hsl(var(--primary))" },
-  { key: "operations", icon: Settings, label_no: "Drift og sikkerhet", label_en: "Operations & Security", color: "hsl(142, 71%, 45%)" },
-  { key: "identity_access", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access", color: "hsl(262, 83%, 58%)" },
-  { key: "privacy_data", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling", color: "hsl(142, 71%, 45%)" },
-  { key: "supplier_ecosystem", icon: Users, label_no: "Tredjepartstyring og verdikjede", label_en: "Third-Party & Value Chain", color: "hsl(340, 82%, 52%)" },
+  { key: "operations", icon: Settings, label_no: "Drift og sikkerhet", label_en: "Drift og sikkerhet", color: "hsl(142, 71%, 45%)" },
+  { key: "identityAccess", icon: KeyRound, label_no: "Identitet og tilgang", label_en: "Identity & Access", color: "hsl(262, 83%, 58%)" },
+  { key: "privacy", icon: FileText, label_no: "Personvern og datahåndtering", label_en: "Privacy & Data Handling", color: "hsl(142, 71%, 45%)" },
+  { key: "vendor", icon: Users, label_no: "Tredjepart og verdikjede", label_en: "Third-Party & Supply Chain", color: "hsl(340, 82%, 52%)" },
 ] as const;
 
 const SLA_TO_PILLAR: Record<string, string> = {
   governance: "governance",
   operations: "operations",
-  identity_access: "identity_access",
-  privacy_data: "privacy_data",
-  supplier: "supplier_ecosystem",
-  supplier_ecosystem: "supplier_ecosystem",
+  identityAccess: "identityAccess",
+  privacy: "privacy",
+  supplier: "vendor",
+  vendor: "vendor",
 };
 
 type ViewMode = "status" | "history" | "frameworks";
@@ -40,9 +40,9 @@ type ViewMode = "status" | "history" | "frameworks";
 const PILLAR_DEMO_FLOOR: Record<string, number> = {
   governance: 78,           // høy  → grønn
   operations: 58,           // middels → gul
-  identity_access: 41,      // middels → gul
-  privacy_data: 82,         // høy  → grønn
-  supplier_ecosystem: 24,   // lav  → rød
+  identityAccess: 41,      // middels → gul
+  privacy: 82,         // høy  → grønn
+  vendor: 24,   // lav  → rød
 };
 
 function applyFloor(key: string, raw: number) {

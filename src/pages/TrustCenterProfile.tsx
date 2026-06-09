@@ -94,18 +94,18 @@ import TrustProfileFreshness from "@/components/trust-center/TrustProfileFreshne
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; labelNb: string }[] = [
   { area: "governance", icon: Shield, labelEn: "Governance & Accountability", labelNb: "Governance & Accountability" },
-  { area: "risk_compliance", icon: Lock, labelEn: "Security", labelNb: "Security" },
-  { area: "security_posture", icon: Globe, labelEn: "Privacy & Data Handling", labelNb: "Privacy & Data Handling" },
-  { area: "supplier_governance", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
+  { area: "operations", icon: Lock, labelEn: "Security", labelNb: "Security" },
+  { area: "identityAccess", icon: Globe, labelEn: "Privacy & Data Handling", labelNb: "Privacy & Data Handling" },
+  { area: "vendor", icon: Layers, labelEn: "Third-Party & Supply Chain", labelNb: "Third-Party & Supply Chain" },
 ];
 
 // Demo-variation offsets per area so trust-profile cards don't all show the same level.
 // Floors the score for each area to give realistic spread across High/Medium/Low.
 const AREA_DEMO_FLOOR: Record<string, number> = {
   governance: 78,
-  risk_compliance: 62,
-  security_posture: 71,
-  supplier_governance: 28,
+  operations: 62,
+  identityAccess: 71,
+  vendor: 28,
 };
 
 // Maturity label thresholds: High >= 67, Medium 35-66, Low < 35
@@ -2720,7 +2720,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           },
           {
             icon: Layers,
-            title: isNb ? "Tredjepartstyring" : "Third-Party & Supply Chain",
+            title: isNb ? "Tredjepart og verdikjede" : "Third-Party & Supply Chain",
             description: isNb
               ? "Leverandørvurdering, underbehandlere, verdikjederisiko og SLA-oppfølging."
               : "Vendor assessment, sub-processors, supply chain risk, and SLA monitoring.",

@@ -12,9 +12,9 @@ interface ControlsTabProps {
 
 const AREA_LABELS: Record<string, { en: string; nb: string }> = {
   governance: { en: "Governance", nb: "Styring" },
-  risk_compliance: { en: "Operations & Security", nb: "Drift og sikkerhet" },
-  security_posture: { en: "Privacy & Data Handling", nb: "Personvern og datahåndtering" },
-  supplier_governance: { en: "Third-Party & Value Chain", nb: "Tredjepartstyring og verdikjede" },
+  operations: { en: "Drift og sikkerhet", nb: "Drift og sikkerhet" },
+  identityAccess: { en: "Privacy & Data Handling", nb: "Personvern og datahåndtering" },
+  vendor: { en: "Third-Party & Supply Chain", nb: "Tredjepart og verdikjede" },
 };
 
 export function ControlsTab({ assetId }: ControlsTabProps) {

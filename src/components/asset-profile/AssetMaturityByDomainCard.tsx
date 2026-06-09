@@ -1,27 +1,23 @@
 import { useTranslation } from "react-i18next";
-import { Shield, Lock, Globe, Layers, ChevronDown } from "lucide-react";
+import { Shield, ChevronDown } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { cn } from "@/lib/utils";
+import { CONTROL_AREAS, type ControlAreaKey } from "@/lib/controlAreas";
 
 interface Props {
   assetId: string;
 }
 
-const AREAS = [
-  { key: "governance",          icon: Shield, nb: "Styring og ansvar",            en: "Governance & Accountability" },
-  { key: "risk_compliance",     icon: Lock,   nb: "Sikkerhet",                    en: "Security" },
-  { key: "security_posture",    icon: Globe,  nb: "Personvern og datahåndtering", en: "Privacy & Data Handling" },
-  { key: "supplier_governance", icon: Layers, nb: "Tredjepart og verdikjede",     en: "Third-Party & Supply Chain" },
-] as const;
+const AREA_THRESHOLDS: Record<ControlAreaKey, { green: number; orange: number }> = {
+  governance:     { green: 75, orange: 40 },
+  operations:     { green: 75, orange: 30 },
+  identityAccess: { green: 60, orange: 40 },
+  privacy:        { green: 75, orange: 40 },
+  vendor:         { green: 75, orange: 50 },
+};
 
-function colorFor(score: number, areaKey: string) {
-  const thresholds: Record<string, { green: number; orange: number }> = {
-    governance:          { green: 75, orange: 40 },
-    risk_compliance:     { green: 75, orange: 30 },
-    security_posture:    { green: 60, orange: 40 },
-    supplier_governance: { green: 75, orange: 50 },
-  };
-  const t = thresholds[areaKey] ?? { green: 75, orange: 50 };
+function colorFor(score: number, areaKey: ControlAreaKey | "overall") {
+  const t = AREA_THRESHOLDS[areaKey as ControlAreaKey] ?? { green: 75, orange: 50 };
   if (score >= t.green)  return { text: "text-success", bar: "bg-success" };
   if (score >= t.orange) return { text: "text-warning", bar: "bg-warning" };
   return { text: "text-destructive", bar: "bg-destructive" };
@@ -64,9 +60,9 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
         </p>
       </div>
 
-      {/* 2x2 grid */}
+      {/* Grid of all 5 areas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        {AREAS.map(({ key, icon: Icon, nb, en }) => {
+        {CONTROL_AREAS.map(({ key, icon: Icon, labelNb, labelEn }) => {
           const score = evaluation.areaScore(key as any);
           const c = colorFor(score, key);
           return (
@@ -80,7 +76,7 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
                   <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                 </span>
                 <span className="text-sm font-medium text-foreground flex-1 min-w-0 truncate">
-                  {isNb ? nb : en}
+                  {isNb ? labelNb : labelEn}
                 </span>
                 <span className={cn("text-sm font-semibold tabular-nums shrink-0", c.text)}>
                   {score}%
