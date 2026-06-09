@@ -39,7 +39,7 @@ const KEY_TO_SUGGESTED_SERVICE: Record<string, string> = {
   "tp.dpa": "tpl-dpa-review",
   "tp.inventory": "tpl-dpa-review",
   "ops.encryption": "m365-hardening",
-  "ops.mfa": "m365-hardening",
+  "ia.mfa": "m365-hardening",
   "ops.breach": "incident-response",
   "ops.backup": "managed-backup",
   // ISO / NIS2

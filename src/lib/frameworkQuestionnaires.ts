@@ -44,7 +44,7 @@ const GDPR_SUGGESTED: Record<string, string> = {
   "gov.records": "Opprett behandlingsprotokoll (Art. 30).",
   "gov.training": "Etabler årlig personvernopplæring.",
   "ops.encryption": "Aktiver kryptering i hvile og overføring.",
-  "ops.mfa": "Påkrev tofaktor for systemer med personopplysninger.",
+  "ia.mfa": "Påkrev tofaktor for systemer med personopplysninger.",
   "ops.breach": "Etabler rutine for 72-timers brudd-varsling.",
   "ops.logging": "Aktiver tilgangslogging og overvåking.",
   "ops.backup": "Sett opp regelmessig backup og test gjenoppretting.",
