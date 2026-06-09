@@ -746,20 +746,8 @@ const TrustCenterEvidence = () => {
                     </SelectItem>
                   </SelectContent>
                 </Select>
-                {((grantsByDoc[editDoc.id] || 0) > 0 || editDoc.visibility === "hidden") && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start gap-2 h-8 text-xs"
-                    onClick={() => { const d = editDoc; setEditDoc(null); setAccessDoc(d); }}
-                  >
-                    <Users className="h-3.5 w-3.5" />
-                    {isNb
-                      ? `Administrer mottakere${(grantsByDoc[editDoc.id] || 0) > 0 ? ` (${grantsByDoc[editDoc.id]})` : ""}`
-                      : `Manage recipients${(grantsByDoc[editDoc.id] || 0) > 0 ? ` (${grantsByDoc[editDoc.id]})` : ""}`}
-                  </Button>
-                )}
               </div>
+
 
 
               {/* Metadata */}
