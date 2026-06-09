@@ -432,10 +432,10 @@ export function inferVerificationSource(
 export function groupControlsByArea(controls: EvaluatedControl[]): Record<ControlArea, EvaluatedControl[]> {
   const grouped: Record<ControlArea, EvaluatedControl[]> = {
     governance: [],
-    risk_compliance: [],
-    security_posture: [],
-    privacy_data: [],
-    supplier_governance: [],
+    operations: [],
+    identityAccess: [],
+    privacy: [],
+    vendor: [],
   };
   for (const c of controls) {
     grouped[c.area].push(c);
