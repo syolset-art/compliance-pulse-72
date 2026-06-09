@@ -601,7 +601,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     return n.includes("iso") || n.includes("soc");
   };
 
-  const recognizedFrameworks = frameworks.filter((fw: any) => frameworkBadgeClass(fw.framework_name) !== null);
+  const hiddenFrameworkIds: string[] = Array.isArray((meta as any).hidden_framework_ids) ? (meta as any).hidden_framework_ids : [];
+  const recognizedFrameworks = frameworks.filter((fw: any) => frameworkBadgeClass(fw.framework_name) !== null && !hiddenFrameworkIds.includes(fw.framework_id));
   const standardFrameworks = recognizedFrameworks.filter((fw: any) => isStandard(fw.framework_name));
   const regulationFrameworks = recognizedFrameworks.filter((fw: any) => !isStandard(fw.framework_name));
 
