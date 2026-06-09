@@ -478,7 +478,7 @@ const TrustCenterEditProfile = () => {
                               <ul className="divide-y divide-border">
                                 {implementedControls.map(control => {
                                   const hidden = hiddenControls.includes(control.key);
-                                  const verified = control.verificationSource === "evidence_verified";
+                                  const verified = control.verificationSource === "vendor_verified" || control.verificationSource === "third_party_verified";
                                   return (
                                     <li key={control.key} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/20">
                                       <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${hidden ? "text-muted-foreground/40" : verified ? "text-success" : "text-success/70"}`} />
