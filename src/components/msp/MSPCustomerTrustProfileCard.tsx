@@ -16,24 +16,48 @@ import {
   Users,
   Sparkles,
   KeyRound,
+  Info,
+  ChevronRight,
 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
+import { PartnerEvidenceSection } from "./PartnerEvidenceSection";
+import { ControlAreaBreakdownDrawer } from "./ControlAreaBreakdownDrawer";
+import { toast } from "sonner";
+import {
+  CONTROL_AREAS,
+  AREA_WEIGHTS,
+  calculateTrustScore,
+  type ControlAreaKey,
+} from "@/lib/controlAreas";
+import { getActiveControlPointsByArea } from "@/lib/controlAreaRequirements";
 
 type ControlDomain = {
-  key: string;
+  key: ControlAreaKey;
   name: string;
   description: string;
-  level: number; // 0-4
+  /** Demo-modenhet 0-4 — i produksjon avledet fra msp_customer_assessments. */
+  level: number;
   source: "lara" | "self";
-  Icon: typeof ShieldCheck;
 };
 
-// Order matches canonical control areas: governance, operations, identityAccess, vendor, privacy
-const controlDomains: ControlDomain[] = [
-  { key: "governance", name: "Styring", description: "Policy, roller og ledelsesforankring", level: 3, source: "lara", Icon: ShieldCheck },
-  { key: "operations", name: "Drift og bruk", description: "Drift, logging, hendelseshåndtering og sikkerhetskopiering", level: 2, source: "self", Icon: Activity },
-  { key: "identityAccess", name: "Identitet og tilgang", description: "Autentisering, tilgangsstyring og MFA", level: 2, source: "lara", Icon: KeyRound },
-  { key: "vendor", name: "Leverandører og økosystem", description: "Leverandørstyring og verdikjede", level: 2, source: "lara", Icon: Users },
-  { key: "privacy", name: "Personvern og datahåndtering", description: "GDPR-etterlevelse og datahåndtering", level: 3, source: "lara", Icon: Lock },
+// Demo-modenhet per område (samme verdier som tidligere — viser variasjon).
+const DEMO_LEVELS: Record<ControlAreaKey, { level: number; source: "lara" | "self" }> = {
+  governance: { level: 3, source: "lara" },
+  operations: { level: 2, source: "self" },
+  identityAccess: { level: 2, source: "lara" },
+  vendor: { level: 2, source: "lara" },
+  privacy: { level: 3, source: "lara" },
+};
+
+// Rekkefølge: governance → operations → identityAccess → vendor → privacy
+// Personvern (privacy) plasseres sist slik at den får full bredde i 2×2-grid.
+const AREA_ORDER: ControlAreaKey[] = [
+  "governance",
+  "operations",
+  "identityAccess",
+  "vendor",
+  "privacy",
 ];
 
 function levelTone(level: number) {
@@ -43,17 +67,15 @@ function levelTone(level: number) {
   return { bar: "bg-destructive", text: "text-destructive", badge: "bg-destructive/10 text-destructive border-destructive/30" };
 }
 
-import { useState } from "react";
-import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
-import { PartnerEvidenceSection } from "./PartnerEvidenceSection";
-import { toast } from "sonner";
-
 interface Props {
   customerId?: string;
   customerName?: string;
   contactName?: string;
   contactEmail?: string;
+  /** Aktiverte regelverk for kunden — driver kontrollpunktene per område. */
+  activeFrameworkIds?: string[];
 }
+
 
 const certifications = [
   { name: "ISO 27001:2022", meta: "Gyldig til 14. mars 2027 · BSI", status: "active" as const },
