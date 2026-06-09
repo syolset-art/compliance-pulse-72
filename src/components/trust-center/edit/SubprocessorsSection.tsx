@@ -70,36 +70,35 @@ export function SubprocessorsSection({ asset }: Props) {
   };
 
   return (
-    <section id="subprocessors" className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Users className="h-4 w-4 text-primary" />
-        <h2 className="text-base font-semibold text-foreground">
-          {isNb ? "Tredjepartsleverandører" : "Subprocessors"}
-        </h2>
-        <Badge variant="secondary" className="text-sm ml-auto">
-          {vendors.length}
-        </Badge>
-      </div>
-      <p className="text-sm text-muted-foreground">
-        {isNb
-          ? "Legg til underleverandører som behandler data på vegne av virksomheten din."
-          : "Add subprocessors that handle data on behalf of your company."}
-      </p>
-
-      <Card className="overflow-hidden">
-        <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            {isNb
-              ? "Søk — Lara fyller automatisk inn land og formål når vi har data."
-              : "Search — Lara auto-fills country and purpose when we have data."}
+    <section id="subprocessors" className="space-y-5 scroll-mt-24">
+      <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">
+              {isNb ? "Tredjepartsleverandører" : "Subprocessors"}
+            </h2>
+            <Badge variant="secondary" className="text-sm">
+              {vendors.length}
+            </Badge>
           </div>
+          <p className="text-sm text-muted-foreground max-w-2xl">
+            {isNb
+              ? "Legg til underleverandører som behandler data på vegne av virksomheten din."
+              : "Add subprocessors that handle data on behalf of your company."}
+          </p>
+        </div>
+        <div className="shrink-0">
           <AddSubprocessorCombobox
             existingNames={vendors.map((v) => v.name)}
             onAdd={handleAdd}
             isNb={isNb}
           />
         </div>
+      </div>
+
+      <Card className="overflow-hidden">
+
 
         {vendors.length === 0 ? (
           <div className="px-4 py-8 text-center text-sm text-muted-foreground">
