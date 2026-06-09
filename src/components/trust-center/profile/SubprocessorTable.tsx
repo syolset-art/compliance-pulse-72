@@ -1,8 +1,7 @@
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Sparkles, Search, ArrowUpDown, ExternalLink, Mail, ShieldCheck, FileText } from "lucide-react";
+import { Sparkles, ArrowUpDown, ExternalLink, Mail, ShieldCheck, FileText, ChevronDown } from "lucide-react";
 import type { SubprocessorListData, AnalyzedSubprocessor } from "@/lib/demoSubprocessorAnalysis";
 
 type SortKey = "name" | "category" | "tp" | "dpa" | "country";
@@ -37,13 +36,13 @@ interface Props {
 }
 
 export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }: Props) {
-  const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(5);
   const [filter, setFilter] = useState<"all" | "tp" | "noTp" | "standard">("all");
   const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "tp", dir: "desc" });
 
   const rows = useMemo(() => {
     const all = data?.vendors ?? [];
-    let r = all.filter((v) => v.name.toLowerCase().includes(query.toLowerCase()));
+    let r = [...all];
     if (filter === "tp") r = r.filter((v) => v.hasTrustProfile);
     if (filter === "noTp") r = r.filter((v) => !v.hasTrustProfile);
     if (filter === "standard") r = r.filter((v) => v.dpaType === "standard");
@@ -62,7 +61,7 @@ export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }:
       return av < bv ? -dir : av > bv ? dir : 0;
     });
     return r;
-  }, [data, query, filter, sort]);
+  }, [data, filter, sort]);
 
   const toggleSort = (key: SortKey) =>
     setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
@@ -138,15 +137,6 @@ export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }:
       </div>
 
       <div className="px-5 pb-3 pt-1 border-t border-border flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[180px]">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={isNb ? "Søk leverandør…" : "Search vendor…"}
-            className="h-8 pl-7 text-xs"
-          />
-        </div>
         {([
           { id: "all", label: isNb ? "Alle" : "All" },
           { id: "tp", label: isNb ? "Har TP" : "Has TP" },
@@ -192,7 +182,7 @@ export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }:
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {rows.map((v, i) => (
+            {rows.slice(0, visibleCount).map((v, i) => (
               <tr key={`${v.name}-${i}`} className="hover:bg-muted/30">
                 <td className="px-4 py-2.5 font-medium text-foreground">{v.name}</td>
                 <td className="px-4 py-2.5 text-muted-foreground">{v.category}</td>
@@ -233,6 +223,22 @@ export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }:
           </tbody>
         </table>
       </div>
+
+      {rows.length > visibleCount && (
+        <div className="border-t border-border px-5 py-3 flex justify-center">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="gap-1.5 text-xs"
+            onClick={() => setVisibleCount(rows.length)}
+          >
+            <ChevronDown className="h-3.5 w-3.5" />
+            {isNb
+              ? `Vis alle ${rows.length} underleverandører`
+              : `Show all ${rows.length} subprocessors`}
+          </Button>
+        </div>
+      )}
     </section>
   );
 }
