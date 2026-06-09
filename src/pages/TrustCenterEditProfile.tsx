@@ -289,6 +289,9 @@ const TrustCenterEditProfile = () => {
 
             </section>
 
+            {/* Profilbanner / cover */}
+            <BrandingSection asset={asset} />
+
             {/* Kontaktinformasjon */}
             <ContactsSection asset={asset} />
 
