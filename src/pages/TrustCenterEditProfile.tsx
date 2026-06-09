@@ -15,8 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 
 import {
-  Shield, ArrowLeft, Eye, CheckCircle2, AlertTriangle, Link2,
-  Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users,
+  Shield, ArrowLeft, Eye, EyeOff, CheckCircle2, AlertTriangle, Link2,
+  Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users, BookCheck,
   ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
   Info, Settings, Package, Sparkles, Settings2, Database, MinusCircle,
 } from "lucide-react";
@@ -25,6 +25,7 @@ import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
+import { frameworkChipClass } from "@/lib/frameworkChipClass";
 
 import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
@@ -180,6 +181,26 @@ const TrustCenterEditProfile = () => {
     return "bg-muted text-muted-foreground border-border";
   };
 
+  const isStandard = (name: string) => {
+    const n = name.toLowerCase();
+    return n.includes("iso") || n.includes("soc");
+  };
+
+  const hiddenFrameworkIds: string[] = Array.isArray(meta.hidden_framework_ids) ? meta.hidden_framework_ids : [];
+
+  const toggleFrameworkVisibility = async (frameworkId: string) => {
+    if (!asset?.id) return;
+    const currentMeta = (asset?.metadata || {}) as Record<string, any>;
+    const current: string[] = Array.isArray(currentMeta.hidden_framework_ids) ? currentMeta.hidden_framework_ids : [];
+    const next = current.includes(frameworkId)
+      ? current.filter((id) => id !== frameworkId)
+      : [...current, frameworkId];
+    const newMeta = { ...currentMeta, hidden_framework_ids: next };
+    await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset.id);
+    queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+    queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
@@ -295,6 +316,94 @@ const TrustCenterEditProfile = () => {
             {/* Kontaktinformasjon */}
             <ContactsSection asset={asset} />
 
+
+            {/* ═══════════════════════════════════════════ */}
+            {/* SECTION: Regelverk i Trust Profile (scope) */}
+            {/* ═══════════════════════════════════════════ */}
+            <section id="frameworks-scope" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Scale className="h-4 w-4 text-primary" />
+                  <h2 className="text-base font-semibold text-foreground">
+                    {isNb ? "Etterlevelse i Trust Profile" : "Compliance in Trust Profile"}
+                  </h2>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {frameworks.filter((fw: any) => !hiddenFrameworkIds.includes(fw.framework_id)).length}/{frameworks.length} {isNb ? "synlig" : "visible"}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {isNb
+                  ? "Velg hvilke regelverk og standarder som skal vises på din offentlige Trust Profile. Skjulte regelverk teller fortsatt i modenhet, men vises ikke for besøkende."
+                  : "Choose which regulations and standards to display on your public Trust Profile. Hidden frameworks still count toward maturity but are not shown to visitors."}
+              </p>
+
+              {frameworks.length === 0 ? (
+                <Card className="p-5 text-center">
+                  <p className="text-sm text-muted-foreground italic mb-3">
+                    {isNb ? "Ingen regelverk valgt ennå" : "No frameworks selected yet"}
+                  </p>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/regulations")}>
+                    {isNb ? "Gå til Regelverk" : "Go to Frameworks"}
+                  </Button>
+                </Card>
+              ) : (
+                <Card className="p-4">
+                  <ul className="divide-y divide-border">
+                    {frameworks.map((fw: any) => {
+                      const standard = isStandard(fw.framework_name);
+                      const Icon = standard ? BookCheck : Scale;
+                      const hidden = hiddenFrameworkIds.includes(fw.framework_id);
+                      return (
+                        <li key={fw.framework_id} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${frameworkChipClass(fw.framework_name)} ${hidden ? "opacity-50" : ""}`}
+                              title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
+                            >
+                              <Icon className="h-3 w-3" />
+                              {fw.framework_name}
+                            </span>
+                            {hidden && (
+                              <span className="text-xs text-muted-foreground italic">
+                                {isNb ? "skjult" : "hidden"}
+                              </span>
+                            )}
+                          </div>
+                          <Button
+                            size="sm"
+                            variant={hidden ? "outline" : "ghost"}
+                            onClick={() => toggleFrameworkVisibility(fw.framework_id)}
+                            className="gap-1.5 shrink-0"
+                          >
+                            {hidden ? (
+                              <>
+                                <EyeOff className="h-3.5 w-3.5" />
+                                {isNb ? "Vis" : "Show"}
+                              </>
+                            ) : (
+                              <>
+                                <Eye className="h-3.5 w-3.5" />
+                                {isNb ? "Skjul" : "Hide"}
+                              </>
+                            )}
+                          </Button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+                    <p className="text-xs text-muted-foreground">
+                      {isNb ? "Mangler et regelverk?" : "Missing a framework?"}
+                    </p>
+                    <Button size="sm" variant="outline" onClick={() => navigate("/regulations")} className="gap-1.5">
+                      <Plus className="h-3.5 w-3.5" />
+                      {isNb ? "Legg til regelverk" : "Add framework"}
+                    </Button>
+                  </div>
+                </Card>
+              )}
+            </section>
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Modenhet per kontrollområde */}
