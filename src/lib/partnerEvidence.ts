@@ -103,9 +103,9 @@ export const DOC_TYPE_LABEL: Record<PartnerEvidenceDocType, string> = {
 
 export const AREA_LABEL: Record<MaturityDelta["area"], string> = {
   governance: "Styring og ansvar",
-  risk_compliance: "Sikkerhet",
-  security_posture: "Personvern og datahåndtering",
-  supplier_governance: "Tredjepart og verdikjede",
+  operations: "Sikkerhet",
+  identityAccess: "Personvern og datahåndtering",
+  vendor: "Tredjepart og verdikjede",
 };
 
 export interface LaraSuggestion {
@@ -196,9 +196,9 @@ export function enrichmentByArea(customerId: string): Record<MaturityDelta["area
   const items = getPartnerEvidence(customerId);
   const out: Record<MaturityDelta["area"], number> = {
     governance: 0,
-    risk_compliance: 0,
-    security_posture: 0,
-    supplier_governance: 0,
+    operations: 0,
+    identityAccess: 0,
+    vendor: 0,
   };
   for (const e of items) {
     for (const d of e.maturityDelta) {

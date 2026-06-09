@@ -33,7 +33,7 @@ export interface ScoredRequirement {
   requirement_id: string;
   framework_id: string;
   domain: string;           // privacy | security | ai
-  sla_category?: string;    // governance | operations | identity_access | supplier_ecosystem
+  sla_category?: string;    // governance | operations | identityAccess | vendor
   maturity_level: MaturityLevel;
   is_relevant: boolean;
   weight: number;           // default 1, range 1-3

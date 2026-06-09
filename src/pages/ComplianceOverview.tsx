@@ -23,8 +23,8 @@ const ACTIVE_FRAMEWORK_IDS = [
 const PILLARS = [
   { id: 'governance', name: 'Styring', score: 94, color: 'bg-status-closed', badgeColor: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40', level: 'HØY', measures: 4 },
   { id: 'operations', name: 'Drift og sikkerhet', score: 77, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 5 },
-  { id: 'identity_access', name: 'Personvern og datahåndtering', score: 92, color: 'bg-status-closed', badgeColor: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40', level: 'HØY', measures: 5 },
-  { id: 'privacy_data', name: 'Personvern og datahåndtering', score: 68, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 4 },
+  { id: 'identityAccess', name: 'Personvern og datahåndtering', score: 92, color: 'bg-status-closed', badgeColor: 'text-status-closed bg-status-closed/10 dark:text-status-closed dark:bg-status-closed/40', level: 'HØY', measures: 5 },
+  { id: 'privacy', name: 'Personvern og datahåndtering', score: 68, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 4 },
   { id: 'supplier', name: 'Tredjepartstyring og verdikjede', score: 61, color: 'bg-warning', badgeColor: 'text-warning bg-warning/10 dark:text-warning dark:bg-warning/40', level: 'MIDDELS', measures: 3 },
 ];
 

@@ -103,9 +103,9 @@ const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelEn: string; la
 // Floors the score for each area to give realistic spread across High/Medium/Low.
 const AREA_DEMO_FLOOR: Record<string, number> = {
   governance: 78,
-  risk_compliance: 62,
-  security_posture: 71,
-  supplier_governance: 28,
+  operations: 62,
+  identityAccess: 71,
+  vendor: 28,
 };
 
 // Maturity label thresholds: High >= 67, Medium 35-66, Low < 35
