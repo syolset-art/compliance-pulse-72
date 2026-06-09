@@ -797,6 +797,9 @@ const TrustCenterEvidence = () => {
                   <div className="space-y-2">
                     <Label className="text-xs">{isNb ? "Utløpsdato" : "Expiry date"}</Label>
                     <Input type="date" value={editDoc.valid_to || ""} onChange={(e) => setEditDoc({ ...editDoc, valid_to: e.target.value })} />
+                    <p className="text-[10px] text-muted-foreground">
+                      {isNb ? "Brukes for sertifikater og avtaler med fast utløpsdato." : "Used for certificates and agreements with a fixed expiry date."}
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-2">
