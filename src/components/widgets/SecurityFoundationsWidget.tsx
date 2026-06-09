@@ -21,10 +21,10 @@ const PILLARS = [
 const SLA_TO_PILLAR: Record<string, string> = {
   governance: "governance",
   operations: "operations",
-  identity_access: "identityAccess",
-  privacy_data: "privacy",
+  identityAccess: "identityAccess",
+  privacy: "privacy",
   supplier: "vendor",
-  supplier_ecosystem: "vendor",
+  vendor: "vendor",
 };
 
 function maturityLabel(percent: number, isNb: boolean) {

@@ -20,9 +20,9 @@ const FOCUS_AREAS = [
 const PILLAR_DEMO_FLOOR: Record<string, number> = {
   governance: 78,           // høy → grønn
   operations: 55,           // middels → orange
-  identity_access: 42,      // middels → orange
-  supplier_ecosystem: 50,   // middels → orange
-  privacy_data: 80,         // høy → grønn
+  identityAccess: 42,      // middels → orange
+  vendor: 50,   // middels → orange
+  privacy: 80,         // høy → grønn
 };
 
 function applyFloor(key: string, raw: number) {

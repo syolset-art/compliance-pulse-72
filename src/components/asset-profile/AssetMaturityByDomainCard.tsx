@@ -17,9 +17,9 @@ const AREAS = [
 function colorFor(score: number, areaKey: string) {
   const thresholds: Record<string, { green: number; orange: number }> = {
     governance:          { green: 75, orange: 40 },
-    risk_compliance:     { green: 75, orange: 30 },
-    security_posture:    { green: 60, orange: 40 },
-    supplier_governance: { green: 75, orange: 50 },
+    operations:     { green: 75, orange: 30 },
+    identityAccess:    { green: 60, orange: 40 },
+    vendor: { green: 75, orange: 50 },
   };
   const t = thresholds[areaKey] ?? { green: 75, orange: 50 };
   if (score >= t.green)  return { text: "text-success", bar: "bg-success" };
