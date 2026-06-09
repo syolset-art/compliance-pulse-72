@@ -385,6 +385,7 @@ export const EditActiveFrameworksDialog = ({
                                   </p>
                                 </TooltipContent>
                               </Tooltip>
+                            )}
                             {recommendations?.has(fw.id) && !isActive && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
