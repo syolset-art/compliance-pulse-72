@@ -157,15 +157,6 @@ export function TrustProfileHero({
             <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight leading-none">
               {companyName}
             </h1>
-            {description ? (
-              <p className="text-sm md:text-base text-muted-foreground mt-3 leading-relaxed line-clamp-2 max-w-2xl">
-                {description}
-              </p>
-            ) : (
-              <p className="text-sm text-muted-foreground/70 italic mt-3">
-                {isNb ? "Mangler kort beskrivelse" : "Missing short description"}
-              </p>
-            )}
 
             {/* Compliance frameworks */}
             <div className="mt-5 rounded-xl border border-border bg-muted/30 px-4 py-3 shadow-sm">
