@@ -1900,117 +1900,33 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             ) : (
               /* ── PREVIEW TAB ── */
               <Card className="overflow-hidden p-0">
-                <div className="flex items-stretch">
-                  <div className="flex-1 min-w-0">
-                {/* Powered by header */}
-                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-6 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/10">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Shield className="h-3.5 w-3.5 text-primary" />
-                    <span className="font-medium">Mynder Trust Profile</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setProofDialogOpen(true)}
-                    className="inline-flex items-center gap-1.5 text-success font-medium hover:underline"
-                  >
-                    <Award className="h-4 w-4" />
-                    {isNb ? "Verifisert" : "Verified"}
-                  </button>
-                </div>
-
-                <div className="p-6 md:p-8 space-y-8">
-                  {/* ── Company Header ── */}
-                  <div className="flex flex-col md:flex-row gap-6">
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-start gap-4">
-                        <div className="h-14 w-14 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden border border-border">
-                          {(asset as any)?.logo_url ? (
-                            <img src={(asset as any).logo_url} alt={`${companyProfile?.name || asset.name} logo`} className="h-full w-full object-contain bg-background" />
-                          ) : (
-                            <span className="text-lg font-bold text-muted-foreground">
-                              {(companyProfile?.name || asset.name || "?").slice(0, 2).toUpperCase()}
-                            </span>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <h2 className="text-xl font-bold text-foreground">{(companyProfile as any)?.legal_name || companyProfile?.name || asset.name}</h2>
-                          {asset?.description ? (
-                            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{asset.description}</p>
-                          ) : (
-                            <p className="text-sm text-muted-foreground italic mt-0.5">{isNb ? "Mangler kort beskrivelse" : "Missing short description"}</p>
-                          )}
-                        </div>
-                      </div>
-
-                    </div>
-
-                    {/* Trust Score Gauge */}
-                    <div className="flex flex-col items-center gap-1.5 shrink-0">
-                      <div className="relative flex items-center justify-center">
-                        <svg width="128" height="128" viewBox="0 0 128 128" className="-rotate-90">
-                          <circle cx="64" cy="64" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
-                          <circle
-                            cx="64" cy="64" r={radius} fill="none"
-                            stroke={strokeColor} strokeWidth="8" strokeLinecap="round"
-                            strokeDasharray={`${dash} ${circ}`}
-                            style={{ transition: "stroke-dasharray 0.6s ease" }}
-                          />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className={`text-4xl font-bold tabular-nums leading-none ${trustColor}`}>{trustScore}</span>
-                          <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide mt-1">/100</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className={`text-sm font-semibold uppercase tracking-wider ${trustColor}`}>{trustLabel}</span>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button type="button" className="text-muted-foreground hover:text-foreground" aria-label={isNb ? "Om Trust Score" : "About Trust Score"}>
-                              <Info className="h-3.5 w-3.5" />
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent side="bottom" className="max-w-xs text-sm leading-relaxed">
-                            {isNb
-                              ? "Trust Score er en sammenstilt vurdering av modenheten din mot bransjestandard. Den øker etter hvert som du svarer på kontrollpunkter i regelverkene du har aktivert under Regelverk i menyen. 80+ regnes som god dekning."
-                              : "Trust Score is an aggregated assessment of your maturity against industry standards. It increases as you answer control points in the frameworks you've activated under Regulations. 80+ is considered solid coverage."}
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <span className="inline-flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {lastUpdated}
-                        </span>
-                        <span className="text-muted-foreground/40">·</span>
-                        <span className="inline-flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          <span className="tabular-nums font-medium text-foreground">1 247</span>
-                          <span>{isNb ? "visninger" : "views"}</span>
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Identity stripe */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-lg overflow-hidden border border-border">
-                    {[
-                      { label: isNb ? "ORG.NR" : "REG. NUMBER", value: companyProfile?.org_number || (isNb ? "Mangler" : "Missing"), missing: !companyProfile?.org_number },
-                      { label: isNb ? "LAND" : "COUNTRY", value: (companyProfile as any)?.country || (isNb ? "Mangler" : "Missing"), missing: !(companyProfile as any)?.country },
-                      { label: isNb ? "NETTSIDE" : "WEBSITE", value: companyProfile?.domain || (isNb ? "Mangler" : "Missing"), missing: !companyProfile?.domain, isLink: !!companyProfile?.domain },
-                      { label: isNb ? "BRANSJE" : "INDUSTRY", value: companyProfile?.industry || "–" },
-                    ].map(item => (
-                      <div key={item.label} className="bg-card px-4 py-3">
-                        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{item.label}</p>
-                        {item.isLink ? (
-                          <a href={item.value.startsWith("http") ? item.value : `https://${item.value}`} target="_blank" rel="noreferrer" className="text-sm font-medium text-primary hover:underline mt-0.5 truncate block">{item.value}</a>
-                        ) : (
-                          <p className={`text-sm font-medium mt-0.5 truncate ${item.missing ? "text-muted-foreground italic" : "text-foreground"}`}>{item.value}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                  </div>
+                <TrustProfileHero
+                  flush
+                  isNb={isNb}
+                  meta={meta}
+                  logoUrl={(asset as any)?.logo_url}
+                  companyName={(companyProfile as any)?.legal_name || companyProfile?.name || asset.name}
+                  description={asset?.description}
+                  trustScore={trustScore}
+                  trustColor={trustColor}
+                  trustLabel={trustLabel}
+                  strokeColor={strokeColor}
+                  radius={radius}
+                  circ={circ}
+                  dash={dash}
+                  lastUpdated={lastUpdated}
+                  frameworks={recognizedFrameworks}
+                  isStandard={isStandard}
+                  onVerifiedClick={() => setProofDialogOpen(true)}
+                />
+                <div className="p-4 md:p-6 pt-5">
+                  <IdentityStripe
+                    isNb={isNb}
+                    orgNumber={companyProfile?.org_number}
+                    country={(companyProfile as any)?.country}
+                    domain={companyProfile?.domain}
+                    industry={companyProfile?.industry}
+                  />
                 </div>
 
                 {/* Sections below — each in its own subtle frame */}
