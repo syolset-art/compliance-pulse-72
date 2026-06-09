@@ -344,8 +344,10 @@ export default function MSPCustomerDetail() {
                 customerName={customer.name || "Kunden"}
                 contactName={customer.contact_name || "kontaktperson"}
                 contactEmail={customer.contact_email}
+                activeFrameworkIds={activeFrameworkIds}
               />
             </TabsContent>
+
 
             <TabsContent value="messages" className="mt-6">
               <MSPCustomerMessagesTab />
