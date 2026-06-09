@@ -33,6 +33,8 @@ interface Props {
   reviewMode?: boolean;
   /** Optional Lara scan to derive suggested-source labels. */
   laraScan?: Parameters<typeof deriveLaraSources>[0];
+  /** Per-question rationales from Laras LLM-suggestion. Takes precedence over scan source. */
+  laraRationales?: Record<string, string>;
 }
 
 interface AnswerMeta {
