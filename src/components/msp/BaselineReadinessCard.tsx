@@ -51,17 +51,18 @@ export function BaselineReadinessCard({
           <div
             className={
               "h-9 w-9 rounded-lg flex items-center justify-center shrink-0 " +
-              (isReady ? "bg-success/10" : hasStarted ? "bg-primary/10" : "bg-warning/10")
+              (isReady ? "bg-success/10" : hasStarted ? "bg-warning/10" : "bg-destructive/10")
             }
           >
             {isReady ? (
               <CheckCircle2 className="h-4 w-4 text-success" />
             ) : hasStarted ? (
-              <ShieldCheck className="h-4 w-4 text-primary" />
+              <ShieldCheck className="h-4 w-4 text-warning" />
             ) : (
-              <AlertCircle className="h-4 w-4 text-warning" />
+              <AlertCircle className="h-4 w-4 text-destructive" />
             )}
           </div>
+
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-foreground">
               {isReady ? "Baseline er klar" : hasStarted ? "Baseline er under arbeid" : "Baseline mangler"}
@@ -118,10 +119,11 @@ export function BaselineReadinessCard({
                     <div
                       className={
                         "h-full rounded-full " +
-                        (pct >= 75 ? "bg-success" : pct >= 50 ? "bg-warning" : pct > 0 ? "bg-primary" : "bg-muted")
+                        (pct >= 75 ? "bg-success" : pct >= 50 ? "bg-warning" : pct > 0 ? "bg-destructive" : "bg-muted")
                       }
                       style={{ width: `${pct}%` }}
                     />
+
                   </div>
                 </div>
                 <span className="text-xs text-muted-foreground shrink-0 tabular-nums">
