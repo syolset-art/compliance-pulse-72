@@ -313,7 +313,45 @@ export default function MSPCustomerDetail() {
                 onFillBaseline={() => setBaselineDrawer({ open: true, review: false })}
                 onReviewBaseline={() => setBaselineDrawer({ open: true, review: true })}
                 onGoToRegulations={() => handleTabChange("regulations")}
+                isLaraSuggesting={isLaraSuggesting}
+                onLaraSuggest={async () => {
+                  if (!customer) return;
+                  setIsLaraSuggesting(true);
+                  try {
+                    const { data, error } = await supabase.functions.invoke("suggest-baseline-answers", {
+                      body: {
+                        customerName: customer.name || "Kunden",
+                        customerDomain: (customer as { domain?: string }).domain,
+                        industry: (customer as { industry?: string }).industry,
+                        areas: MATURITY_AREAS.map((a) => ({
+                          id: a.id,
+                          title: a.title,
+                          questions: a.questions.map((q) => ({ id: q.id, text: q.text, article: q.article })),
+                        })),
+                      },
+                    });
+                    if (error) throw error;
+                    const suggestions = (data as { suggestions?: { question_id: string; answer: MaturityAnswer }[] })?.suggestions ?? [];
+                    if (suggestions.length === 0) {
+                      toast.error("Lara kunne ikke foreslå svar akkurat nå");
+                      return;
+                    }
+                    const next: MaturityAnswers = {};
+                    for (const s of suggestions) next[s.question_id] = s.answer;
+                    setAllBaselineAnswers(next);
+                    toast.success(`Lara foreslo ${suggestions.length} svar`, {
+                      description: "Gå gjennom og bekreft hvert svar.",
+                    });
+                    setBaselineDrawer({ open: true, review: true });
+                  } catch (e) {
+                    console.error("Lara baseline suggestion failed", e);
+                    toast.error("Klarte ikke hente forslag fra Lara");
+                  } finally {
+                    setIsLaraSuggesting(false);
+                  }
+                }}
               />
+
 
               <BaselineQuestionsDrawer
                 open={baselineDrawer.open}
