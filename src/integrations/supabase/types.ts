@@ -3949,11 +3949,14 @@ export type Database = {
           received_at: string | null
           reminder_sent_at: string | null
           requested_at: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           shared_with_emails: string[] | null
           source: string | null
           status: string | null
           superseded_at: string | null
           superseded_by: string | null
+          updated_at: string
           uploaded_by: string | null
           valid_from: string | null
           valid_to: string | null
@@ -3978,11 +3981,14 @@ export type Database = {
           received_at?: string | null
           reminder_sent_at?: string | null
           requested_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           shared_with_emails?: string[] | null
           source?: string | null
           status?: string | null
           superseded_at?: string | null
           superseded_by?: string | null
+          updated_at?: string
           uploaded_by?: string | null
           valid_from?: string | null
           valid_to?: string | null
@@ -4007,11 +4013,14 @@ export type Database = {
           received_at?: string | null
           reminder_sent_at?: string | null
           requested_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           shared_with_emails?: string[] | null
           source?: string | null
           status?: string | null
           superseded_at?: string | null
           superseded_by?: string | null
+          updated_at?: string
           uploaded_by?: string | null
           valid_from?: string | null
           valid_to?: string | null
