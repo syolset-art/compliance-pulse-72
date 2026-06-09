@@ -135,6 +135,16 @@ const TrustCenterEvidence = () => {
   const [previewLoading, setPreviewLoading] = useState(false);
   // Access dialog state
   const [accessDoc, setAccessDoc] = useState<any>(null);
+  // Collapsible UI state
+  const [requiredOpen, setRequiredOpen] = useState<boolean>(() => readBoolLS(LS_REQUIRED_OPEN, true));
+  const [sectionsOpen, setSectionsOpen] = useState<Record<string, boolean>>(() => readSectionsLS());
+  const [filterOpen, setFilterOpen] = useState(false);
+  useEffect(() => { writeBoolLS(LS_REQUIRED_OPEN, requiredOpen); }, [requiredOpen]);
+  useEffect(() => { writeSectionsLS(sectionsOpen); }, [sectionsOpen]);
+  const toggleSection = (key: string, fallbackOpen: boolean) => {
+    setSectionsOpen((prev) => ({ ...prev, [key]: !(prev[key] ?? fallbackOpen) }));
+  };
+  const activeFilterCount = (categoryFilter !== "all" ? 1 : 0) + (visibilityFilter !== "all" ? 1 : 0);
 
   const { data: asset } = useQuery({
     queryKey: ["self-asset-evidence"],
