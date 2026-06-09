@@ -110,7 +110,7 @@ function ControlAreasChart({ isNb }: { isNb: boolean }) {
     { key: "governance", label: isNb ? "Styring" : "Governance", short: isNb ? "Styr." : "Gov." },
     { key: "operations", label: isNb ? "Drift og sikkerhet" : "Ops & Security", short: isNb ? "Drift" : "Ops" },
     { key: "identityAccess", label: isNb ? "Personvern" : "Privacy", short: isNb ? "Pers." : "Priv." },
-    { key: "vendor", label: isNb ? "Tredjepartstyring" : "Third-Party", short: isNb ? "3.part" : "3rd" },
+    { key: "vendor", label: isNb ? "Tredjepart og verdikjede" : "Third-Party", short: isNb ? "3.part" : "3rd" },
   ];
 
   const chartData = AREAS.map(a => {

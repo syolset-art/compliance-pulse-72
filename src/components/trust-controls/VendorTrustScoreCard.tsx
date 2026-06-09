@@ -15,9 +15,9 @@ interface VendorTrustScoreCardProps {
 
 const AREA_CARDS = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance", color: "text-primary" },
-  { area: "operations", icon: Server, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security", color: "text-status-closed" },
+  { area: "operations", icon: Server, labelNb: "Drift og sikkerhet", labelEn: "Drift og sikkerhet", color: "text-status-closed" },
   { area: "identityAccess", icon: Fingerprint, labelNb: "Identitet og tilgang", labelEn: "Identity & Access", color: "text-accent" },
-  { area: "vendor", icon: Link2, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain", color: "text-warning" },
+  { area: "vendor", icon: Link2, labelNb: "Tredjepart og verdikjede", labelEn: "Third-Party & Supply Chain", color: "text-warning" },
 ];
 
 const PRIVACY_AREA = { area: "privacy", icon: Users, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling", color: "text-destructive" };

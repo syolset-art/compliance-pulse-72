@@ -34,9 +34,9 @@ import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
-  { area: "operations", icon: Lock, labelNb: "Drift og sikkerhet", labelEn: "Operations & Security" },
+  { area: "operations", icon: Lock, labelNb: "Drift og sikkerhet", labelEn: "Drift og sikkerhet" },
   { area: "privacy", icon: Globe, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling" },
-  { area: "vendor", icon: Layers, labelNb: "Tredjepartstyring og verdikjede", labelEn: "Third-Party & Value Chain" },
+  { area: "vendor", icon: Layers, labelNb: "Tredjepart og verdikjede", labelEn: "Third-Party & Supply Chain" },
 ];
 
 const BUSINESS_AREAS = [

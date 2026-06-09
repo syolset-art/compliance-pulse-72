@@ -2720,7 +2720,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           },
           {
             icon: Layers,
-            title: isNb ? "Tredjepartstyring" : "Third-Party & Supply Chain",
+            title: isNb ? "Tredjepart og verdikjede" : "Third-Party & Supply Chain",
             description: isNb
               ? "Leverandørvurdering, underbehandlere, verdikjederisiko og SLA-oppfølging."
               : "Vendor assessment, sub-processors, supply chain risk, and SLA monitoring.",

@@ -91,7 +91,7 @@ export const FOUNDATION_CONTROLS: FoundationControlDef[] = [
   { id: "iam_2", label_en: "User provisioning", label_no: "Brukeradministrasjon", domain: "identityAccess" },
   { id: "iam_3", label_en: "Authentication requirements", label_no: "Autentiseringskrav", domain: "identityAccess" },
   { id: "iam_4", label_en: "Access review process", label_no: "Tilgangsgjennomgang", domain: "identityAccess" },
-  // Third-Party & Value Chain
+  // Third-Party & Supply Chain
   { id: "sup_1", label_en: "Vendor inventory", label_no: "Leverandøroversikt", domain: "vendor" },
   { id: "sup_2", label_en: "DPA management", label_no: "Databehandleravtaler", domain: "vendor" },
   { id: "sup_3", label_en: "Vendor risk assessment", label_no: "Leverandørrisikovurdering", domain: "vendor" },

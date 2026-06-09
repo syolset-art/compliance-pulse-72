@@ -73,7 +73,7 @@ const DOMAINS = [
     key: "supplier",
     icon: Users,
     color: "bg-warning", iconColor: "text-warning dark:text-warning", bgColor: "bg-warning/5", borderColor: "border-l-amber-500",
-    title_no: "Tredjepartstyring og verdikjede", title_en: "Third-Party & Value Chain",
+    title_no: "Tredjepart og verdikjede", title_en: "Third-Party & Supply Chain",
     desc_no: "Leverandørstyring og tredjeparts-risiko", desc_en: "Vendor management and third-party risk",
     controls_no: [
       "Leverandøroversikt er etablert",

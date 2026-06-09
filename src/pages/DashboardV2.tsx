@@ -22,9 +22,9 @@ const MATURITY_LEVELS = [
 
 const FOCUS_AREA_LABELS: Record<string, { label_no: string; label_en: string }> = {
   governance: { label_no: "Styring", label_en: "Governance" },
-  operations: { label_no: "Drift og sikkerhet", label_en: "Operations & Security" },
+  operations: { label_no: "Drift og sikkerhet", label_en: "Drift og sikkerhet" },
   identityAccess: { label_no: "Identitet og tilgang", label_en: "Identity & Access" },
-  vendor: { label_no: "Tredjepartstyring", label_en: "Third-Party Management" },
+  vendor: { label_no: "Tredjepart og verdikjede", label_en: "Third-Party Management" },
   privacy: { label_no: "Personvern og data", label_en: "Privacy & Data" },
 };
 

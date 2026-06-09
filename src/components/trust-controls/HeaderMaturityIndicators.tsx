@@ -193,10 +193,10 @@ export function HeaderMaturityIndicators({ riskLevel, criticality, maturityPerce
                 <p className="text-xs text-muted-foreground mb-3">{isNb ? "Oversikt over modenhetsgrad fordelt på kontrollområder." : "Overview of maturity level by control area."}</p>
                 {[
                   { label: isNb ? "Styring" : "Governance", score: 72 },
-                  { label: isNb ? "Drift og sikkerhet" : "Operations & Security", score: 48 },
+                  { label: isNb ? "Drift og sikkerhet" : "Drift og sikkerhet", score: 48 },
                   { label: isNb ? "Identitet og tilgang" : "Identity & Access", score: 55 },
                   { label: isNb ? "Personvern og datahåndtering" : "Privacy & Data Handling", score: 42 },
-                  { label: isNb ? "Tredjepartstyring" : "Third-Party", score: 38 },
+                  { label: isNb ? "Tredjepart og verdikjede" : "Third-Party", score: 38 },
                 ].map((area, i) => (
                   <div key={i} className="flex items-center gap-3 p-2 rounded-lg border border-border bg-background">
                     <span className="text-xs font-medium text-foreground flex-1">{area.label}</span>
