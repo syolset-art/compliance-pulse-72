@@ -318,14 +318,14 @@ const TrustCenterEditProfile = () => {
 
 
             {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Regelverk i Trust Profile (scope) */}
+            {/* SECTION: Regelverk (scope) */}
             {/* ═══════════════════════════════════════════ */}
             <section id="frameworks-scope" className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Scale className="h-4 w-4 text-primary" />
                   <h2 className="text-base font-semibold text-foreground">
-                    {isNb ? "Etterlevelse i Trust Profile" : "Compliance in Trust Profile"}
+                    {isNb ? "Etterlevelse" : "Compliance"}
                   </h2>
                 </div>
                 <span className="text-sm text-muted-foreground">
