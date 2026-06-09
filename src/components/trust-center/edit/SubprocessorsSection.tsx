@@ -82,8 +82,8 @@ export function SubprocessorsSection({ asset }: Props) {
       </div>
       <p className="text-sm text-muted-foreground">
         {isNb
-          ? "Legg til underleverandører som behandler data på vegne av virksomheten din. De vises i Trust-profilen og styrker tilliten hos kunder."
-          : "Add subprocessors that handle data on behalf of your company. They will appear on your Trust Profile and strengthen customer trust."}
+          ? "Legg til underleverandører som behandler data på vegne av virksomheten din."
+          : "Add subprocessors that handle data on behalf of your company."}
       </p>
 
       <Card className="overflow-hidden">
