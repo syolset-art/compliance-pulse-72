@@ -27,6 +27,8 @@ interface Props {
   onVerifiedClick: () => void;
   /** When true, render flush (no outer rounded border) — for embedding inside an existing Card. */
   flush?: boolean;
+  /** When true, banner breaks out to full viewport width while content stays at parent width. */
+  fullBleed?: boolean;
 }
 
 function frameworkChipClass(name: string): string {
