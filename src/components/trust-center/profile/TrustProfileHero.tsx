@@ -224,11 +224,11 @@ export function TrustProfileHero({
             <button
               type="button"
               onClick={onVerifiedClick}
-              className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+              className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground/80 transition-colors hover:bg-muted/60 hover:text-foreground"
               aria-label={isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
               title={isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
             >
-              <Award className="h-3.5 w-3.5" />
+              <Award className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
               {isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
             </button>
           </div>
