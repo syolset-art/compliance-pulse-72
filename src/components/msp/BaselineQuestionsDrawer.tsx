@@ -91,20 +91,37 @@ export function BaselineQuestionsDrawer({
             {reviewMode ? "Se over baseline" : "Fyll ut baseline"}
           </SheetTitle>
           <SheetDescription>
-            Spørsmålene under er de samme som kunden får ved opprettelse av Trust Profile,
-            fordelt på fem kontrollområder.
+            Baseline er kundens utgangspunkt: en kort kartlegging av om sentrale GDPR- og
+            sikkerhetstiltak er på plass, fordelt på fem kontrollområder. Svarene blir
+            startpunktet for kundens Trust Profile og gap-analysen.
           </SheetDescription>
         </SheetHeader>
 
         <Card className="mt-4 p-3 bg-primary/5 border-primary/20 flex items-start gap-3">
           <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-            <Info className="h-3.5 w-3.5 text-primary" />
+            {reviewMode ? (
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+            ) : (
+              <Info className="h-3.5 w-3.5 text-primary" />
+            )}
           </div>
           <p className="text-sm text-foreground flex-1">
-            Du svarer på vegne av <span className="font-medium">{customerName}</span>.
-            Svarene lagres som partner-bekreftet og brukes som baseline når du kjører gap-analysen.
+            {reviewMode ? (
+              <>
+                Lara har foreslått svar basert på hva som er typisk for{" "}
+                <span className="font-medium">{customerName}</span>. Gå gjennom hvert
+                spørsmål og bekreft, juster eller marker som usikkert.
+              </>
+            ) : (
+              <>
+                Du svarer på vegne av <span className="font-medium">{customerName}</span>.
+                Svarene lagres som partner-bekreftet og brukes som baseline når du kjører
+                gap-analysen.
+              </>
+            )}
           </p>
         </Card>
+
 
         <Tabs value={tab} onValueChange={setTab} className="mt-4">
           <TabsList className="grid w-full grid-cols-5 h-auto">
