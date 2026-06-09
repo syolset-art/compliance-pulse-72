@@ -69,6 +69,14 @@ export function SubprocessorsSection({ asset }: Props) {
     await persist(vendors.filter((v) => v.name !== name));
   };
 
+  const handleUsageChange = async (name: string, usage: string) => {
+    const trimmed = usage.trim();
+    const current = vendors.find((v) => v.name === name);
+    if ((current?.usage || "") === trimmed) return;
+    await persist(vendors.map((v) => (v.name === name ? { ...v, usage: trimmed || undefined } : v)));
+  };
+
+
   return (
     <section id="subprocessors" className="space-y-5 scroll-mt-24">
       <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
