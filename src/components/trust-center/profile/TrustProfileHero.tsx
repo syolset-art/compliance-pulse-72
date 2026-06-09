@@ -26,6 +26,8 @@ interface Props {
   frameworks: HeroFramework[];
   isStandard: (name: string) => boolean;
   onVerifiedClick: () => void;
+  /** When true, render flush (no outer rounded border) — for embedding inside an existing Card. */
+  flush?: boolean;
 }
 
 function frameworkChipClass(name: string): string {
@@ -59,6 +61,7 @@ export function TrustProfileHero({
   frameworks,
   isStandard,
   onVerifiedClick,
+  flush = false,
 }: Props) {
   const coverUrl: string | undefined = meta.cover_image_url;
   const presetId: string | undefined = meta.cover_preset_id;
@@ -72,7 +75,7 @@ export function TrustProfileHero({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+    <div className={flush ? "relative overflow-hidden" : "relative overflow-hidden rounded-2xl border border-border bg-card"}>
       {/* Cover layer */}
       <div className="relative w-full" style={{ minHeight: "clamp(260px, 36vw, 420px)" }}>
         {coverUrl ? (
