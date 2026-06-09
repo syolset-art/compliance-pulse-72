@@ -27,6 +27,8 @@ interface Props {
   onVerifiedClick: () => void;
   /** When true, render flush (no outer rounded border) — for embedding inside an existing Card. */
   flush?: boolean;
+  /** When true, banner breaks out to full viewport width while content stays at parent width. */
+  fullBleed?: boolean;
 }
 
 function frameworkChipClass(name: string): string {
@@ -61,6 +63,7 @@ export function TrustProfileHero({
   isStandard,
   onVerifiedClick,
   flush = false,
+  fullBleed = false,
 }: Props) {
   const coverUrl: string | undefined = meta.cover_image_url;
   const presetId: string | undefined = meta.cover_preset_id;
@@ -78,10 +81,20 @@ export function TrustProfileHero({
   const smCirc = 2 * Math.PI * smR;
   const smDash = (trustScore / 100) * smCirc;
 
+  const outerCls = fullBleed
+    ? "relative bg-card"
+    : flush
+      ? "relative overflow-hidden bg-card"
+      : "relative overflow-hidden rounded-2xl border border-border bg-card";
+
+  const bannerCls = fullBleed
+    ? "relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen overflow-hidden"
+    : "relative w-full overflow-hidden";
+
   return (
-    <div className={flush ? "relative overflow-hidden bg-card" : "relative overflow-hidden rounded-2xl border border-border bg-card"}>
+    <div className={outerCls}>
       {/* Banner zone */}
-      <div className="relative w-full" style={{ height: "clamp(220px, 28vw, 340px)" }}>
+      <div className={bannerCls} style={{ height: "clamp(220px, 28vw, 340px)" }}>
         {coverUrl ? (
           <img src={coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
         ) : (
