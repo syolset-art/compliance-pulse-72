@@ -1,57 +1,137 @@
-# Plan: Roligere dokumentside med progressiv synliggjøring
 
-## Problem
+# Plan: Fem kanoniske kontrollområder overalt
 
-Siden `/trust-center/evidence` viser alt på én gang: intro-tekst, 3 synlighets-chips, faner, "Påkrevde artefakter"-sjekkliste, søk + 2 filtre, og deretter fire seksjoner (Avtaler, Retningslinjer, Sertifiseringer, Andre dokumenter) som alle står åpne. Med 5–10 dokumenter blir det travelt; med 50+ blir det uoversiktlig.
+## Mål
+Hele plattformen — Trust Center (egen profil), leverandørenes Trust Profile, og partner sine kunders Trust Profile — skal vise nøyaktig de samme fem kontrollområdene, med samme nøkler, rekkefølge, ikoner og labels.
 
-Målet er å la brukeren se mindre om gangen og selv velge hva som skal foldes ut, uten å fjerne funksjonalitet.
+## Den kanoniske modellen
 
-## Endringer
+| Backend-nøkkel | Norsk label | English label | Ikon |
+|---|---|---|---|
+| `governance` | Styring og ansvar | Governance & Accountability | Shield |
+| `operations` | Drift og sikkerhet | Drift og sikkerhet (samme på EN) | Settings |
+| `identityAccess` | Identitet og tilgang | Identity & Access | KeyRound |
+| `privacy` | Personvern og datahåndtering | Privacy & Data Handling | Lock |
+| `vendor` | Tredjepart og verdikjede | Third-Party & Supply Chain | Users |
 
-### 1. Komprimert sidehode
+Rekkefølge er fast: governance → operations → identityAccess → privacy → vendor.
 
-- Flytt den lange intro-paragrafen inn i en liten "i"-tooltip ved siden av tittelen. Tittel og knapper blir igjen.
-- Beholder synlighets-chips (Offentlig · Delt · Internt) — de er allerede tette og fungerer som status + filter.
+## Hva som er rotete i dag
 
-### 2. Skjul "Påkrevde artefakter" bak en sammenleggbar header
+Tre parallelle nøkkelsett brukes:
+- `scoringEngine.ts`: `governance | operations | identity_access | supplier_ecosystem | privacy_data`
+- `trustControlDefinitions.ts` (ControlArea): `governance | risk_compliance | security_posture | privacy_data | supplier_governance`
+- Widgets blander begge, og noen viser bare 4 områder eller bruker feil label (f.eks. `ComplianceStatusHero` viser `identity_access` med label "Privacy & Data Handling"; `AssetMaturityByDomainCard` mangler Identity & Access helt; `ControlsWidget` mangler Tredjepart).
 
-- `RequiredArtifactsBlock` er ofte den største blokken. Pakk den i en `<Collapsible>` med en kompakt header som viser "Påkrevde artefakter · X av Y fullført" og en chevron.
-- Standard: **åpen hvis det finnes mangler, ellers lukket**. State persisteres i `localStorage` (`trust.evidence.required.open`).
+Backend-data som faktisk lagrer disse nøklene i DB er minimal:
+- `trust_profile_sources.control_area` — tom (ingen rader)
+- `compliance_requirements.sla_category` — bruker et helt annet sett (`roles_access`/`systems_processes`/`organization_governance`) som mapper til områder, ikke direkte til kanoniske nøkler
+- `compliance_requirements.domain` — er regulatorisk domene (`privacy/security/ai`), ikke kontrollområde
 
-### 3. Filter-rad som "skjult som standard"
+Konklusjon: refactor er hovedsakelig frontend + en mappingfunksjon for `sla_category`. Ingen rådata trenger backfill.
 
-- Søkefeltet beholdes alltid synlig (det er den raskeste måten å finne et dokument på).
-- De to `Select`-filtrene (kategori + synlighet) flyttes bak en "Filter"-knapp som åpner en liten popover. Knappen viser en prikk når et filter er aktivt.
-- Når et filter er satt via synlighets-chipsene øverst, oppdateres popoveren tilsvarende.
+## Det vi bygger
 
-### 4. Sammenleggbare dokument-seksjoner
+### 1. Én sannhetskilde: `src/lib/controlAreas.ts` (ny)
 
-- Hver av de fire seksjonene (Avtaler, Retningslinjer, Sertifiseringer, Andre) blir en `<Collapsible>`.
-- Seksjonsoverskriften viser ikon + navn + antall-badge + chevron, hele raden er klikkbar.
-- Standard åpningslogikk:
-  - Hvis totalt antall dokumenter ≤ 8: alle åpne (dagens oppførsel).
-  - Hvis > 8: kun seksjonen "Avtaler" og seksjoner med færre enn 3 dokumenter åpne; resten lukket.
-  - Hvis et søk eller filter er aktivt: alle seksjoner med treff åpnes automatisk.
-- Brukerens egen åpne/lukk-tilstand persisteres pr. seksjon i `localStorage`.
+Eksporterer:
+```ts
+export type ControlAreaKey = "governance" | "operations" | "identityAccess" | "privacy" | "vendor";
 
-### 5. "Tilganger"-fanen — kun mindre justering
+export const CONTROL_AREAS: ControlAreaDefinition[] = [ /* 5 stk, fast rekkefølge */ ];
 
-- I dag listes alle mottakere som kort med inntil 5 dokument-badges + "+N". Det er ok, men når listen blir lang foreslår vi å vise toppe 5 mottakere og legge resten bak "Vis alle (N)"-knapp. (Lav prioritet — kan tas senere hvis du heller vil holde dette utenfor.)
+export const CONTROL_AREA_BY_KEY: Record<ControlAreaKey, ControlAreaDefinition>;
 
-## Det vi IKKE endrer
+// Mapper alle legacy-nøkler til kanoniske
+export const LEGACY_AREA_MAP: Record<string, ControlAreaKey> = {
+  governance: "governance",
+  operations: "operations",
+  risk_compliance: "operations",
+  security_posture: "identityAccess",
+  identity_access: "identityAccess",
+  privacy: "privacy",
+  privacy_data: "privacy",
+  vendor: "vendor",
+  supplier_governance: "vendor",
+  supplier_ecosystem: "vendor",
+};
 
-- Ingen endring i datamodell, mutations eller `DocumentComplianceCard`.
-- Ingen endring i sortering eller hvilke dokumenter som hører til hvilken seksjon.
-- Synlighets-chipsene, fanene Dokumenter/Tilganger og rad-utseendet er uendret.
-- Ingen endring på edit-/access-dialogene.
+export function toCanonicalArea(key: string): ControlAreaKey;
+export function getControlAreaLabel(key: string, locale: "nb" | "en"): string;
+```
 
-## Tekniske detaljer
+Hver definisjon inkluderer: `key`, `labelNb`, `labelEn`, `descriptionNb`, `descriptionEn`, `icon` (Lucide-komponent), `accentClass`.
 
-- Bruker eksisterende `@/components/ui/collapsible` (Radix) og `@/components/ui/popover`.
-- All tilstand er lokal komponent-state + `localStorage` — ingen DB-skjema-endringer.
-- Endringer er begrenset til `src/pages/TrustCenterEvidence.tsx` (pluss evt. en liten lokal hjelpekomponent `CollapsibleSection` i samme fil).
+### 2. Migrer `trustControlDefinitions.ts`
+- Endre `ControlArea` til `ControlAreaKey` (alias mot ny type).
+- Oppdater hver `TrustControlDefinition.area` til kanonisk nøkkel.
+  - `risk_compliance` → `operations`
+  - `security_posture` → `identityAccess` (gjelder MFA/encryption/backup/logging-kontroller; flytt rene drift-kontroller som `backup_configured` og `security_logging` til `operations`, behold MFA/tilgangslogging som `identityAccess`).
+  - `supplier_governance` → `vendor`
+  - `privacy_data` → `privacy`
+  - Behold `governance`.
+- Tilsvarende i `ORG_CONTROLS` (legg til mer i `identityAccess` slik at området ikke er tomt).
 
-## Åpne valg
+### 3. Migrer `scoringEngine.ts`
+- Bytt `sla_category`-typen til `ControlAreaKey`.
+- Oppdater alle hardkodede `domain`-felt på `CONTROLS`-listen til kanoniske nøkler (`operations`, `identity_access` → `identityAccess`, `privacy_data` → `privacy`, `supplier_ecosystem` → `vendor`).
+- I `calculateSlaScores` la `domains: ControlAreaKey[] = ["governance","operations","identityAccess","privacy","vendor"]`.
+- Beholdsmapping fra `compliance_requirements.sla_category` (`roles_access` → `identityAccess`, `systems_processes` → `operations`, `organization_governance` → `governance`) via `LEGACY_AREA_MAP`.
 
-1. **Standard åpne seksjoner ved mange dokumenter** — forslaget over åpner "Avtaler" + små seksjoner. Alternativ: alt lukket som standard slik at brukeren selv folder ut. Hva foretrekker du?
-2. **Filter-popover vs. inline** — vil du heller beholde de to dropdownene synlige, men flytte dem til en mer kompakt rad (uten breddebegrensning)? Det er enklere, men gir mindre stillhet.
+### 4. Rens opp alle widgets / sider
+
+Erstatt lokale domene-arrays med import fra `controlAreas.ts`. Berørte filer:
+
+- `src/components/trust-controls/TrustControlsPanel.tsx`
+- `src/components/trust-controls/VendorTrustScoreCard.tsx`
+- `src/components/trust-controls/HeaderMaturityIndicators.tsx`
+- `src/components/asset-profile/AssetMaturityByDomainCard.tsx` (mangler Identity & Access — utvid til 5)
+- `src/components/asset-profile/TrustProfilePreview.tsx`
+- `src/components/dashboard/DashboardOverallMaturity.tsx`
+- `src/components/dashboard/DashboardMaturityOverTime.tsx`
+- `src/components/dashboard-v2/AggregatedMaturityWidget.tsx`
+- `src/components/widgets/SecurityFoundationsWidget.tsx`
+- `src/components/widgets/ControlsWidget.tsx` (utvid til 5)
+- `src/components/widgets/ComplianceStatusHero.tsx` (fiks feilmappet label)
+- `src/components/vendor-dashboard/VendorCompareTab.tsx`
+- `src/components/vendor-dashboard/GapAnalysisSummary.tsx`
+- `src/pages/TrustCenterProfile.tsx`
+- `src/pages/TrustCenterEditProfile.tsx`
+- `src/pages/MynderControls.tsx`
+- `src/pages/MaturityMethodology.tsx`
+- `src/pages/MSPCustomerPortal.tsx` (partner sine kunders Trust Profile)
+- `src/pages/MSPCustomerDetail.tsx`
+- `src/hooks/useTrustControlEvaluation.ts`
+
+Hver av disse: importere `CONTROL_AREAS`, iterere i fast rekkefølge, bruke `getControlAreaLabel` for tekst og delt icon-mapping. Det fjerner duplisering og garanterer konsistens.
+
+### 5. Test/demo-data
+Oppdater `src/lib/demoSeedTrustProfile.ts`, `src/lib/demoTrustActivation.ts`, `src/lib/trustMaturityQuestions.ts` slik at maturity-spørsmål er gruppert i de fem kanoniske områdene (legg til en `identityAccess`-bolk hvis den mangler).
+
+### 6. i18n
+Oppdater `src/locales/nb.json` og `en.json`: én ny seksjon `controlAreas.{key}.{label,description}`. Fjern duplikate gamle nøkler etterhvert som widgets bytter til ny kilde.
+
+### 7. Backend
+Én migrasjon for å normalisere eksisterende verdier (forebyggende, selv om radene er få):
+```
+UPDATE compliance_requirements
+SET sla_category = CASE sla_category
+  WHEN 'roles_access' THEN 'identityAccess'
+  WHEN 'systems_processes' THEN 'operations'
+  WHEN 'organization_governance' THEN 'governance'
+  ELSE sla_category END;
+```
+Ingen schemaendring nødvendig — kolonnen er TEXT.
+
+## Avgrensninger
+- Endrer ikke scoringsformelen, vektingen eller framework-mapping — bare nøkler og labels.
+- Endrer ikke DB-skjema utover en data-normaliseringsoppdatering.
+- Maturity-historikk og eksisterende AI-genererte tekster beholdes; de leses gjennom `toCanonicalArea`.
+- Memory-noten "4 Core Domains" oppdateres til 5.
+
+## Leveranseplan
+1. Lag `controlAreas.ts` + i18n-nøkler.
+2. Refactor `trustControlDefinitions.ts` og `scoringEngine.ts` til kanoniske nøkler.
+3. Migrer widgets/sider i grupper (Trust Center → Vendor Trust Profile → MSP customer view → Dashboards).
+4. Kjør data-normaliseringsmigrasjon.
+5. Oppdater memory (`Control Domains` og Core-linjen).
