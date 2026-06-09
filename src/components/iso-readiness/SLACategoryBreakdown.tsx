@@ -21,31 +21,31 @@ interface SLAData {
 const MOCK_TRENDS: Record<SLACategory, number> = {
   governance: 12,
   operations: 23,
-  identity_access: -5,
-  supplier_ecosystem: -15,
-  privacy_data: 8,
+  identityAccess: -5,
+  vendor: -15,
+  privacy: 8,
 };
 
 const CATEGORY_ICONS: Record<SLACategory, React.ReactNode> = {
   governance: <Shield className="h-4 w-4" />,
   operations: <Server className="h-4 w-4" />,
-  identity_access: <KeyRound className="h-4 w-4" />,
-  supplier_ecosystem: <Link2 className="h-4 w-4" />,
-  privacy_data: <FileText className="h-4 w-4" />,
+  identityAccess: <KeyRound className="h-4 w-4" />,
+  vendor: <Link2 className="h-4 w-4" />,
+  privacy: <FileText className="h-4 w-4" />,
 };
 
 const CATEGORY_COLORS: Record<SLACategory, string> = {
   governance: "text-primary dark:text-primary",
   operations: "text-status-closed dark:text-status-closed",
-  identity_access: "text-warning dark:text-warning",
-  supplier_ecosystem: "text-accent dark:text-accent",
-  privacy_data: "text-destructive dark:text-destructive",
+  identityAccess: "text-warning dark:text-warning",
+  vendor: "text-accent dark:text-accent",
+  privacy: "text-destructive dark:text-destructive",
 };
 
 export function SLACategoryBreakdown({ requirements }: SLACategoryBreakdownProps) {
   const { t } = useTranslation();
 
-  const categories: SLAData[] = (['governance', 'operations', 'identity_access', 'supplier_ecosystem', 'privacy_data'] as SLACategory[]).map(cat => {
+  const categories: SLAData[] = (['governance', 'operations', 'identityAccess', 'vendor', 'privacy'] as SLACategory[]).map(cat => {
     const reqs = requirements.filter(r => r.sla_category === cat);
     const completed = reqs.filter(r => r.status === 'completed').length;
     const total = reqs.length;

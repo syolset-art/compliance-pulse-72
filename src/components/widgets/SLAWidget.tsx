@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import type { SLACategory } from "@/lib/certificationPhases";
 
-const SLA_CATEGORIES: SLACategory[] = ['governance', 'operations', 'identity_access', 'supplier_ecosystem'];
+const SLA_CATEGORIES: SLACategory[] = ['governance', 'operations', 'identityAccess', 'vendor'];
 
 export function SLAWidget() {
   const { t } = useTranslation();

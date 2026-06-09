@@ -82,9 +82,9 @@ function evaluateVendorControls(vendor: any, docsCount: number) {
     trustScore,
     areas: {
       governance: areaScore("governance"),
-      risk_compliance: areaScore("operations"),
-      security_posture: areaScore("identityAccess"),
-      supplier_governance: areaScore("vendor"),
+      operations: areaScore("operations"),
+      identityAccess: areaScore("identityAccess"),
+      vendor: areaScore("vendor"),
     },
     controls: all,
     grouped,

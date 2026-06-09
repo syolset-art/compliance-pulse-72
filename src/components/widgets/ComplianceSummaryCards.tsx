@@ -90,7 +90,7 @@ export function ComplianceSummaryCards() {
       key: "protocols",
       icon: FileText,
       title: isNorwegian ? "Protokoller (ROPA)" : "Protocols (ROPA)",
-      metric: `${slaByCat("supplier_ecosystem")}%`,
+      metric: `${slaByCat("vendor")}%`,
       metricLabel: isNorwegian ? "tredjepartsstyring" : "third party mgmt",
       alerts: [],
       route: "/processing-records",

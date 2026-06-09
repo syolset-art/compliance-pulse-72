@@ -27,10 +27,10 @@ const PILLARS = [
 const SLA_TO_PILLAR: Record<string, string> = {
   governance: "governance",
   operations: "operations",
-  identity_access: "identityAccess",
-  privacy_data: "privacy",
+  identityAccess: "identityAccess",
+  privacy: "privacy",
   supplier: "vendor",
-  supplier_ecosystem: "vendor",
+  vendor: "vendor",
 };
 
 type ViewMode = "status" | "history" | "frameworks";
@@ -40,9 +40,9 @@ type ViewMode = "status" | "history" | "frameworks";
 const PILLAR_DEMO_FLOOR: Record<string, number> = {
   governance: 78,           // høy  → grønn
   operations: 58,           // middels → gul
-  identity_access: 41,      // middels → gul
-  privacy_data: 82,         // høy  → grønn
-  supplier_ecosystem: 24,   // lav  → rød
+  identityAccess: 41,      // middels → gul
+  privacy: 82,         // høy  → grønn
+  vendor: 24,   // lav  → rød
 };
 
 function applyFloor(key: string, raw: number) {
