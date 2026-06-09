@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Lock, AlertTriangle, Search, X, ChevronDown, SlidersHorizontal } from "lucide-react";
+import { Lock, AlertTriangle, Search, X, ChevronDown, SlidersHorizontal, Sparkles, Eye } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
