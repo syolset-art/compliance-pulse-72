@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, AlertCircle, ArrowRight, ClipboardEdit, Eye, ShieldCheck, Gift, Sparkles, Info, Loader2, ChevronDown } from "lucide-react";
+import { CheckCircle2, AlertCircle, ArrowRight, ClipboardEdit, Eye, ShieldCheck, Sparkles, Info, Loader2, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { BaselineAreaProgress } from "@/hooks/useCustomerBaseline";
 
@@ -66,27 +66,9 @@ export function BaselineReadinessCard({
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <p className="text-sm font-semibold text-foreground">
-                {isReady ? "Baseline er klar" : hasStarted ? "Baseline er under arbeid" : "Baseline mangler"}
-              </p>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge
-                    variant="secondary"
-                    className="gap-1 bg-success/10 text-success border-success/20 hover:bg-success/15 cursor-help"
-                  >
-                    <Gift className="h-3 w-3" />
-                    GDPR inkludert gratis
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-xs">
-                  GDPR-baselinen er alltid med uten kostnad så snart kunden er invitert inn.
-                  Du kan fylle ut spørsmålene og aktivere kundens Trust Profile uten å kjøpe
-                  flere regelverk først.
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            <p className="text-sm font-semibold text-foreground">
+              {isReady ? "Baseline er klar" : hasStarted ? "Baseline er under arbeid" : "Baseline mangler"}
+            </p>
             <p className="text-sm text-muted-foreground mt-0.5">
               {totalAnswered} av {totalQuestions} spørsmål besvart
               {additionalFrameworks > 0
