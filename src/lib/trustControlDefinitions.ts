@@ -96,8 +96,8 @@ export const VENDOR_CONTROLS: TrustControlDefinition[] = [
 export const SYSTEM_CONTROLS: TrustControlDefinition[] = [
   { key: "mfa_enabled", labelEn: "Multi-factor authentication enabled", labelNb: "Flerfaktorautentisering aktivert", weight: 1, area: "identityAccess", source: "vendor_baseline" },
   { key: "encryption_enabled", labelEn: "Encryption enabled", labelNb: "Kryptering aktivert", weight: 1, area: "identityAccess", source: "vendor_baseline" },
-  { key: "backup_configured", labelEn: "Backup configured", labelNb: "Sikkerhetskopiering konfigurert", weight: 1, area: "identityAccess", source: "vendor_baseline" },
-  { key: "security_logging", labelEn: "Security logging enabled", labelNb: "Sikkerhetslogging aktivert", weight: 1, area: "identityAccess", source: "vendor_baseline" },
+  { key: "backup_configured", labelEn: "Backup configured", labelNb: "Sikkerhetskopiering konfigurert", weight: 1, area: "operations", source: "vendor_baseline" },
+  { key: "security_logging", labelEn: "Security logging enabled", labelNb: "Sikkerhetslogging aktivert", weight: 1, area: "operations", source: "vendor_baseline" },
   // Privacy & Data Handling
   { key: "system_personal_data_mapped", labelEn: "Personal data categories mapped", labelNb: "Personopplysningskategorier kartlagt", descriptionEn: "Are the types of personal data processed by this system documented?", descriptionNb: "Er typene personopplysninger som behandles i dette systemet dokumentert?", weight: 1, area: "privacy", source: "org_enrichment" },
   { key: "system_legal_basis", labelEn: "Legal basis for processing defined", labelNb: "Behandlingsgrunnlag definert", descriptionEn: "Is the legal basis for personal data processing defined (e.g. consent, contract)?", descriptionNb: "Er behandlingsgrunnlaget definert (f.eks. samtykke, avtale)?", weight: 1, area: "privacy", source: "org_enrichment" },
