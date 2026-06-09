@@ -2645,12 +2645,12 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               {isNb ? (
                 <>
                   Dette er informasjon som nå samles og synliggjøres på ditt eget Trust Center på{" "}
-                  <span className="font-medium font-mono">{publicUrl}</span> — alt på ett sted, klart til å deles med kunder og partnere. Dokumentet vises under undermenyen <span className="font-medium">Dokumenter</span>.
+                  <span className="font-medium font-mono">{publicUrl}</span> — alt på ett sted, klart til å deles med kunder og partnere. Ressursen vises under undermenyen <span className="font-medium">Ressurser</span>.
                 </>
               ) : (
                 <>
                   This is information that is now collected and made visible on your own Trust Center at{" "}
-                  <span className="font-medium font-mono">{publicUrl}</span> — everything in one place, ready to share with customers and partners. The document appears under the <span className="font-medium">Documents</span> submenu.
+                  <span className="font-medium font-mono">{publicUrl}</span> — everything in one place, ready to share with customers and partners. The resource appears under the <span className="font-medium">Resources</span> submenu.
                 </>
               )}
             </p>
