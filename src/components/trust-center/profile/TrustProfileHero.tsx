@@ -122,7 +122,7 @@ export function TrustProfileHero({
         <div className="relative z-10 flex items-center justify-between px-5 md:px-7 pt-4">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-black/30 backdrop-blur-md ring-1 ring-white/15 px-2.5 py-1 text-xs text-white/90">
             <Shield className="h-3.5 w-3.5" />
-            <span className="font-medium">Mynder Trust Profile</span>
+            <span className="font-medium">Trust Center</span>
           </div>
           <button
             type="button"

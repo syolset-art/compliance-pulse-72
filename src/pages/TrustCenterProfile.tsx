@@ -532,8 +532,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         isNb ? "Trust Center publisert" : "Trust Center published",
         {
           description: isNb
-            ? "Slik ser profilen din ut på Mynder Trust Profile."
-            : "Here's how your profile looks on the Mynder Trust Profile.",
+            ? "Slik ser profilen din ut på Trust Center."
+            : "Here's how your profile looks on the Trust Center.",
         }
       );
       if (asset?.id) navigate(`/trust-engine/profile/${asset.id}`);
@@ -1148,7 +1148,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <div className="flex items-center gap-2 mb-1">
                           <Globe className="h-3.5 w-3.5 text-primary" />
                           <p className="text-sm font-medium text-foreground">
-                            {isNb ? "Publiser på Mynder Trust Profile" : "Publish on Mynder Trust Profile"}
+                            {isNb ? "Publiser på Trust Center" : "Publish on Trust Center"}
                           </p>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed">
@@ -1474,7 +1474,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-success" />
                             </span>
                             <span className="text-sm font-semibold uppercase tracking-wide text-success">
-                              {isNb ? "Live på Mynder Trust Profile" : "Live on Mynder Trust Profile"}
+                              {isNb ? "Live på Trust Center" : "Live on Trust Center"}
                             </span>
                           </div>
                           <Badge variant="outline" className="border-success/40 text-success bg-success/5 gap-1">
@@ -2395,8 +2395,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             </DialogTitle>
             <DialogDescription className="pt-2">
               {isNb
-                ? "Trust Profilen blir privat og fjernes fra Mynder Trust Profile. Lenken slutter å virke for kunder og partnere. Du kan publisere på nytt når som helst."
-                : "Your Trust Profile will become private and disappear from Mynder Trust Profile. The link will stop working for customers and partners. You can republish at any time."}
+                ? "Trust Profilen blir privat og fjernes fra Trust Center. Lenken slutter å virke for kunder og partnere. Du kan publisere på nytt når som helst."
+                : "Your Trust Profile will become private and disappear from Trust Center. The link will stop working for customers and partners. You can republish at any time."}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2 pt-2">
@@ -2727,7 +2727,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </DialogTitle>
                 <p className="text-sm text-success flex items-center gap-1.5">
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  {isNb ? "Verifisert av Mynder Trust Profile" : "Verified by Mynder Trust Profile"}
+                  {isNb ? "Verifisert av Trust Center" : "Verified by Trust Center"}
                 </p>
               </div>
             </div>
