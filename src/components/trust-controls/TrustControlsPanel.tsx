@@ -218,7 +218,7 @@ export function TrustControlsPanel({
     { area: "privacy" as ControlArea, icon: Lock, label: "Privacy & Data Handling", labelNb: "Personvern og datahåndtering",
       descNb: "Behandlingsoversikt, databehandleravtaler, DPIA og registrertes rettigheter.",
       descEn: "Processing records, data processing agreements, DPIAs and data subject rights." },
-    { area: "vendor" as ControlArea, icon: Users, label: "Third-Party & Supply Chain", labelNb: "Leverandører og økosystem",
+    { area: "vendor" as ControlArea, icon: Users, label: "Third-Party & Supply Chain", labelNb: "Tredjepart og verdikjede",
       descNb: "Tredjeparter, overføringer og avhengigheter rundt systemet.",
       descEn: "Third parties, transfers and dependencies around the system." },
   ];
