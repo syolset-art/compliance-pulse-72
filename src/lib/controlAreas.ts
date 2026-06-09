@@ -178,3 +178,46 @@ export function getControlAreaDescription(
 export function getControlAreaIcon(key: string): LucideIcon {
   return getControlArea(key).icon;
 }
+
+/**
+ * Områdevekt i Trust Score (0-1). Summen er 1.0.
+ * Speiler at "fungerer sikkerheten i praksis" og "hvem har ansvaret"
+ * er viktigere enn de andre områdene.
+ */
+export const AREA_WEIGHTS: Record<ControlAreaKey, number> = {
+  operations: 0.30,
+  governance: 0.25,
+  privacy: 0.20,
+  identityAccess: 0.15,
+  vendor: 0.10,
+};
+
+/** Kort, brukervennlig forklaring av hva hvert område svarer på. */
+export const AREA_QUESTION_NB: Record<ControlAreaKey, string> = {
+  operations: "Fungerer sikkerheten i praksis?",
+  governance: "Hvem har ansvaret, og er det nedskrevet?",
+  privacy: "Har vi kontroll på personopplysninger?",
+  identityAccess: "Hvem har tilgang til hva?",
+  vendor: "Har vi kontroll på tredjeparter?",
+};
+
+/**
+ * Beregn samlet Trust Score som vektet snitt av områdescorer.
+ * @param areaScores Map fra område-nøkkel til score 0–100.
+ */
+export function calculateTrustScore(
+  areaScores: Partial<Record<ControlAreaKey, number>>
+): number {
+  let weighted = 0;
+  let totalWeight = 0;
+  for (const key of CONTROL_AREA_KEYS) {
+    const score = areaScores[key];
+    if (typeof score !== "number") continue;
+    const w = AREA_WEIGHTS[key];
+    weighted += score * w;
+    totalWeight += w;
+  }
+  if (totalWeight === 0) return 0;
+  return Math.round(weighted / totalWeight);
+}
+
