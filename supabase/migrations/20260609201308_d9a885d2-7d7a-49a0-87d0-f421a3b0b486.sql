@@ -1,0 +1,3 @@
+UPDATE public.assets SET name = 'Mynder AS', description = 'Mynder er en agentisk compliance-plattform som hjelper virksomheter å kartlegge, dokumentere og etterleve regelverk — med Lara som din AI-assistent.' WHERE asset_type = 'self' AND (name = 'DIPS Arena AS' OR name = '' OR description IS NULL OR description ILIKE '%DIPS%');
+
+UPDATE public.company_profile SET name = 'Mynder AS', org_number = '831377372', industry = 'Programvare og SaaS' WHERE name IS NULL OR name = '' OR name ILIKE '%DIPS%';
