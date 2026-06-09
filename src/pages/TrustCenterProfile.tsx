@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { SubprocessorTable } from "@/components/trust-center/profile/SubprocessorTable";
+import { TrustProfileHero, IdentityStripe } from "@/components/trust-center/profile/TrustProfileHero";
 import type { SubprocessorListData } from "@/lib/demoSubprocessorAnalysis";
 
 // EU-style 12-star wreath used in the compliance badge
