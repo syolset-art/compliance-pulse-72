@@ -181,6 +181,26 @@ const TrustCenterEditProfile = () => {
     return "bg-muted text-muted-foreground border-border";
   };
 
+  const isStandard = (name: string) => {
+    const n = name.toLowerCase();
+    return n.includes("iso") || n.includes("soc");
+  };
+
+  const hiddenFrameworkIds: string[] = Array.isArray(meta.hidden_framework_ids) ? meta.hidden_framework_ids : [];
+
+  const toggleFrameworkVisibility = async (frameworkId: string) => {
+    if (!asset?.id) return;
+    const currentMeta = (asset?.metadata || {}) as Record<string, any>;
+    const current: string[] = Array.isArray(currentMeta.hidden_framework_ids) ? currentMeta.hidden_framework_ids : [];
+    const next = current.includes(frameworkId)
+      ? current.filter((id) => id !== frameworkId)
+      : [...current, frameworkId];
+    const newMeta = { ...currentMeta, hidden_framework_ids: next };
+    await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset.id);
+    queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+    queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
