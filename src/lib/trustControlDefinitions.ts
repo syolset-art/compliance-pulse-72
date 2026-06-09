@@ -20,7 +20,9 @@ export interface TrustProfileMeta {
 }
 
 export type TrustControlStatus = "implemented" | "partial" | "missing" | "not_applicable";
-export type ControlArea = "governance" | "risk_compliance" | "security_posture" | "privacy_data" | "supplier_governance";
+// ControlArea is now the canonical 5-area type. Old keys remain accepted as
+// input through toCanonicalArea() in src/lib/controlAreas.ts.
+export type { ControlAreaKey as ControlArea } from "./controlAreas";
 export type RiskSeverity = "high" | "medium" | "low";
 
 export type ControlSource = "vendor_baseline" | "org_enrichment";
