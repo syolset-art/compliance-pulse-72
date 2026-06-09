@@ -16,24 +16,48 @@ import {
   Users,
   Sparkles,
   KeyRound,
+  Info,
+  ChevronRight,
 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
+import { PartnerEvidenceSection } from "./PartnerEvidenceSection";
+import { ControlAreaBreakdownDrawer } from "./ControlAreaBreakdownDrawer";
+import { toast } from "sonner";
+import {
+  CONTROL_AREAS,
+  AREA_WEIGHTS,
+  calculateTrustScore,
+  type ControlAreaKey,
+} from "@/lib/controlAreas";
+import { getActiveControlPointsByArea } from "@/lib/controlAreaRequirements";
 
 type ControlDomain = {
-  key: string;
+  key: ControlAreaKey;
   name: string;
   description: string;
-  level: number; // 0-4
+  /** Demo-modenhet 0-4 — i produksjon avledet fra msp_customer_assessments. */
+  level: number;
   source: "lara" | "self";
-  Icon: typeof ShieldCheck;
 };
 
-// Order matches canonical control areas: governance, operations, identityAccess, vendor, privacy
-const controlDomains: ControlDomain[] = [
-  { key: "governance", name: "Styring", description: "Policy, roller og ledelsesforankring", level: 3, source: "lara", Icon: ShieldCheck },
-  { key: "operations", name: "Drift og bruk", description: "Drift, logging, hendelseshåndtering og sikkerhetskopiering", level: 2, source: "self", Icon: Activity },
-  { key: "identityAccess", name: "Identitet og tilgang", description: "Autentisering, tilgangsstyring og MFA", level: 2, source: "lara", Icon: KeyRound },
-  { key: "vendor", name: "Leverandører og økosystem", description: "Leverandørstyring og verdikjede", level: 2, source: "lara", Icon: Users },
-  { key: "privacy", name: "Personvern og datahåndtering", description: "GDPR-etterlevelse og datahåndtering", level: 3, source: "lara", Icon: Lock },
+// Demo-modenhet per område (samme verdier som tidligere — viser variasjon).
+const DEMO_LEVELS: Record<ControlAreaKey, { level: number; source: "lara" | "self" }> = {
+  governance: { level: 3, source: "lara" },
+  operations: { level: 2, source: "self" },
+  identityAccess: { level: 2, source: "lara" },
+  vendor: { level: 2, source: "lara" },
+  privacy: { level: 3, source: "lara" },
+};
+
+// Rekkefølge: governance → operations → identityAccess → vendor → privacy
+// Personvern (privacy) plasseres sist slik at den får full bredde i 2×2-grid.
+const AREA_ORDER: ControlAreaKey[] = [
+  "governance",
+  "operations",
+  "identityAccess",
+  "vendor",
+  "privacy",
 ];
 
 function levelTone(level: number) {
@@ -43,17 +67,15 @@ function levelTone(level: number) {
   return { bar: "bg-destructive", text: "text-destructive", badge: "bg-destructive/10 text-destructive border-destructive/30" };
 }
 
-import { useState } from "react";
-import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
-import { PartnerEvidenceSection } from "./PartnerEvidenceSection";
-import { toast } from "sonner";
-
 interface Props {
   customerId?: string;
   customerName?: string;
   contactName?: string;
   contactEmail?: string;
+  /** Aktiverte regelverk for kunden — driver kontrollpunktene per område. */
+  activeFrameworkIds?: string[];
 }
+
 
 const certifications = [
   { name: "ISO 27001:2022", meta: "Gyldig til 14. mars 2027 · BSI", status: "active" as const },
@@ -78,12 +100,48 @@ export function MSPCustomerTrustProfileCard({
   customerName = "Kunden",
   contactName = "Truls",
   contactEmail,
+  activeFrameworkIds = [],
 }: Props) {
   // MVP: profilen er ikke claimet/publisert ennå
   const isPublished = false;
   const [inviteOpen, setInviteOpen] = useState(false);
   const [invited, setInvited] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
+  const [openArea, setOpenArea] = useState<ControlAreaKey | null>(null);
+
+  // Bygg domeneliste fra de kanoniske 5 kontrollområdene
+  const controlDomains: ControlDomain[] = useMemo(
+    () =>
+      AREA_ORDER.map((key) => {
+        const def = CONTROL_AREAS.find((a) => a.key === key)!;
+        const demo = DEMO_LEVELS[key];
+        return {
+          key,
+          name: def.labelNb,
+          description: def.descriptionNb,
+          level: demo.level,
+          source: demo.source,
+        };
+      }),
+    []
+  );
+
+  // Antall kontrollpunkter per område fra aktive regelverk
+  const pointsByArea = useMemo(
+    () => getActiveControlPointsByArea(activeFrameworkIds),
+    [activeFrameworkIds]
+  );
+
+  // Områdescore: modenhet/4 × 100 (per-punkt-vekt er likt 1.0 i MVP)
+  const areaScores: Partial<Record<ControlAreaKey, number>> = useMemo(() => {
+    const out: Partial<Record<ControlAreaKey, number>> = {};
+    for (const d of controlDomains) {
+      out[d.key] = Math.round((d.level / 4) * 100);
+    }
+    return out;
+  }, [controlDomains]);
+
+  const trustScore = useMemo(() => calculateTrustScore(areaScores), [areaScores]);
 
   return (
     <div className="space-y-4">
@@ -174,9 +232,6 @@ export function MSPCustomerTrustProfileCard({
 
       {/* Kontrollområder per regelverk */}
       {(() => {
-        const totalLevel = controlDomains.reduce((s, d) => s + d.level, 0);
-        const maxLevel = controlDomains.length * 4;
-        const trustScore = Math.round((totalLevel / maxLevel) * 100);
         const scoreTone = levelTone(trustScore >= 75 ? 4 : trustScore >= 50 ? 2 : 1);
         const r = 26;
         const c = 2 * Math.PI * r;
@@ -186,12 +241,14 @@ export function MSPCustomerTrustProfileCard({
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h3 className="text-base font-semibold text-foreground">Kontrollområder per regelverk</h3>
-                <p className="text-sm text-muted-foreground mt-0.5">Modenhet 0–4 · 5 kontrollområder</p>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Modenhet 0–4 · 5 kontrollområder · vektet snitt
+                </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <div className="text-right">
                   <p className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Trust score</p>
-                  <p className="text-sm text-muted-foreground">Snittet av områdene</p>
+                  <p className="text-sm text-muted-foreground">Vektet av områdene</p>
                 </div>
                 <div className="relative h-14 w-14 shrink-0">
                   <svg viewBox="0 0 64 64" className="h-14 w-14 -rotate-90" aria-hidden="true">
@@ -216,12 +273,27 @@ export function MSPCustomerTrustProfileCard({
                 const tone = levelTone(d.level);
                 const pct = (d.level / 4) * 100;
                 const isLastOdd = idx === controlDomains.length - 1 && controlDomains.length % 2 === 1;
+                const def = CONTROL_AREAS.find((a) => a.key === d.key)!;
+                const Icon = def.icon;
+                const pointCount = pointsByArea[d.key]?.total ?? 0;
+                const fwCount = pointsByArea[d.key]
+                  ? Object.keys(pointsByArea[d.key].byFramework).length
+                  : 0;
+                const weightPct = Math.round(AREA_WEIGHTS[d.key] * 100);
                 return (
-                  <div key={d.key} className={`rounded-lg border border-border/60 p-3 ${isLastOdd ? "sm:col-span-2" : ""}`}>
+                  <button
+                    type="button"
+                    key={d.key}
+                    onClick={() => setOpenArea(d.key)}
+                    className={`text-left rounded-lg border border-border/60 p-3 hover:border-primary/40 hover:bg-muted/30 transition-colors group ${isLastOdd ? "sm:col-span-2" : ""}`}
+                    aria-label={`Se hvordan ${d.name} beregnes`}
+                  >
                     <div className="flex items-center justify-between gap-2 mb-1.5">
                       <div className="flex items-center gap-2 min-w-0">
-                        <d.Icon className="h-4 w-4 text-foreground/70 shrink-0" aria-hidden="true" />
-                        <p className="text-sm font-semibold text-foreground truncate">{d.name}</p>
+                        <Icon className="h-4 w-4 text-foreground/70 shrink-0" aria-hidden="true" />
+                        <p className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                          {d.name}
+                        </p>
                         {d.source === "lara" ? (
                           <Badge variant="outline" className="text-xs gap-1 px-1.5 py-0 bg-primary/10 text-primary border-primary/30">
                             <Sparkles className="h-3 w-3" aria-hidden="true" />
@@ -241,13 +313,33 @@ export function MSPCustomerTrustProfileCard({
                     <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                       <div className={`h-full ${tone.bar} rounded-full transition-all`} style={{ width: `${pct}%` }} />
                     </div>
-                  </div>
+                    <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <Info className="h-3 w-3" aria-hidden="true" />
+                        {pointCount > 0
+                          ? `${pointCount} kontrollpunkter fra ${fwCount} regelverk`
+                          : "Ingen aktive regelverk dekker dette området"}
+                        {" · "}
+                        Vekt {weightPct}%
+                      </span>
+                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/70 group-hover:text-primary transition-colors" aria-hidden="true" />
+                    </div>
+                  </button>
                 );
               })}
             </div>
           </Card>
         );
       })()}
+
+      <ControlAreaBreakdownDrawer
+        open={openArea !== null}
+        onOpenChange={(o) => { if (!o) setOpenArea(null); }}
+        area={openArea}
+        areaScore={openArea ? (areaScores[openArea] ?? 0) : 0}
+        activeFrameworkIds={activeFrameworkIds}
+      />
+
 
       {/* Dokumenter og bevis */}
       <Card className="p-4 space-y-4">
