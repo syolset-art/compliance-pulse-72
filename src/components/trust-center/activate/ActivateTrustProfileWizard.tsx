@@ -203,7 +203,7 @@ export default function ActivateTrustProfileWizard({
   const trustScore = useMemo(() => {
     const total = ALL_MATURITY_QUESTIONS.length;
     if (!total) return 0;
-    const yes = ALL_MATURITY_QUESTIONS.filter((q) => maturityAnswers[q.id] === "yes").length;
+    const yes = ALL_MATURITY_QUESTIONS.filter((q) => maturityAnswers[q.id] === "done").length;
     return Math.round((yes / total) * 100);
   }, [maturityAnswers]);
 
@@ -436,8 +436,8 @@ export default function ActivateTrustProfileWizard({
     const slot = DOCUMENT_SLOTS.find((s) => s.id === slotId);
     if (slot?.resolvesQuestion) {
       const current = maturityAnswers[slot.resolvesQuestion];
-      if (current !== "yes") {
-        setMaturityAnswers((prev) => ({ ...prev, [slot.resolvesQuestion!]: "yes" }));
+      if (current !== "done") {
+        setMaturityAnswers((prev) => ({ ...prev, [slot.resolvesQuestion!]: "done" }));
         toast.success("Lara oppdaterte svaret i Modenhet-steget");
       }
     }
@@ -1323,8 +1323,8 @@ function ContactEmailRow({ label, helper, value, onChange, placeholder, laraHint
 
 
 function PreviewStep({ name, orgNumber, description, website, contactName, contactEmail, privacyUrl, encryption, certifications, subProcessors, maturityAnswers, documents }: any) {
-  const answered = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "yes" || v === "no" || v === "n_a").length : 0;
-  const later = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "later").length : 0;
+  const answered = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "done" || v === "in_progress" || v === "not_relevant").length : 0;
+  const later = maturityAnswers ? Object.values(maturityAnswers).filter((v) => v === "not_started").length : 0;
   const docCount = documents ? documents.filter((d: ActivationDocument) => d.status === "uploaded" || d.status === "found").length : 0;
   return (
     <div className="space-y-3">
@@ -1440,7 +1440,7 @@ function MaturityStep({ answers, sources, onChange, autoPlay }: {
           const isOpen = openAreas[area.id] ?? false;
           const total = area.questions.length;
           const laraAnswered = area.questions.filter(
-            (q) => sources[q.id] && !sources[q.id]?.includes("Regelverk") && (answers[q.id] === "yes" || answers[q.id] === "n_a"),
+            (q) => sources[q.id] && !sources[q.id]?.includes("Regelverk") && (answers[q.id] === "done" || answers[q.id] === "not_relevant"),
           ).length;
           return (
             <Card key={area.id} className="overflow-hidden">
@@ -1461,7 +1461,7 @@ function MaturityStep({ answers, sources, onChange, autoPlay }: {
               {isOpen && (
                 <div className="px-4 pb-4 space-y-2 border-t border-border">
                   {area.questions.map((q) => {
-                    const val = answers[q.id] ?? "later";
+                    const val = answers[q.id] ?? "not_started";
                     const laraSrc = sources[q.id];
                     return (
                       <div key={q.id} className="flex items-start gap-3 py-1.5 border-t border-border first:border-t-0 first:pt-3">
@@ -1479,21 +1479,21 @@ function MaturityStep({ answers, sources, onChange, autoPlay }: {
                               </TooltipContent>
                             </Tooltip>
                           </div>
-                          {laraSrc && !laraSrc.includes("Regelverk") && (val === "yes" || val === "n_a") && (
+                          {laraSrc && !laraSrc.includes("Regelverk") && (val === "done" || val === "not_relevant") && (
                             <span className={`inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[11px] font-medium ${
-                              val === "n_a" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary"
+                              val === "not_relevant" ? "bg-muted text-muted-foreground border border-border" : "bg-primary/10 text-primary"
                             }`}>
                               <Sparkles className="h-2.5 w-2.5" />
-                              {val === "n_a" ? "Lara: ikke aktuelt" : "Svart av Lara"}
+                              {val === "not_relevant" ? "Lara: ikke relevant" : "Svart av Lara"}
                             </span>
                           )}
                         </div>
                         <div className="inline-flex rounded-md border border-border bg-muted/30 p-0.5 shrink-0">
                           {[
-                            { v: "yes" as const, label: "Ja" },
-                            { v: "no" as const, label: "Nei" },
-                            { v: "n_a" as const, label: "Ikke aktuelt" },
-                            { v: "later" as const, label: "Senere" },
+                            { v: "done" as const, label: "Fullført" },
+                            { v: "in_progress" as const, label: "Pågår" },
+                            { v: "not_started" as const, label: "Ikke startet" },
+                            { v: "not_relevant" as const, label: "Ikke relevant" },
                           ].map((opt) => {
                             const active = val === opt.v;
                             return (
@@ -1503,9 +1503,9 @@ function MaturityStep({ answers, sources, onChange, autoPlay }: {
                                 onClick={() => onChange(q.id, opt.v)}
                                 className={`px-2.5 py-1 rounded text-xs font-medium transition ${
                                   active
-                                    ? opt.v === "yes" ? "bg-success text-success-foreground"
-                                    : opt.v === "no" ? "bg-destructive text-destructive-foreground"
-                                    : opt.v === "n_a" ? "bg-muted text-muted-foreground border border-border"
+                                    ? opt.v === "done" ? "bg-success text-success-foreground"
+                                    : opt.v === "in_progress" ? "bg-warning text-warning-foreground"
+                                    : opt.v === "not_relevant" ? "bg-muted text-muted-foreground border border-border"
                                     : "bg-background text-foreground shadow-sm"
                                     : "text-muted-foreground hover:text-foreground"
                                 }`}
