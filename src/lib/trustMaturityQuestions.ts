@@ -7,7 +7,7 @@
 import { Shield, Settings, KeyRound, Lock, Users, type LucideIcon } from "lucide-react";
 import type { ControlAreaKey } from "@/lib/controlAreas";
 
-export type MaturityAnswer = "yes" | "no" | "later" | "n_a" | "unsure";
+export type MaturityAnswer = "not_started" | "in_progress" | "done" | "not_relevant";
 
 export interface MaturityQuestion {
   id: string;
