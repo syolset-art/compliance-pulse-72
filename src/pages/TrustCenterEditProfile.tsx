@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { cn } from "@/lib/utils";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { useNavigate } from "react-router-dom";
@@ -371,30 +372,63 @@ const TrustCenterEditProfile = () => {
                         const Icon = standard ? BookCheck : Scale;
                         const hidden = hiddenFrameworkIds.includes(fw.framework_id);
                         return (
-                          <li key={fw.framework_id} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/30">
+                          <li 
+                            key={fw.framework_id} 
+                            className={cn(
+                              "flex items-center justify-between gap-3 px-4 py-3 transition-colors",
+                              hidden ? "bg-muted/40" : "hover:bg-muted/30"
+                            )}
+                          >
                             <div className="flex items-center gap-3 min-w-0">
-                              <Icon className={`h-4 w-4 shrink-0 ${hidden ? "text-muted-foreground/50" : "text-muted-foreground"}`} />
-                              <span className={`text-sm font-medium truncate ${hidden ? "text-muted-foreground/60 line-through" : "text-foreground"}`}>
-                                {fw.framework_name}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                {standard ? (isNb ? "Standard" : "Standard") : (isNb ? "Regelverk" : "Regulation")}
-                              </span>
+                              <div className={cn(
+                                "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
+                                hidden ? "bg-muted" : "bg-primary/10"
+                              )}>
+                                <Icon className={cn(
+                                  "h-4 w-4",
+                                  hidden ? "text-muted-foreground/40" : "text-primary"
+                                )} />
+                              </div>
+                              <div className="flex flex-col min-w-0">
+                                <span className={cn(
+                                  "text-sm font-medium truncate",
+                                  hidden ? "text-muted-foreground/50 line-through" : "text-foreground"
+                                )}>
+                                  {fw.framework_name}
+                                </span>
+                                <span className={cn(
+                                  "text-xs",
+                                  hidden ? "text-muted-foreground/40" : "text-muted-foreground"
+                                )}>
+                                  {standard ? (isNb ? "Standard" : "Standard") : (isNb ? "Regelverk" : "Regulation")}
+                                  {hidden && (
+                                    <span className="ml-2 inline-flex items-center gap-1 text-muted-foreground/60">
+                                      <EyeOff className="h-3 w-3" />
+                                      {isNb ? "Skjult på profilen" : "Hidden from profile"}
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
                             </div>
                             <Button
                               size="sm"
-                              variant="ghost"
+                              variant={hidden ? "secondary" : "ghost"}
                               onClick={() => toggleFrameworkVisibility(fw.framework_id)}
-                              className="gap-1.5 shrink-0 text-muted-foreground hover:text-foreground"
+                              className={cn(
+                                "gap-1.5 shrink-0",
+                                hidden 
+                                  ? "text-foreground hover:text-foreground bg-background border border-border shadow-sm" 
+                                  : "text-muted-foreground hover:text-foreground"
+                              )}
                             >
                               {hidden ? (
                                 <>
-                                  <EyeOff className="h-3.5 w-3.5" />
+                                  <Eye className="h-3.5 w-3.5" />
                                   {isNb ? "Vis" : "Show"}
                                 </>
                               ) : (
                                 <>
-                                  <Eye className="h-3.5 w-3.5" />
+                                  <EyeOff className="h-3.5 w-3.5" />
                                   {isNb ? "Skjul" : "Hide"}
                                 </>
                               )}
