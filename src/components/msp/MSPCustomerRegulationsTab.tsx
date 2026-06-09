@@ -1,13 +1,19 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
-import { Search, X, SlidersHorizontal, Sparkles, Lock, CheckCircle2 } from "lucide-react";
-import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
+import { Settings2 } from "lucide-react";
+import { frameworks, type Framework } from "@/lib/frameworkDefinitions";
 import { toast } from "sonner";
+import { ActiveFrameworksSummary } from "@/components/regulations/ActiveFrameworksSummary";
+import { FrameworkChipSelector } from "@/components/regulations/FrameworkChipSelector";
+import { FrameworkDetailCard } from "@/components/regulations/FrameworkDetailCard";
+import { ComplianceHistoryChart } from "@/components/regulations/ComplianceHistoryChart";
+import { FrameworkRequirementsList } from "@/components/regulations/FrameworkRequirementsList";
+import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
+import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
+import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import { FrameworkOrderConfirmDialog, type FrameworkOrderResult } from "./FrameworkOrderConfirmDialog";
+import { FrameworkPreviewSheet } from "./FrameworkPreviewSheet";
 
 interface Props {
   customerId: string;
@@ -78,15 +84,10 @@ function saveActivated(customerId: string, records: ActivatedRecord[]) {
   } catch {}
 }
 
-interface Recommendation {
-  id: string;
-  reason: string;
-}
-
-function computeRecommendations(customer?: Props["customer"]): Recommendation[] {
-  const recs: Recommendation[] = [];
+function computeRecommendations(customer?: Props["customer"]): Map<string, string> {
+  const recs = new Map<string, string>();
   const push = (id: string, reason: string) => {
-    if (!recs.find((r) => r.id === id)) recs.push({ id, reason });
+    if (!recs.has(id)) recs.set(id, reason);
   };
 
   push("gdpr", "Gjelder alle som behandler personopplysninger");
@@ -105,7 +106,11 @@ function computeRecommendations(customer?: Props["customer"]): Recommendation[] 
     push("hvitvasking", "Rapporteringsplikt for finansforetak");
     push("iso27001", "Forventet standard hos finanskunder");
   }
-  if (industry.includes("energi") || industry.includes("transport") || industry.includes("offentlig")) {
+  if (
+    industry.includes("energi") ||
+    industry.includes("transport") ||
+    industry.includes("offentlig")
+  ) {
     push("nis2", "Kritisk sektor – omfattet av NIS2");
     push("nsm", "NSMs grunnprinsipper anbefales for kritisk infrastruktur");
   }
@@ -143,14 +148,26 @@ function computeRecommendations(customer?: Props["customer"]): Recommendation[] 
   return recs;
 }
 
-function formatOrderedDate(iso: string) {
-  try {
-    const d = new Date(iso);
-    if (d.getTime() === 0) return null;
-    return d.toLocaleDateString("nb-NO", { day: "2-digit", month: "short", year: "numeric" });
-  } catch {
-    return null;
-  }
+function getReqs(frameworkId: string): ComplianceRequirement[] {
+  const main = getRequirementsByFramework(frameworkId);
+  if (main.length > 0) return main;
+  return ALL_ADDITIONAL_REQUIREMENTS.filter((r) => r.framework_id === frameworkId);
+}
+
+function getDemoStats(frameworkId: string) {
+  const reqs = getReqs(frameworkId);
+  let met = 0,
+    partial = 0,
+    notMet = 0,
+    auto = 0;
+  reqs.forEach((req, i) => {
+    const hash = (req.requirement_id.charCodeAt(req.requirement_id.length - 1) + i) % 10;
+    if (hash < 3) met++;
+    else if (hash === 3) partial++;
+    else notMet++;
+    if (req.agent_capability === "full") auto++;
+  });
+  return { met, partial, notMet, auto, manual: reqs.length - auto, total: reqs.length };
 }
 
 export function MSPCustomerRegulationsTab({ customerId, customerName, customer }: Props) {
@@ -158,31 +175,84 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
     () => mapActiveFrameworkNames(customer?.active_frameworks),
     [customer?.active_frameworks]
   );
+
   const [activated, setActivated] = useState<ActivatedRecord[]>(() =>
     loadActivated(customerId, customerActiveIds)
   );
-  const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [pendingFramework, setPendingFramework] = useState<Framework | null>(null);
+  const [previewFramework, setPreviewFramework] = useState<Framework | null>(null);
+  const [liveCounts, setLiveCounts] = useState<
+    Record<string, { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }>
+  >({});
 
   useEffect(() => {
     setActivated(loadActivated(customerId, customerActiveIds));
+    setSelectedId(null);
   }, [customerId, customerActiveIds]);
 
   const activatedIds = useMemo(() => new Set(activated.map((a) => a.id)), [activated]);
-  const activatedById = useMemo(() => {
-    const m = new Map<string, ActivatedRecord>();
-    activated.forEach((a) => m.set(a.id, a));
-    return m;
-  }, [activated]);
+
+  const activeFrameworks = useMemo(
+    () => frameworks.filter((fw) => activatedIds.has(fw.id)),
+    [activatedIds]
+  );
+
+  // Auto-select the first active framework when none is selected
+  useEffect(() => {
+    if (!selectedId && activeFrameworks.length > 0) {
+      setSelectedId(activeFrameworks[0].id);
+    }
+    if (selectedId && !activatedIds.has(selectedId)) {
+      setSelectedId(activeFrameworks[0]?.id ?? null);
+    }
+  }, [activeFrameworks, selectedId, activatedIds]);
 
   const recommendations = useMemo(() => computeRecommendations(customer), [customer]);
-  const recommendationMap = useMemo(() => {
-    const m = new Map<string, string>();
-    recommendations.forEach((r) => m.set(r.id, r.reason));
-    return m;
-  }, [recommendations]);
+
+  const getChipStats = useCallback(
+    (fwId: string) => {
+      const live = liveCounts[fwId];
+      if (live) return { met: live.met, total: live.total };
+      const s = getDemoStats(fwId);
+      return { met: s.met, total: s.total };
+    },
+    [liveCounts]
+  );
+
+  const currentCounts = useMemo(() => {
+    if (!selectedId) return { met: 0, partial: 0, notMet: 0, auto: 0, manual: 0, total: 0 };
+    return liveCounts[selectedId] || getDemoStats(selectedId);
+  }, [selectedId, liveCounts]);
+
+  const handleCountsChange = useCallback(
+    (counts: { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }) => {
+      if (!selectedId) return;
+      setLiveCounts((prev) => ({ ...prev, [selectedId]: counts }));
+    },
+    [selectedId]
+  );
+
+  const selectedFramework = useMemo(
+    () => frameworks.find((f) => f.id === selectedId) || null,
+    [selectedId]
+  );
+
+  const handleToggle = (frameworkId: string, currentlyActive: boolean) => {
+    if (!currentlyActive) {
+      // Activating -> open order/confirm dialog
+      const fw = frameworks.find((f) => f.id === frameworkId);
+      if (fw) setPendingFramework(fw);
+      return;
+    }
+    // Deactivating
+    const next = activated.filter((a) => a.id !== frameworkId);
+    setActivated(next);
+    saveActivated(customerId, next);
+    toast.success("Regelverk deaktivert");
+  };
 
   const handleConfirmOrder = (result: FrameworkOrderResult) => {
     if (!pendingFramework) return;
@@ -202,245 +272,95 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
     setActivated(next);
     saveActivated(customerId, next);
     toast.success(`Bestilling registrert — ${pendingFramework.name}`, {
-      description: `Regelverket er nå aktivt. Faktureres iht. partneravtalen.`,
+      description: "Regelverket er nå aktivt. Faktureres iht. partneravtalen.",
     });
+    setSelectedId(pendingFramework.id);
     setPendingFramework(null);
+    setPreviewFramework(null);
   };
-
-  const q = query.trim().toLowerCase();
-  const matches = (f: Framework) => {
-    if (q && !(f.name.toLowerCase().includes(q) || (f.description || "").toLowerCase().includes(q))) {
-      return false;
-    }
-    if (categoryFilter && f.category !== categoryFilter) return false;
-    const isActive = activatedIds.has(f.id);
-    if (statusFilter === "active" && !isActive) return false;
-    if (statusFilter === "inactive" && isActive) return false;
-    return true;
-  };
-
-  const visibleCategories = useMemo(
-    () =>
-      categories
-        .map((cat) => ({
-          cat,
-          items: frameworks.filter((f) => f.category === cat.id && matches(f)),
-        }))
-        .filter((c) => c.items.length > 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [q, categoryFilter, statusFilter, activatedIds]
-  );
-
-  const totalMatches = visibleCategories.reduce((s, c) => s + c.items.length, 0);
 
   return (
     <div>
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Søk regelverk eller standard…"
-          className="pl-9 pr-9 h-10 rounded-full"
-        />
-        {query && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => setQuery("")}
-            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
+      {/* Header with edit button */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-foreground">Regelverk og standarder</h2>
+            {activeFrameworks.length > 0 && (
+              <span className="inline-flex items-center rounded-full border border-border bg-muted/60 px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                {activeFrameworks.length} aktive
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Aktive regelverk for {customerName}
+          </p>
+        </div>
+        <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowEditDialog(true)}>
+          <Settings2 className="h-4 w-4" />
+          Endre regelverk
+        </Button>
       </div>
-      {q && (
-        <p className="text-xs text-muted-foreground mt-2">
-          {totalMatches} treff for «{query}»
-        </p>
+
+      {activeFrameworks.length > 0 ? (
+        <div className="space-y-4">
+          <ActiveFrameworksSummary
+            frameworks={activeFrameworks}
+            getStats={getChipStats}
+            expanded={summaryExpanded}
+            onToggle={() => setSummaryExpanded((v) => !v)}
+          />
+
+          {summaryExpanded && (
+            <FrameworkChipSelector
+              frameworks={activeFrameworks}
+              selectedId={selectedId}
+              onSelect={(id) => {
+                setSelectedId(id);
+                setSummaryExpanded(false);
+              }}
+              getStats={getChipStats}
+              hideSummary
+            />
+          )}
+
+          {selectedFramework && (
+            <>
+              <FrameworkDetailCard framework={selectedFramework} counts={currentCounts} />
+              <ComplianceHistoryChart frameworkId={selectedFramework.id} />
+              <FrameworkRequirementsList
+                frameworkId={selectedFramework.id}
+                onCountsChange={handleCountsChange}
+              />
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="text-center py-12 text-muted-foreground border border-dashed rounded-lg">
+          <p>Ingen regelverk er aktivert for denne kunden ennå.</p>
+          <p className="text-xs mt-1">
+            Du kan forhåndsvise en gap-analyse uten å aktivere — klikk «Endre regelverk».
+          </p>
+          <Button variant="outline" className="mt-3" onClick={() => setShowEditDialog(true)}>
+            Endre regelverk
+          </Button>
+        </div>
       )}
 
-      {/* Filters */}
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
-        <div className="flex items-center gap-2">
-          {(["active", "inactive", "all"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              onClick={() => setStatusFilter(s)}
-              className={`transition-colors hover:text-foreground ${
-                statusFilter === s ? "text-foreground font-medium" : ""
-              }`}
-            >
-              {s === "all" ? "Alle" : s === "active" ? "Aktive" : "Ikke aktive"}
-            </button>
-          ))}
-        </div>
-
-        <span aria-hidden className="h-3 w-px bg-border" />
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              aria-label="Flere filtre"
-              className={`relative inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 transition-colors hover:text-foreground hover:bg-muted ${
-                categoryFilter ? "text-foreground" : ""
-              }`}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              Filtre
-              {categoryFilter && (
-                <span className="ml-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-xs font-semibold text-primary-foreground">
-                  1
-                </span>
-              )}
-            </button>
-          </PopoverTrigger>
-          <PopoverContent align="start" className="w-72 p-3">
-            <div className="space-y-3">
-              <div>
-                <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Kategori
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {categories.map((cat) => {
-                    const active = categoryFilter === cat.id;
-                    const Icon = cat.icon;
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => setCategoryFilter(active ? null : cat.id)}
-                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[12px] transition-colors ${
-                          active
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-background hover:bg-muted"
-                        }`}
-                      >
-                        <Icon className="h-3 w-3" />
-                        {cat.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              {categoryFilter && (
-                <button
-                  type="button"
-                  onClick={() => setCategoryFilter(null)}
-                  className="inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-3 w-3" /> Nullstill filtre
-                </button>
-              )}
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      <div className="mt-6 space-y-6">
-        {visibleCategories.length === 0 && (
-          <p className="text-sm text-muted-foreground py-8 text-center">
-            Ingen regelverk matcher filtrene.
-          </p>
-        )}
-        {visibleCategories.map(({ cat: category, items }) => {
-          const CategoryIcon = category.icon;
-          return (
-            <div key={category.id}>
-              <div className="flex items-center gap-2 mb-3">
-                <div className={`p-1.5 rounded-lg ${category.bgColor}`}>
-                  <CategoryIcon className={`h-4 w-4 ${category.color}`} />
-                </div>
-                <h3 className="font-semibold text-sm text-foreground">{category.name}</h3>
-              </div>
-              <div className="space-y-2">
-                {items.map((f) => {
-                  const isActive = activatedIds.has(f.id);
-                  const isRecommended = !isActive && recommendationMap.has(f.id);
-                  const reason = recommendationMap.get(f.id);
-                  const record = isActive ? activatedById.get(f.id) : undefined;
-                  const orderedDate = record ? formatOrderedDate(record.orderedAt) : null;
-
-                  return (
-                    <div
-                      key={f.id}
-                      className={`flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors ${
-                        isActive
-                          ? "bg-primary/5 border-primary/20"
-                          : "bg-muted/30 border-border"
-                      }`}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium text-sm">{f.name}</span>
-                          {f.isMandatory && (
-                            <span className="inline-flex items-center gap-1 rounded-md border border-status-followup/30 bg-status-followup/10 px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-status-followup">
-                              <Lock className="h-2.5 w-2.5" />
-                              Påkrevd
-                            </span>
-                          )}
-                          {isRecommended && reason && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-primary">
-                                  <Sparkles className="h-2.5 w-2.5" />
-                                  Anbefalt
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs max-w-[240px]">{reason}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                          {f.description}
-                        </p>
-                      </div>
-                      {isActive ? (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Badge
-                              variant="outline"
-                              className="gap-1 border-success/40 text-success bg-success/5 shrink-0"
-                            >
-                              <CheckCircle2 className="h-3 w-3" />
-                              Aktivert
-                            </Badge>
-                          </TooltipTrigger>
-                          {record && record.method !== "legacy" && (
-                            <TooltipContent>
-                              <p className="text-xs">
-                                {orderedDate && <>Bestilt {orderedDate}<br /></>}
-                                {record.method === "upload"
-                                  ? `Vedlegg: ${record.evidenceName}`
-                                  : "Partnerbekreftelse"}
-                              </p>
-                            </TooltipContent>
-                          )}
-                        </Tooltip>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="shrink-0"
-                          onClick={() => setPendingFramework(f)}
-                        >
-                          Bestill
-                        </Button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <EditActiveFrameworksDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        activeFrameworkIds={activatedIds}
+        onToggle={handleToggle}
+        updatingId={null}
+        recommendations={recommendations}
+        onPreview={(fw) => {
+          setShowEditDialog(false);
+          setPreviewFramework(fw);
+        }}
+        title={`Endre regelverk — ${customerName}`}
+        description="Anbefalinger basert på bransje og størrelse. Forhåndsvis gap-analyse uten å aktivere."
+      />
 
       <FrameworkOrderConfirmDialog
         open={!!pendingFramework}
@@ -448,6 +368,17 @@ export function MSPCustomerRegulationsTab({ customerId, customerName, customer }
         framework={pendingFramework}
         customerName={customerName}
         onConfirm={handleConfirmOrder}
+      />
+
+      <FrameworkPreviewSheet
+        open={!!previewFramework}
+        onOpenChange={(o) => !o && setPreviewFramework(null)}
+        framework={previewFramework}
+        customerName={customerName}
+        onActivate={(fw) => {
+          setPreviewFramework(null);
+          setPendingFramework(fw);
+        }}
       />
     </div>
   );
