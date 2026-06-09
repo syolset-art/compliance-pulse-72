@@ -1,61 +1,28 @@
-# Trust Profile — Kertos-style hero
+## Mål
+På Trust Profile: erstatt boksen "Sammendrag" (4 talloppsummeringer) med "Etterlevelse" (regelverk/krav virksomheten følger), og bruk plassen i hero-banneret (der Etterlevelse ligger nå) til en kort beskrivelse av virksomheten.
 
-## Goal
-Match the reference: a tall, clean banner (pattern or custom cover) on top, a large circular logo overlapping the banner's bottom edge, then on the white surface below: `{Company} Trust Center` headline, with Trust Score, frameworks and meta moved into a calmer strip beneath — not floating on the banner.
+## Endringer
 
-## Visual target
+### 1) `src/components/trust-center/profile/TrustProfileHero.tsx`
+- Fjern hele "Compliance frameworks"-boksen (linje 161–194) under firmanavnet.
+- Erstatt den med en tekstblokk som viser `description` (virksomhetsbeskrivelse):
+  - Bruk samme avstand (`mt-5`), uten kort/border — ren brødtekst i `text-sm text-muted-foreground leading-relaxed`, maks ~3 linjer (line-clamp-3) for å holde hero kompakt.
+  - Tom tilstand: liten kursiv tekst "Ingen beskrivelse lagt til ennå" / "No description added yet" (kun synlig for eier — props finnes ikke ennå, så vis bare når `description` finnes; ellers vis ingenting for å unngå rot).
+- Behold props uendret (`frameworks`, `isStandard` blir ubrukte her — fjernes fra hero-bruken, men beholdes i interfacet for nå for å unngå bredere refaktor; alternativt fjernes hvis ingen andre kallsteder bruker dem).
 
-```text
-┌────────────────────────────────────────────────┐
-│   ░░░  PATTERN / COVER BANNER  ░░░             │
-│                                                │
-│                                                │
-│        ⬤  ← circular logo, half over edge      │
-├────────────────────────────────────────────────┤
-│   Kertos GmbH   Trust Center                   │
-│                                                │
-│   [ISO 27001] [NIS2] [DORA]      ◯ 87 / 100   │
-│   short description…              Verified ✓   │
-└────────────────────────────────────────────────┘
-│  ORG.NR · COUNTRY · WEBSITE · INDUSTRY         │  (existing IdentityStripe)
-```
+### 2) `src/pages/TrustCenterProfile.tsx`
+- I "Summary"-seksjonen (linje 838–857):
+  - Endre overskrift fra "Sammendrag/Summary" til "Etterlevelse/Compliance".
+  - Bytt ikon fra `Zap` til `Scale` (eller `BookCheck`) for å matche regelverk-semantikken.
+  - Erstatt 4-kolonners stats-grid med en pille-liste over `recognizedFrameworks` (samme datakilde som hero brukte), med samme fargelogikk som `frameworkChipClass` i hero. Hver pille viser ikon (BookCheck for standard, Scale ellers) + navn, klikk scroller til `#tc-section-maturity`.
+  - Tom tilstand: "Ingen regelverk publisert ennå" / "No frameworks published yet".
+- Sjekk om samme "Sammendrag"-blokk gjentas rundt linje 1971 (i en annen render-gren) og oppdater tilsvarende der.
 
-## Changes (UI only)
+### 3) Datasamsvar
+- `recognizedFrameworks` brukes allerede i Summary-blokken (count). Gjenbruk listen direkte for pillene.
+- `frameworkChipClass` flyttes til en liten delt helper i `src/lib/frameworkChipClass.ts` slik at både hero (hvis senere) og profil-siden kan bruke den uten duplisering.
 
-### `src/components/trust-center/profile/TrustProfileHero.tsx`
-Rewrite the layout into two stacked zones:
-
-1. **Banner zone** (clean, no overlaid content)
-   - Height `clamp(220px, 28vw, 340px)`.
-   - Renders `cover_image_url` if set, else the preset gradient + existing dot pattern.
-   - Keeps the dark linear-gradient overlay (driven by `cover_overlay`).
-   - Top-right keeps the small "Mynder Trust Profile" badge + "Verified" pill (white/translucent), nothing else floating.
-   - Remove the centered "Detaljer ↓" scroll hint and the glass Trust Score card from the banner.
-
-2. **Logo notch**
-   - Circular avatar `h-28 w-28 md:h-32 md:w-32`, `rounded-full`, white background, ring + soft shadow.
-   - Positioned `absolute -bottom-12 left-6 md:left-10`, overlapping banner/white seam (like Kertos).
-   - Falls back to initials if no `logoUrl`.
-
-3. **Identity row** (on the card's surface, below banner)
-   - Padding `pt-16 md:pt-14 pb-6 px-6 md:px-10` so it clears the overlapping logo.
-   - Left: `<h1>` with `{companyName}` in bold foreground + muted "Trust Center" suffix (matches reference typography: `text-3xl font-bold tracking-tight` + `text-2xl text-muted-foreground font-medium`).
-   - Below h1: optional `description` (muted, 2-line clamp).
-   - Below that: framework chips strip — same chips, but restyled for light surface (use `bg-muted/60 text-foreground border-border` + colored dot per category instead of dark glass).
-   - Right (md+): Trust Score as a compact horizontal card — small ring (72px) + score + label + "Updated · Views" meta. On mobile it stacks under the headline.
-
-4. **Props/contract**
-   - Keep all existing props (`flush`, `meta`, `trustScore`, `frameworks`, `onVerifiedClick`, …). No API change for callers (`TrustCenterProfile.tsx`, edit preview).
-   - `flush` still controls outer border/rounded — unchanged behaviour.
-
-### No changes
-- `IdentityStripe` stays as-is (renders below).
-- `BrandingSection`, presets, upload flow unchanged — the same `cover_image_url` / `cover_preset_id` / `cover_overlay` drive the banner.
-- No backend, no schema, no other components touched.
-
-## Acceptance
-- Banner reads clean (pattern or custom image only, no overlaid score/chips).
-- Circular logo clearly straddles the banner/white seam.
-- `Kertos GmbH Trust Center` reads as a single line, bold + muted suffix.
-- Frameworks + Trust Score live on the white surface below, not on the banner.
-- Public profile and edit-preview both render the new hero (both use `TrustProfileHero`).
+## Resultat
+- Hero under firmanavn: kort virksomhetsbeskrivelse.
+- Lenger ned på siden (der "Sammendrag" var): "Etterlevelse / Compliance" med klikkbare regelverk-piller som scroller til modenhetsseksjonen.
+- Ingen endringer i datamodell eller backend.
