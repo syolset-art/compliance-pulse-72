@@ -318,228 +318,194 @@ const TrustCenterEditProfile = () => {
 
 
             {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Regelverk (scope) */}
+            {/* SECTION: Etterlevelse (regelverk + modenhet) */}
             {/* ═══════════════════════════════════════════ */}
-            <section id="frameworks-scope" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Scale className="h-4 w-4 text-primary" />
-                  <h2 className="text-base font-semibold text-foreground">
-                    {isNb ? "Etterlevelse" : "Compliance"}
-                  </h2>
-                </div>
-                <span className="text-sm text-muted-foreground">
-                  {frameworks.filter((fw: any) => !hiddenFrameworkIds.includes(fw.framework_id)).length}/{frameworks.length} {isNb ? "synlig" : "visible"}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {isNb
-                  ? "Velg hvilke regelverk og standarder som skal vises på din offentlige Trust Profile. Skjulte regelverk teller fortsatt i modenhet, men vises ikke for besøkende."
-                  : "Choose which regulations and standards to display on your public Trust Profile. Hidden frameworks still count toward maturity but are not shown to visitors."}
-              </p>
-
-              {frameworks.length === 0 ? (
-                <Card className="p-5 text-center">
-                  <p className="text-sm text-muted-foreground italic mb-3">
-                    {isNb ? "Ingen regelverk valgt ennå" : "No frameworks selected yet"}
-                  </p>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/regulations")}>
-                    {isNb ? "Gå til Regelverk" : "Go to Frameworks"}
-                  </Button>
-                </Card>
-              ) : (
-                <Card className="p-4">
-                  <ul className="divide-y divide-border">
-                    {frameworks.map((fw: any) => {
-                      const standard = isStandard(fw.framework_name);
-                      const Icon = standard ? BookCheck : Scale;
-                      const hidden = hiddenFrameworkIds.includes(fw.framework_id);
-                      return (
-                        <li key={fw.framework_id} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span
-                              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${frameworkChipClass(fw.framework_name)} ${hidden ? "opacity-50" : ""}`}
-                              title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
-                            >
-                              <Icon className="h-3 w-3" />
-                              {fw.framework_name}
-                            </span>
-                            {hidden && (
-                              <span className="text-xs text-muted-foreground italic">
-                                {isNb ? "skjult" : "hidden"}
-                              </span>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            variant={hidden ? "outline" : "ghost"}
-                            onClick={() => toggleFrameworkVisibility(fw.framework_id)}
-                            className="gap-1.5 shrink-0"
-                          >
-                            {hidden ? (
-                              <>
-                                <EyeOff className="h-3.5 w-3.5" />
-                                {isNb ? "Vis" : "Show"}
-                              </>
-                            ) : (
-                              <>
-                                <Eye className="h-3.5 w-3.5" />
-                                {isNb ? "Skjul" : "Hide"}
-                              </>
-                            )}
-                          </Button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                  <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">
-                      {isNb ? "Mangler et regelverk?" : "Missing a framework?"}
-                    </p>
-                    <Button size="sm" variant="outline" onClick={() => navigate("/regulations")} className="gap-1.5">
-                      <Plus className="h-3.5 w-3.5" />
-                      {isNb ? "Legg til regelverk" : "Add framework"}
-                    </Button>
+            <section id="frameworks-scope" className="space-y-5">
+              <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Scale className="h-4 w-4 text-primary" />
+                    <h2 className="text-base font-semibold text-foreground">
+                      {isNb ? "Etterlevelse" : "Compliance"}
+                    </h2>
                   </div>
-                </Card>
-              )}
-            </section>
-
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Modenhet per kontrollområde */}
-            {/* ═══════════════════════════════════════════ */}
-            <section id="security" className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-primary" />
-                  <h2 className="text-base font-semibold text-foreground">
-                    {isNb ? "Modenhet per kontrollområde" : "Maturity by control areas"}
-                  </h2>
+                  <p className="text-sm text-muted-foreground max-w-2xl">
+                    {isNb
+                      ? "Velg hvilke regelverk som skal vises på profilen. Modenhet beregnes ut fra de samme regelverkene."
+                      : "Choose which frameworks appear on the profile. Maturity is calculated from the same frameworks."}
+                  </p>
                 </div>
-                <span className="text-sm text-muted-foreground">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</span>
+                <div className="text-right text-xs text-muted-foreground shrink-0 tabular-nums">
+                  <div>{frameworks.filter((fw: any) => !hiddenFrameworkIds.includes(fw.framework_id)).length}/{frameworks.length} {isNb ? "synlig" : "visible"}</div>
+                  <div className="mt-0.5">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</div>
+                </div>
               </div>
 
-              <Card className="p-3 bg-primary/5 border-primary/20 flex items-start gap-3">
-                <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-                  <Info className="h-3.5 w-3.5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0 text-sm text-foreground">
-                  {isNb ? (
-                    <>
-                      Kontrollområdene speiler rammeverkene du har aktivert under <strong>Regelverk</strong>
-                      {frameworks.length > 0 && (
-                        <> ({frameworks.slice(0, 3).map((f: any) => f.framework_name).join(", ")}{frameworks.length > 3 ? ` +${frameworks.length - 3} til` : ""})</>
-                      )}
-                      . Skoren beregnes ut fra disse. Trenger du flere eller andre rammeverk? Oppdater i Regelverk – så reflekteres det her.
-                    </>
-                  ) : (
-                    <>
-                      Control areas mirror the frameworks you've activated under <strong>Frameworks</strong>
-                      {frameworks.length > 0 && (
-                        <> ({frameworks.slice(0, 3).map((f: any) => f.framework_name).join(", ")}{frameworks.length > 3 ? ` +${frameworks.length - 3} more` : ""})</>
-                      )}
-                      . The score is calculated from these. Need more or different frameworks? Update them under Frameworks and it will reflect here.
-                    </>
-                  )}
-                </div>
-                <Button size="sm" variant="outline" className="text-sm gap-1.5 shrink-0" onClick={() => navigate("/regulations")}>
-                  {isNb ? "Gå til Regelverk" : "Go to Frameworks"}
-                </Button>
-              </Card>
-
-              {/* Control areas */}
+              {/* Subsection 1: Regelverk i scope */}
               <div className="space-y-2">
-                {AREA_CONFIG.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn }) => {
-                  const score = evaluation?.areaScore(area) ?? 0;
-                  const isExpanded = expandedArea === area;
-                  const areaControls = evaluation?.grouped[area] ?? [];
-                  const selfDeclaredCount = areaControls.filter(c => c.verificationSource === "customer_asserted" || c.verificationSource === "ai_inferred").length;
+                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {isNb ? "Regelverk og standarder" : "Frameworks & standards"}
+                </h3>
 
-                  return (
-                    <Card key={area} className="overflow-hidden">
-                      <button
-                        onClick={() => setExpandedArea(isExpanded ? null : area)}
-                        className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2.5">
-                            <Icon className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm font-medium text-foreground">{isNb ? lNb : lEn}</span>
+                {frameworks.length === 0 ? (
+                  <Card className="p-5 text-center">
+                    <p className="text-sm text-muted-foreground italic mb-3">
+                      {isNb ? "Ingen regelverk valgt ennå" : "No frameworks selected yet"}
+                    </p>
+                    <Button size="sm" variant="outline" onClick={() => navigate("/regulations")}>
+                      {isNb ? "Gå til Regelverk" : "Go to Frameworks"}
+                    </Button>
+                  </Card>
+                ) : (
+                  <Card className="overflow-hidden">
+                    <ul className="divide-y divide-border">
+                      {frameworks.map((fw: any) => {
+                        const standard = isStandard(fw.framework_name);
+                        const Icon = standard ? BookCheck : Scale;
+                        const hidden = hiddenFrameworkIds.includes(fw.framework_id);
+                        return (
+                          <li key={fw.framework_id} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-muted/30">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <Icon className={`h-4 w-4 shrink-0 ${hidden ? "text-muted-foreground/50" : "text-muted-foreground"}`} />
+                              <span className={`text-sm font-medium truncate ${hidden ? "text-muted-foreground/60 line-through" : "text-foreground"}`}>
+                                {fw.framework_name}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                {standard ? (isNb ? "Standard" : "Standard") : (isNb ? "Regelverk" : "Regulation")}
+                              </span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => toggleFrameworkVisibility(fw.framework_id)}
+                              className="gap-1.5 shrink-0 text-muted-foreground hover:text-foreground"
+                            >
+                              {hidden ? (
+                                <>
+                                  <EyeOff className="h-3.5 w-3.5" />
+                                  {isNb ? "Vis" : "Show"}
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="h-3.5 w-3.5" />
+                                  {isNb ? "Skjul" : "Hide"}
+                                </>
+                              )}
+                            </Button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    <div className="px-4 py-2.5 border-t border-border flex items-center justify-between bg-muted/20">
+                      <p className="text-xs text-muted-foreground">
+                        {isNb ? "Skjulte regelverk teller fortsatt i modenhet, men vises ikke for besøkende." : "Hidden frameworks still count toward maturity but are not shown to visitors."}
+                      </p>
+                      <Button size="sm" variant="ghost" onClick={() => navigate("/regulations")} className="gap-1.5 text-muted-foreground hover:text-foreground">
+                        <Plus className="h-3.5 w-3.5" />
+                        {isNb ? "Legg til" : "Add"}
+                      </Button>
+                    </div>
+                  </Card>
+                )}
+              </div>
+
+              {/* Subsection 2: Modenhet per kontrollområde */}
+              <div id="security" className="space-y-2">
+                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
+                </h3>
+
+                <div className="space-y-2">
+                  {AREA_CONFIG.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn }) => {
+                    const score = evaluation?.areaScore(area) ?? 0;
+                    const isExpanded = expandedArea === area;
+                    const areaControls = evaluation?.grouped[area] ?? [];
+
+                    return (
+                      <Card key={area} className="overflow-hidden">
+                        <button
+                          onClick={() => setExpandedArea(isExpanded ? null : area)}
+                          className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
+                        >
+                          <div className="flex items-center justify-between mb-2.5">
+                            <div className="flex items-center gap-2.5">
+                              <Icon className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-sm font-medium text-foreground">{isNb ? lNb : lEn}</span>
+                              <span className="text-xs text-muted-foreground">· {areaControls.length} {isNb ? "kontroller" : "controls"}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                              {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
-                            {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                          <div className="h-1 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-500 ${score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive"}`}
+                              style={{ width: `${score}%` }}
+                            />
                           </div>
-                        </div>
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive"}`}
-                            style={{ width: `${score}%` }}
-                          />
-                        </div>
-                      </button>
-                      {isExpanded && areaControls.length > 0 && (
-                        <div className="border-t border-border divide-y divide-border">
-                          {areaControls.map(control => {
-                            const currentStatus = control.status;
-                            return (
-                              <div key={control.key} className="p-4 space-y-3">
-                                <div className="flex items-start justify-between">
+                        </button>
+                        {isExpanded && areaControls.length > 0 && (
+                          <div className="border-t border-border divide-y divide-border bg-muted/10">
+                            {areaControls.map(control => {
+                              const currentStatus = control.status;
+                              return (
+                                <div key={control.key} className="p-4 space-y-3">
                                   <div>
-                                    <p className="text-sm font-semibold text-foreground">{isNb ? control.labelNb : control.labelEn}</p>
+                                    <p className="text-sm font-medium text-foreground">{isNb ? control.labelNb : control.labelEn}</p>
                                     {(control as any).descriptionNb && (
-                                      <p className="text-sm text-muted-foreground mt-0.5">
+                                      <p className="text-xs text-muted-foreground mt-0.5">
                                         {isNb ? (control as any).descriptionNb : (control as any).descriptionEn}
                                       </p>
                                     )}
                                   </div>
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    {([
+                                      { value: "implemented", labelNb: "Ja", labelEn: "Yes", icon: CheckCircle2, activeClass: "bg-success/10 text-success border-success/30" },
+                                      { value: "partial", labelNb: "Delvis", labelEn: "Partial", icon: AlertTriangle, activeClass: "bg-warning/10 text-warning border-warning/30" },
+                                      { value: "missing", labelNb: "Nei", labelEn: "No", icon: Shield, activeClass: "bg-destructive/10 text-destructive border-destructive/30" },
+                                      { value: "not_applicable", labelNb: "Ikke relevant", labelEn: "Not applicable", icon: MinusCircle, activeClass: "bg-muted text-foreground border-border" },
+                                    ] as const).map(opt => {
+                                      const isActive = currentStatus === opt.value;
+                                      return (
+                                        <button
+                                          key={opt.value}
+                                          onClick={async () => {
+                                            const metaKey = control.key;
+                                            const metaValue =
+                                              opt.value === "implemented" ? "yes" :
+                                              opt.value === "partial" ? "partial" :
+                                              opt.value === "not_applicable" ? "n_a" : "no";
+                                            const currentMeta = (asset?.metadata || {}) as Record<string, any>;
+                                            const newMeta = { ...currentMeta, [metaKey]: metaValue };
+                                            await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset!.id);
+                                            queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                                            queryClient.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
+                                          }}
+                                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-medium transition-colors ${
+                                            isActive ? opt.activeClass : "border-border text-muted-foreground hover:bg-muted/50"
+                                          }`}
+                                        >
+                                          <opt.icon className="h-3 w-3" />
+                                          {isNb ? opt.labelNb : opt.labelEn}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                  <button className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors">
+                                    <Upload className="h-3 w-3" />
+                                    {isNb ? "Legg ved dokumentasjon" : "Attach documentation"}
+                                    <span className="text-muted-foreground">({isNb ? "valgfritt" : "optional"})</span>
+                                  </button>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-2">
-                                  {([
-                                    { value: "implemented", labelNb: "Ja", labelEn: "Yes", icon: CheckCircle2, activeClass: "bg-success/10 text-success border-success/30" },
-                                    { value: "partial", labelNb: "Delvis", labelEn: "Partial", icon: AlertTriangle, activeClass: "bg-warning/10 text-warning border-warning/30" },
-                                    { value: "missing", labelNb: "Nei", labelEn: "No", icon: Shield, activeClass: "bg-destructive/10 text-destructive border-destructive/30" },
-                                    { value: "not_applicable", labelNb: "Ikke relevant", labelEn: "Not applicable", icon: MinusCircle, activeClass: "bg-muted text-muted-foreground border-border" },
-                                  ] as const).map(opt => {
-                                    const isActive = currentStatus === opt.value;
-                                    return (
-                                      <button
-                                        key={opt.value}
-                                        onClick={async () => {
-                                          const metaKey = control.key;
-                                          const metaValue =
-                                            opt.value === "implemented" ? "yes" :
-                                            opt.value === "partial" ? "partial" :
-                                            opt.value === "not_applicable" ? "n_a" : "no";
-                                          const currentMeta = (asset?.metadata || {}) as Record<string, any>;
-                                          const newMeta = { ...currentMeta, [metaKey]: metaValue };
-                                          await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset!.id);
-                                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
-                                          queryClient.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
-                                        }}
-                                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${
-                                          isActive ? opt.activeClass : "border-border text-muted-foreground hover:bg-muted/50"
-                                        }`}
-                                      >
-                                        <opt.icon className="h-3.5 w-3.5" />
-                                        {isNb ? opt.labelNb : opt.labelEn}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                                <button className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 transition-colors">
-                                  <Upload className="h-3 w-3" />
-                                  {isNb ? "Legg ved dokumentasjon" : "Attach documentation"}
-                                  <span className="text-muted-foreground">({isNb ? "valgfritt" : "optional"})</span>
-                                </button>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </Card>
-                  );
-                })}
+                              );
+                            })}
+                          </div>
+                        )}
+                      </Card>
+                    );
+                  })}
+                </div>
               </div>
             </section>
 
