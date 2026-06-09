@@ -145,10 +145,21 @@ export function DocumentationSection({ asset }: { asset: any }) {
         </div>
         <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} />
         <input ref={replaceRef} type="file" className="hidden" onChange={handleReplace} />
-        <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={() => fileRef.current?.click()} disabled={uploading}>
-          <Plus className="h-4 w-4" />
-          {uploading ? "Laster opp..." : "Legg til"}
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="outline" className="gap-2 shrink-0" disabled={uploading}>
+              <Plus className="h-4 w-4" />
+              {uploading ? "Laster opp..." : "Legg til"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52">
+            {TYPE_GROUPS.map((g) => (
+              <DropdownMenuItem key={g.key} onClick={() => startUpload(g.key)}>
+                <Upload className="h-3.5 w-3.5 mr-2" /> {g.labelNb}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {grouped.length === 0 ? (
