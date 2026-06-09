@@ -190,11 +190,18 @@ export function TopBar() {
 
           <DropdownMenuSeparator />
 
+          {/* About Mynder-score */}
+          <DropdownMenuItem onClick={() => navigate("/resources/maturity")} className="gap-2">
+            <Compass className="h-4 w-4" />
+            {isNb ? "Om Mynder-scoren" : "About the Mynder score"}
+          </DropdownMenuItem>
+
           {/* Settings */}
           <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2">
             <Settings className="h-4 w-4" />
             {isNb ? "Innstillinger" : "Settings"}
           </DropdownMenuItem>
+
 
           {/* Sign out */}
           <DropdownMenuItem
