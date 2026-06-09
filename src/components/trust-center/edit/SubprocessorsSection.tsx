@@ -3,10 +3,12 @@ import { Users, Sparkles, Trash2, ShieldCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
 import {
   getSubprocessorCountry,
   type AnalyzedSubprocessor,
@@ -69,6 +71,14 @@ export function SubprocessorsSection({ asset }: Props) {
     await persist(vendors.filter((v) => v.name !== name));
   };
 
+  const handleUsageChange = async (name: string, usage: string) => {
+    const trimmed = usage.trim();
+    const current = vendors.find((v) => v.name === name);
+    if ((current?.usage || "") === trimmed) return;
+    await persist(vendors.map((v) => (v.name === name ? { ...v, usage: trimmed || undefined } : v)));
+  };
+
+
   return (
     <section id="subprocessors" className="space-y-5 scroll-mt-24">
       <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
@@ -112,14 +122,22 @@ export function SubprocessorsSection({ asset }: Props) {
               const country = getSubprocessorCountry(v.country);
               const description = v.category && v.category !== "Ukjent" ? v.category : null;
               return (
-                <li key={v.name} className="flex items-start gap-4 px-4 py-3 hover:bg-muted/30">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground truncate">{v.name}</div>
-                    {description && (
-                      <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{description}</p>
-                    )}
+                <li key={v.name} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/30">
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm font-medium text-foreground truncate">{v.name}</span>
+                      {description && (
+                        <span className="text-xs text-muted-foreground truncate">· {description}</span>
+                      )}
+                    </div>
+                    <Input
+                      defaultValue={v.usage || ""}
+                      placeholder={isNb ? "Brukes til … (f.eks. e-post, lønn, kundedata)" : "Used for … (e.g. email, payroll, customer data)"}
+                      className="h-8 text-xs"
+                      onBlur={(e) => handleUsageChange(v.name, e.target.value)}
+                    />
                   </div>
-                  <div className="shrink-0 text-xs text-muted-foreground w-32 pt-0.5">
+                  <div className="shrink-0 text-xs text-muted-foreground w-32 pt-1.5">
                     {country ? (
                       <span>{country.name}</span>
                     ) : (
@@ -129,7 +147,7 @@ export function SubprocessorsSection({ asset }: Props) {
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive"
+                    className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive mt-0.5"
                     onClick={() => handleRemove(v.name)}
                     aria-label={isNb ? "Fjern" : "Remove"}
                   >
@@ -144,3 +162,4 @@ export function SubprocessorsSection({ asset }: Props) {
     </section>
   );
 }
+

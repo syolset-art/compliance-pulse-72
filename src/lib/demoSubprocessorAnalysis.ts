@@ -7,11 +7,14 @@ export type AnalyzedSubprocessor = {
   name: string;
   category: string;
   country?: string;
+  /** Short, user-supplied description of what the subprocessor is used for. */
+  usage?: string;
   hasTrustProfile: boolean;
   trustProfileScore?: number; // 0–100 when present in Mynder
   dpaType: VendorDpaType | "unknown";
   source: "matched" | "unmatched";
 };
+
 
 export type SubprocessorListData = {
   source: "upload" | "url" | "manual";
