@@ -34,7 +34,6 @@ export function BaselineReadinessCard({
   areaProgress,
   totalAnswered,
   totalQuestions,
-  activeFrameworkCount,
   onFillBaseline,
   onReviewBaseline,
   onGoToRegulations,
@@ -45,7 +44,6 @@ export function BaselineReadinessCard({
   const completeness = totalQuestions === 0 ? 0 : totalAnswered / totalQuestions;
   const isReady = completeness >= 0.8;
   const hasStarted = totalAnswered > 0;
-  const additionalFrameworks = Math.max(0, activeFrameworkCount - 1);
 
   return (
     <TooltipProvider>
