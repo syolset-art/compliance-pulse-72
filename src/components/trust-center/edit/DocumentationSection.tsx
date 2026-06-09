@@ -15,8 +15,8 @@ import { FileText, Upload, Eye, EyeOff, MoreHorizontal, Replace, Trash2, Plus, L
 import { toast } from "sonner";
 
 const TYPE_GROUPS: { key: string; labelNb: string; labelEn: string; match: (t: string) => boolean }[] = [
-  { key: "certificate", labelNb: "Sertifikater", labelEn: "Certificates", match: (t) => t === "certificate" },
   { key: "policy", labelNb: "Policyer", labelEn: "Policies", match: (t) => t === "policy" || t === "guideline" },
+  { key: "certificate", labelNb: "Sertifikater", labelEn: "Certificates", match: (t) => t === "certificate" },
   { key: "dpa", labelNb: "Avtaler", labelEn: "Agreements", match: (t) => t === "dpa" },
   { key: "report", labelNb: "Rapporter", labelEn: "Reports", match: (t) => t === "report" },
 ];
