@@ -143,7 +143,7 @@ const TrustCenterEvidence = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("vendor_documents")
-        .select("id, document_type, file_name, file_path, status, created_at, valid_to, valid_from, version, display_name, category, visibility, notes, approved_by, approved_at, external_url, available_on_request")
+        .select("id, document_type, file_name, file_path, status, created_at, updated_at, valid_to, valid_from, version, display_name, category, visibility, notes, approved_by, approved_at, external_url, available_on_request, reviewed_at, reviewed_by")
         .eq("asset_id", asset!.id)
         .order("created_at", { ascending: false });
       return data || [];
