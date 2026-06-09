@@ -63,9 +63,11 @@ export default function MSPCustomerDetail() {
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean }>({ open: false, review: false });
+  const [isLaraSuggesting, setIsLaraSuggesting] = useState(false);
   const [mandateDialogOpen, setMandateDialogOpen] = useState(false);
   const mandate = useMandate(customerId || "");
-  const { answers: baselineAnswers, setAnswer: setBaselineAnswer, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
+  const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
+
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
