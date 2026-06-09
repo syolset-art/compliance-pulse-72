@@ -267,6 +267,33 @@ const TrustCenterEvidence = () => {
     setEditDoc(null);
   };
 
+  const markReviewedMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData?.user?.id ?? null;
+      const { error } = await supabase
+        .from("vendor_documents")
+        .update({
+          valid_from: new Date().toISOString().split("T")[0],
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: userId,
+        })
+        .eq("id", id);
+      if (error) throw error;
+      return userData?.user?.email ?? null;
+    },
+    onSuccess: (email) => {
+      invalidate();
+      toast.success(
+        isNb
+          ? `Markert som gjennomgått${email ? ` av ${email}` : ""}. Neste anbefalte gjennomgang om 12 mnd.`
+          : `Marked as reviewed${email ? ` by ${email}` : ""}. Next recommended review in 12 months.`,
+      );
+      setEditDoc(null);
+    },
+    onError: () => toast.error(isNb ? "Kunne ikke markere som gjennomgått" : "Failed to mark as reviewed"),
+  });
+
   // Apply search and filters
   const filteredDocs = vendorDocs.filter((d: any) => {
     const matchesSearch = !searchQuery || 
