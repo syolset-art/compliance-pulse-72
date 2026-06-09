@@ -26,6 +26,14 @@ interface EditActiveFrameworksDialogProps {
   updatingId: string | null;
   countryScope?: CountryScope;
   onEditCountries?: () => void;
+  /** MSP: per-framework recommendation reasons keyed by framework id */
+  recommendations?: Map<string, string>;
+  /** MSP: when provided, shows a "Forhåndsvis gap-analyse" button per inactive framework */
+  onPreview?: (framework: Framework) => void;
+  /** Override the sheet title (e.g. for partner context) */
+  title?: string;
+  /** Override the sheet description */
+  description?: string;
 }
 
 export const EditActiveFrameworksDialog = ({
@@ -36,6 +44,10 @@ export const EditActiveFrameworksDialog = ({
   updatingId,
   countryScope,
   onEditCountries,
+  recommendations,
+  onPreview,
+  title,
+  description,
 }: EditActiveFrameworksDialogProps) => {
   const [search, setSearch] = useState("");
   const [requestOpen, setRequestOpen] = useState(false);
