@@ -32,6 +32,8 @@ import { TrustProfileTakeoverInfoDialog } from "@/components/msp/TrustProfileTak
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
+import { MATURITY_AREAS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
+
 import { useQuestionnaireDeliveries, scoreDelivery } from "@/hooks/useQuestionnaireDeliveries";
 import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
@@ -63,9 +65,11 @@ export default function MSPCustomerDetail() {
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
   const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean }>({ open: false, review: false });
+  const [isLaraSuggesting, setIsLaraSuggesting] = useState(false);
   const [mandateDialogOpen, setMandateDialogOpen] = useState(false);
   const mandate = useMandate(customerId || "");
-  const { answers: baselineAnswers, setAnswer: setBaselineAnswer, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
+  const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
+
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
@@ -309,7 +313,45 @@ export default function MSPCustomerDetail() {
                 onFillBaseline={() => setBaselineDrawer({ open: true, review: false })}
                 onReviewBaseline={() => setBaselineDrawer({ open: true, review: true })}
                 onGoToRegulations={() => handleTabChange("regulations")}
+                isLaraSuggesting={isLaraSuggesting}
+                onLaraSuggest={async () => {
+                  if (!customer) return;
+                  setIsLaraSuggesting(true);
+                  try {
+                    const { data, error } = await supabase.functions.invoke("suggest-baseline-answers", {
+                      body: {
+                        customerName: customer.name || "Kunden",
+                        customerDomain: (customer as { domain?: string }).domain,
+                        industry: (customer as { industry?: string }).industry,
+                        areas: MATURITY_AREAS.map((a) => ({
+                          id: a.id,
+                          title: a.title,
+                          questions: a.questions.map((q) => ({ id: q.id, text: q.text, article: q.article })),
+                        })),
+                      },
+                    });
+                    if (error) throw error;
+                    const suggestions = (data as { suggestions?: { question_id: string; answer: MaturityAnswer }[] })?.suggestions ?? [];
+                    if (suggestions.length === 0) {
+                      toast.error("Lara kunne ikke foreslå svar akkurat nå");
+                      return;
+                    }
+                    const next: MaturityAnswers = {};
+                    for (const s of suggestions) next[s.question_id] = s.answer;
+                    setAllBaselineAnswers(next);
+                    toast.success(`Lara foreslo ${suggestions.length} svar`, {
+                      description: "Gå gjennom og bekreft hvert svar.",
+                    });
+                    setBaselineDrawer({ open: true, review: true });
+                  } catch (e) {
+                    console.error("Lara baseline suggestion failed", e);
+                    toast.error("Klarte ikke hente forslag fra Lara");
+                  } finally {
+                    setIsLaraSuggesting(false);
+                  }
+                }}
               />
+
 
               <BaselineQuestionsDrawer
                 open={baselineDrawer.open}

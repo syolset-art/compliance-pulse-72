@@ -43,6 +43,13 @@ export function useCustomerBaseline(customerId: string | undefined) {
     [answers, persist],
   );
 
+  const setAllAnswers = useCallback(
+    (next: MaturityAnswers) => {
+      persist({ ...answers, ...next });
+    },
+    [answers, persist],
+  );
+
   const isAnswered = (a: MaturityAnswer | undefined) => a === "yes" || a === "no" || a === "n_a";
 
   const areaProgress: BaselineAreaProgress[] = useMemo(
@@ -60,5 +67,6 @@ export function useCustomerBaseline(customerId: string | undefined) {
   const totalQuestions = ALL_MATURITY_QUESTIONS.length;
   const completeness = totalQuestions === 0 ? 0 : totalAnswered / totalQuestions;
 
-  return { answers, setAnswer, areaProgress, totalAnswered, totalQuestions, completeness };
+  return { answers, setAnswer, setAllAnswers, areaProgress, totalAnswered, totalQuestions, completeness };
 }
+

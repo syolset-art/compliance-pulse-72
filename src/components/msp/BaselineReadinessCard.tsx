@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckCircle2, AlertCircle, ArrowRight, ClipboardEdit, Eye, ShieldCheck, Gift } from "lucide-react";
+import { CheckCircle2, AlertCircle, ArrowRight, ClipboardEdit, Eye, ShieldCheck, Gift, Sparkles, Info, Loader2, ChevronDown } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { BaselineAreaProgress } from "@/hooks/useCustomerBaseline";
 
 interface Props {
@@ -13,6 +15,8 @@ interface Props {
   onFillBaseline: () => void;
   onReviewBaseline: () => void;
   onGoToRegulations: () => void;
+  onLaraSuggest?: () => Promise<void> | void;
+  isLaraSuggesting?: boolean;
 }
 
 /**
@@ -20,6 +24,11 @@ interface Props {
  * fra Trust Profile, og kan fylle ut / se over baselinen på vegne av kunden.
  * GDPR-baselinen er alltid inkludert gratis så snart kunden er invitert inn,
  * så partneren kan komme i gang uten å aktivere flere regelverk først.
+ *
+ * Tre nivåer av autonomi (jf. AI-filosofien):
+ *  - Automatisk: "La Lara fylle ut" — Lara foreslår alle svar, partner bekrefter
+ *  - Assistert:  "Fortsett baseline" — Lara foreslår per spørsmål, partner svarer
+ *  - Manuell:    Partner fyller ut hvert spørsmål selv
  */
 export function BaselineReadinessCard({
   areaProgress,
@@ -29,12 +38,13 @@ export function BaselineReadinessCard({
   onFillBaseline,
   onReviewBaseline,
   onGoToRegulations,
+  onLaraSuggest,
+  isLaraSuggesting = false,
 }: Props) {
+  const [explainerOpen, setExplainerOpen] = useState(totalAnswered === 0);
   const completeness = totalQuestions === 0 ? 0 : totalAnswered / totalQuestions;
-  // GDPR-baseline alene er nok til å gjøre kunden "klar" — flere regelverk er valgfritt.
   const isReady = completeness >= 0.8;
   const hasStarted = totalAnswered > 0;
-  // activeFrameworkCount inkluderer alltid GDPR (lagt til implisitt i MSPCustomerDetail).
   const additionalFrameworks = Math.max(0, activeFrameworkCount - 1);
 
   return (
@@ -84,11 +94,41 @@ export function BaselineReadinessCard({
                 : " · GDPR-baseline aktiv"}
               {". "}
               {activeFrameworkCount <= 1
-                ? "Fyll ut GDPR-baselinen for å aktivere kundens Trust Profile — flere regelverk kan legges til etterpå."
+                ? "Lara kan foreslå svarene automatisk — du bekrefter og fullfører."
                 : "Du kan fylle ut baselinen på vegne av kunden — eller se over det Lara allerede har foreslått."}
             </p>
           </div>
         </div>
+
+        {/* Hva er baseline? — kollapsibel forklaring */}
+        <Collapsible open={explainerOpen} onOpenChange={setExplainerOpen}>
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              className="flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+            >
+              <Info className="h-3.5 w-3.5" />
+              Hva er baseline?
+              <ChevronDown
+                className={"h-3.5 w-3.5 transition-transform " + (explainerOpen ? "rotate-180" : "")}
+              />
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2">
+            <div className="rounded-md border border-primary/20 bg-primary/5 p-3 text-sm text-foreground space-y-2">
+              <p>
+                <span className="font-medium">Baseline</span> er kundens utgangspunkt — en
+                kort kartlegging av om de mest sentrale GDPR- og sikkerhetstiltakene er på
+                plass i dag. Den består av spørsmål fordelt på fem kontrollområder
+                (styring, drift, identitet, personvern og tredjepart).
+              </p>
+              <p className="text-muted-foreground">
+                Når baselinen er besvart vet både du og kunden hvor de står, hvilke gap som
+                finnes, og hva Lara skal hjelpe til med å løse først.
+              </p>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Område-fremdrift — 5 kanoniske kontrollområder */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -116,16 +156,41 @@ export function BaselineReadinessCard({
           })}
         </div>
 
-        {/* CTAs */}
+        {/* CTAs — tre nivåer av autonomi */}
         <div className="flex flex-wrap gap-2 items-center">
+          {onLaraSuggest && !isReady && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  variant={hasStarted ? "outline" : "default"}
+                  className="gap-1.5"
+                  onClick={() => void onLaraSuggest()}
+                  disabled={isLaraSuggesting}
+                >
+                  {isLaraSuggesting ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3.5 w-3.5" />
+                  )}
+                  La Lara fylle ut
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs">
+                Lara foreslår et konservativt utgangspunkt for alle spørsmålene basert på
+                hva som er typisk for kunden. Du gjennomgår og bekrefter hvert svar etterpå.
+              </TooltipContent>
+            </Tooltip>
+          )}
+
           <Button
             size="sm"
-            variant={hasStarted ? "outline" : "default"}
+            variant={hasStarted || onLaraSuggest ? "outline" : "default"}
             className="gap-1.5"
             onClick={onFillBaseline}
           >
             <ClipboardEdit className="h-3.5 w-3.5" />
-            {hasStarted ? "Fortsett baseline" : "Fyll ut GDPR-baseline"}
+            {hasStarted ? "Fortsett baseline" : "Fyll ut manuelt"}
           </Button>
 
           {hasStarted && (
@@ -149,4 +214,3 @@ export function BaselineReadinessCard({
     </TooltipProvider>
   );
 }
-
