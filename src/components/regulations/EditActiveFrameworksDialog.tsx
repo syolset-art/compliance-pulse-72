@@ -385,6 +385,18 @@ export const EditActiveFrameworksDialog = ({
                                   </p>
                                 </TooltipContent>
                               </Tooltip>
+                            {recommendations?.has(fw.id) && !isActive && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                                    <Sparkles className="h-2.5 w-2.5" />
+                                    Anbefalt
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs max-w-[240px]">{recommendations.get(fw.id)}</p>
+                                </TooltipContent>
+                              </Tooltip>
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{fw.description}</p>
@@ -395,6 +407,16 @@ export const EditActiveFrameworksDialog = ({
                                 Lovpålagt regelverk er deaktivert — anbefales å aktivere
                               </span>
                             </div>
+                          )}
+                          {onPreview && !isActive && (
+                            <button
+                              type="button"
+                              onClick={() => onPreview(fw)}
+                              className="mt-1.5 inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Eye className="h-3 w-3" />
+                              Forhåndsvis gap-analyse
+                            </button>
                           )}
                         </div>
                         <Switch
