@@ -206,7 +206,7 @@ export function TrustControlsPanel({
 
   // All 5 security areas — always displayed
   const securityAreas = [
-    { area: "governance" as ControlArea, icon: Shield, label: "Governance", labelNb: "Styring",
+    { area: "governance" as ControlArea, icon: Shield, label: "Governance & Accountability", labelNb: "Styring og ansvar",
       descNb: "Styringsgrunnlag, eierskap til vurderinger og sentral dokumentasjon for systemet.",
       descEn: "Governance framework, ownership of assessments and central documentation." },
     { area: "operations" as ControlArea, icon: Settings, label: "Drift og sikkerhet", labelNb: "Drift og sikkerhet",
