@@ -1020,6 +1020,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           </div>
         </Card>
       </div>
+      </div>
     );
   }
 
