@@ -1,64 +1,69 @@
 ## Mål
 
-I MSP-kundens **Regelverk**-arkfane skal partneren se nøyaktig samme oppsett som kunden ser i sin portal (bilde 1), og bruke samme høyre-drawer for å aktivere/deaktivere regelverk (bilde 2) — med Mynder/Lara-anbefalinger på toppen. I tillegg trenger partneren å kunne kjøre **gap-analyser uten å aktivere** regelverket.
+På **Rediger Trust Profile** (`/trust-center/edit`) skal brukeren kunne legge til tredjepartsleverandører (subprocessors) manuelt — én og én via søk. Det som legges til vises i Trust Profilen i samme `SubprocessorTable` som allerede finnes (referansebilde). Listen lagres på `asset.metadata.subprocessors`.
 
-## Det som endres
+## Hva som lages
 
-### 1. Erstatt nåværende `MSPCustomerRegulationsTab` med kundeportal-layout
+### Ny seksjon i edit-flyten
 
-Speil strukturen fra `src/pages/Regulations.tsx` inn i tabben:
+I `src/pages/TrustCenterEditProfile.tsx`, rett før `DocumentationSection`, plasseres en ny `<SubprocessorsSection asset={asset} />` med:
 
-- **ActiveFrameworksSummary** — topp-kort: total %-modenhet, antall aktive, donut + kategoribar (Personvern / Sikkerhet / Øvrige). Identisk komponent.
-- **FrameworkChipSelector** — chips for å velge aktivt regelverk (vises når summary er ekspandert).
-- **FrameworkDetailCard** — valgt regelverk med Del / Eksporter PDF.
-- **ComplianceHistoryChart** — historisk utvikling.
-- **FrameworkRequirementsList** — krav og evaluatorer (Alle / Ikke oppfylt / Delvis / Oppfylt).
+- Tittel + kort hjelpetekst.
+- Liste over allerede lagte leverandører (initial-bobble, navn, kategori/formål, land med flagg, slett-knapp). Speiler stilen i `SubprocessorTable`.
+- **«+ Legg til leverandør»** som åpner et søke-Combobox.
 
-Header får knappen **"Endre regelverk"** som åpner drawer (i stedet for dagens inline-liste).
+### Søk + autoutfylling
 
-### 2. Bytt aktiverings-UX til samme høyre-drawer
+Comboboxen søker mot eksisterende `VENDOR_CATALOG` (`src/lib/vendorCatalog.ts`) + `COUNTRY_BY_NAME` fra `src/lib/demoSubprocessorAnalysis.ts`:
 
-Bruk `EditActiveFrameworksDialog` (Sheet). For MSP-konteksten utvides den med to ting:
+- Treff i katalogen → fyller automatisk inn **kategori (formål)**, **land** og **DPA-type**. Brukeren bekrefter med Enter / klikk.
+- Ingen treff → tilbyr **«Legg til "{navn}" manuelt»**. Et lite skjema (navn, formål, land — landvelger fra `SUPPORTED_COUNTRIES` i `countryScopeData.ts`) lar brukeren fylle ut selv. DPA settes til `unknown`.
 
-- **"Anbefalt"-pille** per regelverk, drevet av eksisterende `computeRecommendations(customer)` fra dagens tab (bransje + ansatte → forslag). Tooltip viser begrunnelsen ("Obligatorisk bransjenorm for helsesektoren" etc.).
-- **Toggle = bestilling**: switch på et inaktivt regelverk åpner `FrameworkOrderConfirmDialog` (dagens flyt — dokumentasjon eller partnerbekreftelse) før det faktisk aktiveres og faktureres.
+Begge veier ender i et nytt entry på formen `AnalyzedSubprocessor` (`source: "matched" | "unmatched"` finnes allerede). 
 
-Lagring fortsetter i samme `localStorage` (`msp.customer.activatedFrameworks.<id>`) for å beholde demo-data.
+### Lagring
 
-### 3. "Gap-analyse uten aktivering" (svar på partner-spørsmålet)
+Hele lista lagres som `SubprocessorListData` på `asset.metadata.subprocessors`:
 
-Nytt **Preview-modus** per regelverk i drawer-en, ved siden av aktiverings-toggelen:
-
-```text
-┌─────────────────────────────────────────────────────────┐
-│ NIS2-direktivet                          [Bestill] ⚙   │
-│ EUs direktiv om sikkerhet…              [👁 Forhåndsvis]│
-└─────────────────────────────────────────────────────────┘
+```ts
+{
+  source: "manual",          // ny variant (legges til i typen)
+  analyzedAt: <ISO>,
+  vendors: AnalyzedSubprocessor[]
+}
 ```
 
-- **"Forhåndsvis gap-analyse"** åpner regelverket i kundens detalj-visning som en read-only sandbox: krav, status, anbefalinger og Lara-vurdering — men markert med banner *"Forhåndsvisning — ikke aktivert. Ingen fakturering, ikke synlig for kunden."*
-- Resultatene lagres som en partner-intern `preview_assessments` (in-memory/localStorage i denne demoen) slik at partneren kan bruke gapet i tilbud, ROI og kampanjer.
-- Fra preview-banneret finnes CTA **"Aktiver hos kunden"** som åpner samme bestillingsdialog.
+`source`-unionen utvides med `"manual"` i `src/lib/demoSubprocessorAnalysis.ts`. Hvis listen allerede finnes (fra opplasting/URL), legges nye manuelle radene **inn i samme `vendors`-array** så Trust Profile-tabellen viser alt sammen.
 
-Dette gir partneren mulighet til å selge inn et regelverk basert på et reelt estimert gap, uten å bruke kundens lisens/budsjett før kunden har sagt ja.
+Update-mønsteret følger eksisterende edit-page-pattern:
+```ts
+await supabase.from("assets").update({ metadata: nextMeta }).eq("id", asset.id);
+queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
+```
+
+### Visning i Trust Profilen
+
+Ingen endring nødvendig. `TrustCenterProfile.tsx` leser allerede `meta.subprocessors` og rendrer `SubprocessorTable`, som håndterer både eksisterende felter (kategori, country-kode, dpaType, hasTrustProfile). Manuelle entries vil dukke opp i samme tabell.
 
 ## Tekniske detaljer
 
-**Filer som endres**
-- `src/components/msp/MSPCustomerRegulationsTab.tsx` — full omskriving til kundeportal-layout (ActiveFrameworksSummary + FrameworkDetailCard + ComplianceHistoryChart + FrameworkRequirementsList + knapp som åpner drawer).
-- `src/components/regulations/EditActiveFrameworksDialog.tsx` — utvide med valgfrie props: `recommendations?: Map<string,string>` (viser Anbefalt-pille + tooltip) og `previewMode?: { onPreview: (fw) => void }` (legger til "Forhåndsvis" sekundærknapp). Eksisterende kundeportal-bruk er upåvirket fordi propsene er valgfrie.
-- `src/components/msp/MSPCustomerRegulationsTab.tsx` håndterer onToggle (åpner `FrameworkOrderConfirmDialog`) og onPreview (åpner ny `FrameworkPreviewSheet`).
-
 **Nye filer**
-- `src/components/msp/FrameworkPreviewSheet.tsx` — read-only gap-analyse for ett valgt regelverk, gjenbruker `FrameworkRequirementsList` med `readOnly`-flag og banner.
+- `src/components/trust-center/edit/SubprocessorsSection.tsx` — selve seksjonen med liste, slett, og «+ Legg til».
+- `src/components/trust-center/edit/AddSubprocessorCombobox.tsx` — shadcn `Command`-basert søk + fallback manuell skjema (popover).
 
-**Komponenter som gjenbrukes uendret**
-- `ActiveFrameworksSummary`, `FrameworkChipSelector`, `FrameworkDetailCard`, `ComplianceHistoryChart`, `FrameworkRequirementsList`, `FrameworkOrderConfirmDialog`.
+**Endrede filer**
+- `src/lib/demoSubprocessorAnalysis.ts` — utvide `SubprocessorListData["source"]` til `"upload" | "url" | "manual"`. Eksportere en hjelpefunksjon `matchVendorByName(name)` (refaktorering av eksisterende `matchVendor`) slik at edit-seksjonen kan bruke samme matching-logikk for autoutfylling.
+- `src/pages/TrustCenterEditProfile.tsx` — render `<SubprocessorsSection asset={asset} />` rett før `<DocumentationSection />`.
 
-**Ingen DB-endringer.** Aktive regelverk og preview-vurderinger holdes i `localStorage` (demo-mønster).
+**Datakilder for autoutfylling**
+- Navn/kategori/DPA: `VENDOR_CATALOG` (≈30+ leverandører allerede definert).
+- Land: `COUNTRY_BY_NAME` (utvides ved behov) + brukerens valg fra `SUPPORTED_COUNTRIES`.
 
-## Det som ikke endres
+**Ingen DB-migrering.** Alt lagres som JSON på `assets.metadata` (samme felt som i dag).
 
-- Kundens egen `/regulations`-side.
-- Faktureringslogikken / `FrameworkOrderConfirmDialog`.
-- Lara-anbefalingsmotoren (`computeRecommendations`).
+## Ikke i scope
+
+- Bulk-import (CSV/URL) — finnes allerede via `analyzeSubprocessorFile/Url`. Lar oss legge til en knapp som åpner dem senere om ønsket; for nå er manuell tillegg primært.
+- Invitasjons-flyt for leverandører uten Trust Profile — eksisterer som UI-knapp i `SubprocessorTable` (no-op i dag).
+- Endring av offentlig visningskomponent — uendret.
