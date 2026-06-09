@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Plus, Award, Calendar, CheckCircle2, AlertTriangle, FolderOpen, Loader2, Eye, EyeOff, Lock, Database, MoreHorizontal, Pencil, Trash2, ShieldCheck, Download, X as XIcon, Globe } from "lucide-react";
+import { FileText, Plus, Award, Calendar, CheckCircle2, AlertTriangle, FolderOpen, Loader2, Eye, EyeOff, Lock, Database, MoreHorizontal, Pencil, Trash2, ShieldCheck, Download, X as XIcon, Globe, ChevronDown, Info, SlidersHorizontal } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { POLICY_TYPES as policyTypes, CERT_TYPES as certTypes, EVIDENCE_TYPES as evidenceTypes, docTypeLabel } from "@/lib/trustDocumentTypes";
 import { RequiredArtifactsBlock } from "@/components/trust-center/RequiredArtifactsBlock";
 import { DocumentComplianceCard } from "@/components/trust-center/DocumentComplianceCard";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 import { Network, Users } from "lucide-react";
+
+// localStorage helpers for collapsible UI state
+const LS_REQUIRED_OPEN = "trust.evidence.required.open";
+const LS_SECTIONS_OPEN = "trust.evidence.sections.open";
+const readBoolLS = (key: string, fallback: boolean): boolean => {
+  try { const v = localStorage.getItem(key); return v === null ? fallback : v === "1"; } catch { return fallback; }
+};
+const writeBoolLS = (key: string, value: boolean) => {
+  try { localStorage.setItem(key, value ? "1" : "0"); } catch {}
+};
+const readSectionsLS = (): Record<string, boolean> => {
+  try { const v = localStorage.getItem(LS_SECTIONS_OPEN); return v ? JSON.parse(v) : {}; } catch { return {}; }
+};
+const writeSectionsLS = (v: Record<string, boolean>) => {
+  try { localStorage.setItem(LS_SECTIONS_OPEN, JSON.stringify(v)); } catch {}
+};
 
 const statusOptions = [
   { value: "draft", labelNb: "Utkast", labelEn: "Draft" },
@@ -117,6 +135,16 @@ const TrustCenterEvidence = () => {
   const [previewLoading, setPreviewLoading] = useState(false);
   // Access dialog state
   const [accessDoc, setAccessDoc] = useState<any>(null);
+  // Collapsible UI state
+  const [requiredOpen, setRequiredOpen] = useState<boolean>(() => readBoolLS(LS_REQUIRED_OPEN, true));
+  const [sectionsOpen, setSectionsOpen] = useState<Record<string, boolean>>(() => readSectionsLS());
+  const [filterOpen, setFilterOpen] = useState(false);
+  useEffect(() => { writeBoolLS(LS_REQUIRED_OPEN, requiredOpen); }, [requiredOpen]);
+  useEffect(() => { writeSectionsLS(sectionsOpen); }, [sectionsOpen]);
+  const toggleSection = (key: string, fallbackOpen: boolean) => {
+    setSectionsOpen((prev) => ({ ...prev, [key]: !(prev[key] ?? fallbackOpen) }));
+  };
+  const activeFilterCount = (categoryFilter !== "all" ? 1 : 0) + (visibilityFilter !== "all" ? 1 : 0);
 
   const { data: asset } = useQuery({
     queryKey: ["self-asset-evidence"],
@@ -412,14 +440,27 @@ const TrustCenterEvidence = () => {
     <div className="w-full max-w-7xl mx-auto p-4 md:p-10 pt-16 md:pt-20">
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight mb-2">
-            {isNb ? "Dokumentasjon og bevis" : "Documentation and Evidence"}
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-2xl">
-            {isNb
-              ? "Her samler du alle retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance. Dokumentene fungerer som bevis for kontrollene i din Trust Profile og påvirker Trust Score direkte."
-              : "Collect all policies, certifications and documents that support your organization's compliance. Documents serve as evidence for the controls in your Trust Profile and directly impact your Trust Score."}
-          </p>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+              {isNb ? "Dokumentasjon og bevis" : "Documentation and Evidence"}
+            </h1>
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" className="text-muted-foreground hover:text-foreground transition-colors" aria-label={isNb ? "Mer info" : "More info"}>
+                    <Info className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-sm">
+                  <p className="text-xs leading-relaxed">
+                    {isNb
+                      ? "Her samler du alle retningslinjer, sertifiseringer og dokumenter som underbygger organisasjonens compliance. Dokumentene fungerer som bevis for kontrollene i din Trust Profile og påvirker Trust Score direkte."
+                      : "Collect all policies, certifications and documents that support your organization's compliance. Documents serve as evidence for the controls in your Trust Profile and directly impact your Trust Score."}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <Button
@@ -511,10 +552,31 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
-      {/* Required artifacts checklist */}
+      {/* Required artifacts checklist — collapsible */}
       {!isLoading && asset?.id && (
         <div className="mb-6">
-          <RequiredArtifactsBlock assetId={asset.id} vendorDocs={vendorDocs as any} variant="evidence" />
+          <Collapsible open={requiredOpen} onOpenChange={setRequiredOpen}>
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="w-full flex items-center justify-between gap-3 rounded-lg border bg-card hover:bg-muted/40 transition-colors px-4 py-3 text-left"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
+                  <span className="text-sm font-medium truncate">
+                    {isNb ? "Påkrevde artefakter" : "Required artifacts"}
+                  </span>
+                  <span className="text-xs text-muted-foreground hidden sm:inline">
+                    {isNb ? "Sjekkliste mot rammeverk" : "Framework checklist"}
+                  </span>
+                </div>
+                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${requiredOpen ? "rotate-180" : ""}`} />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-3">
+              <RequiredArtifactsBlock assetId={asset.id} vendorDocs={vendorDocs as any} variant="evidence" />
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       )}
 
@@ -533,30 +595,57 @@ const TrustCenterEvidence = () => {
                   className="pl-9"
                 />
               </div>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-[170px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{isNb ? "Alle kategorier" : "All categories"}</SelectItem>
-                  <SelectItem value="policy">{isNb ? "Retningslinjer" : "Policies"}</SelectItem>
-                  <SelectItem value="certification">{isNb ? "Sertifiseringer" : "Certifications"}</SelectItem>
-                  <SelectItem value="evidence">{isNb ? "Avtaler & bevis" : "Agreements & evidence"}</SelectItem>
-                  <SelectItem value="document">{isNb ? "Andre dokumenter" : "Other documents"}</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{isNb ? "Alle nivåer" : "All levels"}</SelectItem>
-                  <SelectItem value="published">{isNb ? "Offentlig" : "Public"}</SelectItem>
-                  <SelectItem value="ecosystem">{isNb ? "Økosystem" : "Ecosystem"}</SelectItem>
-                  <SelectItem value="restricted">{isNb ? "Begrenset" : "Restricted"}</SelectItem>
-                  <SelectItem value="hidden">{isNb ? "Intern" : "Private"}</SelectItem>
-                </SelectContent>
-              </Select>
+              <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-1.5 relative">
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    {isNb ? "Filter" : "Filter"}
+                    {activeFilterCount > 0 && (
+                      <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] font-medium px-1">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-72 space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">{isNb ? "Kategori" : "Category"}</Label>
+                    <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">{isNb ? "Alle kategorier" : "All categories"}</SelectItem>
+                        <SelectItem value="policy">{isNb ? "Retningslinjer" : "Policies"}</SelectItem>
+                        <SelectItem value="certification">{isNb ? "Sertifiseringer" : "Certifications"}</SelectItem>
+                        <SelectItem value="evidence">{isNb ? "Avtaler & bevis" : "Agreements & evidence"}</SelectItem>
+                        <SelectItem value="document">{isNb ? "Andre dokumenter" : "Other documents"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">{isNb ? "Synlighet" : "Visibility"}</Label>
+                    <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">{isNb ? "Alle nivåer" : "All levels"}</SelectItem>
+                        <SelectItem value="published">{isNb ? "Offentlig" : "Public"}</SelectItem>
+                        <SelectItem value="ecosystem">{isNb ? "Økosystem" : "Ecosystem"}</SelectItem>
+                        <SelectItem value="restricted">{isNb ? "Begrenset" : "Restricted"}</SelectItem>
+                        <SelectItem value="hidden">{isNb ? "Intern" : "Private"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {activeFilterCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs h-8"
+                      onClick={() => { setCategoryFilter("all"); setVisibilityFilter("all"); }}
+                    >
+                      {isNb ? "Nullstill filtre" : "Reset filters"}
+                    </Button>
+                  )}
+                </PopoverContent>
+              </Popover>
             </div>
           )}
 
@@ -566,50 +655,50 @@ const TrustCenterEvidence = () => {
             </div>
           ) : vendorDocs.length === 0 ? (
             <p className="text-sm text-muted-foreground py-12 text-center">{isNb ? "Ingen dokumenter registrert ennå." : "No documents registered yet."}</p>
-          ) : (
-            <div className="space-y-8">
-              {evidenceDocs.length > 0 && (
-                <section>
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4" />
-                    {isNb ? "Avtaler" : "Agreements"}
-                    <Badge variant="secondary" className="text-[13px] px-1.5">{evidenceDocs.length}</Badge>
-                  </h2>
-                  <div className="space-y-2">{evidenceDocs.map((doc: any) => renderDocRow(doc, <ShieldCheck className="h-4 w-4 text-primary" />))}</div>
-                </section>
-              )}
-              {policies.length > 0 && (
-                <section>
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    {isNb ? "Retningslinjer" : "Policies"}
-                    <Badge variant="secondary" className="text-[13px] px-1.5">{policies.length}</Badge>
-                  </h2>
-                  <div className="space-y-2">{policies.map((doc: any) => renderDocRow(doc, <FileText className="h-4 w-4 text-primary" />))}</div>
-                </section>
-              )}
-              {certifications.length > 0 && (
-                <section>
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-                    <Award className="h-4 w-4" />
-                    {isNb ? "Sertifiseringer" : "Certifications"}
-                    <Badge variant="secondary" className="text-[13px] px-1.5">{certifications.length}</Badge>
-                  </h2>
-                  <div className="space-y-2">{certifications.map((doc: any) => renderDocRow(doc, <Award className="h-4 w-4 text-primary" />))}</div>
-                </section>
-              )}
-              {documents.length > 0 && (
-                <section>
-                  <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
-                    <FolderOpen className="h-4 w-4" />
-                    {isNb ? "Andre dokumenter" : "Other documents"}
-                    <Badge variant="secondary" className="text-[13px] px-1.5">{documents.length}</Badge>
-                  </h2>
-                  <div className="space-y-2">{documents.map((doc: any) => renderDocRow(doc, <FolderOpen className="h-4 w-4 text-primary" />))}</div>
-                </section>
-              )}
-            </div>
-          )}
+          ) : (() => {
+            const totalDocs = filteredDocs.length;
+            const isFiltering = !!searchQuery || categoryFilter !== "all" || visibilityFilter !== "all";
+            // Default-open logic per section
+            const defaultOpen = (count: number) => {
+              if (isFiltering) return true;
+              if (totalDocs <= 8) return true;
+              return count < 3;
+            };
+            const sectionDef = [
+              { key: "evidence", docs: evidenceDocs, label: isNb ? "Avtaler" : "Agreements", icon: <ShieldCheck className="h-4 w-4" />, rowIcon: <ShieldCheck className="h-4 w-4 text-primary" />, forceOpen: !isFiltering && totalDocs > 8 },
+              { key: "policies", docs: policies, label: isNb ? "Retningslinjer" : "Policies", icon: <FileText className="h-4 w-4" />, rowIcon: <FileText className="h-4 w-4 text-primary" /> },
+              { key: "certifications", docs: certifications, label: isNb ? "Sertifiseringer" : "Certifications", icon: <Award className="h-4 w-4" />, rowIcon: <Award className="h-4 w-4 text-primary" /> },
+              { key: "documents", docs: documents, label: isNb ? "Andre dokumenter" : "Other documents", icon: <FolderOpen className="h-4 w-4" />, rowIcon: <FolderOpen className="h-4 w-4 text-primary" /> },
+            ];
+            return (
+              <div className="space-y-3">
+                {sectionDef.filter(s => s.docs.length > 0).map((s) => {
+                  const fallback = s.forceOpen ? true : defaultOpen(s.docs.length);
+                  const open = sectionsOpen[s.key] ?? fallback;
+                  return (
+                    <Collapsible key={s.key} open={open} onOpenChange={() => toggleSection(s.key, fallback)}>
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          className="w-full flex items-center justify-between gap-3 rounded-lg border bg-card hover:bg-muted/40 transition-colors px-4 py-2.5 text-left"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-muted-foreground">{s.icon}</span>
+                            <span className="text-sm font-medium">{s.label}</span>
+                            <Badge variant="secondary" className="text-[11px] px-1.5">{s.docs.length}</Badge>
+                          </div>
+                          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="pt-2 pb-1">
+                        <div className="space-y-2">{s.docs.map((doc: any) => renderDocRow(doc, s.rowIcon))}</div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </>
       )}
 
