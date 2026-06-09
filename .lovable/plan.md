@@ -1,89 +1,46 @@
-# Kontrollområder: vekting + regelverkskobling
-
 ## Mål
-Når brukeren ser et kontrollområde (f.eks. Styring) i Trust Profile, skal de kunne:
-1. Forstå at antall kontrollpunkter kommer fra de aktiverte regelverkene.
-2. Se hvor mye områdets score teller i Trust Score (områdevekt).
-3. Se hvilke kontrollpunkter som inngår og hvilken vekt hvert punkt har.
 
-## Modell
+Gjør Baseline-modulen konsistent med de 5 kanoniske kontrollområdene (samme som Trust Profile-kortet "Kontrollområder per regelverk"), og kommuniser tydelig at **GDPR er inkludert gratis som baseline** så snart en kunde er invitert inn — uten å kreve at partneren først aktiverer et regelverk.
 
-### Områdevekting (fast, fra ditt bilde)
-Lagres i `src/lib/controlAreas.ts` som `AREA_WEIGHTS`:
+## Endring 1 — Baseline-spørsmål speiler de 5 kontrollområdene
 
-| Område                        | Spørsmål det svarer på             | Vekt |
-| ----------------------------- | ---------------------------------- | ---- |
-| Drift og sikkerhet            | Fungerer sikkerheten i praksis?    | 30 % |
-| Styring og ansvar             | Hvem har ansvaret?                 | 25 % |
-| Personvern og datahåndtering  | Har vi kontroll på personopplysn.? | 20 % |
-| Identitet og tilgang          | Hvem har tilgang til hva?          | 15 % |
-| Tredjepart og verdikjede      | Har vi kontroll på tredjeparter?   | 10 % |
+I dag har `src/lib/trustMaturityQuestions.ts` fire områder: `governance`, `operations`, `privacy`, `third_party`. Det mangler **Identitet og tilgang**, og `third_party` matcher ikke den kanoniske nøkkelen `vendor`.
 
-Trust Score = Σ(områdescore × områdevekt). Vises i overskriften.
+Oppdater `MATURITY_AREAS` til å bruke samme nøkler, titler, ikoner og rekkefølge som `CONTROL_AREAS` i `src/lib/controlAreas.ts`:
 
-### Kontrollpunkter (avledet fra aktive regelverk)
-- Ny helper `getActiveControlPointsByArea(activeFrameworkIds)` i `src/lib/controlAreas.ts`:
-  filtrerer `complianceRequirementsData` + `additionalFrameworkRequirements` på `framework_id ∈ aktive`, grupperer via `toCanonicalArea(sla_category)`.
-- Returnerer per område: `{ requirements[], byFramework: { [frameworkId]: count } }`.
+| Nøkkel | Tittel | Endring |
+|---|---|---|
+| `governance` | Styring og ansvar | Beholdes (5 spørsmål) |
+| `operations` | Drift og sikkerhet | MFA-spørsmål flyttes ut |
+| `identityAccess` | Identitet og tilgang | **Nytt område** – flytter `ops.mfa` hit + 3 nye spørsmål (rollebasert tilgang, minste privilegium, joiner/mover/leaver) |
+| `privacy` | Personvern og datahåndtering | Beholdes (5 spørsmål) |
+| `vendor` | Tredjepart og verdikjede | Rename fra `third_party`, samme spørsmål |
 
-### Vekting per kontrollpunkt (MVP)
-- Standard `weight = 1.0` (alle teller likt — enkleste forklaring).
-- Reserverer plass for fremtidig prioritetsvekt (Critical=2/Standard=1/Optional=0.5) via samme `weight`-feltet i `ScoredRequirement`. Ingen DB-endring nå.
+Spørsmålene knyttes fremdeles til GDPR-artikler (Art. 32 for tilgang/MFA) slik at GDPR-baselinen er meningsfull selv uten andre regelverk aktivert.
 
-### Score-formel
-```text
-områdescore = Σ(modenhet × vekt) / Σ(vekt) × 25     // 0-4 → 0-100
-trust_score = Σ(områdescore × områdevekt) / 100
-```
+## Endring 2 — GDPR alltid med som "gratis baseline"
 
-## UX — "Slik er Styring beregnet"
+Når kunden er invitert inn vises ikke lenger "0 aktiverte regelverk" som et hinder. I `BaselineReadinessCard`:
 
-Hvert områdekort i `MSPCustomerTrustProfileCard` blir klikkbart. Klikk åpner en **høyre Sheet-drawer** (samme mønster som resten av appen) med fire seksjoner:
+- Legg til en liten "Inkludert gratis"-pill ved siden av tittelen som forklarer at **GDPR-baseline er gratis og tilgjengelig fra kunden er invitert**
+- Endre underteksten når `activeFrameworkCount === 0` til: *"GDPR-baseline er inkludert gratis. Fyll ut spørsmålene for å aktivere kundens Trust Profile — flere regelverk kan legges til etterpå."*
+- Fjern "Gå til Regelverk"-CTAen som primær handling når ingen regelverk er aktivert; "Fyll ut baseline" forblir primær, "Legg til flere regelverk" blir sekundær lenke
+- `isReady`-betingelsen endres fra `completeness >= 0.8 && hasFramework` til `completeness >= 0.8` (GDPR teller alltid)
 
-```text
-┌─ Styring og ansvar ──────────────────── × ─┐
-│ [ikon]  Styring og ansvar                  │
-│ Score 78 %      Områdevekt 25 % av Trust   │
-├────────────────────────────────────────────┤
-│ DREVET AV AKTIVE REGELVERK                 │
-│ [ISO 27001 · 12 pkt] [NIS2 · 8] [GDPR · 4] │
-│ → 24 kontrollpunkter totalt i området      │
-├────────────────────────────────────────────┤
-│ KONTROLLPUNKTER (24)                       │
-│ Navn               Regelverk   Vekt  Status│
-│ A.5.1 Policy       ISO 27001    1.0   ✓    │
-│ Art. 21(2)(a)      NIS2         1.0   ◐    │
-│ …                                          │
-├────────────────────────────────────────────┤
-│ SLIK BEREGNES SCOREN                       │
-│ Σ(modenhet × vekt) / Σ(vekt) × 25 = 78 %   │
-│ Områdets vekt i Trust Score: 25 %          │
-│ → Les hele metoden                         │
-└────────────────────────────────────────────┘
-```
+I `MSPCustomerDetail.tsx` justeres `activeFrameworkIds` slik at `gdpr` alltid er inkludert som implisitt baseline når kunden eksisterer (uten å skrive til `customer.active_frameworks` i DB) — kun for visningslogikk i Baseline-kortet og Trust Profile-summen.
 
-I tillegg, på hvert områdekort i selve Trust Profile-kortet:
-- Liten chip "24 fra 3 regelverk" under progress-baren (lavmælt, ikke støy).
-- `info`-ikon med tooltip "Klikk for å se hvilke regelverk som driver dette området".
+## Endring 3 — Følgeoppdateringer
 
-## Filer som endres
+- `BaselineQuestionsDrawer.tsx` bruker `MATURITY_AREAS` direkte og får derfor automatisk den nye 5-fane-strukturen — verifiseres at tab-rekkefølge stemmer med kanonisk rekkefølge
+- `deriveDefaultAnswers` og `deriveLaraSources` oppdateres slik at `ops.mfa` → `ia.mfa` (ny id), og eventuelle eksisterende localStorage-svar migreres mykt (les begge nøkler ved oppstart)
+- Tooltip på "Inkludert gratis"-pillen forklarer at GDPR alltid er med, og at det er Bekks/Mynders policy at GDPR-baselinen er gratis for alle inviterte kunder
 
-| Fil | Endring |
-| --- | --- |
-| `src/lib/controlAreas.ts` | Legg til `AREA_WEIGHTS`, `getActiveControlPointsByArea()`, `calculateTrustScore()`. |
-| `src/lib/scoringEngine.ts` | Ny `calculateScoreByDomainAndFramework()` for cross-tab regelverk × område. |
-| `src/components/msp/MSPCustomerTrustProfileCard.tsx` | Ta inn `activeFrameworkIds`, beregn antall + score per område reelt, gjør kortene klikkbare, vis chip. |
-| `src/pages/MSPCustomerDetail.tsx` | Send `activeFrameworkIds` videre til kortet. |
-| `src/components/msp/ControlAreaBreakdownDrawer.tsx` (ny) | Sheet med de fire seksjonene over. |
-| `src/pages/MaturityMethodology.tsx` | Oppdater metode-siden med ny områdevekting-tabell og formel. |
+## Teknisk
 
-## Avgrensninger (MVP)
-- Ingen DB-endringer. `weight = 1.0` på alle requirements i Phase 1.
-- Kun MSP-kundens Trust Profile-kort i denne runden; samme drawer kan senere gjenbrukes på leverandørenes Trust Profile og Trust Center.
-- Områdevekter er hardkodet i `controlAreas.ts`; partner-admin/superuser-justering kommer senere.
+**Filer som endres:**
+- `src/lib/trustMaturityQuestions.ts` — restrukturer `MATURITY_AREAS` til 5 områder med kanoniske nøkler, flytt MFA, legg til 3 nye identityAccess-spørsmål, oppdater `deriveDefaultAnswers`/`deriveLaraSources`, behold migrering av `ops.mfa`→`ia.mfa`
+- `src/components/msp/BaselineReadinessCard.tsx` — ny "Inkludert gratis"-pill, oppdatert kopi når ingen regelverk er aktivert, justert `isReady`, sekundær lenke til Regelverk
+- `src/pages/MSPCustomerDetail.tsx` — sørg for at GDPR alltid telles i `activeFrameworkIds` for Baseline-visning (uten DB-skriving)
+- `src/components/msp/BaselineQuestionsDrawer.tsx` — kun verifisering, ingen logikk-endringer
 
-## Spørsmål jeg gjør forutsetninger på (kan endres)
-- **Per-punkt-vekt:** starter likt (1.0). Kan senere kobles til `priority` eller Lara/verifisering.
-- **Plassering av forklaring:** høyre Sheet-drawer (matcher mønsteret i resten av appen), pluss en liten chip + info-tooltip på selve kortet for raskt overblikk.
-
-Si fra om vekter eller plassering skal justeres før implementering.
+**Ikke i scope:** DB-migrering av `customer.active_frameworks`, endringer i fakturering/credits, endringer i andre Trust Profile-visninger enn Baseline-kortet.
