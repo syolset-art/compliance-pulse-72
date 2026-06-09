@@ -118,52 +118,13 @@ export function TrustProfileHero({
           }}
         />
 
-        {/* Top strip — branding only (verified moved to dog-ear) */}
+        {/* Top strip — branding only */}
         <div className="relative z-10 flex items-center justify-between px-5 md:px-7 pt-4">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-black/30 backdrop-blur-md ring-1 ring-white/15 px-2.5 py-1 text-xs text-white/90">
             <Shield className="h-3.5 w-3.5" />
             <span className="font-medium">Trust Center</span>
           </div>
         </div>
-
-        {/* Dog-ear / folded-corner — "Verifisert" badge top-right */}
-        <button
-          type="button"
-          onClick={onVerifiedClick}
-          aria-label={isNb ? "Verifisert" : "Verified"}
-          title={isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
-          className="group absolute top-0 right-0 z-20 h-[120px] w-[120px] md:h-[140px] md:w-[140px] focus:outline-none"
-        >
-          {/* Soft shadow under the fold */}
-          <span
-            aria-hidden="true"
-            className="absolute top-0 right-0 h-full w-full"
-            style={{
-              clipPath: "polygon(100% 0, 0 0, 100% 100%)",
-              background:
-                "linear-gradient(225deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0) 70%)",
-            }}
-          />
-          {/* The fold triangle itself */}
-          <span
-            aria-hidden="true"
-            className="absolute top-0 right-0 h-full w-full transition-transform duration-300 group-hover:scale-[1.04]"
-            style={{
-              clipPath: "polygon(100% 0, 25% 0, 100% 75%)",
-              background:
-                "linear-gradient(225deg, hsl(152 76% 40%) 0%, hsl(152 70% 32%) 60%, hsl(152 60% 26%) 100%)",
-              boxShadow: "inset -1px 1px 0 rgba(255,255,255,0.25)",
-            }}
-          />
-          {/* Label — rotated 45deg along the diagonal */}
-          <span
-            className="absolute top-[22px] right-[-6px] md:top-[26px] md:right-[-4px] flex items-center gap-1 text-[10px] md:text-[11px] font-semibold uppercase tracking-wide text-white"
-            style={{ transform: "rotate(45deg)", transformOrigin: "center" }}
-          >
-            <Award className="h-3 w-3 md:h-3.5 md:w-3.5" strokeWidth={2.5} />
-            {isNb ? "Verifisert" : "Verified"}
-          </span>
-        </button>
       </div>
 
 
@@ -248,6 +209,18 @@ export function TrustProfileHero({
                 </div>
               </div>
             </div>
+
+            {/* Verified badge under Trust Score */}
+            <button
+              type="button"
+              onClick={onVerifiedClick}
+              className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+              aria-label={isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
+              title={isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
+            >
+              <Award className="h-3.5 w-3.5" />
+              {isNb ? "Verifisert av Mynder" : "Verified by Mynder"}
+            </button>
           </div>
         </div>
       </div>
