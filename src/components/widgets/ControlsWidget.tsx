@@ -9,11 +9,11 @@ import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 type Interval = "day" | "week" | "month" | "quarter" | "year";
 
 const DOMAIN_LABELS: Record<string, { no: string; en: string }> = {
-  governance: { no: "Styring og ledelse", en: "Governance" },
-  operations: { no: "Drift og sikkerhet", en: "Operations & Security" },
-  identityAccess: { no: "Identitet og tilgang", en: "Identity & Access" },
-  privacy: { no: "Personvern og data", en: "Privacy & Data" },
-  vendor: { no: "Leverandørstyring", en: "Supplier Management" },
+  governance:     { no: "Styring og ansvar",            en: "Governance & Accountability" },
+  operations:     { no: "Drift og sikkerhet",           en: "Drift og sikkerhet" },
+  identityAccess: { no: "Identitet og tilgang",         en: "Identity & Access" },
+  privacy:        { no: "Personvern og datahåndtering", en: "Privacy & Data Handling" },
+  vendor:         { no: "Tredjepart og verdikjede",     en: "Third-Party & Supply Chain" },
 };
 
 // Simulated deltas per interval — replace with real historical data when available
