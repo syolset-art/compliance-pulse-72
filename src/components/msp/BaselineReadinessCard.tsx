@@ -11,7 +11,6 @@ interface Props {
   areaProgress: BaselineAreaProgress[];
   totalAnswered: number;
   totalQuestions: number;
-  activeFrameworkCount: number;
   onFillBaseline: () => void;
   onReviewBaseline: () => void;
   onGoToRegulations: () => void;
