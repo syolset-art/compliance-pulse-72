@@ -1522,7 +1522,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             <div className="rounded-lg border border-border bg-card/50 p-3">
                               <div className="flex items-center gap-1.5 text-sm text-muted-foreground uppercase tracking-wide">
                                 <FileText className="h-3 w-3" />
-                                {isNb ? "Dokumenter" : "Documents"}
+                                {isNb ? "Ressurser" : "Resources"}
                               </div>
                               <div className="text-xl font-bold text-foreground mt-1">{docsCount + certsCount + otherDocsCount}</div>
                             </div>
