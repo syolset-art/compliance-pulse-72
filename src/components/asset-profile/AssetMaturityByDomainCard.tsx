@@ -60,9 +60,9 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
         </p>
       </div>
 
-      {/* 2x2 grid */}
+      {/* Grid of all 5 areas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        {AREAS.map(({ key, icon: Icon, nb, en }) => {
+        {CONTROL_AREAS.map(({ key, icon: Icon, labelNb, labelEn }) => {
           const score = evaluation.areaScore(key as any);
           const c = colorFor(score, key);
           return (
@@ -76,7 +76,7 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
                   <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                 </span>
                 <span className="text-sm font-medium text-foreground flex-1 min-w-0 truncate">
-                  {isNb ? nb : en}
+                  {isNb ? labelNb : labelEn}
                 </span>
                 <span className={cn("text-sm font-semibold tabular-nums shrink-0", c.text)}>
                   {score}%
