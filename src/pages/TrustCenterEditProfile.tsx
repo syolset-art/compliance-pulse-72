@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { cn } from "@/lib/utils";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { useNavigate } from "react-router-dom";
