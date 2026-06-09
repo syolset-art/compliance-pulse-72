@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.suggest-vendor-processes]
 verify_jwt = false
+
+[functions.suggest-baseline-answers]
+verify_jwt = false
