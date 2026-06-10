@@ -275,8 +275,8 @@ const TrustCenterEditProfile = () => {
               </div>
               <p className="text-sm text-muted-foreground mt-1">
                 {isNb
-                  ? "Lara har generert din profil basert på offentlig informasjon. Bekreft eller juster forslagene under, og last opp egne dokumenter."
-                  : "Lara has generated your profile from public information. Confirm or adjust the suggestions below, and upload your own documents."}
+                  ? "Trust Profile gjør tillit synlig. Et delbart Trust Center med kryptografisk signert Trust Score som viser hva som faktisk er verifisert – slik at kunder slipper å spørre, og du slipper å svare på det samme skjemaet igjen."
+                  : "Trust Profile makes trust visible. A shareable Trust Center with a cryptographically signed Trust Score that shows what is actually verified — so customers don't have to ask, and you don't have to answer the same questionnaire again."}
               </p>
             </div>
 
