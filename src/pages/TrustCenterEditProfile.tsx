@@ -254,9 +254,6 @@ const TrustCenterEditProfile = () => {
               </div>
             </Card>
 
-            {/* SECTION: Virksomhet */}
-
-
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Virksomhet */}
             {/* ═══════════════════════════════════════════ */}
