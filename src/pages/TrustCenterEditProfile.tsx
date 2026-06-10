@@ -586,6 +586,21 @@ const TrustCenterEditProfile = () => {
             {/* Ressurser (sertifikater, policyer, retningslinjer) */}
             <ResourcesSection asset={asset} />
 
+            {/* Powered By Mynder — footer ingress */}
+            <div className="border-t border-border pt-6 pb-2 space-y-2">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-primary" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Powered By Mynder
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {isNb
+                  ? "Trust Profile er virksomhetens gjenbrukbare Trust Center – en ny måte å utveksle compliance-informasjon på. Vis modenhet i etterlevelse av regelverk, implementert eller verifisert, og gjør det enklere for både deg å bevise og kundene dine å kontrollere."
+                  : "Trust Profile is your company's reusable Trust Center — a new way to exchange compliance information. Show maturity in regulatory compliance, implemented or verified, and make it easier for both you to prove and your customers to verify."}
+              </p>
+            </div>
+
             {/* Spacer for sticky bar */}
             <div className="h-24" />
           </div>
