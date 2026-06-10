@@ -3,7 +3,7 @@ import { Sparkles, Plus, Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import {
   Command,
   CommandEmpty,
@@ -82,22 +82,30 @@ export function AddSubprocessorCombobox({ existingNames, onAdd, isNb = true }: P
   };
 
   return (
-    <Popover open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
-      <PopoverTrigger asChild>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
+      <DialogTrigger asChild>
         <Button size="sm" variant="outline" className="gap-1.5">
           <Plus className="h-3.5 w-3.5" />
           {isNb ? "Legg til" : "Add"}
         </Button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-[360px] p-0">
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden">
+        <DialogHeader className="px-5 pt-5 pb-3">
+          <DialogTitle>{isNb ? "Legg til underbehandler" : "Add subprocessor"}</DialogTitle>
+          <DialogDescription>
+            {isNb
+              ? "Søk etter leverandør eller legg til manuelt."
+              : "Search for a vendor or add manually."}
+          </DialogDescription>
+        </DialogHeader>
         {!manualMode ? (
-          <Command shouldFilter={false}>
+          <Command shouldFilter={false} className="rounded-none border-t">
             <CommandInput
               placeholder={isNb ? "Søk etter leverandør…" : "Search vendor…"}
               value={query}
               onValueChange={setQuery}
             />
-            <CommandList>
+            <CommandList className="max-h-[360px]">
               <CommandEmpty>
                 <div className="px-3 py-3 text-left space-y-2">
                   <p className="text-sm text-muted-foreground">
@@ -153,7 +161,7 @@ export function AddSubprocessorCombobox({ existingNames, onAdd, isNb = true }: P
             </CommandList>
           </Command>
         ) : (
-          <div className="p-3 space-y-3">
+          <div className="p-5 space-y-3 border-t">
             <div className="space-y-1">
               <Label htmlFor="sp-name" className="text-xs">{isNb ? "Navn" : "Name"}</Label>
               <Input
@@ -161,7 +169,7 @@ export function AddSubprocessorCombobox({ existingNames, onAdd, isNb = true }: P
                 value={manualName}
                 onChange={(e) => setManualName(e.target.value)}
                 placeholder={isNb ? "Leverandørnavn" : "Vendor name"}
-                className="h-8 text-sm"
+                className="h-9 text-sm"
                 autoFocus
               />
             </div>
@@ -172,13 +180,13 @@ export function AddSubprocessorCombobox({ existingNames, onAdd, isNb = true }: P
                 value={manualCategory}
                 onChange={(e) => setManualCategory(e.target.value)}
                 placeholder={isNb ? "F.eks. E-post, Regnskap" : "E.g. Email, Accounting"}
-                className="h-8 text-sm"
+                className="h-9 text-sm"
               />
             </div>
             <div className="space-y-1">
               <Label className="text-xs">{isNb ? "Land" : "Country"}</Label>
               <Select value={manualCountry} onValueChange={setManualCountry}>
-                <SelectTrigger className="h-8 text-sm">
+                <SelectTrigger className="h-9 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -190,7 +198,7 @@ export function AddSubprocessorCombobox({ existingNames, onAdd, isNb = true }: P
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center justify-between pt-1">
+            <div className="flex items-center justify-between pt-2">
               <Button size="sm" variant="ghost" onClick={() => setManualMode(false)}>
                 {isNb ? "Tilbake" : "Back"}
               </Button>
@@ -200,7 +208,7 @@ export function AddSubprocessorCombobox({ existingNames, onAdd, isNb = true }: P
             </div>
           </div>
         )}
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 }
