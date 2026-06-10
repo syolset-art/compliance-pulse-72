@@ -337,10 +337,6 @@ const TrustCenterEditProfile = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-right text-xs text-muted-foreground tabular-nums">
-                    <div>{frameworks.filter((fw: any) => !hiddenFrameworkIds.includes(fw.framework_id)).length}/{frameworks.length} {isNb ? "synlig" : "visible"}</div>
-                    <div className="mt-0.5">{trustScore}% {isNb ? "oppfylt" : "fulfilled"}</div>
-                  </div>
                   <Button size="sm" variant="outline" onClick={() => navigate("/regulations")} className="gap-2">
                     <Plus className="h-4 w-4" />
                     {isNb ? "Legg til" : "Add"}
