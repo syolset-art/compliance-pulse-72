@@ -430,7 +430,7 @@ const TrustCenterEditProfile = () => {
                                           {isNb ? (control as any).descriptionNb : (control as any).descriptionEn}
                                         </p>
                                       )}
-                                      <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                                      <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
                                         {verified
                                           ? (isNb ? "Verifisert med dokumentasjon" : "Verified with documentation")
                                           : (isNb ? "Implementert" : "Implemented")}

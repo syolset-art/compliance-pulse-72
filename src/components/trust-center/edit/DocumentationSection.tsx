@@ -313,7 +313,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
                   <Upload className="h-4 w-4" /> Velg fil å laste opp
                 </Button>
               )}
-              <p className="text-[11px] text-muted-foreground">Maks 25 MB</p>
+              <p className="text-xs text-muted-foreground">Maks 25 MB</p>
             </div>
 
             {addFile && (
@@ -325,7 +325,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
                   onChange={(e) => setAddName(e.target.value)}
                   placeholder="F.eks. Databehandleravtale 2026"
                 />
-                <p className="text-[11px] text-muted-foreground">Dette er navnet mottakerne ser.</p>
+                <p className="text-xs text-muted-foreground">Dette er navnet mottakerne ser.</p>
               </div>
             )}
           </div>
