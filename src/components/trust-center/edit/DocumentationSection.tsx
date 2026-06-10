@@ -36,8 +36,11 @@ export function DocumentationSection({ asset }: { asset: any }) {
   const [uploading, setUploading] = useState(false);
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
   const [replacingId, setReplacingId] = useState<string | null>(null);
-  const [pendingType, setPendingType] = useState<SharedType>("dpa");
   const [accessDoc, setAccessDoc] = useState<any | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addType, setAddType] = useState<SharedType>("dpa");
+  const [addFile, setAddFile] = useState<File | null>(null);
+  const [addName, setAddName] = useState("");
 
   const { data: documents = [] } = useQuery({
     queryKey: ["self-trust-shared-documents", asset?.id],
