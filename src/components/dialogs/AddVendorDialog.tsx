@@ -650,7 +650,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
     >
       <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{t("addVendor.title", "Legg til leverandør")}</DialogTitle>
+          <DialogTitle>{t("addVendor.title", "Legg til")}</DialogTitle>
           <DialogDescription>
             {step === "file-analyzing"
               ? "Analyserer dokument..."
@@ -1340,7 +1340,7 @@ export function AddVendorDialog({ open, onOpenChange, onVendorAdded }: AddVendor
               </Button>
               <Button onClick={() => createVendor.mutate()} disabled={createVendor.isPending}>
                 {createVendor.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Check className="h-4 w-4 mr-1" />}
-                {t("addVendor.addVendor", "Legg til leverandør")}
+                {t("addVendor.addVendor", "Legg til")}
               </Button>
             </div>
           </div>

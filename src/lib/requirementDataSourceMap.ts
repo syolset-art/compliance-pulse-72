@@ -29,7 +29,7 @@ export const REQUIREMENT_DATA_SOURCES: Record<string, RequirementDataSource> = {
     module: "Leverandører",
     route: "/assets",
     whyMissing:
-      "Lara fant ingen registrerte databehandlere med signert databehandleravtale (DPA). Legg til leverandører og last opp DPA-er for å oppfylle dette kravet.",
+      "Lara fant ingen registrerte databehandlere med signert databehandleravtale (DPA). Legg til og last opp DPA-er for å oppfylle dette kravet.",
     ctaLabel: "Gå til Leverandører",
   },
   "gdpr:art33": {

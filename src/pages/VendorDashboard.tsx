@@ -113,7 +113,7 @@ export default function VendorDashboard() {
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
-                {t("vendorDashboard.addVendor", "Legg til leverandør")}
+                {t("vendorDashboard.addVendor", "Legg til")}
               </Button>
             </div>
           </div>
