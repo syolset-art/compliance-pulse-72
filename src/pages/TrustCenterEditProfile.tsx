@@ -586,9 +586,6 @@ const TrustCenterEditProfile = () => {
             {/* Ressurser (sertifikater, policyer, retningslinjer) */}
             <ResourcesSection asset={asset} />
 
-            {/* Dokumentasjon (opplastingsflyt) */}
-            <DocumentationSection asset={asset} />
-
             {/* Spacer for sticky bar */}
             <div className="h-24" />
           </div>
