@@ -515,15 +515,47 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
         <FieldBlock label="Nettside">
           {isEditing ? (
-            <>
-              <Input
-                value={form.domain}
-                onChange={(e) => update("domain", e.target.value)}
-                placeholder="www.example.com"
-                className={cn("text-sm", errors.domain && "border-destructive focus-visible:ring-destructive")}
-              />
-              {errors.domain && <p className="text-[11px] text-destructive mt-1">{errors.domain}</p>}
-            </>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={form.domain}
+                  onChange={(e) => {
+                    update("domain", e.target.value);
+                    setDomainVerified(null);
+                  }}
+                  placeholder="www.example.com"
+                  className={cn("text-sm flex-1", errors.domain && "border-destructive focus-visible:ring-destructive")}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={verifyDomain}
+                  disabled={domainChecking || !form.domain || Boolean(errors.domain)}
+                  className="gap-1.5 shrink-0"
+                >
+                  {domainChecking ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Globe className="h-3.5 w-3.5" />
+                  )}
+                  {domainChecking ? "Sjekker..." : "Verifiser"}
+                </Button>
+              </div>
+              {errors.domain ? (
+                <p className="text-[11px] text-destructive">{errors.domain}</p>
+              ) : domainVerified === true ? (
+                <div className="flex items-center gap-1 text-[11px] text-emerald-600">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Nettside verifisert
+                </div>
+              ) : domainVerified === false ? (
+                <div className="flex items-center gap-1 text-[11px] text-destructive">
+                  <XCircle className="h-3 w-3" />
+                  Kunne ikke verifisere nettsiden
+                </div>
+              ) : null}
+            </div>
           ) : (
             <Input value={form.domain || "—"} readOnly className="bg-muted/30 text-sm" />
           )}
