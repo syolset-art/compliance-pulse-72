@@ -1,10 +1,9 @@
 import { useState, useMemo } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import { Lock, AlertTriangle, Search, X, ChevronDown, SlidersHorizontal, Sparkles, Eye } from "lucide-react";
+import { Search, X, ChevronDown, SlidersHorizontal, Sparkles, Eye } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { frameworks, categories, type Framework } from "@/lib/frameworkDefinitions";
@@ -330,8 +329,6 @@ export const EditActiveFrameworksDialog = ({
                 <div className="space-y-2">
                   {categoryFrameworks.map((fw) => {
                     const isActive = activeFrameworkIds.has(fw.id);
-                    const isMandatory = fw.isMandatory;
-                    const isMandatoryButOff = isMandatory && !isActive;
 
                     return (
                       <div
@@ -370,14 +367,6 @@ export const EditActiveFrameworksDialog = ({
                             )}
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{fw.description}</p>
-                          {isMandatoryButOff && (
-                            <div className="flex items-center gap-1.5 mt-1.5">
-                              <AlertTriangle className="h-3 w-3 text-destructive shrink-0" />
-                              <span className="text-[13px] text-destructive font-medium">
-                                Lovpålagt regelverk er deaktivert — anbefales å aktivere
-                              </span>
-                            </div>
-                          )}
                           {onPreview && !isActive && (
                             <button
                               type="button"
