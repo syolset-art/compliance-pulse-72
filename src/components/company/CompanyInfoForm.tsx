@@ -324,22 +324,27 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
       {/* Logo */}
       <div className="space-y-2">
-        <label className="text-xs font-medium text-foreground flex items-center gap-2">
+        <label className="text-sm font-medium text-foreground flex items-center gap-2">
           Logo
-          {!selfAsset?.logo_url && (
-            <Badge variant="outline" className="text-[12px] gap-1 border-warning/40 text-warning">
-              <AlertCircle className="h-2.5 w-2.5" /> Mangler
-            </Badge>
-          )}
         </label>
         <div className="flex items-center gap-3">
-          <div className="h-14 w-14 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/30 overflow-hidden">
-            {selfAsset?.logo_url ? (
+          <button
+            type="button"
+            onClick={() => logoInputRef.current?.click()}
+            disabled={uploadingLogo || !selfAsset}
+            className={cn(
+              "h-14 w-14 rounded-lg border border-border flex items-center justify-center bg-muted/30 overflow-hidden transition-colors",
+              !uploadingLogo && selfAsset && "hover:bg-muted/50 cursor-pointer"
+            )}
+          >
+            {uploadingLogo ? (
+              <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
+            ) : selfAsset?.logo_url ? (
               <img src={selfAsset.logo_url} className="h-12 w-12 rounded object-contain" alt="" />
             ) : (
-              <Upload className="h-5 w-5 text-muted-foreground" />
+              <ImageIcon className="h-5 w-5 text-muted-foreground" />
             )}
-          </div>
+          </button>
           <div>
             <input
               ref={logoInputRef}
@@ -348,17 +353,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
               className="hidden"
               onChange={handleLogoUpload}
             />
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5 text-xs"
-              disabled={uploadingLogo || !selfAsset}
-              onClick={() => logoInputRef.current?.click()}
-            >
-              <Upload className="h-3 w-3" />
-              {uploadingLogo ? "Laster opp…" : selfAsset?.logo_url ? "Bytt logo" : "Last opp logo"}
-            </Button>
-            <p className="text-[13px] text-muted-foreground mt-1">PNG, JPG eller SVG. Maks 1 MB.</p>
+            <p className="text-xs text-muted-foreground">PNG, JPG eller SVG. Maks 1 MB.</p>
           </div>
         </div>
       </div>
