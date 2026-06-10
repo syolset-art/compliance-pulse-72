@@ -87,13 +87,60 @@ const TrustCenterEditProfile = () => {
     },
   });
 
-  const { data: frameworks = [] } = useQuery({
+  const { data: allFrameworkRows = [] } = useQuery({
     queryKey: ["selected-frameworks-edit"],
     queryFn: async () => {
-      const { data } = await supabase.from("selected_frameworks").select("framework_id, framework_name").eq("is_selected", true);
+      const { data } = await supabase.from("selected_frameworks").select("*");
       return data || [];
     },
   });
+  const frameworks = useMemo(
+    () => allFrameworkRows.filter((r: any) => r.is_selected),
+    [allFrameworkRows]
+  );
+  const activeFrameworkIds = useMemo(
+    () => new Set<string>(frameworks.map((r: any) => r.framework_id)),
+    [frameworks]
+  );
+  const [showFrameworksSheet, setShowFrameworksSheet] = useState(false);
+  const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
+
+  const handleToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
+    const existing = allFrameworkRows.find((f: any) => f.framework_id === frameworkId);
+    setUpdatingFrameworkId(frameworkId);
+    try {
+      if (existing) {
+        const { error } = await supabase
+          .from("selected_frameworks")
+          .update({ is_selected: !currentlyActive })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const fw = frameworkDefs.find((f) => f.id === frameworkId);
+        if (!fw) return;
+        const { error } = await supabase.from("selected_frameworks").insert({
+          framework_id: fw.id,
+          framework_name: fw.name,
+          category: fw.category,
+          is_mandatory: fw.isMandatory || false,
+          is_recommended: fw.isRecommended || false,
+          is_selected: true,
+        });
+        if (error) throw error;
+      }
+      await queryClient.invalidateQueries({ queryKey: ["selected-frameworks-edit"] });
+      toast.success(
+        !currentlyActive
+          ? isNb ? "Regelverk aktivert" : "Framework activated"
+          : isNb ? "Regelverk fjernet" : "Framework removed"
+      );
+    } catch (e) {
+      console.error(e);
+      toast.error(isNb ? "Kunne ikke oppdatere" : "Could not update");
+    } finally {
+      setUpdatingFrameworkId(null);
+    }
+  };
 
 
   const evaluation = useTrustControlEvaluation(asset?.id || "");
