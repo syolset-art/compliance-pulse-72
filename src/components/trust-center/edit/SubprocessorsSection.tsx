@@ -86,7 +86,7 @@ export function SubprocessorsSection({ asset }: Props) {
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-primary" />
             <h2 className="text-base font-semibold text-foreground">
-              {isNb ? "Tredjepartsleverandører" : "Subprocessors"}
+              {isNb ? "Underbehandlere" : "Subprocessors"}
             </h2>
             <Badge variant="secondary" className="text-sm">
               {vendors.length}
@@ -94,8 +94,8 @@ export function SubprocessorsSection({ asset }: Props) {
           </div>
           <p className="text-sm text-muted-foreground max-w-2xl">
             {isNb
-              ? "Legg til underleverandører som behandler data på vegne av virksomheten din."
-              : "Add subprocessors that handle data on behalf of your company."}
+              ? "Leverandører som behandler personopplysninger på vegne av dere. Listen vises i Trust Profile."
+              : "Vendors that process personal data on your behalf. The list is shown in the Trust Profile."}
           </p>
         </div>
         <div className="shrink-0">
