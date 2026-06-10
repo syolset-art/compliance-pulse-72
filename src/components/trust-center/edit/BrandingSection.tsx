@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
+
 import { COVER_PRESETS, getCoverPreset, DEFAULT_COVER_OVERLAY } from "@/lib/coverPresets";
 
 interface Props {
@@ -201,28 +201,6 @@ export function BrandingSection({ asset }: Props) {
         </span>
       </div>
 
-      {/* Overlay slider */}
-      {coverUrl && (
-        <div className="space-y-1.5 pt-2">
-          <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-foreground">
-              {isNb ? "Mørkfilter for lesbarhet" : "Darkening for readability"}
-            </label>
-            <span className="text-xs text-muted-foreground tabular-nums">{Math.round(overlay * 100)}%</span>
-          </div>
-          <Slider
-            value={[overlay * 100]}
-            onValueChange={(v) => {
-              const pct = (v[0] ?? 50) / 100;
-              // optimistic local update via persist
-              void persist({ cover_overlay: Math.max(0, Math.min(0.9, pct)) });
-            }}
-            min={10}
-            max={80}
-            step={5}
-          />
-        </div>
-      )}
     </section>
   );
 }
