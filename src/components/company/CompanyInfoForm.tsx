@@ -425,12 +425,22 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         </FieldBlock>
 
         <FieldBlock label="Stiftet">
-          <Input
-            value={form.founded_year}
-            onChange={(e) => update("founded_year", e.target.value)}
-            placeholder="ÅÅÅÅ"
-            className="text-sm"
-          />
+          <div className="space-y-1">
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={1000}
+              max={2100}
+              value={form.founded_year}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                update("founded_year", val);
+              }}
+              placeholder="ÅÅÅÅ"
+              className="text-sm"
+            />
+            <p className="text-[11px] text-muted-foreground">Format: ÅÅÅÅ (f.eks. 2015)</p>
+          </div>
         </FieldBlock>
 
         <FieldBlock label="Nettside">
