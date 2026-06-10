@@ -189,23 +189,12 @@ export function DocumentationSection({ asset }: { asset: any }) {
             pentest-rapporter og ROS-analyser. Kun mottakere du gir tilgang ser disse.
           </p>
         </div>
-        <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} />
+        <input ref={fileRef} type="file" className="hidden" onChange={handleAddFilePick} />
         <input ref={replaceRef} type="file" className="hidden" onChange={handleReplace} />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="outline" className="gap-2 shrink-0" disabled={uploading}>
-              <Plus className="h-4 w-4" />
-              {uploading ? "Laster opp..." : "Last opp og del"}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-60">
-            {TYPE_GROUPS.map((g) => (
-              <DropdownMenuItem key={g.key} onClick={() => startUpload(g.key)}>
-                <Upload className="h-3.5 w-3.5 mr-2" /> {g.labelNb}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={openAddDialog} disabled={uploading}>
+          <Plus className="h-4 w-4" />
+          Legg til
+        </Button>
       </div>
 
       {grouped.length === 0 ? (
