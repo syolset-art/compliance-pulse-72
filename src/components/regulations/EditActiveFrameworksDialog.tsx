@@ -337,11 +337,9 @@ export const EditActiveFrameworksDialog = ({
                       <div
                         key={fw.id}
                         className={`flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors ${
-                          isMandatoryButOff
-                            ? "bg-destructive/5 border-destructive/30"
-                            : isActive
-                              ? "bg-primary/5 border-primary/20"
-                              : "bg-muted/30 border-border"
+                          isActive
+                            ? "bg-primary/5 border-primary/20"
+                            : "bg-muted/30 border-border"
                         }`}
                       >
                         <div className="min-w-0">
@@ -354,38 +352,9 @@ export const EditActiveFrameworksDialog = ({
                                 ? <FrameworkCountryTag codes={scopeCodes} />
                                 : <FrameworkCountryTag frameworkId={fw.id} />;
                             })()}
-                            <span className={`font-medium text-sm ${isMandatoryButOff ? "text-destructive" : ""}`}>
+                            <span className={`font-medium text-sm`}>
                               {fw.name}
                             </span>
-                            {isMandatory && (
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  {countryScope?.mode === "multi" ? (
-                                    <span
-                                      className="inline-flex items-center gap-1 rounded-md border border-status-followup/30 bg-status-followup/10 px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-status-followup"
-                                      aria-label="Påkrevd ved lov"
-                                    >
-                                      <Lock className="h-2.5 w-2.5" />
-                                      Påkrevd
-                                    </span>
-                                  ) : (
-                                    <Badge
-                                      className="text-[13px] px-2 py-0.5 gap-1 bg-status-followup text-white hover:bg-status-followup/90 uppercase tracking-wider rounded-pill border-transparent font-semibold"
-                                    >
-                                      <Lock className="h-2.5 w-2.5" />
-                                      Påkrevd ved lov
-                                    </Badge>
-                                  )}
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p className="text-xs">
-                                    {isMandatoryButOff
-                                      ? "⚠️ Dette regelverket er lovpålagt men er deaktivert. Du bør aktivere det."
-                                      : "Lovpålagt for alle norske virksomheter"}
-                                  </p>
-                                </TooltipContent>
-                              </Tooltip>
-                            )}
                             {recommendations?.has(fw.id) && !isActive && (
                               <Tooltip>
                                 <TooltipTrigger asChild>
