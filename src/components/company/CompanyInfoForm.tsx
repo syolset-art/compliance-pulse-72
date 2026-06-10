@@ -388,7 +388,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-foreground">Selskapsinformasjon</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-sm text-muted-foreground mt-0.5">
             Informasjonen hentes fra onboarding – du kan redigere firmanavn, stamsdata og adresse.
           </p>
         </div>
@@ -431,7 +431,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
               className="hidden"
               onChange={handleLogoUpload}
             />
-            <p className="text-xs text-muted-foreground">PNG, JPG eller SVG. Maks 1 MB.</p>
+            <p className="text-sm text-muted-foreground">PNG, JPG eller SVG. Maks 1 MB.</p>
           </div>
         </div>
       </div>
@@ -487,7 +487,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             placeholder="AS"
             className={cn("text-sm", errors.org_form && "border-destructive focus-visible:ring-destructive")}
           />
-          {errors.org_form && <p className="text-[11px] text-destructive mt-1">{errors.org_form}</p>}
+          {errors.org_form && <p className="text-sm text-destructive mt-1">{errors.org_form}</p>}
         </FieldBlock>
 
         <FieldBlock label="Stiftet">
@@ -505,11 +505,11 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
               placeholder="ÅÅÅÅ"
               className={cn("text-sm", errors.founded_year && "border-destructive focus-visible:ring-destructive")}
             />
-            {errors.founded_year ? (
-              <p className="text-[11px] text-destructive">{errors.founded_year}</p>
-            ) : (
-              <p className="text-[11px] text-muted-foreground">Format: ÅÅÅÅ (f.eks. 2015)</p>
-            )}
+              {errors.founded_year ? (
+                <p className="text-sm text-destructive">{errors.founded_year}</p>
+              ) : (
+                <p className="text-sm text-muted-foreground">Format: ÅÅÅÅ (f.eks. 2015)</p>
+              )}
           </div>
         </FieldBlock>
 
@@ -543,14 +543,14 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                 </Button>
               </div>
               {errors.domain ? (
-                <p className="text-[11px] text-destructive">{errors.domain}</p>
+                <p className="text-sm text-destructive">{errors.domain}</p>
               ) : domainVerified === true ? (
-                <div className="flex items-center gap-1 text-[11px] text-emerald-600">
+                <div className="flex items-center gap-1 text-sm text-emerald-600">
                   <CheckCircle2 className="h-3 w-3" />
                   Nettside verifisert
                 </div>
               ) : domainVerified === false ? (
-                <div className="flex items-center gap-1 text-[11px] text-destructive">
+                <div className="flex items-center gap-1 text-sm text-destructive">
                   <XCircle className="h-3 w-3" />
                   Kunne ikke verifisere nettsiden
                 </div>
@@ -585,11 +585,11 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                 placeholder="F.eks. 25"
                 className={cn("text-sm", errors.employees && "border-destructive focus-visible:ring-destructive")}
               />
-              {errors.employees ? (
-                <p className="text-[11px] text-destructive mt-1">{errors.employees}</p>
-              ) : (
-                <p className="text-[11px] text-muted-foreground mt-1">Skriv inn et helt tall (f.eks. 25)</p>
-              )}
+                {errors.employees ? (
+                  <p className="text-sm text-destructive mt-1">{errors.employees}</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground mt-1">Skriv inn et helt tall (f.eks. 25)</p>
+                )}
             </>
           ) : (
             <Input value={form.employees || "—"} readOnly className="bg-muted/30 text-sm" />
@@ -603,14 +603,14 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             placeholder="Eksempel Gata vei 1C, 0123 Oslo"
             className={cn("text-sm", errors.address && "border-destructive focus-visible:ring-destructive")}
           />
-          {errors.address && <p className="text-[11px] text-destructive mt-1">{errors.address}</p>}
+          {errors.address && <p className="text-sm text-destructive mt-1">{errors.address}</p>}
         </FieldBlock>
       </div>
 
 
       {/* Description */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-foreground">Beskrivelse av virksomheten</label>
+        <label className="text-sm font-medium text-foreground">Beskrivelse av virksomheten</label>
         {isEditing ? (
           <Textarea
             value={form.description}
@@ -634,7 +634,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                   <Sparkles className="h-3 w-3 text-primary" />
                   <span className="text-[13px] font-medium text-primary">AI-forslag</span>
                 </div>
-                <p className="text-xs text-muted-foreground italic">
+                <p className="text-sm text-muted-foreground italic">
                   Klikk «Rediger» for å se og tilpasse det automatiske forslaget fra offentlige kilder.
                 </p>
               </div>
@@ -804,14 +804,14 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                             <select
                               value={row.type || "msp"}
                               onChange={(e) => updateRow(idx, { type: e.target.value })}
-                              className="h-8 px-2 rounded-md border border-input bg-background text-xs"
+                              className="h-8 px-2 rounded-md border border-input bg-background text-sm"
                             >
                               {PARTNER_TYPE_OPTIONS.map((o) => (
                                 <option key={o.value} value={o.value}>{o.label}</option>
                               ))}
                             </select>
                           ) : (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-sm text-muted-foreground">
                               {PARTNER_TYPE_LABELS[row.type] || "—"}
                             </span>
                           )}
@@ -822,10 +822,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
                               type="date"
                               value={row.since || ""}
                               onChange={(e) => updateRow(idx, { since: e.target.value })}
-                              className="h-8 text-xs w-36"
+                              className="h-8 text-sm w-36"
                             />
                           ) : (
-                            <span className="text-xs text-muted-foreground">{row.since || "—"}</span>
+                            <span className="text-sm text-muted-foreground">{row.since || "—"}</span>
                           )}
                         </td>
                         {isEditing && (
@@ -866,7 +866,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
               <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
                 <div>
-                  <p className="text-xs font-medium text-foreground">Vis partnere på Trust-profilen</p>
+                  <p className="text-sm font-medium text-foreground">Vis partnere på Trust-profilen</p>
                   <p className="text-[12px] text-muted-foreground">Anbefales — bygger tillit i due diligence.</p>
                 </div>
                 <Switch
@@ -879,7 +879,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
               <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
                 <div className="pr-3">
-                  <p className="text-xs font-medium text-foreground">Gi partneren fullmakt til modenhetsarbeid</p>
+                  <p className="text-sm font-medium text-foreground">Gi partneren fullmakt til modenhetsarbeid</p>
                   <p className="text-[12px] text-muted-foreground">
                     Lar partneren oppdatere modenhetssvar, laste opp dokumentasjon og vedlikeholde Trust Profilen på vegne av dere.
                   </p>
@@ -909,7 +909,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-foreground">Partnernavn</label>
+                <label className="text-sm font-medium text-foreground">Partnernavn</label>
                 <div className="relative">
                   <Input
                     autoFocus
@@ -1022,7 +1022,7 @@ function FieldBlock({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-medium text-foreground">{label}</label>
+      <label className="text-sm font-medium text-foreground">{label}</label>
       {children}
       {hint && <p className="text-[13px] text-muted-foreground">{hint}</p>}
     </div>
