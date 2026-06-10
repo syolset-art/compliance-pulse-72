@@ -446,10 +446,11 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         <FieldBlock label="Organisasjonsform">
           <Input
             value={form.org_form || orgType}
-            onChange={(e) => update("org_form", e.target.value)}
+            onChange={(e) => update("org_form", e.target.value.toUpperCase())}
             placeholder="AS"
-            className="text-sm"
+            className={cn("text-sm", errors.org_form && "border-destructive focus-visible:ring-destructive")}
           />
+          {errors.org_form && <p className="text-[11px] text-destructive mt-1">{errors.org_form}</p>}
         </FieldBlock>
 
         <FieldBlock label="Stiftet">
@@ -457,23 +458,35 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             <Input
               type="number"
               inputMode="numeric"
-              min={1000}
-              max={2100}
+              min={1800}
+              max={currentYearVal}
               value={form.founded_year}
               onChange={(e) => {
                 const val = e.target.value.replace(/\D/g, "").slice(0, 4);
                 update("founded_year", val);
               }}
               placeholder="ÅÅÅÅ"
-              className="text-sm"
+              className={cn("text-sm", errors.founded_year && "border-destructive focus-visible:ring-destructive")}
             />
-            <p className="text-[11px] text-muted-foreground">Format: ÅÅÅÅ (f.eks. 2015)</p>
+            {errors.founded_year ? (
+              <p className="text-[11px] text-destructive">{errors.founded_year}</p>
+            ) : (
+              <p className="text-[11px] text-muted-foreground">Format: ÅÅÅÅ (f.eks. 2015)</p>
+            )}
           </div>
         </FieldBlock>
 
         <FieldBlock label="Nettside">
           {isEditing ? (
-            <Input value={form.domain} onChange={(e) => update("domain", e.target.value)} placeholder="www.example.com" className="text-sm" />
+            <>
+              <Input
+                value={form.domain}
+                onChange={(e) => update("domain", e.target.value)}
+                placeholder="www.example.com"
+                className={cn("text-sm", errors.domain && "border-destructive focus-visible:ring-destructive")}
+              />
+              {errors.domain && <p className="text-[11px] text-destructive mt-1">{errors.domain}</p>}
+            </>
           ) : (
             <Input value={form.domain || "—"} readOnly className="bg-muted/30 text-sm" />
           )}
@@ -489,7 +502,26 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
         <FieldBlock label="Antall ansatte">
           {isEditing ? (
-            <Input value={form.employees} onChange={(e) => update("employees", e.target.value)} className="text-sm" />
+            <>
+              <Input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                step={1}
+                value={form.employees}
+                onChange={(e) => {
+                  const val = e.target.value.replace(/\D/g, "").slice(0, 7);
+                  update("employees", val);
+                }}
+                placeholder="F.eks. 25"
+                className={cn("text-sm", errors.employees && "border-destructive focus-visible:ring-destructive")}
+              />
+              {errors.employees ? (
+                <p className="text-[11px] text-destructive mt-1">{errors.employees}</p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground mt-1">Skriv inn et helt tall (f.eks. 25)</p>
+              )}
+            </>
           ) : (
             <Input value={form.employees || "—"} readOnly className="bg-muted/30 text-sm" />
           )}
@@ -500,10 +532,12 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             value={form.address}
             onChange={(e) => update("address", e.target.value)}
             placeholder="Eksempel Gata vei 1C, 0123 Oslo"
-            className="text-sm"
+            className={cn("text-sm", errors.address && "border-destructive focus-visible:ring-destructive")}
           />
+          {errors.address && <p className="text-[11px] text-destructive mt-1">{errors.address}</p>}
         </FieldBlock>
       </div>
+
 
       {/* Description */}
       <div className="space-y-1.5">
