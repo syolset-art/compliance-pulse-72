@@ -38,6 +38,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   const hydratedRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Domain verification state
+  const [domainVerified, setDomainVerified] = useState<boolean | null>(null);
+  const [domainChecking, setDomainChecking] = useState(false);
+
   // Partner-katalog (prototype): partnere som har opprettet egen Trust Profile i Mynder
   const [partnerPickerOpen, setPartnerPickerOpen] = useState(false);
   const [addPartnerDialogOpen, setAddPartnerDialogOpen] = useState(false);
