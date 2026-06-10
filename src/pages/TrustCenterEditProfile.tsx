@@ -371,7 +371,7 @@ const TrustCenterEditProfile = () => {
                     <p className="text-sm text-muted-foreground italic mb-3">
                       {isNb ? "Ingen regelverk valgt ennå" : "No frameworks selected yet"}
                     </p>
-                    <Button size="sm" variant="outline" onClick={() => navigate("/regulations")}>
+                    <Button size="sm" variant="outline" onClick={() => setShowFrameworksSheet(true)}>
                       {isNb ? "Gå til Regelverk" : "Go to Frameworks"}
                     </Button>
                   </Card>
