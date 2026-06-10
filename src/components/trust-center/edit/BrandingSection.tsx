@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
+
 import { COVER_PRESETS, getCoverPreset, DEFAULT_COVER_OVERLAY } from "@/lib/coverPresets";
 
 interface Props {
