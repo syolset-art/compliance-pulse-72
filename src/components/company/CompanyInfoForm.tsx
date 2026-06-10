@@ -325,11 +325,17 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => logoInputRef.current?.click()}
-            disabled={uploadingLogo || !selfAsset}
+            onClick={() => {
+              if (!selfAsset) {
+                toast.info("Laster virksomhetsdata, vennligst vent et øyeblikk");
+                return;
+              }
+              logoInputRef.current?.click();
+            }}
+            disabled={uploadingLogo}
             className={cn(
-              "h-14 w-14 rounded-lg border border-border flex items-center justify-center bg-muted/30 overflow-hidden transition-colors",
-              !uploadingLogo && selfAsset && "hover:bg-muted/50 cursor-pointer"
+              "h-14 w-14 rounded-lg border border-border flex items-center justify-center bg-muted/30 overflow-hidden transition-colors cursor-pointer",
+              !uploadingLogo && "hover:bg-muted/50"
             )}
           >
             {uploadingLogo ? (
