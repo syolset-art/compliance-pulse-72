@@ -327,6 +327,39 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     setForm((prev) => ({ ...prev, [key]: value as never }));
   };
 
+  // Verify domain by attempting to load favicon (bypasses CORS for images)
+  const verifyDomain = async () => {
+    if (!form.domain || errors.domain) {
+      toast.error("Skriv inn en gyldig nettside først");
+      return;
+    }
+    setDomainChecking(true);
+    setDomainVerified(null);
+    const cleanDomain = form.domain.replace(/^https?:\/\//, "").split("/")[0];
+    let resolved = false;
+
+    const tryImage = (src: string): Promise<boolean> =>
+      new Promise((resolve) => {
+        const img = new Image();
+        const timer = setTimeout(() => resolve(false), 5000);
+        img.onload = () => { clearTimeout(timer); resolve(true); };
+        img.onerror = () => { clearTimeout(timer); resolve(false); };
+        img.src = src;
+      });
+
+    // Try favicon first, then robots.txt as fallback
+    const ok = await tryImage(`https://${cleanDomain}/favicon.ico?t=${Date.now()}`)
+      .then((r) => r || tryImage(`https://${cleanDomain}/robots.txt?t=${Date.now()}`));
+
+    setDomainVerified(ok);
+    setDomainChecking(false);
+    if (ok) {
+      toast.success("Nettside verifisert");
+    } else {
+      toast.error("Kunne ikke nå nettsiden. Sjekk at adressen er riktig.");
+    }
+  };
+
   // Velger partner fra katalog og forhåndsutfyller type + leveranseområde
   const selectPartner = (p: { name: string; type: string; roleDescription: string }) => {
     setForm((prev) => ({
