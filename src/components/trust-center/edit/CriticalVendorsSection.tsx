@@ -375,7 +375,7 @@ function VendorRowCard({
                     <SelectItem key={o.key} value={o.key}>
                       <div className="flex flex-col">
                         <span>{o.label}</span>
-                        <span className="text-[11px] text-muted-foreground">{o.hint}</span>
+                        <span className="text-xs text-muted-foreground">{o.hint}</span>
                       </div>
                     </SelectItem>
                   ))}
