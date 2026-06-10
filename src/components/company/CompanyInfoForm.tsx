@@ -161,6 +161,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     if (!hydratedRef.current || !companyProfile) return;
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
+      // Skip save if any validation error exists
+      const hasErr = Object.values(currentErrors()).some(Boolean);
+      if (hasErr) return;
       handleSave({ silent: true });
     }, 800);
     return () => {
@@ -168,6 +171,27 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
+
+  // Validation (used by autosave guard and UI). Defined as function to read latest form.
+  const currentYearVal = new Date().getFullYear();
+  function currentErrors() {
+    return {
+      founded_year: !form.founded_year ? "" :
+        (!/^\d{4}$/.test(String(form.founded_year)) ? "Må være 4 siffer (ÅÅÅÅ)" :
+          (Number(form.founded_year) < 1800 || Number(form.founded_year) > currentYearVal ? `Må være mellom 1800 og ${currentYearVal}` : "")),
+      employees: !form.employees ? "" :
+        (!/^\d+$/.test(String(form.employees)) ? "Kun hele tall" :
+          (Number(form.employees) < 1 ? "Må være minst 1" :
+            (Number(form.employees) > 1000000 ? "Ugyldig antall" : ""))),
+      domain: !form.domain ? "" :
+        (/^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/[^\s]*)?$/i.test(form.domain.trim()) ? "" : "Ugyldig nettside (f.eks. www.eksempel.no)"),
+      org_form: !form.org_form ? "" :
+        (/^[A-ZÆØÅ]{2,5}$/.test(form.org_form.trim()) ? "" : "Bruk forkortelse (AS, ASA, ENK, NUF)"),
+      address: !form.address ? "" :
+        ((/\d/.test(form.address) && /[A-Za-zÆØÅæøå]{2,}/.test(form.address)) ? "" : "Skriv gateadresse og postnummer (f.eks. Storgata 1, 0123 Oslo)"),
+    };
+  }
+
 
   const handleSave = async (opts?: { silent?: boolean }) => {
     if (!companyProfile) return;
