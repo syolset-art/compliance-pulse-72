@@ -687,6 +687,13 @@ const TrustCenterEditProfile = () => {
           },
         ]}
       />
+      <EditActiveFrameworksDialog
+        open={showFrameworksSheet}
+        onOpenChange={setShowFrameworksSheet}
+        activeFrameworkIds={activeFrameworkIds}
+        onToggle={handleToggleFramework}
+        updatingId={updatingFrameworkId}
+      />
     </SidebarProvider>
   );
 };
