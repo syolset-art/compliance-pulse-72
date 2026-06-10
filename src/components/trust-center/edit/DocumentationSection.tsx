@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, ShieldCheck, Users, Lock } from "lucide-react";
+import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, ShieldCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 
