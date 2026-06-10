@@ -415,12 +415,22 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Organisasjonsform" readOnly>
-          <Input value={orgType} readOnly className="bg-muted/30 text-sm" />
+        <FieldBlock label="Organisasjonsform">
+          <Input
+            value={form.org_form || orgType}
+            onChange={(e) => update("org_form", e.target.value)}
+            placeholder="AS"
+            className="text-sm"
+          />
         </FieldBlock>
 
-        <FieldBlock label="Stiftet" readOnly>
-          <Input value="—" readOnly className="bg-muted/30 text-sm" />
+        <FieldBlock label="Stiftet">
+          <Input
+            value={form.founded_year}
+            onChange={(e) => update("founded_year", e.target.value)}
+            placeholder="ÅÅÅÅ"
+            className="text-sm"
+          />
         </FieldBlock>
 
         <FieldBlock label="Nettside">
