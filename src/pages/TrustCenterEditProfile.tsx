@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 
 import {
-  Shield, ArrowLeft, Eye, EyeOff, CheckCircle2, AlertTriangle, Link2,
+  Shield, ArrowLeft, Eye, EyeOff, CheckCircle2, AlertTriangle, XCircle, Link2,
   Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users, BookCheck,
   ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
   Info, Settings, Package, Settings2, Database, MinusCircle,
