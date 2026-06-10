@@ -273,11 +273,6 @@ const TrustCenterEditProfile = () => {
                 </h1>
                 <SavedIndicator lastEditedAt={(asset?.metadata as any)?.last_edited_at || asset?.updated_at} />
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                {isNb
-                  ? "Trust Profile gjør tillit synlig. Et delbart Trust Center med kryptografisk signert Trust Score som viser hva som faktisk er verifisert – slik at kunder slipper å spørre, og du slipper å svare på det samme skjemaet igjen."
-                  : "Trust Profile makes trust visible. A shareable Trust Center with a cryptographically signed Trust Score that shows what is actually verified — so customers don't have to ask, and you don't have to answer the same questionnaire again."}
-              </p>
             </div>
 
             {/* Trust Center URL — flyttet opp */}
