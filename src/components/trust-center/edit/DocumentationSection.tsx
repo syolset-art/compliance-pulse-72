@@ -84,46 +84,59 @@ export function DocumentationSection({ asset }: { asset: any }) {
     })).filter((g) => g.items.length > 0);
   }, [documents]);
 
-  const startUpload = (type: SharedType) => {
-    setPendingType(type);
-    setTimeout(() => fileRef.current?.click(), 0);
+  const openAddDialog = () => {
+    setAddType("dpa");
+    setAddFile(null);
+    setAddName("");
+    setAddOpen(true);
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !asset?.id) return;
+    if (!file) return;
     if (file.size > 25 * 1024 * 1024) {
       toast.error("Maks filstørrelse er 25 MB");
       return;
     }
+    setAddFile(file);
+    // Forhåndsutfyll navn med filnavn uten extension
+    const base = file.name.replace(/\.[^.]+$/, "");
+    setAddName((prev) => prev || base);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const submitAdd = async () => {
+    if (!addFile || !asset?.id) return;
+    const displayName = addName.trim() || addFile.name;
     setUploading(true);
     try {
-      const filePath = `${asset.id}/${Date.now()}-${file.name}`;
-      const { error: upErr } = await supabase.storage.from("vendor-documents").upload(filePath, file);
+      const filePath = `${asset.id}/${Date.now()}-${addFile.name}`;
+      const { error: upErr } = await supabase.storage.from("vendor-documents").upload(filePath, addFile);
       if (upErr) throw upErr;
       const { data: inserted, error: insErr } = await supabase
         .from("vendor_documents")
         .insert({
           asset_id: asset.id,
-          file_name: file.name,
+          file_name: displayName,
           file_path: filePath,
-          document_type: pendingType,
+          document_type: addType,
           visibility: "restricted",
         })
         .select()
         .single();
       if (insErr) throw insErr;
       qc.invalidateQueries({ queryKey: ["self-trust-shared-documents", asset.id] });
-      toast.success("Dokument lastet opp – velg mottakere");
+      toast.success("Dokument lagt til – velg mottakere");
+      setAddOpen(false);
       if (inserted) setAccessDoc(inserted);
     } catch (err) {
       console.error(err);
       toast.error("Opplasting feilet");
     } finally {
       setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
     }
   };
+
 
   const handleReplace = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
