@@ -315,11 +315,6 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
             Informasjonen hentes fra onboarding – du kan redigere firmanavn, stamsdata og adresse.
           </p>
         </div>
-        {showEditControls && (
-          <span className="text-[12px] text-muted-foreground">
-            {saving ? "Lagrer..." : savedAt ? `Lagret ${savedAt.toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit" })}` : "Endringer lagres automatisk"}
-          </span>
-        )}
       </div>
 
       {/* Logo */}
