@@ -190,12 +190,7 @@ export function DocumentationSection({ asset }: { asset: any }) {
       </div>
 
       {grouped.length === 0 ? (
-        <div className="flex items-center justify-between py-2">
-          <p className="text-xs text-muted-foreground">Ingen delte dokumenter ennå</p>
-          <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => startUpload("dpa")}>
-            <Plus className="h-3.5 w-3.5" /> Last opp
-          </Button>
-        </div>
+        <p className="text-xs text-muted-foreground py-2">Ingen delte dokumenter ennå</p>
       ) : (
         <div className="space-y-5">
           {grouped.map((group) => (
