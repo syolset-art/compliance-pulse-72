@@ -458,7 +458,12 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         </FieldBlock>
 
         <FieldBlock label="Adresse">
-          <Input value="—" readOnly className="bg-muted/30 text-sm" placeholder="Eksempel Gata vei 1C" />
+          <Input
+            value={form.address}
+            onChange={(e) => update("address", e.target.value)}
+            placeholder="Eksempel Gata vei 1C, 0123 Oslo"
+            className="text-sm"
+          />
         </FieldBlock>
       </div>
 
