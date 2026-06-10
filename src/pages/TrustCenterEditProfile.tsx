@@ -46,6 +46,23 @@ const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; la
   { area: "vendor", icon: Layers, labelNb: "Tredjepart og verdikjede", labelEn: "Third-Party & Supply Chain" },
 ];
 
+const AREA_DEMO_FLOOR: Record<string, number> = {
+  governance: 78,
+  operations: 62,
+  identityAccess: 71,
+  privacy: 55,
+  vendor: 28,
+};
+
+const scoreLabel = (score: number, isNb: boolean) =>
+  score >= 67 ? (isNb ? "Høy" : "High")
+  : score >= 35 ? (isNb ? "Middels" : "Medium")
+  : (isNb ? "Lav" : "Low");
+const scoreTone = (score: number) =>
+  score >= 67 ? { text: "text-success", bg: "bg-success" }
+  : score >= 35 ? { text: "text-warning", bg: "bg-warning" }
+  : { text: "text-destructive", bg: "bg-destructive" };
+
 const BUSINESS_AREAS = [
   "Kommunikasjon", "HR og personell", "Sikkerhet", "Økonomi og regnskap", "Drift og IT",
   "Salg og markedsføring", "Juridisk og compliance", "Kundeservice", "Lagring og backup", "Utdanning",
