@@ -35,6 +35,8 @@ import { SubprocessorsSection } from "@/components/trust-center/edit/Subprocesso
 import { BrandingSection } from "@/components/trust-center/edit/BrandingSection";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
 import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
+import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { frameworks as frameworkDefs } from "@/lib/frameworkDefinitions";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
   { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
