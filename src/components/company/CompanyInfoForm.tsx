@@ -361,11 +361,11 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
       {/* Fields grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FieldBlock label="Organisasjonsnummer" hint="\n" readOnly>
+        <FieldBlock label="Organisasjonsnummer" readOnly>
           <Input value={form.org_number || "Ikke registrert"} readOnly className="bg-muted/30 text-sm" />
         </FieldBlock>
 
-        <FieldBlock label="Juridisk navn" hint="Det offisielle, registrerte foretaksnavnet">
+        <FieldBlock label="Juridisk navn">
           {isEditing ? (
             <Input value={form.legal_name} onChange={(e) => update("legal_name", e.target.value)} placeholder={form.name || "Eksempel AS"} className="text-sm" />
           ) : (
@@ -373,7 +373,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Selskapsnavn (markedsnavn)" hint="\n">
+        <FieldBlock label="Selskapsnavn (markedsnavn)">
           {isEditing ? (
             <Input value={form.name} onChange={(e) => update("name", e.target.value)} className="text-sm" />
           ) : (
@@ -381,7 +381,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Land for registrering" hint="Hvor er selskapet registrert?">
+        <FieldBlock label="Land for registrering">
           {isEditing ? (
             <select
               value={form.country}
@@ -403,15 +403,15 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Organisasjonsform" hint="\n" readOnly>
+        <FieldBlock label="Organisasjonsform" readOnly>
           <Input value={orgType} readOnly className="bg-muted/30 text-sm" />
         </FieldBlock>
 
-        <FieldBlock label="Stiftet" hint="\n" readOnly>
+        <FieldBlock label="Stiftet" readOnly>
           <Input value="—" readOnly className="bg-muted/30 text-sm" />
         </FieldBlock>
 
-        <FieldBlock label="Nettside" hint="Forhåndsutfylt fra onboarding · kan endres">
+        <FieldBlock label="Nettside">
           {isEditing ? (
             <Input value={form.domain} onChange={(e) => update("domain", e.target.value)} placeholder="www.example.com" className="text-sm" />
           ) : (
@@ -419,7 +419,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Bransje" hint="\n">
+        <FieldBlock label="Bransje">
           {isEditing ? (
             <Input value={form.industry} onChange={(e) => update("industry", e.target.value)} className="text-sm" />
           ) : (
@@ -427,7 +427,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Antall ansatte" hint="Forhåndsutfylt fra onboarding · kan endres">
+        <FieldBlock label="Antall ansatte">
           {isEditing ? (
             <Input value={form.employees} onChange={(e) => update("employees", e.target.value)} className="text-sm" />
           ) : (
@@ -435,7 +435,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Adresse" hint="\n">
+        <FieldBlock label="Adresse">
           <Input value="—" readOnly className="bg-muted/30 text-sm" placeholder="Eksempel Gata vei 1C" />
         </FieldBlock>
       </div>
@@ -851,7 +851,7 @@ function FieldBlock({
   children,
 }: {
   label: string;
-  hint: string;
+  hint?: string;
   readOnly?: boolean;
   children: React.ReactNode;
 }) {
@@ -859,7 +859,7 @@ function FieldBlock({
     <div className="space-y-1.5">
       <label className="text-xs font-medium text-foreground">{label}</label>
       {children}
-      <p className="text-[13px] text-muted-foreground">{hint}</p>
+      {hint && <p className="text-[13px] text-muted-foreground">{hint}</p>}
     </div>
   );
 }
