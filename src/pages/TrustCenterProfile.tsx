@@ -2591,23 +2591,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             </DialogDescription>
           </DialogHeader>
 
-          {/* Friendly info banner — forklarer at dokumentet samles på eget Trust Center */}
-          <div className="mx-1 mt-1 mb-2 flex items-start gap-2.5 rounded-lg border border-primary/15 bg-primary/5 px-3.5 py-2.5">
-            <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" aria-hidden />
-            <p className="text-sm leading-relaxed text-foreground/90">
-              {isNb ? (
-                <>
-                  Dette er informasjon som nå samles og synliggjøres på ditt eget Trust Center på{" "}
-                  <span className="font-medium font-mono">{publicUrl}</span> — alt på ett sted, klart til å deles med kunder og partnere. Ressursen vises under undermenyen <span className="font-medium">Ressurser</span>.
-                </>
-              ) : (
-                <>
-                  This is information that is now collected and made visible on your own Trust Center at{" "}
-                  <span className="font-medium font-mono">{publicUrl}</span> — everything in one place, ready to share with customers and partners. The resource appears under the <span className="font-medium">Resources</span> submenu.
-                </>
-              )}
-            </p>
-          </div>
 
           <div className="flex-1 overflow-y-auto rounded-lg border border-border bg-muted/20 p-8">
             {/* Demo paper-like document preview */}
