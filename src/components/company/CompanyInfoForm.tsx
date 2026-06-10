@@ -542,9 +542,6 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
       {/* Description */}
       <div className="space-y-1.5">
         <label className="text-xs font-medium text-foreground">Beskrivelse av virksomheten</label>
-        <p className="text-[13px] text-muted-foreground">
-          Denne beskrivelsen er automatisk generert basert på offentlige registre og virksomhetens nettside. Du kan fritt redigere teksten.
-        </p>
         {isEditing ? (
           <Textarea
             value={form.description}
