@@ -2268,6 +2268,20 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 {isNb ? "Avansert redigering" : "Advanced editing"}
               </Button>
             </div>
+            {/* Powered By Mynder Footer */}
+            <div className="mt-16 pt-8 pb-8 border-t border-border">
+              <div className="flex flex-col items-center text-center gap-5">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground font-medium">{isNb ? "Levert av" : "Powered by"}</span>
+                  <img src={mynderLogo} alt="Mynder" className="h-6 w-auto opacity-80" />
+                </div>
+                <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
+                  {isNb
+                    ? "Trust Profile er virksomhetens gjenbrukbare Trust Center – en ny måte å utveksle compliance-informasjon på. Vis modenhet i etterlevelse av regelverk, implementert eller verifisert, og gjør det enklere for både deg å bevise og kundene dine å kontrollere."
+                    : "Trust Profile is your organization's reusable Trust Center – a new way to exchange compliance information. Show maturity in regulatory compliance, implemented or verified, and make it easier for both you to prove and your customers to verify."}
+                </p>
+              </div>
+            </div>
           </div>
           )}
         </main>
