@@ -90,6 +90,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     industry: "",
     employees: "",
     brreg_industry: "",
+    founded_year: "",
+    org_form: "",
+    address: "",
     description: "",
     compliance_officer: "",
     compliance_officer_email: "",
@@ -128,6 +131,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         industry: companyProfile.industry || "",
         employees: companyProfile.employees || "",
         brreg_industry: companyProfile.brreg_industry || "",
+        founded_year: (companyProfile as any).founded_year || "",
+        org_form: (companyProfile as any).org_form || "",
+        address: (companyProfile as any).address || "",
         description: selfAsset?.description || "",
         compliance_officer: companyProfile.compliance_officer || "",
         compliance_officer_email: companyProfile.compliance_officer_email || "",
@@ -176,6 +182,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           domain: form.domain,
           industry: form.industry,
           employees: form.employees,
+          founded_year: form.founded_year || null,
+          org_form: form.org_form || null,
+          address: form.address || null,
           compliance_officer: form.compliance_officer,
           compliance_officer_email: form.compliance_officer_email,
           dpo_name: form.dpo_name,
@@ -229,6 +238,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         industry: companyProfile.industry || "",
         employees: companyProfile.employees || "",
         brreg_industry: companyProfile.brreg_industry || "",
+        founded_year: (companyProfile as any).founded_year || "",
+        org_form: (companyProfile as any).org_form || "",
+        address: (companyProfile as any).address || "",
         description: selfAsset?.description || "",
         compliance_officer: companyProfile.compliance_officer || "",
         compliance_officer_email: companyProfile.compliance_officer_email || "",
@@ -403,12 +415,22 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Organisasjonsform" readOnly>
-          <Input value={orgType} readOnly className="bg-muted/30 text-sm" />
+        <FieldBlock label="Organisasjonsform">
+          <Input
+            value={form.org_form || orgType}
+            onChange={(e) => update("org_form", e.target.value)}
+            placeholder="AS"
+            className="text-sm"
+          />
         </FieldBlock>
 
-        <FieldBlock label="Stiftet" readOnly>
-          <Input value="—" readOnly className="bg-muted/30 text-sm" />
+        <FieldBlock label="Stiftet">
+          <Input
+            value={form.founded_year}
+            onChange={(e) => update("founded_year", e.target.value)}
+            placeholder="ÅÅÅÅ"
+            className="text-sm"
+          />
         </FieldBlock>
 
         <FieldBlock label="Nettside">
@@ -436,7 +458,12 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         </FieldBlock>
 
         <FieldBlock label="Adresse">
-          <Input value="—" readOnly className="bg-muted/30 text-sm" placeholder="Eksempel Gata vei 1C" />
+          <Input
+            value={form.address}
+            onChange={(e) => update("address", e.target.value)}
+            placeholder="Eksempel Gata vei 1C, 0123 Oslo"
+            className="text-sm"
+          />
         </FieldBlock>
       </div>
 

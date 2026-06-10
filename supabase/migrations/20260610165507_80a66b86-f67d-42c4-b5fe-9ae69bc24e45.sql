@@ -1,0 +1,1 @@
+ALTER TABLE public.company_profile ADD COLUMN IF NOT EXISTS founded_year TEXT, ADD COLUMN IF NOT EXISTS org_form TEXT, ADD COLUMN IF NOT EXISTS address TEXT;

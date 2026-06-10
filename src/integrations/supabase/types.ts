@@ -782,6 +782,7 @@ export type Database = {
       company_profile: {
         Row: {
           active_roles: string[] | null
+          address: string | null
           brreg_employees: number | null
           brreg_industry: string | null
           ciso_email: string | null
@@ -798,6 +799,7 @@ export type Database = {
           estimated_systems_count: string | null
           estimated_vendors_count: string | null
           external_partner_admin: boolean | null
+          founded_year: string | null
           geographic_scope: string | null
           goal_12_months: string | null
           governance_level: string | null
@@ -810,6 +812,7 @@ export type Database = {
           maturity: string | null
           maturity_calculated_at: string | null
           name: string
+          org_form: string | null
           org_number: string | null
           partner_company_id: string | null
           partner_maturity_authority: boolean
@@ -825,6 +828,7 @@ export type Database = {
         }
         Insert: {
           active_roles?: string[] | null
+          address?: string | null
           brreg_employees?: number | null
           brreg_industry?: string | null
           ciso_email?: string | null
@@ -841,6 +845,7 @@ export type Database = {
           estimated_systems_count?: string | null
           estimated_vendors_count?: string | null
           external_partner_admin?: boolean | null
+          founded_year?: string | null
           geographic_scope?: string | null
           goal_12_months?: string | null
           governance_level?: string | null
@@ -853,6 +858,7 @@ export type Database = {
           maturity?: string | null
           maturity_calculated_at?: string | null
           name: string
+          org_form?: string | null
           org_number?: string | null
           partner_company_id?: string | null
           partner_maturity_authority?: boolean
@@ -868,6 +874,7 @@ export type Database = {
         }
         Update: {
           active_roles?: string[] | null
+          address?: string | null
           brreg_employees?: number | null
           brreg_industry?: string | null
           ciso_email?: string | null
@@ -884,6 +891,7 @@ export type Database = {
           estimated_systems_count?: string | null
           estimated_vendors_count?: string | null
           external_partner_admin?: boolean | null
+          founded_year?: string | null
           geographic_scope?: string | null
           goal_12_months?: string | null
           governance_level?: string | null
@@ -896,6 +904,7 @@ export type Database = {
           maturity?: string | null
           maturity_calculated_at?: string | null
           name?: string
+          org_form?: string | null
           org_number?: string | null
           partner_company_id?: string | null
           partner_maturity_authority?: boolean
