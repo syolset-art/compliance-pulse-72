@@ -361,7 +361,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
       {/* Fields grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FieldBlock label="Organisasjonsnummer" hint="Hentet fra onboarding" readOnly>
+        <FieldBlock label="Organisasjonsnummer" hint="\n" readOnly>
           <Input value={form.org_number || "Ikke registrert"} readOnly className="bg-muted/30 text-sm" />
         </FieldBlock>
 
@@ -373,7 +373,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Selskapsnavn (markedsnavn)" hint="Hentet fra Brønnøysundregistrene">
+        <FieldBlock label="Selskapsnavn (markedsnavn)" hint="\n">
           {isEditing ? (
             <Input value={form.name} onChange={(e) => update("name", e.target.value)} className="text-sm" />
           ) : (
@@ -403,11 +403,11 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Organisasjonsform" hint="Hentet fra Brønnøysundregistrene" readOnly>
+        <FieldBlock label="Organisasjonsform" hint="\n" readOnly>
           <Input value={orgType} readOnly className="bg-muted/30 text-sm" />
         </FieldBlock>
 
-        <FieldBlock label="Stiftet" hint="Hentet fra Brønnøysundregistrene" readOnly>
+        <FieldBlock label="Stiftet" hint="\n" readOnly>
           <Input value="—" readOnly className="bg-muted/30 text-sm" />
         </FieldBlock>
 
@@ -419,7 +419,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Bransje" hint="Forhåndsutfylt fra Brønnøysundregistrene">
+        <FieldBlock label="Bransje" hint="\n">
           {isEditing ? (
             <Input value={form.industry} onChange={(e) => update("industry", e.target.value)} className="text-sm" />
           ) : (
@@ -435,7 +435,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           )}
         </FieldBlock>
 
-        <FieldBlock label="Adresse" hint="Forhåndsutfylt fra Brønnøysundregistrene · kan endres">
+        <FieldBlock label="Adresse" hint="\n">
           <Input value="—" readOnly className="bg-muted/30 text-sm" placeholder="Eksempel Gata vei 1C" />
         </FieldBlock>
       </div>
