@@ -371,12 +371,14 @@ const TrustCenterEditProfile = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {AREA_CONFIG.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn }) => {
+                  const rawScore = evaluation?.areaScore(area) ?? 0;
+                  const score = Math.max(rawScore, AREA_DEMO_FLOOR[area] ?? 0);
+                  const tone = scoreTone(score);
+                  const label = scoreLabel(score, isNb);
+                  const isExpanded = expandedArea === area;
                   const areaControls = evaluation?.grouped[area] ?? [];
-                  const verifiedControls = areaControls.filter(c =>
-                    c.status === "implemented" || c.verificationSource === "vendor_verified" || c.verificationSource === "third_party_verified"
-                  );
                   const hiddenControls: string[] = (asset?.metadata as any)?.hidden_controls ?? [];
                   const toggleControlVisibility = async (key: string) => {
                     const currentMeta = (asset?.metadata || {}) as Record<string, any>;
@@ -387,38 +389,72 @@ const TrustCenterEditProfile = () => {
                     queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
                     queryClient.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
                   };
-                  const visibleCount = verifiedControls.filter(c => !hiddenControls.includes(c.key)).length;
 
                   return (
-                    <div key={area} className="rounded-xl border border-border bg-card p-5">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <div className="flex items-center gap-2.5">
-                          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <Icon className="h-4 w-4 text-primary" />
+                    <div key={area} className="rounded-lg border border-border overflow-hidden bg-card">
+                      <button
+                        onClick={() => setExpandedArea(isExpanded ? null : area)}
+                        className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2.5">
+                            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                              <Icon className="h-4 w-4 text-primary" />
+                            </div>
+                            <span className="text-sm font-medium text-foreground">{isNb ? lNb : lEn}</span>
                           </div>
-                          <h4 className="text-base font-semibold text-foreground">{isNb ? lNb : lEn}</h4>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-sm font-semibold uppercase tracking-wide ${tone.text}`}>{label}</span>
+                            {isExpanded
+                              ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                              : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                          </div>
                         </div>
-                      </div>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70 mb-3 ml-[42px]">
-                        {visibleCount} {isNb ? "verifiserte kontroller" : "verified controls"}
-                        {verifiedControls.length > visibleCount && (
-                          <span className="ml-1 normal-case font-normal text-muted-foreground/60">
-                            · {verifiedControls.length - visibleCount} {isNb ? "skjult" : "hidden"}
-                          </span>
-                        )}
-                      </p>
+                        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${tone.bg} transition-all duration-500`}
+                            style={{ width: `${score}%` }}
+                          />
+                        </div>
+                      </button>
 
-                      {verifiedControls.length > 0 ? (
-                        <ul className="space-y-2 ml-[42px]">
-                          {verifiedControls.map((control) => {
+                      {isExpanded && areaControls.length > 0 && (
+                        <div className="border-t border-border">
+                          {areaControls.map((control) => {
                             const hidden = hiddenControls.includes(control.key);
+                            const statusIcon = control.status === "implemented"
+                              ? <CheckCircle2 className={`h-4 w-4 ${hidden ? "text-muted-foreground/40" : "text-success"}`} />
+                              : control.status === "partial"
+                                ? <AlertTriangle className="h-4 w-4 text-warning" />
+                                : <XCircle className="h-4 w-4 text-destructive" />;
+                            const statusBadgeLabel = control.status === "implemented" ? "Yes"
+                              : control.status === "partial" ? "Partial" : "No";
+                            const statusBadgeClass = control.status === "implemented"
+                              ? "bg-success/10 text-success border-success/20"
+                              : control.status === "partial"
+                                ? "bg-warning/10 text-warning border-warning/20"
+                                : "bg-destructive/10 text-destructive border-destructive/20";
+                            const verificationLabel = control.verificationSource === "third_party_verified"
+                              ? (isNb ? "Verifisert" : "Verified")
+                              : control.verificationSource === "vendor_verified"
+                                ? (isNb ? "Dokumentert" : "Documented")
+                                : control.verificationSource === "customer_asserted"
+                                  ? (isNb ? "Dokumentert" : "Documented")
+                                  : null;
+
                             return (
-                              <li key={control.key} className="flex items-center justify-between gap-3 group">
-                                <span className={`text-sm ${hidden ? "text-muted-foreground/60 line-through" : "text-foreground"}`}>
-                                  {isNb ? control.labelNb : control.labelEn}
-                                </span>
+                              <div key={control.key} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0 group">
+                                <div className="flex items-center gap-3 min-w-0">
+                                  {statusIcon}
+                                  <span className={`text-sm ${hidden ? "text-muted-foreground/60 line-through" : "text-foreground"}`}>
+                                    {isNb ? control.labelNb : control.labelEn}
+                                  </span>
+                                </div>
                                 <div className="flex items-center gap-2 shrink-0">
-                                  <CheckCircle2 className={`h-4 w-4 ${hidden ? "text-muted-foreground/40" : "text-success"}`} />
+                                  <Badge variant="outline" className={`text-sm ${statusBadgeClass}`}>
+                                    {statusBadgeLabel}
+                                  </Badge>
+                                  {verificationLabel && <span className="text-sm text-muted-foreground">{verificationLabel}</span>}
                                   <Button
                                     size="sm"
                                     variant="ghost"
@@ -432,14 +468,10 @@ const TrustCenterEditProfile = () => {
                                     )}
                                   </Button>
                                 </div>
-                              </li>
+                              </div>
                             );
                           })}
-                        </ul>
-                      ) : (
-                        <p className="text-sm text-muted-foreground italic ml-[42px]">
-                          {isNb ? "Ingen verifiserte kontroller ennå." : "No verified controls yet."}
-                        </p>
+                        </div>
                       )}
                     </div>
                   );
