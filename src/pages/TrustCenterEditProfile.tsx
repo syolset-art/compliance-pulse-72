@@ -30,7 +30,7 @@ import { frameworkChipClass } from "@/lib/frameworkChipClass";
 
 import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
 import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
-import { DocumentationSection } from "@/components/trust-center/edit/DocumentationSection";
+
 import { ResourcesSection } from "@/components/trust-center/edit/ResourcesSection";
 import { SubprocessorsSection } from "@/components/trust-center/edit/SubprocessorsSection";
 import { BrandingSection } from "@/components/trust-center/edit/BrandingSection";
@@ -585,9 +585,6 @@ const TrustCenterEditProfile = () => {
 
             {/* Ressurser (sertifikater, policyer, retningslinjer) */}
             <ResourcesSection asset={asset} />
-
-            {/* Dokumentasjon (opplastingsflyt) */}
-            <DocumentationSection asset={asset} />
 
             {/* Spacer for sticky bar */}
             <div className="h-24" />
