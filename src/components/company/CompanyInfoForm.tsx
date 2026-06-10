@@ -446,13 +446,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
       {/* Description */}
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-medium text-foreground">Beskrivelse av virksomheten</label>
-          <Badge variant="outline" className="text-[13px] gap-1 text-primary border-primary/30">
-            <Shield className="h-2.5 w-2.5" />
-            Publiseres med AI
-          </Badge>
-        </div>
+        <label className="text-xs font-medium text-foreground">Beskrivelse av virksomheten</label>
         <p className="text-[13px] text-muted-foreground">
           Denne beskrivelsen er automatisk generert basert på offentlige registre og virksomhetens nettside. Du kan fritt redigere teksten.
         </p>
