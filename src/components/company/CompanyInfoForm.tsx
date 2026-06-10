@@ -339,43 +339,9 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   }
 
   const orgType = form.brreg_industry?.split(" ")[0] || "AS";
-  const currentYear = new Date().getFullYear();
+  const errors = currentErrors();
 
-  // Validation helpers
-  const errors = {
-    founded_year: (() => {
-      if (!form.founded_year) return "";
-      const n = Number(form.founded_year);
-      if (!/^\d{4}$/.test(String(form.founded_year))) return "Må være 4 siffer (ÅÅÅÅ)";
-      if (n < 1800 || n > currentYear) return `Må være mellom 1800 og ${currentYear}`;
-      return "";
-    })(),
-    employees: (() => {
-      if (!form.employees) return "";
-      if (!/^\d+$/.test(String(form.employees))) return "Kun hele tall";
-      if (Number(form.employees) < 1) return "Må være minst 1";
-      if (Number(form.employees) > 1000000) return "Ugyldig antall";
-      return "";
-    })(),
-    domain: (() => {
-      if (!form.domain) return "";
-      const v = form.domain.trim();
-      // accept domain.tld or www.domain.tld or https://...
-      const re = /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/[^\s]*)?$/i;
-      return re.test(v) ? "" : "Ugyldig nettside (f.eks. www.eksempel.no)";
-    })(),
-    org_form: (() => {
-      if (!form.org_form) return "";
-      return /^[A-ZÆØÅ]{2,5}$/.test(form.org_form.trim()) ? "" : "Bruk forkortelse (AS, ASA, ENK, NUF)";
-    })(),
-    address: (() => {
-      if (!form.address) return "";
-      // require at least one digit (postnummer/husnummer) and some letters
-      const hasDigit = /\d/.test(form.address);
-      const hasLetters = /[A-Za-zÆØÅæøå]{2,}/.test(form.address);
-      return hasDigit && hasLetters ? "" : "Skriv gateadresse og postnummer (f.eks. Storgata 1, 0123 Oslo)";
-    })(),
-  };
+
 
 
   return (
