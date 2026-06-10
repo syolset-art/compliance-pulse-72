@@ -394,7 +394,7 @@ export const EditActiveFrameworksDialog = ({
                         </div>
                         <Switch
                           checked={isActive}
-                          onCheckedChange={() => onToggle(fw.id, isActive)}
+                          onCheckedChange={() => handleToggle(fw.id, isActive)}
                           disabled={updatingId === fw.id}
                           className="data-[state=checked]:bg-primary"
                         />
