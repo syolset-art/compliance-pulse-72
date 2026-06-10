@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, ShieldCheck, Users, Lock } from "lucide-react";
+import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, ShieldCheck, Users } from "lucide-react";
 import { toast } from "sonner";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 
@@ -190,21 +190,12 @@ export function DocumentationSection({ asset }: { asset: any }) {
       </div>
 
       {grouped.length === 0 ? (
-        <Card className="p-8 text-center space-y-3">
-          <div className="mx-auto h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Lock className="h-5 w-5 text-primary" />
-          </div>
-          <div className="space-y-1 max-w-md mx-auto">
-            <p className="text-sm font-medium text-foreground">Ingen delte dokumenter ennå</p>
-            <p className="text-xs text-muted-foreground">
-              Last opp konfidensielle avtaler og rapporter (DPA, pentest, ROS) og velg hvilke kunder
-              som skal ha tilgang. Dokumentene vises kun for mottakerne du gir tilgang.
-            </p>
-          </div>
-          <Button size="sm" variant="outline" className="gap-2" onClick={() => startUpload("dpa")}>
-            <Plus className="h-4 w-4" /> Last opp og del med kunde
+        <div className="flex items-center justify-between py-2">
+          <p className="text-xs text-muted-foreground">Ingen delte dokumenter ennå</p>
+          <Button size="sm" variant="outline" className="gap-1.5 h-7 text-xs" onClick={() => startUpload("dpa")}>
+            <Plus className="h-3.5 w-3.5" /> Last opp
           </Button>
-        </Card>
+        </div>
       ) : (
         <div className="space-y-5">
           {grouped.map((group) => (
