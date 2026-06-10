@@ -254,38 +254,7 @@ const TrustCenterEditProfile = () => {
               </div>
             </Card>
 
-            {/* Lara recommendation banner — only when profile is activated (org.nr finnes).
-                Activation-prompt vises på Trust Profile (preview), ikke her. */}
-            {showLaraRec && companyProfile?.org_number && (
-              <Card className="p-4 border-primary/20 bg-primary/5">
-                <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Sparkles className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground">
-                      {isNb ? "Lara anbefaler å fylle ut mer informasjon" : "Lara recommends adding more information"}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-0.5">
-                      {isNb
-                        ? "Noen områder mangler innhold som styrker Trust-profilen før publisering."
-                        : "Some areas are missing content that will strengthen the Trust profile before publishing."}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Button
-                      size="sm"
-                      onClick={() => document.querySelector("#company")?.scrollIntoView({ behavior: "smooth" })}
-                    >
-                      {isNb ? "Vis hvilke" : "Show which"}
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setShowLaraRec(false)}>
-                      {isNb ? "Ikke nå" : "Not now"}
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            )}
+            {/* SECTION: Virksomhet */}
 
 
             {/* ═══════════════════════════════════════════ */}
