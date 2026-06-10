@@ -4,7 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -12,7 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, ShieldCheck, Users } from "lucide-react";
+import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, ShieldCheck, Users, X } from "lucide-react";
 import { toast } from "sonner";
 import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 
@@ -33,8 +36,11 @@ export function DocumentationSection({ asset }: { asset: any }) {
   const [uploading, setUploading] = useState(false);
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
   const [replacingId, setReplacingId] = useState<string | null>(null);
-  const [pendingType, setPendingType] = useState<SharedType>("dpa");
   const [accessDoc, setAccessDoc] = useState<any | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addType, setAddType] = useState<SharedType>("dpa");
+  const [addFile, setAddFile] = useState<File | null>(null);
+  const [addName, setAddName] = useState("");
 
   const { data: documents = [] } = useQuery({
     queryKey: ["self-trust-shared-documents", asset?.id],
@@ -78,46 +84,59 @@ export function DocumentationSection({ asset }: { asset: any }) {
     })).filter((g) => g.items.length > 0);
   }, [documents]);
 
-  const startUpload = (type: SharedType) => {
-    setPendingType(type);
-    setTimeout(() => fileRef.current?.click(), 0);
+  const openAddDialog = () => {
+    setAddType("dpa");
+    setAddFile(null);
+    setAddName("");
+    setAddOpen(true);
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !asset?.id) return;
+    if (!file) return;
     if (file.size > 25 * 1024 * 1024) {
       toast.error("Maks filstørrelse er 25 MB");
       return;
     }
+    setAddFile(file);
+    // Forhåndsutfyll navn med filnavn uten extension
+    const base = file.name.replace(/\.[^.]+$/, "");
+    setAddName((prev) => prev || base);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const submitAdd = async () => {
+    if (!addFile || !asset?.id) return;
+    const displayName = addName.trim() || addFile.name;
     setUploading(true);
     try {
-      const filePath = `${asset.id}/${Date.now()}-${file.name}`;
-      const { error: upErr } = await supabase.storage.from("vendor-documents").upload(filePath, file);
+      const filePath = `${asset.id}/${Date.now()}-${addFile.name}`;
+      const { error: upErr } = await supabase.storage.from("vendor-documents").upload(filePath, addFile);
       if (upErr) throw upErr;
       const { data: inserted, error: insErr } = await supabase
         .from("vendor_documents")
         .insert({
           asset_id: asset.id,
-          file_name: file.name,
+          file_name: displayName,
           file_path: filePath,
-          document_type: pendingType,
+          document_type: addType,
           visibility: "restricted",
         })
         .select()
         .single();
       if (insErr) throw insErr;
       qc.invalidateQueries({ queryKey: ["self-trust-shared-documents", asset.id] });
-      toast.success("Dokument lastet opp – velg mottakere");
+      toast.success("Dokument lagt til – velg mottakere");
+      setAddOpen(false);
       if (inserted) setAccessDoc(inserted);
     } catch (err) {
       console.error(err);
       toast.error("Opplasting feilet");
     } finally {
       setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
     }
   };
+
 
   const handleReplace = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -170,23 +189,12 @@ export function DocumentationSection({ asset }: { asset: any }) {
             pentest-rapporter og ROS-analyser. Kun mottakere du gir tilgang ser disse.
           </p>
         </div>
-        <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} />
+        <input ref={fileRef} type="file" className="hidden" onChange={handleAddFilePick} />
         <input ref={replaceRef} type="file" className="hidden" onChange={handleReplace} />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="outline" className="gap-2 shrink-0" disabled={uploading}>
-              <Plus className="h-4 w-4" />
-              {uploading ? "Laster opp..." : "Last opp og del"}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-60">
-            {TYPE_GROUPS.map((g) => (
-              <DropdownMenuItem key={g.key} onClick={() => startUpload(g.key)}>
-                <Upload className="h-3.5 w-3.5 mr-2" /> {g.labelNb}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button size="sm" variant="outline" className="gap-2 shrink-0" onClick={openAddDialog} disabled={uploading}>
+          <Plus className="h-4 w-4" />
+          Legg til
+        </Button>
       </div>
 
       {grouped.length === 0 ? (
@@ -265,6 +273,69 @@ export function DocumentationSection({ asset }: { asset: any }) {
             <DialogTitle className="text-sm">{reading?.name}</DialogTitle>
           </DialogHeader>
           {reading && <iframe src={reading.url} className="flex-1 w-full rounded border border-border" title={reading.name} />}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={addOpen} onOpenChange={(o) => { if (!uploading) setAddOpen(o); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Legg til dokument</DialogTitle>
+            <DialogDescription>
+              Last opp et dokument og gi det et navn som mottakerne ser.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Type</Label>
+              <Select value={addType} onValueChange={(v) => setAddType(v as SharedType)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {TYPE_GROUPS.map((g) => (
+                    <SelectItem key={g.key} value={g.key}>{g.labelNb}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Fil</Label>
+              {addFile ? (
+                <div className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2">
+                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm truncate flex-1">{addFile.name}</span>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setAddFile(null)} disabled={uploading}>
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="outline" className="w-full gap-2" onClick={() => fileRef.current?.click()}>
+                  <Upload className="h-4 w-4" /> Velg fil å laste opp
+                </Button>
+              )}
+              <p className="text-[11px] text-muted-foreground">Maks 25 MB</p>
+            </div>
+
+            {addFile && (
+              <div className="space-y-1.5">
+                <Label className="text-xs" htmlFor="doc-display-name">Visningsnavn</Label>
+                <Input
+                  id="doc-display-name"
+                  value={addName}
+                  onChange={(e) => setAddName(e.target.value)}
+                  placeholder="F.eks. Databehandleravtale 2026"
+                />
+                <p className="text-[11px] text-muted-foreground">Dette er navnet mottakerne ser.</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAddOpen(false)} disabled={uploading}>Avbryt</Button>
+            <Button onClick={submitAdd} disabled={!addFile || uploading}>
+              {uploading ? "Laster opp..." : "Legg til"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </section>
