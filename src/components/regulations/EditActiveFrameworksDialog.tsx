@@ -54,6 +54,18 @@ export const EditActiveFrameworksDialog = ({
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [countryFilter, setCountryFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("active");
+  // IDs that the user toggled during this session — kept visible regardless of status filter
+  // so frameworks don't disappear from the list when activated/deactivated.
+  const [stickyIds, setStickyIds] = useState<Set<string>>(new Set());
+
+  const handleToggle = (frameworkId: string, currentlyActive: boolean) => {
+    setStickyIds((prev) => {
+      const next = new Set(prev);
+      next.add(frameworkId);
+      return next;
+    });
+    onToggle(frameworkId, currentlyActive);
+  };
 
   const q = search.trim().toLowerCase();
   const matches = (fw: Framework) => {
@@ -70,8 +82,10 @@ export const EditActiveFrameworksDialog = ({
       });
       if (!allowedIds.has(fw.id)) return false;
     }
-    if (statusFilter === "active" && !activeFrameworkIds.has(fw.id)) return false;
-    if (statusFilter === "inactive" && activeFrameworkIds.has(fw.id)) return false;
+    if (!stickyIds.has(fw.id)) {
+      if (statusFilter === "active" && !activeFrameworkIds.has(fw.id)) return false;
+      if (statusFilter === "inactive" && activeFrameworkIds.has(fw.id)) return false;
+    }
     return true;
   };
 
@@ -380,7 +394,7 @@ export const EditActiveFrameworksDialog = ({
                         </div>
                         <Switch
                           checked={isActive}
-                          onCheckedChange={() => onToggle(fw.id, isActive)}
+                          onCheckedChange={() => handleToggle(fw.id, isActive)}
                           disabled={updatingId === fw.id}
                           className="data-[state=checked]:bg-primary"
                         />
