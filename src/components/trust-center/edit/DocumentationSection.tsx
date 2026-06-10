@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -11,14 +12,18 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { FileText, Upload, Eye, EyeOff, MoreHorizontal, Replace, Trash2, Plus, Lock } from "lucide-react";
+import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, ShieldCheck, Users, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { DocumentAccessDialog } from "@/components/trust-center/DocumentAccessDialog";
 
-const TYPE_GROUPS: { key: string; labelNb: string; labelEn: string; match: (t: string) => boolean }[] = [
-  { key: "policy", labelNb: "Policyer", labelEn: "Policies", match: (t) => t === "policy" || t === "guideline" },
-  { key: "certificate", labelNb: "Sertifikater", labelEn: "Certificates", match: (t) => t === "certificate" },
-  { key: "dpa", labelNb: "Avtaler", labelEn: "Agreements", match: (t) => t === "dpa" },
-  { key: "report", labelNb: "Rapporter", labelEn: "Reports", match: (t) => t === "report" },
+const SHARED_TYPES = ["dpa", "pentest", "risk_assessment", "report"] as const;
+type SharedType = (typeof SHARED_TYPES)[number];
+
+const TYPE_GROUPS: { key: SharedType; labelNb: string; labelEn: string }[] = [
+  { key: "dpa", labelNb: "Databehandleravtaler", labelEn: "Data processing agreements" },
+  { key: "pentest", labelNb: "Pentest-rapporter", labelEn: "Pentest reports" },
+  { key: "risk_assessment", labelNb: "ROS / Risikoanalyser", labelEn: "Risk assessments" },
+  { key: "report", labelNb: "Andre rapporter", labelEn: "Other reports" },
 ];
 
 export function DocumentationSection({ asset }: { asset: any }) {
@@ -28,30 +33,52 @@ export function DocumentationSection({ asset }: { asset: any }) {
   const [uploading, setUploading] = useState(false);
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
   const [replacingId, setReplacingId] = useState<string | null>(null);
-  const [pendingType, setPendingType] = useState<string>("certificate");
+  const [pendingType, setPendingType] = useState<SharedType>("dpa");
+  const [accessDoc, setAccessDoc] = useState<any | null>(null);
 
   const { data: documents = [] } = useQuery({
-    queryKey: ["self-trust-documents", asset?.id],
+    queryKey: ["self-trust-shared-documents", asset?.id],
     queryFn: async () => {
       if (!asset?.id) return [];
       const { data } = await supabase
         .from("vendor_documents")
         .select("*")
         .eq("asset_id", asset.id)
+        .in("document_type", SHARED_TYPES as unknown as string[])
         .order("created_at", { ascending: false });
       return data || [];
     },
     enabled: !!asset?.id,
   });
 
+  const docIds = useMemo(() => documents.map((d: any) => d.id), [documents]);
+
+  const { data: grantCounts = {} } = useQuery({
+    queryKey: ["self-trust-shared-grants", docIds],
+    queryFn: async () => {
+      if (docIds.length === 0) return {} as Record<string, number>;
+      const { data } = await (supabase as any)
+        .from("trust_document_grants")
+        .select("document_id, revoked_at")
+        .in("document_id", docIds)
+        .is("revoked_at", null);
+      const counts: Record<string, number> = {};
+      (data || []).forEach((g: any) => {
+        counts[g.document_id] = (counts[g.document_id] || 0) + 1;
+      });
+      return counts;
+    },
+    enabled: docIds.length > 0,
+  });
+
   const grouped = useMemo(() => {
     return TYPE_GROUPS.map((g) => ({
       ...g,
-      items: documents.filter((d: any) => g.match(d.document_type || "other")),
+      items: documents.filter((d: any) => d.document_type === g.key),
     })).filter((g) => g.items.length > 0);
   }, [documents]);
 
-  const startUpload = (type: string) => {
+  const startUpload = (type: SharedType) => {
     setPendingType(type);
     setTimeout(() => fileRef.current?.click(), 0);
   };
@@ -68,16 +95,21 @@ export function DocumentationSection({ asset }: { asset: any }) {
       const filePath = `${asset.id}/${Date.now()}-${file.name}`;
       const { error: upErr } = await supabase.storage.from("vendor-documents").upload(filePath, file);
       if (upErr) throw upErr;
-      const { error: insErr } = await supabase.from("vendor_documents").insert({
-        asset_id: asset.id,
-        file_name: file.name,
-        file_path: filePath,
-        document_type: pendingType,
-        visibility: "visible",
-      });
+      const { data: inserted, error: insErr } = await supabase
+        .from("vendor_documents")
+        .insert({
+          asset_id: asset.id,
+          file_name: file.name,
+          file_path: filePath,
+          document_type: pendingType,
+          visibility: "restricted",
+        })
+        .select()
+        .single();
       if (insErr) throw insErr;
-      qc.invalidateQueries({ queryKey: ["self-trust-documents", asset.id] });
-      toast.success("Ressurs lagt til");
+      qc.invalidateQueries({ queryKey: ["self-trust-shared-documents", asset.id] });
+      toast.success("Dokument lastet opp – velg mottakere");
+      if (inserted) setAccessDoc(inserted);
     } catch (err) {
       console.error(err);
       toast.error("Opplasting feilet");
@@ -99,8 +131,8 @@ export function DocumentationSection({ asset }: { asset: any }) {
       const { error: upErr } = await supabase.storage.from("vendor-documents").upload(filePath, file);
       if (upErr) throw upErr;
       await supabase.from("vendor_documents").update({ file_name: file.name, file_path: filePath }).eq("id", docId);
-      qc.invalidateQueries({ queryKey: ["self-trust-documents", asset.id] });
-      toast.success("Ressurs erstattet");
+      qc.invalidateQueries({ queryKey: ["self-trust-shared-documents", asset.id] });
+      toast.success("Dokument erstattet");
     } catch (err) {
       console.error(err);
       toast.error("Kunne ikke erstatte");
@@ -109,17 +141,11 @@ export function DocumentationSection({ asset }: { asset: any }) {
     }
   };
 
-  const toggleVisibility = async (doc: any) => {
-    const next = doc.visibility === "visible" ? "hidden" : "visible";
-    await supabase.from("vendor_documents").update({ visibility: next }).eq("id", doc.id);
-    qc.invalidateQueries({ queryKey: ["self-trust-documents", asset.id] });
-  };
-
   const removeDoc = async (doc: any) => {
     if (doc.file_path) await supabase.storage.from("vendor-documents").remove([doc.file_path]);
     await supabase.from("vendor_documents").delete().eq("id", doc.id);
-    qc.invalidateQueries({ queryKey: ["self-trust-documents", asset.id] });
-    toast.success("Ressurs fjernet");
+    qc.invalidateQueries({ queryKey: ["self-trust-shared-documents", asset.id] });
+    toast.success("Dokument fjernet");
   };
 
   const openDoc = async (doc: any) => {
@@ -136,11 +162,12 @@ export function DocumentationSection({ asset }: { asset: any }) {
       <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-primary" />
-            <h2 className="text-base font-semibold text-foreground">Ressurser</h2>
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">Delt dokumentasjon</h2>
           </div>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            Sertifikater, policyer og avtaler som dokumenterer din etterlevelse.
+            Avtaler og rapporter du har delt med utvalgte kunder – f.eks. signerte databehandleravtaler,
+            pentest-rapporter og ROS-analyser. Kun mottakere du gir tilgang ser disse.
           </p>
         </div>
         <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} />
@@ -149,10 +176,10 @@ export function DocumentationSection({ asset }: { asset: any }) {
           <DropdownMenuTrigger asChild>
             <Button size="sm" variant="outline" className="gap-2 shrink-0" disabled={uploading}>
               <Plus className="h-4 w-4" />
-              {uploading ? "Laster opp..." : "Legg til"}
+              {uploading ? "Laster opp..." : "Last opp og del"}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuContent align="end" className="w-60">
             {TYPE_GROUPS.map((g) => (
               <DropdownMenuItem key={g.key} onClick={() => startUpload(g.key)}>
                 <Upload className="h-3.5 w-3.5 mr-2" /> {g.labelNb}
@@ -163,9 +190,20 @@ export function DocumentationSection({ asset }: { asset: any }) {
       </div>
 
       {grouped.length === 0 ? (
-        <Card className="p-8 text-center">
-          <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-          <p className="text-sm text-muted-foreground">Ingen ressurser lagt til ennå.</p>
+        <Card className="p-8 text-center space-y-3">
+          <div className="mx-auto h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <Lock className="h-5 w-5 text-primary" />
+          </div>
+          <div className="space-y-1 max-w-md mx-auto">
+            <p className="text-sm font-medium text-foreground">Ingen delte dokumenter ennå</p>
+            <p className="text-xs text-muted-foreground">
+              Last opp konfidensielle avtaler og rapporter (DPA, pentest, ROS) og velg hvilke kunder
+              som skal ha tilgang. Dokumentene vises kun for mottakerne du gir tilgang.
+            </p>
+          </div>
+          <Button size="sm" variant="outline" className="gap-2" onClick={() => startUpload("dpa")}>
+            <Plus className="h-4 w-4" /> Last opp og del med kunde
+          </Button>
         </Card>
       ) : (
         <div className="space-y-5">
@@ -180,38 +218,35 @@ export function DocumentationSection({ asset }: { asset: any }) {
               <Card className="overflow-hidden">
                 <ul className="divide-y divide-border">
                   {group.items.map((doc: any) => {
-                    const hidden = doc.visibility === "hidden";
+                    const count = grantCounts[doc.id] || 0;
                     return (
                       <li key={doc.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30">
-                        <FileText className={`h-4 w-4 shrink-0 ${hidden ? "text-muted-foreground/50" : "text-muted-foreground"}`} />
+                        <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                         <button
                           onClick={() => openDoc(doc)}
-                          className={`flex-1 min-w-0 text-left text-sm truncate ${hidden ? "text-muted-foreground/60 line-through" : "text-foreground"} hover:text-primary transition-colors`}
+                          className="flex-1 min-w-0 text-left text-sm truncate text-foreground hover:text-primary transition-colors"
                         >
                           {doc.file_name}
                         </button>
-                        {hidden && (
-                          <span className="shrink-0 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                            <Lock className="h-3 w-3" />
-                            Skjult
-                          </span>
-                        )}
+                        <Badge
+                          variant={count > 0 ? "secondary" : "outline"}
+                          className="shrink-0 gap-1 font-normal"
+                        >
+                          <Users className="h-3 w-3" />
+                          {count > 0 ? `Delt med ${count}` : "Ingen mottakere"}
+                        </Badge>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-44">
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => setAccessDoc(doc)}>
+                              <Users className="h-3.5 w-3.5 mr-2" /> Administrer tilgang
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => openDoc(doc)}>
                               <Eye className="h-3.5 w-3.5 mr-2" /> Se dokument
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => toggleVisibility(doc)}>
-                              {hidden ? (
-                                <><Eye className="h-3.5 w-3.5 mr-2" /> Vis på profil</>
-                              ) : (
-                                <><EyeOff className="h-3.5 w-3.5 mr-2" /> Skjul fra profil</>
-                              )}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => { setReplacingId(doc.id); replaceRef.current?.click(); }}>
                               <Replace className="h-3.5 w-3.5 mr-2" /> Erstatt
@@ -231,6 +266,12 @@ export function DocumentationSection({ asset }: { asset: any }) {
           ))}
         </div>
       )}
+
+      <DocumentAccessDialog
+        open={!!accessDoc}
+        onOpenChange={(o) => !o && setAccessDoc(null)}
+        document={accessDoc}
+      />
 
       <Dialog open={!!reading} onOpenChange={(o) => !o && setReading(null)}>
         <DialogContent className="max-w-5xl h-[85vh] flex flex-col">
