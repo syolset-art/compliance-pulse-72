@@ -851,7 +851,7 @@ function FieldBlock({
   children,
 }: {
   label: string;
-  hint: string;
+  hint?: string;
   readOnly?: boolean;
   children: React.ReactNode;
 }) {
@@ -859,7 +859,7 @@ function FieldBlock({
     <div className="space-y-1.5">
       <label className="text-xs font-medium text-foreground">{label}</label>
       {children}
-      <p className="text-[13px] text-muted-foreground">{hint}</p>
+      {hint && <p className="text-[13px] text-muted-foreground">{hint}</p>}
     </div>
   );
 }
