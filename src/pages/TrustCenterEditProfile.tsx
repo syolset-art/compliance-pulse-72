@@ -19,7 +19,7 @@ import {
   Shield, ArrowLeft, Eye, EyeOff, CheckCircle2, AlertTriangle, Link2,
   Copy, Check, Pencil, Upload, Globe, Lock, Layers, Users, BookCheck,
   ChevronDown, ChevronUp, Plus, Building2, Scale, FileText, Award,
-  Info, Settings, Package, Sparkles, Settings2, Database, MinusCircle,
+  Info, Settings, Package, Settings2, Database, MinusCircle,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
@@ -63,7 +63,7 @@ const TrustCenterEditProfile = () => {
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
-  const [showLaraRec, setShowLaraRec] = useState(true);
+  
   const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
   usePageHelpListener(setHelpOpenCb);
 
