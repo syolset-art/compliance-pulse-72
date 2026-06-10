@@ -334,7 +334,134 @@ const TrustCenterEditProfile = () => {
 
 
             {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Etterlevelse (regelverk + modenhet) */}
+            {/* SECTION: Modenhet per kontrollområde         */}
+            {/* ═══════════════════════════════════════════ */}
+            <section id="security" className="space-y-5">
+              <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-primary" />
+                    <h2 className="text-base font-semibold text-foreground">
+                      {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
+                    </h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground max-w-2xl">
+                    {isNb
+                      ? "Egenerklæringer og verifiserte kontroller fordelt på de fire kontrollområdene som utgjør din Trust Score."
+                      : "Self-assessments and verified controls across the four control areas that make up your Trust Score."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {AREA_CONFIG.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn }) => {
+                  const score = evaluation?.areaScore(area) ?? 0;
+                  const isExpanded = expandedArea === area;
+                  const areaControls = evaluation?.grouped[area] ?? [];
+
+                  return (
+                    <Card key={area} className="overflow-hidden">
+                      <button
+                        onClick={() => setExpandedArea(isExpanded ? null : area)}
+                        className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
+                      >
+                        <div className="flex items-center justify-between mb-2.5">
+                          <div className="flex items-center gap-2.5">
+                            <Icon className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm font-medium text-foreground">{isNb ? lNb : lEn}</span>
+                            <span className="text-xs text-muted-foreground">· {areaControls.length} {isNb ? "kontroller" : "controls"}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
+                            {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                          </div>
+                        </div>
+                        <div className="h-1 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive"}`}
+                            style={{ width: `${score}%` }}
+                          />
+                        </div>
+                      </button>
+                      {isExpanded && (() => {
+                        const implementedControls = areaControls.filter(c =>
+                          c.status === "implemented" || c.verificationSource === "vendor_verified" || c.verificationSource === "third_party_verified"
+                        );
+                        const hiddenControls: string[] = (asset?.metadata as any)?.hidden_controls ?? [];
+                        const toggleControlVisibility = async (key: string) => {
+                          const currentMeta = (asset?.metadata || {}) as Record<string, any>;
+                          const current: string[] = currentMeta.hidden_controls ?? [];
+                          const next = current.includes(key) ? current.filter(k => k !== key) : [...current, key];
+                          const newMeta = { ...currentMeta, hidden_controls: next };
+                          await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset!.id);
+                          queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
+                          queryClient.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
+                        };
+                        if (implementedControls.length === 0) {
+                          return (
+                            <div className="border-t border-border px-4 py-6 text-center text-sm text-muted-foreground bg-muted/10">
+                              {isNb
+                                ? "Ingen implementerte kontrollpunkter ennå i dette området."
+                                : "No implemented controls yet in this area."}
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="border-t border-border bg-muted/10">
+                            <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border/60">
+                              {isNb
+                                ? `${implementedControls.length} av ${areaControls.length} kontrollpunkter implementert eller verifisert. Velg hvilke som vises på Trust Profile.`
+                                : `${implementedControls.length} of ${areaControls.length} controls implemented or verified. Choose which appear on your Trust Profile.`}
+                            </div>
+                            <ul className="divide-y divide-border">
+                              {implementedControls.map(control => {
+                                const hidden = hiddenControls.includes(control.key);
+                                const verified = control.verificationSource === "vendor_verified" || control.verificationSource === "third_party_verified";
+                                return (
+                                  <li key={control.key} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/20">
+                                    <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${hidden ? "text-muted-foreground/40" : verified ? "text-success" : "text-success/70"}`} />
+                                    <div className="flex-1 min-w-0">
+                                      <p className={`text-sm font-medium ${hidden ? "text-muted-foreground/60 line-through" : "text-foreground"}`}>
+                                        {isNb ? control.labelNb : control.labelEn}
+                                      </p>
+                                      {(control as any).descriptionNb && (
+                                        <p className="text-xs text-muted-foreground mt-0.5">
+                                          {isNb ? (control as any).descriptionNb : (control as any).descriptionEn}
+                                        </p>
+                                      )}
+                                      <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                                        {verified
+                                          ? (isNb ? "Verifisert med dokumentasjon" : "Verified with documentation")
+                                          : (isNb ? "Implementert" : "Implemented")}
+                                      </span>
+                                    </div>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      onClick={() => toggleControlVisibility(control.key)}
+                                      className="gap-1.5 shrink-0 text-muted-foreground hover:text-foreground"
+                                    >
+                                      {hidden ? (
+                                        <><EyeOff className="h-3.5 w-3.5" />{isNb ? "Vis" : "Show"}</>
+                                      ) : (
+                                        <><Eye className="h-3.5 w-3.5" />{isNb ? "Skjul" : "Hide"}</>
+                                      )}
+                                    </Button>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        );
+                      })()}
+                    </Card>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* ═══════════════════════════════════════════ */}
+            {/* SECTION: Etterlevelse (regelverk)            */}
             {/* ═══════════════════════════════════════════ */}
             <section id="frameworks-scope" className="space-y-5">
               <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
@@ -359,8 +486,6 @@ const TrustCenterEditProfile = () => {
                 </div>
               </div>
 
-
-              {/* Subsection 1: Regelverk i scope */}
               <div className="space-y-2">
                 <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                   {isNb ? "Regelverk og standarder" : "Frameworks & standards"}
@@ -453,124 +578,11 @@ const TrustCenterEditProfile = () => {
                         {isNb ? "Skjulte regelverk teller fortsatt i modenhet, men vises ikke for besøkende." : "Hidden frameworks still count toward maturity but are not shown to visitors."}
                       </p>
                     </div>
-
                   </Card>
                 )}
               </div>
-
-              {/* Subsection 2: Modenhet per kontrollområde */}
-              <div id="security" className="space-y-2">
-                <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
-                </h3>
-
-                <div className="space-y-2">
-                  {AREA_CONFIG.map(({ area, icon: Icon, labelNb: lNb, labelEn: lEn }) => {
-                    const score = evaluation?.areaScore(area) ?? 0;
-                    const isExpanded = expandedArea === area;
-                    const areaControls = evaluation?.grouped[area] ?? [];
-
-                    return (
-                      <Card key={area} className="overflow-hidden">
-                        <button
-                          onClick={() => setExpandedArea(isExpanded ? null : area)}
-                          className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
-                        >
-                          <div className="flex items-center justify-between mb-2.5">
-                            <div className="flex items-center gap-2.5">
-                              <Icon className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm font-medium text-foreground">{isNb ? lNb : lEn}</span>
-                              <span className="text-xs text-muted-foreground">· {areaControls.length} {isNb ? "kontroller" : "controls"}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <span className={`text-sm font-semibold tabular-nums ${score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"}`}>{score}%</span>
-                              {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                            </div>
-                          </div>
-                          <div className="h-1 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full transition-all duration-500 ${score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive"}`}
-                              style={{ width: `${score}%` }}
-                            />
-                          </div>
-                        </button>
-                        {isExpanded && (() => {
-                          const implementedControls = areaControls.filter(c =>
-                            c.status === "implemented" || c.verificationSource === "vendor_verified" || c.verificationSource === "third_party_verified"
-                          );
-                          const hiddenControls: string[] = (asset?.metadata as any)?.hidden_controls ?? [];
-                          const toggleControlVisibility = async (key: string) => {
-                            const currentMeta = (asset?.metadata || {}) as Record<string, any>;
-                            const current: string[] = currentMeta.hidden_controls ?? [];
-                            const next = current.includes(key) ? current.filter(k => k !== key) : [...current, key];
-                            const newMeta = { ...currentMeta, hidden_controls: next };
-                            await supabase.from("assets").update({ metadata: newMeta } as any).eq("id", asset!.id);
-                            queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
-                            queryClient.invalidateQueries({ queryKey: ["asset-for-trust-eval"] });
-                          };
-                          if (implementedControls.length === 0) {
-                            return (
-                              <div className="border-t border-border px-4 py-6 text-center text-sm text-muted-foreground bg-muted/10">
-                                {isNb
-                                  ? "Ingen implementerte kontrollpunkter ennå i dette området."
-                                  : "No implemented controls yet in this area."}
-                              </div>
-                            );
-                          }
-                          return (
-                            <div className="border-t border-border bg-muted/10">
-                              <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border/60">
-                                {isNb
-                                  ? `${implementedControls.length} av ${areaControls.length} kontrollpunkter implementert eller verifisert. Velg hvilke som vises på Trust Profile.`
-                                  : `${implementedControls.length} of ${areaControls.length} controls implemented or verified. Choose which appear on your Trust Profile.`}
-                              </div>
-                              <ul className="divide-y divide-border">
-                                {implementedControls.map(control => {
-                                  const hidden = hiddenControls.includes(control.key);
-                                  const verified = control.verificationSource === "vendor_verified" || control.verificationSource === "third_party_verified";
-                                  return (
-                                    <li key={control.key} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/20">
-                                      <CheckCircle2 className={`h-4 w-4 shrink-0 mt-0.5 ${hidden ? "text-muted-foreground/40" : verified ? "text-success" : "text-success/70"}`} />
-                                      <div className="flex-1 min-w-0">
-                                        <p className={`text-sm font-medium ${hidden ? "text-muted-foreground/60 line-through" : "text-foreground"}`}>
-                                          {isNb ? control.labelNb : control.labelEn}
-                                        </p>
-                                        {(control as any).descriptionNb && (
-                                          <p className="text-xs text-muted-foreground mt-0.5">
-                                            {isNb ? (control as any).descriptionNb : (control as any).descriptionEn}
-                                          </p>
-                                        )}
-                                        <span className="mt-1 inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                                          {verified
-                                            ? (isNb ? "Verifisert med dokumentasjon" : "Verified with documentation")
-                                            : (isNb ? "Implementert" : "Implemented")}
-                                        </span>
-                                      </div>
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() => toggleControlVisibility(control.key)}
-                                        className="gap-1.5 shrink-0 text-muted-foreground hover:text-foreground"
-                                      >
-                                        {hidden ? (
-                                          <><EyeOff className="h-3.5 w-3.5" />{isNb ? "Vis" : "Show"}</>
-                                        ) : (
-                                          <><Eye className="h-3.5 w-3.5" />{isNb ? "Skjul" : "Hide"}</>
-                                        )}
-                                      </Button>
-                                    </li>
-                                  );
-                                })}
-                              </ul>
-                            </div>
-                          );
-                        })()}
-                      </Card>
-                    );
-                  })}
-                </div>
-              </div>
             </section>
+
 
             {/* Tredjepartsleverandører */}
             <SubprocessorsSection asset={asset} />
