@@ -1846,6 +1846,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               <Card className="overflow-hidden p-0">
                 <TrustProfileHero
                   flush
+                  fullBleed
                   isNb={isNb}
                   meta={meta}
                   logoUrl={(asset as any)?.logo_url}
