@@ -275,6 +275,69 @@ export function DocumentationSection({ asset }: { asset: any }) {
           {reading && <iframe src={reading.url} className="flex-1 w-full rounded border border-border" title={reading.name} />}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={addOpen} onOpenChange={(o) => { if (!uploading) setAddOpen(o); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Legg til dokument</DialogTitle>
+            <DialogDescription>
+              Last opp et dokument og gi det et navn som mottakerne ser.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Type</Label>
+              <Select value={addType} onValueChange={(v) => setAddType(v as SharedType)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {TYPE_GROUPS.map((g) => (
+                    <SelectItem key={g.key} value={g.key}>{g.labelNb}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Fil</Label>
+              {addFile ? (
+                <div className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-2">
+                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm truncate flex-1">{addFile.name}</span>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setAddFile(null)} disabled={uploading}>
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="outline" className="w-full gap-2" onClick={() => fileRef.current?.click()}>
+                  <Upload className="h-4 w-4" /> Velg fil å laste opp
+                </Button>
+              )}
+              <p className="text-[11px] text-muted-foreground">Maks 25 MB</p>
+            </div>
+
+            {addFile && (
+              <div className="space-y-1.5">
+                <Label className="text-xs" htmlFor="doc-display-name">Visningsnavn</Label>
+                <Input
+                  id="doc-display-name"
+                  value={addName}
+                  onChange={(e) => setAddName(e.target.value)}
+                  placeholder="F.eks. Databehandleravtale 2026"
+                />
+                <p className="text-[11px] text-muted-foreground">Dette er navnet mottakerne ser.</p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setAddOpen(false)} disabled={uploading}>Avbryt</Button>
+            <Button onClick={submitAdd} disabled={!addFile || uploading}>
+              {uploading ? "Laster opp..." : "Legg til"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
