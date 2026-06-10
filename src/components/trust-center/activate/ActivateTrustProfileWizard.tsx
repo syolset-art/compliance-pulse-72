@@ -1582,7 +1582,7 @@ function CriticalVendorsStep({ rows, onChange, subprocessorList, onSubprocessorC
           className="gap-1.5 text-sm"
           onClick={addRow}
         >
-          <Plus className="h-3.5 w-3.5" /> Legg til leverandør
+          <Plus className="h-3.5 w-3.5" /> Legg til
         </Button>
       )}
 

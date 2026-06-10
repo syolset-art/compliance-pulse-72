@@ -109,7 +109,7 @@ export function CriticalVendorsSection({ isNb, readOnly = false }: Props) {
               {!readOnly && (
                 <Button size="sm" variant="outline" className="gap-1.5" onClick={() => navigate("/vendors")}>
                   <Plus className="h-3.5 w-3.5" />
-                  {isNb ? "Legg til leverandør" : "Add vendor"}
+                  {isNb ? "Legg til" : "Add"}
                 </Button>
               )}
             </div>

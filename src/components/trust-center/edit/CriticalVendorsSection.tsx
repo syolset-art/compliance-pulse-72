@@ -138,7 +138,7 @@ export function CriticalVendorsSection({ asset }: CriticalVendorsSectionProps) {
           </p>
           <Button variant="outline" size="sm" onClick={addRow} className="gap-1.5">
             <Plus className="h-3.5 w-3.5" />
-            Legg til leverandør
+            Legg til
           </Button>
         </Card>
       )}
@@ -157,7 +157,7 @@ export function CriticalVendorsSection({ asset }: CriticalVendorsSectionProps) {
 
           <Button variant="outline" size="sm" onClick={addRow} className="gap-1.5">
             <Plus className="h-3.5 w-3.5" />
-            Legg til leverandør
+            Legg til
           </Button>
         </div>
       )}

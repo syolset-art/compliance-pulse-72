@@ -85,7 +85,7 @@ export function SubprocessorTable({ data, isNb = true, onReanalyze, onAddList }:
           {onAddList && (
             <Button size="sm" variant="outline" className="gap-1.5" onClick={onAddList}>
               <FileText className="h-3.5 w-3.5" />
-              {isNb ? "Legg til leverandørliste" : "Add subprocessor list"}
+              {isNb ? "Legg til" : "Add"}
             </Button>
           )}
         </div>

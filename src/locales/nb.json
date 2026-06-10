@@ -555,11 +555,11 @@
     "hasProtocol": "HAR PROTOKOLL",
     "newProtocol": "Ny protokoll",
     "comingSoon": "Kommer snart...",
-    "addAsset": "Legg til leverandør",
+    "addAsset": "Legg til",
     "addProtocol": "Behandlingsaktivitet"
   },
   "assignAsset": {
-    "title": "Legg til leverandør til {{workArea}}",
+    "title": "Legg til til {{workArea}}",
     "description": "Velg fra din eksisterende portefølje eller legg til nye fra Mynders maler",
     "myPortfolio": "Min portefølje",
     "mynderTemplates": "Mynders maler",
@@ -877,7 +877,7 @@
     "relationIntegrateswith": "Integrerer med",
     "relationGovernedby": "Styrt av",
     "dialog": {
-      "addTitle": "Legg til leverandør",
+      "addTitle": "Legg til",
       "selectType": "Velg leverandørtype",
       "addMethod": "Legg til {{type}}",
       "aiSuggestions": "AI-forslag: {{type}}",
@@ -1037,7 +1037,7 @@
         "companyInfoDesc": "Legg til grunnleggende informasjon om selskapet",
         "frameworks": "Regelverk og krav",
         "frameworksDesc": "Kartlegg hvilke regelverk virksomheten må følge",
-         "assets": "Legg til leverandører",
+         "assets": "Legg til",
         "assetsDesc": "Registrer leverandører, systemer og tjenester",
         "workAreas": "Definer arbeidsområder",
         "workAreasDesc": "Opprett arbeidsområder i organisasjonen"
@@ -1469,7 +1469,7 @@
       "supplyChain": "Leverandørkjede",
       "compare": "Sammenlign"
     },
-    "addVendor": "Legg til leverandør",
+    "addVendor": "Legg til",
     "discoverAI": "Oppdag med AI",
     "reviewPending": "Gjennomgang ventende",
     "missingDPA": "Mangler DPA",
@@ -1570,7 +1570,7 @@
     }
   },
   "addVendor": {
-    "title": "Legg til leverandør",
+    "title": "Legg til",
     "step": "Steg {{current}} av {{total}}",
     "howMany": "Hvor mange leverandører vil du legge til?",
     "singleVendor": "Én leverandør",
@@ -1597,7 +1597,7 @@
     "back": "Tilbake",
     "next": "Neste",
     "skip": "Hopp over",
-    "addVendor": "Legg til leverandør",
+    "addVendor": "Legg til",
     "success": "{{name}} ble lagt til",
     "error": "Kunne ikke legge til leverandør",
     "added": "Lagt til",

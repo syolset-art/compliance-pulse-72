@@ -86,7 +86,7 @@ export function AddSubprocessorCombobox({ existingNames, onAdd, isNb = true }: P
       <PopoverTrigger asChild>
         <Button size="sm" variant="outline" className="gap-1.5">
           <Plus className="h-3.5 w-3.5" />
-          {isNb ? "Legg til leverandør" : "Add subprocessor"}
+          {isNb ? "Legg til" : "Add"}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-[360px] p-0">
