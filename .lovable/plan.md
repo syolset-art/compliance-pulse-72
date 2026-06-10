@@ -1,50 +1,19 @@
-## Mål
+# Åpne regelverk-panel fra Etterlevelse i Rediger Trust Profile
 
-Seksjonen **Dokumentasjon** på Trust Profile skal ikke lenger fungere som et generelt opplastingsbibliotek (policyer, sertifikater, generelle filer). Den skal kun vise dokumenter som er **delt med utvalgte kunder** — typisk:
-
-- Signerte databehandleravtaler (DPA)
-- Pentest-rapporter
-- ROS-/risikoanalyser
-- Andre konfidensielle rapporter rettet mot navngitte mottakere
-
-Generelle, offentlig synlige bevis (policyer, sertifikater, ISO-attestasjoner osv.) skal i stedet ligge knyttet til etterlevelse / kontrollområder, ikke her.
+I dag navigerer "Legg til"-knappen i Etterlevelse-seksjonen på `/trust-center/edit` til `/regulations`. Den skal i stedet åpne det samme høyre-side-panelet som brukes på Regelverk-siden (`EditActiveFrameworksDialog`), slik at brukeren kan aktivere/deaktivere regelverk uten å forlate redigeringsflyten.
 
 ## Endringer
 
-### 1. Rebrand seksjonen
-- `src/components/trust-center/edit/DocumentationSection.tsx`
-  - Tittel: **«Delt dokumentasjon»** / "Shared documentation"
-  - Undertekst: *"Avtaler og rapporter du har delt med utvalgte kunder — f.eks. signerte databehandleravtaler, pentest-rapporter og ROS-analyser. Kun mottakere du gir tilgang ser disse."*
-  - Ikon: `Lock` / `ShieldCheck` for å signalisere konfidensialitet.
+**Fil:** `src/pages/TrustCenterEditProfile.tsx`
 
-### 2. Begrens dokumenttyper
-Erstatt dagens fire grupper med kun de typene som er kunde-spesifikke:
-- **Databehandleravtaler** (`dpa`)
-- **Pentest-rapporter** (`pentest`)
-- **ROS / Risikoanalyser** (`risk_assessment`)
-- **Andre rapporter** (`report`)
+1. Importer `EditActiveFrameworksDialog` og hjelpere (`frameworks` fra `@/lib/frameworkDefinitions`, `toast`).
+2. Ny state: `showFrameworksSheet`, `updatingFrameworkId`.
+3. Hent også alle rader fra `selected_frameworks` (ikke bare `is_selected=true`) i en query, slik at vi kan toggle eksisterende rader. Behold den eksisterende `frameworks`-querien for visning, men utled `activeFrameworkIds: Set<string>` fra rådata.
+4. Implementér `handleToggleFramework(frameworkId, currentlyActive)` som speiler logikken i `Regulations.tsx` (`executeToggleFramework`): insert ny rad om den ikke finnes, ellers oppdater `is_selected`. Invalider react-query etterpå (`queryClient.invalidateQueries(["selected-frameworks-edit"])`) så listen oppdateres umiddelbart.
+5. Endre "Legg til"-knappen (linje 306) og tom-tilstands-knappen (linje 325) til `onClick={() => setShowFrameworksSheet(true)}` i stedet for `navigate("/regulations")`.
+6. Render `<EditActiveFrameworksDialog open={showFrameworksSheet} onOpenChange={setShowFrameworksSheet} activeFrameworkIds={activeFrameworkIds} onToggle={handleToggleFramework} updatingId={updatingFrameworkId} />` nederst i komponenten.
 
-Policy / sertifikat-opplasting fjernes herfra (flyttes konseptuelt til etterlevelsesbevis senere — utenfor scope nå).
+## Ikke i scope
 
-### 3. Tilgang er obligatorisk per dokument
-- Når et nytt dokument lastes opp, settes `visibility = "restricted"` som default (ikke `visible`).
-- Rett etter opplasting åpnes `DocumentAccessDialog` automatisk slik at bruker må velge minst én mottaker (e-post eller nettverkskontakt) før dokumentet er aktivt.
-- Hvert listeoppføring viser:
-  - Filnavn
-  - Liten chip med antall mottakere: *"Delt med 3 kunder"* (lest fra `trust_document_grants`, filtrert på `revoked_at IS NULL`)
-  - Handlinger i meny: **Administrer tilgang**, Erstatt, Fjern. «Skjul fra profil» fjernes — synlighet styres via tilgangsliste.
-
-### 4. Tom tilstand
-Når ingen dokumenter finnes: forklarende kort som beskriver hva denne seksjonen er ment for, med CTA «Last opp og del med kunde».
-
-### 5. Filtrering av dataspørringen
-`useQuery(["self-trust-documents", asset.id])` skal kun hente rader hvor `document_type IN ('dpa','pentest','risk_assessment','report')` slik at gamle policy/certificate-opplastinger ikke vises her.
-
-## Utenfor scope
-- Migrere eksisterende policy/certificate-dokumenter til et annet sted.
-- Endringer i den offentlige Trust Profile-visningen (TrustCenterProfile.tsx) — vi kommer tilbake til hvordan tilgangsstyrte dokumenter eventuelt eksponeres der.
-- Nye databasekolonner — `trust_document_grants` og `vendor_documents.visibility/document_type` dekker behovet.
-
-## Filer som endres
-- `src/components/trust-center/edit/DocumentationSection.tsx` (hovedendring)
-- Ev. liten justering i `TrustCenterEditProfile.tsx` kun hvis seksjonsoverskriften/anchor-navn må oppdateres.
+- Country scope-dialogen og kjøps-/aktiverings-dialogene fra Regelverk-siden (holdes på `/regulations` for å unngå duplisert flyt). Toggle skjer direkte; hvis det senere ønskes kjøpsbekreftelse også her, kan det legges til som oppfølging.
+- Ingen endringer i preview (`TrustCenterProfile.tsx`) – den henter allerede `selected_frameworks` og oppdateres automatisk.
