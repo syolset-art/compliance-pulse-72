@@ -352,7 +352,7 @@ const TrustCenterEditProfile = () => {
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <Button size="sm" variant="outline" onClick={() => navigate("/regulations")} className="gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setShowFrameworksSheet(true)} className="gap-2">
                     <Plus className="h-4 w-4" />
                     {isNb ? "Legg til" : "Add"}
                   </Button>
