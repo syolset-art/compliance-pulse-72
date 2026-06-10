@@ -475,8 +475,8 @@ const TrustCenterEditProfile = () => {
                   </div>
                   <p className="text-sm text-muted-foreground max-w-2xl">
                     {isNb
-                      ? "Velg hvilke regelverk som skal vises på profilen. Modenhet beregnes ut fra de samme regelverkene."
-                      : "Choose which frameworks appear on the profile. Maturity is calculated from the same frameworks."}
+                      ? "Velg hvilke regelverk som skal vises på profilen. Modenheten beregnes kun ut fra regelverkene som vises her – skjuler du et regelverk, blir det også utelatt fra modenhetsberegningen."
+                      : "Choose which frameworks appear on the profile. Maturity is calculated only from the frameworks shown here – if you hide a framework, it is also excluded from the maturity calculation."}
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
