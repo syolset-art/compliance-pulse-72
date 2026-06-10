@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Upload, Shield, Save, Pencil, X, Sparkles, AlertCircle, Handshake, Loader2, CheckCircle2, Search, ChevronsUpDown, Check, ImageIcon } from "lucide-react";
+import { Upload, Shield, Save, Pencil, X, Sparkles, AlertCircle, Handshake, Loader2, CheckCircle2, Search, ChevronsUpDown, Check, ImageIcon, Globe, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -37,6 +37,10 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
   const logoInputRef = useRef<HTMLInputElement>(null);
   const hydratedRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Domain verification state
+  const [domainVerified, setDomainVerified] = useState<boolean | null>(null);
+  const [domainChecking, setDomainChecking] = useState(false);
 
   // Partner-katalog (prototype): partnere som har opprettet egen Trust Profile i Mynder
   const [partnerPickerOpen, setPartnerPickerOpen] = useState(false);
@@ -323,6 +327,39 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
     setForm((prev) => ({ ...prev, [key]: value as never }));
   };
 
+  // Verify domain by attempting to load favicon (bypasses CORS for images)
+  const verifyDomain = async () => {
+    if (!form.domain || errors.domain) {
+      toast.error("Skriv inn en gyldig nettside først");
+      return;
+    }
+    setDomainChecking(true);
+    setDomainVerified(null);
+    const cleanDomain = form.domain.replace(/^https?:\/\//, "").split("/")[0];
+    let resolved = false;
+
+    const tryImage = (src: string): Promise<boolean> =>
+      new Promise((resolve) => {
+        const img = new Image();
+        const timer = setTimeout(() => resolve(false), 5000);
+        img.onload = () => { clearTimeout(timer); resolve(true); };
+        img.onerror = () => { clearTimeout(timer); resolve(false); };
+        img.src = src;
+      });
+
+    // Try favicon first, then robots.txt as fallback
+    const ok = await tryImage(`https://${cleanDomain}/favicon.ico?t=${Date.now()}`)
+      .then((r) => r || tryImage(`https://${cleanDomain}/robots.txt?t=${Date.now()}`));
+
+    setDomainVerified(ok);
+    setDomainChecking(false);
+    if (ok) {
+      toast.success("Nettside verifisert");
+    } else {
+      toast.error("Kunne ikke nå nettsiden. Sjekk at adressen er riktig.");
+    }
+  };
+
   // Velger partner fra katalog og forhåndsutfyller type + leveranseområde
   const selectPartner = (p: { name: string; type: string; roleDescription: string }) => {
     setForm((prev) => ({
@@ -478,15 +515,47 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
         <FieldBlock label="Nettside">
           {isEditing ? (
-            <>
-              <Input
-                value={form.domain}
-                onChange={(e) => update("domain", e.target.value)}
-                placeholder="www.example.com"
-                className={cn("text-sm", errors.domain && "border-destructive focus-visible:ring-destructive")}
-              />
-              {errors.domain && <p className="text-[11px] text-destructive mt-1">{errors.domain}</p>}
-            </>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={form.domain}
+                  onChange={(e) => {
+                    update("domain", e.target.value);
+                    setDomainVerified(null);
+                  }}
+                  placeholder="www.example.com"
+                  className={cn("text-sm flex-1", errors.domain && "border-destructive focus-visible:ring-destructive")}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={verifyDomain}
+                  disabled={domainChecking || !form.domain || Boolean(errors.domain)}
+                  className="gap-1.5 shrink-0"
+                >
+                  {domainChecking ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Globe className="h-3.5 w-3.5" />
+                  )}
+                  {domainChecking ? "Sjekker..." : "Verifiser"}
+                </Button>
+              </div>
+              {errors.domain ? (
+                <p className="text-[11px] text-destructive">{errors.domain}</p>
+              ) : domainVerified === true ? (
+                <div className="flex items-center gap-1 text-[11px] text-emerald-600">
+                  <CheckCircle2 className="h-3 w-3" />
+                  Nettside verifisert
+                </div>
+              ) : domainVerified === false ? (
+                <div className="flex items-center gap-1 text-[11px] text-destructive">
+                  <XCircle className="h-3 w-3" />
+                  Kunne ikke verifisere nettsiden
+                </div>
+              ) : null}
+            </div>
           ) : (
             <Input value={form.domain || "—"} readOnly className="bg-muted/30 text-sm" />
           )}
