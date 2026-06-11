@@ -174,7 +174,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const queryClient = useQueryClient();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const { stats: complianceStats } = useComplianceRequirements();
+  const { stats: complianceStats, requirements: allRequirements } = useComplianceRequirements();
   const isServiceProfile = !!propAssetId;
   const [activeTab, setActiveTab] = useState<"preview" | "publish" | "benchmark">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
@@ -728,22 +728,68 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 
                 <div className="mt-2 w-full">
                   {(() => {
-                    const SEGMENTS = 28;
-                    const filled = hasData ? Math.round((score / 100) * SEGMENTS) : 0;
-                    const fillBg =
-                      score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
-                    return (
-                      <div className="flex items-end gap-[2px] h-3" aria-hidden>
-                        {Array.from({ length: SEGMENTS }).map((_, i) => {
-                          const isOn = i < filled;
-                          return (
+                    // Pull this framework's controls, sort by criticality (critical → low)
+                    const PRIO_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+                    const PRIO_HEIGHT: Record<string, string> = {
+                      critical: "h-4",
+                      high: "h-3",
+                      medium: "h-[10px]",
+                      low: "h-2",
+                    };
+                    const fwReqs = (allRequirements || [])
+                      .filter((r: any) => r.framework_id === fw.framework_id)
+                      .sort((a: any, b: any) =>
+                        (PRIO_ORDER[a.priority] ?? 4) - (PRIO_ORDER[b.priority] ?? 4)
+                      );
+                    // Cap at 32 segments — sample evenly if more
+                    const MAX = 32;
+                    const segments = fwReqs.length <= MAX
+                      ? fwReqs
+                      : Array.from({ length: MAX }, (_, i) =>
+                          fwReqs[Math.floor((i * fwReqs.length) / MAX)]
+                        );
+                    // Fallback to 24 neutral ticks if no requirement data
+                    if (segments.length === 0) {
+                      const SEG = 24;
+                      const filled = hasData ? Math.round((score / 100) * SEG) : 0;
+                      const fillBg = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                      return (
+                        <div className="flex items-end gap-[2px] h-4" aria-hidden>
+                          {Array.from({ length: SEG }).map((_, i) => (
                             <span
                               key={i}
                               className={cn(
-                                "flex-1 rounded-[1px] transition-colors",
-                                isOn ? fillBg : "bg-muted-foreground/15",
-                                // subtle height variance for "equalizer" feel
+                                "flex-1 rounded-[1px]",
+                                i < filled ? fillBg : "bg-muted-foreground/15",
                                 i % 4 === 0 ? "h-3" : i % 2 === 0 ? "h-[10px]" : "h-2",
+                              )}
+                            />
+                          ))}
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="flex items-end gap-[2px] h-4" aria-hidden>
+                        {segments.map((r: any, i: number) => {
+                          const isOn =
+                            r.status === "completed" || (r.maturity_level ?? 0) >= 3;
+                          const onColor =
+                            r.priority === "critical" ? "bg-success"
+                            : r.priority === "high" ? "bg-success"
+                            : r.priority === "medium" ? "bg-success/80"
+                            : "bg-success/60";
+                          const offColor =
+                            r.priority === "critical" ? "bg-destructive/30"
+                            : r.priority === "high" ? "bg-warning/30"
+                            : "bg-muted-foreground/15";
+                          return (
+                            <span
+                              key={`${r.requirement_id}-${i}`}
+                              title={`${r.priority} · ${r.status}`}
+                              className={cn(
+                                "flex-1 rounded-[1px] transition-colors",
+                                PRIO_HEIGHT[r.priority] || "h-2",
+                                isOn ? onColor : offColor,
                               )}
                             />
                           );
