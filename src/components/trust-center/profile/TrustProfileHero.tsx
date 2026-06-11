@@ -1,6 +1,6 @@
 import { Shield, Award, Info, Clock, Scale, BookCheck } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { getCoverPreset, DEFAULT_COVER_OVERLAY } from "@/lib/coverPresets";
+import { getCoverPreset, DEFAULT_COVER_OVERLAY, getCoverColor } from "@/lib/coverPresets";
 
 export interface HeroFramework {
   framework_id: string;
@@ -67,10 +67,12 @@ export function TrustProfileHero({
 }: Props) {
   const coverUrl: string | undefined = meta.cover_image_url;
   const presetId: string | undefined = meta.cover_preset_id;
+  const colorId: string | undefined = meta.cover_color_id;
+  const activeColor = getCoverColor(colorId);
   const overlay: number =
     typeof meta.cover_overlay === "number"
       ? meta.cover_overlay
-      : getCoverPreset(presetId)?.overlay ?? DEFAULT_COVER_OVERLAY;
+      : activeColor?.overlay ?? getCoverPreset(presetId)?.overlay ?? DEFAULT_COVER_OVERLAY;
 
   const scrollToFrameworks = () => {
     document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -97,6 +99,8 @@ export function TrustProfileHero({
       <div className={bannerCls} style={{ height: "clamp(165px, 21vw, 255px)" }}>
         {coverUrl ? (
           <img src={coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        ) : activeColor ? (
+          <div className="absolute inset-0" style={{ background: activeColor.background }} />
         ) : (
           <>
             {/* Professional, neutral base with a subtle Mynder purple accent */}

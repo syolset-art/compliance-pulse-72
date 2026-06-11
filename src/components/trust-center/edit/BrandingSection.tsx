@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ImageIcon, Upload, X, Check, Sparkles } from "lucide-react";
+import { ImageIcon, Upload, X, Check, Sparkles, Palette } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-import { COVER_PRESETS, getCoverPreset, DEFAULT_COVER_OVERLAY } from "@/lib/coverPresets";
+import { COVER_PRESETS, getCoverPreset, DEFAULT_COVER_OVERLAY, COVER_COLORS, getCoverColor } from "@/lib/coverPresets";
 
 interface Props {
   asset: { id: string; metadata?: any } | null | undefined;
@@ -24,10 +24,12 @@ export function BrandingSection({ asset }: Props) {
   const meta = (asset?.metadata || {}) as Record<string, any>;
   const coverUrl: string | undefined = meta.cover_image_url;
   const presetId: string | undefined = meta.cover_preset_id;
+  const colorId: string | undefined = meta.cover_color_id;
+  const activeColor = getCoverColor(colorId);
   const overlay: number =
     typeof meta.cover_overlay === "number"
       ? meta.cover_overlay
-      : getCoverPreset(presetId)?.overlay ?? DEFAULT_COVER_OVERLAY;
+      : activeColor?.overlay ?? getCoverPreset(presetId)?.overlay ?? DEFAULT_COVER_OVERLAY;
 
   const persist = async (patch: Record<string, any>) => {
     if (!asset?.id) return;
@@ -45,11 +47,17 @@ export function BrandingSection({ asset }: Props) {
   const handlePickPreset = async (id: string) => {
     const p = getCoverPreset(id);
     if (!p) return;
-    await persist({ cover_image_url: p.url, cover_preset_id: id, cover_overlay: p.overlay });
+    await persist({ cover_image_url: p.url, cover_preset_id: id, cover_overlay: p.overlay, cover_color_id: null });
+  };
+
+  const handlePickColor = async (id: string) => {
+    const c = getCoverColor(id);
+    if (!c) return;
+    await persist({ cover_image_url: null, cover_preset_id: null, cover_color_id: id, cover_overlay: c.overlay });
   };
 
   const handleRemove = async () => {
-    await persist({ cover_image_url: null, cover_preset_id: null, cover_overlay: null });
+    await persist({ cover_image_url: null, cover_preset_id: null, cover_overlay: null, cover_color_id: null });
     toast.success(isNb ? "Bakgrunn fjernet" : "Cover removed");
   };
 
@@ -75,7 +83,7 @@ export function BrandingSection({ asset }: Props) {
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("company-logos").getPublicUrl(filePath);
       const url = `${urlData.publicUrl}?v=${Date.now()}`;
-      await persist({ cover_image_url: url, cover_preset_id: null, cover_overlay: DEFAULT_COVER_OVERLAY });
+      await persist({ cover_image_url: url, cover_preset_id: null, cover_color_id: null, cover_overlay: DEFAULT_COVER_OVERLAY });
       toast.success(isNb ? "Bakgrunn lastet opp" : "Cover uploaded");
     } catch (err) {
       console.error(err);
@@ -93,7 +101,7 @@ export function BrandingSection({ asset }: Props) {
         <h2 className="text-base font-semibold text-foreground">
           {isNb ? "Profilbanner" : "Profile cover"}
         </h2>
-        {coverUrl && (
+        {(coverUrl || activeColor) && (
           <Badge variant="secondary" className="text-xs ml-auto gap-1">
             <Check className="h-3 w-3" /> {isNb ? "Valgt" : "Selected"}
           </Badge>
@@ -101,8 +109,8 @@ export function BrandingSection({ asset }: Props) {
       </div>
       <p className="text-sm text-muted-foreground">
         {isNb
-          ? "Velg et bilde som vises øverst på den offentlige Trust-profilen din. Velg en ferdig stil eller last opp ditt eget bilde."
-          : "Pick the image that appears at the top of your public Trust profile. Choose a preset or upload your own."}
+          ? "Velg hvordan toppen av Trust-profilen skal se ut: en ferdig stil, en farge, eller last opp ditt eget bilde."
+          : "Pick how the top of your Trust profile looks: a preset, a color, or upload your own image."}
       </p>
 
       {/* Live preview */}
@@ -125,6 +133,8 @@ export function BrandingSection({ asset }: Props) {
                 }}
               />
             </>
+          ) : activeColor ? (
+            <div className="absolute inset-0" style={{ background: activeColor.background }} />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-primary to-primary/60" />
           )}
@@ -161,6 +171,40 @@ export function BrandingSection({ asset }: Props) {
                 {active && (
                   <div className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
                     <Check className="h-3 w-3" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Color grid */}
+      <div>
+        <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
+          <Palette className="h-3.5 w-3.5 text-primary" />
+          {isNb ? "Farger" : "Colors"}
+        </p>
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+          {COVER_COLORS.map((c) => {
+            const active = colorId === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => handlePickColor(c.id)}
+                title={c.name[isNb ? "nb" : "en"]}
+                aria-label={c.name[isNb ? "nb" : "en"]}
+                className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${
+                  active ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"
+                }`}
+                style={{ background: c.background }}
+              >
+                {active && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                      <Check className="h-3 w-3" />
+                    </div>
                   </div>
                 )}
               </button>
