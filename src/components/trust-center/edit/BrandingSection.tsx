@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ImageIcon, Upload, X, Check, Sparkles } from "lucide-react";
+import { ImageIcon, Upload, X, Check, Sparkles, Palette } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-import { COVER_PRESETS, getCoverPreset, DEFAULT_COVER_OVERLAY } from "@/lib/coverPresets";
+import { COVER_PRESETS, getCoverPreset, DEFAULT_COVER_OVERLAY, COVER_COLORS, getCoverColor } from "@/lib/coverPresets";
 
 interface Props {
   asset: { id: string; metadata?: any } | null | undefined;
@@ -24,10 +24,12 @@ export function BrandingSection({ asset }: Props) {
   const meta = (asset?.metadata || {}) as Record<string, any>;
   const coverUrl: string | undefined = meta.cover_image_url;
   const presetId: string | undefined = meta.cover_preset_id;
+  const colorId: string | undefined = meta.cover_color_id;
+  const activeColor = getCoverColor(colorId);
   const overlay: number =
     typeof meta.cover_overlay === "number"
       ? meta.cover_overlay
-      : getCoverPreset(presetId)?.overlay ?? DEFAULT_COVER_OVERLAY;
+      : activeColor?.overlay ?? getCoverPreset(presetId)?.overlay ?? DEFAULT_COVER_OVERLAY;
 
   const persist = async (patch: Record<string, any>) => {
     if (!asset?.id) return;
@@ -45,11 +47,17 @@ export function BrandingSection({ asset }: Props) {
   const handlePickPreset = async (id: string) => {
     const p = getCoverPreset(id);
     if (!p) return;
-    await persist({ cover_image_url: p.url, cover_preset_id: id, cover_overlay: p.overlay });
+    await persist({ cover_image_url: p.url, cover_preset_id: id, cover_overlay: p.overlay, cover_color_id: null });
+  };
+
+  const handlePickColor = async (id: string) => {
+    const c = getCoverColor(id);
+    if (!c) return;
+    await persist({ cover_image_url: null, cover_preset_id: null, cover_color_id: id, cover_overlay: c.overlay });
   };
 
   const handleRemove = async () => {
-    await persist({ cover_image_url: null, cover_preset_id: null, cover_overlay: null });
+    await persist({ cover_image_url: null, cover_preset_id: null, cover_overlay: null, cover_color_id: null });
     toast.success(isNb ? "Bakgrunn fjernet" : "Cover removed");
   };
 
