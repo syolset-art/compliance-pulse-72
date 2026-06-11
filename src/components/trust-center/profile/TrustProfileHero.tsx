@@ -268,11 +268,11 @@ interface IdentityStripeProps {
 
 export function IdentityStripe({ isNb, orgNumber, country, industry, privacyPolicyUrl }: IdentityStripeProps) {
   const items = [
-    { label: isNb ? "ORG.NR" : "REG. NUMBER", value: orgNumber || (isNb ? "Mangler" : "Missing"), missing: !orgNumber },
-    { label: isNb ? "LAND" : "COUNTRY", value: country || (isNb ? "Mangler" : "Missing"), missing: !country },
+    { label: isNb ? "ORG.NR" : "REG. NUMBER", value: orgNumber || (isNb ? "Mangler" : "Personvernerklæring "), missing: !orgNumber },
+    { label: isNb ? "LAND" : "COUNTRY", value: country || (isNb ? "Mangler" : "Personvernerklæring "), missing: !country },
     {
       label: isNb ? "PERSONVERNERKLÆRING" : "PRIVACY POLICY",
-      value: privacyPolicyUrl || (isNb ? "Mangler" : "Missing"),
+      value: privacyPolicyUrl || (isNb ? "Mangler" : "Personvernerklæring "),
       missing: !privacyPolicyUrl,
       isLink: !!privacyPolicyUrl,
       linkLabel: isNb ? "Åpne erklæring" : "Open policy",

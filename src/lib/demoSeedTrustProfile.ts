@@ -1,17 +1,17 @@
 import { supabase } from "@/integrations/supabase/client";
 
 const FRAMDRIFT_PROFILE = {
-  name: "DIPS Arena AS",
+  name: "Mynder AS",
   org_number: "936431127",
   industry: "Helse og omsorg",
   brreg_industry: "Programvareutvikling for helsesektoren",
-  domain: "dipsarena.no",
+  domain: "mynder.no",
   employees: "11-50",
   brreg_employees: 25,
   compliance_officer: "Kari Lien",
-  compliance_officer_email: "kari.lien@dipsarena.no",
+  compliance_officer_email: "kari.lien@mynder.no",
   dpo_name: "Henrik Dahl",
-  dpo_email: "personvern@dipsarena.no",
+  dpo_email: "personvern@mynder.no",
   geographic_scope: "Norge",
   governance_level: "medium",
   sensitive_data: "extensive",
@@ -23,7 +23,7 @@ const FRAMDRIFT_PROFILE = {
 
 const SELF_ASSET = {
   asset_type: "self",
-  name: "DIPS Arena AS",
+  name: "Mynder AS",
   description: "DIPS Arena AS leverer digitale helseløsninger til sykehus, kommuner og spesialister i Norge. Vi behandler pasientopplysninger og særlige kategorier av personopplysninger på vegne av helsevirksomheter.",
   compliance_score: 62,
   publish_mode: "public",
@@ -34,8 +34,8 @@ const SELF_ASSET = {
   region: "Vestland",
   org_number: "936431127",
   contact_person: "Kari Lien",
-  contact_email: "kari.lien@dipsarena.no",
-  url: "https://dipsarena.no",
+  contact_email: "kari.lien@mynder.no",
+  url: "https://mynder.no",
 };
 
 const EVIDENCE_CHECKS = [
