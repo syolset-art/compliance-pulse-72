@@ -51,7 +51,7 @@ const STATUS_CONFIG: Record<EvidenceStatus, {
     icon: AlertTriangle,
     colorClass: "text-muted-foreground",
     variant: "outline",
-    labelEn: "Missing",
+    labelEn: "Personvernerklæring ",
     labelNb: "Mangler",
     tooltipEn: "No evidence found for this control",
     tooltipNb: "Ingen bevis funnet for denne kontrollen",
