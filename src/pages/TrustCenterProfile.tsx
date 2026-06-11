@@ -567,8 +567,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   };
 
   const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
-  const trustColor = trustScore >= 80 ? "text-success" : trustScore >= 50 ? "text-warning" : "text-destructive";
-  const strokeColor = trustScore >= 80 ? "hsl(var(--success))" : trustScore >= 50 ? "hsl(142, 71%, 45%)" : "hsl(var(--destructive))";
+  const trustColor = trustScore >= 80 ? "text-success" : trustScore >= 50 ? "text-slate-500" : "text-destructive";
+  const strokeColor = trustScore >= 80 ? "hsl(var(--success))" : trustScore >= 50 ? "hsl(215, 16%, 47%)" : "hsl(var(--destructive))";
 
   // Gauge SVG
   const radius = 52;
