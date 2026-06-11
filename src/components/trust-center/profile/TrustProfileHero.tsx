@@ -263,15 +263,23 @@ interface IdentityStripeProps {
   country?: string | null;
   domain?: string | null;
   industry?: string | null;
+  privacyPolicyUrl?: string | null;
 }
 
-export function IdentityStripe({ isNb, orgNumber, country, domain, industry }: IdentityStripeProps) {
+export function IdentityStripe({ isNb, orgNumber, country, industry, privacyPolicyUrl }: IdentityStripeProps) {
   const items = [
     { label: isNb ? "ORG.NR" : "REG. NUMBER", value: orgNumber || (isNb ? "Mangler" : "Missing"), missing: !orgNumber },
     { label: isNb ? "LAND" : "COUNTRY", value: country || (isNb ? "Mangler" : "Missing"), missing: !country },
-    { label: isNb ? "NETTSIDE" : "WEBSITE", value: domain || (isNb ? "Mangler" : "Missing"), missing: !domain, isLink: !!domain },
+    {
+      label: isNb ? "PERSONVERNERKLÆRING" : "PRIVACY POLICY",
+      value: privacyPolicyUrl || (isNb ? "Mangler" : "Missing"),
+      missing: !privacyPolicyUrl,
+      isLink: !!privacyPolicyUrl,
+      linkLabel: isNb ? "Åpne erklæring" : "Open policy",
+    },
     { label: isNb ? "BRANSJE" : "INDUSTRY", value: industry || "–" },
   ];
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
       {items.map((item) => (
