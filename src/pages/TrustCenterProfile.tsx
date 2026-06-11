@@ -2054,42 +2054,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
 
 
-                  {/* ── Etterlevelse ── */}
-                  <section className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Scale className="h-4 w-4 text-primary" />
-                      <h3 className="text-base font-semibold text-foreground">
-                        {isNb ? "Etterlevelse" : "Compliance"}
-                      </h3>
-                    </div>
-
-                    <div className="rounded-xl border border-border bg-muted/30 px-4 py-4">
-                      {recognizedFrameworks.length === 0 ? (
-                        <p className="text-sm text-muted-foreground italic">
-                          {isNb ? "Ingen regelverk publisert ennå" : "No frameworks published yet"}
-                        </p>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {recognizedFrameworks.map((fw: any) => {
-                            const standard = isStandard(fw.framework_name);
-                            const Icon = standard ? BookCheck : Scale;
-                            return (
-                              <button
-                                key={fw.framework_id}
-                                type="button"
-                                onClick={() => document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-transform hover:scale-[1.03] ${frameworkChipClass(fw.framework_name)}`}
-                                title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
-                              >
-                                <Icon className="h-3 w-3" />
-                                {fw.framework_name}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </section>
+                  {/* ── Etterlevelse — modenhet pr. regelverk ── */}
+                  {renderComplianceList()}
 
                   <div className="border-t border-border" />
 
