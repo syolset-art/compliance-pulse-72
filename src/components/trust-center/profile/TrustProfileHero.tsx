@@ -1,4 +1,4 @@
-import { Shield, Award, Info, Clock, Eye, Scale, BookCheck } from "lucide-react";
+import { Shield, Award, Info, Clock, Scale, BookCheck } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getCoverPreset, DEFAULT_COVER_OVERLAY } from "@/lib/coverPresets";
 
