@@ -202,6 +202,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [previewDoc, setPreviewDoc] = useState<any>(null);
   const [proofDialogOpen, setProofDialogOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [frameworkDetailId, setFrameworkDetailId] = useState<string | null>(null);
   const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
   usePageHelpListener(setHelpOpenCb);
 
