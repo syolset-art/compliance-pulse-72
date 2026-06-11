@@ -52,6 +52,7 @@ export function TrustProfileHero({
   logoUrl,
   companyName,
   description,
+  domain,
   trustScore,
   trustColor,
   trustLabel,
@@ -67,6 +68,7 @@ export function TrustProfileHero({
   flush = false,
   fullBleed = false,
 }: Props) {
+
   const coverUrl: string | undefined = meta.cover_image_url;
   const presetId: string | undefined = meta.cover_preset_id;
   const colorId: string | undefined = meta.cover_color_id;
