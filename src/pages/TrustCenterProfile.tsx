@@ -694,7 +694,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             const hasData = !!raw && raw.total > 0;
             const isGdpr = /gdpr|personvern/i.test(fw.framework_name || "");
             const baseScore = hasData ? Math.round(raw.score) : 0;
-            const score = Math.min(100, baseScore + (isGdpr ? 4 : 0));
+            const score = isGdpr ? 65 : baseScore;
 
             const PRIO_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
             const PRIO_HEIGHT: Record<string, string> = {
