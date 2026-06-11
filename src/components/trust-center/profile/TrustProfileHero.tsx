@@ -13,6 +13,7 @@ interface Props {
   logoUrl?: string | null;
   companyName: string;
   description?: string | null;
+  domain?: string | null;
   trustScore: number;
   trustColor: string;
   trustLabel: string;
@@ -30,6 +31,7 @@ interface Props {
   /** When true, banner breaks out to full viewport width while content stays at parent width. */
   fullBleed?: boolean;
 }
+
 
 function frameworkChipClass(name: string): string {
   const n = name.toLowerCase();
@@ -50,6 +52,7 @@ export function TrustProfileHero({
   logoUrl,
   companyName,
   description,
+  domain,
   trustScore,
   trustColor,
   trustLabel,
@@ -65,6 +68,7 @@ export function TrustProfileHero({
   flush = false,
   fullBleed = false,
 }: Props) {
+
   const coverUrl: string | undefined = meta.cover_image_url;
   const presetId: string | undefined = meta.cover_preset_id;
   const colorId: string | undefined = meta.cover_color_id;
@@ -171,7 +175,23 @@ export function TrustProfileHero({
                 {description}
               </p>
             ) : null}
+
+            {/* Website — plain text + link, sits under the description */}
+            {domain ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                {isNb ? "Nettside: " : "Website: "}
+                <a
+                  href={domain.startsWith("http") ? domain : `https://${domain}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:underline font-medium"
+                >
+                  {domain.replace(/^https?:\/\//, "")}
+                </a>
+              </p>
+            ) : null}
           </div>
+
 
           {/* Compact Trust Score card */}
           <div className="shrink-0 self-start">
@@ -243,15 +263,23 @@ interface IdentityStripeProps {
   country?: string | null;
   domain?: string | null;
   industry?: string | null;
+  privacyPolicyUrl?: string | null;
 }
 
-export function IdentityStripe({ isNb, orgNumber, country, domain, industry }: IdentityStripeProps) {
+export function IdentityStripe({ isNb, orgNumber, country, industry, privacyPolicyUrl }: IdentityStripeProps) {
   const items = [
     { label: isNb ? "ORG.NR" : "REG. NUMBER", value: orgNumber || (isNb ? "Mangler" : "Missing"), missing: !orgNumber },
     { label: isNb ? "LAND" : "COUNTRY", value: country || (isNb ? "Mangler" : "Missing"), missing: !country },
-    { label: isNb ? "NETTSIDE" : "WEBSITE", value: domain || (isNb ? "Mangler" : "Missing"), missing: !domain, isLink: !!domain },
+    {
+      label: isNb ? "PERSONVERNERKLÆRING" : "PRIVACY POLICY",
+      value: privacyPolicyUrl || (isNb ? "Mangler" : "Missing"),
+      missing: !privacyPolicyUrl,
+      isLink: !!privacyPolicyUrl,
+      linkLabel: isNb ? "Åpne erklæring" : "Open policy",
+    },
     { label: isNb ? "BRANSJE" : "INDUSTRY", value: industry || "–" },
   ];
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
       {items.map((item) => (
@@ -264,9 +292,10 @@ export function IdentityStripe({ isNb, orgNumber, country, domain, industry }: I
               rel="noreferrer"
               className="text-sm font-medium text-primary hover:underline mt-0.5 truncate block"
             >
-              {item.value}
+              {(item as any).linkLabel || item.value}
             </a>
           ) : (
+
             <p className={`text-sm font-medium mt-0.5 truncate ${item.missing ? "text-muted-foreground italic" : "text-foreground"}`}>
               {item.value}
             </p>
