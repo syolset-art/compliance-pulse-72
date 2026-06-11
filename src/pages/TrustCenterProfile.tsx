@@ -612,7 +612,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
     );
   };
 
-  const trustLabel = trustScore >= 80 ? "HIGH TRUST" : trustScore >= 50 ? "MODERATE TRUST" : "LOW TRUST";
+  const trustLabel = trustScore >= 80 ? "HIGH" : trustScore >= 50 ? "MODERATE" : "LOW";
   const trustColor = trustScore >= 80 ? "text-success" : trustScore >= 50 ? "text-slate-500" : "text-destructive";
   const strokeColor = trustScore >= 80 ? "hsl(var(--success))" : trustScore >= 50 ? "hsl(215, 16%, 47%)" : "hsl(var(--destructive))";
 
