@@ -14,7 +14,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { INDUSTRY_OPTIONS, getNaceCodeForIndustry, findIndustryByLabel } from "@/lib/industries";
+import { INDUSTRY_OPTIONS, findIndustryByLabel } from "@/lib/industries";
 
 interface IndustryComboboxProps {
   value: string;
