@@ -174,7 +174,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const queryClient = useQueryClient();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const { stats: complianceStats } = useComplianceRequirements();
+  const { stats: complianceStats, requirements: allRequirements } = useComplianceRequirements();
   const isServiceProfile = !!propAssetId;
   const [activeTab, setActiveTab] = useState<"preview" | "publish" | "benchmark">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
