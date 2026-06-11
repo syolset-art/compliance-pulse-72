@@ -101,7 +101,7 @@ export function BrandingSection({ asset }: Props) {
         <h2 className="text-base font-semibold text-foreground">
           {isNb ? "Profilbanner" : "Profile cover"}
         </h2>
-        {coverUrl && (
+        {(coverUrl || activeColor) && (
           <Badge variant="secondary" className="text-xs ml-auto gap-1">
             <Check className="h-3 w-3" /> {isNb ? "Valgt" : "Selected"}
           </Badge>
@@ -109,8 +109,8 @@ export function BrandingSection({ asset }: Props) {
       </div>
       <p className="text-sm text-muted-foreground">
         {isNb
-          ? "Velg et bilde som vises øverst på den offentlige Trust-profilen din. Velg en ferdig stil eller last opp ditt eget bilde."
-          : "Pick the image that appears at the top of your public Trust profile. Choose a preset or upload your own."}
+          ? "Velg hvordan toppen av Trust-profilen skal se ut: en ferdig stil, en farge, eller last opp ditt eget bilde."
+          : "Pick how the top of your Trust profile looks: a preset, a color, or upload your own image."}
       </p>
 
       {/* Live preview */}
@@ -133,6 +133,8 @@ export function BrandingSection({ asset }: Props) {
                 }}
               />
             </>
+          ) : activeColor ? (
+            <div className="absolute inset-0" style={{ background: activeColor.background }} />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-primary to-primary/60" />
           )}
@@ -169,6 +171,40 @@ export function BrandingSection({ asset }: Props) {
                 {active && (
                   <div className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
                     <Check className="h-3 w-3" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Color grid */}
+      <div>
+        <p className="text-sm font-medium text-foreground mb-2 flex items-center gap-1.5">
+          <Palette className="h-3.5 w-3.5 text-primary" />
+          {isNb ? "Farger" : "Colors"}
+        </p>
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+          {COVER_COLORS.map((c) => {
+            const active = colorId === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => handlePickColor(c.id)}
+                title={c.name[isNb ? "nb" : "en"]}
+                aria-label={c.name[isNb ? "nb" : "en"]}
+                className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${
+                  active ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"
+                }`}
+                style={{ background: c.background }}
+              >
+                {active && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                      <Check className="h-3 w-3" />
+                    </div>
                   </div>
                 )}
               </button>
