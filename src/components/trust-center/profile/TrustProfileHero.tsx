@@ -175,7 +175,23 @@ export function TrustProfileHero({
                 {description}
               </p>
             ) : null}
+
+            {/* Website — plain text + link, sits under the description */}
+            {domain ? (
+              <p className="mt-2 text-sm text-muted-foreground">
+                {isNb ? "Nettside: " : "Website: "}
+                <a
+                  href={domain.startsWith("http") ? domain : `https://${domain}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:underline font-medium"
+                >
+                  {domain.replace(/^https?:\/\//, "")}
+                </a>
+              </p>
+            ) : null}
           </div>
+
 
           {/* Compact Trust Score card */}
           <div className="shrink-0 self-start">
