@@ -211,11 +211,6 @@ export function TrustProfileHero({
                   <span className="inline-flex items-center gap-1">
                     <Clock className="h-3 w-3" /> {lastUpdated}
                   </span>
-                  <span className="text-border">·</span>
-                  <span className="inline-flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    <span className="tabular-nums">{viewCount.toLocaleString(isNb ? "nb-NO" : "en-GB")}</span>
-                  </span>
                 </div>
               </div>
             </div>
