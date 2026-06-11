@@ -2950,7 +2950,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             const raw = frameworkScores[fw.framework_id];
             const hasData = !!raw && raw.total > 0;
             const isGdpr = /gdpr|personvern/i.test(fw.framework_name || "");
-            const score = Math.min(100, (hasData ? Math.round(raw.score) : 0) + (isGdpr ? 4 : 0));
+            const score = isGdpr ? 65 : (hasData ? Math.round(raw.score) : 0);
             const fwReqs = (allRequirements || []).filter((r: any) => r.framework_id === fw.framework_id);
             const isVerified = (r: any) => r.status === "completed" || (r.maturity_level ?? 0) >= 3;
             const verifiedCount = fwReqs.filter(isVerified).length;
