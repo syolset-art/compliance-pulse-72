@@ -24,6 +24,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import type { ControlArea } from "@/lib/trustControlDefinitions";
+import { CONTROL_AREAS } from "@/lib/controlAreas";
 import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 import { frameworkChipClass } from "@/lib/frameworkChipClass";
@@ -39,12 +40,13 @@ import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
 import { frameworks as frameworkDefs } from "@/lib/frameworkDefinitions";
 
-const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] = [
-  { area: "governance", icon: Shield, labelNb: "Styring", labelEn: "Governance" },
-  { area: "operations", icon: Lock, labelNb: "Drift og sikkerhet", labelEn: "Drift og sikkerhet" },
-  { area: "privacy", icon: Globe, labelNb: "Personvern og datahåndtering", labelEn: "Privacy & Data Handling" },
-  { area: "vendor", icon: Layers, labelNb: "Tredjepart og verdikjede", labelEn: "Third-Party & Supply Chain" },
-];
+const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] =
+  CONTROL_AREAS.map((a) => ({
+    area: a.key as ControlArea,
+    icon: a.icon as typeof Shield,
+    labelNb: a.labelNb,
+    labelEn: a.labelEn,
+  }));
 
 const AREA_DEMO_FLOOR: Record<string, number> = {
   governance: 78,
@@ -360,8 +362,8 @@ const TrustCenterEditProfile = () => {
                   </div>
                   <p className="text-sm text-muted-foreground max-w-2xl">
                     {isNb
-                      ? "Egenerklæringer og verifiserte kontroller fordelt på de fire kontrollområdene som utgjør din Trust Score."
-                      : "Self-assessments and verified controls across the four control areas that make up your Trust Score."}
+                      ? "Egenerklæringer og verifiserte kontroller fordelt på de fem kontrollområdene som utgjør din Trust Score."
+                      : "Self-assessments and verified controls across the five control areas that make up your Trust Score."}
                   </p>
                 </div>
                 <div className="flex items-baseline gap-1.5 shrink-0">
