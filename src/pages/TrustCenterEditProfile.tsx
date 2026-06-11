@@ -362,8 +362,8 @@ const TrustCenterEditProfile = () => {
                   </div>
                   <p className="text-sm text-muted-foreground max-w-2xl">
                     {isNb
-                      ? "Egenerklæringer og verifiserte kontroller fordelt på de fire kontrollområdene som utgjør din Trust Score."
-                      : "Self-assessments and verified controls across the four control areas that make up your Trust Score."}
+                      ? "Egenerklæringer og verifiserte kontroller fordelt på de fem kontrollområdene som utgjør din Trust Score."
+                      : "Self-assessments and verified controls across the five control areas that make up your Trust Score."}
                   </p>
                 </div>
                 <div className="flex items-baseline gap-1.5 shrink-0">
