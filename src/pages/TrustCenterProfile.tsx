@@ -646,11 +646,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Scale className="h-4 w-4 text-primary" />
-          <h3 className="text-base font-semibold text-foreground">
+          <h3 className="text-sm font-semibold text-foreground">
             {isNb ? "Etterlevelse" : "Compliance"}
           </h3>
         </div>
-        <span className="text-[11px] uppercase tracking-wider text-muted-foreground/70">
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
           {isNb ? "Modenhet pr. regelverk" : "Maturity per framework"}
         </span>
       </div>
@@ -662,7 +662,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
           </p>
         </div>
       ) : (
-        <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
           {orderedFrameworks.map((fw: any) => {
             const standard = isStandard(fw.framework_name);
             const Icon = standard ? BookCheck : Scale;
@@ -676,46 +676,39 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 onClick={() =>
                   document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })
                 }
-                className="w-full text-left px-5 py-3.5 hover:bg-muted/40 transition-colors focus:outline-none focus:bg-muted/40"
+                className="w-full text-left p-2.5 rounded-xl border border-border/80 bg-card hover:bg-muted/40 hover:border-border transition-all focus:outline-none focus:bg-muted/40 flex flex-col justify-between min-h-[64px]"
                 title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
               >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                      <Icon className="h-4 w-4 text-primary" />
+                <div className="flex items-start justify-between gap-2 min-w-0 w-full">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon className="h-3.5 w-3.5 text-primary" />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-sm font-semibold text-foreground truncate">
+                      <div className="text-xs font-semibold text-foreground truncate max-w-[140px]" title={fw.framework_name}>
                         {fw.framework_name}
                       </div>
-                      <div className="text-[11px] uppercase tracking-wider text-muted-foreground/70">
+                      <div className="text-[9px] uppercase tracking-wider text-muted-foreground/60 leading-none mt-0.5">
                         {standard ? (isNb ? "Standard" : "Standard") : (isNb ? "Regelverk" : "Regulation")}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center shrink-0">
                     {hasData ? (
-                      <>
-                        <span className={cn("text-base font-bold tabular-nums", scoreColor(score))}>
-                          {score}%
-                        </span>
-                        <span className={cn("h-2 w-2 rounded-full", dotColor(score))} aria-hidden />
-                      </>
+                      <span className={cn("text-xs font-bold tabular-nums", scoreColor(score))}>
+                        {score}%
+                      </span>
                     ) : (
-                      <span className="text-sm text-muted-foreground tabular-nums">—</span>
+                      <span className="text-[10px] text-muted-foreground tabular-nums">—</span>
                     )}
                   </div>
                 </div>
-                <div className="mt-2.5 ml-11">
+                
+                <div className="mt-2 w-full">
                   <Progress
                     value={hasData ? score : 0}
-                    className={cn("h-1.5", hasData ? barColor(score) : "[&>div]:bg-muted-foreground/20")}
+                    className={cn("h-1", hasData ? barColor(score) : "[&>div]:bg-muted-foreground/20")}
                   />
-                  {!hasData && (
-                    <p className="mt-1.5 text-[11px] text-muted-foreground/70">
-                      {isNb ? "Ingen data ennå" : "No data yet"}
-                    </p>
-                  )}
                 </div>
               </button>
             );
