@@ -88,7 +88,7 @@ function IndustryCombobox({ value, onChange }: IndustryComboboxProps) {
               {INDUSTRY_OPTIONS.map((opt) => (
                 <CommandItem
                   key={opt.id}
-                  value={`${opt.label_nb} ${opt.label_en} ${opt.naceCode}`}
+                  value={`${opt.label_nb} ${opt.label_en}`}
                   onSelect={() => {
                     onChange(opt.label_nb);
                     setOpen(false);
@@ -103,11 +103,6 @@ function IndustryCombobox({ value, onChange }: IndustryComboboxProps) {
                     )}
                   />
                   <span className="flex-1 truncate">{opt.label_nb}</span>
-                  {opt.naceCode && (
-                    <Badge variant="outline" className="ml-2 text-[10px]">
-                      {opt.naceCode}
-                    </Badge>
-                  )}
                 </CommandItem>
               ))}
               {trimmedQuery && !queryMatchesExisting && (
