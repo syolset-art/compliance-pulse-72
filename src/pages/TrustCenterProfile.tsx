@@ -691,114 +691,187 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             const raw = frameworkScores[fw.framework_id];
             const hasData = !!raw && raw.total > 0;
             const score = hasData ? Math.round(raw.score) : 0;
+
+            const PRIO_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+            const PRIO_HEIGHT: Record<string, string> = {
+              critical: "h-4",
+              high: "h-3",
+              medium: "h-[10px]",
+              low: "h-2",
+            };
+            const fwReqs = (allRequirements || [])
+              .filter((r: any) => r.framework_id === fw.framework_id)
+              .sort((a: any, b: any) =>
+                (PRIO_ORDER[a.priority] ?? 4) - (PRIO_ORDER[b.priority] ?? 4)
+              );
+
+            const byPrio = (["critical", "high", "medium", "low"] as const).map((p) => {
+              const list = fwReqs.filter((r: any) => r.priority === p);
+              const done = list.filter(
+                (r: any) => r.status === "completed" || (r.maturity_level ?? 0) >= 3
+              ).length;
+              return { p, total: list.length, done };
+            });
+
+            const MAX = 32;
+            const segments = fwReqs.length <= MAX
+              ? fwReqs
+              : Array.from({ length: MAX }, (_, i) =>
+                  fwReqs[Math.floor((i * fwReqs.length) / MAX)]
+                );
+
+            const PRIO_LABEL: Record<string, string> = isNb
+              ? { critical: "Kritisk", high: "Høy", medium: "Middels", low: "Lav" }
+              : { critical: "Critical", high: "High", medium: "Medium", low: "Low" };
+
             return (
-              <button
-                key={fw.framework_id}
-                type="button"
-                onClick={() =>
-                  document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })
-                }
-                className="w-full text-left p-2.5 rounded-xl border border-border/80 bg-card hover:bg-muted/40 hover:border-border transition-all focus:outline-none focus:bg-muted/40 flex flex-col justify-between min-h-[64px]"
-                title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
-              >
-                <div className="flex items-start justify-between gap-2 min-w-0 w-full">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
-                      <Icon className="h-3.5 w-3.5 text-primary" />
+              <HoverCard key={fw.framework_id} openDelay={150} closeDelay={80}>
+                <HoverCardTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }
+                    className="w-full text-left p-2.5 rounded-xl border border-border/80 bg-card hover:bg-muted/40 hover:border-border transition-all focus:outline-none focus:bg-muted/40 flex flex-col justify-between min-h-[64px]"
+                  >
+                    <div className="flex items-start justify-between gap-2 min-w-0 w-full">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                          <Icon className="h-3.5 w-3.5 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-semibold text-foreground truncate max-w-[140px]" title={fw.framework_name}>
+                            {fw.framework_name}
+                          </div>
+                          <div className="text-[9px] uppercase tracking-wider text-muted-foreground/60 leading-none mt-0.5">
+                            {standard ? (isNb ? "Standard" : "Standard") : (isNb ? "Regelverk" : "Regulation")}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center shrink-0">
+                        {hasData ? (
+                          <span className={cn("text-xs font-bold tabular-nums", scoreColor(score))}>
+                            {score}%
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground tabular-nums">—</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-semibold text-foreground truncate max-w-[140px]" title={fw.framework_name}>
-                        {fw.framework_name}
+
+                    <div className="mt-2 w-full">
+                      {segments.length === 0 ? (
+                        (() => {
+                          const SEG = 24;
+                          const filled = hasData ? Math.round((score / 100) * SEG) : 0;
+                          const fillBg = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                          return (
+                            <div className="flex items-end gap-[2px] h-4" aria-hidden>
+                              {Array.from({ length: SEG }).map((_, i) => (
+                                <span
+                                  key={i}
+                                  className={cn(
+                                    "flex-1 rounded-[1px]",
+                                    i < filled ? fillBg : "bg-muted-foreground/15",
+                                    i % 4 === 0 ? "h-3" : i % 2 === 0 ? "h-[10px]" : "h-2",
+                                  )}
+                                />
+                              ))}
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <div className="flex items-end gap-[2px] h-4" aria-hidden>
+                          {segments.map((r: any, i: number) => {
+                            const isOn = r.status === "completed" || (r.maturity_level ?? 0) >= 3;
+                            const onColor =
+                              r.priority === "critical" ? "bg-success"
+                              : r.priority === "high" ? "bg-success"
+                              : r.priority === "medium" ? "bg-success/80"
+                              : "bg-success/60";
+                            const offColor =
+                              r.priority === "critical" ? "bg-destructive/30"
+                              : r.priority === "high" ? "bg-warning/30"
+                              : "bg-muted-foreground/15";
+                            return (
+                              <span
+                                key={`${r.requirement_id}-${i}`}
+                                className={cn(
+                                  "flex-1 rounded-[1px] transition-colors",
+                                  PRIO_HEIGHT[r.priority] || "h-2",
+                                  isOn ? onColor : offColor,
+                                )}
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                </HoverCardTrigger>
+
+                <HoverCardContent side="top" align="start" className="w-80 p-0 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-border bg-muted/30">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground truncate">{fw.framework_name}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                          {isNb ? "Modenhet" : "Maturity"}
+                        </p>
                       </div>
-                      <div className="text-[9px] uppercase tracking-wider text-muted-foreground/60 leading-none mt-0.5">
-                        {standard ? (isNb ? "Standard" : "Standard") : (isNb ? "Regelverk" : "Regulation")}
-                      </div>
+                      <span className={cn("text-lg font-bold tabular-nums", scoreColor(score))}>
+                        {hasData ? `${score}%` : "—"}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center shrink-0">
-                    {hasData ? (
-                      <span className={cn("text-xs font-bold tabular-nums", scoreColor(score))}>
-                        {score}%
-                      </span>
+
+                  <div className="px-4 py-3 space-y-2">
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                      {isNb ? "Kontrollpunkter etter kritikalitet" : "Controls by criticality"}
+                    </p>
+                    {byPrio.every((b) => b.total === 0) ? (
+                      <p className="text-xs text-muted-foreground italic">
+                        {isNb ? "Ingen kontrolldata tilgjengelig" : "No control data available"}
+                      </p>
                     ) : (
-                      <span className="text-[10px] text-muted-foreground tabular-nums">—</span>
+                      byPrio.map(({ p, total, done }) => {
+                        if (total === 0) return null;
+                        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+                        const dot =
+                          p === "critical" ? "bg-destructive"
+                          : p === "high" ? "bg-warning"
+                          : p === "medium" ? "bg-primary/60"
+                          : "bg-muted-foreground/50";
+                        return (
+                          <div key={p} className="flex items-center gap-2 text-xs">
+                            <span className={cn("h-2 w-2 rounded-sm shrink-0", dot)} />
+                            <span className="text-foreground font-medium w-16">{PRIO_LABEL[p]}</span>
+                            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                              <div
+                                className={cn(
+                                  "h-full rounded-full",
+                                  pct >= 75 ? "bg-success" : pct >= 50 ? "bg-warning" : "bg-destructive"
+                                )}
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                            <span className="tabular-nums text-muted-foreground shrink-0 w-12 text-right">
+                              {done}/{total}
+                            </span>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
-                </div>
-                
-                <div className="mt-2 w-full">
-                  {(() => {
-                    // Pull this framework's controls, sort by criticality (critical → low)
-                    const PRIO_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
-                    const PRIO_HEIGHT: Record<string, string> = {
-                      critical: "h-4",
-                      high: "h-3",
-                      medium: "h-[10px]",
-                      low: "h-2",
-                    };
-                    const fwReqs = (allRequirements || [])
-                      .filter((r: any) => r.framework_id === fw.framework_id)
-                      .sort((a: any, b: any) =>
-                        (PRIO_ORDER[a.priority] ?? 4) - (PRIO_ORDER[b.priority] ?? 4)
-                      );
-                    // Cap at 32 segments — sample evenly if more
-                    const MAX = 32;
-                    const segments = fwReqs.length <= MAX
-                      ? fwReqs
-                      : Array.from({ length: MAX }, (_, i) =>
-                          fwReqs[Math.floor((i * fwReqs.length) / MAX)]
-                        );
-                    // Fallback to 24 neutral ticks if no requirement data
-                    if (segments.length === 0) {
-                      const SEG = 24;
-                      const filled = hasData ? Math.round((score / 100) * SEG) : 0;
-                      const fillBg = score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
-                      return (
-                        <div className="flex items-end gap-[2px] h-4" aria-hidden>
-                          {Array.from({ length: SEG }).map((_, i) => (
-                            <span
-                              key={i}
-                              className={cn(
-                                "flex-1 rounded-[1px]",
-                                i < filled ? fillBg : "bg-muted-foreground/15",
-                                i % 4 === 0 ? "h-3" : i % 2 === 0 ? "h-[10px]" : "h-2",
-                              )}
-                            />
-                          ))}
-                        </div>
-                      );
-                    }
-                    return (
-                      <div className="flex items-end gap-[2px] h-4" aria-hidden>
-                        {segments.map((r: any, i: number) => {
-                          const isOn =
-                            r.status === "completed" || (r.maturity_level ?? 0) >= 3;
-                          const onColor =
-                            r.priority === "critical" ? "bg-success"
-                            : r.priority === "high" ? "bg-success"
-                            : r.priority === "medium" ? "bg-success/80"
-                            : "bg-success/60";
-                          const offColor =
-                            r.priority === "critical" ? "bg-destructive/30"
-                            : r.priority === "high" ? "bg-warning/30"
-                            : "bg-muted-foreground/15";
-                          return (
-                            <span
-                              key={`${r.requirement_id}-${i}`}
-                              title={`${r.priority} · ${r.status}`}
-                              className={cn(
-                                "flex-1 rounded-[1px] transition-colors",
-                                PRIO_HEIGHT[r.priority] || "h-2",
-                                isOn ? onColor : offColor,
-                              )}
-                            />
-                          );
-                        })}
-                      </div>
-                    );
-                  })()}
-                </div>
-              </button>
+
+                  <div className="px-4 py-2.5 border-t border-border bg-muted/20 flex items-center justify-between">
+                    <span className="text-[10px] text-muted-foreground">
+                      {isNb ? "Klikk for detaljer" : "Click for details"}
+                    </span>
+                    <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
             );
           })}
         </div>
