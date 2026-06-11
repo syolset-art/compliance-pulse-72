@@ -2223,20 +2223,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             </div>
                           </div>
                           {criticalVendors.map((v: any, idx: number) => {
+                            const VENDOR_TYPE_LABEL = isNb ? VENDOR_TYPE_LABEL_NB : VENDOR_TYPE_LABEL_EN;
+                            const GDPR_ROLE_LABEL = isNb ? GDPR_ROLE_LABEL_NB : GDPR_ROLE_LABEL_EN;
                             const typeLabel = v.vendorTypeKey === "other"
                               ? (v.purpose || VENDOR_TYPE_LABEL.other)
                               : (v.vendorTypeKey ? VENDOR_TYPE_LABEL[v.vendorTypeKey] : null);
                             const roleLabel = v.gdprRole ? GDPR_ROLE_LABEL[v.gdprRole] : null;
                             const meta2: string[] = [];
                             if (roleLabel) meta2.push(roleLabel);
-                            if (v.orgNumber) meta2.push(`Org.nr ${v.orgNumber}`);
+                            if (v.orgNumber) meta2.push(`${isNb ? "Org.nr" : "Org. no."} ${v.orgNumber}`);
                             const dpaLabel = v.dpa === "yes"
-                              ? "DPA: Ja"
+                              ? (isNb ? "DPA: Ja" : "DPA: Yes")
                               : v.dpa === "no"
-                                ? "DPA: Nei"
+                                ? (isNb ? "DPA: Nei" : "DPA: No")
                                 : v.dpa === "unknown"
-                                  ? "DPA: Ukjent"
+                                  ? (isNb ? "DPA: Ukjent" : "DPA: Unknown")
                                   : null;
+
                             return (
                               <div key={idx} className="px-5 py-4 flex items-start gap-3">
                                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
