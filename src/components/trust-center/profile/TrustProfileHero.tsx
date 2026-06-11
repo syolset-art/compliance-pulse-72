@@ -292,9 +292,10 @@ export function IdentityStripe({ isNb, orgNumber, country, industry, privacyPoli
               rel="noreferrer"
               className="text-sm font-medium text-primary hover:underline mt-0.5 truncate block"
             >
-              {item.value}
+              {(item as any).linkLabel || item.value}
             </a>
           ) : (
+
             <p className={`text-sm font-medium mt-0.5 truncate ${item.missing ? "text-muted-foreground italic" : "text-foreground"}`}>
               {item.value}
             </p>
