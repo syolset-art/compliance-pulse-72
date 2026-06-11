@@ -2181,48 +2181,43 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             </button>
 
                             {/* Expanded control details */}
-                            {isExpanded && areaControls.length > 0 && (
-                              <div className="border-t border-border">
-                                {areaControls.map((control) => {
-                                  const statusIcon = control.status === "implemented"
-                                    ? <CheckCircle2 className="h-4 w-4 text-success" />
-                                    : control.status === "partial"
-                                      ? <AlertTriangle className="h-4 w-4 text-warning" />
-                                      : <XCircle className="h-4 w-4 text-destructive" />;
-
-                                  const statusBadgeLabel = control.status === "implemented" ? "Yes"
-                                    : control.status === "partial" ? "Partial" : "No";
-                                  const statusBadgeClass = control.status === "implemented"
-                                    ? "bg-success/10 text-success border-success/20"
-                                    : control.status === "partial"
-                                      ? "bg-warning/10 text-warning border-warning/20"
-                                      : "bg-destructive/10 text-destructive border-destructive/20";
-
-                                  const verificationLabel = control.verificationSource === "third_party_verified"
-                                    ? (isNb ? "Verifisert" : "Verified")
-                                    : control.verificationSource === "vendor_verified"
-                                      ? (isNb ? "Dokumentert" : "Documented")
-                                      : control.verificationSource === "customer_asserted"
+                            {isExpanded && (() => {
+                              const verifiedOnly = areaControls.filter(c => c.status === "implemented");
+                              if (verifiedOnly.length === 0) {
+                                return (
+                                  <div className="border-t border-border px-4 py-3">
+                                    <p className="text-sm text-muted-foreground italic">
+                                      {isNb ? "Ingen verifiserte kontroller ennå." : "No verified controls yet."}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              return (
+                                <div className="border-t border-border">
+                                  {verifiedOnly.map((control) => {
+                                    const verificationLabel = control.verificationSource === "third_party_verified"
+                                      ? (isNb ? "Verifisert" : "Verified")
+                                      : control.verificationSource === "vendor_verified"
                                         ? (isNb ? "Dokumentert" : "Documented")
-                                        : null;
+                                        : control.verificationSource === "customer_asserted"
+                                          ? (isNb ? "Dokumentert" : "Documented")
+                                          : null;
 
-                                  return (
-                                    <div key={control.key} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0">
-                                      <div className="flex items-center gap-3">
-                                        {statusIcon}
-                                        <span className="text-sm text-foreground">{isNb ? control.labelNb : control.labelEn}</span>
+                                    return (
+                                      <div key={control.key} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0">
+                                        <div className="flex items-center gap-3">
+                                          <CheckCircle2 className="h-4 w-4 text-success" />
+                                          <span className="text-sm text-foreground">{isNb ? control.labelNb : control.labelEn}</span>
+                                        </div>
+                                        {verificationLabel && (
+                                          <span className="text-sm text-muted-foreground shrink-0">{verificationLabel}</span>
+                                        )}
                                       </div>
-                                      <div className="flex items-center gap-2 shrink-0">
-                                        <Badge variant="outline" className={`text-sm ${statusBadgeClass}`}>
-                                          {statusBadgeLabel}
-                                        </Badge>
-                                        {verificationLabel && <span className="text-sm text-muted-foreground">{verificationLabel}</span>}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
                           </div>
                         );
                       })}
