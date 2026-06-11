@@ -13,6 +13,7 @@ interface Props {
   logoUrl?: string | null;
   companyName: string;
   description?: string | null;
+  domain?: string | null;
   trustScore: number;
   trustColor: string;
   trustLabel: string;
@@ -30,6 +31,7 @@ interface Props {
   /** When true, banner breaks out to full viewport width while content stays at parent width. */
   fullBleed?: boolean;
 }
+
 
 function frameworkChipClass(name: string): string {
   const n = name.toLowerCase();
