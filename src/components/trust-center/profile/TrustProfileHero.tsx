@@ -1,4 +1,4 @@
-import { Shield, Award, Info, Clock, Eye, Scale, BookCheck } from "lucide-react";
+import { Shield, Award, Info, Clock, Scale, BookCheck } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getCoverPreset, DEFAULT_COVER_OVERLAY } from "@/lib/coverPresets";
 
@@ -210,11 +210,6 @@ export function TrustProfileHero({
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground pt-0.5">
                   <span className="inline-flex items-center gap-1">
                     <Clock className="h-3 w-3" /> {lastUpdated}
-                  </span>
-                  <span className="text-border">·</span>
-                  <span className="inline-flex items-center gap-1">
-                    <Eye className="h-3 w-3" />
-                    <span className="tabular-nums">{viewCount.toLocaleString(isNb ? "nb-NO" : "en-GB")}</span>
                   </span>
                 </div>
               </div>
