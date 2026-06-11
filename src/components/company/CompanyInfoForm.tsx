@@ -389,7 +389,7 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
         <div>
           <h3 className="text-sm font-semibold text-foreground">Selskapsinformasjon</h3>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Informasjonen hentes fra onboarding – du kan redigere firmanavn, stamsdata og adresse.
+            Fyll inn informasjon om virksomheten.
           </p>
         </div>
       </div>
