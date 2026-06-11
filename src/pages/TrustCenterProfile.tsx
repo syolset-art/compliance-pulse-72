@@ -1239,7 +1239,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         <div className="absolute top-4 w-0.5 h-5 bg-foreground -translate-x-1/2" style={{ left: markerLeft }} />
                         <div className="grid grid-cols-4 mt-3 text-sm text-muted-foreground">
                           <span>{isNb ? "Tidlig" : "Early"}</span>
-                          <span className="text-center">{isNb ? "Moderat" : "Moderate"}</span>
+                          <span className="text-center">{isNb ? "Moderat modenhet" : "Moderate"}</span>
                           <span className="text-center">{isNb ? "God" : "Good"}</span>
                           <span className="text-right">{isNb ? "Sterk" : "Strong"}</span>
                         </div>
