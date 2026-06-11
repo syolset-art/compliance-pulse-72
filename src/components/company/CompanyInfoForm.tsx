@@ -25,7 +25,6 @@ function IndustryCombobox({ value, onChange }: IndustryComboboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const matched = findIndustryByLabel(value);
-  const nace = getNaceCodeForIndustry(value);
   const trimmedQuery = query.trim();
   const queryMatchesExisting =
     trimmedQuery.length > 0 &&
