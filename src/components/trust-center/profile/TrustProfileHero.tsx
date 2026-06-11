@@ -103,13 +103,13 @@ export function TrustProfileHero({
           <div className="absolute inset-0" style={{ background: activeColor.background }} />
         ) : (
           <>
-            {/* Professional, neutral base with a subtle Mynder purple accent */}
+            {/* Neutral dark base */}
             <div className="absolute inset-0 bg-[#0e1320]" />
             <div
               className="absolute inset-0"
               style={{
                 background:
-                  "radial-gradient(ellipse 80% 60% at 85% 15%, hsl(var(--primary) / 0.32) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 15% 90%, hsl(var(--primary) / 0.18) 0%, transparent 65%)",
+                  "radial-gradient(ellipse 80% 60% at 85% 15%, rgba(148,163,184,0.18) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 15% 90%, rgba(100,116,139,0.10) 0%, transparent 65%)",
               }}
             />
             <div

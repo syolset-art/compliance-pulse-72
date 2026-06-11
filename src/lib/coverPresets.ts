@@ -55,7 +55,7 @@ export type CoverColor = {
 
 export const COVER_COLORS: CoverColor[] = [
   { id: "midnight",  name: { nb: "Midnatt",   en: "Midnight"  }, background: "linear-gradient(135deg, #0e1320 0%, #1a2238 100%)", overlay: 0.25 },
-  { id: "purple",    name: { nb: "Lilla",     en: "Purple"    }, background: "linear-gradient(135deg, #3a1f5d 0%, #5A3184 100%)", overlay: 0.25 },
+  { id: "purple",    name: { nb: "Lilla",     en: "Purple"    }, background: "linear-gradient(135deg, #2d2640 0%, #4a3f66 100%)", overlay: 0.25 },
   { id: "ocean",     name: { nb: "Hav",       en: "Ocean"     }, background: "linear-gradient(135deg, #0b3d5c 0%, #1e6091 100%)", overlay: 0.25 },
   { id: "forest",    name: { nb: "Skog",      en: "Forest"    }, background: "linear-gradient(135deg, #1b3a2f 0%, #2f6b4f 100%)", overlay: 0.25 },
   { id: "sunset",    name: { nb: "Solnedgang",en: "Sunset"    }, background: "linear-gradient(135deg, #6b2737 0%, #c4554d 100%)", overlay: 0.25 },
