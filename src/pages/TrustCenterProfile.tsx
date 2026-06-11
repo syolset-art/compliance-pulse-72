@@ -213,7 +213,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
         .from("vendor_documents")
         .select("id, document_type, file_name, display_name, status, created_at, valid_to, visibility, external_url, available_on_request, file_path, category")
         .eq("asset_id", asset!.id)
-        .eq("visibility", "published");
+        .in("visibility", ["published", "public"]);
       // Dedupe by file_name (demo seeds may produce duplicates) and cap at 5 in preview
       const seen = new Set<string>();
       const deduped = (data || []).filter((d: any) => {

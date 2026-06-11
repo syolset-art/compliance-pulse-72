@@ -78,10 +78,11 @@ export function ResourcesSection({ asset }: { asset: any }) {
           file_name: file.name,
           file_path: filePath,
           document_type: pendingType,
-          visibility: "public",
+          visibility: "published",
         });
       if (insErr) throw insErr;
       qc.invalidateQueries({ queryKey: ["self-trust-resources", asset.id] });
+      qc.invalidateQueries({ queryKey: ["vendor-documents-tc", asset.id] });
       toast.success("Ressurs lastet opp");
     } catch (err) {
       console.error(err);
@@ -105,6 +106,7 @@ export function ResourcesSection({ asset }: { asset: any }) {
       if (upErr) throw upErr;
       await supabase.from("vendor_documents").update({ file_name: file.name, file_path: filePath }).eq("id", docId);
       qc.invalidateQueries({ queryKey: ["self-trust-resources", asset.id] });
+      qc.invalidateQueries({ queryKey: ["vendor-documents-tc", asset.id] });
       toast.success("Ressurs erstattet");
     } catch (err) {
       console.error(err);
@@ -118,6 +120,7 @@ export function ResourcesSection({ asset }: { asset: any }) {
     if (doc.file_path) await supabase.storage.from("vendor-documents").remove([doc.file_path]);
     await supabase.from("vendor_documents").delete().eq("id", doc.id);
     qc.invalidateQueries({ queryKey: ["self-trust-resources", asset.id] });
+    qc.invalidateQueries({ queryKey: ["vendor-documents-tc", asset.id] });
     toast.success("Ressurs fjernet");
   };
 
