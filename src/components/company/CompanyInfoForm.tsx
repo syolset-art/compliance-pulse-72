@@ -48,11 +48,6 @@ function IndustryCombobox({ value, onChange }: IndustryComboboxProps) {
             {value || "Velg eller skriv inn bransje"}
           </span>
           <div className="flex items-center gap-2 shrink-0">
-            {nace && (
-              <Badge variant="outline" className="text-xs">
-                NACE {nace}
-              </Badge>
-            )}
             <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
           </div>
         </Button>
