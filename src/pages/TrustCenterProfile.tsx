@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 import {
   Shield, ShieldCheck, Eye, Share2, Settings, CheckCircle2, AlertTriangle, XCircle,
   ChevronDown, ChevronUp, ChevronRight, Clock, MessageSquare, FileText, Award, Globe,
