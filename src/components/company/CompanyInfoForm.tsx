@@ -683,11 +683,6 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           ) : (
             <div className="flex items-center gap-2">
               <Input value={form.industry || "—"} readOnly className="bg-muted/30 text-sm" />
-              {getNaceCodeForIndustry(form.industry) && (
-                <Badge variant="outline" className="text-xs shrink-0">
-                  NACE {getNaceCodeForIndustry(form.industry)}
-                </Badge>
-              )}
             </div>
           )}
         </FieldBlock>
