@@ -563,11 +563,22 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
         <FieldBlock label="Bransje">
           {isEditing ? (
-            <Input value={form.industry} onChange={(e) => update("industry", e.target.value)} className="text-sm" />
+            <IndustryCombobox
+              value={form.industry || ""}
+              onChange={(v) => update("industry", v)}
+            />
           ) : (
-            <Input value={form.industry || "—"} readOnly className="bg-muted/30 text-sm" />
+            <div className="flex items-center gap-2">
+              <Input value={form.industry || "—"} readOnly className="bg-muted/30 text-sm" />
+              {getNaceCodeForIndustry(form.industry) && (
+                <Badge variant="outline" className="text-xs shrink-0">
+                  NACE {getNaceCodeForIndustry(form.industry)}
+                </Badge>
+              )}
+            </div>
           )}
         </FieldBlock>
+
 
         <FieldBlock label="Antall ansatte">
           {isEditing ? (
