@@ -25,6 +25,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { SubprocessorTable } from "@/components/trust-center/profile/SubprocessorTable";
 import { TrustProfileHero, IdentityStripe } from "@/components/trust-center/profile/TrustProfileHero";
 import type { SubprocessorListData } from "@/lib/demoSubprocessorAnalysis";
+import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
+import { cn } from "@/lib/utils";
 
 // EU-style 12-star wreath used in the compliance badge
 const StarWreath = ({ count = 12, radius = 30, starSize = 7, color = "hsl(45, 90%, 55%)" }: { count?: number; radius?: number; starSize?: number; color?: string }) => (
@@ -605,6 +607,105 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const standardFrameworks = recognizedFrameworks.filter((fw: any) => isStandard(fw.framework_name));
   const regulationFrameworks = recognizedFrameworks.filter((fw: any) => !isStandard(fw.framework_name));
 
+  // Per-framework maturity (same source as dashboard)
+  const { stats: complianceStats } = useComplianceRequirements();
+  const frameworkScores: Record<string, { score: number; total: number }> = (complianceStats as any)?.byFramework || {};
+
+  const scoreColor = (s: number) =>
+    s >= 75 ? "text-success" : s >= 50 ? "text-warning" : "text-destructive";
+  const barColor = (s: number) =>
+    s >= 75 ? "[&>div]:bg-success" : s >= 50 ? "[&>div]:bg-warning" : "[&>div]:bg-destructive";
+  const dotColor = (s: number) =>
+    s >= 75 ? "bg-success" : s >= 50 ? "bg-warning" : "bg-destructive";
+
+  const orderedFrameworks = [...standardFrameworks, ...regulationFrameworks];
+
+  const renderComplianceList = () => (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Scale className="h-4 w-4 text-primary" />
+          <h3 className="text-base font-semibold text-foreground">
+            {isNb ? "Etterlevelse" : "Compliance"}
+          </h3>
+        </div>
+        <span className="text-[11px] uppercase tracking-wider text-muted-foreground/70">
+          {isNb ? "Modenhet pr. regelverk" : "Maturity per framework"}
+        </span>
+      </div>
+
+      {orderedFrameworks.length === 0 ? (
+        <div className="rounded-xl border border-border bg-card px-5 py-4">
+          <p className="text-sm text-muted-foreground italic">
+            {isNb ? "Ingen regelverk publisert ennå" : "No frameworks published yet"}
+          </p>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
+          {orderedFrameworks.map((fw: any) => {
+            const standard = isStandard(fw.framework_name);
+            const Icon = standard ? BookCheck : Scale;
+            const raw = frameworkScores[fw.framework_id];
+            const hasData = !!raw && raw.total > 0;
+            const score = hasData ? Math.round(raw.score) : 0;
+            return (
+              <button
+                key={fw.framework_id}
+                type="button"
+                onClick={() =>
+                  document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
+                className="w-full text-left px-5 py-3.5 hover:bg-muted/40 transition-colors focus:outline-none focus:bg-muted/40"
+                title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-foreground truncate">
+                        {fw.framework_name}
+                      </div>
+                      <div className="text-[11px] uppercase tracking-wider text-muted-foreground/70">
+                        {standard ? (isNb ? "Standard" : "Standard") : (isNb ? "Regelverk" : "Regulation")}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {hasData ? (
+                      <>
+                        <span className={cn("text-base font-bold tabular-nums", scoreColor(score))}>
+                          {score}%
+                        </span>
+                        <span className={cn("h-2 w-2 rounded-full", dotColor(score))} aria-hidden />
+                      </>
+                    ) : (
+                      <span className="text-sm text-muted-foreground tabular-nums">—</span>
+                    )}
+                  </div>
+                </div>
+                <div className="mt-2.5 ml-11">
+                  <Progress
+                    value={hasData ? score : 0}
+                    className={cn("h-1.5", hasData ? barColor(score) : "[&>div]:bg-muted-foreground/20")}
+                  />
+                  {!hasData && (
+                    <p className="mt-1.5 text-[11px] text-muted-foreground/70">
+                      {isNb ? "Ingen data ennå" : "No data yet"}
+                    </p>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+
+
+
 
   if (readOnly) {
     // Force preview tab for readOnly
@@ -837,39 +938,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
 
 
-            {/* Compliance — frameworks the organisation follows */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Scale className="h-4 w-4 text-primary" />
-                <h3 className="text-base font-semibold text-foreground">{isNb ? "Etterlevelse" : "Compliance"}</h3>
-              </div>
-              <div className="rounded-xl border border-border bg-muted/30 px-4 py-4">
-                {recognizedFrameworks.length === 0 ? (
-                  <p className="text-sm text-muted-foreground italic">
-                    {isNb ? "Ingen regelverk publisert ennå" : "No frameworks published yet"}
-                  </p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {recognizedFrameworks.map((fw: any) => {
-                      const standard = isStandard(fw.framework_name);
-                      const Icon = standard ? BookCheck : Scale;
-                      return (
-                        <button
-                          key={fw.framework_id}
-                          type="button"
-                          onClick={() => document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-transform hover:scale-[1.03] ${frameworkChipClass(fw.framework_name)}`}
-                          title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
-                        >
-                          <Icon className="h-3 w-3" />
-                          {fw.framework_name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </section>
+            {/* Compliance — frameworks the organisation follows, with per-framework maturity */}
+            {renderComplianceList()}
 
             {/* Documentation */}
             {(() => {
@@ -1984,42 +2054,8 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
 
 
 
-                  {/* ── Etterlevelse ── */}
-                  <section className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Scale className="h-4 w-4 text-primary" />
-                      <h3 className="text-base font-semibold text-foreground">
-                        {isNb ? "Etterlevelse" : "Compliance"}
-                      </h3>
-                    </div>
-
-                    <div className="rounded-xl border border-border bg-muted/30 px-4 py-4">
-                      {recognizedFrameworks.length === 0 ? (
-                        <p className="text-sm text-muted-foreground italic">
-                          {isNb ? "Ingen regelverk publisert ennå" : "No frameworks published yet"}
-                        </p>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {recognizedFrameworks.map((fw: any) => {
-                            const standard = isStandard(fw.framework_name);
-                            const Icon = standard ? BookCheck : Scale;
-                            return (
-                              <button
-                                key={fw.framework_id}
-                                type="button"
-                                onClick={() => document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-transform hover:scale-[1.03] ${frameworkChipClass(fw.framework_name)}`}
-                                title={standard ? (isNb ? "Sertifisert standard" : "Certified standard") : (isNb ? "Følger regelverket" : "Complies with regulation")}
-                              >
-                                <Icon className="h-3 w-3" />
-                                {fw.framework_name}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </section>
+                  {/* ── Etterlevelse — modenhet pr. regelverk ── */}
+                  {renderComplianceList()}
 
                   <div className="border-t border-border" />
 

@@ -1,39 +1,48 @@
-# Bransjevelger med NACE/SN2007-mapping
+## Mål
 
-Erstatter det frie tekstfeltet "Bransje" i `CompanyInfoForm` med en søkbar combobox basert på en kuratert liste over vanlige bransjer i Norge, Norden og Europa. Hver bransje mappes valgfritt til NACE Rev. 2 / SN2007-kode for fremtidig rapportering og benchmarking. Visningen lagres fortsatt som fritekst – mapping ligger ved siden av.
+Gjøre etterlevelse per regelverk mer synlig i Trust Profile ved å vise modenhet i prosent per rammeverk — i et stramt, profesjonelt uttrykk som matcher resten av profilen.
 
-## Endringer
+## Endring
 
-### 1. Ny fil: `src/lib/industries.ts`
-Eksporterer `INDUSTRY_OPTIONS` med felt:
-- `id` (stabil nøkkel)
-- `label_nb` / `label_en` (visning + lagret tekstverdi)
-- `naceCode` (f.eks. `62` for IT/programvare, `64-66` for finans/forsikring)
-- `naceSection` (A–S)
+I `src/pages/TrustCenterProfile.tsx`, seksjonen "Etterlevelse" (rundt linje 840–872, og duplikatet i preview rundt linje 1987–2019):
 
-Pluss hjelpere:
-- `findIndustryByLabel(label)` – matcher tekst til en kjent bransje
-- `getNaceCodeForIndustry(label)` – returnerer NACE-kode eller `null` for egendefinerte verdier
+Erstatt dagens flate rad av fargede chips med en kompakt tabell-lignende liste der hvert rammeverk vises som én rad med:
 
-Liste på ~40 bransjer dekker NACE-seksjonene A–S, inkludert moderne kategorier som Cybersikkerhet, E-handel, Medtech, Fornybar energi.
+- Ikon (BookCheck for standarder, Scale for regelverk) + navn
+- Liten "Standard" / "Regelverk"-etikett i muted tekst
+- Modenhets-prosent (tabular-nums, fargekodet etter prosjektets risiko-palett: ≥75 success, 50–74 warning, <50 destructive)
+- Tynn progress-bar (h-1.5) under navnet, samme fargekoding
+- Hele raden er klikkbar og scroller til "Modenhet per kontrollområde" (beholder dagens oppførsel)
 
-### 2. `src/components/company/CompanyInfoForm.tsx` – Bransje-feltet (ca. linje 564–570)
-Bytt `<Input>` ut med en `Popover` + `Command` (cmdk) combobox:
-- Trigger-knapp viser valgt bransje + liten NACE-badge når mappet (`NACE 62`).
-- `CommandInput` filtrerer listen mens man skriver.
-- `CommandList` viser matchende `CommandItem`s; valgt verdi får ✓.
-- `CommandEmpty` viser en «Bruk "{input}"»-handling for egendefinert tekst (lagres som fritekst, NACE = null).
-- Locale-aware via eksisterende `isNb` – viser `label_nb` eller `label_en`.
-- Read-only modus (`!isEditing`) viser teksten + eventuell NACE-badge.
+Layout:
+- Container: `rounded-xl border border-border bg-card divide-y divide-border` (samme språk som Dokumentasjon-seksjonen rett under, så det føles som en familie)
+- Header inne i kortet: liten tittel-rad med Scale-ikon, "Etterlevelse", og en høyre-justert hint-tekst "Modenhet basert på dokumenterte kontroller"
+- Hver rad: `px-5 py-3.5`, grid med navn til venstre og prosent/badge til høyre, progress-bar under spennende hele bredden
 
-Eksisterende `form.industry`-state holdes som `string` – ingen schema-/DB-endring.
+Standarder vises først, deretter regelverk (samme rekkefølge som i dag via `recognizedFrameworks`-splitten finnes allerede).
 
-## Ute av scope
-- Ingen DB-migrasjon. NACE lagres ikke i database nå; det utledes fra `industry`-teksten via `getNaceCodeForIndustry()` ved behov. (Kan legges til som egen kolonne `industry_nace_code` senere.)
-- Ingen endringer på andre felter eller onboarding.
-- Ingen offisiell validering mot Brønnøysund-registeret.
+## Datakilde
+
+Bruk `useComplianceRequirements()` (samme hook som `DashboardFrameworkStatus` bruker) for å hente `stats.byFramework[frameworkId].score`. Rund av til heltall. Hvis et publisert rammeverk ikke har data (`total === 0`), vis "—" i prosent og en tom progress-bar med dempet tekst "Ingen data ennå" i stedet for badge.
+
+Begge stedene seksjonen finnes (hoved-render og preview-tab) skal oppdateres likt — trekk evt. ut en liten lokal komponent `ComplianceFrameworksList` i samme fil for å unngå duplisering.
 
 ## Tekniske detaljer
-- Bruker eksisterende shadcn-komponenter (`Popover`, `Command`) – ingen nye avhengigheter.
-- WCAG: combobox-trigger får `aria-expanded`, list-items er tastaturnavigerbare via cmdk.
-- Tekstskala følger eksisterende `text-sm` standard i skjemaet.
+
+```text
+┌─ Etterlevelse ───────────── Modenhet pr. regelverk ─┐
+│ 📘 ISO 27001        Standard                  82% ●│
+│    ████████████████████░░░░                        │
+├─────────────────────────────────────────────────────┤
+│ ⚖  GDPR             Regelverk                  64% ●│
+│    █████████████░░░░░░░░░░                         │
+├─────────────────────────────────────────────────────┤
+│ ⚖  NIS2             Regelverk                  —   │
+│    ░░░░░░░░░░░░░░░░░░░░░░  Ingen data ennå         │
+└─────────────────────────────────────────────────────┘
+```
+
+Filer som endres:
+- `src/pages/TrustCenterProfile.tsx` (Etterlevelse-seksjonen, to forekomster)
+
+Ingen DB-endringer, ingen nye avhengigheter — gjenbruker `Progress` fra shadcn og eksisterende design-tokens (success/warning/destructive).
