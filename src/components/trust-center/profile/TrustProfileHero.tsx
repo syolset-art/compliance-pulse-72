@@ -94,7 +94,7 @@ export function TrustProfileHero({
   return (
     <div className={outerCls}>
       {/* Banner zone */}
-      <div className={bannerCls} style={{ height: "clamp(75px, 9vw, 115px)" }}>
+      <div className={bannerCls} style={{ height: "clamp(165px, 21vw, 255px)" }}>
         {coverUrl ? (
           <img src={coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
         ) : (
