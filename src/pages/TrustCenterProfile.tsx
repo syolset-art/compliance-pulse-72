@@ -28,7 +28,7 @@ import type { SubprocessorListData } from "@/lib/demoSubprocessorAnalysis";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
 
-const VENDOR_TYPE_LABEL: Record<string, string> = {
+const VENDOR_TYPE_LABEL_NB: Record<string, string> = {
   msp: "MSP",
   mssp: "MSSP",
   it_partner: "IT-partner",
@@ -42,12 +42,34 @@ const VENDOR_TYPE_LABEL: Record<string, string> = {
   other: "Annet",
 };
 
-const GDPR_ROLE_LABEL: Record<string, string> = {
+const VENDOR_TYPE_LABEL_EN: Record<string, string> = {
+  msp: "MSP",
+  mssp: "MSSP",
+  it_partner: "IT partner",
+  drift: "Operations",
+  cloud: "Cloud / hosting",
+  hr: "HR system",
+  finance: "Finance / billing",
+  comms: "Communication / email",
+  marketing: "Marketing",
+  consultant: "Consultant",
+  other: "Other",
+};
+
+const GDPR_ROLE_LABEL_NB: Record<string, string> = {
   processor: "Databehandler",
   controller: "Behandlingsansvarlig",
   joint: "Felles behandlingsansvarlig",
   none: "Ikke aktuelt",
 };
+
+const GDPR_ROLE_LABEL_EN: Record<string, string> = {
+  processor: "Data processor",
+  controller: "Data controller",
+  joint: "Joint controller",
+  none: "Not applicable",
+};
+
 
 // EU-style 12-star wreath used in the compliance badge
 const StarWreath = ({ count = 12, radius = 30, starSize = 7, color = "hsl(45, 90%, 55%)" }: { count?: number; radius?: number; starSize?: number; color?: string }) => (
