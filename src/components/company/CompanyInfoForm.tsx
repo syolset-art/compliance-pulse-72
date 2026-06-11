@@ -14,6 +14,130 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { INDUSTRY_OPTIONS, getNaceCodeForIndustry, findIndustryByLabel } from "@/lib/industries";
+
+interface IndustryComboboxProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function IndustryCombobox({ value, onChange }: IndustryComboboxProps) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const matched = findIndustryByLabel(value);
+  const nace = getNaceCodeForIndustry(value);
+  const trimmedQuery = query.trim();
+  const queryMatchesExisting =
+    trimmedQuery.length > 0 &&
+    INDUSTRY_OPTIONS.some(
+      (o) =>
+        o.label_nb.toLowerCase() === trimmedQuery.toLowerCase() ||
+        o.label_en.toLowerCase() === trimmedQuery.toLowerCase(),
+    );
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between text-sm font-normal h-9"
+        >
+          <span className={cn("truncate", !value && "text-muted-foreground")}>
+            {value || "Velg eller skriv inn bransje"}
+          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            {nace && (
+              <Badge variant="outline" className="text-xs">
+                NACE {nace}
+              </Badge>
+            )}
+            <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
+          </div>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0 w-[--radix-popover-trigger-width] min-w-[320px]" align="start">
+        <Command
+          filter={(itemValue, search) => {
+            // itemValue contains label_nb + label_en + nace code
+            return itemValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0;
+          }}
+        >
+          <CommandInput
+            placeholder="Søk etter bransje..."
+            value={query}
+            onValueChange={setQuery}
+          />
+          <CommandList>
+            <CommandEmpty>
+              {trimmedQuery ? (
+                <button
+                  type="button"
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-accent rounded"
+                  onClick={() => {
+                    onChange(trimmedQuery);
+                    setOpen(false);
+                    setQuery("");
+                  }}
+                >
+                  Bruk «{trimmedQuery}»
+                </button>
+              ) : (
+                <span className="block px-3 py-2 text-sm text-muted-foreground">
+                  Ingen treff
+                </span>
+              )}
+            </CommandEmpty>
+            <CommandGroup>
+              {INDUSTRY_OPTIONS.map((opt) => (
+                <CommandItem
+                  key={opt.id}
+                  value={`${opt.label_nb} ${opt.label_en} ${opt.naceCode}`}
+                  onSelect={() => {
+                    onChange(opt.label_nb);
+                    setOpen(false);
+                    setQuery("");
+                  }}
+                  className="text-sm"
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      matched?.id === opt.id ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                  <span className="flex-1 truncate">{opt.label_nb}</span>
+                  {opt.naceCode && (
+                    <Badge variant="outline" className="ml-2 text-[10px]">
+                      {opt.naceCode}
+                    </Badge>
+                  )}
+                </CommandItem>
+              ))}
+              {trimmedQuery && !queryMatchesExisting && (
+                <CommandItem
+                  value={`__custom__${trimmedQuery}`}
+                  onSelect={() => {
+                    onChange(trimmedQuery);
+                    setOpen(false);
+                    setQuery("");
+                  }}
+                  className="text-sm border-t mt-1 pt-2"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Bruk «{trimmedQuery}»
+                </CommandItem>
+              )}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 
 interface CompanyInfoFormProps {
   /** If true, starts in edit mode */
@@ -563,11 +687,22 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
 
         <FieldBlock label="Bransje">
           {isEditing ? (
-            <Input value={form.industry} onChange={(e) => update("industry", e.target.value)} className="text-sm" />
+            <IndustryCombobox
+              value={form.industry || ""}
+              onChange={(v) => update("industry", v)}
+            />
           ) : (
-            <Input value={form.industry || "—"} readOnly className="bg-muted/30 text-sm" />
+            <div className="flex items-center gap-2">
+              <Input value={form.industry || "—"} readOnly className="bg-muted/30 text-sm" />
+              {getNaceCodeForIndustry(form.industry) && (
+                <Badge variant="outline" className="text-xs shrink-0">
+                  NACE {getNaceCodeForIndustry(form.industry)}
+                </Badge>
+              )}
+            </div>
           )}
         </FieldBlock>
+
 
         <FieldBlock label="Antall ansatte">
           {isEditing ? (
