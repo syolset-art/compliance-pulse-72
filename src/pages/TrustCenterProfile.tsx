@@ -731,9 +731,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 <HoverCardTrigger asChild>
                   <button
                     type="button"
-                    onClick={() =>
-                      document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })
-                    }
+                    onClick={() => setFrameworkDetailId(fw.framework_id)}
                     className="w-full text-left p-2.5 rounded-xl border border-border/80 bg-card hover:bg-muted/40 hover:border-border transition-all focus:outline-none focus:bg-muted/40 flex flex-col justify-between min-h-[64px]"
                   >
                     <div className="flex items-start justify-between gap-2 min-w-0 w-full">
