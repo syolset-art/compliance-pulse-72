@@ -14,7 +14,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { INDUSTRY_OPTIONS, getNaceCodeForIndustry, findIndustryByLabel } from "@/lib/industries";
+import { INDUSTRY_OPTIONS, findIndustryByLabel } from "@/lib/industries";
 
 interface IndustryComboboxProps {
   value: string;
@@ -25,7 +25,6 @@ function IndustryCombobox({ value, onChange }: IndustryComboboxProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const matched = findIndustryByLabel(value);
-  const nace = getNaceCodeForIndustry(value);
   const trimmedQuery = query.trim();
   const queryMatchesExisting =
     trimmedQuery.length > 0 &&
@@ -49,11 +48,6 @@ function IndustryCombobox({ value, onChange }: IndustryComboboxProps) {
             {value || "Velg eller skriv inn bransje"}
           </span>
           <div className="flex items-center gap-2 shrink-0">
-            {nace && (
-              <Badge variant="outline" className="text-xs">
-                NACE {nace}
-              </Badge>
-            )}
             <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
           </div>
         </Button>
@@ -94,7 +88,7 @@ function IndustryCombobox({ value, onChange }: IndustryComboboxProps) {
               {INDUSTRY_OPTIONS.map((opt) => (
                 <CommandItem
                   key={opt.id}
-                  value={`${opt.label_nb} ${opt.label_en} ${opt.naceCode}`}
+                  value={`${opt.label_nb} ${opt.label_en}`}
                   onSelect={() => {
                     onChange(opt.label_nb);
                     setOpen(false);
@@ -109,11 +103,6 @@ function IndustryCombobox({ value, onChange }: IndustryComboboxProps) {
                     )}
                   />
                   <span className="flex-1 truncate">{opt.label_nb}</span>
-                  {opt.naceCode && (
-                    <Badge variant="outline" className="ml-2 text-[10px]">
-                      {opt.naceCode}
-                    </Badge>
-                  )}
                 </CommandItem>
               ))}
               {trimmedQuery && !queryMatchesExisting && (
@@ -694,11 +683,6 @@ export function CompanyInfoForm({ defaultEditing = false, showEditControls = tru
           ) : (
             <div className="flex items-center gap-2">
               <Input value={form.industry || "—"} readOnly className="bg-muted/30 text-sm" />
-              {getNaceCodeForIndustry(form.industry) && (
-                <Badge variant="outline" className="text-xs shrink-0">
-                  NACE {getNaceCodeForIndustry(form.industry)}
-                </Badge>
-              )}
             </div>
           )}
         </FieldBlock>
