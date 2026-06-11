@@ -131,6 +131,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const queryClient = useQueryClient();
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
+  const { stats: complianceStats } = useComplianceRequirements();
   const isServiceProfile = !!propAssetId;
   const [activeTab, setActiveTab] = useState<"preview" | "publish" | "benchmark">("preview");
   const [expandedArea, setExpandedArea] = useState<ControlArea | null>(null);
@@ -608,7 +609,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const regulationFrameworks = recognizedFrameworks.filter((fw: any) => !isStandard(fw.framework_name));
 
   // Per-framework maturity (same source as dashboard)
-  const { stats: complianceStats } = useComplianceRequirements();
   const frameworkScores: Record<string, { score: number; total: number }> = (complianceStats as any)?.byFramework || {};
 
   const scoreColor = (s: number) =>
