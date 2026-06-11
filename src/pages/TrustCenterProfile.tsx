@@ -2159,7 +2159,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   })()}
 
 
-                  {/* ── Partner ── (prototype: alltid synlig med fallback-data) */}
+                  {/* ── Underleverandører ── */}
                   {(() => {
                     const hasRealPartner = partnerInfo?.hasPartner && partnerInfo.showOnTrustProfile;
                     const partnerName = hasRealPartner ? partnerInfo!.partnerName : "Mynder MSP-partner AS";
@@ -2172,36 +2172,97 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         ? "Bistår med drift, sikkerhet og compliance — rapporterer modenhet og hendelser inn i Mynder."
                         : "Assists with operations, security and compliance — reports maturity and incidents into Mynder.";
                     const partnerSince = hasRealPartner ? partnerInfo!.partnerSince : null;
+                    const criticalVendors: any[] = Array.isArray(meta.criticalVendors)
+                      ? meta.criticalVendors.filter((v: any) => (v?.name || "").trim().length > 0)
+                      : [];
                     return (
                       <section className="rounded-xl border border-border bg-card overflow-hidden">
                         <div className="flex items-center gap-2 px-5 py-3.5">
                           <Users className="h-4 w-4 text-primary" />
                           <h3 className="text-sm font-semibold text-foreground">
-                            {isNb ? "Leverandører" : "Vendors"}
+                            {isNb ? "Underleverandører" : "Subprocessors / Vendors"}
                           </h3>
                         </div>
-                        <div className="border-t border-border px-5 py-4 flex items-start gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <Building2 className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-sm font-semibold text-foreground truncate">
-                                {partnerName}
-                              </p>
-                              <Badge variant="outline" className="text-sm">
-                                {partnerTypeLabel}
-                              </Badge>
+                        <div className="border-t border-border divide-y divide-border">
+                          <div className="px-5 py-4 flex items-start gap-3">
+                            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                              <Building2 className="h-5 w-5 text-primary" />
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {partnerDesc}
-                            </p>
-                            {partnerSince && (
-                              <p className="text-sm text-muted-foreground/70 mt-1">
-                                {isNb ? "Partner siden" : "Partner since"} {partnerSince}
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-sm font-semibold text-foreground truncate">
+                                  {partnerName}
+                                </p>
+                                <Badge variant="outline" className="text-sm">
+                                  {partnerTypeLabel}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {partnerDesc}
                               </p>
-                            )}
+                              {partnerSince && (
+                                <p className="text-sm text-muted-foreground/70 mt-1">
+                                  {isNb ? "Partner siden" : "Partner since"} {partnerSince}
+                                </p>
+                              )}
+                            </div>
                           </div>
+                          {criticalVendors.map((v: any, idx: number) => {
+                            const typeLabel = v.vendorTypeKey === "other"
+                              ? (v.purpose || VENDOR_TYPE_LABEL.other)
+                              : (v.vendorTypeKey ? VENDOR_TYPE_LABEL[v.vendorTypeKey] : null);
+                            const roleLabel = v.gdprRole ? GDPR_ROLE_LABEL[v.gdprRole] : null;
+                            const meta2: string[] = [];
+                            if (roleLabel) meta2.push(roleLabel);
+                            if (v.orgNumber) meta2.push(`Org.nr ${v.orgNumber}`);
+                            const dpaLabel = v.dpa === "yes"
+                              ? "DPA: Ja"
+                              : v.dpa === "no"
+                                ? "DPA: Nei"
+                                : v.dpa === "unknown"
+                                  ? "DPA: Ukjent"
+                                  : null;
+                            return (
+                              <div key={idx} className="px-5 py-4 flex items-start gap-3">
+                                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                  <Building2 className="h-5 w-5 text-primary" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <p className="text-sm font-semibold text-foreground truncate">
+                                      {v.name}
+                                    </p>
+                                    {typeLabel && (
+                                      <Badge variant="outline" className="text-sm">
+                                        {typeLabel}
+                                      </Badge>
+                                    )}
+                                    {dpaLabel && (
+                                      <Badge variant="secondary" className="text-sm">
+                                        {dpaLabel}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {meta2.length > 0 && (
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                      {meta2.join(" · ")}
+                                    </p>
+                                  )}
+                                  {v.url && (
+                                    <a
+                                      href={v.url.startsWith("http") ? v.url : `https://${v.url}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-sm text-primary hover:underline mt-1 inline-flex items-center gap-1.5"
+                                    >
+                                      <Globe className="h-3.5 w-3.5" />
+                                      {v.url.replace(/^https?:\/\//, "")}
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </section>
                     );
