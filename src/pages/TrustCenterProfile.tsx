@@ -727,10 +727,30 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 </div>
                 
                 <div className="mt-2 w-full">
-                  <Progress
-                    value={hasData ? score : 0}
-                    className={cn("h-1", hasData ? barColor(score) : "[&>div]:bg-muted-foreground/20")}
-                  />
+                  {(() => {
+                    const SEGMENTS = 28;
+                    const filled = hasData ? Math.round((score / 100) * SEGMENTS) : 0;
+                    const fillBg =
+                      score >= 75 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+                    return (
+                      <div className="flex items-end gap-[2px] h-3" aria-hidden>
+                        {Array.from({ length: SEGMENTS }).map((_, i) => {
+                          const isOn = i < filled;
+                          return (
+                            <span
+                              key={i}
+                              className={cn(
+                                "flex-1 rounded-[1px] transition-colors",
+                                isOn ? fillBg : "bg-muted-foreground/15",
+                                // subtle height variance for "equalizer" feel
+                                i % 4 === 0 ? "h-3" : i % 2 === 0 ? "h-[10px]" : "h-2",
+                              )}
+                            />
+                          );
+                        })}
+                      </div>
+                    );
+                  })()}
                 </div>
               </button>
             );
