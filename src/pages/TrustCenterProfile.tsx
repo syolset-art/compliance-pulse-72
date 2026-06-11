@@ -202,6 +202,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const [previewDoc, setPreviewDoc] = useState<any>(null);
   const [proofDialogOpen, setProofDialogOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [frameworkDetailId, setFrameworkDetailId] = useState<string | null>(null);
   const setHelpOpenCb = useCallback((v: boolean) => setHelpOpen(v), []);
   usePageHelpListener(setHelpOpenCb);
 
@@ -730,9 +731,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 <HoverCardTrigger asChild>
                   <button
                     type="button"
-                    onClick={() =>
-                      document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" })
-                    }
+                    onClick={() => setFrameworkDetailId(fw.framework_id)}
                     className="w-full text-left p-2.5 rounded-xl border border-border/80 bg-card hover:bg-muted/40 hover:border-border transition-all focus:outline-none focus:bg-muted/40 flex flex-col justify-between min-h-[64px]"
                   >
                     <div className="flex items-start justify-between gap-2 min-w-0 w-full">
@@ -2935,6 +2934,143 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
               </div>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Framework Detail Dialog — opened from compliance card */}
+      <Dialog open={!!frameworkDetailId} onOpenChange={(o) => !o && setFrameworkDetailId(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+          {(() => {
+            const fw = orderedFrameworks.find((f: any) => f.framework_id === frameworkDetailId);
+            if (!fw) return null;
+            const standard = isStandard(fw.framework_name);
+            const Icon = standard ? BookCheck : Scale;
+            const raw = frameworkScores[fw.framework_id];
+            const hasData = !!raw && raw.total > 0;
+            const score = hasData ? Math.round(raw.score) : 0;
+            const fwReqs = (allRequirements || []).filter((r: any) => r.framework_id === fw.framework_id);
+            const isVerified = (r: any) => r.status === "completed" || (r.maturity_level ?? 0) >= 3;
+            const verifiedCount = fwReqs.filter(isVerified).length;
+            const totalCount = fwReqs.length;
+
+            const PRIO_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+            const PRIO_LABEL: Record<string, string> = isNb
+              ? { critical: "Kritisk", high: "Høy", medium: "Middels", low: "Lav" }
+              : { critical: "Critical", high: "High", medium: "Medium", low: "Low" };
+            const PRIO_TONE: Record<string, string> = {
+              critical: "bg-destructive/10 text-destructive border-destructive/20",
+              high: "bg-warning/10 text-warning border-warning/20",
+              medium: "bg-primary/10 text-primary border-primary/20",
+              low: "bg-muted text-muted-foreground border-border",
+            };
+
+            const groups = (["critical", "high", "medium", "low"] as const)
+              .map((p) => ({
+                p,
+                items: fwReqs
+                  .filter((r: any) => r.priority === p && isVerified(r))
+                  .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+                total: fwReqs.filter((r: any) => r.priority === p).length,
+              }));
+
+            return (
+              <>
+                <DialogHeader className="space-y-2 shrink-0">
+                  <div className="flex items-start gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <DialogTitle className="text-lg">{fw.framework_name}</DialogTitle>
+                      <DialogDescription className="text-sm">
+                        {standard
+                          ? (isNb ? "Sertifisert standard" : "Certified standard")
+                          : (isNb ? "Følger regelverket" : "Complies with regulation")}
+                        {" · "}
+                        {isNb ? `${verifiedCount} av ${totalCount} kontrollpunkter verifisert` : `${verifiedCount} of ${totalCount} controls verified`}
+                      </DialogDescription>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className={cn("text-2xl font-bold tabular-nums", scoreColor(score))}>
+                        {hasData ? `${score}%` : "—"}
+                      </div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {isNb ? "Modenhet" : "Maturity"}
+                      </div>
+                    </div>
+                  </div>
+                </DialogHeader>
+
+                <div className="flex-1 overflow-y-auto -mx-6 px-6 space-y-5 pt-2">
+                  {groups.every((g) => g.total === 0) ? (
+                    <p className="text-sm text-muted-foreground italic py-6 text-center">
+                      {isNb ? "Ingen kontrolldata tilgjengelig" : "No control data available"}
+                    </p>
+                  ) : (
+                    groups.map(({ p, items, total }) => {
+                      if (total === 0) return null;
+                      return (
+                        <div key={p} className="space-y-2">
+                          <div className="flex items-center justify-between gap-2 sticky top-0 bg-background py-1.5">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className={cn("text-[10px] uppercase tracking-wider", PRIO_TONE[p])}>
+                                {PRIO_LABEL[p]}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {items.length} {isNb ? `av ${total} verifisert` : `of ${total} verified`}
+                              </span>
+                            </div>
+                          </div>
+                          {items.length === 0 ? (
+                            <p className="text-xs text-muted-foreground italic pl-1">
+                              {isNb ? "Ingen verifiserte kontroller i denne kategorien ennå." : "No verified controls in this category yet."}
+                            </p>
+                          ) : (
+                            <ul className="space-y-1">
+                              {items.map((r: any) => (
+                                <li key={r.requirement_id} className="flex items-start gap-3 rounded-lg border border-border bg-card px-3 py-2.5">
+                                  <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-medium text-foreground leading-snug">
+                                      {r.requirement_id} · {r.title || r.name}
+                                    </p>
+                                    {r.description && (
+                                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                                        {r.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                <div className="shrink-0 pt-3 mt-2 border-t border-border flex items-center justify-between gap-2">
+                  <p className="text-[11px] text-muted-foreground">
+                    {isNb ? "Kun verifiserte kontroller vises." : "Only verified controls are shown."}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFrameworkDetailId(null);
+                      setTimeout(() => {
+                        document.getElementById("tc-section-maturity")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }, 50);
+                    }}
+                  >
+                    {isNb ? "Se kontrollområder" : "View control areas"}
+                    <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                  </Button>
+                </div>
+              </>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
