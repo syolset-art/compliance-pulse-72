@@ -28,6 +28,27 @@ import type { SubprocessorListData } from "@/lib/demoSubprocessorAnalysis";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
 
+const VENDOR_TYPE_LABEL: Record<string, string> = {
+  msp: "MSP",
+  mssp: "MSSP",
+  it_partner: "IT-partner",
+  drift: "Drift",
+  cloud: "Skytjeneste / hosting",
+  hr: "HR-system",
+  finance: "Økonomi / fakturering",
+  comms: "Kommunikasjon / e-post",
+  marketing: "Markedsføring",
+  consultant: "Konsulent",
+  other: "Annet",
+};
+
+const GDPR_ROLE_LABEL: Record<string, string> = {
+  processor: "Databehandler",
+  controller: "Behandlingsansvarlig",
+  joint: "Felles behandlingsansvarlig",
+  none: "Ikke aktuelt",
+};
+
 // EU-style 12-star wreath used in the compliance badge
 const StarWreath = ({ count = 12, radius = 30, starSize = 7, color = "hsl(45, 90%, 55%)" }: { count?: number; radius?: number; starSize?: number; color?: string }) => (
   <div className="absolute inset-0 pointer-events-none" aria-hidden>
