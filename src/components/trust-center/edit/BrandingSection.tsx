@@ -83,7 +83,7 @@ export function BrandingSection({ asset }: Props) {
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("company-logos").getPublicUrl(filePath);
       const url = `${urlData.publicUrl}?v=${Date.now()}`;
-      await persist({ cover_image_url: url, cover_preset_id: null, cover_overlay: DEFAULT_COVER_OVERLAY });
+      await persist({ cover_image_url: url, cover_preset_id: null, cover_color_id: null, cover_overlay: DEFAULT_COVER_OVERLAY });
       toast.success(isNb ? "Bakgrunn lastet opp" : "Cover uploaded");
     } catch (err) {
       console.error(err);
