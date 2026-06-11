@@ -106,14 +106,19 @@ export function useComplianceRequirements(options: UseComplianceRequirementsOpti
     return baseRequirements.map((req): RequirementWithStatus => {
       const dbId = requirementIdMap.get(`${req.framework_id}-${req.requirement_id}`);
       const status = dbId ? statusMap.get(dbId) : null;
-      
+
+      // Demo seed for NIS2: mark roughly 7 of 12 requirements as completed/verified
+      // so the framework detail dialog and maturity widgets are not empty.
+      const isNis2Demo = req.framework_id === 'nis2' && !status;
+      const nis2Verified = isNis2Demo && req.sort_order <= 7;
+
       return {
         ...req,
         db_id: dbId,
-        status: (status?.status as RequirementStatus) || 'not_started',
-        progress_percent: status?.progress_percent || 0,
+        status: (status?.status as RequirementStatus) || (nis2Verified ? 'completed' : 'not_started'),
+        progress_percent: status?.progress_percent ?? (nis2Verified ? 100 : 0),
         is_ai_handling: status?.is_ai_handling || false,
-        maturity_level: (status as any)?.maturity_level ?? 0,
+        maturity_level: (status as any)?.maturity_level ?? (nis2Verified ? 3 : 0),
         is_relevant: true, // default all relevant for now
         completed_at: status?.completed_at || undefined,
         completed_by: status?.completed_by || undefined,

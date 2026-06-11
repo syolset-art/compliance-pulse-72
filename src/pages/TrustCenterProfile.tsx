@@ -693,8 +693,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             const raw = frameworkScores[fw.framework_id];
             const hasData = !!raw && raw.total > 0;
             const isGdpr = /gdpr|personvern/i.test(fw.framework_name || "");
+            const isNis2 = /nis ?2/i.test(fw.framework_name || "");
             const baseScore = hasData ? Math.round(raw.score) : 0;
-            const score = isGdpr ? 65 : baseScore;
+            const score = isGdpr ? 65 : isNis2 ? Math.max(baseScore, 58) : baseScore;
 
             const PRIO_ORDER: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
             const PRIO_HEIGHT: Record<string, string> = {
@@ -2950,7 +2951,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
             const raw = frameworkScores[fw.framework_id];
             const hasData = !!raw && raw.total > 0;
             const isGdpr = /gdpr|personvern/i.test(fw.framework_name || "");
-            const score = isGdpr ? 65 : (hasData ? Math.round(raw.score) : 0);
+            const isNis2 = /nis ?2/i.test(fw.framework_name || "");
+            const baseScore = hasData ? Math.round(raw.score) : 0;
+            const score = isGdpr ? 65 : isNis2 ? Math.max(baseScore, 58) : baseScore;
             const fwReqs = (allRequirements || []).filter((r: any) => r.framework_id === fw.framework_id);
             const isVerified = (r: any) => r.status === "completed" || (r.maturity_level ?? 0) >= 3;
             const verifiedCount = fwReqs.filter(isVerified).length;
