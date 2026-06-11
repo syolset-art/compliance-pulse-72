@@ -28,7 +28,7 @@ import type { SubprocessorListData } from "@/lib/demoSubprocessorAnalysis";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
 
-const VENDOR_TYPE_LABEL: Record<string, string> = {
+const VENDOR_TYPE_LABEL_NB: Record<string, string> = {
   msp: "MSP",
   mssp: "MSSP",
   it_partner: "IT-partner",
@@ -42,12 +42,34 @@ const VENDOR_TYPE_LABEL: Record<string, string> = {
   other: "Annet",
 };
 
-const GDPR_ROLE_LABEL: Record<string, string> = {
+const VENDOR_TYPE_LABEL_EN: Record<string, string> = {
+  msp: "MSP",
+  mssp: "MSSP",
+  it_partner: "IT partner",
+  drift: "Operations",
+  cloud: "Cloud / hosting",
+  hr: "HR system",
+  finance: "Finance / billing",
+  comms: "Communication / email",
+  marketing: "Marketing",
+  consultant: "Consultant",
+  other: "Other",
+};
+
+const GDPR_ROLE_LABEL_NB: Record<string, string> = {
   processor: "Databehandler",
   controller: "Behandlingsansvarlig",
   joint: "Felles behandlingsansvarlig",
   none: "Ikke aktuelt",
 };
+
+const GDPR_ROLE_LABEL_EN: Record<string, string> = {
+  processor: "Data processor",
+  controller: "Data controller",
+  joint: "Joint controller",
+  none: "Not applicable",
+};
+
 
 // EU-style 12-star wreath used in the compliance badge
 const StarWreath = ({ count = 12, radius = 30, starSize = 7, color = "hsl(45, 90%, 55%)" }: { count?: number; radius?: number; starSize?: number; color?: string }) => (
@@ -2201,20 +2223,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                             </div>
                           </div>
                           {criticalVendors.map((v: any, idx: number) => {
+                            const VENDOR_TYPE_LABEL = isNb ? VENDOR_TYPE_LABEL_NB : VENDOR_TYPE_LABEL_EN;
+                            const GDPR_ROLE_LABEL = isNb ? GDPR_ROLE_LABEL_NB : GDPR_ROLE_LABEL_EN;
                             const typeLabel = v.vendorTypeKey === "other"
                               ? (v.purpose || VENDOR_TYPE_LABEL.other)
                               : (v.vendorTypeKey ? VENDOR_TYPE_LABEL[v.vendorTypeKey] : null);
                             const roleLabel = v.gdprRole ? GDPR_ROLE_LABEL[v.gdprRole] : null;
                             const meta2: string[] = [];
                             if (roleLabel) meta2.push(roleLabel);
-                            if (v.orgNumber) meta2.push(`Org.nr ${v.orgNumber}`);
+                            if (v.orgNumber) meta2.push(`${isNb ? "Org.nr" : "Org. no."} ${v.orgNumber}`);
                             const dpaLabel = v.dpa === "yes"
-                              ? "DPA: Ja"
+                              ? (isNb ? "DPA: Ja" : "DPA: Yes")
                               : v.dpa === "no"
-                                ? "DPA: Nei"
+                                ? (isNb ? "DPA: Nei" : "DPA: No")
                                 : v.dpa === "unknown"
-                                  ? "DPA: Ukjent"
+                                  ? (isNb ? "DPA: Ukjent" : "DPA: Unknown")
                                   : null;
+
                             return (
                               <div key={idx} className="px-5 py-4 flex items-start gap-3">
                                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
