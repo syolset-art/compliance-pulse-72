@@ -78,7 +78,7 @@ export function ResourcesSection({ asset }: { asset: any }) {
           file_name: file.name,
           file_path: filePath,
           document_type: pendingType,
-          visibility: "public",
+          visibility: "published",
         });
       if (insErr) throw insErr;
       qc.invalidateQueries({ queryKey: ["self-trust-resources", asset.id] });
