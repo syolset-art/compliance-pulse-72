@@ -72,7 +72,7 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
   // Pillar summary table
   autoTable(doc, {
     startY: summaryEndY + 6,
-    head: [["Kategori", "Score", "Nivå", "Målepunkter"]],
+    head: [["Kategori", "Score", "Nivå", "Kontrollpunkter"]],
     body: data.pillars.map((p) => [p.name, `${p.score}%`, p.level, String(p.measures)]),
     styles: { fontSize: 9, cellPadding: 3 },
     headStyles: { fillColor: [59, 130, 246], textColor: 255, fontStyle: "bold" },
@@ -111,7 +111,7 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
 
   currentY = (doc as any).lastAutoTable?.finalY ?? currentY + 40;
 
-  // ── Målepunkter ──
+  // ── Kontrollpunkter ──
   currentY += 10;
   if (currentY > 260) {
     doc.addPage();
@@ -119,7 +119,7 @@ export function generateFullComplianceReport(data: ReportData, options: Options,
   }
   doc.setFontSize(13);
   doc.setTextColor(30, 30, 30);
-  doc.text("Målepunkter", 14, currentY);
+  doc.text("Kontrollpunkter", 14, currentY);
   currentY += 2;
 
   autoTable(doc, {

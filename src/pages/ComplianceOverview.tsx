@@ -160,7 +160,7 @@ const ComplianceOverview = () => {
                   <p className="text-sm font-medium text-primary">Samlet modenhet</p>
                 </div>
                 <p className="text-xs text-muted-foreground ml-auto max-w-xs text-right leading-relaxed hidden lg:block">
-                  Scoren bygger på eksplisitte org-målepunkter på tvers av fem domener.
+                  Scoren bygger på eksplisitte org-kontrollpunkter på tvers av fem domener.
                 </p>
               </div>
 
@@ -171,14 +171,12 @@ const ComplianceOverview = () => {
                     <CardContent className="p-3 space-y-1.5">
                       <div className="flex items-center justify-between gap-1">
                         <p className="text-xs font-semibold text-foreground leading-tight">{pillar.name}</p>
-                        <Badge className={`text-[13px] px-1.5 py-0 ${pillar.badgeColor} border-0 shrink-0`}>
-                          {pillar.level}
-                        </Badge>
+                        <div className={`h-2.5 w-2.5 rounded-full ${pillar.color} shrink-0`} />
                       </div>
                       <p className="text-2xl font-bold text-foreground">{pillar.score}%</p>
                       <Progress value={pillar.score} className="h-1" />
                       <p className="text-[13px] text-muted-foreground">
-                        {pillar.measures} målepunkter
+                        {pillar.measures} kontrollpunkter
                       </p>
                     </CardContent>
                   </Card>
@@ -191,7 +189,7 @@ const ComplianceOverview = () => {
           <Tabs defaultValue="regelverk" className="space-y-4">
             <TabsList>
               <TabsTrigger value="forbedring">Forbedringspunkter</TabsTrigger>
-              <TabsTrigger value="malepunkter">Målepunkter</TabsTrigger>
+              <TabsTrigger value="malepunkter">Kontrollpunkter</TabsTrigger>
               <TabsTrigger value="regelverk">Regelverk</TabsTrigger>
             </TabsList>
 
@@ -216,7 +214,7 @@ const ComplianceOverview = () => {
               ))}
             </TabsContent>
 
-            {/* Målepunkter */}
+            {/* Kontrollpunkter */}
             <TabsContent value="malepunkter" className="space-y-3">
               {MEASURES.map((item, i) => (
                 <Card key={i}>
