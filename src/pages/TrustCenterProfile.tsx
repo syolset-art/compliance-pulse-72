@@ -1959,6 +1959,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                   logoUrl={(asset as any)?.logo_url}
                   companyName={(companyProfile as any)?.legal_name || companyProfile?.name || asset.name}
                   description={asset?.description}
+                  domain={companyProfile?.domain}
                   trustScore={trustScore}
                   trustColor={trustColor}
                   trustLabel={trustLabel}
@@ -1976,10 +1977,11 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     isNb={isNb}
                     orgNumber={companyProfile?.org_number}
                     country={(companyProfile as any)?.country}
-                    domain={companyProfile?.domain}
                     industry={companyProfile?.industry}
+                    privacyPolicyUrl={(asset as any)?.privacy_policy_url}
                   />
                 </div>
+
 
                 {/* Sections below — each in its own subtle frame */}
                 <div className="p-4 md:p-6 pt-4 space-y-4 bg-muted/20 [&>section]:rounded-xl [&>section]:border [&>section]:border-border [&>section]:bg-card [&>section]:p-5 [&>section]:md:p-6">
