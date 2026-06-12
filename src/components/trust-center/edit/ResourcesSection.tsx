@@ -11,7 +11,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, BookOpen } from "lucide-react";
+import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, BookOpen, Link as LinkIcon, ExternalLink, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const RESOURCE_TYPES = ["certificate", "policy", "guideline"] as const;
@@ -31,6 +33,36 @@ export function ResourcesSection({ asset }: { asset: any }) {
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
   const [replacingId, setReplacingId] = useState<string | null>(null);
   const [pendingType, setPendingType] = useState<ResourceType>("certificate");
+  const [privacyUrl, setPrivacyUrl] = useState<string>(asset?.privacy_policy_url ?? "");
+  const [savingPrivacy, setSavingPrivacy] = useState(false);
+
+  const savedPrivacyUrl = asset?.privacy_policy_url ?? "";
+  const isPrivacyDirty = (privacyUrl || "").trim() !== savedPrivacyUrl;
+
+  const savePrivacyUrl = async () => {
+    if (!asset?.id) return;
+    const trimmed = (privacyUrl || "").trim();
+    if (trimmed && !/^https?:\/\//i.test(trimmed)) {
+      toast.error("Lenken må starte med http:// eller https://");
+      return;
+    }
+    setSavingPrivacy(true);
+    try {
+      const { error } = await supabase
+        .from("assets")
+        .update({ privacy_policy_url: trimmed || null })
+        .eq("id", asset.id);
+      if (error) throw error;
+      qc.invalidateQueries({ queryKey: ["self-trust-asset"] });
+      qc.invalidateQueries({ queryKey: ["asset", asset.id] });
+      toast.success(trimmed ? "Lenke til personvernerklæring lagret" : "Lenke fjernet");
+    } catch (err) {
+      console.error(err);
+      toast.error("Kunne ikke lagre lenken");
+    } finally {
+      setSavingPrivacy(false);
+    }
+  };
 
   const { data: documents = [] } = useQuery({
     queryKey: ["self-trust-resources", asset?.id],
@@ -163,6 +195,55 @@ export function ResourcesSection({ asset }: { asset: any }) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Privacy policy link */}
+      <Card className="p-4 space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <LinkIcon className="h-4 w-4 text-primary" />
+              <Label htmlFor="privacy-policy-url" className="text-sm font-medium text-foreground">
+                Personvernerklæring (lenke)
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Legg til en lenke til personvernerklæringen din. Vises åpent på Trust-profilen ved siden av opplastede dokumenter.
+            </p>
+          </div>
+          {savedPrivacyUrl && (
+            <a
+              href={savedPrivacyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary hover:underline inline-flex items-center gap-1 shrink-0"
+            >
+              Åpne <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            id="privacy-policy-url"
+            type="url"
+            inputMode="url"
+            placeholder="https://dittfirma.no/personvern"
+            value={privacyUrl}
+            onChange={(e) => setPrivacyUrl(e.target.value)}
+            className="flex-1"
+          />
+          <Button
+            size="sm"
+            onClick={savePrivacyUrl}
+            disabled={savingPrivacy || !isPrivacyDirty}
+            className="gap-1.5 shrink-0"
+          >
+            <Check className="h-3.5 w-3.5" />
+            {savingPrivacy ? "Lagrer..." : "Lagre"}
+          </Button>
+        </div>
+      </Card>
+
+
 
       {grouped.length === 0 ? (
         <div className="flex items-center justify-between py-2">
