@@ -33,8 +33,37 @@ export function ResourcesSection({ asset }: { asset: any }) {
   const [reading, setReading] = useState<{ url: string; name: string } | null>(null);
   const [replacingId, setReplacingId] = useState<string | null>(null);
   const [pendingType, setPendingType] = useState<ResourceType>("certificate");
+  const [privacyUrl, setPrivacyUrl] = useState<string>(asset?.privacy_policy_url ?? "");
+  const [savingPrivacy, setSavingPrivacy] = useState(false);
 
-  const { data: documents = [] } = useQuery({
+  const savedPrivacyUrl = asset?.privacy_policy_url ?? "";
+  const isPrivacyDirty = (privacyUrl || "").trim() !== savedPrivacyUrl;
+
+  const savePrivacyUrl = async () => {
+    if (!asset?.id) return;
+    const trimmed = (privacyUrl || "").trim();
+    if (trimmed && !/^https?:\/\//i.test(trimmed)) {
+      toast.error("Lenken må starte med http:// eller https://");
+      return;
+    }
+    setSavingPrivacy(true);
+    try {
+      const { error } = await supabase
+        .from("assets")
+        .update({ privacy_policy_url: trimmed || null })
+        .eq("id", asset.id);
+      if (error) throw error;
+      qc.invalidateQueries({ queryKey: ["self-trust-asset"] });
+      qc.invalidateQueries({ queryKey: ["asset", asset.id] });
+      toast.success(trimmed ? "Lenke til personvernerklæring lagret" : "Lenke fjernet");
+    } catch (err) {
+      console.error(err);
+      toast.error("Kunne ikke lagre lenken");
+    } finally {
+      setSavingPrivacy(false);
+    }
+  };
+
     queryKey: ["self-trust-resources", asset?.id],
     queryFn: async () => {
       if (!asset?.id) return [];
