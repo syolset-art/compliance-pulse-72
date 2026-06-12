@@ -11,7 +11,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, BookOpen } from "lucide-react";
+import { FileText, Upload, Eye, MoreHorizontal, Replace, Trash2, Plus, BookOpen, Link as LinkIcon, ExternalLink, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const RESOURCE_TYPES = ["certificate", "policy", "guideline"] as const;
