@@ -196,6 +196,55 @@ export function ResourcesSection({ asset }: { asset: any }) {
         </DropdownMenu>
       </div>
 
+      {/* Privacy policy link */}
+      <Card className="p-4 space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <LinkIcon className="h-4 w-4 text-primary" />
+              <Label htmlFor="privacy-policy-url" className="text-sm font-medium text-foreground">
+                Personvernerklæring (lenke)
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Legg til en lenke til personvernerklæringen din. Vises åpent på Trust-profilen ved siden av opplastede dokumenter.
+            </p>
+          </div>
+          {savedPrivacyUrl && (
+            <a
+              href={savedPrivacyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary hover:underline inline-flex items-center gap-1 shrink-0"
+            >
+              Åpne <ExternalLink className="h-3 w-3" />
+            </a>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Input
+            id="privacy-policy-url"
+            type="url"
+            inputMode="url"
+            placeholder="https://dittfirma.no/personvern"
+            value={privacyUrl}
+            onChange={(e) => setPrivacyUrl(e.target.value)}
+            className="flex-1"
+          />
+          <Button
+            size="sm"
+            onClick={savePrivacyUrl}
+            disabled={savingPrivacy || !isPrivacyDirty}
+            className="gap-1.5 shrink-0"
+          >
+            <Check className="h-3.5 w-3.5" />
+            {savingPrivacy ? "Lagrer..." : "Lagre"}
+          </Button>
+        </div>
+      </Card>
+
+
+
       {grouped.length === 0 ? (
         <div className="flex items-center justify-between py-2">
           <p className="text-xs text-muted-foreground">Ingen ressurser lagt til ennå</p>
