@@ -73,8 +73,8 @@ export default function PublicTrustCenterLayout({ assetId }: Props) {
             className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-muted/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             aria-label={isNb ? "Gå til Mynder Trust Engine søk" : "Go to Mynder Trust Engine search"}
           >
-            <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center">
-              <Shield className="h-4 w-4 text-primary-foreground" />
+            <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center p-1">
+              <img src="/mynder-logo.svg" alt="Mynder" className="h-full w-full object-contain brightness-0 invert" />
             </div>
             <span className="text-sm font-semibold text-foreground">Mynder Trust Engine</span>
           </button>
