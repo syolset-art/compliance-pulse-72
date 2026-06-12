@@ -64,6 +64,7 @@ export function ResourcesSection({ asset }: { asset: any }) {
     }
   };
 
+  const { data: documents = [] } = useQuery({
     queryKey: ["self-trust-resources", asset?.id],
     queryFn: async () => {
       if (!asset?.id) return [];
