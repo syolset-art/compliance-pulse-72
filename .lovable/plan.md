@@ -1,32 +1,24 @@
-## Mål
+## Problem
 
-Seksjonen i Trust Profile (preview) skal speile "Leverandører"-seksjonen fra Rediger Profil (`CriticalVendorsSection`), men i visningsmodus og med tittel **"Underleverandører"** (i stedet for "Leverandører"). MSP-partner-kortet beholdes som et eget undertittel/blokk i samme seksjon.
+På publisert Trust Profile (`/trust-engine/profile/:assetId`, dvs. `readOnly`-grenen i `src/pages/TrustCenterProfile.tsx` rundt linje 933) vises seksjonen "Modenhet per kontrollområde" som en enkel liste over verifiserte kontroller — uten %-bar, uten modenhetsfarge (Høy/Middels/Lav) og uten expand-detaljer.
 
-## Endringer
+Preview-versjonen (samme fil, rundt linje 2132) viser den riktige varianten:
+- Modenhetslabel ("Høy" / "Middels" / "Lav") med fargetone (`scoreTone`)
+- Progress bar i samme farge
+- Klikkbart kort som expander til en liste over verifiserte kontroller med verifiseringskilde
+- Bruker `AREA_DEMO_FLOOR` for å gi realistisk spredning på demo-data
 
-Kun frontend, kun `src/pages/TrustCenterProfile.tsx` (rundt linje 2141–2187).
+## Endring
 
-### 1. Tittel
-- Endre `{isNb ? "Leverandører" : "Vendors"}` (linje 2159) → `{isNb ? "Underleverandører" : "Subprocessors / Vendors"}`.
+I `src/pages/TrustCenterProfile.tsx`, i `readOnly`-renderen (linje 933–983), bytt ut hele `<section id="tc-section-maturity">` med den samme strukturen som preview-grenen (linje 2132–2227):
 
-### 2. Hent data
-Les `meta.criticalVendors` (samme nøkkel som `CriticalVendorsSection` bruker via `useAssetMetadata`) og filtrer rader med utfylt `name`.
+- Behold `id="tc-section-maturity"` (brukes av anker-nav i `PublicTrustCenterLayout`).
+- Bruk `evaluation?.areaScore(area)` + `AREA_DEMO_FLOOR` + `scoreTone` / `scoreLabel`.
+- Behold expand/collapse via eksisterende `expandedArea` state (allerede definert lenger opp i komponenten — verifiseres før edit; hvis ikke tilgjengelig i denne grenen, legg til en lokal `useState`).
+- Behold den eksisterende "Verifisert / Dokumentert"-merkingen per kontroll når kortet er åpent.
 
-### 3. Layout
-Beholder samme kortskall (`rounded-xl border border-border bg-card overflow-hidden`) med `Users`-ikon-header. Innhold:
+Ingen andre seksjoner endres. Ingen logikk/data-endringer — kun presentasjon på den publiserte siden så den matcher preview.
 
-- **MSP-partner-kort** (eksisterende blokk) vises først hvis `partnerInfo` finnes (uendret innmat).
-- **Underleverandør-liste** under, som `divide-y divide-border` rader. Hver rad i visningsmodus viser:
-  - `Building2`-ikon i avrundet bakgrunn (samme stil som partner-kortet).
-  - Navn (font-semibold) + valgfri `Badge` med leverandørtype-label (oppslag i `VENDOR_TYPE_OPTIONS` via `vendorTypeKey`; "Annet" → bruk `purpose`).
-  - Sekundærlinje: GDPR-rolle (oversatt label fra `GDPR_ROLE_OPTIONS`), org.nr hvis satt, DPA-status som liten badge ("DPA: Ja/Nei/Ukjent") når relevant.
-  - Nettside som lenke (`Globe`-ikon) hvis `url` finnes.
-- Tom-state: vis kort kursiv tekst "Ingen underleverandører publisert." (kun hvis verken partner eller kritiske leverandører finnes — ellers vis bare det som er der).
+## Filer
 
-### 4. Konstanter
-For å unngå import fra `edit/`-mappen, inline en liten `VENDOR_TYPE_LABEL`- og `GDPR_ROLE_LABEL`-oppslagsobjekt øverst i `TrustCenterProfile.tsx` (samme verdier som i `CriticalVendorsSection.tsx`).
-
-## Ikke-mål
-- Ingen endringer i Rediger Profil eller datalagring.
-- Ingen endring av eksisterende `SubprocessorTable` (GDPR-underbehandlere) – det er en separat seksjon.
-- Ingen endringer i partner-kortets innhold/logikk.
+- `src/pages/TrustCenterProfile.tsx` — erstatt maturity-seksjonen i `readOnly`-grenen.
