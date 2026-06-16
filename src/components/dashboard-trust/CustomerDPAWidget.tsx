@@ -24,13 +24,21 @@ export function CustomerDPAWidget() {
   const { data: dpas = [] } = useQuery({
     queryKey: ["trust-dashboard-customer-dpas"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("vendor_documents")
-        .select("id,name,document_type,uploaded_at,expires_at,version,status")
+        .select("id,file_name,document_type,created_at,valid_to,version,status")
         .eq("document_type", "dpa")
-        .order("uploaded_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(6);
-      return (data as any[]) as DpaRow[];
+      if (error) return [] as DpaRow[];
+      return ((data ?? []) as any[]).map((d) => ({
+        id: d.id,
+        name: d.file_name,
+        uploaded_at: d.created_at,
+        expires_at: d.valid_to,
+        version: d.version,
+        status: d.status,
+      })) as DpaRow[];
     },
   });
 
