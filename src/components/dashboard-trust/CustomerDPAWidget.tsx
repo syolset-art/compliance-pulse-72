@@ -41,6 +41,7 @@ export function CustomerDPAWidget() {
       })) as DpaRow[];
     },
   });
+  const dpas: DpaRow[] = data ?? [];
 
   const statusBadge = (status?: string | null, expires?: string | null) => {
     if (expires && new Date(expires) < new Date()) {
