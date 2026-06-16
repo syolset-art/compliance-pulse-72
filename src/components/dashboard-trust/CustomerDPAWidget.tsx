@@ -21,7 +21,7 @@ export function CustomerDPAWidget() {
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const navigate = useNavigate();
 
-  const { data: dpas = [] } = useQuery({
+  const { data } = useQuery({
     queryKey: ["trust-dashboard-customer-dpas"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -41,6 +41,7 @@ export function CustomerDPAWidget() {
       })) as DpaRow[];
     },
   });
+  const dpas: DpaRow[] = data ?? [];
 
   const statusBadge = (status?: string | null, expires?: string | null) => {
     if (expires && new Date(expires) < new Date()) {
