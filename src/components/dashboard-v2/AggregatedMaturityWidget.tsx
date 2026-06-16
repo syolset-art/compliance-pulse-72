@@ -223,9 +223,12 @@ export function AggregatedMaturityWidget() {
                 );
               })}
             </div>
-            <span className={cn("text-base font-bold", overallLevel.textClass)}>
-              {overallLevel.shortLabel}
-            </span>
+            <div className="flex items-center gap-2 bg-muted/20 px-2.5 py-1 rounded-xl border border-border/50">
+              <CircularGauge percent={aggregatedScore} isNb={isNb} size={36} showPercent={true} />
+              <span className={cn("text-xs font-bold uppercase tracking-wider", overallLevel.textClass)}>
+                {overallLevel.shortLabel}
+              </span>
+            </div>
           </div>
         </div>
 
