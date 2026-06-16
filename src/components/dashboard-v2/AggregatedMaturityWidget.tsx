@@ -248,8 +248,6 @@ export function AggregatedMaturityWidget() {
             <span>{PILLARS.length} {isNb ? "kontrollområder" : "control areas"}</span>
           </div>
         </div>
-
-        <Progress value={aggregatedScore} className={cn("h-2", overallLevel.progressClass)} />
       </div>
 
       {/* Content */}
