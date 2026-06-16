@@ -20,6 +20,8 @@ import { DashboardFrameworkStatus } from "@/components/dashboard/DashboardFramew
 import { DashboardMaturityOverTime } from "@/components/dashboard/DashboardMaturityOverTime";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrganization } from "@/contexts/ActiveOrganizationContext";
+import { useDashboardVariant } from "@/hooks/useDashboardVariant";
+import TrustCenterDashboard from "@/pages/TrustCenterDashboard";
 
 function getGreeting(isNb: boolean) {
   const h = new Date().getHours();
@@ -50,10 +52,16 @@ const Index = () => {
   const { user } = useAuth();
   const { activeOrg } = useActiveOrganization();
   const { mode } = useWorkspaceMode();
+  const { variant } = useDashboardVariant();
 
   // When the user is in Partner mode, "/" should land them in the partner dashboard.
   if (mode === "partner") {
     return <Navigate to="/msp-partner" replace />;
+  }
+
+  // Trust Center-only customers get a dedicated, simpler dashboard.
+  if (variant === "trust-only") {
+    return <TrustCenterDashboard />;
   }
 
   const displayName = "Synnøve Olset";
