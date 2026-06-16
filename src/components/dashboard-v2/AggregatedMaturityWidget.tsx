@@ -112,7 +112,7 @@ function generatePillarHistory(pillars: typeof PILLARS, byDomain: Record<string,
   });
 }
 
-function CircularGauge({ percent, isNb, size = 48 }: { percent: number; isNb: boolean; size?: number }) {
+function CircularGauge({ percent, isNb, size = 48, showPercent = false }: { percent: number; isNb: boolean; size?: number; showPercent?: boolean }) {
   const r = (size - 6) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ - (percent / 100) * circ;
@@ -130,7 +130,7 @@ function CircularGauge({ percent, isNb, size = 48 }: { percent: number; isNb: bo
       <text x={size / 2} y={size / 2} textAnchor="middle" dominantBaseline="central"
         className="fill-foreground text-[10px] font-bold"
       >
-        {level.shortLabel}
+        {showPercent ? `${percent}%` : level.shortLabel}
       </text>
     </svg>
   );
