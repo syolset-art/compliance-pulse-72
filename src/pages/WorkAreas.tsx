@@ -783,57 +783,6 @@ export default function WorkAreas() {
             </button>
           )}
 
-          {/* Selected Work Area Card */}
-          {selectedWorkArea && (
-            <div className="mb-4 sm:mb-6 rounded-lg border bg-card p-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="h-2.5 w-2.5 rounded-full flex-shrink-0 bg-primary" />
-                  <h2 className="text-sm font-semibold text-foreground truncate">{selectedWorkArea.name}</h2>
-                  {selectedWorkArea.is_active === false ? (
-                    <Badge variant="secondary" className="text-[13px] px-1.5 py-0">Inaktiv</Badge>
-                  ) : (
-                    <Badge variant="default" className="text-[13px] px-1.5 py-0 bg-primary/10 text-primary border-0">Aktiv</Badge>
-                  )}
-                  <span className="hidden sm:inline text-xs text-muted-foreground">·</span>
-                  <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><Server className="h-3 w-3" />10 {t("myWorkAreas.systems").toLowerCase()}</span>
-                    <span className="flex items-center gap-1"><FileText className="h-3 w-3" />2 {t("myWorkAreas.processes").toLowerCase()}</span>
-                    <span className="flex items-center gap-1"><UsersIcon className="h-3 w-3" />3 medlemmer</span>
-                  </div>
-                  <span className="hidden sm:inline text-xs text-muted-foreground">·</span>
-                  <Badge variant="outline" className="hidden sm:inline-flex text-[13px] px-1.5 py-0 bg-warning/10 text-warning border-warning/20">
-                    <AlertCircle className="h-2.5 w-2.5 mr-0.5" />
-                    {t("myWorkAreas.riskMedium")}
-                  </Badge>
-                </div>
-                {selectedWorkArea.responsible_person && (
-                  <div className="flex items-center gap-2 shrink-0">
-                    <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center">
-                      <span className="text-[12px] font-semibold text-primary">
-                        {selectedWorkArea.responsible_person.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
-                      </span>
-                    </div>
-                    <span className="text-xs font-medium text-foreground">{selectedWorkArea.responsible_person}</span>
-                    <Badge variant="outline" className="text-[12px] px-1.5 py-0 font-normal text-muted-foreground">Eier</Badge>
-                  </div>
-                )}
-              </div>
-              {selectedWorkArea.description && (
-                <p className="text-xs text-muted-foreground mt-1.5 line-clamp-1">{selectedWorkArea.description}</p>
-              )}
-              {/* Mobile stats */}
-              <div className="flex sm:hidden items-center gap-3 text-xs text-muted-foreground mt-2">
-                <span className="flex items-center gap-1"><Server className="h-3 w-3" />10</span>
-                <span className="flex items-center gap-1"><FileText className="h-3 w-3" />2</span>
-                <span className="flex items-center gap-1"><UsersIcon className="h-3 w-3" />3</span>
-                <Badge variant="outline" className="text-[13px] px-1.5 py-0 bg-warning/10 text-warning border-warning/20">
-                  <AlertCircle className="h-2.5 w-2.5 mr-0.5" />
-                  {t("myWorkAreas.riskMedium")}
-                </Badge>
-              </div>
-            </div>
-          )}
 
           {/* Tabs Section */}
           {selectedWorkArea && (
