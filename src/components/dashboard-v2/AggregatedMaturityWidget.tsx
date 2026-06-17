@@ -232,11 +232,8 @@ export function AggregatedMaturityWidget() {
           </div>
         </div>
 
-        {/* Modenhetsnivå-badge + summary pills */}
+        {/* Summary pills */}
         <div className="flex flex-wrap items-center gap-2">
-          <Badge className={cn("text-[13px] font-semibold px-2 py-0.5 rounded-full border-0", overallLevel.badgeClass)}>
-            {overallLevel.label.toUpperCase()}
-          </Badge>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3 text-status-closed" />
