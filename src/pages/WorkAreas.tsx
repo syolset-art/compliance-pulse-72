@@ -23,6 +23,7 @@ import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePers
 import { WorkAreaDetailsCard } from "@/components/work-areas/WorkAreaDetailsCard";
 import { WorkAreaMembersCard } from "@/components/work-areas/WorkAreaMembersCard";
 import { AssetSummaryDashboard } from "@/components/work-areas/AssetSummaryDashboard";
+import { WorkAreaSwitcher } from "@/components/work-areas/WorkAreaSwitcher";
 import { WorkAreaDocumentsTab } from "@/components/work-areas/WorkAreaDocumentsTab";
 import { ProcessingActivitiesTab } from "@/components/work-areas/ProcessingActivitiesTab";
 import { supabase } from "@/integrations/supabase/client";
