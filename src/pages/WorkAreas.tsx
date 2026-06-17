@@ -23,6 +23,7 @@ import { ResponsiblePersonEditor } from "@/components/work-areas/ResponsiblePers
 import { WorkAreaDetailsCard } from "@/components/work-areas/WorkAreaDetailsCard";
 import { WorkAreaMembersCard } from "@/components/work-areas/WorkAreaMembersCard";
 import { AssetSummaryDashboard } from "@/components/work-areas/AssetSummaryDashboard";
+import { WorkAreaSwitcher } from "@/components/work-areas/WorkAreaSwitcher";
 import { WorkAreaDocumentsTab } from "@/components/work-areas/WorkAreaDocumentsTab";
 import { ProcessingActivitiesTab } from "@/components/work-areas/ProcessingActivitiesTab";
 import { supabase } from "@/integrations/supabase/client";
@@ -687,101 +688,21 @@ export default function WorkAreas() {
             </Card>
           )}
 
-          {/* Filters */}
-          <div className="mb-3 sm:mb-4 flex flex-wrap gap-2 items-center">
-            {/* Ownership filter */}
-            <div className="flex gap-1 bg-muted rounded-lg p-0.5">
-              {([
-                { value: "all", label: "Alle" },
-                { value: "mine", label: "Mine" },
-                { value: "member", label: "Medlem" },
-              ] as const).map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setOwnershipFilter(opt.value)}
-                  className={cn(
-                    "px-3 py-1 text-xs font-medium rounded-md transition-colors",
-                    ownershipFilter === opt.value
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Risk filter */}
-            <div className="flex gap-1 bg-muted rounded-lg p-0.5">
-              {([
-                { value: "all", label: "Alle risikonivåer" },
-                { value: "high", label: "Høy risiko" },
-                { value: "low", label: "Lav risiko" },
-              ] as const).map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setRiskFilter(opt.value)}
-                  className={cn(
-                    "px-3 py-1 text-xs font-medium rounded-md transition-colors",
-                    riskFilter === opt.value
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
-            {(ownershipFilter !== "all" || riskFilter !== "all") && (
-              <button
-                onClick={() => { setOwnershipFilter("all"); setRiskFilter("all"); }}
-                className="text-xs text-muted-foreground hover:text-foreground underline"
-              >
-                Nullstill
-              </button>
-            )}
+          {/* Compact switcher */}
+          <div className="mb-4 sm:mb-6">
+            <WorkAreaSwitcher
+              workAreas={filteredAreas}
+              selectedWorkArea={selectedWorkArea}
+              workAreaRiskMap={workAreaRiskMap}
+              ownershipFilter={ownershipFilter}
+              riskFilter={riskFilter}
+              onOwnershipFilterChange={setOwnershipFilter}
+              onRiskFilterChange={setRiskFilter}
+              onSelect={(area) => setSelectedWorkArea(area as WorkArea)}
+              onAddNew={() => setIsAddDialogOpen(true)}
+            />
           </div>
 
-          {/* Work Area Chips - Horizontal scroll on mobile */}
-          <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0 mb-3 sm:mb-4">
-            <div className="flex gap-2 pb-2 sm:pb-0 sm:flex-wrap min-w-max sm:min-w-0">
-              {displayedAreas.map((area, index) => (
-                <button
-                  key={area.id}
-                  onClick={() => setSelectedWorkArea(area)}
-                  aria-label={`Velg arbeidsområde: ${area.name}`}
-                  aria-pressed={selectedWorkArea?.id === area.id}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap",
-                    selectedWorkArea?.id === area.id
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-card border border-border hover:border-primary/50 text-foreground"
-                  )}
-                >
-                  <div className={cn(
-                    "w-2 h-2 rounded-full flex-shrink-0",
-                    workAreaColors[index % workAreaColors.length]
-                  )} aria-hidden="true" />
-                  <span className="truncate max-w-[100px] sm:max-w-[120px]">{area.name}</span>
-                  <span className="text-xs opacity-70 hidden sm:inline" aria-label={`10 ${t("myWorkAreas.systemsShort")}`}>
-                    <Server className="h-3 w-3 inline mr-1" aria-hidden="true" />
-                    10 {t("myWorkAreas.systemsShort")}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {filteredAreas.length > 6 && (
-            <button
-              onClick={() => setShowAllAreas(!showAllAreas)}
-              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 mb-6"
-            >
-              {showAllAreas ? t("myWorkAreas.showLess") : `${t("myWorkAreas.showMore")} (${filteredAreas.length - 6})`}
-              <ChevronDown className={cn("h-4 w-4 transition-transform", showAllAreas && "rotate-180")} />
-            </button>
-          )}
 
 
           {/* Tabs Section */}
