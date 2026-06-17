@@ -9,41 +9,42 @@ Apple-inspired professional aesthetic: clean whites, subtle grays, crisp blue ac
 
 @layer base {
   :root {
-    /* Mynder palette mapped to shadcn HSL tokens */
-    --background: 0 0% 100%;
-    --foreground: 240 53% 23%;        /* purple-900 #1F1B5A */
+    /* Cloud White + Indigo — neutral slate surfaces, brand purple/indigo primary, vivid status */
+    --background: 210 20% 99%;        /* near-white with cool tint */
+    --foreground: 222 47% 11%;        /* slate-900 */
 
     --card: 0 0% 100%;
-    --card-foreground: 240 53% 23%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 53% 23%;
+    --popover-foreground: 222 47% 11%;
 
     --primary: 239 41% 51%;           /* mynder-blue #4F51B6 */
     --primary-foreground: 0 0% 100%;
     --mynder-blue: 239 41% 51%;       /* alias for #4F51B6 — used by Trust Profile visibility controls */
 
-    --secondary: 247 71% 96%;         /* purple-100 #F0EEFB */
-    --secondary-foreground: 240 53% 23%;
+    --secondary: 210 40% 96%;         /* slate-100 */
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 247 71% 96%;
-    --muted-foreground: 240 30% 40%;
+    --muted: 210 40% 96%;             /* slate-100 */
+    --muted-foreground: 215 16% 47%;  /* slate-500 */
 
     --accent: 247 60% 67%;            /* purple-accent #7F77DD */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 1 73% 59%;         /* status-open #E24B4A */
+    --destructive: 0 84% 60%;         /* red-500, punchier */
     --destructive-foreground: 0 0% 100%;
 
-    --success: 161 70% 37%;           /* status-closed #1D9E75 */
+    --success: 142 71% 45%;           /* emerald-500, vivid */
     --success-foreground: 0 0% 100%;
 
-    --warning: 33 87% 55%;            /* status-followup #EF9F27 */
+    --warning: 25 95% 53%;            /* orange-500, punchier */
     --warning-foreground: 0 0% 100%;
 
-    --border: 240 20% 90%;
-    --input: 240 20% 90%;
+    --border: 214 32% 91%;            /* slate-200 */
+    --input: 214 32% 91%;
     --ring: 239 41% 51%;              /* mynder-blue */
+
 
     --radius: 0.75rem;
 
