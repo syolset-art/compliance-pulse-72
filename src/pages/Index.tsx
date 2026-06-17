@@ -54,16 +54,6 @@ const Index = () => {
   const { mode } = useWorkspaceMode();
   const { variant } = useDashboardVariant();
 
-  // When the user is in Partner mode, "/" should land them in the partner dashboard.
-  if (mode === "partner") {
-    return <Navigate to="/msp-partner" replace />;
-  }
-
-  // Trust Center-only customers get a dedicated, simpler dashboard.
-  if (variant === "trust-only") {
-    return <TrustCenterDashboard />;
-  }
-
   const displayName = "Synnøve Olset";
 
   const [isAddAssetOpen, setIsAddAssetOpen] = useState(false);
@@ -90,6 +80,17 @@ const Index = () => {
     };
     fetchData();
   }, []);
+
+  // When the user is in Partner mode, "/" should land them in the partner dashboard.
+  if (mode === "partner") {
+    return <Navigate to="/msp-partner" replace />;
+  }
+
+  // Trust Center-only customers get a dedicated, simpler dashboard.
+  if (variant === "trust-only") {
+    return <TrustCenterDashboard />;
+  }
+
 
   const dashboardContent = (
     <div className="space-y-5">
