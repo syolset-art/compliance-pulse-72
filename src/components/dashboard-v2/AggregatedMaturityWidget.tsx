@@ -419,8 +419,8 @@ export function AggregatedMaturityWidget() {
                           <span className="text-sm font-medium text-foreground truncate">
                             {isNb ? pillar.label_no : pillar.label_en}
                           </span>
-                          <span className={cn("text-sm font-bold", lvl.textClass)}>{lvl.shortLabel}</span>
                         </div>
+
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-[13px] text-muted-foreground">
                             {domainData.assessed || 0}/{domainData.total || 0} {isNb ? "oppfylt" : "fulfilled"}
