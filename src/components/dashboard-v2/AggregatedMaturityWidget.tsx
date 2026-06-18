@@ -317,19 +317,26 @@ export function AggregatedMaturityWidget() {
                 {activeFrameworks.length} {isNb ? "regelverk" : "frameworks"}
               </Badge>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {activeFrameworks.map((fw) => {
                 const percent = Math.round(fw.data.score);
                 const lvl = maturityLevel(percent, isNb);
                 return (
-                  <div key={fw.id} className="rounded-lg border border-border bg-muted/20 p-3 flex flex-col items-center gap-1.5 hover:bg-muted/40 transition-colors">
-                    <CircularGauge percent={percent} isNb={isNb} />
-                    <span className="text-[13px] font-medium text-foreground text-center leading-tight line-clamp-2">{fw.name}</span>
-                    <Badge className={cn("text-[13px] font-semibold px-1.5 py-0 rounded-full border-0 h-3.5", lvl.badgeClass)}>{lvl.shortLabel}</Badge>
-                    <span className="text-[13px] text-muted-foreground flex items-center gap-0.5">
-                      <CheckCircle2 className="h-2.5 w-2.5 text-status-closed" />
-                      {fw.data.assessed}/{fw.data.total}
-                    </span>
+                  <div key={fw.id} className="rounded-lg border border-border bg-muted/20 p-3 hover:bg-muted/40 transition-colors">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[13px] font-medium text-foreground truncate">{fw.name}</span>
+                      <span className={cn("text-[13px] font-bold tabular-nums shrink-0", lvl.textClass)}>{percent}%</span>
+                    </div>
+                    <Progress value={percent} className={cn("h-1.5 rounded-full", lvl.progressClass)} />
+                    <div className="flex items-center justify-between gap-2 mt-2">
+                      <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+                        <CheckCircle2 className="h-2.5 w-2.5 text-status-closed" />
+                        {fw.data.assessed}/{fw.data.total}
+                      </span>
+                      <span className={cn("text-[10px] font-semibold uppercase tracking-wider", lvl.textClass)}>
+                        {lvl.shortLabel}
+                      </span>
+                    </div>
                   </div>
                 );
               })}
