@@ -46,7 +46,7 @@ interface BrregResult {
   forretningsadresse?: { kommune: string; poststed: string };
 }
 
-type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success" | "acronis";
+type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success" | "acronis" | "acronis-processing";
 
 const ACRONIS_DEMO_TENANTS: Array<{
   tenant_id: string;
@@ -132,6 +132,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const [acronisSelected, setAcronisSelected] = useState<Set<string>>(new Set());
   const [acronisImporting, setAcronisImporting] = useState(false);
   const [acronisImportedCount, setAcronisImportedCount] = useState(0);
+  const [acronisProgressStep, setAcronisProgressStep] = useState(0);
+
 
   const reset = useCallback(() => {
     setStep("method");
@@ -416,7 +418,15 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const handleAcronisImport = async () => {
     if (!user?.id || acronisSelected.size === 0) return;
     setAcronisImporting(true);
+    setAcronisProgressStep(0);
+    setStep("acronis-processing");
+    // Animated progress steps for a more guided feel
+    const stepDelay = (ms: number) => new Promise((r) => setTimeout(r, ms));
     try {
+      await stepDelay(900); setAcronisProgressStep(1);
+      await stepDelay(900); setAcronisProgressStep(2);
+      await stepDelay(900); setAcronisProgressStep(3);
+
       const tenants = ACRONIS_DEMO_TENANTS.filter((t) => acronisSelected.has(t.tenant_id));
 
       // Check for existing org numbers
@@ -477,6 +487,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
       setAcronisImportedCount(inserted?.length || 0);
       setBulkSavedCount(inserted?.length || 0);
+      setAcronisProgressStep(4);
+      await stepDelay(700);
       setStep("bulk-success");
       setTimeout(() => {
         onOpenChange(false);
@@ -485,9 +497,11 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     } catch (err: any) {
       console.error(err);
       toast.error("Kunne ikke importere fra Acronis: " + (err?.message || ""));
+      setStep("acronis");
     } finally {
       setAcronisImporting(false);
     }
+
   };
 
 
@@ -653,6 +667,53 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
             </p>
           </>
         )}
+
+        {/* Step: Acronis processing */}
+        {step === "acronis-processing" && (() => {
+          const count = acronisSelected.size;
+          const messages = [
+            { label: `Lara kobler seg til Acronis for å hente de ${count} utvalgte kundene`, hint: "Autentiserer mot Acronis API" },
+            { label: "Henter tenant-data og enhetslister", hint: `${count} tenant${count === 1 ? "" : "s"} prosesseres` },
+            { label: "Beriker med org.nr., bransje og ansatte", hint: "Slår opp i Brønnøysundregistrene" },
+            { label: "Oppretter kunder og Trust Profiler", hint: "Klargjør portefølje" },
+            { label: "Ferdig!", hint: "Åpner kundelisten" },
+          ];
+          const current = messages[Math.min(acronisProgressStep, messages.length - 1)];
+          return (
+            <div className="py-6">
+              <div className="flex flex-col items-center text-center gap-4">
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+                  <div className="relative h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <img src={laraButterfly} alt="Lara" className="h-10 w-10 animate-pulse" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="font-medium text-foreground">{current.label}</p>
+                  <p className="text-sm text-muted-foreground">{current.hint}</p>
+                </div>
+                <div className="w-full max-w-xs space-y-2 mt-2">
+                  {messages.slice(0, -1).map((m, i) => {
+                    const done = acronisProgressStep > i;
+                    const active = acronisProgressStep === i;
+                    return (
+                      <div key={i} className="flex items-center gap-2 text-xs">
+                        <div className={`h-4 w-4 shrink-0 rounded-full flex items-center justify-center ${
+                          done ? "bg-success text-success-foreground" : active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+                        }`}>
+                          {done ? <CheckCircle2 className="h-3 w-3" /> : active ? <Loader2 className="h-3 w-3 animate-spin" /> : <span className="text-[10px]">{i + 1}</span>}
+                        </div>
+                        <span className={`text-left ${done ? "text-foreground" : active ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                          {m.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
 
         {/* Step: Country selection */}
