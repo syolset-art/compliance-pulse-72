@@ -46,7 +46,20 @@ interface BrregResult {
   forretningsadresse?: { kommune: string; poststed: string };
 }
 
-type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success";
+type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success" | "acronis";
+
+const ACRONIS_DEMO_TENANTS: Array<{
+  tenant_id: string;
+  name: string;
+  org_number: string;
+  industry: string;
+  devices: number;
+  employees: number;
+}> = [
+  { tenant_id: "ac-001", name: "Nordlys Regnskap AS", org_number: "987654321", industry: "Regnskap, bokføring og revisjon", devices: 14, employees: 22 },
+  { tenant_id: "ac-002", name: "Fjord Eiendom AS", org_number: "912345678", industry: "Omsetning og drift av fast eiendom", devices: 8, employees: 11 },
+  { tenant_id: "ac-003", name: "Polar Maritime AS", org_number: "923456781", industry: "Skipsfart og maritim tjenesteyting", devices: 26, employees: 48 },
+];
 
 const STEP_LABELS = ["method", "country", "search", "contact", "assessment", "gap", "confirm"];
 
@@ -445,17 +458,74 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   <p className="text-sm text-muted-foreground">Last opp fil eller lim inn flere kunder samtidig</p>
                 </div>
               </button>
-              <button disabled className="w-full flex items-center gap-4 rounded-lg border border-border p-4 text-left opacity-50 cursor-not-allowed">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <button
+                onClick={() => setStep("acronis")}
+                className="w-full flex items-center gap-4 rounded-lg border border-border p-4 text-left hover:border-primary hover:bg-primary/5 transition-colors"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Server className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-foreground">Importer fra tilkoblede systemer</p>
-                  <p className="text-sm text-muted-foreground">Acronis, ConnectWise m.fl.</p>
+                  <p className="font-medium text-foreground">Hent fra Acronis</p>
+                  <p className="text-sm text-muted-foreground">Importer en kunde-tenant fra Acronis-integrasjonen</p>
                 </div>
-                <Badge variant="outline" className="text-xs">Kommer snart</Badge>
+                <Badge variant="outline" className="text-xs border-primary/40 text-primary">Integrasjon</Badge>
               </button>
             </div>
+          </>
+        )}
+
+        {/* Step: Acronis tenant picker */}
+        {step === "acronis" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-lg flex items-center gap-2">
+                <Server className="h-4 w-4 text-primary" />
+                Hent kunde fra Acronis
+              </DialogTitle>
+              <DialogDescription className="text-sm">
+                Vi fant {ACRONIS_DEMO_TENANTS.length} tenants i din Acronis-konto. Velg én for å opprette kunde og Trust Profile.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center gap-2 rounded-md border border-success/30 bg-success/5 px-3 py-2 text-xs text-success mb-3">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Acronis-integrasjon koblet til
+            </div>
+            <div className="space-y-2 max-h-[360px] overflow-y-auto">
+              {ACRONIS_DEMO_TENANTS.map((t) => (
+                <button
+                  key={t.tenant_id}
+                  onClick={() => {
+                    setSelectedCompany({
+                      organisasjonsnummer: t.org_number,
+                      navn: t.name,
+                      naeringskode1: { kode: "", beskrivelse: t.industry },
+                      antallAnsatte: t.employees,
+                    } as BrregResult);
+                    setForm((f) => ({ ...f, country_code: "NO" }));
+                    setStep("contact");
+                  }}
+                  className="w-full flex items-start gap-3 rounded-lg border border-border p-3 text-left hover:border-primary hover:bg-primary/5 transition-colors"
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-0.5">
+                    <Building2 className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-foreground truncate">{t.name}</p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-0.5">
+                      <span>Tenant: {t.tenant_id}</span>
+                      <span>Org.nr: {t.org_number}</span>
+                      <span>{t.devices} enheter</span>
+                      <span>{t.employees} ansatte</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5 truncate">{t.industry}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setStep("method")} className="gap-1 mt-3">
+              <ArrowLeft className="h-4 w-4" /> Tilbake
+            </Button>
           </>
         )}
 
