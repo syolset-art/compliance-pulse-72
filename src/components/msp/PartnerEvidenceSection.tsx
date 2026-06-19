@@ -55,27 +55,29 @@ export function PartnerEvidenceSection({
   const totalAreas = Object.values(enrichment).filter((v) => v > 0).length;
   const totalDelta = Object.values(enrichment).reduce((s, v) => s + v, 0);
 
-  return (
-    <Card className="p-4 space-y-4 border-primary/20 bg-gradient-to-br from-primary/[0.03] via-card to-transparent">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <ShieldCheck className="h-5 w-5 text-primary" />
+  const content = (
+    <div className="space-y-4">
+      {!minimal && (
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-base font-semibold text-foreground tracking-tight">Partner-bevis</h3>
+              <p className="text-sm text-muted-foreground">
+                Dokumentasjon du som partner har levert — beriker kundens modenhet
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <h3 className="text-base font-semibold text-foreground tracking-tight">Partner-bevis</h3>
-            <p className="text-sm text-muted-foreground">
-              Dokumentasjon du som partner har levert — beriker kundens modenhet
-            </p>
-          </div>
+          {!hideUploadButton && (
+            <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setOpen(true)}>
+              <Upload className="h-3.5 w-3.5" />
+              Last opp bevis
+            </Button>
+          )}
         </div>
-        {!hideUploadButton && (
-          <Button size="sm" className="gap-1.5 shrink-0" onClick={() => setOpen(true)}>
-            <Upload className="h-3.5 w-3.5" />
-            Last opp bevis
-          </Button>
-        )}
-      </div>
+      )}
 
       {/* Enrichment summary */}
       {items.length > 0 && (
