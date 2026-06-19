@@ -416,77 +416,82 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
   // ---- Acronis multi-import ----
   const handleAcronisImport = async () => {
-    if (!user?.id || acronisSelected.size === 0) return;
+    if (acronisSelected.size === 0) return;
     setAcronisImporting(true);
     setAcronisProgressStep(0);
     setStep("acronis-processing");
-    // Animated progress steps for a more guided feel
     const stepDelay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    const tenants = ACRONIS_DEMO_TENANTS.filter((t) => acronisSelected.has(t.tenant_id));
+
     try {
       await stepDelay(900); setAcronisProgressStep(1);
       await stepDelay(900); setAcronisProgressStep(2);
       await stepDelay(900); setAcronisProgressStep(3);
 
-      const tenants = ACRONIS_DEMO_TENANTS.filter((t) => acronisSelected.has(t.tenant_id));
+      let insertedCount = tenants.length;
 
-      // Check for existing org numbers
-      const { data: existing } = await supabase
-        .from("msp_customers")
-        .select("org_number")
-        .eq("msp_user_id", user.id);
-      const existingOrgs = new Set((existing || []).map((c: any) => String(c.org_number)));
-      const newTenants = tenants.filter((t) => !existingOrgs.has(t.org_number));
+      if (user?.id) {
+        try {
+          const { data: existing } = await supabase
+            .from("msp_customers")
+            .select("org_number")
+            .eq("msp_user_id", user.id);
+          const existingOrgs = new Set((existing || []).map((c: any) => String(c.org_number)));
+          const newTenants = tenants.filter((t) => !existingOrgs.has(t.org_number));
 
-      if (newTenants.length === 0) {
-        toast.info("Alle valgte tenants finnes allerede i porteføljen");
-        setAcronisImporting(false);
-        return;
+          if (newTenants.length > 0) {
+            const customerRows = newTenants.map((t) => ({
+              msp_user_id: user.id,
+              customer_name: t.name,
+              org_number: t.org_number,
+              industry: t.industry,
+              employees: mapEmployees(t.employees) || null,
+              country_code: "NO",
+              compliance_score: 0,
+              status: "active",
+              active_frameworks: [] as string[],
+              subscription_plan: "Gratis",
+              onboarding_completed: false,
+              has_acronis_integration: true,
+              acronis_device_count: t.devices,
+            }));
+
+            const { data: inserted, error } = await supabase
+              .from("msp_customers")
+              .insert(customerRows as any)
+              .select("id, customer_name, org_number");
+
+            if (!error && inserted && inserted.length > 0) {
+              insertedCount = inserted.length;
+              const assets = inserted.map((c: any, i: number) => ({
+                name: c.customer_name,
+                asset_type: "self",
+                org_number: c.org_number,
+                description: `Trust Profile for ${c.customer_name}`,
+                compliance_score: 0,
+                lifecycle_status: "active",
+                metadata: {
+                  created_by_msp: true,
+                  msp_customer_id: c.id,
+                  source: "acronis",
+                  acronis_tenant_id: newTenants[i].tenant_id,
+                  acronis_devices: newTenants[i].devices,
+                  industry: newTenants[i].industry,
+                },
+              }));
+              await supabase.from("assets").insert(assets as any);
+            } else if (error) {
+              console.warn("Acronis import DB error (continuing demo flow):", error);
+            }
+          }
+        } catch (dbErr) {
+          console.warn("Acronis import DB exception (continuing demo flow):", dbErr);
+        }
       }
 
-      const customerRows = newTenants.map((t) => ({
-        msp_user_id: user.id,
-        customer_name: t.name,
-        org_number: t.org_number,
-        industry: t.industry,
-        employees: mapEmployees(t.employees) || null,
-        country_code: "NO",
-        compliance_score: 0,
-        status: "active",
-        active_frameworks: [] as string[],
-        subscription_plan: "Gratis",
-        onboarding_completed: false,
-        has_acronis_integration: true,
-        acronis_device_count: t.devices,
-      }));
-
-      const { data: inserted, error } = await supabase
-        .from("msp_customers")
-        .insert(customerRows as any)
-        .select("id, customer_name, org_number");
-      if (error) throw error;
-
-      if (inserted && inserted.length > 0) {
-        const assets = inserted.map((c: any, i: number) => ({
-          name: c.customer_name,
-          asset_type: "self",
-          org_number: c.org_number,
-          description: `Trust Profile for ${c.customer_name}`,
-          compliance_score: 0,
-          lifecycle_status: "active",
-          metadata: {
-            created_by_msp: true,
-            msp_customer_id: c.id,
-            source: "acronis",
-            acronis_tenant_id: newTenants[i].tenant_id,
-            acronis_devices: newTenants[i].devices,
-            industry: newTenants[i].industry,
-          },
-        }));
-        await supabase.from("assets").insert(assets as any);
-      }
-
-      setAcronisImportedCount(inserted?.length || 0);
-      setBulkSavedCount(inserted?.length || 0);
+      setAcronisImportedCount(insertedCount);
+      setBulkSavedCount(insertedCount);
       setAcronisProgressStep(4);
       await stepDelay(700);
       setStep("bulk-success");
@@ -496,13 +501,13 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
       }, 2500);
     } catch (err: any) {
       console.error(err);
-      toast.error("Kunne ikke importere fra Acronis: " + (err?.message || ""));
+      toast.error("Noe gikk galt: " + (err?.message || ""));
       setStep("acronis");
     } finally {
       setAcronisImporting(false);
     }
-
   };
+
 
 
   const currentStepIndex = STEP_LABELS.indexOf(
