@@ -46,7 +46,20 @@ interface BrregResult {
   forretningsadresse?: { kommune: string; poststed: string };
 }
 
-type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success";
+type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success" | "acronis";
+
+const ACRONIS_DEMO_TENANTS: Array<{
+  tenant_id: string;
+  name: string;
+  org_number: string;
+  industry: string;
+  devices: number;
+  employees: number;
+}> = [
+  { tenant_id: "ac-001", name: "Nordlys Regnskap AS", org_number: "987654321", industry: "Regnskap, bokføring og revisjon", devices: 14, employees: 22 },
+  { tenant_id: "ac-002", name: "Fjord Eiendom AS", org_number: "912345678", industry: "Omsetning og drift av fast eiendom", devices: 8, employees: 11 },
+  { tenant_id: "ac-003", name: "Polar Maritime AS", org_number: "923456781", industry: "Skipsfart og maritim tjenesteyting", devices: 26, employees: 48 },
+];
 
 const STEP_LABELS = ["method", "country", "search", "contact", "assessment", "gap", "confirm"];
 
