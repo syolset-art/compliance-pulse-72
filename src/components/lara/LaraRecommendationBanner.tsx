@@ -291,12 +291,7 @@ export function LaraRecommendationBanner({
           {current.category && <p className="text-sm text-foreground/70">{current.category}</p>}
         </div>
 
-        <div className="rounded-lg bg-muted/60 p-3 sm:p-4 space-y-1.5 border border-border/50">
-          <p className="text-xs font-bold text-foreground/60 tracking-wider">
-            {isNb ? "LARAS OBSERVASJON" : "LARA'S OBSERVATION"}
-          </p>
-          <p className="text-sm text-foreground leading-relaxed">{current.insight}</p>
-        </div>
+        <p className="text-sm text-foreground leading-relaxed">{current.insight}</p>
 
         {/* Info-gap: Lara mangler data eller foreslår å gjøre noe annet først */}
         {(current.infoGapNb || current.infoGapEn) && (
