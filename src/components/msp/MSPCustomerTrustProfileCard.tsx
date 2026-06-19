@@ -388,6 +388,7 @@ export function MSPCustomerTrustProfileCard({
               </div>
             ))}
           </div>
+        </div>
         {/* Partner-bevis */}
         <div className="pt-2 border-t border-border/40">
           {customerId && (
