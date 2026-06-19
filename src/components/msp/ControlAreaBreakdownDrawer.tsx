@@ -77,15 +77,18 @@ export function ControlAreaBreakdownDrawer({
 
           {/*
             TODO (dynamisk – Mynders scoringsmodell):
-            Både `areaScore` og `weightPct` skal beregnes dynamisk basert på
-            Mynders scoringsmodell, ikke hardkodes / leveres som statiske props.
+            Både `areaScore`, `weightPct` og den enkelte kontrollpunktsvektingen
+            skal beregnes dynamisk basert på Mynders scoringsmodell, ikke hardkodes / 
+            leveres som statiske props eller faste verdier.
 
             - Områdescore = Σ(modenhet × vekt) / Σ(vekt) × 25
               (per kontrollpunkt i området, hentet fra aktive regelverk).
             - Vekt i Trust Score = områdets relative vekt i Mynders modell
               (holdes konstant når nye regelverk aktiveres).
+            - Kontrollpunktsvekt (Vektingen per punkt i tabellen under) skal også hentes
+              dynamisk basert på prioritering eller egenskap i Mynders modell.
 
-            Når Mynder-scoring-API/-hooken er på plass, bytt ut props med
+            Når Mynder-scoring-API/-hooken er på plass, bytt ut props og lokale beregninger med
             en selektor/hook som leser live-verdier (f.eks. useMynderAreaScore(area)).
           */}
           <div className="grid grid-cols-2 gap-3 pt-2">
@@ -170,6 +173,7 @@ export function ControlAreaBreakdownDrawer({
                           {frameworkName(req.framework_id)}
                         </td>
                         <td className="px-3 py-2 text-right tabular-nums text-foreground/80">
+                          {/* TODO: Hent denne vektingen dynamisk fra Mynders scoringsmodell */}
                           {getRequirementWeight(req).toFixed(1)}
                         </td>
                       </tr>
