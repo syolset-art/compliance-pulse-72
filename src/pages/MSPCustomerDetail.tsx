@@ -541,6 +541,131 @@ export default function MSPCustomerDetail() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Contextual help panel — innhold tilpasset aktiv fane */}
+        {(() => {
+          const customerName = customer?.name || customer?.customer_name || "kunden";
+          const helpByTab: Record<string, React.ComponentProps<typeof ContextualHelpPanel>> = {
+            guidance: {
+              open: helpOpen,
+              onOpenChange: setHelpOpen,
+              icon: Lightbulb,
+              title: "Veiledning fra Lara",
+              description: `Lara analyserer ${customerName} sin compliance-status og foreslår neste steg. Du som rådgiver kan akseptere, justere eller avvise hvert forslag før det effektueres hos kunden.`,
+              itemsHeading: "Slik fungerer det",
+              items: [
+                { icon: Target, title: "Vurder", description: "Lara ser på modenhet, dokumentasjon og rammeverk for å forstå hvor kunden står." },
+                { icon: Sparkles, title: "Foreslå", description: "Lara identifiserer manglene som gir størst risiko eller verdi å lukke først." },
+                { icon: ClipboardList, title: "Veilede", description: "Du får konkrete tiltak med begrunnelse og estimat — klart til å presentere kunden." },
+                { icon: Zap, title: "Effektuere", description: "Aksepter forslaget for å starte arbeidet, eller send det videre til kunden for godkjenning." },
+              ],
+              whyTitle: "Hvorfor er dette viktig?",
+              whyDescription: "AI-drevet veiledning hjelper deg å levere proaktiv rådgivning i stedet for reaktiv brannslukking — og dokumenterer hvert valg for revisjon.",
+              laraSuggestions: [
+                { label: "Hva bør jeg prioritere for denne kunden?", message: `Hva bør jeg prioritere for ${customerName} nå?` },
+                { label: "Forklar siste anbefaling", message: `Kan du forklare den siste anbefalingen du ga for ${customerName}?` },
+              ],
+            },
+            assessment: {
+              open: helpOpen,
+              onOpenChange: setHelpOpen,
+              icon: Target,
+              title: "Modenhet og tjenester",
+              description: `Modenhetsmatrisen viser hvor ${customerName} står per kjerneområde (0–4). Lara avleder «Anbefalte tjenester» fra mangler i matrisen og bransjekrav.`,
+              itemsHeading: "Slik fungerer det",
+              items: [
+                { icon: Target, title: "Modenhet 0–4", description: "Hver rad er et kontrollområde. Score genereres fra baseline-svar og opplastet dokumentasjon." },
+                { icon: Sparkles, title: "Anbefalte tjenester", description: "Lara foreslår tjenester (NIS2-klargjøring, AI Governance, Pen-test osv.) der gap er størst." },
+                { icon: FileText, title: "Baseline-svar", description: "Svar fra dokumentasjon og spørreskjema oppdaterer modenheten automatisk." },
+              ],
+              whyDescription: "Tydelig modenhetsbilde gjør det enkelt å selge inn relevante tjenester og dokumentere fremgang over tid.",
+              laraSuggestions: [
+                { label: "Hvilke tjenester gir mest verdi nå?", message: `Hvilke tjenester bør jeg foreslå for ${customerName}?` },
+                { label: "Forklar et lavt modenhetsområde", message: `Hvorfor er modenheten lav på et av områdene til ${customerName}?` },
+              ],
+            },
+            messages: {
+              open: helpOpen,
+              onOpenChange: setHelpOpen,
+              icon: MessageSquare,
+              title: "Meldinger og kundedialog",
+              description: `Her holder du dialog med ${customerName} — forespørsler, godkjenninger og frister samles på ett sted. Lara kan utarbeide utkast til svar.`,
+              itemsHeading: "Slik fungerer det",
+              items: [
+                { icon: MessageSquare, title: "Toveis dialog", description: "Meldinger fra kunden og dine svar lagres samlet med tidsstempel." },
+                { icon: ClockIcon, title: "Frister", description: "Meldinger med deadline merkes tydelig så ingenting glipper." },
+                { icon: Sparkles, title: "Lara-utkast", description: "Be Lara om å lage et profesjonelt svarutkast du kan justere før sending." },
+              ],
+              whyDescription: "Sentralisert dialog gir sporbarhet og hindrer at viktige forespørsler havner i e-postinnboksen.",
+              laraSuggestions: [
+                { label: "Skriv svar til siste melding", message: `Skriv et utkast til svar på den siste meldingen fra ${customerName}` },
+                { label: "Oppsummer åpne meldinger", message: `Oppsummer åpne meldinger og frister for ${customerName}` },
+              ],
+            },
+            "trust-profile": {
+              open: helpOpen,
+              onOpenChange: setHelpOpen,
+              icon: ShieldCheck,
+              title: "Trust Profile",
+              description: `Trust Profile er kundens offentlige tillitsside. Som rådgiver bygger du den opp og publiserer den på vegne av ${customerName} — eller overlater kontroll til kunden.`,
+              itemsHeading: "Slik fungerer det",
+              items: [
+                { icon: FileText, title: "Innhold", description: "Modenhet, rammeverk, sertifiseringer og dokumenter samles til en publiserbar profil." },
+                { icon: ShieldCheck, title: "Statuser", description: "Utkast → Aktivert → Publisert. Kun publiserte profiler vises eksternt." },
+                { icon: Users, title: "Overlevering", description: "Send invitasjon for at kunden selv skal overta og signere profilen." },
+              ],
+              whyDescription: "En publisert Trust Profile reduserer svartid på sikkerhetsspørsmål fra kundens kunder og partnere.",
+              laraSuggestions: [
+                { label: "Er profilen klar for publisering?", message: `Vurder om Trust Profile for ${customerName} er klar for publisering` },
+                { label: "Hva mangler i profilen?", message: `Hva mangler i Trust Profile for ${customerName}?` },
+              ],
+            },
+            documentation: {
+              open: helpOpen,
+              onOpenChange: setHelpOpen,
+              icon: FileText,
+              title: "Dokumentasjon",
+              description: `Last opp ${customerName} sin dokumentasjon — DPA-er, policyer, hendelsesplaner og andre filer. Lara leser dokumentene og bruker dem som grunnlag for baseline-svar, gap-analyse og forslag til tiltak.`,
+              itemsHeading: "Slik fungerer det",
+              items: [
+                { icon: FileText, title: "Forventede dokumenter", description: "Listen viser dokumenttyper som forventes for kundens rammeverk og bransje." },
+                { icon: Sparkles, title: "Lara-lesing", description: "Når lese-tilgang er på, henter Lara svar og sitater direkte fra opplastet dokumentasjon." },
+                { icon: RefreshCw, title: "Automatisk oppdatering", description: "Når et dokument endres, oppdateres baseline-svarene automatisk." },
+              ],
+              whyDescription: "Komplett dokumentasjon gir bedre AI-svar, høyere modenhet og raskere revisjon.",
+              stepsHeading: "Kom i gang",
+              steps: [
+                { text: "Skru på «Lese-tilgang» øverst" },
+                { text: "Last opp eller be kunden laste opp manglende dokumenter" },
+                { text: "Se hvordan modenheten oppdateres i fanen Vurdering" },
+              ],
+              laraSuggestions: [
+                { label: "Hvilke dokumenter mangler?", message: `Hvilke dokumenter mangler for ${customerName}?` },
+                { label: "Oppsummer DPA-en", message: `Oppsummer DPA-en til ${customerName} og pek på risikoområder` },
+              ],
+            },
+            regulations: {
+              open: helpOpen,
+              onOpenChange: setHelpOpen,
+              icon: Scale,
+              title: "Regelverk",
+              description: `Aktiver regelverk og rammeverk som er relevante for ${customerName}. Lara foreslår obligatoriske rammeverk basert på bransje, størrelse og jurisdiksjon.`,
+              itemsHeading: "Slik fungerer det",
+              items: [
+                { icon: ShieldCheck, title: "Obligatorisk", description: "Lovpålagte regelverk (f.eks. GDPR, NIS2) kan ikke deaktiveres." },
+                { icon: BookOpen, title: "Anbefalt", description: "Bransjestandarder Lara foreslår — du bestemmer om de skal aktiveres." },
+                { icon: ClipboardList, title: "Valgfri", description: "Ekstra rammeverk kunden ønsker å vise modenhet på." },
+              ],
+              whyDescription: "Riktig sett med rammeverk styrer hvilke krav som måles, hvilken dokumentasjon som forventes og hva som havner i Trust Profile.",
+              laraSuggestions: [
+                { label: "Hvilke rammeverk er obligatoriske?", message: `Hvilke rammeverk er obligatoriske for ${customerName}?` },
+                { label: "Foreslå relevante rammeverk", message: `Foreslå anbefalte rammeverk for ${customerName} basert på bransje og størrelse` },
+              ],
+            },
+          };
+          const cfg = helpByTab[activeTab] || helpByTab.guidance;
+          return <ContextualHelpPanel {...cfg} />;
+        })()}
       </main>
     </div>
   );
