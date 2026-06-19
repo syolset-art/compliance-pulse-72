@@ -24,6 +24,8 @@ interface Props {
   onSecondaryAction?: (task: LaraPlanTask) => void;
   /** Trykk på "Les mer" — får tasken som argument. Vises kun for tasks med readMoreCtaLabelNb/En. */
   onReadMore?: (task: LaraPlanTask) => void;
+  /** Trykk på "La Lara gjøre det" — vises kun for tasks med canAutoRun. */
+  onLaraAutoRun?: (task: LaraPlanTask) => void;
   /** Skjul "Ikke nå"-dismiss-knappen (f.eks. på vendor-profil hvor banneret er fast) */
   hideDismiss?: boolean;
 }
