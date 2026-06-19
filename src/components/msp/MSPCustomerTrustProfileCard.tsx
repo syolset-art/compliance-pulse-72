@@ -195,8 +195,8 @@ export function MSPCustomerTrustProfileCard({
             </p>
             <p className="text-sm text-foreground/80 leading-relaxed">
               {invited
-                ? `${contactName} har fått en e-post med en sikker lenke for å aktivere og signere profilen. Du får varsel når det er gjort. Inntil da kan du fortsatt redigere innholdet.`
-                : `Du administrerer profilen på vegne av ${customerName}. Når kunden aktiverer profilen tar de over redigering — du beholder innsynet, men kan ikke lenger endre innhold direkte.`}
+                ? "Du kan bygge og redigere denne Trust Profilen, og du fortsetter å administrere den også etter at den er publisert. Men den kan ikke publiseres herfra. Først når kunden claimer profilen, blir den én unik Trust Profile som kunden eier - og publisering kan ikke skje før det."
+                : "Du administrerer denne Trust Profilen på vegne av kunden, også etter publisering. Publisering låses opp når kunden claimer profilen — da blir den én unik profil som kunden eier. Inviter kontaktpersonen for å fullføre."}
             </p>
           </div>
         </div>
