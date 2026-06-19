@@ -418,7 +418,15 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const handleAcronisImport = async () => {
     if (!user?.id || acronisSelected.size === 0) return;
     setAcronisImporting(true);
+    setAcronisProgressStep(0);
+    setStep("acronis-processing");
+    // Animated progress steps for a more guided feel
+    const stepDelay = (ms: number) => new Promise((r) => setTimeout(r, ms));
     try {
+      await stepDelay(900); setAcronisProgressStep(1);
+      await stepDelay(900); setAcronisProgressStep(2);
+      await stepDelay(900); setAcronisProgressStep(3);
+
       const tenants = ACRONIS_DEMO_TENANTS.filter((t) => acronisSelected.has(t.tenant_id));
 
       // Check for existing org numbers
