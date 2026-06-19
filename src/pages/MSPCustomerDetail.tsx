@@ -338,6 +338,16 @@ export default function MSPCustomerDetail() {
                     const idx = planTasks.findIndex(p => p.id === t.id);
                     tasks[idx]?.onReadMore?.();
                   }}
+                  onLaraAutoRun={(t) => {
+                    const idx = planTasks.findIndex(p => p.id === t.id);
+                    const task = tasks[idx];
+                    if (!task?.canAutoRun) return;
+                    toast.success(`Lara har startet: ${task.title}`, {
+                      description: task.autoRunMessage ?? "Lara jobber i bakgrunnen og varsler deg når noe krever bekreftelse.",
+                      icon: <Sparkles className="h-4 w-4" />,
+                      duration: 6000,
+                    });
+                  }}
                 />
 
               ) : (
