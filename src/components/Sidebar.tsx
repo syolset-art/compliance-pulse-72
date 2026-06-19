@@ -29,7 +29,9 @@ import {
   Sparkles,
   Landmark,
   Bot,
-  Eye
+  Eye,
+  Lock,
+  Briefcase as BriefcaseIcon
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
@@ -68,9 +70,9 @@ const ModuleSkeletonRow = ({ label }: { label: string }) => (
   </div>
 );
 
-// Top-level dashboard link (single)
-const dashboardNav = [
-  { name: "nav.dashboard", href: "/", icon: LayoutDashboard },
+// Top-level dashboards: Trust Center always, Mynder Core only when activated.
+// Rendered inline below — see "Dashboard" section in the nav.
+const boardNav = [
   { name: "Styrerom", href: "/board", icon: Landmark },
 ];
 
