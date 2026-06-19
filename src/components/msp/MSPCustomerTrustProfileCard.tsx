@@ -18,6 +18,7 @@ import {
   KeyRound,
   Info,
   ChevronRight,
+  Plus,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
@@ -195,8 +196,8 @@ export function MSPCustomerTrustProfileCard({
             </p>
             <p className="text-sm text-foreground/80 leading-relaxed">
               {invited
-                ? `${contactName} har fått en e-post med en sikker lenke for å aktivere og signere profilen. Du får varsel når det er gjort. Inntil da kan du fortsatt redigere innholdet.`
-                : `Du administrerer profilen på vegne av ${customerName}. Når kunden aktiverer profilen tar de over redigering — du beholder innsynet, men kan ikke lenger endre innhold direkte.`}
+                ? "Du kan bygge og redigere denne Trust Profilen, og du fortsetter å administrere den også etter at den er publisert. Men den kan ikke publiseres herfra. Først når kunden claimer profilen, blir den én unik Trust Profile som kunden eier - og publisering kan ikke skje før det."
+                : "Du administrerer denne Trust Profilen på vegne av kunden, også etter publisering. Publisering låses opp når kunden claimer profilen — da blir den én unik profil som kunden eier. Inviter kontaktpersonen for å fullføre."}
             </p>
           </div>
         </div>
@@ -220,15 +221,6 @@ export function MSPCustomerTrustProfileCard({
         )}
       </Card>
 
-      {/* Partner-bevis — opplastet av MSP (åpnes fra header-knappen) */}
-      {customerId && (
-        <PartnerEvidenceSection
-          customerId={customerId}
-          hideUploadButton
-          open={evidenceOpen}
-          onOpenChange={setEvidenceOpen}
-        />
-      )}
 
       {/* Kontrollområder per regelverk */}
       {(() => {
@@ -344,7 +336,18 @@ export function MSPCustomerTrustProfileCard({
       {/* Ressurser */}
       <Card className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-foreground">Ressurser</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-base font-semibold text-foreground">Ressurser</h3>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-full text-primary hover:bg-primary/10" 
+              onClick={() => setEvidenceOpen(true)}
+              title="Last opp partner-bevis"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
           <span className="text-sm text-muted-foreground">{certifications.length + policies.filter(p => p.published).length} publisert · {policies.filter(p => !p.published).length} mangler</span>
         </div>
 
@@ -385,6 +388,18 @@ export function MSPCustomerTrustProfileCard({
               </div>
             ))}
           </div>
+        </div>
+        {/* Partner-bevis */}
+        <div className="pt-2 border-t border-border/40">
+          {customerId && (
+            <PartnerEvidenceSection
+              customerId={customerId}
+              hideUploadButton
+              minimal
+              open={evidenceOpen}
+              onOpenChange={setEvidenceOpen}
+            />
+          )}
         </div>
       </Card>
 
