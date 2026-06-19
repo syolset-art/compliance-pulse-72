@@ -128,6 +128,11 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const [bulkRows, setBulkRows] = useState<BulkRow[]>([]);
   const [bulkSavedCount, setBulkSavedCount] = useState(0);
 
+  // Acronis multi-select state
+  const [acronisSelected, setAcronisSelected] = useState<Set<string>>(new Set());
+  const [acronisImporting, setAcronisImporting] = useState(false);
+  const [acronisImportedCount, setAcronisImportedCount] = useState(0);
+
   const reset = useCallback(() => {
     setStep("method");
     setSearchQuery("");
@@ -139,8 +144,12 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setBulkText("");
     setBulkRows([]);
     setBulkSavedCount(0);
+    setAcronisSelected(new Set());
+    setAcronisImporting(false);
+    setAcronisImportedCount(0);
     setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis", country_code: "NO" });
   }, []);
+
 
   useEffect(() => {
     if (!open) reset();
