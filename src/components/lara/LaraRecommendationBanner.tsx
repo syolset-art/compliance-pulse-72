@@ -240,7 +240,13 @@ export function LaraRecommendationBanner({
                     <TableCell className="text-[12px] text-muted-foreground">{t.category ?? "—"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                        <Button size="sm" className="h-7 rounded-full text-xs" onClick={() => onPrimaryAction(t)}>
+                        {t.canAutoRun && onLaraAutoRun && (
+                          <Button size="sm" className="h-7 rounded-full text-xs gap-1" onClick={() => onLaraAutoRun(t)}>
+                            <Sparkles className="h-3 w-3" />
+                            {isNb ? (t.autoRunLabelNb ?? "La Lara gjøre det") : (t.autoRunLabelEn ?? "Let Lara do it")}
+                          </Button>
+                        )}
+                        <Button size="sm" variant={t.canAutoRun ? "outline" : "default"} className="h-7 rounded-full text-xs" onClick={() => onPrimaryAction(t)}>
                           {isNb ? (t.primaryCtaLabelNb ?? "Be Lara håndtere") : (t.primaryCtaLabelEn ?? "Ask Lara")}
                         </Button>
                         {onSecondaryAction && (
