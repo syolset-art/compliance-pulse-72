@@ -18,4 +18,22 @@ export interface LaraPlanTask {
   /** CTA-tekst på "Les mer"-knappen */
   readMoreCtaLabelNb?: string;
   readMoreCtaLabelEn?: string;
+  /** Hvis satt, kan Lara starte oppgaven selv (vises som primær handling). */
+  canAutoRun?: boolean;
+  /** Etikett for Lara-auto-knappen (default: "La Lara gjøre det") */
+  autoRunLabelNb?: string;
+  autoRunLabelEn?: string;
+  /** Kort forklaring av hva Lara faktisk gjør hvis hun får lov */
+  autoRunExplainerNb?: string;
+  autoRunExplainerEn?: string;
+  /**
+   * Hvis Lara mangler data — vis en gul forvarsel om at hun trenger
+   * mer informasjon eller at partneren bør gjøre en annen oppgave først.
+   */
+  infoGapNb?: string;
+  infoGapEn?: string;
+  /** Anbefalt opp-strøms oppgave som bør gjøres først (vises i info-gap) */
+  prerequisiteHintNb?: string;
+  prerequisiteHintEn?: string;
 }
+

@@ -167,6 +167,7 @@ export default function MSPCustomerDetail() {
         : "For å jobbe i kundens Trust Profile må du ha fullmakt — enten via signert leveranseavtale, eller ved å be kunden bekrefte direkte.",
       cta: mandate === "requested" ? "Bekreft avtale i stedet" : "Bekreft mandat",
       onClick: () => setMandateDialogOpen(true),
+      // Krever menneskelig signatur — Lara kan ikke kjøre dette selv.
     },
     !trustHandoverSent && {
       severity: "critical" as const,
@@ -176,13 +177,19 @@ export default function MSPCustomerDetail() {
       onClick: () => setHandoverEmailOpen(true),
       readMoreLabel: "Les mer",
       onReadMore: () => setTakeoverInfoOpen(true),
+      canAutoRun: true,
+      autoRunLabel: "La Lara sende invitasjon",
+      autoRunMessage: "Lara sender en personlig invitasjon til kontaktpersonen og følger opp etter 3 dager om det ikke kommer svar.",
     },
     !customer.has_acronis_integration && {
       severity: "high",
       title: "Koble til Acronis",
       desc: "Importer enheter og backup-status for kunden.",
-      cta: "Koble til",
+      cta: "Koble til manuelt",
       onClick: () => setAcronisOpen(true),
+      canAutoRun: true,
+      autoRunLabel: "La Lara koble til",
+      autoRunMessage: "Lara henter Acronis-tenanten via partner-API-et, mapper enhetene til kundens systemregister og importerer backup-status.",
     },
     (!customer.initial_assessment_score || customer.initial_assessment_score < 50) && {
       severity: "critical",
@@ -190,13 +197,26 @@ export default function MSPCustomerDetail() {
       desc: "Lara trenger svar på sikkerhetsspørsmål for å beregne modenhet.",
       cta: "Start vurdering",
       onClick: () => setActiveTab("assessment"),
+      // Menneskelig input kreves — partner må svare på spørsmål.
+      infoGap: "Vurderingen krever at en hos partner svarer på 12 spørsmål basert på kundens drift. Lara kan ikke gjette dette.",
     },
     !customer.active_frameworks?.includes("NIS2") && {
       severity: "medium",
       title: "Start NIS2-vurdering",
       desc: "Kunden er ikke kartlagt mot NIS2-rammeverket ennå.",
-      cta: "Start NIS2",
+      cta: "Start manuelt",
       onClick: () => navigate(`/msp-dashboard/${customerId}/nis2`),
+      canAutoRun: true,
+      autoRunLabel: "La Lara gjøre NIS2-vurdering",
+      autoRunMessage: "Lara genererer et førsteutkast til NIS2-gap basert på baseline, Acronis-data og kundens systemregister. Partner får utkastet til gjennomgang.",
+      infoGap: !customer.has_acronis_integration || !customer.initial_assessment_score
+        ? "Lara har lite å gå på for denne kunden ennå — uten Acronis-data og innledende vurdering blir NIS2-utkastet svært generisk."
+        : undefined,
+      prerequisiteHint: !customer.has_acronis_integration
+        ? "Koble til Acronis først, eller be partner fylle inn baseline-spørsmålene."
+        : !customer.initial_assessment_score
+        ? "Fullfør innledende vurdering først, så blir NIS2-analysen mye mer treffsikker."
+        : undefined,
     },
     !customer.onboarding_completed && {
       severity: "medium",
@@ -205,7 +225,20 @@ export default function MSPCustomerDetail() {
       cta: "Inviter kunde",
       onClick: () => {},
     },
-  ].filter(Boolean) as Array<{ severity: "critical" | "high" | "medium"; title: string; desc: string; cta: string; onClick: () => void; readMoreLabel?: string; onReadMore?: () => void }>;
+  ].filter(Boolean) as Array<{
+    severity: "critical" | "high" | "medium";
+    title: string;
+    desc: string;
+    cta: string;
+    onClick: () => void;
+    readMoreLabel?: string;
+    onReadMore?: () => void;
+    canAutoRun?: boolean;
+    autoRunLabel?: string;
+    autoRunMessage?: string;
+    infoGap?: string;
+    prerequisiteHint?: string;
+  }>;
 
   const planTasks: LaraPlanTask[] = tasks.map((t, i) => ({
     id: `msp-task-${i}-${t.title}`,
@@ -216,8 +249,18 @@ export default function MSPCustomerDetail() {
     primaryCtaLabelEn: t.cta,
     readMoreCtaLabelNb: t.readMoreLabel,
     readMoreCtaLabelEn: t.readMoreLabel,
+    canAutoRun: t.canAutoRun,
+    autoRunLabelNb: t.autoRunLabel,
+    autoRunLabelEn: t.autoRunLabel,
+    autoRunExplainerNb: t.autoRunMessage,
+    autoRunExplainerEn: t.autoRunMessage,
+    infoGapNb: t.infoGap,
+    infoGapEn: t.infoGap,
+    prerequisiteHintNb: t.prerequisiteHint,
+    prerequisiteHintEn: t.prerequisiteHint,
   }));
   const criticalCount = planTasks.filter(t => t.severity === "critical").length;
+
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -294,6 +337,16 @@ export default function MSPCustomerDetail() {
                   onReadMore={(t) => {
                     const idx = planTasks.findIndex(p => p.id === t.id);
                     tasks[idx]?.onReadMore?.();
+                  }}
+                  onLaraAutoRun={(t) => {
+                    const idx = planTasks.findIndex(p => p.id === t.id);
+                    const task = tasks[idx];
+                    if (!task?.canAutoRun) return;
+                    toast.success(`Lara har startet: ${task.title}`, {
+                      description: task.autoRunMessage ?? "Lara jobber i bakgrunnen og varsler deg når noe krever bekreftelse.",
+                      icon: <Sparkles className="h-4 w-4" />,
+                      duration: 6000,
+                    });
                   }}
                 />
 

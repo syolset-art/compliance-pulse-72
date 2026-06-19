@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Diamond, ChevronLeft, ChevronRight, Clock, X, LayoutList, Table as TableIcon } from "lucide-react";
+import { Diamond, ChevronLeft, ChevronRight, Clock, X, LayoutList, Table as TableIcon, Sparkles, AlertTriangle } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,8 @@ interface Props {
   onSecondaryAction?: (task: LaraPlanTask) => void;
   /** Trykk på "Les mer" — får tasken som argument. Vises kun for tasks med readMoreCtaLabelNb/En. */
   onReadMore?: (task: LaraPlanTask) => void;
+  /** Trykk på "La Lara gjøre det" — vises kun for tasks med canAutoRun. */
+  onLaraAutoRun?: (task: LaraPlanTask) => void;
   /** Skjul "Ikke nå"-dismiss-knappen (f.eks. på vendor-profil hvor banneret er fast) */
   hideDismiss?: boolean;
 }
@@ -41,6 +44,7 @@ export function LaraRecommendationBanner({
   onPrimaryAction,
   onSecondaryAction,
   onReadMore,
+  onLaraAutoRun,
   hideDismiss = false,
 }: Props) {
   const { i18n } = useTranslation();
@@ -236,7 +240,13 @@ export function LaraRecommendationBanner({
                     <TableCell className="text-[12px] text-muted-foreground">{t.category ?? "—"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                        <Button size="sm" className="h-7 rounded-full text-xs" onClick={() => onPrimaryAction(t)}>
+                        {t.canAutoRun && onLaraAutoRun && (
+                          <Button size="sm" className="h-7 rounded-full text-xs gap-1" onClick={() => onLaraAutoRun(t)}>
+                            <Sparkles className="h-3 w-3" />
+                            {isNb ? (t.autoRunLabelNb ?? "La Lara gjøre det") : (t.autoRunLabelEn ?? "Let Lara do it")}
+                          </Button>
+                        )}
+                        <Button size="sm" variant={t.canAutoRun ? "outline" : "default"} className="h-7 rounded-full text-xs" onClick={() => onPrimaryAction(t)}>
                           {isNb ? (t.primaryCtaLabelNb ?? "Be Lara håndtere") : (t.primaryCtaLabelEn ?? "Ask Lara")}
                         </Button>
                         {onSecondaryAction && (
@@ -288,8 +298,41 @@ export function LaraRecommendationBanner({
           <p className="text-sm text-foreground leading-relaxed">{current.insight}</p>
         </div>
 
+        {/* Info-gap: Lara mangler data eller foreslår å gjøre noe annet først */}
+        {(current.infoGapNb || current.infoGapEn) && (
+          <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 sm:p-3.5 flex items-start gap-2.5">
+            <AlertTriangle className="h-4 w-4 text-warning shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="space-y-0.5 min-w-0">
+              <p className="text-xs font-semibold text-foreground">
+                {isNb ? "Lara trenger mer å gå på" : "Lara needs more to work with"}
+              </p>
+              <p className="text-xs text-foreground/80 leading-relaxed">
+                {isNb ? current.infoGapNb : (current.infoGapEn ?? current.infoGapNb)}
+              </p>
+              {(current.prerequisiteHintNb || current.prerequisiteHintEn) && (
+                <p className="text-xs text-foreground/70 leading-relaxed pt-0.5">
+                  <span className="font-semibold">{isNb ? "Forslag: " : "Suggestion: "}</span>
+                  {isNb ? current.prerequisiteHintNb : (current.prerequisiteHintEn ?? current.prerequisiteHintNb)}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 pt-1">
+          {current.canAutoRun && onLaraAutoRun && (
+            <Button
+              className="rounded-full px-5 w-full sm:w-auto gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => onLaraAutoRun(current)}
+            >
+              <Sparkles className="h-4 w-4" />
+              {isNb
+                ? (current.autoRunLabelNb ?? "La Lara gjøre det")
+                : (current.autoRunLabelEn ?? "Let Lara do it")}
+            </Button>
+          )}
           <Button
+            variant={current.canAutoRun ? "outline" : "default"}
             className="rounded-full px-5 w-full sm:w-auto"
             onClick={() => onPrimaryAction(current)}
           >
