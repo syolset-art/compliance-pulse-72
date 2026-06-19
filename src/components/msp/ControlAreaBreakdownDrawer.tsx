@@ -173,6 +173,7 @@ export function ControlAreaBreakdownDrawer({
                           {frameworkName(req.framework_id)}
                         </td>
                         <td className="px-3 py-2 text-right tabular-nums text-foreground/80">
+                          {/* TODO: Hent denne vektingen dynamisk fra Mynders scoringsmodell */}
                           {getRequirementWeight(req).toFixed(1)}
                         </td>
                       </tr>
