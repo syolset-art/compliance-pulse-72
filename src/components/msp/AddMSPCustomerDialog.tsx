@@ -487,6 +487,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
       setAcronisImportedCount(inserted?.length || 0);
       setBulkSavedCount(inserted?.length || 0);
+      setAcronisProgressStep(4);
+      await stepDelay(700);
       setStep("bulk-success");
       setTimeout(() => {
         onOpenChange(false);
@@ -495,9 +497,11 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     } catch (err: any) {
       console.error(err);
       toast.error("Kunne ikke importere fra Acronis: " + (err?.message || ""));
+      setStep("acronis");
     } finally {
       setAcronisImporting(false);
     }
+
   };
 
 
