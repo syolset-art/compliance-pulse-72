@@ -20,6 +20,21 @@ import { toast } from "sonner";
 
 type ViewMode = "cards" | "table";
 
+const getCountryName = (code: string) => {
+  const mapping: Record<string, string> = {
+    NO: "Norge",
+    SE: "Sverige",
+    DK: "Danmark",
+    FI: "Finland",
+    IS: "Island",
+    DE: "Tyskland",
+    NL: "Nederland",
+    GB: "Storbritannia",
+    US: "USA",
+  };
+  return mapping[code.toUpperCase()] || code;
+};
+
 // Trust Profile (TP) lifecycle status — what stage the customer's TP is in
 type TPStatusKey = "draft" | "onboarding" | "claimed" | "published";
 
