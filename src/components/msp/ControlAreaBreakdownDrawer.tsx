@@ -149,6 +149,10 @@ export function ControlAreaBreakdownDrawer({
           {/* Kontrollpunkt-tabell */}
           {breakdown && breakdown.requirements.length > 0 && (
             <section className="space-y-2">
+              {/* 
+                NOTAT: Dette er dynamiske felter som skal vises basert på 
+                kontrollpunkter knyttet til de valgte regelverkene kunden har aktivert.
+              */}
               <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
                 Kontrollpunkter ({total})
               </h4>
