@@ -132,6 +132,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const [acronisSelected, setAcronisSelected] = useState<Set<string>>(new Set());
   const [acronisImporting, setAcronisImporting] = useState(false);
   const [acronisImportedCount, setAcronisImportedCount] = useState(0);
+  const [acronisProgressStep, setAcronisProgressStep] = useState(0);
+
 
   const reset = useCallback(() => {
     setStep("method");
