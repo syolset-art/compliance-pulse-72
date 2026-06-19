@@ -269,7 +269,6 @@ function MessageTable({ messages }: { messages: Item[] }) {
     </div>
   );
 }
-}
 
 function EmptyState({ icon: Icon, label }: { icon: any; label: string }) {
   return (
