@@ -153,19 +153,20 @@ export function MSPCustomerTrustProfileCard({
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-base font-semibold text-foreground">Kundens visningskort utad</h2>
             <span className="text-muted-foreground/30 text-xs">•</span>
-            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
+            <span className="inline-flex items-center gap-1 text-xs text-foreground bg-muted px-2 py-0.5 rounded-full font-medium border border-border">
               <Lock className="h-3 w-3" aria-hidden="true" />
               Ikke publisert
             </span>
             <span className="text-muted-foreground/30 text-xs">•</span>
             <button
               onClick={() => setShowBannerDetails(!showBannerDetails)}
-              className="text-xs text-primary hover:underline font-medium inline-flex items-center gap-1 focus:outline-none"
+              className="text-xs font-semibold inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:border-primary/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
             >
               <Info className="h-3 w-3" aria-hidden="true" />
               {invited ? `Invitasjon sendt til ${contactName}` : "Ikke aktivert"}
-              <span className="text-muted-foreground/60">({showBannerDetails ? "Skjul info" : "Les mer / Inviter"})</span>
+              <span className="opacity-80 font-normal">· {showBannerDetails ? "Skjul" : "Les mer / Inviter"}</span>
             </button>
+          </div>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">{customerName} · Trust Profile</p>
         </div>
