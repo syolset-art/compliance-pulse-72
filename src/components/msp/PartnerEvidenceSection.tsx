@@ -33,6 +33,7 @@ export function PartnerEvidenceSection({
   partnerName,
   uploaderName,
   hideUploadButton,
+  minimal,
   open: openProp,
   onOpenChange,
 }: Props) {
