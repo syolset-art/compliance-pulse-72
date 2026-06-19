@@ -250,6 +250,7 @@ export default function MSPCustomerDetail() {
     id: `msp-task-${i}-${t.title}`,
     severity: t.severity,
     title: t.title,
+    category: t.category,
     insight: t.desc,
     primaryCtaLabelNb: t.cta,
     primaryCtaLabelEn: t.cta,
