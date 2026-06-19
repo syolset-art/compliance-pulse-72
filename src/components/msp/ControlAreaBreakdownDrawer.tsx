@@ -75,6 +75,19 @@ export function ControlAreaBreakdownDrawer({
             </div>
           </div>
 
+          {/*
+            TODO (dynamisk – Mynders scoringsmodell):
+            Både `areaScore` og `weightPct` skal beregnes dynamisk basert på
+            Mynders scoringsmodell, ikke hardkodes / leveres som statiske props.
+
+            - Områdescore = Σ(modenhet × vekt) / Σ(vekt) × 25
+              (per kontrollpunkt i området, hentet fra aktive regelverk).
+            - Vekt i Trust Score = områdets relative vekt i Mynders modell
+              (holdes konstant når nye regelverk aktiveres).
+
+            Når Mynder-scoring-API/-hooken er på plass, bytt ut props med
+            en selektor/hook som leser live-verdier (f.eks. useMynderAreaScore(area)).
+          */}
           <div className="grid grid-cols-2 gap-3 pt-2">
             <div className="rounded-lg border border-border/60 p-3">
               <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
