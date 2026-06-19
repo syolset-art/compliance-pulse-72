@@ -724,92 +724,111 @@ export function MSPMaturityServiceMatrix({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="recommended" className="space-y-2 mt-0">
-          {RECOMMENDATIONS.map(r => {
-            const Icon = r.icon;
-            const isHighlighted = highlightedTitle === r.title;
-            return (
-              <Card
-                key={r.id}
-                ref={(el) => { recCardRefs.current[r.title] = el; }}
-                className={cn(
-                  "p-4 hover:border-primary/30 transition-all",
-                  isHighlighted && "ring-2 ring-primary/50 border-primary/50 shadow-lg",
-                )}
-              >
-
-                <div className="flex items-start gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-foreground">{r.title}</span>
-                    </div>
-                    <p className="text-[13px] text-muted-foreground leading-snug">{r.desc}</p>
-
-                    {/* Forslag til tiltak med timeestimat */}
-                    {(() => {
-                      const totalHours = r.tasks.reduce((s, t) => s + t.hours, 0);
-                      const totalPrice = totalHours * r.hourlyRate;
-                      return (
-                        <p className="text-[12px] text-muted-foreground">
-                          <span className="font-medium text-foreground">{r.tasks.length} foreslåtte tiltak</span>
-                          {" · "}{totalHours} timer · {totalPrice.toLocaleString("nb-NO")} kr
-                        </p>
-                      );
-                    })()}
-
-                    <div className="flex flex-wrap items-center gap-2 pt-1">
-                      <Button
-                        size="sm"
-                        className="h-8 text-xs"
-                        onClick={() => {
-                          setOfferCtx({
-                            open: true,
-                            serviceTitle: r.title,
-                            variant: "Full leveranse",
-                            attachGap: !!r.frameworkId,
-                            gapFrameworkId: r.frameworkId,
-                            defaultTasks: r.tasks,
-                            hourlyRate: r.hourlyRate,
-                            coveredControls: r.frameworkId && r.controlIds?.length
-                              ? [{ frameworkId: r.frameworkId, frameworkLabel: r.frameworkLabel ?? r.frameworkId.toUpperCase(), controlIds: r.controlIds }]
-                              : undefined,
-                            coveredGaps: r.frameworkId
-                              ? {
-                                  frameworkId: r.frameworkId,
-                                  frameworkLabel: r.frameworkLabel ?? r.frameworkId.toUpperCase(),
-                                  preselectedControlIds: r.controlIds ?? [],
-                                }
-                              : undefined,
-                          });
-                        }}
-                      >
-                        Lag tilbud
-                      </Button>
-                      {r.frameworkId && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-8 text-xs gap-1.5"
-                          onClick={() => openGap(r.frameworkId)}
-                        >
-                          Kjør gap-analyse
-                          {typeof r.openGaps === "number" && (
-                            <Badge variant="secondary" className="h-4 px-1 text-xs ml-0.5">
-                              {r.openGaps}
-                            </Badge>
+        <TabsContent value="recommended" className="mt-0">
+          <Card className="overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Tjeneste</TableHead>
+                  <TableHead className="w-[110px]">Tiltak</TableHead>
+                  <TableHead className="w-[90px] text-right">Timer</TableHead>
+                  <TableHead className="w-[130px] text-right">Sum</TableHead>
+                  <TableHead className="w-[110px]">Regelverk</TableHead>
+                  <TableHead className="w-[220px] text-right">Handlinger</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {RECOMMENDATIONS.map(r => {
+                  const Icon = r.icon;
+                  const isHighlighted = highlightedTitle === r.title;
+                  const totalHours = r.tasks.reduce((s, t) => s + t.hours, 0);
+                  const totalPrice = totalHours * r.hourlyRate;
+                  return (
+                    <TableRow
+                      key={r.id}
+                      ref={(el) => { recCardRefs.current[r.title] = el; }}
+                      className={cn(isHighlighted && "bg-primary/5")}
+                    >
+                      <TableCell>
+                        <div className="flex items-start gap-3">
+                          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <Icon className="h-4 w-4 text-primary" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold text-foreground">{r.title}</div>
+                            <p className="text-[12px] text-muted-foreground leading-snug mt-0.5">{r.desc}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-[12px] text-foreground tabular-nums">{r.tasks.length}</TableCell>
+                      <TableCell className="text-right text-[12px] text-foreground tabular-nums">{totalHours}</TableCell>
+                      <TableCell className="text-right text-sm font-medium tabular-nums">
+                        {totalPrice.toLocaleString("nb-NO")} kr
+                      </TableCell>
+                      <TableCell>
+                        {r.frameworkLabel ? (
+                          <Badge variant="outline" className="text-xs gap-1">
+                            <FileText className="h-3 w-3" />
+                            {r.frameworkLabel}
+                          </Badge>
+                        ) : (
+                          <span className="text-[12px] text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => {
+                              setOfferCtx({
+                                open: true,
+                                serviceTitle: r.title,
+                                variant: "Full leveranse",
+                                attachGap: !!r.frameworkId,
+                                gapFrameworkId: r.frameworkId,
+                                defaultTasks: r.tasks,
+                                hourlyRate: r.hourlyRate,
+                                coveredControls: r.frameworkId && r.controlIds?.length
+                                  ? [{ frameworkId: r.frameworkId, frameworkLabel: r.frameworkLabel ?? r.frameworkId.toUpperCase(), controlIds: r.controlIds }]
+                                  : undefined,
+                                coveredGaps: r.frameworkId
+                                  ? {
+                                      frameworkId: r.frameworkId,
+                                      frameworkLabel: r.frameworkLabel ?? r.frameworkId.toUpperCase(),
+                                      preselectedControlIds: r.controlIds ?? [],
+                                    }
+                                  : undefined,
+                              });
+                            }}
+                          >
+                            Lag tilbud
+                          </Button>
+                          {r.frameworkId && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 text-xs gap-1.5"
+                              onClick={() => openGap(r.frameworkId)}
+                            >
+                              Gap-analyse
+                              {typeof r.openGaps === "number" && (
+                                <Badge variant="secondary" className="h-4 px-1 text-xs ml-0.5">
+                                  {r.openGaps}
+                                </Badge>
+                              )}
+                            </Button>
                           )}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Card>
         </TabsContent>
+
 
         <TabsContent value="ongoing" className="mt-0">
           {savedOffers.length === 0 ? (
