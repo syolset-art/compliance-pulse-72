@@ -233,21 +233,6 @@ export function MSPCustomerMessagesTab() {
 
   return (
     <div className="space-y-5">
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card className="p-3 bg-muted/30 border-border/60">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Sendte tilbud</p>
-          <p className="text-2xl font-bold text-foreground mt-1">{allOffers.length}</p>
-        </Card>
-        <Card className="p-3 bg-muted/30 border-border/60">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Godkjent</p>
-          <p className="text-2xl font-bold text-success mt-1">{approvedOffers.length + approvedReports.length}</p>
-        </Card>
-        <Card className="p-3 bg-muted/30 border-border/60">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Avventer svar</p>
-          <p className="text-2xl font-bold text-warning mt-1">{sent.length + pendingReports.length}</p>
-        </Card>
-      </div>
 
       {/* Delivery reports awaiting customer approval */}
       {(pendingReports.length > 0 || approvedReports.length > 0) && (
