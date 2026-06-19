@@ -153,20 +153,6 @@ export const LaraAgent = ({ onOpenAssetDialog, onToggleChat, isChatOpen = false 
       <div className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 transition-silk ${isChatOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 scale-100'}`}>
         {!isOpen && (
           <div className="relative flex items-end gap-2">
-            {/* Inbox button */}
-            <button
-              onClick={() => navigate("/customer-requests?tab=inbox")}
-              className="relative group flex items-center justify-center h-12 w-12 rounded-full bg-card border border-border shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-              title="Lara Innboks"
-            >
-              <Inbox className="h-5 w-5 text-foreground/70 group-hover:text-primary transition-colors" />
-              {globalInboxCount > 0 && (
-                <Badge className="absolute -top-1.5 -right-1.5 h-5 min-w-5 px-1 text-[13px] bg-primary text-primary-foreground shadow-md">
-                  {globalInboxCount}
-                </Badge>
-              )}
-            </button>
-
             <button
               onClick={() => setIsOpen(true)}
               className="relative group animate-float-in"
