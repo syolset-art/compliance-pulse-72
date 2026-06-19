@@ -384,12 +384,6 @@ export function LaraRecommendationBanner({
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <p className="text-[12px] text-muted-foreground">
-          {isNb ? "Utsatte og avviste forslag finner du i " : "Snoozed and dismissed suggestions live in the "}
-          <button className="text-primary hover:underline" onClick={() => navigate("/lara-inbox")}>
-            {isNb ? "Lara-innboksen" : "Lara inbox"}
-          </button>.
-        </p>
       </div>
 
       {/* Footer */}
