@@ -52,44 +52,59 @@ export function CustomerDocumentationTab({ customerId, customerName }: Props) {
   };
 
   return (
-    <div className="space-y-5">
-      {/* Forklaring */}
-      <Card className="p-4 sm:p-5 border-border">
-        <div className="flex items-start gap-3">
-          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-            <FileText className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-sm font-semibold text-foreground">Dokumentasjon</h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Gi Lara tilgang til {customerName} sin dokumentasjon — DPA-er, policyer,
-              hendelsesplaner og andre filer. Lara leser dokumentene og bruker dem som
-              grunnlag for baseline-svar, gap-analyse og forslag til tiltak.
-            </p>
-          </div>
+    <div className="space-y-4">
+      {/* Header med info-ikon i stedet for fullt kort */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h2 className="text-base font-semibold text-foreground">Dokumentasjon</h2>
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button type="button" className="text-muted-foreground hover:text-foreground transition-colors p-0.5">
+                  <Info className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-xs bg-popover border border-border p-3 text-popover-foreground shadow-md rounded-md">
+                <p className="text-xs leading-relaxed">
+                  Gi Lara tilgang til {customerName} sin dokumentasjon — DPA-er, policyer,
+                  hendelsesplaner og andre filer. Lara leser dokumentene og bruker dem som
+                  grunnlag for baseline-svar, gap-analyse og forslag til tiltak.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-      </Card>
+      </div>
 
       {/* Samtykke / tilgang */}
-      <Card className="p-4 sm:p-5 border-primary/20 bg-primary/5">
-        <div className="flex items-start gap-3">
-          <div className="h-9 w-9 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
-            <ShieldCheck className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">
-                  Lara kan få lese-tilgang til opplastede dokumenter
-                </p>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Når tilgang er på, kan Lara sitere dokumenter og oppdatere baseline-svar
-                  automatisk når innholdet endres.
-                </p>
-              </div>
-              <Switch checked={access} onCheckedChange={toggleAccess} />
+      <Card className="p-4 sm:p-5 border-border bg-card">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0 flex items-center gap-1.5">
+              <p className="text-sm font-medium text-foreground">
+                Lara kan få lese-tilgang til opplastede dokumenter
+              </p>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button type="button" className="text-muted-foreground hover:text-foreground transition-colors p-0.5">
+                      <Info className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs bg-popover border border-border p-3 text-popover-foreground shadow-md rounded-md">
+                    <p className="text-xs leading-relaxed">
+                      Når tilgang er på, kan Lara sitere dokumenter og oppdatere baseline-svar
+                      automatisk når innholdet endres.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
+          <Switch checked={access} onCheckedChange={toggleAccess} />
         </div>
       </Card>
 
