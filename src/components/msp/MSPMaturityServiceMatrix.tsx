@@ -729,12 +729,12 @@ export function MSPMaturityServiceMatrix({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tjeneste</TableHead>
-                  <TableHead className="w-[110px]">Tiltak</TableHead>
-                  <TableHead className="w-[90px] text-right">Timer</TableHead>
-                  <TableHead className="w-[130px] text-right">Sum</TableHead>
-                  <TableHead className="w-[110px]">Regelverk</TableHead>
-                  <TableHead className="w-[220px] text-right">Handlinger</TableHead>
+                  <TableHead className="text-left">Tjeneste</TableHead>
+                  <TableHead className="w-[110px] text-left">Tiltak</TableHead>
+                  <TableHead className="w-[90px] text-left">Timer</TableHead>
+                  <TableHead className="w-[130px] text-left">Sum</TableHead>
+                  <TableHead className="w-[110px] text-left">Regelverk</TableHead>
+                  <TableHead className="w-[220px] text-left">Handlinger</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -840,13 +840,13 @@ export function MSPMaturityServiceMatrix({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[110px]">Tilbudsnr.</TableHead>
-                    <TableHead>Tjeneste</TableHead>
-                    <TableHead className="w-[120px]">Regelverk</TableHead>
-                    <TableHead className="w-[120px]">Laget</TableHead>
-                    <TableHead className="w-[140px]">Av</TableHead>
-                    <TableHead className="w-[140px] text-right">Sum</TableHead>
-                    <TableHead className="w-[100px] text-right">Handlinger</TableHead>
+                    <TableHead className="w-[110px] text-left">Tilbudsnr.</TableHead>
+                    <TableHead className="text-left">Tjeneste</TableHead>
+                    <TableHead className="w-[120px] text-left">Regelverk</TableHead>
+                    <TableHead className="w-[120px] text-left">Laget</TableHead>
+                    <TableHead className="w-[140px] text-left">Av</TableHead>
+                    <TableHead className="w-[140px] text-left">Sum</TableHead>
+                    <TableHead className="w-[100px] text-left">Handlinger</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
