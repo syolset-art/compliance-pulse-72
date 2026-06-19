@@ -373,11 +373,17 @@ export default function MSPDashboard() {
 
   const handleSeed = async () => {
     try {
-      await seedDemoMSP();
+      const r = await seedDemoMSP();
       queryClient.invalidateQueries({ queryKey: ["msp-customers"] });
       queryClient.invalidateQueries({ queryKey: ["msp-licenses"] });
       queryClient.invalidateQueries({ queryKey: ["msp-purchases"] });
-      toast.success("Demo-data lastet inn");
+      if (r.alreadySeeded) {
+        toast.success("Demo-data er allerede lastet");
+      } else {
+        toast.success(
+          `Demo lastet: ${r.customers} kunder, ${r.licenses} lisenser, ${r.purchases} kjøp, ${r.invoices} fakturaer`
+        );
+      }
     } catch (e: any) {
       toast.error(e.message || "Kunne ikke laste demo-data");
     }
