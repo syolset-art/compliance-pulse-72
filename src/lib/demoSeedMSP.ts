@@ -15,97 +15,148 @@ const DEMO_CUSTOMERS = [
 
 const DEMO_USER_ID = "00000000-0000-0000-0000-000000000000";
 
-export async function seedDemoMSP() {
+export interface SeedResult {
+  customers: number;
+  purchases: number;
+  licenses: number;
+  invoices: number;
+  alreadySeeded: boolean;
+}
+
+export async function seedDemoMSP(): Promise<SeedResult> {
   const { data: { user } } = await supabase.auth.getUser();
   const effectiveUserId = user?.id || DEMO_USER_ID;
-
-  // Check if demo data already exists
-  const { data: existing } = await supabase
-    .from("msp_customers" as any)
-    .select("id")
-    .eq("msp_user_id", effectiveUserId)
-    .limit(1);
-  if (existing && existing.length > 0) return;
 
   const basisTier = LICENSE_TIERS.find(t => t.id === "basis")!;
   const premiumTier = LICENSE_TIERS.find(t => t.id === "premium")!;
 
-  // Purchase 1: 5 Basis licenses
   const qty1 = 5;
   const disc1 = getDiscountPercent(qty1);
   const total1 = Math.round(qty1 * basisTier.priceOre * (1 - disc1 / 100));
-
-  // Purchase 2: 3 Premium licenses
   const qty2 = 3;
   const disc2 = getDiscountPercent(qty2);
   const total2 = Math.round(qty2 * premiumTier.priceOre * (1 - disc2 / 100));
 
-  const { data: purchases, error: pErr } = await supabase
+  // 1) Purchases — seed only if none exist
+  const { data: existingPurchases } = await supabase
     .from("msp_license_purchases" as any)
-    .insert([
-      { msp_user_id: effectiveUserId, quantity: qty1, unit_price: basisTier.priceOre, discount_percent: disc1, total_amount: total1, status: "active" },
-      { msp_user_id: effectiveUserId, quantity: qty2, unit_price: premiumTier.priceOre, discount_percent: disc2, total_amount: total2, status: "active" },
-    ])
-    .select("id");
-  if (pErr) { console.error("Seed purchases failed:", pErr); return; }
+    .select("id, quantity")
+    .eq("msp_user_id", effectiveUserId);
 
-  const p1Id = (purchases as any[])[0].id;
-  const p2Id = (purchases as any[])[1].id;
+  let p1Id: string;
+  let p2Id: string;
 
-  // Create 8 licenses (5 basis + 3 premium)
-  const licenseRows: any[] = [];
-  for (let i = 0; i < qty1; i++) licenseRows.push({ purchase_id: p1Id, msp_user_id: effectiveUserId, status: "available" });
-  for (let i = 0; i < qty2; i++) licenseRows.push({ purchase_id: p2Id, msp_user_id: effectiveUserId, status: "available" });
-
-  const { data: licenses, error: lErr } = await supabase
-    .from("msp_licenses" as any)
-    .insert(licenseRows)
-    .select("id");
-  if (lErr) { console.error("Seed licenses failed:", lErr); return; }
-
-  const licIds = (licenses as any[]).map(l => l.id);
-
-  // Insert 9 customers; assign a license to first 6
-  const customerRows = DEMO_CUSTOMERS.map((c, i) => ({
-    ...c,
-    msp_user_id: effectiveUserId,
-    onboarding_completed: c.status === "active",
-    active_frameworks: c.subscription_plan === "Premium" ? ["ISO 27001", "GDPR"] : ["GDPR"],
-  }));
-
-  const { data: customers, error: cErr } = await supabase
-    .from("msp_customers" as any)
-    .insert(customerRows)
-    .select("id");
-  if (cErr) { console.error("Seed customers failed:", cErr); return; }
-
-  const custIds = (customers as any[]).map(c => c.id);
-
-  // Assign licenses to first 6 customers
-  for (let i = 0; i < Math.min(6, licIds.length, custIds.length); i++) {
-    await supabase
-      .from("msp_licenses" as any)
-      .update({ assigned_customer_id: custIds[i], status: "assigned" })
-      .eq("id", licIds[i]);
+  if (!existingPurchases || existingPurchases.length === 0) {
+    const { data: inserted, error: pErr } = await supabase
+      .from("msp_license_purchases" as any)
+      .insert([
+        { msp_user_id: effectiveUserId, quantity: qty1, unit_price: basisTier.priceOre, discount_percent: disc1, total_amount: total1, status: "active" },
+        { msp_user_id: effectiveUserId, quantity: qty2, unit_price: premiumTier.priceOre, discount_percent: disc2, total_amount: total2, status: "active" },
+      ])
+      .select("id");
+    if (pErr) throw new Error(`Lisenskjøp: ${pErr.message}`);
+    p1Id = (inserted as any[])[0].id;
+    p2Id = (inserted as any[])[1].id;
+  } else {
+    p1Id = (existingPurchases as any[])[0].id;
+    p2Id = (existingPurchases as any[])[1]?.id || p1Id;
   }
 
-  // Create 2 invoices
-  await supabase.from("msp_invoices" as any).insert([
-    { msp_user_id: effectiveUserId, invoice_number: "DEMO-2025-001", description: `${qty1}x Basis-lisens (demo)`, amount: total1, status: "paid", paid_at: new Date().toISOString() },
-    { msp_user_id: effectiveUserId, invoice_number: "DEMO-2025-002", description: `${qty2}x Premium-lisens (demo)`, amount: total2, status: "paid", paid_at: new Date().toISOString() },
-  ]);
+  // 2) Licenses — seed only if none exist
+  const { data: existingLicenses } = await supabase
+    .from("msp_licenses" as any)
+    .select("id")
+    .eq("msp_user_id", effectiveUserId);
+
+  let licIds: string[];
+  if (!existingLicenses || existingLicenses.length === 0) {
+    const licenseRows: any[] = [];
+    for (let i = 0; i < qty1; i++) licenseRows.push({ purchase_id: p1Id, msp_user_id: effectiveUserId, status: "available" });
+    for (let i = 0; i < qty2; i++) licenseRows.push({ purchase_id: p2Id, msp_user_id: effectiveUserId, status: "available" });
+
+    const { data: inserted, error: lErr } = await supabase
+      .from("msp_licenses" as any)
+      .insert(licenseRows)
+      .select("id");
+    if (lErr) throw new Error(`Lisenser: ${lErr.message}`);
+    licIds = (inserted as any[]).map(l => l.id);
+  } else {
+    licIds = (existingLicenses as any[]).map(l => l.id);
+  }
+
+  // 3) Customers — seed only if none exist
+  const { data: existingCustomers } = await supabase
+    .from("msp_customers" as any)
+    .select("id")
+    .eq("msp_user_id", effectiveUserId);
+
+  let custIds: string[];
+  let customersInserted = 0;
+  if (!existingCustomers || existingCustomers.length === 0) {
+    const customerRows = DEMO_CUSTOMERS.map((c) => ({
+      ...c,
+      msp_user_id: effectiveUserId,
+      onboarding_completed: c.status === "active",
+      active_frameworks: c.subscription_plan === "Premium" ? ["ISO 27001", "GDPR"] : ["GDPR"],
+    }));
+    const { data: inserted, error: cErr } = await supabase
+      .from("msp_customers" as any)
+      .insert(customerRows)
+      .select("id");
+    if (cErr) throw new Error(`Kunder: ${cErr.message}`);
+    custIds = (inserted as any[]).map(c => c.id);
+    customersInserted = custIds.length;
+
+    // Assign licenses to first 6 customers
+    for (let i = 0; i < Math.min(6, licIds.length, custIds.length); i++) {
+      await supabase
+        .from("msp_licenses" as any)
+        .update({ assigned_customer_id: custIds[i], status: "assigned" })
+        .eq("id", licIds[i]);
+    }
+  } else {
+    custIds = (existingCustomers as any[]).map(c => c.id);
+  }
+
+  // 4) Invoices — seed only if none exist
+  const { data: existingInvoices } = await supabase
+    .from("msp_invoices" as any)
+    .select("id")
+    .eq("msp_user_id", effectiveUserId);
+
+  let invoicesInserted = 0;
+  if (!existingInvoices || existingInvoices.length === 0) {
+    const { data: inserted, error: iErr } = await supabase.from("msp_invoices" as any).insert([
+      { msp_user_id: effectiveUserId, invoice_number: "DEMO-2025-001", description: `${qty1}x Basis-lisens (demo)`, amount: total1, status: "paid", paid_at: new Date().toISOString() },
+      { msp_user_id: effectiveUserId, invoice_number: "DEMO-2025-002", description: `${qty2}x Premium-lisens (demo)`, amount: total2, status: "paid", paid_at: new Date().toISOString() },
+    ]).select("id");
+    if (iErr) throw new Error(`Fakturaer: ${iErr.message}`);
+    invoicesInserted = (inserted as any[])?.length || 0;
+  }
+
+  const alreadySeeded =
+    (existingPurchases?.length || 0) > 0 &&
+    (existingLicenses?.length || 0) > 0 &&
+    (existingCustomers?.length || 0) > 0 &&
+    (existingInvoices?.length || 0) > 0;
+
+  return {
+    customers: customersInserted,
+    purchases: existingPurchases?.length ? 0 : 2,
+    licenses: existingLicenses?.length ? 0 : qty1 + qty2,
+    invoices: invoicesInserted,
+    alreadySeeded,
+  };
 }
 
 export async function deleteDemoMSP() {
   const { data: { user } } = await supabase.auth.getUser();
   const effectiveUserId = user?.id || DEMO_USER_ID;
 
-  // Delete in correct order: invoices, licenses, purchases, customers
   await supabase.from("msp_invoices" as any).delete().eq("msp_user_id", effectiveUserId);
   await supabase.from("msp_licenses" as any).delete().eq("msp_user_id", effectiveUserId);
   await supabase.from("msp_license_purchases" as any).delete().eq("msp_user_id", effectiveUserId);
 
-  // Delete assessments for user's customers first
   const { data: custs } = await supabase.from("msp_customers" as any).select("id").eq("msp_user_id", effectiveUserId);
   if (custs && custs.length > 0) {
     const ids = (custs as any[]).map(c => c.id);
