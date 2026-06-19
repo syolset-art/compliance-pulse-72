@@ -33,12 +33,12 @@ export async function seedDemoMSP() {
   // Purchase 1: 5 Basis licenses
   const qty1 = 5;
   const disc1 = getDiscountPercent(qty1);
-  const total1 = qty1 * basisTier.priceOre * (1 - disc1 / 100);
+  const total1 = Math.round(qty1 * basisTier.priceOre * (1 - disc1 / 100));
 
   // Purchase 2: 3 Premium licenses
   const qty2 = 3;
   const disc2 = getDiscountPercent(qty2);
-  const total2 = qty2 * premiumTier.priceOre * (1 - disc2 / 100);
+  const total2 = Math.round(qty2 * premiumTier.priceOre * (1 - disc2 / 100));
 
   const { data: purchases, error: pErr } = await supabase
     .from("msp_license_purchases" as any)
