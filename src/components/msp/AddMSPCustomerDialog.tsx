@@ -484,59 +484,97 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           </>
         )}
 
-        {/* Step: Acronis tenant picker */}
+        {/* Step: Acronis tenant picker (multi-select, direct import) */}
         {step === "acronis" && (
           <>
             <DialogHeader>
               <DialogTitle className="text-lg flex items-center gap-2">
                 <Server className="h-4 w-4 text-primary" />
-                Hent kunde fra Acronis
+                Hent kunder fra Acronis
               </DialogTitle>
               <DialogDescription className="text-sm">
-                Vi fant {ACRONIS_DEMO_TENANTS.length} tenants i din Acronis-konto. Velg én for å opprette kunde og Trust Profile.
+                Velg én eller flere tenants. Kunder opprettes med data fra Acronis – kontaktperson og kartlegging kan legges til etterpå.
               </DialogDescription>
             </DialogHeader>
-            <div className="flex items-center gap-2 rounded-md border border-success/30 bg-success/5 px-3 py-2 text-xs text-success mb-3">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Acronis-integrasjon koblet til
+            <div className="flex items-center justify-between gap-2 rounded-md border border-success/30 bg-success/5 px-3 py-2 text-xs text-success mb-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Acronis-integrasjon koblet til
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (acronisSelected.size === ACRONIS_DEMO_TENANTS.length) {
+                    setAcronisSelected(new Set());
+                  } else {
+                    setAcronisSelected(new Set(ACRONIS_DEMO_TENANTS.map((t) => t.tenant_id)));
+                  }
+                }}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                {acronisSelected.size === ACRONIS_DEMO_TENANTS.length ? "Fjern alle" : "Velg alle"}
+              </button>
             </div>
             <div className="space-y-2 max-h-[360px] overflow-y-auto">
-              {ACRONIS_DEMO_TENANTS.map((t) => (
-                <button
-                  key={t.tenant_id}
-                  onClick={() => {
-                    setSelectedCompany({
-                      organisasjonsnummer: t.org_number,
-                      navn: t.name,
-                      naeringskode1: { kode: "", beskrivelse: t.industry },
-                      antallAnsatte: t.employees,
-                    } as BrregResult);
-                    setForm((f) => ({ ...f, country_code: "NO" }));
-                    setStep("contact");
-                  }}
-                  className="w-full flex items-start gap-3 rounded-lg border border-border p-3 text-left hover:border-primary hover:bg-primary/5 transition-colors"
-                >
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary mt-0.5">
-                    <Building2 className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-foreground truncate">{t.name}</p>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-0.5">
-                      <span>Tenant: {t.tenant_id}</span>
-                      <span>Org.nr: {t.org_number}</span>
-                      <span>{t.devices} enheter</span>
-                      <span>{t.employees} ansatte</span>
+              {ACRONIS_DEMO_TENANTS.map((t) => {
+                const checked = acronisSelected.has(t.tenant_id);
+                return (
+                  <button
+                    key={t.tenant_id}
+                    type="button"
+                    onClick={() => {
+                      setAcronisSelected((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(t.tenant_id)) next.delete(t.tenant_id);
+                        else next.add(t.tenant_id);
+                        return next;
+                      });
+                    }}
+                    className={`w-full flex items-start gap-3 rounded-lg border p-3 text-left transition-colors ${
+                      checked ? "border-primary bg-primary/5" : "border-border hover:border-primary hover:bg-primary/5"
+                    }`}
+                  >
+                    <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border mt-1 ${
+                      checked ? "bg-primary border-primary text-primary-foreground" : "border-border"
+                    }`}>
+                      {checked && <CheckCircle2 className="h-4 w-4" />}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5 truncate">{t.industry}</p>
-                  </div>
-                </button>
-              ))}
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-foreground truncate">{t.name}</p>
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-0.5">
+                        <span>Tenant: {t.tenant_id}</span>
+                        <span>Org.nr: {t.org_number}</span>
+                        <span>{t.devices} enheter</span>
+                        <span>{t.employees} ansatte</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{t.industry}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-            <Button variant="ghost" size="sm" onClick={() => setStep("method")} className="gap-1 mt-3">
-              <ArrowLeft className="h-4 w-4" /> Tilbake
-            </Button>
+            <div className="flex items-center justify-between gap-2 mt-4">
+              <Button variant="ghost" size="sm" onClick={() => setStep("method")} className="gap-1">
+                <ArrowLeft className="h-4 w-4" /> Tilbake
+              </Button>
+              <Button
+                size="sm"
+                disabled={acronisSelected.size === 0 || acronisImporting}
+                onClick={handleAcronisImport}
+              >
+                {acronisImporting ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Importerer...</>
+                ) : (
+                  <>Importer {acronisSelected.size > 0 ? `${acronisSelected.size} ` : ""}kunde{acronisSelected.size === 1 ? "" : "r"}</>
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              Du kan legge til kontaktperson og fullføre kartlegging fra hver kundeprofil senere.
+            </p>
           </>
         )}
+
 
         {/* Step: Country selection */}
         {step === "country" && (
