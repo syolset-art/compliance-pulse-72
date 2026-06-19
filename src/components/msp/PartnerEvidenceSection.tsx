@@ -21,6 +21,8 @@ interface Props {
   uploaderName?: string;
   /** Hide the internal upload button (use when an external trigger controls the dialog). */
   hideUploadButton?: boolean;
+  /** Hide the outer card and header (useful for embedding in other cards). */
+  minimal?: boolean;
   /** Controlled open state (optional). When provided, the section uses it instead of internal state. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
