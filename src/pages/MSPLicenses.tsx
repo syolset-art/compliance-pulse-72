@@ -17,8 +17,15 @@ export default function MSPLicenses() {
   };
 
   const handleSeed = async () => {
-    try { await seedDemoMSP(); invalidate(); toast.success("Demo-data lastet inn"); }
-    catch (e: any) { toast.error(e.message || "Kunne ikke laste demo-data"); }
+    try {
+      const r = await seedDemoMSP();
+      invalidate();
+      toast.success(
+        r.alreadySeeded
+          ? "Demo-data er allerede lastet"
+          : `Demo lastet: ${r.customers} kunder, ${r.licenses} lisenser, ${r.purchases} kjøp, ${r.invoices} fakturaer`
+      );
+    } catch (e: any) { toast.error(e.message || "Kunne ikke laste demo-data"); }
   };
 
   const handleDelete = async () => {
