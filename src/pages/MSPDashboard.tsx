@@ -733,7 +733,7 @@ export default function MSPDashboard() {
                                       className="inline-flex"
                                       title={`Åpne tjenester for ${c.customer_name}`}
                                     >
-                                      <Badge variant="outline" className="font-normal bg-primary/5 text-primary border-primary/20 text-[12px] cursor-pointer hover:bg-primary/10 transition-colors">
+                                      <Badge variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[12px] cursor-pointer hover:bg-primary/20 transition-colors">
                                         {s}
                                       </Badge>
                                     </button>
