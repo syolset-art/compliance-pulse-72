@@ -44,6 +44,7 @@ export function LaraRecommendationBanner({
   onPrimaryAction,
   onSecondaryAction,
   onReadMore,
+  onLaraAutoRun,
   hideDismiss = false,
 }: Props) {
   const { i18n } = useTranslation();
