@@ -112,6 +112,10 @@ export function ControlAreaBreakdownDrawer({
         </SheetHeader>
 
         <div className="space-y-6 py-5">
+          {/* 
+            NOTAT: Regelverkene som vises under er de regelverkene som kunden 
+            faktisk har aktivert (`activeFrameworkIds`).
+          */}
           {/* Aktive regelverk */}
           <section className="space-y-2">
             <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
