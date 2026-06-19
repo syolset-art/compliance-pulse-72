@@ -194,6 +194,14 @@ export function PartnerEvidenceSection({
         partnerName={partnerName}
         uploaderName={uploaderName}
       />
+    </div>
+  );
+
+  if (minimal) return content;
+
+  return (
+    <Card className="p-4 space-y-4 border-primary/20 bg-gradient-to-br from-primary/[0.03] via-card to-transparent">
+      {content}
     </Card>
   );
 }
