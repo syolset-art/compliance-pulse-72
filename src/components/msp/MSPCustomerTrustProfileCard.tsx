@@ -109,6 +109,7 @@ export function MSPCustomerTrustProfileCard({
   const [invited, setInvited] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [openArea, setOpenArea] = useState<ControlAreaKey | null>(null);
+  const [showBannerDetails, setShowBannerDetails] = useState(false);
 
   // Bygg domeneliste fra de kanoniske 5 kontrollområdene
   const controlDomains: ControlDomain[] = useMemo(
