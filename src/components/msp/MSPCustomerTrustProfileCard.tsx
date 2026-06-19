@@ -19,6 +19,7 @@ import {
   Info,
   ChevronRight,
   Plus,
+  Mail,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
