@@ -108,8 +108,8 @@ function statusBadge(s?: OfferStatus) {
   }
   if (s === "pending") {
     return (
-      <Badge variant="outline" className="text-xs bg-warning/10 text-warning border-warning/30 gap-1">
-        <Clock className="h-3 w-3" /> Avventer svar
+      <Badge variant="outline" className="text-xs bg-warning/10 text-warning border-warning/30 gap-1 whitespace-nowrap">
+        <Clock className="h-3 w-3" /> Avventer
       </Badge>
     );
   }
