@@ -70,6 +70,8 @@ export default function MSPCustomerDetail() {
   const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean }>({ open: false, review: false });
   const [isLaraSuggesting, setIsLaraSuggesting] = useState(false);
   const [mandateDialogOpen, setMandateDialogOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  usePageHelpListener(setHelpOpen);
   const mandate = useMandate(customerId || "");
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, laraRationales: baselineRationales, setLaraRationales: setBaselineRationales, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
