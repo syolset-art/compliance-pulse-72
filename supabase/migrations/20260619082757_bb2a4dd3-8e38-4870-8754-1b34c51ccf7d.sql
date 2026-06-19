@@ -1,0 +1,12 @@
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.msp_customers TO anon, authenticated;
+GRANT ALL ON public.msp_customers TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.msp_licenses TO anon, authenticated;
+GRANT ALL ON public.msp_licenses TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.msp_license_purchases TO anon, authenticated;
+GRANT ALL ON public.msp_license_purchases TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.msp_invoices TO anon, authenticated;
+GRANT ALL ON public.msp_invoices TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.msp_customer_assessments TO anon, authenticated;
+GRANT ALL ON public.msp_customer_assessments TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.msp_billing_settings TO anon, authenticated;
+GRANT ALL ON public.msp_billing_settings TO service_role;
