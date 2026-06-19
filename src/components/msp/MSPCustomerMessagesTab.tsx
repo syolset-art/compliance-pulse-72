@@ -130,12 +130,13 @@ function OfferTable({ offers }: { offers: Item[] }) {
     <div className="rounded-lg border border-border/60 overflow-hidden bg-card">
       <Table>
         <TableHeader>
-          <TableRow className="hover:bg-transparent border-b border-border/60">
-            <TableHead className="text-xs">Tittel & Beskrivelse</TableHead>
-            <TableHead className="w-[120px] text-xs">Sendt</TableHead>
-            <TableHead className="w-[120px] text-right text-xs">Beløp</TableHead>
-            <TableHead className="w-[120px] text-right text-xs">Status</TableHead>
-            <TableHead className="w-[60px]"></TableHead>
+          <TableRow className="hover:bg-transparent border-b border-border/60 bg-muted/30">
+            <TableHead className="h-9 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Tittel</TableHead>
+            <TableHead className="h-9 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Beskrivelse</TableHead>
+            <TableHead className="h-9 w-[110px] text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Sendt</TableHead>
+            <TableHead className="h-9 w-[120px] text-right text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Beløp</TableHead>
+            <TableHead className="h-9 w-[130px] text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Status</TableHead>
+            <TableHead className="h-9 w-[140px] text-right pr-4 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Handling</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -147,53 +148,51 @@ function OfferTable({ offers }: { offers: Item[] }) {
               <Fragment key={o.id}>
                 <TableRow 
                   className={cn(
-                    "border-b border-border/40 transition-colors hover:bg-muted/30",
-                    hasApproval && "cursor-pointer",
-                    isExpanded && "bg-muted/30"
+                    "border-b border-border/40 transition-colors hover:bg-muted/20",
+                    isExpanded && "bg-muted/20"
                   )}
-                  onClick={() => {
-                    if (hasApproval) {
-                      setExpandedId(isExpanded ? null : o.id);
-                    }
-                  }}
                 >
-                  <TableCell className="py-3">
-                    <div className="space-y-0.5">
-                      <p className="text-[13px] font-semibold text-foreground">{o.title}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">{o.desc}</p>
-                    </div>
+                  <TableCell className="py-2.5 align-middle">
+                    <p className="text-[13px] font-semibold text-foreground">{o.title}</p>
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground py-3">
+                  <TableCell className="py-2.5 align-middle">
+                    <p className="text-xs text-muted-foreground leading-snug line-clamp-2 max-w-md">{o.desc}</p>
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground py-2.5 align-middle whitespace-nowrap">
                     {o.date}
                   </TableCell>
-                  <TableCell className="text-right text-[13px] font-semibold text-foreground py-3">
+                  <TableCell className="text-right text-[13px] font-semibold text-foreground py-2.5 align-middle tabular-nums whitespace-nowrap">
                     {o.amount}
                   </TableCell>
-                  <TableCell className="text-right py-3">
-                    <div className="flex justify-end">
-                      {statusBadge(o.status)}
-                    </div>
+                  <TableCell className="py-2.5 align-middle">
+                    {statusBadge(o.status)}
                   </TableCell>
-                  <TableCell className="text-right py-3 pr-4">
-                    {hasApproval && (
+                  <TableCell className="text-right py-2.5 pr-4 align-middle">
+                    {hasApproval ? (
                       <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setExpandedId(isExpanded ? null : o.id);
-                        }}
+                        variant="outline" 
+                        size="sm" 
+                        className="h-7 text-xs gap-1.5"
+                        onClick={() => setExpandedId(isExpanded ? null : o.id)}
                       >
-                        <ShieldCheck className={cn("h-4 w-4 transition-colors", isExpanded ? "text-success" : "opacity-60")} />
+                        <ShieldCheck className="h-3 w-3 text-success" />
+                        {isExpanded ? "Skjul bevis" : "Se bevis"}
+                      </Button>
+                    ) : o.status === "pending" ? (
+                      <Button variant="outline" size="sm" className="h-7 text-xs gap-1.5">
+                        <FileText className="h-3 w-3" /> Åpne
+                      </Button>
+                    ) : (
+                      <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground gap-1.5">
+                        <FileText className="h-3 w-3" /> Detaljer
                       </Button>
                     )}
                   </TableCell>
                 </TableRow>
                 {hasApproval && isExpanded && o.approval && (
                   <TableRow className="bg-muted/10 hover:bg-muted/10 border-b border-border/40">
-                    <TableCell colSpan={5} className="p-4 bg-muted/[0.02]">
-                      <div className="pl-6 py-2 border-l-2 border-success/40 space-y-3 text-xs">
+                    <TableCell colSpan={6} className="p-4">
+                      <div className="pl-4 border-l-2 border-success/40 space-y-3 text-xs">
                         <div className="font-semibold text-success flex items-center gap-1.5">
                           <ShieldCheck className="h-4 w-4" /> Bevis på godkjenning
                         </div>
@@ -239,6 +238,7 @@ function OfferTable({ offers }: { offers: Item[] }) {
     </div>
   );
 }
+
 
 function MessageTable({ messages }: { messages: Item[] }) {
   return (
