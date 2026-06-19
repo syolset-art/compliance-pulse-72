@@ -341,10 +341,10 @@ export function MSPCustomerTrustProfileCard({
       />
 
 
-      {/* Dokumenter og bevis */}
+      {/* Ressurser */}
       <Card className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-foreground">Dokumenter og bevis</h3>
+          <h3 className="text-base font-semibold text-foreground">Ressurser</h3>
           <span className="text-sm text-muted-foreground">{certifications.length + policies.filter(p => p.published).length} publisert · {policies.filter(p => !p.published).length} mangler</span>
         </div>
 
