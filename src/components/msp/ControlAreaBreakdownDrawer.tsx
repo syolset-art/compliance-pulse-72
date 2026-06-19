@@ -236,30 +236,6 @@ export function ControlAreaBreakdownDrawer({
             </section>
           )}
 
-          {/* Slik beregnes scoren */}
-          <section className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
-              <h4 className="text-sm font-semibold text-foreground">
-                Slik beregnes scoren
-              </h4>
-            </div>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              Områdescore = <span className="font-mono">Σ(modenhet × vekt) / Σ(vekt) × 25</span>
-              {" "}— der hvert kontrollpunkt får modenhet 0–4 og vekt 1.0 (MVP).
-            </p>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              Områdets vekt i den samlede Trust Score er <strong>{weightPct}%</strong>.
-              Når nye regelverk aktiveres, øker antall kontrollpunkter — men områdevekten holdes konstant.
-            </p>
-            <Link
-              to="/resources/maturity"
-              className="inline-flex items-center gap-1 text-sm font-medium text-foreground underline underline-offset-4 decoration-primary/60 hover:decoration-primary mt-1"
-            >
-              Les hele metoden
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
-          </section>
         </div>
       </SheetContent>
     </Sheet>
