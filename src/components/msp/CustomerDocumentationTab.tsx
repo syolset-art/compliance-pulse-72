@@ -13,6 +13,12 @@ import {
 } from "lucide-react";
 import { DOCUMENT_SLOTS } from "@/lib/trustMaturityQuestions";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Props {
   customerId: string;
