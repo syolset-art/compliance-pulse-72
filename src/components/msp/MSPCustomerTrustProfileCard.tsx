@@ -148,11 +148,28 @@ export function MSPCustomerTrustProfileCard({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/40 pb-2.5">
         <div>
-          <p className="text-sm text-muted-foreground">{customerName} · Trust Profile</p>
-          <h2 className="text-xl font-semibold text-foreground">Kundens visningskort utad</h2>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-base font-semibold text-foreground">Kundens visningskort utad</h2>
+            <span className="text-muted-foreground/30 text-xs">•</span>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
+              <Lock className="h-3 w-3" aria-hidden="true" />
+              Ikke publisert
+            </span>
+            <span className="text-muted-foreground/30 text-xs">•</span>
+            <button
+              onClick={() => setShowBannerDetails(!showBannerDetails)}
+              className="text-xs text-primary hover:underline font-medium inline-flex items-center gap-1 focus:outline-none"
+            >
+              <Info className="h-3 w-3" aria-hidden="true" />
+              {invited ? `Invitasjon sendt til ${contactName}` : "Ikke aktivert"}
+              <span className="text-muted-foreground/60">({showBannerDetails ? "Skjul info" : "Les mer / Inviter"})</span>
+            </button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">{customerName} · Trust Profile</p>
         </div>
+
         <div className="flex items-center gap-2 shrink-0">
           <TooltipProvider delayDuration={150}>
             <Tooltip>
@@ -162,14 +179,14 @@ export function MSPCustomerTrustProfileCard({
                     variant="outline"
                     size="sm"
                     disabled={!isPublished}
-                    className="gap-1.5 h-9 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="gap-1.5 h-8 text-xs disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {isPublished ? (
-                      <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                      <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
                     ) : (
-                      <Lock className="h-4 w-4" aria-hidden="true" />
+                      <Lock className="h-3.5 w-3.5" aria-hidden="true" />
                     )}
-                    {isPublished ? "Se offentlig visning" : "Ikke publisert ennå"}
+                    {isPublished ? "Se offentlig visning" : "Visningskort"}
                   </Button>
                 </span>
               </TooltipTrigger>
@@ -183,60 +200,50 @@ export function MSPCustomerTrustProfileCard({
         </div>
       </div>
 
-      {/* Aktiverings-banner */}
-      <Card className={`p-3.5 ${invited ? "border-success/30 bg-success/5" : "border-primary/30 bg-primary/5"}`}>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-start gap-2.5 flex-1 min-w-0">
-            {invited ? (
-              <Check className="h-5 w-5 text-success mt-0.5 shrink-0" aria-hidden="true" />
-            ) : (
-              <UserPlus className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
-            )}
-            <div className="space-y-0.5 flex-1">
-              <div className="flex flex-wrap items-center gap-x-2">
+      {/* Aktiverings-banner (kun synlig når utvidet) */}
+      {showBannerDetails && (
+        <Card className={`p-3.5 animate-in fade-in duration-200 ${invited ? "border-success/30 bg-success/5" : "border-primary/30 bg-primary/5"}`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-2.5 flex-1 min-w-0">
+              {invited ? (
+                <Check className="h-5 w-5 text-success mt-0.5 shrink-0" aria-hidden="true" />
+              ) : (
+                <UserPlus className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
+              )}
+              <div className="space-y-0.5 flex-1">
                 <p className="text-sm font-semibold text-foreground">
                   {invited ? `Invitasjon sendt til ${contactName}` : "Kunden har ikke aktivert profilen ennå"}
                 </p>
-                <button 
-                  onClick={() => setShowBannerDetails(!showBannerDetails)}
-                  className="text-xs text-primary hover:underline font-medium focus:outline-none"
-                >
-                  {showBannerDetails ? "Vis mindre" : "Les mer"}
-                </button>
-              </div>
-              <p className="text-xs text-foreground/80 leading-relaxed max-w-3xl">
-                {showBannerDetails ? (
-                  invited ? (
+                <p className="text-xs text-foreground/80 leading-relaxed max-w-3xl">
+                  {invited ? (
                     "Du kan bygge og redigere denne Trust Profilen, og du fortsetter å administrere den også etter at den er publisert. Men den kan ikke publiseres herfra. Først når kunden claimer profilen, blir den én unik Trust Profile som kunden eier - og publisering kan ikke skje før det."
                   ) : (
                     "Du administrerer denne Trust Profilen på vegne av kunden, også etter publisering. Publisering låses opp når kunden claimer profilen - da blir den én unik profil som kunden eier. Inviter kontaktpersonen for å fullføre."
-                  )
-                ) : (
-                  invited ? "Du fortsetter å administrere denne Trust Profilen på vegne av kunden inntil de aktiverer." : "Du administrerer denne Trust Profilen på vegne av kunden inntil de overtar."
-                )}
-              </p>
+                  )}
+                </p>
+              </div>
+            </div>
+            
+            <div className="shrink-0 flex items-center self-end sm:self-center">
+              {!invited ? (
+                <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setInviteOpen(true)}>
+                  <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                  Inviter til å aktivere
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={() => setInviteOpen(true)}
+                >
+                  Send påminnelse
+                </Button>
+              )}
             </div>
           </div>
-          
-          <div className="shrink-0 flex items-center self-end sm:self-center">
-            {!invited ? (
-              <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setInviteOpen(true)}>
-                <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
-                Inviter til å aktivere
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 text-xs"
-                onClick={() => setInviteOpen(true)}
-              >
-                Send påminnelse
-              </Button>
-            )}
-          </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
 
       {/* Kontrollområder per regelverk */}
