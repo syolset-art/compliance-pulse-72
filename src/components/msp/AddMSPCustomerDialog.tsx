@@ -676,44 +676,37 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         {/* Step: Acronis processing */}
         {step === "acronis-processing" && (() => {
           const count = acronisSelected.size;
-          const messages = [
-            { label: `Lara kobler seg til Acronis for å hente de ${count} utvalgte kundene`, hint: "Autentiserer mot Acronis API" },
-            { label: "Henter tenant-data og enhetslister", hint: `${count} tenant${count === 1 ? "" : "s"} prosesseres` },
-            { label: "Beriker med org.nr., bransje og ansatte", hint: "Slår opp i Brønnøysundregistrene" },
-            { label: "Oppretter kunder og Trust Profiler", hint: "Klargjør portefølje" },
-            { label: "Ferdig!", hint: "Åpner kundelisten" },
-          ];
-          const current = messages[Math.min(acronisProgressStep, messages.length - 1)];
+          const progressPercent = Math.min((acronisProgressStep / 4) * 100, 100);
           return (
-            <div className="py-6">
-              <div className="flex flex-col items-center text-center gap-4">
+            <div className="py-8">
+              <div className="flex flex-col items-center text-center gap-6">
                 <div className="relative">
                   <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
                   <div className="relative h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <img src={laraButterfly} alt="Lara" className="h-10 w-10 animate-pulse" />
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="font-medium text-foreground">{current.label}</p>
-                  <p className="text-sm text-muted-foreground">{current.hint}</p>
+                
+                <div className="space-y-2 max-w-xs">
+                  <p className="font-medium text-foreground text-sm tracking-tight leading-relaxed">
+                    Lara kobler seg til Acronis for å hente de {count} utvalgte kundene
+                  </p>
+                  <p className="text-xs text-muted-foreground/80 font-normal">
+                    Oppretter koblinger og klargjør Trust Profiler...
+                  </p>
                 </div>
-                <div className="w-full max-w-xs space-y-2 mt-2">
-                  {messages.slice(0, -1).map((m, i) => {
-                    const done = acronisProgressStep > i;
-                    const active = acronisProgressStep === i;
-                    return (
-                      <div key={i} className="flex items-center gap-2 text-xs">
-                        <div className={`h-4 w-4 shrink-0 rounded-full flex items-center justify-center ${
-                          done ? "bg-success text-success-foreground" : active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-                        }`}>
-                          {done ? <CheckCircle2 className="h-3 w-3" /> : active ? <Loader2 className="h-3 w-3 animate-spin" /> : <span className="text-[10px]">{i + 1}</span>}
-                        </div>
-                        <span className={`text-left ${done ? "text-foreground" : active ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-                          {m.label}
-                        </span>
-                      </div>
-                    );
-                  })}
+
+                <div className="w-full max-w-xs mt-2">
+                  <div className="h-1.5 w-full bg-secondary overflow-hidden rounded-full relative">
+                    <div 
+                      className="h-full bg-primary transition-all duration-700 ease-out rounded-full"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center mt-2 text-[10px] text-muted-foreground/50 tracking-wider font-mono">
+                    <span>ACRONIS TIMEOUT</span>
+                    <span>{Math.round(progressPercent)}%</span>
+                  </div>
                 </div>
               </div>
             </div>
