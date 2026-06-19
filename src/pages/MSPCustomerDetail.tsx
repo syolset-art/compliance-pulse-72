@@ -159,6 +159,7 @@ export default function MSPCustomerDetail() {
   const tasks = [
     mandate !== "confirmed" && {
       severity: "critical" as const,
+      category: "Mandat og fullmakt",
       title: mandate === "requested"
         ? "Venter på fullmakt fra kunden"
         : "Bekreft mandat for å jobbe i kundens profil",
@@ -171,6 +172,7 @@ export default function MSPCustomerDetail() {
     },
     !trustHandoverSent && {
       severity: "critical" as const,
+      category: "Kundeinvitasjon",
       title: "Kunden har ikke overtatt sin Trust Profile",
       desc: "Send en e-post til kunden og be dem overta og signere Trust Profile selv.",
       cta: "Send e-post",
@@ -183,6 +185,7 @@ export default function MSPCustomerDetail() {
     },
     !customer.has_acronis_integration && {
       severity: "high",
+      category: "Integrasjon · Backup",
       title: "Koble til Acronis",
       desc: "Importer enheter og backup-status for kunden.",
       cta: "Koble til manuelt",
@@ -193,15 +196,16 @@ export default function MSPCustomerDetail() {
     },
     (!customer.initial_assessment_score || customer.initial_assessment_score < 50) && {
       severity: "critical",
+      category: "Modenhet · Baseline",
       title: "Fullfør innledende vurdering",
       desc: "Lara trenger svar på sikkerhetsspørsmål for å beregne modenhet.",
       cta: "Start vurdering",
       onClick: () => setActiveTab("assessment"),
-      // Menneskelig input kreves — partner må svare på spørsmål.
       infoGap: "Vurderingen krever at en hos partner svarer på 12 spørsmål basert på kundens drift. Lara kan ikke gjette dette.",
     },
     !customer.active_frameworks?.includes("NIS2") && {
       severity: "medium",
+      category: "Regelverk · NIS2",
       title: "Start NIS2-vurdering",
       desc: "Kunden er ikke kartlagt mot NIS2-rammeverket ennå.",
       cta: "Start manuelt",
@@ -220,6 +224,7 @@ export default function MSPCustomerDetail() {
     },
     !customer.onboarding_completed && {
       severity: "medium",
+      category: "Onboarding",
       title: "Fullfør onboarding",
       desc: "Inviter kunden og overlevér Trust Profile.",
       cta: "Inviter kunde",
@@ -227,6 +232,7 @@ export default function MSPCustomerDetail() {
     },
   ].filter(Boolean) as Array<{
     severity: "critical" | "high" | "medium";
+    category: string;
     title: string;
     desc: string;
     cta: string;
@@ -244,6 +250,7 @@ export default function MSPCustomerDetail() {
     id: `msp-task-${i}-${t.title}`,
     severity: t.severity,
     title: t.title,
+    category: t.category,
     insight: t.desc,
     primaryCtaLabelNb: t.cta,
     primaryCtaLabelEn: t.cta,
