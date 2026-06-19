@@ -335,7 +335,18 @@ export function MSPCustomerTrustProfileCard({
       {/* Ressurser */}
       <Card className="p-4 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-foreground">Ressurser</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-base font-semibold text-foreground">Ressurser</h3>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-full text-primary hover:bg-primary/10" 
+              onClick={() => setEvidenceOpen(true)}
+              title="Last opp partner-bevis"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
           <span className="text-sm text-muted-foreground">{certifications.length + policies.filter(p => p.published).length} publisert · {policies.filter(p => !p.published).length} mangler</span>
         </div>
 
