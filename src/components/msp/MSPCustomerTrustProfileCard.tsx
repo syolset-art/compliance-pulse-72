@@ -389,18 +389,6 @@ export function MSPCustomerTrustProfileCard({
             ))}
           </div>
         </div>
-        {/* Partner-bevis */}
-        <div className="pt-2 border-t border-border/40">
-          {customerId && (
-            <PartnerEvidenceSection
-              customerId={customerId}
-              hideUploadButton
-              minimal
-              open={evidenceOpen}
-              onOpenChange={setEvidenceOpen}
-            />
-          )}
-        </div>
       </Card>
 
       {/* Access requests */}
