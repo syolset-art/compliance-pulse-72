@@ -167,7 +167,6 @@ export function MSPCustomerTrustProfileCard({
               <span className="opacity-80 font-normal">· {showBannerDetails ? "Skjul" : "Les mer / Inviter"}</span>
             </button>
           </div>
-          </div>
           <p className="text-xs text-muted-foreground mt-0.5">{customerName} · Trust Profile</p>
         </div>
 
