@@ -1,7 +1,8 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, ShieldCheck, Sparkles } from "lucide-react";
+import { ExternalLink, ShieldCheck, Sparkles, HelpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   CONTROL_AREA_BY_KEY,
   AREA_WEIGHTS,
@@ -66,9 +67,46 @@ export function ControlAreaBreakdownDrawer({
               <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-lg text-foreground text-left">
-                {def.labelNb}
-              </SheetTitle>
+              <div className="flex items-center gap-1.5 justify-between">
+                <SheetTitle className="text-lg text-foreground text-left">
+                  {def.labelNb}
+                </SheetTitle>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button 
+                      className="p-1 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted/50"
+                      title="Slik beregnes scoren"
+                    >
+                      <HelpCircle className="h-4.5 w-4.5" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent side="bottom" align="end" className="w-80 p-4 space-y-3 bg-popover text-popover-foreground border-border/60 shadow-xl">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
+                      <h4 className="text-sm font-semibold text-foreground">
+                        Slik beregnes scoren
+                      </h4>
+                    </div>
+                    <div className="space-y-2 text-xs text-muted-foreground leading-relaxed">
+                      <p>
+                        Områdescore = <span className="font-mono bg-muted/40 px-1 py-0.5 rounded text-foreground">Σ(modenhet × vekt) / Σ(vekt) × 25</span>
+                        {" "}— der hvert kontrollpunkt får modenhet 0–4 og vekt 1.0.
+                      </p>
+                      <p>
+                        Områdets vekt i den samlede Trust Score er <strong className="text-foreground">{weightPct}%</strong>.
+                        Når nye regelverk aktiveres, øker antall kontrollpunkter — men områdevekten holdes konstant.
+                      </p>
+                      <Link
+                        to="/resources/maturity"
+                        className="inline-flex items-center gap-1 font-medium text-foreground underline underline-offset-4 decoration-primary/60 hover:decoration-primary pt-1"
+                      >
+                        Les hele metoden
+                        <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                      </Link>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
               <SheetDescription className="text-sm text-muted-foreground text-left">
                 {AREA_QUESTION_NB[area]}
               </SheetDescription>
@@ -198,30 +236,6 @@ export function ControlAreaBreakdownDrawer({
             </section>
           )}
 
-          {/* Slik beregnes scoren */}
-          <section className="space-y-2 rounded-lg border border-border/60 bg-muted/20 p-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
-              <h4 className="text-sm font-semibold text-foreground">
-                Slik beregnes scoren
-              </h4>
-            </div>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              Områdescore = <span className="font-mono">Σ(modenhet × vekt) / Σ(vekt) × 25</span>
-              {" "}— der hvert kontrollpunkt får modenhet 0–4 og vekt 1.0 (MVP).
-            </p>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              Områdets vekt i den samlede Trust Score er <strong>{weightPct}%</strong>.
-              Når nye regelverk aktiveres, øker antall kontrollpunkter — men områdevekten holdes konstant.
-            </p>
-            <Link
-              to="/resources/maturity"
-              className="inline-flex items-center gap-1 text-sm font-medium text-foreground underline underline-offset-4 decoration-primary/60 hover:decoration-primary mt-1"
-            >
-              Les hele metoden
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            </Link>
-          </section>
         </div>
       </SheetContent>
     </Sheet>
