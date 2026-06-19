@@ -129,22 +129,81 @@ export function ControlAreaBreakdownDrawer({
             Når Mynder-scoring-API/-hooken er på plass, bytt ut props og lokale beregninger med
             en selektor/hook som leser live-verdier (f.eks. useMynderAreaScore(area)).
           */}
-          <div className="grid grid-cols-2 gap-3 pt-1">
-            <div className="rounded-lg border border-border/40 bg-muted/10 px-3 py-2">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                Områdescore
-              </p>
-              <p className={`text-lg font-semibold tabular-nums mt-0.5 ${tone.text}`}>
-                {areaScore}%
-              </p>
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            {/* Områdescore Sirkel */}
+            <div className="flex items-center gap-3 rounded-xl border border-border/40 bg-muted/10 p-3">
+              <div className="relative flex items-center justify-center shrink-0">
+                <svg className="w-12 h-12 transform -rotate-90">
+                  <circle 
+                    cx="24" 
+                    cy="24" 
+                    r="20" 
+                    className="stroke-muted-foreground/10" 
+                    strokeWidth="3.5" 
+                    fill="transparent" 
+                  />
+                  <circle 
+                    cx="24" 
+                    cy="24" 
+                    r="20" 
+                    className={`stroke-current ${tone.text} transition-all duration-500`} 
+                    strokeWidth="3.5" 
+                    fill="transparent" 
+                    strokeDasharray={2 * Math.PI * 20} 
+                    strokeDashoffset={2 * Math.PI * 20 - (areaScore / 100) * (2 * Math.PI * 20)} 
+                    strokeLinecap="round" 
+                  />
+                </svg>
+                <span className={`absolute text-xs font-bold tabular-nums ${tone.text}`}>
+                  {areaScore}%
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium leading-tight">
+                  Områdescore
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+                  Gjeldende status
+                </p>
+              </div>
             </div>
-            <div className="rounded-lg border border-border/40 bg-muted/10 px-3 py-2">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                Vekt i Trust Score
-              </p>
-              <p className="text-lg font-semibold tabular-nums text-foreground mt-0.5">
-                {weightPct}%
-              </p>
+
+            {/* Vekt i Trust Score Sirkel */}
+            <div className="flex items-center gap-3 rounded-xl border border-border/40 bg-muted/10 p-3">
+              <div className="relative flex items-center justify-center shrink-0">
+                <svg className="w-12 h-12 transform -rotate-90">
+                  <circle 
+                    cx="24" 
+                    cy="24" 
+                    r="20" 
+                    className="stroke-muted-foreground/10" 
+                    strokeWidth="3.5" 
+                    fill="transparent" 
+                  />
+                  <circle 
+                    cx="24" 
+                    cy="24" 
+                    r="20" 
+                    className="stroke-primary transition-all duration-500" 
+                    strokeWidth="3.5" 
+                    fill="transparent" 
+                    strokeDasharray={2 * Math.PI * 20} 
+                    strokeDashoffset={2 * Math.PI * 20 - (weightPct / 100) * (2 * Math.PI * 20)} 
+                    strokeLinecap="round" 
+                  />
+                </svg>
+                <span className="absolute text-xs font-bold tabular-nums text-foreground">
+                  {weightPct}%
+                </span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium leading-tight">
+                  Vekt i Trust Score
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5 font-medium">
+                  Total innvirkning
+                </p>
+              </div>
             </div>
           </div>
         </SheetHeader>
