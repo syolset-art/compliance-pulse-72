@@ -728,7 +728,12 @@ export default function MSPDashboard() {
                                 )}
                               </span>
                             </TableCell>
-                            <TableCell className="text-muted-foreground tabular-nums">{c.country_code || "NO"}</TableCell>
+                            <TableCell 
+                              className="text-muted-foreground tabular-nums cursor-help" 
+                              title={getCountryName(c.country_code || "NO")}
+                            >
+                              {c.country_code || "NO"}
+                            </TableCell>
                             <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
                             <TableCell>
                               <Badge variant="outline" className={cn("font-normal", crit.tone)}>
