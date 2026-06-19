@@ -109,6 +109,7 @@ export function MSPCustomerTrustProfileCard({
   const [invited, setInvited] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [openArea, setOpenArea] = useState<ControlAreaKey | null>(null);
+  const [showBannerDetails, setShowBannerDetails] = useState(false);
 
   // Bygg domeneliste fra de kanoniske 5 kontrollområdene
   const controlDomains: ControlDomain[] = useMemo(
@@ -183,42 +184,58 @@ export function MSPCustomerTrustProfileCard({
       </div>
 
       {/* Aktiverings-banner */}
-      <Card className={`p-4 space-y-3 ${invited ? "border-success/30 bg-success/5" : "border-primary/30 bg-primary/5"}`}>
-        <div className="flex items-start gap-2.5">
-          {invited ? (
-            <Check className="h-5 w-5 text-success mt-0.5 shrink-0" aria-hidden="true" />
-          ) : (
-            <UserPlus className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
-          )}
-          <div className="space-y-1 flex-1">
-            <p className="text-base font-semibold text-foreground">
-              {invited ? `Invitasjon sendt til ${contactName}` : "Kunden har ikke aktivert profilen ennå"}
-            </p>
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              {invited
-                ? "Du kan bygge og redigere denne Trust Profilen, og du fortsetter å administrere den også etter at den er publisert. Men den kan ikke publiseres herfra. Først når kunden claimer profilen, blir den én unik Trust Profile som kunden eier - og publisering kan ikke skje før det."
-                : "Du administrerer denne Trust Profilen på vegne av kunden, også etter publisering. Publisering låses opp når kunden claimer profilen - da blir den én unik profil som kunden eier. Inviter kontaktpersonen for å fullføre."}
-            </p>
+      <Card className={`p-3.5 ${invited ? "border-success/30 bg-success/5" : "border-primary/30 bg-primary/5"}`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-2.5 flex-1 min-w-0">
+            {invited ? (
+              <Check className="h-5 w-5 text-success mt-0.5 shrink-0" aria-hidden="true" />
+            ) : (
+              <UserPlus className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
+            )}
+            <div className="space-y-0.5 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2">
+                <p className="text-sm font-semibold text-foreground">
+                  {invited ? `Invitasjon sendt til ${contactName}` : "Kunden har ikke aktivert profilen ennå"}
+                </p>
+                <button 
+                  onClick={() => setShowBannerDetails(!showBannerDetails)}
+                  className="text-xs text-primary hover:underline font-medium focus:outline-none"
+                >
+                  {showBannerDetails ? "Vis mindre" : "Les mer"}
+                </button>
+              </div>
+              <p className="text-xs text-foreground/80 leading-relaxed max-w-3xl">
+                {showBannerDetails ? (
+                  invited ? (
+                    "Du kan bygge og redigere denne Trust Profilen, og du fortsetter å administrere den også etter at den er publisert. Men den kan ikke publiseres herfra. Først når kunden claimer profilen, blir den én unik Trust Profile som kunden eier - og publisering kan ikke skje før det."
+                  ) : (
+                    "Du administrerer denne Trust Profilen på vegne av kunden, også etter publisering. Publisering låses opp når kunden claimer profilen - da blir den én unik profil som kunden eier. Inviter kontaktpersonen for å fullføre."
+                  )
+                ) : (
+                  invited ? "Du fortsetter å administrere denne Trust Profilen på vegne av kunden inntil de aktiverer." : "Du administrerer denne Trust Profilen på vegne av kunden inntil de overtar."
+                )}
+              </p>
+            </div>
+          </div>
+          
+          <div className="shrink-0 flex items-center self-end sm:self-center">
+            {!invited ? (
+              <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setInviteOpen(true)}>
+                <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                Inviter til å aktivere
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs"
+                onClick={() => setInviteOpen(true)}
+              >
+                Send påminnelse
+              </Button>
+            )}
           </div>
         </div>
-        {!invited && (
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" className="h-9 text-sm gap-1.5" onClick={() => setInviteOpen(true)}>
-              <UserPlus className="h-4 w-4" aria-hidden="true" />
-              Inviter {contactName} til å aktivere
-            </Button>
-          </div>
-        )}
-        {invited && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-9 text-sm"
-            onClick={() => setInviteOpen(true)}
-          >
-            Send påminnelse
-          </Button>
-        )}
       </Card>
 
 
