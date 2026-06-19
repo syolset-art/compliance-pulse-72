@@ -190,7 +190,7 @@ export function ControlAreaBreakdownDrawer({
             </p>
             <Link
               to="/resources/maturity"
-              className="inline-flex items-center gap-1 text-sm text-primary hover:underline mt-1"
+              className="inline-flex items-center gap-1 text-sm font-medium text-foreground underline underline-offset-4 decoration-primary/60 hover:decoration-primary mt-1"
             >
               Les hele metoden
               <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
