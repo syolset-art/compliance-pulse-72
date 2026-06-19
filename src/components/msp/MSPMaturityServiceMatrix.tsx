@@ -730,11 +730,11 @@ export function MSPMaturityServiceMatrix({
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-left">Tjeneste</TableHead>
-                  <TableHead className="w-[110px] text-left">Tiltak</TableHead>
-                  <TableHead className="w-[90px] text-left">Timer</TableHead>
-                  <TableHead className="w-[130px] text-left">Sum</TableHead>
+                  <TableHead className="w-[70px] text-left whitespace-nowrap">Tiltak</TableHead>
+                  <TableHead className="w-[70px] text-left whitespace-nowrap">Timer</TableHead>
+                  <TableHead className="w-[110px] text-left">Sum</TableHead>
                   <TableHead className="w-[110px] text-left">Regelverk</TableHead>
-                  <TableHead className="w-[220px] text-left">Handlinger</TableHead>
+                  <TableHead className="w-[200px] text-left">Handlinger</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
