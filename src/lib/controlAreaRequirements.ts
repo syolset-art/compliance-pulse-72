@@ -47,8 +47,11 @@ export function getActiveControlPointsByArea(
 }
 
 /**
- * Per-punkt-vekt. MVP: alle teller likt (1.0). Kan senere kobles til
- * `priority` (critical=2, high=1.5, medium=1, low=0.5) eller Lara-verifisering.
+ * Per-punkt-vekt (vekting). MVP: alle teller likt (1.0).
+ * TODO (dynamisk – Mynders scoringsmodell):
+ * Vektingen er en dynamisk verdi som skal hentes fra Mynders scoringsmodell.
+ * Kan senere kobles til `priority` (critical=2, high=1.5, medium=1, low=0.5),
+ * spesifikke regelverk-avhengigheter, eller dynamiske risikovurderinger fra Lara.
  */
 export function getRequirementWeight(_req: ComplianceRequirement): number {
   return 1.0;
