@@ -20,6 +20,21 @@ import { toast } from "sonner";
 
 type ViewMode = "cards" | "table";
 
+const getCountryName = (code: string) => {
+  const mapping: Record<string, string> = {
+    NO: "Norge",
+    SE: "Sverige",
+    DK: "Danmark",
+    FI: "Finland",
+    IS: "Island",
+    DE: "Tyskland",
+    NL: "Nederland",
+    GB: "Storbritannia",
+    US: "USA",
+  };
+  return mapping[code.toUpperCase()] || code;
+};
+
 // Trust Profile (TP) lifecycle status — what stage the customer's TP is in
 type TPStatusKey = "draft" | "onboarding" | "claimed" | "published";
 
@@ -630,9 +645,9 @@ export default function MSPDashboard() {
                             Kunde <SortIcon k="customer_name" />
                           </button>
                         </TableHead>
-                        <TableHead className="w-[120px] text-foreground/80">
+                        <TableHead className="w-[80px] text-foreground/80">
                           <ColumnFilter
-                            label="Landskode"
+                            label="Land"
                             options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
                             selected={countryCodeFilter}
                             onChange={setCountryCodeFilter}
@@ -713,7 +728,12 @@ export default function MSPDashboard() {
                                 )}
                               </span>
                             </TableCell>
-                            <TableCell className="text-muted-foreground tabular-nums">{c.country_code || "NO"}</TableCell>
+                            <TableCell 
+                              className="text-muted-foreground tabular-nums cursor-help" 
+                              title={getCountryName(c.country_code || "NO")}
+                            >
+                              {c.country_code || "NO"}
+                            </TableCell>
                             <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
                             <TableCell>
                               <Badge variant="outline" className={cn("font-normal", crit.tone)}>
