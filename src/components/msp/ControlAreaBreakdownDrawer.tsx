@@ -173,9 +173,10 @@ export function ControlAreaBreakdownDrawer({
                           </span>
                           {req.name_no || req.name}
                         </td>
-                        <td className="px-3 py-2 text-muted-foreground">
-                          {frameworkName(req.framework_id)}
-                        </td>
+                         <td className="px-3 py-2 text-muted-foreground">
+                           {/* Viser kun regelverk som kunden har aktivert */}
+                           {frameworkName(req.framework_id)}
+                         </td>
                         <td className="px-3 py-2 text-right tabular-nums text-foreground/80">
                           {/* TODO: Hent denne vektingen dynamisk fra Mynders scoringsmodell */}
                           {getRequirementWeight(req).toFixed(1)}
