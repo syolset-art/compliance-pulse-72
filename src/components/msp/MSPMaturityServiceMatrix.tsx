@@ -760,9 +760,9 @@ export function MSPMaturityServiceMatrix({
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-[12px] text-foreground tabular-nums">{r.tasks.length}</TableCell>
-                      <TableCell className="text-right text-[12px] text-foreground tabular-nums">{totalHours}</TableCell>
-                      <TableCell className="text-right text-sm font-medium tabular-nums">
+                      <TableCell className="text-[12px] text-foreground tabular-nums text-left">{r.tasks.length}</TableCell>
+                      <TableCell className="text-[12px] text-foreground tabular-nums text-left">{totalHours}</TableCell>
+                      <TableCell className="text-sm font-medium tabular-nums text-left">
                         {totalPrice.toLocaleString("nb-NO")} kr
                       </TableCell>
                       <TableCell>
