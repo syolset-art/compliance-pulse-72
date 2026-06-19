@@ -66,6 +66,7 @@ import MynderMe from "./pages/MynderMe";
 import EmailTemplates from "./pages/EmailTemplates";
 import TrustProfileArchitecture from "./pages/developer/TrustProfileArchitecture";
 import DashboardV2 from "./pages/DashboardV2";
+import CoreDashboard from "./pages/CoreDashboard";
 import FeatureGuide from "./pages/FeatureGuide";
 import MaturityMethodology from "./pages/MaturityMethodology";
 import MaturityDashboard from "./pages/MaturityDashboard";
@@ -181,6 +182,7 @@ const App = () => (
                   <Route path="/mynder-me" element={<MynderMe />} />
                   <Route path="/developer/trust-profile-architecture" element={<TrustProfileArchitecture />} />
                   <Route path="/dashboard-v2" element={<DashboardV2 />} />
+                  <Route path="/dashboard-core" element={<CoreDashboard />} />
                   <Route path="/board" element={<BoardDashboard />} />
                   <Route path="/styrerom" element={<BoardDashboard />} />
                   <Route path="/resources/features/:slug" element={<FeatureGuide />} />
