@@ -131,12 +131,12 @@ function OfferTable({ offers }: { offers: Item[] }) {
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent border-b border-border/60 bg-muted/30">
-            <TableHead className="h-9 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Tittel</TableHead>
-            <TableHead className="h-9 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Beskrivelse</TableHead>
-            <TableHead className="h-9 w-[110px] text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Sendt</TableHead>
-            <TableHead className="h-9 w-[120px] text-right text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Beløp</TableHead>
-            <TableHead className="h-9 w-[130px] text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Status</TableHead>
-            <TableHead className="h-9 w-[140px] text-right pr-4 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Handling</TableHead>
+            <TableHead className="h-9 text-[11px] font-medium uppercase tracking-wide text-muted-foreground text-left">Tittel</TableHead>
+            <TableHead className="h-9 text-[11px] font-medium uppercase tracking-wide text-muted-foreground text-left">Beskrivelse</TableHead>
+            <TableHead className="h-9 w-[110px] text-[11px] font-medium uppercase tracking-wide text-muted-foreground text-left">Sendt</TableHead>
+            <TableHead className="h-9 w-[120px] text-[11px] font-medium uppercase tracking-wide text-muted-foreground text-left">Beløp</TableHead>
+            <TableHead className="h-9 w-[130px] text-[11px] font-medium uppercase tracking-wide text-muted-foreground text-left">Status</TableHead>
+            <TableHead className="h-9 w-[140px] pr-4 text-[11px] font-medium uppercase tracking-wide text-muted-foreground text-left">Handling</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
