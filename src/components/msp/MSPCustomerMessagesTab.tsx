@@ -376,9 +376,7 @@ export function MSPCustomerMessagesTab() {
             {sent.length === 0 ? (
               <EmptyState icon={Send} label="Ingen tilbud som avventer svar." />
             ) : (
-              <div className="space-y-2">
-                {sent.map(o => <OfferCard key={o.id} o={o} />)}
-              </div>
+              <OfferTable offers={sent} />
             )}
           </Card>
         </TabsContent>
@@ -393,9 +391,7 @@ export function MSPCustomerMessagesTab() {
             {approvedOffers.length === 0 ? (
               <EmptyState icon={CheckCircle2} label="Ingen godkjente tilbud ennå." />
             ) : (
-              <div className="space-y-2">
-                {approvedOffers.map(o => <OfferCard key={o.id} o={o} />)}
-              </div>
+              <OfferTable offers={approvedOffers} />
             )}
           </Card>
         </TabsContent>
@@ -409,9 +405,7 @@ export function MSPCustomerMessagesTab() {
             {received.length === 0 ? (
               <EmptyState icon={Inbox} label="Ingen nye meldinger fra kunden." />
             ) : (
-              <div className="space-y-2">
-                {received.map(m => <MessageCard key={m.id} m={m} />)}
-              </div>
+              <MessageTable messages={received} />
             )}
           </Card>
         </TabsContent>
@@ -426,9 +420,7 @@ export function MSPCustomerMessagesTab() {
             {closedOffers.length === 0 ? (
               <EmptyState icon={Archive} label="Ingen avsluttede tilbud." />
             ) : (
-              <div className="space-y-2">
-                {closedOffers.map(o => <OfferCard key={o.id} o={o} />)}
-              </div>
+              <OfferTable offers={closedOffers} />
             )}
           </Card>
         </TabsContent>
