@@ -30,8 +30,7 @@ import {
   Landmark,
   Bot,
   Eye,
-  Lock,
-  Briefcase as BriefcaseIcon
+  Lock
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
 import mynderLogo from "@/assets/mynder-logo.png";
