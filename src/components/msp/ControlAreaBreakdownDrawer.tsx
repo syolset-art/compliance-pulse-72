@@ -1,7 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, ShieldCheck, Sparkles, HelpCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ShieldCheck, Sparkles, HelpCircle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   CONTROL_AREA_BY_KEY,
