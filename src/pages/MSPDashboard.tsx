@@ -645,9 +645,9 @@ export default function MSPDashboard() {
                             Kunde <SortIcon k="customer_name" />
                           </button>
                         </TableHead>
-                        <TableHead className="w-[120px] text-foreground/80">
+                        <TableHead className="w-[80px] text-foreground/80">
                           <ColumnFilter
-                            label="Landskode"
+                            label="Land"
                             options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
                             selected={countryCodeFilter}
                             onChange={setCountryCodeFilter}
