@@ -1,51 +1,30 @@
 ## Mål
-
-I prototypen skal sidebar ha **to dashbord-menypunkter** øverst, slik at det blir tydelig at Mynder har to "innganger":
-
-1. **Trust Center** – alltid synlig, alltid startpunktet på `/`
-2. **Mynder Core** – kun synlig når brukeren har aktivert Core (arbeidsområder, systemer, avvik) eller et register (vendors, assets, agenter)
-
-Dette gjør forskjellen mellom "kun Trust Center-kunder" og "Core-kunder" intuitiv: Trust Center er fundamentet, Core er en utvidelse som dukker opp som et eget dashbord når den er på.
+Hjelpe-ikonet (?) øverst åpner i dag ingen panel når brukeren står på MSP-kundedetalj (`/msp-dashboard/:id`). Den dispatcher event `open-page-help`, men siden lytter ikke på det. Vi legger til en `ContextualHelpPanel` på denne siden — i samme stil som Tasks, Systems, Vendors osv. — men med innhold tilpasset MSP-kundekonteksten og den aktive fanen.
 
 ## Endringer
 
-### 1. Ruter (`src/App.tsx`)
-- `/` rendrer fortsatt `Index`, men `Index` viser nå **alltid** `TrustCenterDashboard` (uavhengig av plan).
-- Ny rute `/dashboard-core` → ny side-komponent `CoreDashboard` som inneholder dagens Core-dashbord-innhold (det som ligger i `DashboardV2` / `Index`-grenen i dag).
-- `/dashboard-v2` beholdes som alias for bakoverkompatibilitet i prototypen.
+**`src/pages/MSPCustomerDetail.tsx`**
+- Importer `useState`, `usePageHelpListener`, `ContextualHelpPanel` og relevante lucide-ikoner.
+- Hold `helpOpen`-state og koble den til `usePageHelpListener(setHelpOpen)`.
+- Render `<ContextualHelpPanel>` nederst i siden. Innhold velges basert på aktiv fane (`guidance` / `assessment` / `messages` / `trust-profile` / `documentation` / `regulations`) via en liten `helpContent`-map.
 
-### 2. `src/pages/Index.tsx`
-- Fjern `useDashboardVariant`-grenen som velger mellom Trust- og Core-dashboard.
-- `/` returnerer alltid `<TrustCenterDashboard />` (partner-modus beholder sin redirect til `/msp-partner`).
-- Flytt eksisterende Core-dashbord JSX (`DashboardLaraRecommendation`, `DashboardOverallMaturity`, `DashboardMaturityOverTime`, `DashboardFrameworkStatus`, hilsen, dialoger, help panel) til ny `src/pages/CoreDashboard.tsx`.
+## Innhold per fane (norsk)
+Hver fane får egen `title`, `description`, `items`, `whyDescription`, `steps`, `actions` og `laraSuggestions`:
 
-### 3. Sidebar (`src/components/Sidebar.tsx`)
-Erstatt dagens enkle `dashboardNav` med to oppføringer øverst, gruppert visuelt som "Dashboards":
+- **Veiledning (guidance):** Forklar Laras 4-stegs flyt (vurder → foreslå → veilede → effektuere) og hvordan MSP-en kan akseptere/avvise forslag.
+- **Vurdering (assessment):** Forklar modenhetsmatrisen, hvordan baseline-svar genereres, og hvordan «Anbefalte tjenester» avledes.
+- **Meldinger (messages):** Forklar kundedialog, frister og hvordan Lara kan utarbeide svar.
+- **Trust Profile:** Forklar hva som publiseres til kundens TP, hvilke statuser som finnes og hvordan publisering fungerer.
+- **Dokumentasjon (documentation):** Forklar hva Lara gjør med opplastet dokumentasjon, samtykket («lese-tilgang») og forventede dokumenter.
+- **Regelverk (regulations):** Forklar hvordan rammeverk aktiveres for kunden og hva som er obligatorisk vs. valgfritt.
 
-```text
-🛡  Trust Center-dashbord       →  /
-⚙️  Mynder Core-dashbord        →  /dashboard-core    [kun hvis hasCoreOrRegistries]
-🏛  Styrerom                    →  /board
-```
-
-- "Trust Center-dashbord" alltid synlig.
-- "Mynder Core-dashbord" rendres betinget basert på `useSubscription().hasCoreAccess || hasRegistriesAccess` (samme signal som dagens `useDashboardVariant`).
-- Aktiv-styling som dagens dashboard-link.
-- i18n-nøkler: `nav.trustDashboard` ("Trust Center" / "Trust Center"), `nav.coreDashboard` ("Mynder Core" / "Mynder Core"). Legges til i `src/lib/i18n.ts`.
-
-### 4. Liten visuell hint (prototype-vennlig)
-Når Core ikke er aktivert, vis en subtil "Mynder Core" -rad i sidebaren som er disabled/tonet ned med en låsikon + tooltip "Aktiveres med Mynder Core". Dette gjør det synlig at det finnes et nivå til uten å rote menyen. (Valgfritt – kan droppes hvis det føles støyende.)
+Hver variant får 2–3 Lara-forslag («Hjelp meg prioritere», «Forklar denne fanen», osv.).
 
 ## Teknisk
+- Aktiv fane leses fra eksisterende `tab`-state/URL-param som allerede styrer `<Tabs>`. Ingen ny routing.
+- Ingen endringer på `TopBar` eller `usePageHelpListener` — eventet finnes allerede.
+- Ingen backend-endringer.
 
-- `useDashboardVariant` brukes ikke lenger i `Index.tsx`, men beholdes (kan bli relevant for andre steder/MSP).
-- Ingen DB-endringer.
-- Ingen endring i `TrustCenterDashboard.tsx` eller `DashboardV2.tsx`-innhold – kun flytting/wrapping.
-
-## Filer som endres
-
-- `src/App.tsx` – ny rute `/dashboard-core`
-- `src/pages/Index.tsx` – forenkles til alltid Trust Center
-- `src/pages/CoreDashboard.tsx` – ny, inneholder dagens Core-dashbord-innhold
-- `src/components/Sidebar.tsx` – to dashbord-lenker øverst, betinget Core-lenke
-- `src/lib/i18n.ts` – to nye nav-nøkler
+## Out of scope
+- Endre `CustomerDocumentationTab` eller andre faner.
+- Endre selve hjelpe-ikonet i TopBar.
