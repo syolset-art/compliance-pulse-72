@@ -458,15 +458,18 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   <p className="text-sm text-muted-foreground">Last opp fil eller lim inn flere kunder samtidig</p>
                 </div>
               </button>
-              <button disabled className="w-full flex items-center gap-4 rounded-lg border border-border p-4 text-left opacity-50 cursor-not-allowed">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <button
+                onClick={() => setStep("acronis")}
+                className="w-full flex items-center gap-4 rounded-lg border border-border p-4 text-left hover:border-primary hover:bg-primary/5 transition-colors"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Server className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-foreground">Importer fra tilkoblede systemer</p>
-                  <p className="text-sm text-muted-foreground">Acronis, ConnectWise m.fl.</p>
+                  <p className="font-medium text-foreground">Hent fra Acronis</p>
+                  <p className="text-sm text-muted-foreground">Importer en kunde-tenant fra Acronis-integrasjonen</p>
                 </div>
-                <Badge variant="outline" className="text-xs">Kommer snart</Badge>
+                <Badge variant="outline" className="text-xs border-primary/40 text-primary">Integrasjon</Badge>
               </button>
             </div>
           </>
