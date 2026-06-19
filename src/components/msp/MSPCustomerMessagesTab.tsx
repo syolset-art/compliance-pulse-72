@@ -246,21 +246,28 @@ function MessageTable({ messages }: { messages: Item[] }) {
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent border-b border-border/60">
-            <TableHead className="text-xs">Emne & Melding</TableHead>
-            <TableHead className="w-[150px] text-right text-xs pr-4">Mottatt</TableHead>
+            <TableHead className="text-xs">Emne</TableHead>
+            <TableHead className="text-xs">Melding</TableHead>
+            <TableHead className="w-[130px] text-xs">Mottatt</TableHead>
+            <TableHead className="w-[120px] text-right text-xs pr-4">Handling</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {messages.map(m => (
             <TableRow key={m.id} className="border-b border-border/40 hover:bg-muted/20">
-              <TableCell className="py-3">
-                <div className="space-y-0.5">
-                  <p className="text-[13px] font-semibold text-foreground">{m.title}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed max-w-3xl">{m.desc}</p>
-                </div>
+              <TableCell className="py-3 align-top">
+                <p className="text-[13px] font-semibold text-foreground">{m.title}</p>
               </TableCell>
-              <TableCell className="text-right text-xs text-muted-foreground whitespace-nowrap py-3 pr-4">
+              <TableCell className="py-3 align-top">
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">{m.desc}</p>
+              </TableCell>
+              <TableCell className="text-xs text-muted-foreground whitespace-nowrap py-3 align-top">
                 {m.date}
+              </TableCell>
+              <TableCell className="text-right py-3 pr-4 align-top">
+                <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5">
+                  <MessageSquare className="h-3 w-3" /> Svar
+                </Button>
               </TableCell>
             </TableRow>
           ))}
@@ -269,6 +276,7 @@ function MessageTable({ messages }: { messages: Item[] }) {
     </div>
   );
 }
+
 
 function EmptyState({ icon: Icon, label }: { icon: any; label: string }) {
   return (
