@@ -246,10 +246,10 @@ function MessageTable({ messages }: { messages: Item[] }) {
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent border-b border-border/60">
-            <TableHead className="text-xs">Emne</TableHead>
-            <TableHead className="text-xs">Melding</TableHead>
-            <TableHead className="w-[130px] text-xs">Mottatt</TableHead>
-            <TableHead className="w-[120px] text-right text-xs pr-4">Handling</TableHead>
+            <TableHead className="text-xs text-left">Emne</TableHead>
+            <TableHead className="text-xs text-left">Melding</TableHead>
+            <TableHead className="w-[130px] text-xs text-left">Mottatt</TableHead>
+            <TableHead className="w-[120px] text-xs pr-4 text-left">Handling</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
