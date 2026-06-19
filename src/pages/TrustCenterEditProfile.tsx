@@ -549,7 +549,7 @@ const TrustCenterEditProfile = () => {
                               <div className="flex flex-col min-w-0">
                                 <span className={cn(
                                   "text-sm font-medium truncate",
-                                  hidden ? "text-muted-foreground/50 line-through" : "text-foreground"
+                                  hidden ? "text-muted-foreground/70" : "text-foreground"
                                 )}>
                                   {fw.framework_name}
                                 </span>
