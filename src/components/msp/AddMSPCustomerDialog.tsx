@@ -412,6 +412,85 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     }
   };
 
+  // ---- Acronis multi-import ----
+  const handleAcronisImport = async () => {
+    if (!user?.id || acronisSelected.size === 0) return;
+    setAcronisImporting(true);
+    try {
+      const tenants = ACRONIS_DEMO_TENANTS.filter((t) => acronisSelected.has(t.tenant_id));
+
+      // Check for existing org numbers
+      const { data: existing } = await supabase
+        .from("msp_customers")
+        .select("org_number")
+        .eq("msp_user_id", user.id);
+      const existingOrgs = new Set((existing || []).map((c: any) => String(c.org_number)));
+      const newTenants = tenants.filter((t) => !existingOrgs.has(t.org_number));
+
+      if (newTenants.length === 0) {
+        toast.info("Alle valgte tenants finnes allerede i porteføljen");
+        setAcronisImporting(false);
+        return;
+      }
+
+      const customerRows = newTenants.map((t) => ({
+        msp_user_id: user.id,
+        customer_name: t.name,
+        org_number: t.org_number,
+        industry: t.industry,
+        employees: mapEmployees(t.employees) || null,
+        country_code: "NO",
+        compliance_score: 0,
+        status: "active",
+        active_frameworks: [] as string[],
+        subscription_plan: "Gratis",
+        onboarding_completed: false,
+        has_acronis_integration: true,
+        acronis_device_count: t.devices,
+      }));
+
+      const { data: inserted, error } = await supabase
+        .from("msp_customers")
+        .insert(customerRows as any)
+        .select("id, customer_name, org_number");
+      if (error) throw error;
+
+      if (inserted && inserted.length > 0) {
+        const assets = inserted.map((c: any, i: number) => ({
+          name: c.customer_name,
+          asset_type: "self",
+          org_number: c.org_number,
+          description: `Trust Profile for ${c.customer_name}`,
+          compliance_score: 0,
+          lifecycle_status: "active",
+          metadata: {
+            created_by_msp: true,
+            msp_customer_id: c.id,
+            source: "acronis",
+            acronis_tenant_id: newTenants[i].tenant_id,
+            acronis_devices: newTenants[i].devices,
+            industry: newTenants[i].industry,
+          },
+        }));
+        await supabase.from("assets").insert(assets as any);
+      }
+
+      setAcronisImportedCount(inserted?.length || 0);
+      setBulkSavedCount(inserted?.length || 0);
+      setStep("bulk-success");
+      setTimeout(() => {
+        onOpenChange(false);
+        onSuccess();
+      }, 2500);
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Kunne ikke importere fra Acronis: " + (err?.message || ""));
+    } finally {
+      setAcronisImporting(false);
+    }
+  };
+
+
   const currentStepIndex = STEP_LABELS.indexOf(
     step === "results" || step === "verifying" ? "search" : step === "success" ? "confirm" : step
   );
