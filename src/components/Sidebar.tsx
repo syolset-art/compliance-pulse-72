@@ -1021,6 +1021,12 @@ export function Sidebar() {
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64 bg-sidebar border-sidebar-border dark:bg-sidebar">
               <div className="flex h-full flex-col">
+                {/* Workspace switcher i toppen av mobil-menyen — gir tilgang til
+                    Partner-modus og Partner-dashbordet, som ellers kun finnes i
+                    desktop-TopBar. */}
+                <div className="px-3 pt-3 pb-1 border-b border-sidebar-border">
+                  <WorkspaceSwitcher />
+                </div>
                 <SidebarContent />
               </div>
             </SheetContent>
