@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { FileText, CheckCircle2, Clock, MessageSquare, XCircle, Send, ShieldCheck, Download, Inbox, Archive, Sparkles, ThumbsUp } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import {
   getDeliveryReports,
   subscribeDeliveryReports,
@@ -121,69 +123,149 @@ function statusBadge(s?: OfferStatus) {
   return null;
 }
 
-function OfferCard({ o }: { o: Item }) {
+function OfferTable({ offers }: { offers: Item[] }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   return (
-    <div className="rounded-lg border border-border/60 p-3 space-y-2">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-semibold text-foreground">{o.title}</p>
-          <p className="text-[12px] text-muted-foreground mt-0.5 leading-snug">{o.desc}</p>
-        </div>
-        {statusBadge(o.status)}
-      </div>
-      <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/40">
-        <span className="text-xs text-muted-foreground">Sendt {o.date}</span>
-        <span className="text-[12px] font-semibold text-foreground">{o.amount}</span>
-      </div>
-      {o.status === "approved" && o.approval && (
-        <details className="group">
-          <summary className="flex items-center gap-1.5 cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors list-none [&::-webkit-details-marker]:hidden">
-            <ShieldCheck className="h-3 w-3 text-success" />
-            <span>Bevis på godkjenning</span>
-            <span className="text-muted-foreground/60">·</span>
-            <span className="truncate">{o.approval.approvedBy}, {o.approval.approvedAt}</span>
-          </summary>
-          <div className="mt-2 pl-4 border-l-2 border-success/30 space-y-1 text-xs">
-            <div>
-              <span className="text-muted-foreground">Godkjent av: </span>
-              <span className="text-foreground">{o.approval.approvedBy} ({o.approval.approverRole})</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Tidspunkt: </span>
-              <span className="text-foreground">{o.approval.approvedAt}</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Metode: </span>
-              <span className="text-foreground">{o.approval.method}</span>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Referanse: </span>
-              <span className="text-foreground font-mono">{o.approval.reference}</span>
-            </div>
-            {o.approval.ipAddress && (
-              <div>
-                <span className="text-muted-foreground">IP: </span>
-                <span className="text-foreground font-mono">{o.approval.ipAddress}</span>
-              </div>
-            )}
-            <button type="button" className="inline-flex items-center gap-1 text-primary hover:underline pt-1">
-              <Download className="h-3 w-3" /> Last ned signert tilbud
-            </button>
-          </div>
-        </details>
-      )}
+    <div className="rounded-lg border border-border/60 overflow-hidden bg-card">
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent border-b border-border/60">
+            <TableHead className="text-xs">Tittel & Beskrivelse</TableHead>
+            <TableHead className="w-[120px] text-xs">Sendt</TableHead>
+            <TableHead className="w-[120px] text-right text-xs">Beløp</TableHead>
+            <TableHead className="w-[120px] text-right text-xs">Status</TableHead>
+            <TableHead className="w-[60px]"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {offers.map(o => {
+            const hasApproval = o.status === "approved" && o.approval;
+            const isExpanded = expandedId === o.id;
+
+            return (
+              <Fragment key={o.id}>
+                <TableRow 
+                  className={cn(
+                    "border-b border-border/40 transition-colors hover:bg-muted/30",
+                    hasApproval && "cursor-pointer",
+                    isExpanded && "bg-muted/30"
+                  )}
+                  onClick={() => {
+                    if (hasApproval) {
+                      setExpandedId(isExpanded ? null : o.id);
+                    }
+                  }}
+                >
+                  <TableCell className="py-3">
+                    <div className="space-y-0.5">
+                      <p className="text-[13px] font-semibold text-foreground">{o.title}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">{o.desc}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground py-3">
+                    {o.date}
+                  </TableCell>
+                  <TableCell className="text-right text-[13px] font-semibold text-foreground py-3">
+                    {o.amount}
+                  </TableCell>
+                  <TableCell className="text-right py-3">
+                    <div className="flex justify-end">
+                      {statusBadge(o.status)}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right py-3 pr-4">
+                    {hasApproval && (
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedId(isExpanded ? null : o.id);
+                        }}
+                      >
+                        <ShieldCheck className={cn("h-4 w-4 transition-colors", isExpanded ? "text-success" : "opacity-60")} />
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+                {hasApproval && isExpanded && o.approval && (
+                  <TableRow className="bg-muted/10 hover:bg-muted/10 border-b border-border/40">
+                    <TableCell colSpan={5} className="p-4 bg-muted/[0.02]">
+                      <div className="pl-6 py-2 border-l-2 border-success/40 space-y-3 text-xs">
+                        <div className="font-semibold text-success flex items-center gap-1.5">
+                          <ShieldCheck className="h-4 w-4" /> Bevis på godkjenning
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                          <div>
+                            <span className="text-muted-foreground block mb-0.5">Godkjent av:</span>
+                            <span className="text-foreground font-medium">{o.approval.approvedBy}</span>
+                            <span className="text-muted-foreground block text-[11px]">{o.approval.approverRole}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block mb-0.5">Tidspunkt:</span>
+                            <span className="text-foreground font-medium">{o.approval.approvedAt}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block mb-0.5">Metode:</span>
+                            <span className="text-foreground font-medium">{o.approval.method}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block mb-0.5">Referanse:</span>
+                            <span className="text-foreground font-mono font-medium">{o.approval.reference}</span>
+                          </div>
+                        </div>
+                        {o.approval.ipAddress && (
+                          <div className="pt-1 text-[11px]">
+                            <span className="text-muted-foreground">IP-adresse: </span>
+                            <span className="text-foreground font-mono">{o.approval.ipAddress}</span>
+                          </div>
+                        )}
+                        <div className="pt-1">
+                          <Button size="sm" variant="outline" className="h-7 text-xs gap-1">
+                            <Download className="h-3 w-3" /> Last ned signert tilbud
+                          </Button>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </Fragment>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }
 
-function MessageCard({ m }: { m: Item }) {
+function MessageTable({ messages }: { messages: Item[] }) {
   return (
-    <div className="rounded-lg border border-border/60 p-3 space-y-1">
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-[13px] font-semibold text-foreground">{m.title}</p>
-        <span className="text-xs text-muted-foreground whitespace-nowrap">{m.date}</span>
-      </div>
-      <p className="text-[12px] text-muted-foreground leading-snug">{m.desc}</p>
+    <div className="rounded-lg border border-border/60 overflow-hidden bg-card">
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent border-b border-border/60">
+            <TableHead className="text-xs">Emne & Melding</TableHead>
+            <TableHead className="w-[150px] text-right text-xs pr-4">Mottatt</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {messages.map(m => (
+            <TableRow key={m.id} className="border-b border-border/40 hover:bg-muted/20">
+              <TableCell className="py-3">
+                <div className="space-y-0.5">
+                  <p className="text-[13px] font-semibold text-foreground">{m.title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed max-w-3xl">{m.desc}</p>
+                </div>
+              </TableCell>
+              <TableCell className="text-right text-xs text-muted-foreground whitespace-nowrap py-3 pr-4">
+                {m.date}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
@@ -294,9 +376,7 @@ export function MSPCustomerMessagesTab() {
             {sent.length === 0 ? (
               <EmptyState icon={Send} label="Ingen tilbud som avventer svar." />
             ) : (
-              <div className="space-y-2">
-                {sent.map(o => <OfferCard key={o.id} o={o} />)}
-              </div>
+              <OfferTable offers={sent} />
             )}
           </Card>
         </TabsContent>
@@ -311,9 +391,7 @@ export function MSPCustomerMessagesTab() {
             {approvedOffers.length === 0 ? (
               <EmptyState icon={CheckCircle2} label="Ingen godkjente tilbud ennå." />
             ) : (
-              <div className="space-y-2">
-                {approvedOffers.map(o => <OfferCard key={o.id} o={o} />)}
-              </div>
+              <OfferTable offers={approvedOffers} />
             )}
           </Card>
         </TabsContent>
@@ -327,9 +405,7 @@ export function MSPCustomerMessagesTab() {
             {received.length === 0 ? (
               <EmptyState icon={Inbox} label="Ingen nye meldinger fra kunden." />
             ) : (
-              <div className="space-y-2">
-                {received.map(m => <MessageCard key={m.id} m={m} />)}
-              </div>
+              <MessageTable messages={received} />
             )}
           </Card>
         </TabsContent>
@@ -344,9 +420,7 @@ export function MSPCustomerMessagesTab() {
             {closedOffers.length === 0 ? (
               <EmptyState icon={Archive} label="Ingen avsluttede tilbud." />
             ) : (
-              <div className="space-y-2">
-                {closedOffers.map(o => <OfferCard key={o.id} o={o} />)}
-              </div>
+              <OfferTable offers={closedOffers} />
             )}
           </Card>
         </TabsContent>
