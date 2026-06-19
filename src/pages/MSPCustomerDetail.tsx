@@ -315,7 +315,7 @@ export default function MSPCustomerDetail() {
               {/* Kort baseline-status med lenke til Trust Profile-fanen.
                   Selve utfyllingen ligger under Trust Profile — Veiledning skal
                   bare gjøre partneren oppmerksom på status og peke videre. */}
-              <Card className="p-4 flex items-center justify-between gap-4">
+              <Card className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                     <ClipboardList className="h-4 w-4 text-primary" />
@@ -336,7 +336,7 @@ export default function MSPCustomerDetail() {
                   variant="outline"
                   size="sm"
                   onClick={() => handleTabChange("trust-profile")}
-                  className="shrink-0"
+                  className="w-full sm:w-auto sm:shrink-0"
                 >
                   Se i Trust Profile
                   <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
