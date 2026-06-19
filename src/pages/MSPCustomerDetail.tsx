@@ -312,74 +312,39 @@ export default function MSPCustomerDetail() {
               )}
 
 
-              {/* 1) Baseline-gate */}
-              <BaselineReadinessCard
-                areaProgress={areaProgress}
-                totalAnswered={totalAnswered}
-                totalQuestions={totalQuestions}
-                onFillBaseline={() => setBaselineDrawer({ open: true, review: false })}
-                onReviewBaseline={() => setBaselineDrawer({ open: true, review: true })}
-                onGoToRegulations={() => handleTabChange("regulations")}
-                isLaraSuggesting={isLaraSuggesting}
-                onLaraSuggest={async () => {
-                  if (!customer) return;
-                  setIsLaraSuggesting(true);
-                  try {
-                    const { data, error } = await supabase.functions.invoke("suggest-baseline-answers", {
-                      body: {
-                        customerName: customer.name || "Kunden",
-                        customerDomain: (customer as { domain?: string }).domain,
-                        industry: (customer as { industry?: string }).industry,
-                        areas: MATURITY_AREAS.map((a) => ({
-                          id: a.id,
-                          title: a.title,
-                          questions: a.questions.map((q) => ({ id: q.id, text: q.text, article: q.article })),
-                        })),
-                      },
-                    });
-                    if (error) throw error;
-                    const suggestions = (data as { suggestions?: { question_id: string; answer: MaturityAnswer; rationale?: string }[] })?.suggestions ?? [];
-                    if (suggestions.length === 0) {
-                      toast.error("Lara kunne ikke foreslå svar akkurat nå");
-                      return;
-                    }
-                    const next: MaturityAnswers = {};
-                    const rationales: Record<string, string> = {};
-                    for (const s of suggestions) {
-                      next[s.question_id] = s.answer;
-                      if (s.rationale) rationales[s.question_id] = s.rationale;
-                    }
-                    setAllBaselineAnswers(next);
-                    setBaselineRationales(rationales);
-                    toast.success(`Lara foreslo ${suggestions.length} svar`, {
-                      description: "Gå gjennom og bekreft hvert svar.",
-                    });
-                    setBaselineDrawer({ open: true, review: true });
-                  } catch (e) {
-                    console.error("Lara baseline suggestion failed", e);
-                    toast.error("Klarte ikke hente forslag fra Lara");
-                  } finally {
-                    setIsLaraSuggesting(false);
-                  }
-                }}
-              />
+              {/* Kort baseline-status med lenke til Trust Profile-fanen.
+                  Selve utfyllingen ligger under Trust Profile — Veiledning skal
+                  bare gjøre partneren oppmerksom på status og peke videre. */}
+              <Card className="p-4 flex items-center justify-between gap-4">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <ClipboardList className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm font-semibold text-foreground">Baseline</h3>
+                      <span className="text-xs text-muted-foreground rounded-full bg-muted px-2 py-0.5">
+                        {totalAnswered} av {totalQuestions} besvart
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Baselinen er kundens utgangspunkt for modenhet og gap. Den fylles ut og vedlikeholdes under Trust Profile.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleTabChange("trust-profile")}
+                  className="shrink-0"
+                >
+                  Se i Trust Profile
+                  <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                </Button>
+              </Card>
 
+              {/* TODO: Seksjon "Nye tjenester fra Mynder" plasseres her i senere iterasjon. */}
 
-              <BaselineQuestionsDrawer
-                open={baselineDrawer.open}
-                onOpenChange={(open) => setBaselineDrawer((s) => ({ ...s, open }))}
-                customerName={customer.name || "kunden"}
-                answers={baselineAnswers}
-                onAnswer={setBaselineAnswer}
-                reviewMode={baselineDrawer.review}
-                laraRationales={baselineRationales}
-              />
-
-              {/* 2) Spørreskjema til kunden */}
-              <QuestionnaireDispatchCard
-                customerId={customerId!}
-                customerName={customer.name || "kunden"}
-              />
 
             </TabsContent>
 

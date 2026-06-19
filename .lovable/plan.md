@@ -1,30 +1,32 @@
 ## Mål
-Hjelpe-ikonet (?) øverst åpner i dag ingen panel når brukeren står på MSP-kundedetalj (`/msp-dashboard/:id`). Den dispatcher event `open-page-help`, men siden lytter ikke på det. Vi legger til en `ContextualHelpPanel` på denne siden — i samme stil som Tasks, Systems, Vendors osv. — men med innhold tilpasset MSP-kundekonteksten og den aktive fanen.
+På fanen **Veiledning fra Mynder** (`/msp-dashboard/:id?tab=guidance`) skal det ikke lenger ligge en full baseline-utfylling for kunden. Baseline tilhører Trust Profile-fanen — Veiledning skal handle om hva *partneren* kan gjøre for denne kunden.
 
-## Endringer
+## Endringer i `src/pages/MSPCustomerDetail.tsx` (Veiledning-fanen)
 
-**`src/pages/MSPCustomerDetail.tsx`**
-- Importer `useState`, `usePageHelpListener`, `ContextualHelpPanel` og relevante lucide-ikoner.
-- Hold `helpOpen`-state og koble den til `usePageHelpListener(setHelpOpen)`.
-- Render `<ContextualHelpPanel>` nederst i siden. Innhold velges basert på aktiv fane (`guidance` / `assessment` / `messages` / `trust-profile` / `documentation` / `regulations`) via en liten `helpContent`-map.
+**Fjernes fra fanen:**
+- `BaselineReadinessCard` (hele "Fyll ut / Se over baseline / Lara-foreslå"-kortet)
+- `BaselineQuestionsDrawer` + tilhørende state-håndtering brukt kun her (`baselineDrawer`, `isLaraSuggesting`, `setAllBaselineAnswers`, `setBaselineRationales`-flyten kalt fra dette kortet)
+- `QuestionnaireDispatchCard` (hører til kunde-dialog, ikke partner-veiledning)
 
-## Innhold per fane (norsk)
-Hver fane får egen `title`, `description`, `items`, `whyDescription`, `steps`, `actions` og `laraSuggestions`:
+**Beholdes på fanen:**
+- `LaraRecommendationBanner` med åpne oppgaver (det partneren kan gjøre nå) — uendret.
+- "Ingen åpne oppgaver"-tilstand når lista er tom.
 
-- **Veiledning (guidance):** Forklar Laras 4-stegs flyt (vurder → foreslå → veilede → effektuere) og hvordan MSP-en kan akseptere/avvise forslag.
-- **Vurdering (assessment):** Forklar modenhetsmatrisen, hvordan baseline-svar genereres, og hvordan «Anbefalte tjenester» avledes.
-- **Meldinger (messages):** Forklar kundedialog, frister og hvordan Lara kan utarbeide svar.
-- **Trust Profile:** Forklar hva som publiseres til kundens TP, hvilke statuser som finnes og hvordan publisering fungerer.
-- **Dokumentasjon (documentation):** Forklar hva Lara gjør med opplastet dokumentasjon, samtykket («lese-tilgang») og forventede dokumenter.
-- **Regelverk (regulations):** Forklar hvordan rammeverk aktiveres for kunden og hva som er obligatorisk vs. valgfritt.
+**Legges til på fanen — ett nytt, lite kort "Baseline":**
+- Én linje som forklarer hva baseline er (1–2 setninger, nøytral tone).
+- Status-pille: "X av Y spørsmål besvart" (henter fra eksisterende `totalAnswered` / `totalQuestions`).
+- Knapp "Se baseline i Trust Profile" → `handleTabChange("trust-profile")`.
+- Ingen utfyllings-CTA, ingen Lara-foreslå-knapp, ingen drawer.
 
-Hver variant får 2–3 Lara-forslag («Hjelp meg prioritere», «Forklar denne fanen», osv.).
+**Plassholder for fremtidige tjenester (skjult inntil videre):**
+- Ingen UI nå. Kommentar i koden som markerer hvor "Nye tjenester fra Mynder"-seksjonen skal inn senere, slik at neste iterasjon har et tydelig anker.
 
-## Teknisk
-- Aktiv fane leses fra eksisterende `tab`-state/URL-param som allerede styrer `<Tabs>`. Ingen ny routing.
-- Ingen endringer på `TopBar` eller `usePageHelpListener` — eventet finnes allerede.
-- Ingen backend-endringer.
+## Endringer i `src/pages/MSPCustomerDetail.tsx` (Trust Profile-fanen)
+Ingen funksjonelle endringer. Baseline vises allerede der via `MSPCustomerTrustProfileCard` — vi bekrefter at lenken fra Veiledning lander på riktig sted.
 
-## Out of scope
-- Endre `CustomerDocumentationTab` eller andre faner.
-- Endre selve hjelpe-ikonet i TopBar.
+## Filer som *ikke* røres
+- `BaselineReadinessCard.tsx`, `BaselineQuestionsDrawer.tsx`, `QuestionnaireDispatchCard.tsx` — komponentene består, brukes fortsatt andre steder (Trust Profile-flyt, onboarding). Vi fjerner bare bruken på Veiledning-fanen.
+- Sidebar, ruting, oversettelser — uendret.
+
+## Resultat
+Veiledning-fanen blir et rent partner-arbeidsbord: anbefalte tiltak + kort status på baseline med lenke videre. Selve baseline-utfyllingen ligger der den hører hjemme — under Trust Profile.
