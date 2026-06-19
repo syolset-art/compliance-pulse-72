@@ -369,9 +369,9 @@ export function MSPCustomerTrustProfileCard({
           ))}
         </div>
 
-        {/* Policyer og dokumenter */}
+        {/* POLICYER */}
         <div className="space-y-2">
-          <p className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Policyer og dokumenter</p>
+          <p className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">POLICYER</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {policies.map(p => (
               <div key={p.name} className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 ${p.published ? "border-border/60" : "border-dashed border-border bg-muted/20"}`}>
