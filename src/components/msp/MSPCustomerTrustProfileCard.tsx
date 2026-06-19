@@ -19,6 +19,7 @@ import {
   Info,
   ChevronRight,
   Plus,
+  Mail,
 } from "lucide-react";
 import { useState, useMemo } from "react";
 import { SendTrustHandoverEmailDialog } from "./SendTrustHandoverEmailDialog";
@@ -109,7 +110,6 @@ export function MSPCustomerTrustProfileCard({
   const [invited, setInvited] = useState(false);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [openArea, setOpenArea] = useState<ControlAreaKey | null>(null);
-  const [showBannerDetails, setShowBannerDetails] = useState(false);
 
   // Bygg domeneliste fra de kanoniske 5 kontrollområdene
   const controlDomains: ControlDomain[] = useMemo(
@@ -158,19 +158,49 @@ export function MSPCustomerTrustProfileCard({
               Ikke publisert
             </span>
             <span className="text-muted-foreground/30 text-xs">•</span>
-            <button
-              onClick={() => setShowBannerDetails(!showBannerDetails)}
-              className="text-xs font-semibold inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-primary/40 bg-primary/10 text-primary hover:bg-primary/20 hover:border-primary/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-            >
-              <Info className="h-3 w-3" aria-hidden="true" />
-              {invited ? `Invitasjon sendt til ${contactName}` : "Ikke aktivert"}
-              <span className="opacity-80 font-normal">· {showBannerDetails ? "Skjul" : "Les mer / Inviter"}</span>
-            </button>
+            <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium border ${
+              invited 
+                ? "bg-success/10 text-success border-success/30" 
+                : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+            }`}>
+              {invited ? (
+                <>
+                  <Check className="h-3 w-3" aria-hidden="true" />
+                  Invitasjon sendt
+                </>
+              ) : (
+                <>
+                  <UserPlus className="h-3 w-3" aria-hidden="true" />
+                  Ikke aktivert
+                </>
+              )}
+            </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">{customerName} · Trust Profile</p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          {!invited ? (
+            <Button 
+              size="sm" 
+              className="h-8 text-xs gap-1.5" 
+              onClick={() => setInviteOpen(true)}
+            >
+              <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+              Inviter kunden
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs gap-1.5"
+              onClick={() => setInviteOpen(true)}
+            >
+              <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+              Send påminnelse
+            </Button>
+          )}
+
           <TooltipProvider delayDuration={150}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -199,51 +229,6 @@ export function MSPCustomerTrustProfileCard({
           </TooltipProvider>
         </div>
       </div>
-
-      {/* Aktiverings-banner (kun synlig når utvidet) */}
-      {showBannerDetails && (
-        <Card className={`p-3.5 animate-in fade-in duration-200 ${invited ? "border-success/30 bg-success/5" : "border-primary/30 bg-primary/5"}`}>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-start gap-2.5 flex-1 min-w-0">
-              {invited ? (
-                <Check className="h-5 w-5 text-success mt-0.5 shrink-0" aria-hidden="true" />
-              ) : (
-                <UserPlus className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
-              )}
-              <div className="space-y-0.5 flex-1">
-                <p className="text-sm font-semibold text-foreground">
-                  {invited ? `Invitasjon sendt til ${contactName}` : "Kunden har ikke aktivert profilen ennå"}
-                </p>
-                <p className="text-xs text-foreground/80 leading-relaxed max-w-3xl">
-                  {invited ? (
-                    "Du kan bygge og redigere denne Trust Profilen, og du fortsetter å administrere den også etter at den er publisert. Men den kan ikke publiseres herfra. Først når kunden claimer profilen, blir den én unik Trust Profile som kunden eier - og publisering kan ikke skje før det."
-                  ) : (
-                    "Du administrerer denne Trust Profilen på vegne av kunden, også etter publisering. Publisering låses opp når kunden claimer profilen - da blir den én unik profil som kunden eier. Inviter kontaktpersonen for å fullføre."
-                  )}
-                </p>
-              </div>
-            </div>
-            
-            <div className="shrink-0 flex items-center self-end sm:self-center">
-              {!invited ? (
-                <Button size="sm" className="h-8 text-xs gap-1.5" onClick={() => setInviteOpen(true)}>
-                  <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
-                  Inviter til å aktivere
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 text-xs"
-                  onClick={() => setInviteOpen(true)}
-                >
-                  Send påminnelse
-                </Button>
-              )}
-            </div>
-          </div>
-        </Card>
-      )}
 
 
       {/* Kontrollområder per regelverk */}
