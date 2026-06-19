@@ -46,7 +46,7 @@ interface BrregResult {
   forretningsadresse?: { kommune: string; poststed: string };
 }
 
-type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success" | "acronis";
+type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success" | "acronis" | "acronis-processing";
 
 const ACRONIS_DEMO_TENANTS: Array<{
   tenant_id: string;
