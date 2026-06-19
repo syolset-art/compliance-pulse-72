@@ -89,20 +89,9 @@ export function ControlAreaBreakdownDrawer({
                     </div>
                     <div className="space-y-2 text-xs text-muted-foreground leading-relaxed">
                       <p>
-                        Områdescore = <span className="font-mono bg-muted/40 px-1 py-0.5 rounded text-foreground">Σ(modenhet × vekt) / Σ(vekt) × 25</span>
-                        {" "}— der hvert kontrollpunkt får modenhet 0–4 og vekt 1.0.
+                        Hvert område scores 0–100 ut fra hvor godt kontrollpunktene er på plass.
+                        De fire områdene teller likt — 25 % hver — og andelen er den samme selv om du legger til flere regelverk.
                       </p>
-                      <p>
-                        Områdets vekt i den samlede Trust Score er <strong className="text-foreground">{weightPct}%</strong>.
-                        Når nye regelverk aktiveres, øker antall kontrollpunkter — men områdevekten holdes konstant.
-                      </p>
-                      <Link
-                        to="/resources/maturity"
-                        className="inline-flex items-center gap-1 font-medium text-foreground underline underline-offset-4 decoration-primary/60 hover:decoration-primary pt-1"
-                      >
-                        Les hele metoden
-                        <ExternalLink className="h-3 w-3" aria-hidden="true" />
-                      </Link>
                     </div>
                   </PopoverContent>
                 </Popover>
