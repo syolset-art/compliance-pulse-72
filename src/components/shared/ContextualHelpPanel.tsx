@@ -250,6 +250,78 @@ export function ContextualHelpPanel({
             )}
           </TabsContent>
 
+          {/* === Score === */}
+          {scoreTab && (
+            <TabsContent value="score" className="px-6 pb-6 mt-4 space-y-4">
+              <Tabs defaultValue="s-understand" className="w-full">
+                <TabsList className="w-full grid grid-cols-3">
+                  <TabsTrigger value="s-understand" className="gap-1.5 text-xs">
+                    <BookOpen className="h-3.5 w-3.5" />
+                    Forstå
+                  </TabsTrigger>
+                  <TabsTrigger value="s-actions" className="gap-1.5 text-xs">
+                    <Zap className="h-3.5 w-3.5" />
+                    Gjør
+                  </TabsTrigger>
+                  <TabsTrigger value="s-lara" className="gap-1.5 text-xs">
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    Spør Lara
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="s-understand" className="mt-4 space-y-3 text-sm text-muted-foreground leading-relaxed">
+                  {scoreTab.understand}
+                </TabsContent>
+
+                <TabsContent value="s-actions" className="mt-4 space-y-3">
+                  {scoreTab.actions && scoreTab.actions.length > 0 ? (
+                    scoreTab.actions.map((action, i) => (
+                      <button
+                        key={i}
+                        onClick={() => { onOpenChange(false); action.onClick(); }}
+                        className="flex items-start gap-3 w-full rounded-lg border bg-card p-4 text-left hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                          <action.icon className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{action.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{action.description}</p>
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="text-center py-6 text-sm text-muted-foreground">
+                      {isNb ? "Ingen handlinger akkurat nå." : "No actions right now."}
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="s-lara" className="mt-4 space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    {isNb ? "Spør Lara om scoren din:" : "Ask Lara about your score:"}
+                  </p>
+                  {(scoreTab.laraSuggestions || []).map((s, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleAskLara(s.message)}
+                      className="flex items-center gap-3 w-full rounded-lg border bg-card p-3 text-left hover:bg-muted/50 transition-colors"
+                    >
+                      <MessageCircle className="h-4 w-4 text-primary shrink-0" />
+                      <span className="text-sm text-foreground">{s.label}</span>
+                    </button>
+                  ))}
+                  <Button className="w-full gap-2" onClick={() => handleAskLara()}>
+                    <MessageCircle className="h-4 w-4" />
+                    {isNb ? "Åpne chat med Lara" : "Open chat with Lara"}
+                  </Button>
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
+          )}
+
+
+
           {/* === Spør Lara === */}
           <TabsContent value="lara" className="px-6 pb-6 mt-4 space-y-4">
             <p className="text-sm text-muted-foreground">
