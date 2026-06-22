@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ListChecks } from "lucide-react";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import type { Framework } from "@/lib/frameworkDefinitions";
 
 interface CategoryStat {
@@ -101,34 +102,56 @@ export function ActiveFrameworksSummary({ frameworks, getStats, expanded, onTogg
     <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
       <div className="flex items-center gap-4">
         {/* Donut */}
-        <div className="relative shrink-0" style={{ width: donutSize, height: donutSize }}>
-          <svg width={donutSize} height={donutSize}>
-            <circle
-              cx={donutSize / 2}
-              cy={donutSize / 2}
-              r={donutRadius}
-              fill="none"
-              stroke="hsl(var(--muted))"
-              strokeWidth={donutStroke}
-            />
-            <circle
-              cx={donutSize / 2}
-              cy={donutSize / 2}
-              r={donutRadius}
-              fill="none"
-              stroke={ringColor}
-              strokeWidth={donutStroke}
-              strokeDasharray={donutCirc}
-              strokeDashoffset={donutOffset}
-              strokeLinecap="round"
-              transform={`rotate(-90 ${donutSize / 2} ${donutSize / 2})`}
-              className="transition-all duration-500"
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-sm font-bold text-foreground">{overallPct}%</span>
-          </div>
-        </div>
+        <HoverCard openDelay={150} closeDelay={80}>
+          <HoverCardTrigger asChild>
+            <div
+              className="relative shrink-0 cursor-help rounded-lg transition hover:ring-2 hover:ring-primary/30"
+              style={{ width: donutSize, height: donutSize }}
+              tabIndex={0}
+              aria-label={`Score ${overallPct}%. Hold musepekeren over for forklaring.`}
+            >
+              <svg width={donutSize} height={donutSize}>
+                <circle
+                  cx={donutSize / 2}
+                  cy={donutSize / 2}
+                  r={donutRadius}
+                  fill="none"
+                  stroke="hsl(var(--muted))"
+                  strokeWidth={donutStroke}
+                />
+                <circle
+                  cx={donutSize / 2}
+                  cy={donutSize / 2}
+                  r={donutRadius}
+                  fill="none"
+                  stroke={ringColor}
+                  strokeWidth={donutStroke}
+                  strokeDasharray={donutCirc}
+                  strokeDashoffset={donutOffset}
+                  strokeLinecap="round"
+                  transform={`rotate(-90 ${donutSize / 2} ${donutSize / 2})`}
+                  className="transition-all duration-500"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-sm font-bold text-foreground">{overallPct}%</span>
+              </div>
+            </div>
+          </HoverCardTrigger>
+          <HoverCardContent side="bottom" align="start" className="w-80 p-4 space-y-3">
+            <p className="text-sm font-semibold text-foreground">Slik er scoren regnet ut</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Prosenten viser hvor mye du har dokumentert av etterlevelse av lover og regler,
+              basert på besvarte kontrollpunkter med bekreftet dokumentasjon.
+            </p>
+            <div className="flex items-start gap-2 rounded-md bg-muted/60 p-2.5 text-xs text-foreground">
+              <ListChecks className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+              <span>
+                Bygger på <strong>{totalMet} av {totalReqs}</strong> kontrollpunkter. «Ikke relevant» teller ikke med.
+              </span>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
 
         {/* Body */}
         <div className="flex-1 min-w-0">
