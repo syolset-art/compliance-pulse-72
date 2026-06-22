@@ -89,7 +89,7 @@ export function ControlAreaBreakdownDrawer({
                     <div className="space-y-2 text-xs text-muted-foreground leading-relaxed">
                       <p>
                         Hvert område scores 0–100 ut fra hvor godt kontrollpunktene er på plass.
-                        De fire områdene teller likt — 25 % hver — og andelen er den samme selv om du legger til flere regelverk.
+                        Områdene teller ulikt — Personvern veier tyngst (30 %), Styring og Drift 25 % hver, Identitet og Leverandører 10 % hver. Vektene er de samme selv om du legger til flere regelverk.
                       </p>
                     </div>
                   </PopoverContent>
