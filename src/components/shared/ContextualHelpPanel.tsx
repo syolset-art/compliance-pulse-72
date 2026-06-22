@@ -67,6 +67,14 @@ export interface ContextualHelpPanelProps {
   laraSuggestions?: LaraSuggestionItem[];
   /** Fallback single suggestion */
   laraSuggestion?: string;
+
+  // Optional 4th tab: explains a score (e.g. compliance maturity)
+  scoreTab?: {
+    label?: string;
+    understand: React.ReactNode;
+    actions?: ActionItem[];
+    laraSuggestions?: LaraSuggestionItem[];
+  };
 }
 
 export function ContextualHelpPanel({
