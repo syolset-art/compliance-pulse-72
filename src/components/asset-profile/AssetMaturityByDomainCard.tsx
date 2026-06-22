@@ -1,8 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { Shield, ChevronDown } from "lucide-react";
+import { Shield, ChevronDown, HelpCircle } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { cn } from "@/lib/utils";
 import { CONTROL_AREAS, type ControlAreaKey } from "@/lib/controlAreas";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
   assetId: string;
