@@ -125,7 +125,7 @@ export function ContextualHelpPanel({
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
           <div className="px-6">
-            <TabsList className="w-full grid grid-cols-3">
+            <TabsList className={`w-full grid ${scoreTab ? "grid-cols-4" : "grid-cols-3"}`}>
               <TabsTrigger value="understand" className="gap-1.5 text-xs">
                 <BookOpen className="h-3.5 w-3.5" />
                 Forstå
@@ -134,6 +134,12 @@ export function ContextualHelpPanel({
                 <Zap className="h-3.5 w-3.5" />
                 Gjør
               </TabsTrigger>
+              {scoreTab && (
+                <TabsTrigger value="score" className="gap-1.5 text-xs">
+                  <Gauge className="h-3.5 w-3.5" />
+                  {scoreTab.label || "Score"}
+                </TabsTrigger>
+              )}
               <TabsTrigger value="lara" className="gap-1.5 text-xs">
                 <MessageCircle className="h-3.5 w-3.5" />
                 Spør Lara
