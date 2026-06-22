@@ -4,7 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -337,15 +338,23 @@ export function MSPServiceCatalogTab() {
     <div className="space-y-6">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
       <section className="space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1 min-w-0">
-            <h3 className="text-lg font-semibold text-foreground">
-              Foreslåtte tjenester
-            </h3>
-            <p className="text-base text-foreground/75 leading-relaxed">
-              Basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.
-            </p>
-          </div>
+        <div className="flex items-center justify-end gap-2">
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Hvorfor vises disse tjenestene?"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                >
+                  <Info className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-xs text-sm">
+                Foreslåtte tjenester er basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0 h-11 text-base">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Beskriv egen tjeneste
