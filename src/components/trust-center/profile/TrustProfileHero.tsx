@@ -1,5 +1,6 @@
-import { Shield, Award, Info, Clock, Scale, BookCheck } from "lucide-react";
+import { Shield, Award, Info, Clock, Scale, BookCheck, ListChecks } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { getCoverPreset, DEFAULT_COVER_OVERLAY, getCoverColor } from "@/lib/coverPresets";
 
 export interface HeroFramework {
