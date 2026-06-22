@@ -6,10 +6,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, ArrowRight, Filter, X } from "lucide-react";
+import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, ArrowRight, Filter, X, Columns3 } from "lucide-react";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -229,6 +231,105 @@ function ColumnFilter({
   );
 }
 
+// ===== Responsive column config =====
+type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "tp_status" | "score";
+
+const COLUMN_LABELS: Record<ColumnKey, string> = {
+  customer: "Kunde",
+  country: "Land",
+  industry: "Bransje",
+  criticality: "Kritikalitet",
+  services: "Lara anbefaler",
+  tp_status: "TP-status",
+  score: "Modenhet",
+};
+
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "tp_status", "score"];
+
+// Min Tailwind breakpoint (in px) where each column becomes visible by default.
+// 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
+const COLUMN_MIN_BP: Record<ColumnKey, number> = {
+  customer: 0,
+  score: 0,
+  tp_status: 640,
+  criticality: 768,
+  services: 1024,
+  industry: 1024,
+  country: 1280,
+};
+
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v1";
+
+function defaultVisibilityForViewport(): Record<ColumnKey, boolean> {
+  const w = typeof window !== "undefined" ? window.innerWidth : 1280;
+  const out = {} as Record<ColumnKey, boolean>;
+  for (const k of COLUMN_ORDER) out[k] = w >= COLUMN_MIN_BP[k];
+  return out;
+}
+
+function useColumnVisibility() {
+  const [visible, setVisible] = useState<Record<ColumnKey, boolean>>(() => {
+    if (typeof window === "undefined") return defaultVisibilityForViewport();
+    try {
+      const raw = window.localStorage.getItem(COLUMN_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const base = defaultVisibilityForViewport();
+        for (const k of COLUMN_ORDER) if (typeof parsed?.[k] === "boolean") base[k] = parsed[k];
+        return base;
+      }
+    } catch {}
+    return defaultVisibilityForViewport();
+  });
+
+  const toggle = (key: ColumnKey) => {
+    setVisible((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try { window.localStorage.setItem(COLUMN_STORAGE_KEY, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  const isVisible = (key: ColumnKey) => !!visible[key];
+  return { visible, toggle, isVisible };
+}
+
+function ColumnsMenu({ visible, onToggle }: { visible: Record<ColumnKey, boolean>; onToggle: (k: ColumnKey) => void }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground/80 hover:text-foreground transition-colors"
+          title="Velg kolonner"
+        >
+          <Columns3 className="h-4 w-4" /> Kolonner
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-52 p-2">
+        <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Vis kolonner</div>
+        <div className="space-y-0.5">
+          {COLUMN_ORDER.map((k) => (
+            <label
+              key={k}
+              className="flex items-center gap-2 px-2 py-1.5 rounded-sm hover:bg-muted/60 cursor-pointer text-sm"
+            >
+              <Checkbox
+                checked={visible[k]}
+                onCheckedChange={() => onToggle(k)}
+                disabled={k === "customer"}
+              />
+              <span className={cn(k === "customer" && "text-muted-foreground")}>{COLUMN_LABELS[k]}</span>
+            </label>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
+
 export default function MSPDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -245,6 +346,7 @@ export default function MSPDashboard() {
   const [segmentFilter, setSegmentFilter] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("customer_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const { visible: colVisible, toggle: toggleColumn, isVisible } = useColumnVisibility();
   const queryClient = useQueryClient();
 
   const { data: customers = [], refetch } = useQuery({
@@ -549,29 +651,34 @@ export default function MSPDashboard() {
                     <X className="h-3.5 w-3.5" /> Nullstill filtre ({activeFilterCount})
                   </Button>
                 )}
-                <div className="inline-flex rounded-md border border-border bg-background overflow-hidden md:ml-auto">
-                  <button
-                    type="button"
-                    onClick={() => setView("cards")}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-2 text-sm transition-colors",
-                      view === "cards" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
-                    )}
-                    aria-pressed={view === "cards"}
-                  >
-                    <LayoutGrid className="h-4 w-4" /> Kort
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setView("table")}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-2 text-sm border-l border-border transition-colors",
-                      view === "table" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
-                    )}
-                    aria-pressed={view === "table"}
-                  >
-                    <Rows3 className="h-4 w-4" /> Tabell
-                  </button>
+                <div className="md:ml-auto inline-flex items-center gap-2">
+                  {view === "table" && (
+                    <ColumnsMenu visible={colVisible} onToggle={toggleColumn} />
+                  )}
+                  <div className="inline-flex rounded-md border border-border bg-background overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setView("cards")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-2 text-sm transition-colors",
+                        view === "cards" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
+                      )}
+                      aria-pressed={view === "cards"}
+                    >
+                      <LayoutGrid className="h-4 w-4" /> Kort
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setView("table")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-2 text-sm border-l border-border transition-colors",
+                        view === "table" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
+                      )}
+                      aria-pressed={view === "table"}
+                    >
+                      <Rows3 className="h-4 w-4" /> Tabell
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -592,114 +699,124 @@ export default function MSPDashboard() {
                 </div>
               ) : (
                 <>
-                  {/* Mobile/tablet: compact table-style row list */}
-                  <div className="lg:hidden rounded-lg border border-border bg-card divide-y divide-border overflow-hidden">
-                    {filtered.map((c: any) => {
-                      const score = c.compliance_score || 0;
-                      const radius = 18;
-                      const circ = 2 * Math.PI * radius;
-                      const dash = score > 0 ? (score / 100) * circ : 0;
-                      const stroke =
-                        score >= 75 ? "hsl(var(--success))" :
-                        score >= 50 ? "hsl(var(--warning))" :
-                        "hsl(var(--destructive))";
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => navigate(`/msp-dashboard/${c.id}`)}
-                          className="w-full text-left px-3 py-3 flex items-center gap-3 hover:bg-muted/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">{c.customer_name}</p>
-                            <p className="mt-0.5 text-[12px] text-muted-foreground truncate">{c.industry || "—"}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="relative flex items-center justify-center" style={{ width: 40, height: 40 }}>
-                              <svg width="40" height="40" viewBox="0 0 40 40" className="-rotate-90">
-                                <circle cx="20" cy="20" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="3" />
-                                {score > 0 && (
-                                  <circle cx="20" cy="20" r={radius} fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round"
-                                    strokeDasharray={`${dash} ${circ}`} />
-                                )}
-                              </svg>
-                              <span className={cn(
-                                "absolute text-[11px] font-semibold tabular-nums leading-none",
-                                score >= 75 ? "text-success" : score >= 50 ? "text-warning" : "text-destructive"
-                              )}>
-                                {score > 0 ? `${score}%` : "—"}
-                              </span>
-                            </div>
-                            <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                <div className="hidden lg:block rounded-lg border border-border bg-card overflow-x-auto">
-                  <Table className="table-fixed min-w-[1080px]">
+                  {/* Active filters for columns that are currently hidden */}
+                  {(() => {
+                    const hiddenFilters: React.ReactNode[] = [];
+                    if (!isVisible("country")) hiddenFilters.push(
+                      <ColumnFilter key="f-country" label="Land"
+                        options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
+                        selected={countryCodeFilter} onChange={setCountryCodeFilter} />
+                    );
+                    if (!isVisible("industry")) hiddenFilters.push(
+                      <ColumnFilter key="f-industry" label="Bransje"
+                        options={industryOptions.map((v) => ({ value: v, label: v }))}
+                        selected={industryFilter} onChange={setIndustryFilter} />
+                    );
+                    if (!isVisible("criticality")) hiddenFilters.push(
+                      <ColumnFilter key="f-crit" label="Kritikalitet"
+                        options={[
+                          { value: "high", label: "Høy" },
+                          { value: "medium", label: "Medium" },
+                          { value: "low", label: "Lav" },
+                        ]}
+                        selected={criticalityFilter} onChange={setCriticalityFilter} />
+                    );
+                    if (!isVisible("services")) hiddenFilters.push(
+                      <ColumnFilter key="f-services" label="Lara anbefaler"
+                        options={serviceOptions.map((v) => ({ value: v, label: v }))}
+                        selected={serviceFilter} onChange={setServiceFilter} />
+                    );
+                    if (!isVisible("tp_status")) hiddenFilters.push(
+                      <ColumnFilter key="f-tp" label="TP-status"
+                        options={(Object.keys(TP_STATUS_LABEL) as TPStatusKey[]).map((k) => ({ value: k, label: TP_STATUS_LABEL[k] }))}
+                        selected={tpStatusFilter} onChange={(v) => setTpStatusFilter(v as TPStatusKey[])} />
+                    );
+                    if (hiddenFilters.length === 0) return null;
+                    return (
+                      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-dashed border-border bg-muted/30 px-3 py-2">
+                        <span className="text-[12px] uppercase tracking-wider text-muted-foreground">Skjulte kolonner</span>
+                        {hiddenFilters}
+                      </div>
+                    );
+                  })()}
+                <div className="rounded-lg border border-border bg-card overflow-x-auto">
+                  <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[220px] text-foreground/80">
-                          <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
-                            Kunde <SortIcon k="customer_name" />
-                          </button>
-                        </TableHead>
-                        <TableHead className="w-[80px] text-foreground/80">
-                          <ColumnFilter
-                            label="Land"
-                            options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
-                            selected={countryCodeFilter}
-                            onChange={setCountryCodeFilter}
-                          />
-                        </TableHead>
-                        <TableHead className="w-[160px] text-foreground/80">
-                          <ColumnFilter
-                            label="Bransje"
-                            options={industryOptions.map((v) => ({ value: v, label: v }))}
-                            selected={industryFilter}
-                            onChange={setIndustryFilter}
-                          />
-                        </TableHead>
-                        <TableHead className="w-[140px] text-foreground/80">
-                          <ColumnFilter
-                            label="Kritikalitet"
-                            options={[
-                              { value: "high", label: "Høy" },
-                              { value: "medium", label: "Medium" },
-                              { value: "low", label: "Lav" },
-                            ]}
-                            selected={criticalityFilter}
-                            onChange={setCriticalityFilter}
-                          />
-                        </TableHead>
-                        <TableHead className="w-auto text-foreground/80">
-                          <ColumnFilter
-                            label="Lara anbefaler"
-                            options={serviceOptions.map((v) => ({ value: v, label: v }))}
-                            selected={serviceFilter}
-                            onChange={setServiceFilter}
-                          />
-                        </TableHead>
-                        <TableHead className="w-[160px] text-foreground/80">
-                          <div className="inline-flex items-center gap-2">
-                            <button type="button" onClick={() => toggleSort("tp_status")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
-                              TP-status <SortIcon k="tp_status" />
+                        {isVisible("customer") && (
+                          <TableHead className="min-w-[160px] text-foreground/80">
+                            <button type="button" onClick={() => toggleSort("customer_name")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
+                              Kunde <SortIcon k="customer_name" />
                             </button>
+                          </TableHead>
+                        )}
+                        {isVisible("country") && (
+                          <TableHead className="w-[72px] text-foreground/80">
                             <ColumnFilter
-                              iconOnly
-                              label="TP-status"
-                              options={(Object.keys(TP_STATUS_LABEL) as TPStatusKey[]).map((k) => ({ value: k, label: TP_STATUS_LABEL[k] }))}
-                              selected={tpStatusFilter}
-                              onChange={(v) => setTpStatusFilter(v as TPStatusKey[])}
+                              label="Land"
+                              options={countryCodeOptions.map((v) => ({ value: v, label: v }))}
+                              selected={countryCodeFilter}
+                              onChange={setCountryCodeFilter}
                             />
-                          </div>
-                        </TableHead>
-                        <TableHead className="w-[120px] text-right text-foreground/80">
-                          <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
-                            Modenhet <SortIcon k="compliance_score" />
-                          </button>
-                        </TableHead>
+                          </TableHead>
+                        )}
+                        {isVisible("industry") && (
+                          <TableHead className="w-[140px] text-foreground/80">
+                            <ColumnFilter
+                              label="Bransje"
+                              options={industryOptions.map((v) => ({ value: v, label: v }))}
+                              selected={industryFilter}
+                              onChange={setIndustryFilter}
+                            />
+                          </TableHead>
+                        )}
+                        {isVisible("criticality") && (
+                          <TableHead className="w-[120px] text-foreground/80">
+                            <ColumnFilter
+                              label="Kritikalitet"
+                              options={[
+                                { value: "high", label: "Høy" },
+                                { value: "medium", label: "Medium" },
+                                { value: "low", label: "Lav" },
+                              ]}
+                              selected={criticalityFilter}
+                              onChange={setCriticalityFilter}
+                            />
+                          </TableHead>
+                        )}
+                        {isVisible("services") && (
+                          <TableHead className="w-auto text-foreground/80">
+                            <ColumnFilter
+                              label="Lara anbefaler"
+                              options={serviceOptions.map((v) => ({ value: v, label: v }))}
+                              selected={serviceFilter}
+                              onChange={setServiceFilter}
+                            />
+                          </TableHead>
+                        )}
+                        {isVisible("tp_status") && (
+                          <TableHead className="w-[140px] text-foreground/80">
+                            <div className="inline-flex items-center gap-2">
+                              <button type="button" onClick={() => toggleSort("tp_status")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
+                                TP-status <SortIcon k="tp_status" />
+                              </button>
+                              <ColumnFilter
+                                iconOnly
+                                label="TP-status"
+                                options={(Object.keys(TP_STATUS_LABEL) as TPStatusKey[]).map((k) => ({ value: k, label: TP_STATUS_LABEL[k] }))}
+                                selected={tpStatusFilter}
+                                onChange={(v) => setTpStatusFilter(v as TPStatusKey[])}
+                              />
+                            </div>
+                          </TableHead>
+                        )}
+                        {isVisible("score") && (
+                          <TableHead className="w-[96px] text-right text-foreground/80">
+                            <button type="button" onClick={() => toggleSort("compliance_score")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
+                              Modenhet <SortIcon k="compliance_score" />
+                            </button>
+                          </TableHead>
+                        )}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -718,57 +835,71 @@ export default function MSPDashboard() {
                             )}
                             onClick={() => navigate(`/msp-dashboard/${c.id}`)}
                           >
-                            <TableCell className="font-medium">
-                              <span className="inline-flex items-center gap-2">
-                                {c.customer_name}
-                                {isNew && (
-                                  <Badge variant="outline" className="bg-primary text-primary-foreground border-primary text-[11px] px-1.5 py-0 h-4 font-medium animate-pulse">
-                                    Ny
-                                  </Badge>
+                            {isVisible("customer") && (
+                              <TableCell className="font-medium">
+                                <span className="inline-flex items-center gap-2 min-w-0">
+                                  <span className="truncate">{c.customer_name}</span>
+                                  {isNew && (
+                                    <Badge variant="outline" className="bg-primary text-primary-foreground border-primary text-[11px] px-1.5 py-0 h-4 font-medium animate-pulse shrink-0">
+                                      Ny
+                                    </Badge>
+                                  )}
+                                </span>
+                              </TableCell>
+                            )}
+                            {isVisible("country") && (
+                              <TableCell
+                                className="text-muted-foreground tabular-nums cursor-help"
+                                title={getCountryName(c.country_code || "NO")}
+                              >
+                                {c.country_code || "NO"}
+                              </TableCell>
+                            )}
+                            {isVisible("industry") && (
+                              <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
+                            )}
+                            {isVisible("criticality") && (
+                              <TableCell>
+                                <Badge variant="outline" className={cn("font-normal", crit.tone)}>
+                                  {crit.label}
+                                </Badge>
+                              </TableCell>
+                            )}
+                            {isVisible("services") && (
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                {services.length === 0 ? (
+                                  <span className="text-muted-foreground text-sm">—</span>
+                                ) : (
+                                  <div className="flex flex-wrap gap-1 max-w-[280px]">
+                                    {services.map((s) => (
+                                      <button
+                                        key={s}
+                                        type="button"
+                                        onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
+                                        className="inline-flex"
+                                        title={`Åpne tjenester for ${c.customer_name}`}
+                                      >
+                                        <Badge variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[12px] cursor-pointer hover:bg-primary/20 transition-colors">
+                                          {s}
+                                        </Badge>
+                                      </button>
+                                    ))}
+                                  </div>
                                 )}
-                              </span>
-                            </TableCell>
-                            <TableCell 
-                              className="text-muted-foreground tabular-nums cursor-help" 
-                              title={getCountryName(c.country_code || "NO")}
-                            >
-                              {c.country_code || "NO"}
-                            </TableCell>
-                            <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className={cn("font-normal", crit.tone)}>
-                                {crit.label}
-                              </Badge>
-                            </TableCell>
-                            <TableCell onClick={(e) => e.stopPropagation()}>
-                              {services.length === 0 ? (
-                                <span className="text-muted-foreground text-sm">—</span>
-                              ) : (
-                                <div className="flex flex-wrap gap-1 max-w-[280px]">
-                                  {services.map((s) => (
-                                    <button
-                                      key={s}
-                                      type="button"
-                                      onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
-                                      className="inline-flex"
-                                      title={`Åpne tjenester for ${c.customer_name}`}
-                                    >
-                                      <Badge variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[12px] cursor-pointer hover:bg-primary/20 transition-colors">
-                                        {s}
-                                      </Badge>
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant="outline" className={cn("font-normal", TP_STATUS_TONE[tp])}>
-                                {TP_STATUS_LABEL[tp]}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {score > 0 ? <ScoreCircle score={score} /> : <span className="text-muted-foreground text-sm">—</span>}
-                            </TableCell>
+                              </TableCell>
+                            )}
+                            {isVisible("tp_status") && (
+                              <TableCell>
+                                <Badge variant="outline" className={cn("font-normal", TP_STATUS_TONE[tp])}>
+                                  {TP_STATUS_LABEL[tp]}
+                                </Badge>
+                              </TableCell>
+                            )}
+                            {isVisible("score") && (
+                              <TableCell className="text-right">
+                                {score > 0 ? <ScoreCircle score={score} /> : <span className="text-muted-foreground text-sm">—</span>}
+                              </TableCell>
+                            )}
                           </TableRow>
                         );
                       })}
