@@ -1,8 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { Shield, ChevronDown } from "lucide-react";
+import { Shield, ChevronDown, HelpCircle } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { cn } from "@/lib/utils";
 import { CONTROL_AREAS, type ControlAreaKey } from "@/lib/controlAreas";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
   assetId: string;
@@ -53,11 +54,50 @@ export function AssetMaturityByDomainCard({ assetId }: Props) {
             {isNb ? "Modenhet per kontrollområde" : "Maturity by control area"}
           </h3>
         </div>
-        <p className="text-sm text-muted-foreground shrink-0">
-          {isNb ? "Trust Score" : "Trust Score"}{" "}
-          <span className={cn("text-base font-bold tabular-nums", overallColor.text)}>{overall}</span>
-          <span className="text-muted-foreground">/100</span>
-        </p>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground shrink-0 cursor-help border-b border-dotted border-muted-foreground/40 pb-0.5 hover:text-foreground transition-colors">
+                <span>{isNb ? "Trust Score" : "Trust Score"}</span>
+                <span className={cn("text-base font-bold tabular-nums", overallColor.text)}>{overall}</span>
+                <span className="text-muted-foreground">/100</span>
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground/60" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" align="end" className="w-80 p-3.5 space-y-2.5 text-xs bg-popover text-popover-foreground border border-border shadow-xl leading-relaxed">
+              <p className="font-semibold text-foreground">
+                {isNb ? "Hvordan beregnes Trust Score?" : "How is the Trust Score calculated?"}
+              </p>
+              <p>
+                {isNb 
+                  ? "Hvert område scores 0–100 ut fra hvor godt kontrollpunktene er på plass. Områdene teller ulikt i den samlede scoren:"
+                  : "Each area is scored 0–100 based on how well the control points are in place. The areas weigh differently in the overall score:"}
+              </p>
+              <ul className="space-y-1 list-disc pl-4 text-muted-foreground">
+                <li>
+                  <strong>{isNb ? "Personvern" : "Privacy"}:</strong> 30%
+                </li>
+                <li>
+                  <strong>{isNb ? "Styring" : "Governance"}:</strong> 25%
+                </li>
+                <li>
+                  <strong>{isNb ? "Drift" : "Operations"}:</strong> 25%
+                </li>
+                <li>
+                  <strong>{isNb ? "Identitet og tilgang" : "Identity & Access"}:</strong> 10%
+                </li>
+                <li>
+                  <strong>{isNb ? "Leverandører" : "Vendors"}:</strong> 10%
+                </li>
+              </ul>
+              <p className="text-[11px] text-muted-foreground/80 border-t border-border/60 pt-1.5 mt-1.5">
+                {isNb
+                  ? "Vektene er de samme selv om du legger til flere regelverk."
+                  : "The weights remain the same even if you add multiple frameworks."}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Grid of all 5 areas */}

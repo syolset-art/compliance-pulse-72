@@ -181,14 +181,14 @@ export function getControlAreaIcon(key: string): LucideIcon {
 
 /**
  * Områdevekt i Trust Score (0-1). Summen er 1.0.
- * Speiler at "fungerer sikkerheten i praksis" og "hvem har ansvaret"
- * er viktigere enn de andre områdene.
+ * Personvern veier tyngst (30 %), Styring og Drift 25 % hver,
+ * Identitet og Leverandører 10 % hver.
  */
 export const AREA_WEIGHTS: Record<ControlAreaKey, number> = {
-  operations: 0.30,
+  privacy: 0.30,
   governance: 0.25,
-  privacy: 0.20,
-  identityAccess: 0.15,
+  operations: 0.25,
+  identityAccess: 0.10,
   vendor: 0.10,
 };
 

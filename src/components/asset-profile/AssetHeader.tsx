@@ -500,19 +500,57 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
               const dash = (score / 100) * circ;
               const strokeColor = isHigh ? "hsl(var(--success))" : isMid ? "hsl(var(--warning))" : "hsl(var(--destructive))";
               return (
-                <div className="flex flex-col items-center gap-1 shrink-0 pr-6 border-r border-border">
-                  <div className="relative flex items-center justify-center">
-                    <svg width="80" height="80" viewBox="0 0 80 80" className="-rotate-90">
-                      <circle cx="40" cy="40" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
-                      <circle cx="40" cy="40" r={radius} fill="none" stroke={strokeColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className={`text-xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>{score}</span>
-                      <span className="text-[11px] font-bold text-muted-foreground tracking-wide leading-none mt-0.5">/100</span>
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
-                </div>
+                <TooltipProvider delayDuration={150}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex flex-col items-center gap-1 shrink-0 pr-6 border-r border-border cursor-help group">
+                        <div className="relative flex items-center justify-center group-hover:scale-105 transition-transform">
+                          <svg width="80" height="80" viewBox="0 0 80 80" className="-rotate-90">
+                            <circle cx="40" cy="40" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
+                            <circle cx="40" cy="40" r={radius} fill="none" stroke={strokeColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <span className={`text-xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>{score}</span>
+                            <span className="text-[11px] font-bold text-muted-foreground tracking-wide leading-none mt-0.5">/100</span>
+                          </div>
+                        </div>
+                        <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider border-b border-dotted border-muted-foreground/30">Trust Score</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" align="center" className="w-80 p-3.5 space-y-2.5 text-xs bg-popover text-popover-foreground border border-border shadow-xl leading-relaxed">
+                      <p className="font-semibold text-foreground">
+                        {isNb ? "Hvordan beregnes Trust Score?" : "How is the Trust Score calculated?"}
+                      </p>
+                      <p>
+                        {isNb 
+                          ? "Hvert område scores 0–100 ut fra hvor godt kontrollpunktene er på plass. Områdene teller ulikt i den samlede scoren:"
+                          : "Each area is scored 0–100 based on how well the control points are in place. The areas weigh differently in the overall score:"}
+                      </p>
+                      <ul className="space-y-1 list-disc pl-4 text-muted-foreground">
+                        <li>
+                          <strong>{isNb ? "Personvern" : "Privacy"}:</strong> 30%
+                        </li>
+                        <li>
+                          <strong>{isNb ? "Styring" : "Governance"}:</strong> 25%
+                        </li>
+                        <li>
+                          <strong>{isNb ? "Drift" : "Operations"}:</strong> 25%
+                        </li>
+                        <li>
+                          <strong>{isNb ? "Identitet og tilgang" : "Identity & Access"}:</strong> 10%
+                        </li>
+                        <li>
+                          <strong>{isNb ? "Leverandører" : "Vendors"}:</strong> 10%
+                        </li>
+                      </ul>
+                      <p className="text-[11px] text-muted-foreground/80 border-t border-border/60 pt-1.5 mt-1.5">
+                        {isNb
+                          ? "Vektene er de samme selv om du legger til flere regelverk."
+                          : "The weights remain the same even if you add multiple frameworks."}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               );
             })()}
             {/* Leverandøransvarlig */}
@@ -777,17 +815,57 @@ export function AssetHeader({ asset, template, trustMetrics, requestDialogOpen: 
           const confLabel = conf >= 80 ? (isNb ? "Høy tillit" : "High confidence") : conf >= 50 ? (isNb ? "Middels tillit" : "Medium confidence") : (isNb ? "Lav tillit" : "Low confidence");
           return (
             <div className="hidden md:flex flex-col items-center gap-3 shrink-0 pl-8 border-l border-border min-w-[200px]">
-              <div className="relative flex items-center justify-center">
-                <svg width="128" height="128" viewBox="0 0 96 96" className="-rotate-90">
-                  <circle cx="48" cy="48" r={radius} fill="none" stroke={bgRingColor} strokeWidth="6" />
-                  <circle cx="48" cy="48" r={radius} fill="none" stroke={strokeColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className={`text-4xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>{score}</span>
-                  <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide leading-tight mt-0.5">/100</span>
-                </div>
-              </div>
-              <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">Trust Score</span>
+              <TooltipProvider delayDuration={150}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex flex-col items-center gap-2 cursor-help group">
+                      <div className="relative flex items-center justify-center group-hover:scale-105 transition-transform">
+                        <svg width="128" height="128" viewBox="0 0 96 96" className="-rotate-90">
+                          <circle cx="48" cy="48" r={radius} fill="none" stroke={bgRingColor} strokeWidth="6" />
+                          <circle cx="48" cy="48" r={radius} fill="none" stroke={strokeColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${dash} ${circ}`} style={{ transition: "stroke-dasharray 0.6s ease" }} />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className={`text-4xl font-extrabold tabular-nums leading-none ${isHigh ? "text-success" : isMid ? "text-warning" : "text-destructive"}`}>{score}</span>
+                          <span className="text-[13px] font-bold text-muted-foreground uppercase tracking-wide leading-tight mt-0.5">/100</span>
+                        </div>
+                      </div>
+                      <span className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider border-b border-dotted border-muted-foreground/30">Trust Score</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" align="center" className="w-80 p-3.5 space-y-2.5 text-xs bg-popover text-popover-foreground border border-border shadow-xl leading-relaxed z-50">
+                    <p className="font-semibold text-foreground">
+                      {isNb ? "Hvordan beregnes Trust Score?" : "How is the Trust Score calculated?"}
+                    </p>
+                    <p>
+                      {isNb 
+                        ? "Hvert område scores 0–100 ut fra hvor godt kontrollpunktene er på plass. Områdene teller ulikt i den samlede scoren:"
+                        : "Each area is scored 0–100 based on how well the control points are in place. The areas weigh differently in the overall score:"}
+                    </p>
+                    <ul className="space-y-1 list-disc pl-4 text-muted-foreground">
+                      <li>
+                        <strong>{isNb ? "Personvern" : "Privacy"}:</strong> 30%
+                      </li>
+                      <li>
+                        <strong>{isNb ? "Styring" : "Governance"}:</strong> 25%
+                      </li>
+                      <li>
+                        <strong>{isNb ? "Drift" : "Operations"}:</strong> 25%
+                      </li>
+                      <li>
+                        <strong>{isNb ? "Identitet og tilgang" : "Identity & Access"}:</strong> 10%
+                      </li>
+                      <li>
+                        <strong>{isNb ? "Leverandører" : "Vendors"}:</strong> 10%
+                      </li>
+                    </ul>
+                    <p className="text-[11px] text-muted-foreground/80 border-t border-border/60 pt-1.5 mt-1.5">
+                      {isNb
+                        ? "Vektene er de samme selv om du legger til flere regelverk."
+                        : "The weights remain the same even if you add multiple frameworks."}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <div className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-1.5">
                   {conf >= 80 && <CheckCircle2 className="h-3 w-3 text-success" />}
