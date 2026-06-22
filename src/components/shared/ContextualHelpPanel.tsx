@@ -94,6 +94,7 @@ export function ContextualHelpPanel({
   actions,
   laraSuggestions,
   laraSuggestion,
+  scoreTab,
 }: ContextualHelpPanelProps) {
   const { i18n } = useTranslation();
   const { openChatWithMessage } = useGlobalChat();
