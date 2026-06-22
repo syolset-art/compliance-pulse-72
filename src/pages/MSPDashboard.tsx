@@ -346,6 +346,7 @@ export default function MSPDashboard() {
   const [segmentFilter, setSegmentFilter] = useState<string[]>([]);
   const [sortKey, setSortKey] = useState<SortKey>("customer_name");
   const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const { visible: colVisible, toggle: toggleColumn, isVisible } = useColumnVisibility();
   const queryClient = useQueryClient();
 
   const { data: customers = [], refetch } = useQuery({
