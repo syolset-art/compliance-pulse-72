@@ -524,6 +524,50 @@ const Regulations = () => {
           { label: "Lag en etterlevelsesplan", message: "Hjelp meg med å lage en etterlevelsesplan for de neste 6 månedene." },
         ]}
         laraSuggestion="Hvilke regelverk bør vi fokusere på basert på vår bransje?"
+        scoreTab={{
+          label: "Score",
+          understand: (
+            <div className="space-y-4">
+              <p>
+                Scoren viser hvor mye du har dokumentert av etterlevelse av lover og regler.
+                Jo flere kontrollpunkter du har besvart og bekreftet med dokumentasjon, jo høyere blir den.
+              </p>
+              <div className="rounded-lg border bg-card p-3 space-y-2">
+                <p className="text-foreground font-medium">Slik beregnes scoren</p>
+                <ul className="list-disc pl-5 space-y-1 text-xs">
+                  <li><span className="text-foreground font-medium">Besvarte kontrollpunkter</span> teller mest — særlig de som er bekreftet med dokumentasjon (Verifisert).</li>
+                  <li><span className="text-foreground font-medium">Delvis dokumentert</span> teller halvt.</li>
+                  <li><span className="text-foreground font-medium">Ikke besvart</span> trekker scoren ned.</li>
+                  <li><span className="text-foreground font-medium">«Ikke relevant»</span> tas ut av grunnlaget og påvirker ikke scoren.</li>
+                </ul>
+              </div>
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-1">
+                <p className="text-foreground font-medium">Per kontrollområde</p>
+                <p className="text-xs">
+                  Hvert regelverk har en samlet score og en score per kontrollområde
+                  (Styring, Drift og sikkerhet, Identitet og tilgang, Leverandører og økosystem, Personvern).
+                  Slik ser du raskt hvor det største løftet ligger.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="h-2 w-2 rounded-full bg-success" /> Grønn ≥ 75% &nbsp;
+                <span className="h-2 w-2 rounded-full bg-warning" /> Gul 50–74% &nbsp;
+                <span className="h-2 w-2 rounded-full bg-destructive" /> Rød &lt; 50%
+              </div>
+            </div>
+          ),
+          actions: [
+            { icon: CheckCircle2, title: "Svar ut et kontrollpunkt", description: "Gå til et aktivt regelverk og besvar neste åpne kontrollpunkt.", onClick: () => navigate("/regulations") },
+            { icon: FileText, title: "Last opp et dokument", description: "Lara analyserer dokumentet og foreslår hvilke kontrollpunkter det dekker.", onClick: () => navigate("/documents") },
+            { icon: RefreshCw, title: "Oppdater status", description: "Synkroniser scoren med siste svar og dokumentasjon.", onClick: () => { toast({ title: "Oppdaterer...", description: "Scoren beregnes på nytt." }); } },
+          ],
+          laraSuggestions: [
+            { label: "Hvorfor er scoren min 72 %?", message: "Hvorfor er den samlede scoren min på regelverk akkurat det den er, og hva trekker mest ned?" },
+            { label: "Vis hvilke kontrollpunkter som mangler dokumentasjon", message: "Vis meg hvilke kontrollpunkter som mangler dokumentasjon, sortert etter hvor mye de trekker ned scoren." },
+            { label: "Hva betyr Verifisert?", message: "Hva skal til for at et kontrollpunkt regnes som Verifisert i scoren?" },
+            { label: "Hvordan øker jeg scoren raskest?", message: "Foreslå de 3 tiltakene som vil løfte scoren min mest, basert på hva som mangler i dag." },
+          ],
+        }}
       />
     </div>
   );
