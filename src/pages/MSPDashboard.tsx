@@ -651,29 +651,34 @@ export default function MSPDashboard() {
                     <X className="h-3.5 w-3.5" /> Nullstill filtre ({activeFilterCount})
                   </Button>
                 )}
-                <div className="inline-flex rounded-md border border-border bg-background overflow-hidden md:ml-auto">
-                  <button
-                    type="button"
-                    onClick={() => setView("cards")}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-2 text-sm transition-colors",
-                      view === "cards" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
-                    )}
-                    aria-pressed={view === "cards"}
-                  >
-                    <LayoutGrid className="h-4 w-4" /> Kort
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setView("table")}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 px-3 py-2 text-sm border-l border-border transition-colors",
-                      view === "table" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
-                    )}
-                    aria-pressed={view === "table"}
-                  >
-                    <Rows3 className="h-4 w-4" /> Tabell
-                  </button>
+                <div className="md:ml-auto inline-flex items-center gap-2">
+                  {view === "table" && (
+                    <ColumnsMenu visible={colVisible} onToggle={toggleColumn} />
+                  )}
+                  <div className="inline-flex rounded-md border border-border bg-background overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setView("cards")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-2 text-sm transition-colors",
+                        view === "cards" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
+                      )}
+                      aria-pressed={view === "cards"}
+                    >
+                      <LayoutGrid className="h-4 w-4" /> Kort
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setView("table")}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 px-3 py-2 text-sm border-l border-border transition-colors",
+                        view === "table" ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/50"
+                      )}
+                      aria-pressed={view === "table"}
+                    >
+                      <Rows3 className="h-4 w-4" /> Tabell
+                    </button>
+                  </div>
                 </div>
               </div>
 
