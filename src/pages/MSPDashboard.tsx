@@ -231,6 +231,105 @@ function ColumnFilter({
   );
 }
 
+// ===== Responsive column config =====
+type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "tp_status" | "score";
+
+const COLUMN_LABELS: Record<ColumnKey, string> = {
+  customer: "Kunde",
+  country: "Land",
+  industry: "Bransje",
+  criticality: "Kritikalitet",
+  services: "Lara anbefaler",
+  tp_status: "TP-status",
+  score: "Modenhet",
+};
+
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "tp_status", "score"];
+
+// Min Tailwind breakpoint (in px) where each column becomes visible by default.
+// 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
+const COLUMN_MIN_BP: Record<ColumnKey, number> = {
+  customer: 0,
+  score: 0,
+  tp_status: 640,
+  criticality: 768,
+  services: 1024,
+  industry: 1024,
+  country: 1280,
+};
+
+const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v1";
+
+function defaultVisibilityForViewport(): Record<ColumnKey, boolean> {
+  const w = typeof window !== "undefined" ? window.innerWidth : 1280;
+  const out = {} as Record<ColumnKey, boolean>;
+  for (const k of COLUMN_ORDER) out[k] = w >= COLUMN_MIN_BP[k];
+  return out;
+}
+
+function useColumnVisibility() {
+  const [visible, setVisible] = useState<Record<ColumnKey, boolean>>(() => {
+    if (typeof window === "undefined") return defaultVisibilityForViewport();
+    try {
+      const raw = window.localStorage.getItem(COLUMN_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const base = defaultVisibilityForViewport();
+        for (const k of COLUMN_ORDER) if (typeof parsed?.[k] === "boolean") base[k] = parsed[k];
+        return base;
+      }
+    } catch {}
+    return defaultVisibilityForViewport();
+  });
+
+  const toggle = (key: ColumnKey) => {
+    setVisible((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      try { window.localStorage.setItem(COLUMN_STORAGE_KEY, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+
+  const isVisible = (key: ColumnKey) => !!visible[key];
+  return { visible, toggle, isVisible };
+}
+
+function ColumnsMenu({ visible, onToggle }: { visible: Record<ColumnKey, boolean>; onToggle: (k: ColumnKey) => void }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground/80 hover:text-foreground transition-colors"
+          title="Velg kolonner"
+        >
+          <Columns3 className="h-4 w-4" /> Kolonner
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-52 p-2">
+        <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Vis kolonner</div>
+        <div className="space-y-0.5">
+          {COLUMN_ORDER.map((k) => (
+            <label
+              key={k}
+              className="flex items-center gap-2 px-2 py-1.5 rounded-sm hover:bg-muted/60 cursor-pointer text-sm"
+            >
+              <Checkbox
+                checked={visible[k]}
+                onCheckedChange={() => onToggle(k)}
+                disabled={k === "customer"}
+              />
+              <span className={cn(k === "customer" && "text-muted-foreground")}>{COLUMN_LABELS[k]}</span>
+            </label>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
+
 export default function MSPDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
