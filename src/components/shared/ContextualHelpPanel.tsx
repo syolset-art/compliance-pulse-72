@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Lightbulb, MessageCircle, BookOpen, Zap, type LucideIcon } from "lucide-react";
+import { Lightbulb, MessageCircle, BookOpen, Zap, Gauge, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useGlobalChat } from "@/components/GlobalChatProvider";
 
