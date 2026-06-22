@@ -197,20 +197,46 @@ export function TrustProfileHero({
           {/* Compact Trust Score card */}
           <div className="shrink-0 self-start">
             <div className="rounded-xl border border-border bg-muted/40 px-4 py-3 flex items-center gap-3 min-w-[220px]">
-              <div className="relative flex items-center justify-center">
-                <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
-                  <circle cx="32" cy="32" r={smR} fill="none" stroke="hsl(var(--border))" strokeWidth="6" />
-                  <circle
-                    cx="32" cy="32" r={smR} fill="none"
-                    stroke={strokeColor} strokeWidth="6" strokeLinecap="round"
-                    strokeDasharray={`${smDash} ${smCirc}`}
-                    style={{ transition: "stroke-dasharray 0.6s ease" }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-base font-bold tabular-nums text-foreground">{trustScore}</span>
-                </div>
-              </div>
+              <HoverCard openDelay={150} closeDelay={80}>
+                <HoverCardTrigger asChild>
+                  <div
+                    className="relative flex items-center justify-center cursor-help rounded-lg transition hover:ring-2 hover:ring-primary/30"
+                    tabIndex={0}
+                    aria-label={isNb ? `Trust Score ${trustScore}. Hold musepekeren over for forklaring.` : `Trust Score ${trustScore}. Hover for explanation.`}
+                  >
+                    <svg width="64" height="64" viewBox="0 0 64 64" className="-rotate-90">
+                      <circle cx="32" cy="32" r={smR} fill="none" stroke="hsl(var(--border))" strokeWidth="6" />
+                      <circle
+                        cx="32" cy="32" r={smR} fill="none"
+                        stroke={strokeColor} strokeWidth="6" strokeLinecap="round"
+                        strokeDasharray={`${smDash} ${smCirc}`}
+                        style={{ transition: "stroke-dasharray 0.6s ease" }}
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-base font-bold tabular-nums text-foreground">{trustScore}</span>
+                    </div>
+                  </div>
+                </HoverCardTrigger>
+                <HoverCardContent side="bottom" align="start" className="w-80 p-4 space-y-3">
+                  <p className="text-sm font-semibold text-foreground">
+                    {isNb ? "Slik er scoren regnet ut" : "How the score is calculated"}
+                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {isNb
+                      ? "Hvert kontrollområde scores 0–100, og veies sammen til én Trust Score. Personvern teller 30 %, Styring og Drift 25 % hver, Identitet og Leverandører 10 % hver."
+                      : "Each control area is scored 0–100 and weighted into one Trust Score. Privacy weighs 30 %, Governance and Operations 25 % each, Identity and Vendors 10 % each."}
+                  </p>
+                  <div className="flex items-start gap-2 rounded-md bg-muted/60 p-2.5 text-xs text-foreground">
+                    <ListChecks className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <span>
+                      {isNb
+                        ? "Bygger på besvarte kontrollpunkter med bekreftet dokumentasjon. «Ikke relevant» teller ikke med."
+                        : "Based on answered controls with verified evidence. «Not relevant» is excluded."}
+                    </span>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
               <div className="flex flex-col gap-0.5 min-w-0">
                 <div className="flex items-center gap-1">
                   <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
