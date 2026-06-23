@@ -64,6 +64,8 @@ const DEMO_TEAM = PARTNER_TEAM;
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 export default function MSPPartnerSettings() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") ?? "generelt";
   const [form, setForm] = useState<ForwardSettings>(defaults);
   const [team] = useState<TeamMember[]>(DEMO_TEAM);
   const [inviteOpen, setInviteOpen] = useState(false);
