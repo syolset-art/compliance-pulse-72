@@ -945,8 +945,40 @@ const SidebarContent = () => {
                     </button>
                   );
                 })}
+                {workspaceMode === "partner" && (() => {
+                  const partnerSettings = [
+                    { tab: "generelt", labelNb: "Partner – Generelt", labelEn: "Partner – General", icon: SettingsIcon },
+                    { tab: "tilbudsmerking", labelNb: "Partner – Tilbudsmal", labelEn: "Partner – Offer template", icon: ImageIcon },
+                    { tab: "integrasjoner", labelNb: "Partner – Integrasjoner", labelEn: "Partner – Integrations", icon: Plug },
+                  ];
+                  const currentTab = new URLSearchParams(location.search).get("tab") ?? "generelt";
+                  return (
+                    <>
+                      <div className="border-t border-sidebar-border my-2" />
+                      {partnerSettings.map((p) => {
+                        const isActive = location.pathname === "/msp-settings" && currentTab === p.tab;
+                        return (
+                          <button
+                            key={p.tab}
+                            onClick={() => navigate(`/msp-settings?tab=${p.tab}`)}
+                            className={cn(
+                              "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
+                              isActive
+                                ? "bg-sidebar-accent text-sidebar-primary"
+                                : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                            )}
+                          >
+                            <p.icon className="h-3.5 w-3.5" />
+                            {isNb ? p.labelNb : p.labelEn}
+                          </button>
+                        );
+                      })}
+                    </>
+                  );
+                })()}
                 <CreditMenuItem />
                 {/* Partner-meny er flyttet til workspace-bryteren øverst */}
+
 
                 {isMynderAdmin && (
                   <>
