@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,8 @@ const DEMO_TEAM = PARTNER_TEAM;
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 export default function MSPPartnerSettings() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") ?? "generelt";
   const [form, setForm] = useState<ForwardSettings>(defaults);
   const [team] = useState<TeamMember[]>(DEMO_TEAM);
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -149,7 +151,7 @@ export default function MSPPartnerSettings() {
             </p>
           </div>
 
-          <Tabs defaultValue="generelt" className="space-y-4">
+          <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="space-y-4">
             <TabsList className="h-10">
               <TabsTrigger value="generelt" className="gap-1.5">
                 <Settings className="h-3.5 w-3.5" /> Generelt
