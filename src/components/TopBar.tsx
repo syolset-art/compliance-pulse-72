@@ -196,21 +196,6 @@ export function TopBar() {
             {isNb ? "Om Mynder-scoren" : "About the Mynder score"}
           </DropdownMenuItem>
 
-          {/* Settings */}
-          <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2">
-            <Settings className="h-4 w-4" />
-            {isNb ? "Innstillinger" : "Settings"}
-          </DropdownMenuItem>
-
-
-          {/* Sign out */}
-          <DropdownMenuItem
-            onClick={async () => { await supabase.auth.signOut(); navigate("/auth"); }}
-            className="gap-2 text-destructive focus:text-destructive"
-          >
-            <LogOut className="h-4 w-4" />
-            {isNb ? "Logg ut" : "Sign out"}
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       </div>
