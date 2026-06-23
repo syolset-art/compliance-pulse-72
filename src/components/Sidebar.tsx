@@ -224,7 +224,6 @@ const PartnerNav = () => {
     { name: isNb ? "Kundevisning" : "Customer view", href: "/msp-customer-view", icon: Eye },
     { name: isNb ? "Meldinger" : "Messages", href: "/msp-messages", icon: Inbox },
     { name: isNb ? "Fakturagrunnlag" : "Billing basis", href: "/msp-invoices", icon: FileText },
-    { name: isNb ? "Innstillinger" : "Settings", href: "/msp-settings", icon: SettingsIcon },
   ];
 
   return (
