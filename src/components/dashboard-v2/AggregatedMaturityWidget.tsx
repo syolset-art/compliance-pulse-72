@@ -6,8 +6,11 @@ import { Progress } from "@/components/ui/progress";
 import {
   Shield, Settings, KeyRound, Users, FileText,
   ChevronRight, TrendingUp, BarChart3, Layers,
-  CheckCircle2, Circle, AlertCircle,
+  CheckCircle2, Circle, AlertCircle, HelpCircle, Sparkles,
 } from "lucide-react";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { useGlobalChat } from "@/components/GlobalChatProvider";
+import { Button } from "@/components/ui/button";
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { cn } from "@/lib/utils";
 import { getFrameworkById } from "@/lib/frameworkDefinitions";
