@@ -947,9 +947,9 @@ const SidebarContent = () => {
                 })}
                 {workspaceMode === "partner" && (() => {
                   const partnerSettings = [
-                    { tab: "generelt", labelNb: "Partner – Generelt", labelEn: "Partner – General", icon: SettingsIcon },
-                    { tab: "tilbudsmerking", labelNb: "Partner – Tilbudsmal", labelEn: "Partner – Offer template", icon: ImageIcon },
-                    { tab: "integrasjoner", labelNb: "Partner – Integrasjoner", labelEn: "Partner – Integrations", icon: Plug },
+                    { tab: "generelt", labelNb: "Generelt", labelEn: "General", icon: SettingsIcon },
+                    { tab: "tilbudsmerking", labelNb: "Tilbudsmal", labelEn: "Offer template", icon: ImageIcon },
+                    { tab: "integrasjoner", labelNb: "Integrasjoner", labelEn: "Integrations", icon: Plug },
                   ];
                   const currentTab = new URLSearchParams(location.search).get("tab") ?? "generelt";
                   return (
