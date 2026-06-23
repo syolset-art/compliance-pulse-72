@@ -1,45 +1,62 @@
 ## Mål
-Kundetabellen i `src/pages/MSPDashboard.tsx` (Tabell-visning) skal fungere på alle skjermstørrelser uten horisontal scroll. I dag vises tabellen kun fra `lg` og oppover, mens mobil/brett får en enkel kompakt rad uten flere kolonner og uten filtrering. Vi vil i stedet vise selve tabellen på alle breakpoints, og kutte kolonner gradvis mens skjulte kolonner blir tilgjengelige via en kolonne-meny (popover) — slik at filtrering og lesbarhet beholdes.
 
-## Synlighet per breakpoint
-Nye visningsregler for kolonnene (gjelder kun Tabell-visningen — Kort-visningen er uendret):
+Partneren skal kunne legge inn nøkler til eksterne portaler (Acronis, Microsoft 365, 7Security, NinjaOne osv.) **én gang** på partnernivå og gjenbruke dem når de kobler eller henter kundedata — slik at de slipper å lime inn API-nøkkelen for hver enkelt kunde slik flyten er i dag (`AcronisConnectDialog` → step 1).
+
+## Plassering
+
+Ny arkfane **"Integrasjoner"** lengst til høyre i `MSPPartnerSettings` (etter «Generelt» og «Tilbudsmerking»). Tilgjengelig på `/msp-settings`.
 
 ```text
-Kolonne          Mobil (<640)  Liten brett (sm 640+)  Brett (md 768+)  Desktop (lg 1024+)  Stor (xl 1280+)
-Kunde                 ✓              ✓                    ✓                ✓                 ✓
-Modenhet              ✓              ✓                    ✓                ✓                 ✓
-TP-status             —              ✓                    ✓                ✓                 ✓
-Kritikalitet          —              —                    ✓                ✓                 ✓
-Lara anbefaler        —              —                    —                ✓                 ✓
-Bransje               —              —                    —                ✓                 ✓
-Land                  —              —                    —                —                 ✓
+[ Generelt ] [ Tilbudsmerking ] [ Integrasjoner ]  ← ny
 ```
 
-Kunde får `w-auto` / `min-w-0` med truncation; faste pikselbredder reduseres så tabellen får plass uten `min-w-[1080px]` og uten horisontal scroll på md/lg.
+## Hva fanen inneholder
 
-## Kolonne-meny (felles for alle breakpoints)
-Over tabellen, til høyre ved siden av «Kort | Tabell»-bryteren, legges en ny knapp `Kolonner` (lucide `Columns3`-ikon) som åpner en `Popover` med en sjekkliste over alle 7 kolonner. Brukeren kan slå kolonner av/på manuelt; defaults følger breakpoint-tabellen over, men en endring overstyrer defaulten for gjeldende enhet.
+Et katalogkort per støttet leverandør, basert på `integration_providers`-tabellen:
 
-Tilstanden lagres i `localStorage` under `msp_dashboard_columns_v1` som `Record<ColumnKey, boolean>`. Initial state: hvis lagret verdi finnes, bruk den; ellers beregn fra nåværende `window.matchMedia` mot Tailwind-breakpoints (`sm`/`md`/`lg`/`xl`). Vi resetter ikke ved resize — brukerens valg vinner.
+- Logo / ikon, navn, kort beskrivelse
+- Statuspille: **Tilkoblet** / **Ikke tilkoblet** / **Feil**
+- Knapp: «Koble til» eller «Administrer»
+- Liste over hvilke felt nøkkelen brukes på (f.eks. "Henter device- og backup-status til kundekort")
 
-Filtre som i dag ligger som `ColumnFilter` i kolonneoverskriften (Land, Bransje, Kritikalitet, Lara anbefaler, TP-status) må fortsatt fungere når kolonnen er skjult. Løsning: når en kolonne med filter er skjult, vis et lite chip i en «Aktive filtre»-rad over tabellen (samme `ColumnFilter`-komponent rendres der i stedet). Sorteringsknapper (Kunde, TP-status, Modenhet) er bare relevante når kolonnen er synlig.
+Klikk på «Koble til» åpner en dialog med feltene leverandøren krever:
+- Acronis: `tenant_id` + `api_key` + (valgfritt) `region/datacenter`
+- Microsoft 365: `tenant_id` + `client_id` + `client_secret`
+- 7Security: `api_key`
+- Generisk «Annen portal»: navn + base-URL + nøkkel
 
-## Endringer i `src/pages/MSPDashboard.tsx`
-1. Fjern `lg:hidden` kompakt-listen (linjene ~595–638) og `hidden lg:block`-wrapperen rundt tabellen — tabellen rendres alltid når `view === "table"`.
-2. Fjern `table-fixed min-w-[1080px]`; behold `overflow-x-auto` som siste-utvei sikkerhetsnett.
-3. Introduser `type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "tp_status" | "score"` og en `columns`-config med label + default-synlighet per breakpoint.
-4. Ny hook `useColumnVisibility(columns)` som:
-   - leser/lagrer `localStorage`
-   - returnerer `{ visible: Record<ColumnKey, boolean>, toggle, isVisible }`
-   - ved første render uten lagret verdi: bruk breakpoint-defaults
-5. Wrap hver `TableHead` og `TableCell` med `{isVisible("key") && …}`.
-6. Ny komponent `ColumnsMenu` (inline i samme fil eller `src/components/msp/ColumnsMenu.tsx`) med `Popover` + `Checkbox`-liste.
-7. Ny rad «Aktive filtre» over tabellen som rendrer `ColumnFilter` for skjulte kolonner som har aktive valg eller alltid-tilgjengelige filtre (Land, Bransje, Kritikalitet, Lara, TP-status). Skjul raden hvis ingen filtre vises der.
-8. Reduser faste bredder: Kunde `min-w-[160px] w-auto`, Land `w-[64px]`, Bransje `w-[140px]`, Kritikalitet `w-[120px]`, Lara `w-auto`, TP-status `w-[140px]`, Modenhet `w-[88px] text-right`.
+Når partner lagrer:
+1. Test-tilkobling kjøres (kall mot leverandøren via edge function, eller mock i demo)
+2. Nøkkelen lagres kryptert i `integration_connections` med `scope = 'partner'` (ikke per kunde)
+3. Audit-linje skrives til `integration_audit_log`
 
-Kort-visningen og alle øvrige UI-elementer på siden er uendret.
+## Gjenbruk på tvers av kunder
 
-## Verifisering
-- Bygget kompilerer (`tsc`).
-- Playwright-snapper på 375px, 768px, 1024px, 1440px bekrefter at tabellen vises uten horisontal scroll og at riktige kolonner er synlige.
-- Manuell sjekk: kolonne-menyen viser/skjuler kolonner og valget overlever reload; skjulte filtre dukker opp i «Aktive filtre»-raden og filtrerer fortsatt riktig.
+`AcronisConnectDialog` (og tilsvarende koblingsdialoger) endres slik:
+- Sjekk først om det finnes en `partner`-scoped connection for Acronis
+- Hvis ja → hopp over API-nøkkel-steget, vis kun «Velg tenant for {kunde}» og bruk partnerens nøkkel
+- Hvis nei → fall tilbake til dagens flyt (lim inn nøkkel der og da), med en lenke «Lagre denne nøkkelen for alle kunder» som tar deg til Integrasjoner-fanen
+
+`sync-acronis` edge function endres til å foretrekke partner-nøkkel når kunde-spesifikk nøkkel mangler.
+
+## Sikkerhet
+
+- Nøkler lagres aldri i klienten — kun referanse til `integration_connections.id`
+- Hemmelige verdier (api_key/client_secret) lagres som Supabase secret eller kryptert kolonne; UI viser maskert (`••••••••1234`)
+- RLS: kun brukere med MSP-partner-rolle i samme org kan lese/skrive partner-scoped connections
+- Rotér / slett-knapp pr. integrasjon, med bekreftelsesdialog som lister antall kunder som vil miste tilkoblingen
+
+## Teknisk
+
+- Ny komponent: `src/components/msp/PartnerIntegrationsTab.tsx`
+- Ny dialog: `src/components/msp/PartnerIntegrationConnectDialog.tsx` (generisk, drevet av provider-schema)
+- Hook: `usePartnerIntegrations()` som henter alle `integration_connections` der `scope='partner'` for aktiv org
+- Migrasjon: legg til kolonnen `scope text not null default 'customer'` på `integration_connections` (sjekk om den allerede finnes) + indeks på `(org_id, provider_id, scope)`
+- `sync-acronis` + `AcronisConnectDialog` oppdateres til å lese partner-scope først
+- i18n-strenger i `src/locales/nb.json` + `en.json`
+
+## Out of scope (foreslår å ta senere)
+
+- OAuth-flyt for Microsoft/Google (krever callback-URL + app-registrering — kan legges på etterpå)
+- Webhook-mottak fra leverandørene
+- Per-bruker (ikke per-partner) nøkler
