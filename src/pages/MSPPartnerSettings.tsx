@@ -151,7 +151,7 @@ export default function MSPPartnerSettings() {
             </p>
           </div>
 
-          <Tabs defaultValue="generelt" className="space-y-4">
+          <Tabs value={activeTab} onValueChange={(v) => setSearchParams({ tab: v })} className="space-y-4">
             <TabsList className="h-10">
               <TabsTrigger value="generelt" className="gap-1.5">
                 <Settings className="h-3.5 w-3.5" /> Generelt
