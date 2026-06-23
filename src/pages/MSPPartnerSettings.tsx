@@ -27,7 +27,9 @@ import {
   Info,
   ImageIcon,
   Layers,
+  Plug,
 } from "lucide-react";
+import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import {
   PARTNER_MODULES,
   getEnabledPartnerModules,
@@ -154,6 +156,9 @@ export default function MSPPartnerSettings() {
               </TabsTrigger>
               <TabsTrigger value="tilbudsmerking" className="gap-1.5">
                 <ImageIcon className="h-3.5 w-3.5" /> Tilbudsmal
+              </TabsTrigger>
+              <TabsTrigger value="integrasjoner" className="gap-1.5">
+                <Plug className="h-3.5 w-3.5" /> Integrasjoner
               </TabsTrigger>
             </TabsList>
 
@@ -354,9 +359,14 @@ export default function MSPPartnerSettings() {
             <TabsContent value="tilbudsmerking">
               <PartnerBrandingCard />
             </TabsContent>
+
+            <TabsContent value="integrasjoner">
+              <PartnerIntegrationsTab />
+            </TabsContent>
           </Tabs>
         </div>
       </main>
+
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent className="sm:max-w-md">
