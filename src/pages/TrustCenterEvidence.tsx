@@ -802,6 +802,25 @@ const TrustCenterEvidence = () => {
       )}
 
       {asset?.id && <EvidenceUploadDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
+      {confirmDoc && (
+        <ConfirmAsEvidenceDialog
+          open={!!confirmDoc}
+          onOpenChange={(v) => !v && setConfirmDoc(null)}
+          documentId={confirmDoc.id}
+          documentName={confirmDoc.display_name || confirmDoc.file_name}
+          existingAudit={confirmDoc.audit_trail || []}
+          defaultSharingLevel={confirmDoc.sharing_level || "internal"}
+        />
+      )}
+      {verifyDoc && (
+        <AddVerificationDialog
+          open={!!verifyDoc}
+          onOpenChange={(v) => !v && setVerifyDoc(null)}
+          documentId={verifyDoc.id}
+          documentName={verifyDoc.display_name || verifyDoc.file_name}
+          existingAudit={verifyDoc.audit_trail || []}
+        />
+      )}
 
       {/* Edit Dialog */}
       <Dialog open={!!editDoc} onOpenChange={(open) => !open && setEditDoc(null)}>
