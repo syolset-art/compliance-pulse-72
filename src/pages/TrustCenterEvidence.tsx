@@ -359,7 +359,20 @@ const TrustCenterEvidence = () => {
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-56">
+        {doc.evidence_status !== "evidence" && doc.evidence_status !== "verified" && (
+          <DropdownMenuItem onClick={() => setConfirmDoc(doc)}>
+            <CheckCircle2 className="h-3.5 w-3.5 mr-2 text-success" />
+            {isNb ? "Bekreft som bevis" : "Confirm as evidence"}
+          </DropdownMenuItem>
+        )}
+        {doc.evidence_status !== "verified" && (
+          <DropdownMenuItem onClick={() => setVerifyDoc(doc)}>
+            <ShieldCheck className="h-3.5 w-3.5 mr-2 text-primary" />
+            {isNb ? "Legg til verifikasjon" : "Add verification"}
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setEditDoc({ ...doc })}>
           <Pencil className="h-3.5 w-3.5 mr-2" />
           {isNb ? "Rediger" : "Edit"}
