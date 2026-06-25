@@ -53,6 +53,10 @@ import {
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { nb as nbLocale, enUS } from "date-fns/locale";
+import { EditChecklistTable } from "@/components/trust-center/edit/EditChecklistTable";
+import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { frameworks as frameworkDefs } from "@/lib/frameworkDefinitions";
+import { useMemo } from "react";
 
 type MasterDoc = {
   id: string;
