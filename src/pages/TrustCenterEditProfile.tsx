@@ -336,14 +336,8 @@ const TrustCenterEditProfile = () => {
 
             </section>
 
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Sjekkliste — hva mangler / på plass */}
-            {/* ═══════════════════════════════════════════ */}
-            <EditChecklistTable
-              asset={asset}
-              frameworks={frameworks}
-              onAddFramework={() => setShowFrameworksSheet(true)}
-            />
+            {/* Sjekklisten "Hva mangler og hva er på plass" er flyttet til menypunktet Dokumenter (/trust-center/documents). */}
+
 
             {/* Spacer for sticky bar */}
             <div className="h-24" />
