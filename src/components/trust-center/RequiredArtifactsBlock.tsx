@@ -177,22 +177,29 @@ export const RequiredArtifactsBlock = ({ assetId, vendorDocs, variant = "profile
 
           return (
             <div key={row.key} className="px-5 py-3.5 flex items-center gap-4">
-              <Icon className={`h-4 w-4 shrink-0 ${documented ? "text-success" : "text-muted-foreground"}`} />
+              <div className="relative shrink-0">
+                <Icon className={`h-4 w-4 ${documented ? "text-success" : "text-muted-foreground/70"}`} />
+                {!documented && variant === "evidence" && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -top-0.5 -right-0.5 h-1.5 w-1.5 rounded-full bg-warning"
+                  />
+                )}
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium">{row.label}</span>
-                  {!documented && variant === "evidence" ? (
-                    <Badge className="bg-warning/10 text-warning border-warning/30 gap-1 font-normal text-[12px]">
-                      <AlertTriangle className="h-3 w-3" />
-                      {isNb ? "Ikke dokumentert" : "Not documented"}
-                    </Badge>
-                  ) : null}
+                  {!documented && variant === "evidence" && (
+                    <span className="text-[11px] text-muted-foreground/80">
+                      · {isNb ? "mangler" : "missing"}
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5 truncate">
                   {documented ? sourceLabel : row.helper}
                 </p>
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-1 shrink-0">
                 {documented && row.doc?.external_url && (
                   <Button asChild variant="ghost" size="sm" className="gap-1.5 h-8">
                     <a href={row.doc.external_url} target="_blank" rel="noreferrer">
@@ -202,55 +209,70 @@ export const RequiredArtifactsBlock = ({ assetId, vendorDocs, variant = "profile
                   </Button>
                 )}
                 {!documented && variant === "evidence" && (
-                  <>
-                    <Popover open={linkOpenFor === row.key} onOpenChange={(o) => { setLinkOpenFor(o ? row.key : null); setLinkValue(""); }}>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="gap-1.5 h-8">
-                          <ExternalLink className="h-3.5 w-3.5" />
-                          {isNb ? "Lim inn lenke" : "Paste link"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent align="end" className="w-80">
-                        <div className="space-y-2">
-                          <p className="text-xs font-medium">{isNb ? "Lenke til publisert dokument" : "Link to published document"}</p>
-                          <Input
-                            autoFocus
-                            placeholder="https://..."
-                            value={linkValue}
-                            onChange={(e) => setLinkValue(e.target.value)}
-                          />
-                          <Button
-                            size="sm"
-                            className="w-full"
-                            disabled={!linkValue || addLink.isPending}
-                            onClick={() => addLink.mutate({ docType: row.docType, url: linkValue })}
-                          >
-                            {addLink.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />}
-                            {isNb ? "Lagre lenke" : "Save link"}
-                          </Button>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <Button variant="outline" size="sm" className="gap-1.5 h-8" onClick={goToEvidence}>
-                      <Plus className="h-3.5 w-3.5" />
-                      {isNb ? "Last opp" : "Upload"}
-                    </Button>
-                    {row.key === "dpa" && (
+                  <Popover open={linkOpenFor === row.key} onOpenChange={(o) => { setLinkOpenFor(o ? row.key : null); setLinkValue(""); }}>
+                    <PopoverTrigger asChild>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 text-muted-foreground"
-                        disabled={markDpaOnRequest.isPending}
-                        onClick={() => markDpaOnRequest.mutate()}
+                        className="h-8 text-xs text-muted-foreground hover:text-foreground gap-1"
                       >
-                        {isNb ? "På forespørsel" : "On request"}
+                        <Plus className="h-3.5 w-3.5" />
+                        {isNb ? "Legg til" : "Add"}
                       </Button>
-                    )}
-                  </>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-72 p-3">
+                      <div className="space-y-3">
+                        <div className="space-y-1.5">
+                          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                            {isNb ? "Lim inn lenke" : "Paste link"}
+                          </p>
+                          <div className="flex gap-1.5">
+                            <Input
+                              autoFocus
+                              placeholder="https://..."
+                              value={linkValue}
+                              onChange={(e) => setLinkValue(e.target.value)}
+                              className="h-8 text-xs"
+                            />
+                            <Button
+                              size="sm"
+                              className="h-8 px-2.5"
+                              disabled={!linkValue || addLink.isPending}
+                              onClick={() => addLink.mutate({ docType: row.docType, url: linkValue })}
+                            >
+                              {addLink.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (isNb ? "Lagre" : "Save")}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="border-t border-border pt-2 space-y-1">
+                          <button
+                            type="button"
+                            onClick={goToEvidence}
+                            className="w-full flex items-center gap-2 text-xs text-foreground hover:bg-muted/60 rounded-md px-2 py-1.5 text-left"
+                          >
+                            <Plus className="h-3.5 w-3.5 text-muted-foreground" />
+                            {isNb ? "Last opp dokument" : "Upload document"}
+                          </button>
+                          {row.key === "dpa" && (
+                            <button
+                              type="button"
+                              disabled={markDpaOnRequest.isPending}
+                              onClick={() => markDpaOnRequest.mutate()}
+                              className="w-full flex items-center gap-2 text-xs text-foreground hover:bg-muted/60 rounded-md px-2 py-1.5 text-left disabled:opacity-50"
+                            >
+                              <Shield className="h-3.5 w-3.5 text-muted-foreground" />
+                              {isNb ? "Marker som «på forespørsel»" : "Mark as \"on request\""}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 )}
               </div>
             </div>
           );
+
         })}
       </div>
     </div>
