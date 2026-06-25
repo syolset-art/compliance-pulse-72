@@ -402,6 +402,7 @@ const TrustCenterEvidence = () => {
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+          <EvidenceStatusPill status={(doc.evidence_status as any) || "draft"} size="sm" />
           {(() => {
             const count = grantsByDoc[doc.id] || 0;
             const isPublic = doc.visibility === "published";
