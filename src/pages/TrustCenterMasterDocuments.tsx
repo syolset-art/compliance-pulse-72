@@ -53,6 +53,10 @@ import {
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { nb as nbLocale, enUS } from "date-fns/locale";
+import { EditChecklistTable } from "@/components/trust-center/edit/EditChecklistTable";
+import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { frameworks as frameworkDefs } from "@/lib/frameworkDefinitions";
+import { useMemo } from "react";
 
 type MasterDoc = {
   id: string;
@@ -113,6 +117,59 @@ export default function TrustCenterMasterDocuments() {
   const [versionDialogDoc, setVersionDialogDoc] = useState<MasterDoc | null>(null);
   const [historyDoc, setHistoryDoc] = useState<MasterDoc | null>(null);
   const [docToDelete, setDocToDelete] = useState<MasterDoc | null>(null);
+  const [showFrameworksSheet, setShowFrameworksSheet] = useState(false);
+  const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
+
+  const { data: selfAsset } = useQuery({
+    queryKey: ["self-asset-edit"],
+    queryFn: async () => {
+      const { data } = await supabase.from("assets").select("*").eq("asset_type", "self").order("updated_at", { ascending: false, nullsFirst: false }).limit(1).maybeSingle();
+      return data;
+    },
+  });
+
+  const { data: allFrameworkRows = [] } = useQuery({
+    queryKey: ["selected-frameworks-edit"],
+    queryFn: async () => {
+      const { data } = await supabase.from("selected_frameworks").select("*");
+      return data || [];
+    },
+  });
+  const activeFrameworks = useMemo(
+    () => (allFrameworkRows as any[]).filter((r: any) => r.is_selected),
+    [allFrameworkRows]
+  );
+  const activeFrameworkIds = useMemo(
+    () => new Set<string>(activeFrameworks.map((r: any) => r.framework_id)),
+    [activeFrameworks]
+  );
+
+  const handleToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
+    const existing = (allFrameworkRows as any[]).find((f: any) => f.framework_id === frameworkId);
+    setUpdatingFrameworkId(frameworkId);
+    try {
+      if (existing) {
+        await supabase.from("selected_frameworks").update({ is_selected: !currentlyActive }).eq("id", existing.id);
+      } else {
+        const fw = frameworkDefs.find((f) => f.id === frameworkId);
+        if (!fw) return;
+        await supabase.from("selected_frameworks").insert({
+          framework_id: fw.id,
+          framework_name: fw.name,
+          category: fw.category,
+          is_mandatory: fw.isMandatory || false,
+          is_recommended: fw.isRecommended || false,
+          is_selected: true,
+        });
+      }
+      await qc.invalidateQueries({ queryKey: ["selected-frameworks-edit"] });
+      toast.success(!currentlyActive ? (isNb ? "Regelverk aktivert" : "Framework activated") : (isNb ? "Regelverk fjernet" : "Framework removed"));
+    } catch (e: any) {
+      toast.error(isNb ? "Kunne ikke oppdatere" : "Could not update");
+    } finally {
+      setUpdatingFrameworkId(null);
+    }
+  };
 
   const { data: docs, isLoading } = useQuery({
     queryKey: ["tc-master-docs"],
@@ -195,7 +252,19 @@ export default function TrustCenterMasterDocuments() {
             </Button>
           </div>
 
+          {/* Sjekkliste — flyttet hit fra Rediger profil */}
+          {selfAsset && (
+            <div className="mb-6">
+              <EditChecklistTable
+                asset={selfAsset}
+                frameworks={activeFrameworks}
+                onAddFramework={() => setShowFrameworksSheet(true)}
+              />
+            </div>
+          )}
+
           {/* List */}
+
           {isLoading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -368,6 +437,14 @@ export default function TrustCenterMasterDocuments() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EditActiveFrameworksDialog
+        open={showFrameworksSheet}
+        onOpenChange={setShowFrameworksSheet}
+        activeFrameworkIds={activeFrameworkIds}
+        onToggle={handleToggleFramework}
+        updatingId={updatingFrameworkId}
+      />
     </div>
   );
 }

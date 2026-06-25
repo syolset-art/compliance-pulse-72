@@ -32,7 +32,7 @@ import { frameworkChipClass } from "@/lib/frameworkChipClass";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
 import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
-import { EditChecklistTable } from "@/components/trust-center/edit/EditChecklistTable";
+
 import { frameworks as frameworkDefs } from "@/lib/frameworkDefinitions";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] =
@@ -336,14 +336,8 @@ const TrustCenterEditProfile = () => {
 
             </section>
 
-            {/* ═══════════════════════════════════════════ */}
-            {/* SECTION: Sjekkliste — hva mangler / på plass */}
-            {/* ═══════════════════════════════════════════ */}
-            <EditChecklistTable
-              asset={asset}
-              frameworks={frameworks}
-              onAddFramework={() => setShowFrameworksSheet(true)}
-            />
+            {/* Sjekklisten "Hva mangler og hva er på plass" er flyttet til menypunktet Dokumenter (/trust-center/documents). */}
+
 
             {/* Spacer for sticky bar */}
             <div className="h-24" />
