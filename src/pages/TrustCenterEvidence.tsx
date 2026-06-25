@@ -12,6 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EvidenceUploadDialog } from "@/components/trust-controls/EvidenceUploadDialog";
+import { EvidenceStatusPill } from "@/components/trust-controls/EvidenceStatusPill";
+import { ConfirmAsEvidenceDialog } from "@/components/trust-controls/ConfirmAsEvidenceDialog";
+import { AddVerificationDialog } from "@/components/trust-controls/AddVerificationDialog";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -136,6 +139,8 @@ const TrustCenterEvidence = () => {
   const [previewLoading, setPreviewLoading] = useState(false);
   // Access dialog state
   const [accessDoc, setAccessDoc] = useState<any>(null);
+  const [confirmDoc, setConfirmDoc] = useState<any>(null);
+  const [verifyDoc, setVerifyDoc] = useState<any>(null);
   // Collapsible UI state
   const [requiredOpen, setRequiredOpen] = useState<boolean>(() => readBoolLS(LS_REQUIRED_OPEN, true));
   const [sectionsOpen, setSectionsOpen] = useState<Record<string, boolean>>(() => readSectionsLS());
