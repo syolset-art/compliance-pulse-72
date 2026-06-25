@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AddEvidenceDialog } from "@/components/trust-center/AddEvidenceDialog";
+import { EvidenceUploadDialog } from "@/components/trust-controls/EvidenceUploadDialog";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -782,7 +783,7 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
-      {asset?.id && <AddEvidenceDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
+      {asset?.id && <EvidenceUploadDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
 
       {/* Edit Dialog */}
       <Dialog open={!!editDoc} onOpenChange={(open) => !open && setEditDoc(null)}>
