@@ -2231,9 +2231,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                               if (verifiedOnly.length === 0) {
                                 return (
                                   <div className="border-t border-border px-4 py-3">
-                                    <p className="text-sm text-muted-foreground italic">
-                                      {isNb ? "Ingen verifiserte kontroller ennå." : "No verified controls yet."}
-                                    </p>
+                                    <div className="flex items-start gap-2">
+                                      <p className="text-sm text-muted-foreground italic">
+                                        {isNb ? "Ingen verifiserte kontroller ennå." : "No verified controls yet."}
+                                      </p>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <button type="button" className="text-muted-foreground/70 hover:text-foreground transition-colors mt-0.5" aria-label={isNb ? "Hva vises her?" : "What appears here?"}>
+                                            <Info className="h-3.5 w-3.5" />
+                                          </button>
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" align="start" className="max-w-xs text-xs leading-relaxed">
+                                          {isNb
+                                            ? "For at en kontroll skal vises som verifisert må du laste opp dokumentasjon (f.eks. policy, sertifikat eller revisjonsrapport) under tilhørende kontrollområde, og markere den som verifisert. Lara kan også foreslå dokumenter automatisk."
+                                            : "For a control to appear here as verified, upload supporting documentation (e.g. policy, certificate, or audit report) under the related control area and mark it as verified. Lara can also suggest documents automatically."}
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </div>
                                   </div>
                                 );
                               }
