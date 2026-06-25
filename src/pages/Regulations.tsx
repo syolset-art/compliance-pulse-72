@@ -134,7 +134,10 @@ const Regulations = () => {
   const isFrameworkActive = useCallback(
     (fwId: string) => {
       const s = selectedFrameworks.find((f) => f.framework_id === fwId);
-      return s?.is_selected || s?.is_mandatory || false;
+      // Active iff the row is explicitly selected. `is_mandatory` alone must NOT
+      // force active status, otherwise the user can't deactivate a mandatory
+      // framework from the prototype/edit dialog.
+      return s?.is_selected === true;
     },
     [selectedFrameworks]
   );
