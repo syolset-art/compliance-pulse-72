@@ -29,15 +29,10 @@ import { toast } from "sonner";
 import { CompanyInfoForm } from "@/components/company/CompanyInfoForm";
 import { frameworkChipClass } from "@/lib/frameworkChipClass";
 
-import { ContactsSection } from "@/components/trust-center/edit/ContactsSection";
-import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSection";
-
-import { ResourcesSection } from "@/components/trust-center/edit/ResourcesSection";
-import { SubprocessorsSection } from "@/components/trust-center/edit/SubprocessorsSection";
-import { BrandingSection } from "@/components/trust-center/edit/BrandingSection";
 import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
 import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { EditChecklistTable } from "@/components/trust-center/edit/EditChecklistTable";
 import { frameworks as frameworkDefs } from "@/lib/frameworkDefinitions";
 
 const AREA_CONFIG: { area: ControlArea; icon: typeof Shield; labelNb: string; labelEn: string }[] =
