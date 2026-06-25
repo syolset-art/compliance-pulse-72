@@ -553,48 +553,41 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
-      {/* Required artifacts checklist — collapsible */}
+      {/* Required artifacts checklist — always visible */}
       {!isLoading && asset?.id && (
-        <div className="mb-6">
-          <Collapsible open={requiredOpen} onOpenChange={setRequiredOpen}>
-            <div className="w-full rounded-lg border bg-card">
-              <CollapsibleTrigger asChild>
-                <button
-                  type="button"
-                  className="w-full flex items-start justify-between gap-3 hover:bg-muted/40 transition-colors px-4 py-3 text-left rounded-t-lg"
-                >
-                  <div className="flex items-start gap-2 min-w-0">
-                    <ShieldCheck className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium">
-                        {isNb ? "Påkrevde artefakter" : "Required artifacts"}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                        {isNb
-                          ? "Dokumenter og bevis som kreves av regelverkene du har aktivert."
-                          : "Documents and evidence required by the frameworks you have activated."}
-                      </p>
-                    </div>
+        <div className="mb-8 rounded-lg border bg-card p-4">
+          <div className="flex items-center justify-between border-b pb-3 mb-4">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
+              <h2 className="text-base font-semibold text-foreground">
+                {isNb ? "Påkrevde artefakter" : "Required artifacts"}
+              </h2>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md" aria-label="info">
+                    <Info className="h-4 w-4" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-3 text-sm">
+                  <p className="text-muted-foreground leading-relaxed">
+                    {isNb
+                      ? "Dokumenter og bevis som kreves av regelverkene du har aktivert."
+                      : "Documents and evidence required by the frameworks you have activated."}
+                  </p>
+                  <div className="mt-2.5">
+                    <Link
+                      to="/regulations"
+                      className="inline-flex items-center gap-1 text-xs text-primary font-medium hover:underline"
+                    >
+                      {isNb ? "Se aktiverte regelverk" : "View activated frameworks"}
+                      <ChevronRight className="h-3 w-3" />
+                    </Link>
                   </div>
-                  <ChevronDown className={`h-4 w-4 text-muted-foreground shrink-0 mt-0.5 transition-transform ${requiredOpen ? "rotate-180" : ""}`} />
-                </button>
-              </CollapsibleTrigger>
-              <div className="px-4 pb-3 -mt-1">
-                <Link
-                  to="/regulations"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                >
-                  {isNb ? "Se aktiverte regelverk" : "View activated frameworks"}
-                  <ChevronRight className="h-3 w-3" />
-                </Link>
-              </div>
+                </PopoverContent>
+              </Popover>
             </div>
-            <CollapsibleContent className="pt-3">
-              <RequiredArtifactsBlock assetId={asset.id} vendorDocs={vendorDocs as any} variant="evidence" />
-            </CollapsibleContent>
-          </Collapsible>
-
+          </div>
+          <RequiredArtifactsBlock assetId={asset.id} vendorDocs={vendorDocs as any} variant="evidence" />
         </div>
       )}
 
