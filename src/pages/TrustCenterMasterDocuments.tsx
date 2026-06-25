@@ -252,7 +252,19 @@ export default function TrustCenterMasterDocuments() {
             </Button>
           </div>
 
+          {/* Sjekkliste — flyttet hit fra Rediger profil */}
+          {selfAsset && (
+            <div className="mb-6">
+              <EditChecklistTable
+                asset={selfAsset}
+                frameworks={activeFrameworks}
+                onAddFramework={() => setShowFrameworksSheet(true)}
+              />
+            </div>
+          )}
+
           {/* List */}
+
           {isLoading ? (
             <div className="flex justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
