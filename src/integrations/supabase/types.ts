@@ -3941,98 +3941,155 @@ export type Database = {
       }
       vendor_documents: {
         Row: {
+          ai_confidence: number | null
+          ai_summary: string | null
           approved_at: string | null
           approved_by: string | null
           asset_id: string
+          audit_trail: Json | null
           available_on_request: boolean | null
           category: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          confirmed_role: string | null
+          control_areas: string[] | null
           created_at: string
           display_name: string | null
           document_type: string
+          evidence_status: string | null
           external_url: string | null
+          extracted_metadata: Json | null
           file_name: string
           file_path: string | null
           id: string
           linked_regulations: string[] | null
           notes: string | null
+          quality_findings: Json | null
           received_at: string | null
           reminder_sent_at: string | null
           requested_at: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           shared_with_emails: string[] | null
+          sharing_level: string | null
           source: string | null
           status: string | null
           superseded_at: string | null
           superseded_by: string | null
+          supported_controls: string[] | null
           updated_at: string
           uploaded_by: string | null
+          used_for_trust_score: boolean | null
           valid_from: string | null
           valid_to: string | null
+          verification_basis: string | null
+          verification_date: string | null
+          verification_expiry_date: string | null
+          verification_notes: string | null
+          verified_by: string | null
+          verifier_type: string | null
           version: string | null
           visibility: string
         }
         Insert: {
+          ai_confidence?: number | null
+          ai_summary?: string | null
           approved_at?: string | null
           approved_by?: string | null
           asset_id: string
+          audit_trail?: Json | null
           available_on_request?: boolean | null
           category?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          confirmed_role?: string | null
+          control_areas?: string[] | null
           created_at?: string
           display_name?: string | null
           document_type?: string
+          evidence_status?: string | null
           external_url?: string | null
+          extracted_metadata?: Json | null
           file_name: string
           file_path?: string | null
           id?: string
           linked_regulations?: string[] | null
           notes?: string | null
+          quality_findings?: Json | null
           received_at?: string | null
           reminder_sent_at?: string | null
           requested_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           shared_with_emails?: string[] | null
+          sharing_level?: string | null
           source?: string | null
           status?: string | null
           superseded_at?: string | null
           superseded_by?: string | null
+          supported_controls?: string[] | null
           updated_at?: string
           uploaded_by?: string | null
+          used_for_trust_score?: boolean | null
           valid_from?: string | null
           valid_to?: string | null
+          verification_basis?: string | null
+          verification_date?: string | null
+          verification_expiry_date?: string | null
+          verification_notes?: string | null
+          verified_by?: string | null
+          verifier_type?: string | null
           version?: string | null
           visibility?: string
         }
         Update: {
+          ai_confidence?: number | null
+          ai_summary?: string | null
           approved_at?: string | null
           approved_by?: string | null
           asset_id?: string
+          audit_trail?: Json | null
           available_on_request?: boolean | null
           category?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          confirmed_role?: string | null
+          control_areas?: string[] | null
           created_at?: string
           display_name?: string | null
           document_type?: string
+          evidence_status?: string | null
           external_url?: string | null
+          extracted_metadata?: Json | null
           file_name?: string
           file_path?: string | null
           id?: string
           linked_regulations?: string[] | null
           notes?: string | null
+          quality_findings?: Json | null
           received_at?: string | null
           reminder_sent_at?: string | null
           requested_at?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           shared_with_emails?: string[] | null
+          sharing_level?: string | null
           source?: string | null
           status?: string | null
           superseded_at?: string | null
           superseded_by?: string | null
+          supported_controls?: string[] | null
           updated_at?: string
           uploaded_by?: string | null
+          used_for_trust_score?: boolean | null
           valid_from?: string | null
           valid_to?: string | null
+          verification_basis?: string | null
+          verification_date?: string | null
+          verification_expiry_date?: string | null
+          verification_notes?: string | null
+          verified_by?: string | null
+          verifier_type?: string | null
           version?: string | null
           visibility?: string
         }
