@@ -11,7 +11,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AddEvidenceDialog } from "@/components/trust-center/AddEvidenceDialog";
+import { EvidenceUploadDialog } from "@/components/trust-controls/EvidenceUploadDialog";
+import { EvidenceStatusPill } from "@/components/trust-controls/EvidenceStatusPill";
+import { ConfirmAsEvidenceDialog } from "@/components/trust-controls/ConfirmAsEvidenceDialog";
+import { AddVerificationDialog } from "@/components/trust-controls/AddVerificationDialog";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -136,6 +139,8 @@ const TrustCenterEvidence = () => {
   const [previewLoading, setPreviewLoading] = useState(false);
   // Access dialog state
   const [accessDoc, setAccessDoc] = useState<any>(null);
+  const [confirmDoc, setConfirmDoc] = useState<any>(null);
+  const [verifyDoc, setVerifyDoc] = useState<any>(null);
   // Collapsible UI state
   const [requiredOpen, setRequiredOpen] = useState<boolean>(() => readBoolLS(LS_REQUIRED_OPEN, true));
   const [sectionsOpen, setSectionsOpen] = useState<Record<string, boolean>>(() => readSectionsLS());
@@ -354,7 +359,20 @@ const TrustCenterEvidence = () => {
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuContent align="end" className="w-56">
+        {doc.evidence_status !== "evidence" && doc.evidence_status !== "verified" && (
+          <DropdownMenuItem onClick={() => setConfirmDoc(doc)}>
+            <CheckCircle2 className="h-3.5 w-3.5 mr-2 text-success" />
+            {isNb ? "Bekreft som bevis" : "Confirm as evidence"}
+          </DropdownMenuItem>
+        )}
+        {doc.evidence_status !== "verified" && (
+          <DropdownMenuItem onClick={() => setVerifyDoc(doc)}>
+            <ShieldCheck className="h-3.5 w-3.5 mr-2 text-primary" />
+            {isNb ? "Legg til verifikasjon" : "Add verification"}
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setEditDoc({ ...doc })}>
           <Pencil className="h-3.5 w-3.5 mr-2" />
           {isNb ? "Rediger" : "Edit"}
@@ -384,6 +402,7 @@ const TrustCenterEvidence = () => {
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+          <EvidenceStatusPill status={(doc.evidence_status as any) || "draft"} size="sm" />
           {(() => {
             const count = grantsByDoc[doc.id] || 0;
             const isPublic = doc.visibility === "published";
@@ -782,7 +801,26 @@ const TrustCenterEvidence = () => {
         </div>
       )}
 
-      {asset?.id && <AddEvidenceDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
+      {asset?.id && <EvidenceUploadDialog open={dialogOpen} onOpenChange={setDialogOpen} assetId={asset.id} />}
+      {confirmDoc && (
+        <ConfirmAsEvidenceDialog
+          open={!!confirmDoc}
+          onOpenChange={(v) => !v && setConfirmDoc(null)}
+          documentId={confirmDoc.id}
+          documentName={confirmDoc.display_name || confirmDoc.file_name}
+          existingAudit={confirmDoc.audit_trail || []}
+          defaultSharingLevel={confirmDoc.sharing_level || "internal"}
+        />
+      )}
+      {verifyDoc && (
+        <AddVerificationDialog
+          open={!!verifyDoc}
+          onOpenChange={(v) => !v && setVerifyDoc(null)}
+          documentId={verifyDoc.id}
+          documentName={verifyDoc.display_name || verifyDoc.file_name}
+          existingAudit={verifyDoc.audit_trail || []}
+        />
+      )}
 
       {/* Edit Dialog */}
       <Dialog open={!!editDoc} onOpenChange={(open) => !open && setEditDoc(null)}>
