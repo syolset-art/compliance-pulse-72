@@ -437,6 +437,14 @@ export default function TrustCenterMasterDocuments() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EditActiveFrameworksDialog
+        open={showFrameworksSheet}
+        onOpenChange={setShowFrameworksSheet}
+        activeFrameworkIds={activeFrameworkIds}
+        onToggle={handleToggleFramework}
+        updatingId={updatingFrameworkId}
+      />
     </div>
   );
 }
