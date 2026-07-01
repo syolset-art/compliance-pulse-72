@@ -540,6 +540,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const risks = evaluation?.risks ?? [];
   const highRisks = risks.filter(r => r.severity === "high");
 
+  // Hovedkontakt-e-post for "Kontakt oss"-knapp
+  const a: any = asset;
+  const generalEmail = a.contact_email || a.metadata?.contacts?.general || null;
+
   // Slug for public URL: trust.mynder.no/{slug}
   // Bruk siste 4 siffer av org.nr som unik kode for å unngå kollisjon mellom like navn.
   const slugUniqueCode = companyProfile?.org_number || asset?.id?.slice(0, 4);
@@ -2554,10 +2558,26 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                           : "Contact us for questions about security, compliance or data handling."}
                       </p>
                     </div>
-                    <Button variant="outline" size="sm" className="gap-2 shrink-0 rounded-lg">
-                      <MessageSquare className="h-4 w-4" />
-                      {isNb ? "Kontakt oss" : "Contact us"}
-                    </Button>
+                    {generalEmail ? (
+                      <a href={`mailto:${generalEmail}`}>
+                        <Button variant="outline" size="sm" className="gap-2 shrink-0 rounded-lg">
+                          <MessageSquare className="h-4 w-4" />
+                          {isNb ? "Kontakt oss" : "Contact us"}
+                        </Button>
+                      </a>
+                    ) : (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button variant="outline" size="sm" className="gap-2 shrink-0 rounded-lg" disabled>
+                            <MessageSquare className="h-4 w-4" />
+                            {isNb ? "Kontakt oss" : "Contact us"}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          {isNb ? "Ingen kontakt-e-post registrert" : "No contact email registered"}
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
 
                   {/* ── Products & Services — compact link ── */}
