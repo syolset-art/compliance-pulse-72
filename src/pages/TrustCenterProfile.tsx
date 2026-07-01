@@ -540,6 +540,10 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
   const risks = evaluation?.risks ?? [];
   const highRisks = risks.filter(r => r.severity === "high");
 
+  // Hovedkontakt-e-post for "Kontakt oss"-knapp
+  const a: any = asset;
+  const generalEmail = a.contact_email || a.metadata?.contacts?.general || null;
+
   // Slug for public URL: trust.mynder.no/{slug}
   // Bruk siste 4 siffer av org.nr som unik kode for å unngå kollisjon mellom like navn.
   const slugUniqueCode = companyProfile?.org_number || asset?.id?.slice(0, 4);
