@@ -156,6 +156,35 @@ serve(async (req) => {
                       required: ["type", "severity", "messageNb", "messageEn"],
                     },
                   },
+                  documentDate: { type: "string" },
+                  tier: { type: "string", enum: [...TIER_LEVELS] },
+                  tierSignals: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      additionalProperties: false,
+                      properties: {
+                        key: { type: "string" },
+                        labelNb: { type: "string" },
+                        labelEn: { type: "string" },
+                      },
+                      required: ["key", "labelNb", "labelEn"],
+                    },
+                  },
+                  suggestedControls: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      additionalProperties: false,
+                      properties: {
+                        controlId: { type: "string" },
+                        labelNb: { type: "string" },
+                        labelEn: { type: "string" },
+                        confidence: { type: "number" },
+                      },
+                      required: ["controlId", "confidence"],
+                    },
+                  },
                 },
                 required: [
                   "documentType",
@@ -167,6 +196,8 @@ serve(async (req) => {
                   "extractedMetadata",
                   "qualityFindings",
                   "supportedControls",
+                  "tier",
+                  "tierSignals",
                 ],
               },
             },
@@ -175,6 +206,7 @@ serve(async (req) => {
         tool_choice: { type: "function", function: { name: "classify_evidence" } },
       }),
     });
+
 
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
