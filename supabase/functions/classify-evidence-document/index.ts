@@ -228,9 +228,19 @@ serve(async (req) => {
 
     const classification = JSON.parse(toolCall.function.arguments);
 
+    // Flag utdatert dokument (>6 mnd)
+    if (classification.documentDate) {
+      const then = Date.parse(classification.documentDate);
+      if (!Number.isNaN(then)) {
+        const cutoff = Date.now() - 6 * 30 * 24 * 60 * 60 * 1000;
+        classification.isOutdated = then < cutoff;
+      }
+    }
+
     return new Response(JSON.stringify({ classification }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (err) {
     console.error("classify-evidence-document error", err);
     return new Response(JSON.stringify({ error: String(err) }), {
