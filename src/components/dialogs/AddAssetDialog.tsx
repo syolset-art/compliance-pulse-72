@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -1228,9 +1228,27 @@ export function AddAssetDialog({ open, onOpenChange, onAssetAdded, assetTypeTemp
         toast.success(`${jsonRows.length} leverandører funnet via AI-analyse`);
       } else {
         const data = await file.arrayBuffer();
-        const workbook = XLSX.read(data);
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonRows = XLSX.utils.sheet_to_json<Record<string, string>>(firstSheet, { defval: "" });
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(data);
+        const firstSheet = workbook.worksheets[0];
+        const jsonRows: Record<string, string>[] = [];
+        if (firstSheet) {
+          const headerRow = firstSheet.getRow(1);
+          const headers: string[] = [];
+          headerRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+            headers[colNumber - 1] = String(cell.value ?? "").trim();
+          });
+          firstSheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+            if (rowNumber === 1) return;
+            const obj: Record<string, string> = {};
+            headers.forEach((h, i) => {
+              if (!h) return;
+              const v = row.getCell(i + 1).value;
+              obj[h] = v == null ? "" : String(typeof v === "object" && "text" in (v as any) ? (v as any).text : v);
+            });
+            jsonRows.push(obj);
+          });
+        }
 
         if (jsonRows.length === 0) {
           toast.error("Filen inneholder ingen data");
