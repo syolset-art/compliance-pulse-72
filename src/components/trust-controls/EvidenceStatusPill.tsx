@@ -1,21 +1,27 @@
 import { useTranslation } from "react-i18next";
-import { EVIDENCE_STATUS_CONFIG, type EvidenceStatus } from "@/lib/evidenceStatus";
+import {
+  EVIDENCE_STATUS_CONFIG,
+  normalizeEvidenceStatus,
+  type EvidenceStatus,
+} from "@/lib/evidenceStatus";
 import { cn } from "@/lib/utils";
 
 interface EvidenceStatusPillProps {
-  status: EvidenceStatus;
+  status: EvidenceStatus | string | null | undefined;
   size?: "sm" | "md";
   className?: string;
 }
 
 /**
- * Pill for the Draft / Evidence / Verified evidence model.
- * Distinct from EvidenceStatusBadge (fresh/stale/expired/missing).
+ * Pill for opptjent bevisstatus (uploaded/classified/confirmed/attested/verified).
+ * Distinkt fra EvidenceStatusBadge (fresh/stale/expired/missing).
+ * Bruker etikett + ikon (aldri farge alene) for WCAG AA.
  */
 export function EvidenceStatusPill({ status, size = "md", className }: EvidenceStatusPillProps) {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
-  const cfg = EVIDENCE_STATUS_CONFIG[status];
+  const normalized = normalizeEvidenceStatus(status);
+  const cfg = EVIDENCE_STATUS_CONFIG[normalized] ?? EVIDENCE_STATUS_CONFIG.uploaded;
   const Icon = cfg.icon;
 
   return (
