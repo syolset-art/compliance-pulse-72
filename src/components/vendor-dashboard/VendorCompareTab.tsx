@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { addMynderFooter } from "@/lib/pdfBranding";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import {
   GENERIC_CONTROLS,
   getTypeSpecificControls,
@@ -194,7 +194,7 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
     doc.save("vendor-security-comparison.pdf");
   };
 
-  const exportExcel = () => {
+  const exportExcel = async () => {
     const headers = [isNb ? "Kontrollområde" : "Control Area", ...compareData.map((v: any) => v.name)];
     const rows = [
       ["Trust Score", ...compareData.map((v: any) => v.trustScore)],
@@ -203,10 +203,20 @@ export function VendorCompareTab({ vendors }: VendorCompareTabProps) {
         ...compareData.map((v: any) => v.areas[a.area] ?? ""),
       ]),
     ];
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Security Comparison");
-    XLSX.writeFile(wb, "vendor-security-comparison.xlsx");
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet("Security Comparison");
+    ws.addRow(headers);
+    rows.forEach((r) => ws.addRow(r));
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "vendor-security-comparison.xlsx";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
