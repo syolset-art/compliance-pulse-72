@@ -1,19 +1,39 @@
 /**
  * Evidence status model for the Trust Profile document register.
  *
- * Three statuses only:
- *  - draft     The document has been uploaded but not confirmed.
- *  - evidence  The organization has confirmed the document is current,
- *              relevant and can be used as evidence in the Trust Profile.
- *  - verified  The document has been reviewed/verified by an external
- *              party (auditor, certification body, internal reviewer, etc.).
+ * Five status trinn — status opptjenes gjennom en guidet flyt:
+ *   uploaded   — Fil mottatt, AI kjører klassifisering.
+ *   classified — Bruker har bekreftet type; tier låst (utledet av AI).
+ *   confirmed  — Bruker har bekreftet plassering (kontroll og/eller ressurs).
+ *   attested   — Ansvarlig person har bekreftet med navn/rolle/dato.
+ *   verified   — Ekstern verifikator har godkjent.
  *
- * AI may NEVER set status to `evidence` or `verified`. Only a human action.
+ * AI kan ALDRI sette status til `confirmed`, `attested` eller `verified`.
+ * Kun mennesker via UI.
+ *
+ * Legacy aliases (`draft`, `evidence`) beholdes i typen for bakoverkompat i
+ * eldre skjermbilder — nye rader skal ikke bruke disse.
  */
 
-import { CheckCircle2, FileText, ShieldCheck } from "lucide-react";
+import { CheckCircle2, FileText, ShieldCheck, Sparkles, UserCheck } from "lucide-react";
 
-export type EvidenceStatus = "draft" | "evidence" | "verified";
+export type EvidenceStatus =
+  | "uploaded"
+  | "classified"
+  | "confirmed"
+  | "attested"
+  | "verified"
+  // Legacy aliases (mapped in DB migration)
+  | "draft"
+  | "evidence";
+
+export const EVIDENCE_STATUS_ORDER: EvidenceStatus[] = [
+  "uploaded",
+  "classified",
+  "confirmed",
+  "attested",
+  "verified",
+];
 
 export interface EvidenceStatusConfig {
   key: EvidenceStatus;
@@ -22,50 +42,92 @@ export interface EvidenceStatusConfig {
   descriptionNb: string;
   descriptionEn: string;
   icon: typeof CheckCircle2;
-  /** Tailwind classes for the badge */
   badgeClass: string;
-  /** Weight contribution to Trust Score (0 = ignored). */
+  /** Multiplikator til Trust Score-bidrag (0 = ignoreres). */
   trustScoreWeight: number;
 }
 
 export const EVIDENCE_STATUS_CONFIG: Record<EvidenceStatus, EvidenceStatusConfig> = {
-  draft: {
-    key: "draft",
-    labelNb: "Utkast",
-    labelEn: "Draft",
-    descriptionNb: "Lastet opp, men ikke bekreftet som bevis.",
-    descriptionEn: "Uploaded but not yet confirmed as evidence.",
+  uploaded: {
+    key: "uploaded",
+    labelNb: "Lastet opp",
+    labelEn: "Uploaded",
+    descriptionNb: "Fil mottatt. Lara analyserer.",
+    descriptionEn: "File received. Lara is analysing.",
     icon: FileText,
-    badgeClass:
-      "bg-muted text-muted-foreground border border-border",
+    badgeClass: "bg-muted text-muted-foreground border border-border",
     trustScoreWeight: 0,
   },
-  evidence: {
-    key: "evidence",
-    labelNb: "Bevis",
-    labelEn: "Evidence",
-    descriptionNb:
-      "Bekreftet av organisasjonen som gjeldende og relevant bevis.",
-    descriptionEn:
-      "Confirmed by the organization as current and relevant evidence.",
+  classified: {
+    key: "classified",
+    labelNb: "Klassifisert",
+    labelEn: "Classified",
+    descriptionNb: "Dokumenttype bekreftet. Vekting utledet.",
+    descriptionEn: "Document type confirmed. Weighting derived.",
+    icon: Sparkles,
+    badgeClass: "bg-primary/10 text-primary border border-primary/30",
+    trustScoreWeight: 0.25,
+  },
+  confirmed: {
+    key: "confirmed",
+    labelNb: "Bekreftet",
+    labelEn: "Confirmed",
+    descriptionNb: "Plassering bekreftet. Bidrar til Trust Score.",
+    descriptionEn: "Placement confirmed. Contributes to Trust Score.",
     icon: CheckCircle2,
-    badgeClass:
-      "bg-success/15 text-success border border-success/30",
+    badgeClass: "bg-success/15 text-success border border-success/30",
     trustScoreWeight: 1,
+  },
+  attested: {
+    key: "attested",
+    labelNb: "Attestert",
+    labelEn: "Attested",
+    descriptionNb: "Ansvarlig person har bekreftet.",
+    descriptionEn: "Signed off by a responsible person.",
+    icon: UserCheck,
+    badgeClass: "bg-success/20 text-success border border-success/40",
+    trustScoreWeight: 1.25,
   },
   verified: {
     key: "verified",
     labelNb: "Verifisert",
     labelEn: "Verified",
-    descriptionNb:
-      "Gjennomgått eller verifisert av en ekstern part.",
-    descriptionEn: "Reviewed or verified by an external party.",
+    descriptionNb: "Verifisert av ekstern part.",
+    descriptionEn: "Verified by an external party.",
     icon: ShieldCheck,
-    badgeClass:
-      "bg-primary/15 text-primary border border-primary/30",
+    badgeClass: "bg-primary/15 text-primary border border-primary/30",
     trustScoreWeight: 1.5,
   },
+  // Legacy aliases (map to nearest new status for display purposes)
+  draft: {
+    key: "draft",
+    labelNb: "Lastet opp",
+    labelEn: "Uploaded",
+    descriptionNb: "Fil mottatt.",
+    descriptionEn: "File received.",
+    icon: FileText,
+    badgeClass: "bg-muted text-muted-foreground border border-border",
+    trustScoreWeight: 0,
+  },
+  evidence: {
+    key: "evidence",
+    labelNb: "Bekreftet",
+    labelEn: "Confirmed",
+    descriptionNb: "Bekreftet som bevis.",
+    descriptionEn: "Confirmed as evidence.",
+    icon: CheckCircle2,
+    badgeClass: "bg-success/15 text-success border border-success/30",
+    trustScoreWeight: 1,
+  },
 };
+
+/** Normaliser gammel status til ny modell for beregninger og UI-progresjon. */
+export function normalizeEvidenceStatus(s: EvidenceStatus | string | null | undefined): EvidenceStatus {
+  if (!s) return "uploaded";
+  if (s === "draft") return "uploaded";
+  if (s === "evidence") return "confirmed";
+  return s as EvidenceStatus;
+}
 
 export const VERIFIER_TYPES = [
   { value: "external_auditor", labelNb: "Ekstern revisor", labelEn: "External auditor" },
@@ -123,6 +185,7 @@ export interface AuditEvent {
     | "manually_classified"
     | "edited"
     | "confirmed"
+    | "attested"
     | "verified"
     | "rejected";
   actor: string;
@@ -140,6 +203,6 @@ export function appendAudit(trail: AuditEvent[] | null | undefined, event: Omit<
 }
 
 export function getEvidenceStatusLabel(status: EvidenceStatus, isNb: boolean): string {
-  const cfg = EVIDENCE_STATUS_CONFIG[status];
+  const cfg = EVIDENCE_STATUS_CONFIG[status] ?? EVIDENCE_STATUS_CONFIG.uploaded;
   return isNb ? cfg.labelNb : cfg.labelEn;
 }

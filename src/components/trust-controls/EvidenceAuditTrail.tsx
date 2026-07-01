@@ -7,7 +7,8 @@ const ICON_MAP: Record<AuditEvent["action"], typeof CheckCircle2> = {
   ai_classified: Sparkles,
   manually_classified: Pencil,
   edited: Pencil,
-  confirmed: UserCheck,
+  confirmed: CheckCircle2,
+  attested: UserCheck,
   verified: ShieldCheck,
   rejected: XCircle,
 };
@@ -17,10 +18,12 @@ const LABELS: Record<AuditEvent["action"], { nb: string; en: string }> = {
   ai_classified: { nb: "Klassifisert av Lara", en: "Classified by Lara" },
   manually_classified: { nb: "Klassifisert manuelt", en: "Classified manually" },
   edited: { nb: "Endret", en: "Edited" },
-  confirmed: { nb: "Bekreftet som bevis", en: "Confirmed as evidence" },
+  confirmed: { nb: "Plassering bekreftet", en: "Placement confirmed" },
+  attested: { nb: "Attestert", en: "Attested" },
   verified: { nb: "Verifisert", en: "Verified" },
   rejected: { nb: "Avvist", en: "Rejected" },
 };
+
 
 interface Props {
   trail: AuditEvent[];

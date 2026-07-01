@@ -39,7 +39,7 @@ export function ConfirmAsEvidenceDialog({ open, onOpenChange, documentId, docume
         actor_role: role || undefined,
       });
       const { error } = await supabase.from("vendor_documents").update({
-        evidence_status: "evidence",
+        evidence_status: "confirmed",
         confirmed_by: confirmedBy,
         confirmed_role: role || null,
         confirmed_at: now,

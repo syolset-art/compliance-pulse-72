@@ -360,7 +360,7 @@ const TrustCenterEvidence = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        {doc.evidence_status !== "evidence" && doc.evidence_status !== "verified" && (
+        {!["confirmed","attested","verified","evidence"].includes(doc.evidence_status ?? "") && (
           <DropdownMenuItem onClick={() => setConfirmDoc(doc)}>
             <CheckCircle2 className="h-3.5 w-3.5 mr-2 text-success" />
             {isNb ? "Bekreft som bevis" : "Confirm as evidence"}

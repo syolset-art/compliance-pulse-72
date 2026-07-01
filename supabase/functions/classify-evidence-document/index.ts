@@ -32,6 +32,8 @@ const FINDING_TYPES = [
   "sensitive_info",
 ] as const;
 
+const TIER_LEVELS = ["accredited", "certified", "signed", "unverified"] as const;
+
 const SYSTEM_PROMPT = `Du er Lara, en ekspert på klassifisering av samsvarsdokumenter for Mynder Trust Profile.
 
 Mynder Trust Profile har FEM kontrollområder:
@@ -43,17 +45,28 @@ Mynder Trust Profile har FEM kontrollområder:
 
 Analyser dokumentet og foreslå:
 - dokumenttype og menneskelig lesbar etikett
-- ETT ELLER FLERE kontrollområder fra listen over (bruk de eksakte nøklene)
-- støttede kontrollpunkter hvis du kan identifisere dem (f.eks. "ISO 27001 A.5.1", "GDPR Art. 32")
-- konfidens 0..1
+- ETT ELLER FLERE kontrollområder (bruk de eksakte nøklene)
+- støttede kontrollpunkter (f.eks. "ISO 27001 A.5.1", "GDPR Art. 32")
+- konfidens 0..1 (vær konservativ; < 0.6 hvis uklart)
 - kort sammendrag (norsk, maks 2 setninger)
 - ekstraherte metadata: eier, versjon, sist oppdatert, godkjenningsdato, godkjent av, neste revisjon, utløpsdato
+- documentDate (ISO YYYY-MM-DD): dokumentets utgivelses- eller signeringsdato hvis synlig
 - kvalitetsfunn fra: ${FINDING_TYPES.join(", ")}
 - forslag til delingsnivå: internal | partners | public
 
-Dagens dato er ${new Date().toISOString().split("T")[0]}.
+TIER (utledet vekting — ALDRI brukervalg):
+- "accredited" (1.00): GDPR-sertifisert eller akkreditert revisjon (nevnt akkrediteringsorgan).
+- "certified"  (0.85): ISO 27001, SOC 2, ISO 27701, ISO 9001 eller tilsvarende sertifikat.
+- "signed"     (0.60): Signert avtale/policy med navngitt godkjenner (DPA, policy m/ signatur).
+- "unverified" (0.30): Egenerklært eller uverifisert.
+Returner både 'tier' og en liste 'tierSignals' med konkrete funn (key + labelNb + labelEn), f.eks.
+{ "key": "iso_27001_certificate", "labelNb": "ISO 27001-sertifikat funnet", "labelEn": "ISO 27001 certificate found" }
+Andre nyttige signal-keys: accredited_audit, gdpr_certified, iso_accredited, soc2_report, iso_27701_certificate, iso_9001_certificate, signed_document, has_approver.
 
-Vær konservativ med høy confidence — sett confidence < 0.6 hvis dokumentet er uklart eller du ikke finner sterke holdepunkter.`;
+Foreslå også 'suggestedControls' — 1–3 spesifikke kontrollpunkter dokumentet dekker (controlId + label + confidence 0..1).
+
+Dagens dato er ${new Date().toISOString().split("T")[0]}.`;
+
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -143,6 +156,35 @@ serve(async (req) => {
                       required: ["type", "severity", "messageNb", "messageEn"],
                     },
                   },
+                  documentDate: { type: "string" },
+                  tier: { type: "string", enum: [...TIER_LEVELS] },
+                  tierSignals: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      additionalProperties: false,
+                      properties: {
+                        key: { type: "string" },
+                        labelNb: { type: "string" },
+                        labelEn: { type: "string" },
+                      },
+                      required: ["key", "labelNb", "labelEn"],
+                    },
+                  },
+                  suggestedControls: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      additionalProperties: false,
+                      properties: {
+                        controlId: { type: "string" },
+                        labelNb: { type: "string" },
+                        labelEn: { type: "string" },
+                        confidence: { type: "number" },
+                      },
+                      required: ["controlId", "confidence"],
+                    },
+                  },
                 },
                 required: [
                   "documentType",
@@ -154,6 +196,8 @@ serve(async (req) => {
                   "extractedMetadata",
                   "qualityFindings",
                   "supportedControls",
+                  "tier",
+                  "tierSignals",
                 ],
               },
             },
@@ -162,6 +206,7 @@ serve(async (req) => {
         tool_choice: { type: "function", function: { name: "classify_evidence" } },
       }),
     });
+
 
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
@@ -183,9 +228,19 @@ serve(async (req) => {
 
     const classification = JSON.parse(toolCall.function.arguments);
 
+    // Flag utdatert dokument (>6 mnd)
+    if (classification.documentDate) {
+      const then = Date.parse(classification.documentDate);
+      if (!Number.isNaN(then)) {
+        const cutoff = Date.now() - 6 * 30 * 24 * 60 * 60 * 1000;
+        classification.isOutdated = then < cutoff;
+      }
+    }
+
     return new Response(JSON.stringify({ classification }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
+
   } catch (err) {
     console.error("classify-evidence-document error", err);
     return new Response(JSON.stringify({ error: String(err) }), {

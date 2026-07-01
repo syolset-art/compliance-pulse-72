@@ -1,6 +1,15 @@
 import { useState, useCallback } from "react";
 import type { ControlAreaKey } from "@/lib/controlAreas";
 import type { QualityFinding, SharingLevel } from "@/lib/evidenceStatus";
+import type { TierLevel, TierSignal } from "@/lib/evidenceTier";
+
+export interface SuggestedControlLink {
+  /** Kontroll-id, f.eks. "governance.data_processing_agreement" */
+  controlId: string;
+  labelNb?: string;
+  labelEn?: string;
+  confidence: number;
+}
 
 export interface EvidenceClassification {
   documentType: string;
@@ -20,6 +29,18 @@ export interface EvidenceClassification {
     nextReviewDate?: string;
     expiryDate?: string;
   };
+
+  // ---- Nytt: tier-utleding og kontrollkobling ----
+  /** Utledet tier fra AI-signaler + dokumenttype. Aldri fra bruker. */
+  tier: TierLevel;
+  /** Konkrete signaler AI fant (sertifikatnummer, revisor, signatur, m.m.). */
+  tierSignals: TierSignal[];
+  /** Dokumentdato (utgivelse/signering) — brukes for utdatert-sjekk. */
+  documentDate?: string;
+  /** Er dokumentet flagget som utdatert (>6 mnd)? */
+  isOutdated?: boolean;
+  /** Foreslåtte kontroller å koble dokumentet til. */
+  suggestedControls?: SuggestedControlLink[];
 }
 
 const CONFIDENCE_THRESHOLD = 0.6;
@@ -39,7 +60,6 @@ export function useClassifyEvidence() {
   const classify = useCallback(async (file: File) => {
     setState({ phase: "analyzing", fileName: file.name });
 
-    // Read text content (best effort for text/PDF-like files)
     const text = await readFileTextSafe(file);
     const documentText = text.length > 100
       ? text

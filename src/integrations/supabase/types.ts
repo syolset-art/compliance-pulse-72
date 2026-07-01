@@ -3946,6 +3946,9 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           asset_id: string
+          attested_at: string | null
+          attested_by: string | null
+          attested_role: string | null
           audit_trail: Json | null
           available_on_request: boolean | null
           category: string | null
@@ -3955,6 +3958,7 @@ export type Database = {
           control_areas: string[] | null
           created_at: string
           display_name: string | null
+          document_date: string | null
           document_type: string
           evidence_status: string | null
           external_url: string | null
@@ -3964,6 +3968,7 @@ export type Database = {
           id: string
           linked_regulations: string[] | null
           notes: string | null
+          placement: string[] | null
           quality_findings: Json | null
           received_at: string | null
           reminder_sent_at: string | null
@@ -3977,6 +3982,9 @@ export type Database = {
           superseded_at: string | null
           superseded_by: string | null
           supported_controls: string[] | null
+          tier: number | null
+          tier_signals: Json | null
+          tier_source: string | null
           updated_at: string
           uploaded_by: string | null
           used_for_trust_score: boolean | null
@@ -3997,6 +4005,9 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           asset_id: string
+          attested_at?: string | null
+          attested_by?: string | null
+          attested_role?: string | null
           audit_trail?: Json | null
           available_on_request?: boolean | null
           category?: string | null
@@ -4006,6 +4017,7 @@ export type Database = {
           control_areas?: string[] | null
           created_at?: string
           display_name?: string | null
+          document_date?: string | null
           document_type?: string
           evidence_status?: string | null
           external_url?: string | null
@@ -4015,6 +4027,7 @@ export type Database = {
           id?: string
           linked_regulations?: string[] | null
           notes?: string | null
+          placement?: string[] | null
           quality_findings?: Json | null
           received_at?: string | null
           reminder_sent_at?: string | null
@@ -4028,6 +4041,9 @@ export type Database = {
           superseded_at?: string | null
           superseded_by?: string | null
           supported_controls?: string[] | null
+          tier?: number | null
+          tier_signals?: Json | null
+          tier_source?: string | null
           updated_at?: string
           uploaded_by?: string | null
           used_for_trust_score?: boolean | null
@@ -4048,6 +4064,9 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           asset_id?: string
+          attested_at?: string | null
+          attested_by?: string | null
+          attested_role?: string | null
           audit_trail?: Json | null
           available_on_request?: boolean | null
           category?: string | null
@@ -4057,6 +4076,7 @@ export type Database = {
           control_areas?: string[] | null
           created_at?: string
           display_name?: string | null
+          document_date?: string | null
           document_type?: string
           evidence_status?: string | null
           external_url?: string | null
@@ -4066,6 +4086,7 @@ export type Database = {
           id?: string
           linked_regulations?: string[] | null
           notes?: string | null
+          placement?: string[] | null
           quality_findings?: Json | null
           received_at?: string | null
           reminder_sent_at?: string | null
@@ -4079,6 +4100,9 @@ export type Database = {
           superseded_at?: string | null
           superseded_by?: string | null
           supported_controls?: string[] | null
+          tier?: number | null
+          tier_signals?: Json | null
+          tier_source?: string | null
           updated_at?: string
           uploaded_by?: string | null
           used_for_trust_score?: boolean | null
