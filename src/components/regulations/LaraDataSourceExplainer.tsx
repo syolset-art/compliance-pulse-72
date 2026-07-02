@@ -1,5 +1,4 @@
-import { useNavigate } from "react-router-dom";
-import { Bot, ArrowRight, Users, Sparkles, FileQuestion } from "lucide-react";
+import { Bot, Users, Sparkles, FileQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import { getRequirementDataSource } from "@/lib/requirementDataSourceMap";
@@ -15,7 +14,6 @@ export function LaraDataSourceExplainer({
   status,
   onManualDocument,
 }: LaraDataSourceExplainerProps) {
-  const navigate = useNavigate();
   const source = getRequirementDataSource(requirement);
   const capability = requirement.agent_capability;
 
@@ -69,18 +67,6 @@ export function LaraDataSourceExplainer({
       </p>
 
       <div className="flex flex-col sm:flex-row gap-2 pl-11">
-        {/* Primær CTA — gå til datakilden hvis mulig */}
-        {source && capability !== "manual" && (
-          <Button
-            size="sm"
-            className="gap-1.5 rounded-pill"
-            onClick={() => navigate(source.route)}
-          >
-            {source.ctaLabel}
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Button>
-        )}
-
         {/* Sekundær CTA — dokumenter manuelt */}
         <Button
           size="sm"
