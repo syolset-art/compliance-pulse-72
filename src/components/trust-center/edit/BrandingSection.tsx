@@ -117,7 +117,7 @@ export function BrandingSection({ asset }: Props) {
       <Card className="overflow-hidden">
         <div
           className="relative w-full"
-          style={{ aspectRatio: "16 / 5" }}
+          style={{ aspectRatio: "16 / 3.5" }}
         >
           {coverUrl ? (
             <>
