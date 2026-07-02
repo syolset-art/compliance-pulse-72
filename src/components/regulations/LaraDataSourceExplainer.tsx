@@ -67,18 +67,6 @@ export function LaraDataSourceExplainer({
       </p>
 
       <div className="flex flex-col sm:flex-row gap-2 pl-11">
-        {/* Primær CTA — gå til datakilden hvis mulig */}
-        {source && capability !== "manual" && (
-          <Button
-            size="sm"
-            className="gap-1.5 rounded-pill"
-            onClick={() => navigate(source.route)}
-          >
-            {source.ctaLabel}
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Button>
-        )}
-
         {/* Sekundær CTA — dokumenter manuelt */}
         <Button
           size="sm"
