@@ -1,5 +1,4 @@
-import { useNavigate } from "react-router-dom";
-import { Bot, ArrowRight, Users, Sparkles, FileQuestion } from "lucide-react";
+import { Bot, Users, Sparkles, FileQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import { getRequirementDataSource } from "@/lib/requirementDataSourceMap";
