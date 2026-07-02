@@ -23,7 +23,7 @@ export function LaraDataSourceExplainer({
       ? "Krever manuell dokumentasjon"
       : status === "partial"
         ? "Lara har delvis data — dette gjenstår"
-        : "Hvorfor mangler Lara data?";
+        : "Hvorfor mangler Lara data nå da?";
 
   // Velg ikon basert på capability
   const Icon =
