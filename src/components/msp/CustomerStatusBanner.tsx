@@ -141,40 +141,38 @@ export function CustomerStatusBanner({ customer, actionSlot }: { customer: Custo
   const renderContext = () => {
     if (status.key === "draft") {
       return (
-        <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
-          <p className="text-sm text-foreground/85 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary animate-pulse" aria-hidden="true" />
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <span className="text-xs text-foreground/80 flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" aria-hidden="true" />
             Lara kartlegger kundeprofilen…
-          </p>
-          <Button size="sm" className="gap-1.5 h-9 text-sm" onClick={() => navigate(`/msp-dashboard/${customer.id}/trust-profile`)}>
-            <Send className="h-4 w-4" aria-hidden="true" /> Start onboarding
+          </span>
+          <Button size="sm" className="gap-1.5 h-7 text-xs" onClick={() => navigate(`/msp-dashboard/${customer.id}/trust-profile`)}>
+            <Send className="h-3.5 w-3.5" aria-hidden="true" /> Start onboarding
           </Button>
         </div>
       );
     }
     if (status.key === "invited") {
       return (
-        <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center justify-between gap-3 flex-wrap">
-          <p className="text-sm text-foreground/85 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-warning" aria-hidden="true" />
-            Onboarding pågår — Lara fyller ut kundeprofilen.
-          </p>
+        <div className="flex items-center gap-1.5">
+          <Sparkles className="h-3.5 w-3.5 text-warning" aria-hidden="true" />
+          <span className="text-xs text-foreground/80">Onboarding pågår — Lara fyller ut kundeprofilen.</span>
         </div>
       );
     }
     if (status.key === "claimed") {
       const last = formatLongDate(customer.last_activity_at);
       return (
-        <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-success shrink-0" aria-hidden="true" />
-          <p className="text-sm text-foreground/85">Aktiv kunde{last ? ` · siste aktivitet ${last}` : ""}</p>
+        <div className="flex items-center gap-1.5">
+          <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" aria-hidden="true" />
+          <span className="text-xs text-foreground/75">Aktiv kunde{last ? ` · siste aktivitet ${last}` : ""}</span>
         </div>
       );
     }
     return (
-      <div className="rounded-lg bg-muted/40 border border-border px-4 py-2.5 flex items-center gap-2">
-        <Archive className="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
-        <p className="text-sm text-muted-foreground">Inaktiv kunde — data fryst.</p>
+      <div className="flex items-center gap-1.5">
+        <Archive className="h-3.5 w-3.5 text-muted-foreground shrink-0" aria-hidden="true" />
+        <span className="text-xs text-muted-foreground">Inaktiv kunde — data fryst.</span>
       </div>
     );
   };
