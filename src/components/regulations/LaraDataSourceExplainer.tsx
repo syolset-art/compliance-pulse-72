@@ -14,7 +14,6 @@ export function LaraDataSourceExplainer({
   status,
   onManualDocument,
 }: LaraDataSourceExplainerProps) {
-  const navigate = useNavigate();
   const source = getRequirementDataSource(requirement);
   const capability = requirement.agent_capability;
 
