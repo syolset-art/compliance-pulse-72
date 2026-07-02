@@ -275,37 +275,35 @@ export function CustomerStatusBanner({ customer, actionSlot }: { customer: Custo
           {renderContext()}
 
           {/* Footer: Kontakt hos kunde · Ansvarlig hos oss */}
-          <div className="border-t border-border pt-3 flex flex-wrap items-center gap-x-8 gap-y-2 text-sm">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Kontakt hos kunde:</span>
+          <div className="border-t border-border pt-2 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-xs">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[10px] uppercase tracking-wider text-foreground/60 font-medium">Kontakt:</span>
               {customer.contact_person ? (
-                <span className="inline-flex items-center gap-1.5 text-foreground">
-                  <InitialAvatar name={customer.contact_person} color="bg-warning/15 text-warning" />
+                <span className="inline-flex items-center gap-1 text-foreground">
                   <span className="truncate">{customer.contact_person}</span>
                   {customer.contact_email && (
                     <a href={`mailto:${customer.contact_email}`} className="text-muted-foreground hover:text-primary" aria-label={`E-post til ${customer.contact_person}`}>
-                      <Mail className="h-3.5 w-3.5" aria-hidden="true" />
+                      <Mail className="h-3 w-3" aria-hidden="true" />
                     </a>
                   )}
                 </span>
               ) : (
                 <button className="inline-flex items-center gap-1 text-primary hover:underline">
-                  <UserPlus className="h-4 w-4" aria-hidden="true" /> Legg til kontaktperson
+                  <UserPlus className="h-3 w-3" aria-hidden="true" /> Legg til
                 </button>
               )}
             </div>
 
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="text-xs uppercase tracking-wider text-foreground/80 font-semibold">Ansvarlig hos oss:</span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[10px] uppercase tracking-wider text-foreground/60 font-medium">Ansvarlig:</span>
               {accountManager ? (
-                <span className="inline-flex items-center gap-1.5 text-foreground">
-                  <InitialAvatar name={accountManager} />
+                <span className="inline-flex items-center gap-1 text-foreground">
                   <span className="truncate">{accountManager}</span>
                   <Popover open={assignOpen} onOpenChange={setAssignOpen}>
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="ml-1 text-sm text-primary hover:underline"
+                        className="text-xs text-primary hover:underline"
                         aria-label="Endre ansvarlig"
                       >
                         Endre
@@ -339,9 +337,9 @@ export function CustomerStatusBanner({ customer, actionSlot }: { customer: Custo
                   <PopoverTrigger asChild>
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1 text-primary hover:underline text-sm font-medium"
+                      className="inline-flex items-center gap-1 text-primary hover:underline text-xs font-medium"
                     >
-                      <UserPlus className="h-4 w-4" aria-hidden="true" /> Tildel ansvarlig
+                      <UserPlus className="h-3 w-3" aria-hidden="true" /> Tildel
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-64 p-1" align="start">
