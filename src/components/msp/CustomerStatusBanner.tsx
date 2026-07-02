@@ -63,7 +63,7 @@ function formatLongDate(d?: string | null): string | null {
 
 function Donut({ score, tone }: { score: number; tone: StatusMeta["tone"] }) {
   const has = score > 0;
-  const radius = 28;
+  const radius = 22;
   const circ = 2 * Math.PI * radius;
   const dash = has ? (score / 100) * circ : 0;
   const strokeColor =
@@ -72,16 +72,16 @@ function Donut({ score, tone }: { score: number; tone: StatusMeta["tone"] }) {
     tone === "primary" ? "hsl(var(--primary))" :
     "hsl(var(--muted-foreground) / 0.3)";
   return (
-    <div className="relative flex items-center justify-center" style={{ width: 72, height: 72 }}>
-      <svg width="72" height="72" viewBox="0 0 72 72" className="-rotate-90">
-        <circle cx="36" cy="36" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="5" />
+    <div className="relative flex items-center justify-center" style={{ width: 56, height: 56 }}>
+      <svg width="56" height="56" viewBox="0 0 56 56" className="-rotate-90">
+        <circle cx="28" cy="28" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="4" />
         {has && (
-          <circle cx="36" cy="36" r={radius} fill="none" stroke={strokeColor} strokeWidth="5" strokeLinecap="round"
+          <circle cx="28" cy="28" r={radius} fill="none" stroke={strokeColor} strokeWidth="4" strokeLinecap="round"
             strokeDasharray={`${dash} ${circ}`} />
         )}
       </svg>
       <span className={cn(
-        "absolute text-[15px] font-bold tabular-nums leading-none",
+        "absolute text-[13px] font-bold tabular-nums leading-none",
         tone === "success" && "text-success",
         tone === "warning" && "text-warning",
         tone === "primary" && "text-primary",
