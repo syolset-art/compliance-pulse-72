@@ -183,9 +183,9 @@ export function CustomerStatusBanner({ customer, actionSlot }: { customer: Custo
     <Card variant="flat" className="relative overflow-hidden p-0">
       <div className="flex items-stretch">
         {/* Vertical stripe */}
-        <div className={cn("relative w-9 shrink-0", status.stripeBg)}>
+        <div className={cn("relative w-7 shrink-0", status.stripeBg)}>
           <span
-            className={cn("absolute inset-0 flex items-center justify-center text-xs font-bold uppercase tracking-[0.18em] whitespace-nowrap", status.stripeText)}
+            className={cn("absolute inset-0 flex items-center justify-center text-[10px] font-bold uppercase tracking-[0.18em] whitespace-nowrap", status.stripeText)}
             style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
           >
             {status.stripeLabel}
@@ -193,36 +193,36 @@ export function CustomerStatusBanner({ customer, actionSlot }: { customer: Custo
         </div>
 
         {/* Body */}
-        <div className="flex-1 px-5 py-4 space-y-3 min-w-0">
+        <div className="flex-1 px-4 py-3 space-y-2 min-w-0">
           {/* Top row */}
-          <div className="flex items-start gap-4">
+          <div className="flex items-start gap-3">
             <div className="shrink-0">
               {customer.logo_url ? (
-                <div className="h-11 w-11 rounded-lg overflow-hidden border border-border bg-background">
+                <div className="h-9 w-9 rounded-md overflow-hidden border border-border bg-background">
                   <img src={customer.logo_url} alt={`${customer.customer_name} logo`} className="h-full w-full object-contain" />
                 </div>
               ) : (
-                <div className="h-11 w-11 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Building2 className="h-5 w-5 text-primary" />
+                <div className="h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center">
+                  <Building2 className="h-4 w-4 text-primary" />
                 </div>
               )}
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-xl md:text-2xl font-bold text-foreground truncate">{customer.customer_name}</h1>
-                <Badge variant="outline" className="text-sm px-2 py-0.5 border-primary/40 text-primary font-medium">
+                <h1 className="text-lg md:text-xl font-bold text-foreground truncate">{customer.customer_name}</h1>
+                <Badge variant="outline" className="text-xs px-2 py-0 border-primary/40 text-primary font-medium">
                   {customer.subscription_plan || "Gratis"}
                 </Badge>
                 {customer.active_frameworks && customer.active_frameworks.length > 0 && (
-                  <Badge variant="outline" className="text-sm px-2 py-0.5 gap-1">
-                    <Shield className="h-3.5 w-3.5" aria-hidden="true" />
+                  <Badge variant="outline" className="text-xs px-2 py-0 gap-1">
+                    <Shield className="h-3 w-3" aria-hidden="true" />
                     {customer.active_frameworks.length} regelverk
                   </Badge>
                 )}
               </div>
 
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-foreground/75">
+              <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0 text-xs text-foreground/75">
                 {customer.industry && <span>{customer.industry}</span>}
                 {customer.employees && (
                   <>
@@ -240,7 +240,7 @@ export function CustomerStatusBanner({ customer, actionSlot }: { customer: Custo
                   <>
                     <span className="text-muted-foreground/50" aria-hidden="true">·</span>
                     <a href={customer.url || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
-                      {hostname}<ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                      {hostname}<ExternalLink className="h-3 w-3" aria-hidden="true" />
                     </a>
                   </>
                 )}
@@ -248,21 +248,20 @@ export function CustomerStatusBanner({ customer, actionSlot }: { customer: Custo
             </div>
 
             {/* Maturity */}
-            <div className="hidden md:flex items-center gap-3 shrink-0">
+            <div className="hidden md:flex items-center gap-2 shrink-0">
               <div className="flex flex-col items-end text-right">
-                <span className="text-xs font-semibold text-foreground/80 uppercase tracking-wider">Modenhet</span>
+                <span className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Modenhet</span>
                 <TooltipProvider delayDuration={150}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className={cn("mt-1 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-sm font-semibold", maturityLevel.cls)}>
-                        <LaraAvatar size={12} />
+                      <span className={cn("mt-0.5 inline-flex items-center gap-1 rounded-full border px-2 py-0 text-xs font-semibold", maturityLevel.cls)}>
+                        <LaraAvatar size={10} />
                         {maturityLevel.label}
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="left"><p className="text-sm">Beregnet av Mynder fra trust score</p></TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-                <span className="mt-1 text-sm text-muted-foreground italic">{maturityLabel}</span>
               </div>
               <Donut score={score} tone={status.tone} />
             </div>
@@ -274,7 +273,7 @@ export function CustomerStatusBanner({ customer, actionSlot }: { customer: Custo
             )}
           </div>
 
-          {/* Context banner */}
+          {/* Context banner — compact inline */}
           {renderContext()}
 
           {/* Footer: Kontakt hos kunde · Ansvarlig hos oss */}
