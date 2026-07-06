@@ -185,12 +185,12 @@ const WIDGETS: Record<string, WidgetMeta> = {
   },
   "top-services": {
     id: "top-services",
-    title: "Tjenester kundene trenger mest hjelp med",
-    subtitle: "Slik finner du hvilke kunder du bør kontakte — og hva du bør tilby dem.",
+    title: "Regelverk kundene trenger mest hjelp med",
+    subtitle: "Samlet oversikt over regulatoriske behov i porteføljen",
     icon: Layers,
-    hero: { value: "142", sub: "kunder ønsker hjelp med GDPR / Personvern" },
+    hero: { value: "388", sub: "kunder har minst ett regelverksbehov i porteføljen" },
     explainer:
-      "Tallene baseres på aktive saker, åpne aktiviteter og forespørsler fra kundens Trust Profile. Følg de tre stegene under: forstå tallene, velg en tjeneste du vil drille ned i, og se de konkrete kundene du bør kontakte — enten én-til-én eller via en kampanje.",
+      "Tallene baseres på åpne aktiviteter, gap i Trust Profile og innkommende forespørsler fra kundene. Lara oppdaterer oversikten daglig. Veksttrend (+%) viser endring siste 30 dager sammenlignet med forrige periode.",
     ctas: [
       { label: "Se servicekatalog", href: "/msp-service-catalog", primary: true },
       { label: "Opprett kampanje", href: "/msp-messages", primary: false },
@@ -231,116 +231,57 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function TopServicesDrilldown() {
-  const navigate = useNavigate();
-  const [selected, setSelected] = useState<string>(TOP_SERVICES[0].label);
-  const max = Math.max(...TOP_SERVICES.map((s) => s.count));
-  const customers = SERVICE_CUSTOMERS[selected] ?? [];
-  const total = TOP_SERVICES.find((s) => s.label === selected)?.count ?? customers.length;
+function RegulatoryOverview() {
+  const totalCustomers = 400;
+  const withNeed = REGULATIONS.reduce((sum, r) => sum + r.customers, 0);
 
   return (
-    <>
-      <Section title="Steg 1 · Forstå tallene">
-        <Card className="p-5 space-y-3 text-sm text-foreground leading-relaxed">
-          <div className="flex items-start gap-2">
-            <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-            <div>
-              <p>
-                <span className="font-medium">Én «kunde med behov»</span> = en kunde i porteføljen din som har
-                minst én åpen aktivitet, et gap i Trust Profile, eller en innkommende forespørsel innenfor
-                tjenesteområdet.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-            <p>
-              <span className="font-medium">Lara oppdaterer tallene daglig</span> basert på nye signaler,
-              endringer i regelverk og aktiviteter kundene fullfører selv.
-            </p>
-          </div>
-          <div className="flex items-start gap-2">
-            <TrendingUp className="h-4 w-4 text-success shrink-0 mt-0.5" />
-            <p>
-              <span className="font-medium">Veksttrend (+%)</span> viser endring siste 30 dager sammenlignet
-              med forrige periode — bruk dette til å prioritere hvor du bygger tilbud først.
-            </p>
-          </div>
-        </Card>
-      </Section>
-
-      <Section title="Steg 2 · Velg tjeneste å drille ned i">
-        <Card className="p-3">
-          <div className="divide-y divide-border/60">
-            {TOP_SERVICES.map((s) => {
-              const active = s.label === selected;
-              return (
-                <button
-                  key={s.label}
-                  type="button"
-                  onClick={() => setSelected(s.label)}
-                  className={
-                    "w-full flex items-center gap-3 py-2.5 px-2 rounded-md text-left transition-colors " +
-                    (active
-                      ? "bg-primary/5 border-l-2 border-primary pl-3"
-                      : "hover:bg-accent/40 border-l-2 border-transparent pl-3")
-                  }
-                >
-                  <div className="w-64 text-sm text-foreground truncate">{s.label}</div>
-                  <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className={"h-full rounded-full " + (active ? "bg-primary" : "bg-primary/60")}
-                      style={{ width: `${(s.count / max) * 100}%` }}
-                    />
-                  </div>
-                  <div className="w-12 text-right text-sm font-semibold tabular-nums">{s.count}</div>
-                  <Badge variant="outline" className="text-xs text-success border-success/30">
-                    {s.growth}
-                  </Badge>
-                  <ArrowRight
-                    className={"h-3.5 w-3.5 shrink-0 " + (active ? "text-primary" : "text-muted-foreground")}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </Card>
-      </Section>
-
-      <Section title={`Steg 3 · Kunder som trenger «${selected}»`}>
-        <Card className="divide-y divide-border">
-          {customers.length === 0 ? (
-            <div className="p-5 text-sm text-muted-foreground">
-              Ingen kunder er flagget for denne tjenesten akkurat nå.
-            </div>
-          ) : (
-            customers.map((c) => (
-              <div key={c.name} className="flex items-center gap-3 p-4">
-                <Users className="h-4 w-4 text-primary shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-foreground">{c.name}</div>
-                  <div className="text-xs text-muted-foreground">{c.reason}</div>
-                </div>
-                <Button size="sm" variant="ghost" onClick={() => navigate("/msp-partner")} className="gap-1">
-                  Åpne kundeprofil <ArrowRight className="h-3 w-3" />
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => navigate("/msp-messages")} className="gap-1">
-                  <Send className="h-3 w-3" /> Start kampanje
-                </Button>
-              </div>
-            ))
-          )}
-        </Card>
-        <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
-          <span>
-            Viser {customers.length} av totalt {total} kunder med behov innen «{selected}».
-          </span>
-          <Button size="sm" variant="link" onClick={() => navigate("/msp-service-catalog")} className="gap-1 h-auto p-0">
-            Se alle i servicekatalog <ArrowRight className="h-3 w-3" />
-          </Button>
+    <Section title="Regelverk og antall kunder med behov">
+      <Card className="divide-y divide-border">
+        {/* Header row */}
+        <div className="grid grid-cols-4 gap-3 px-4 py-2.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <div>Regelverk</div>
+          <div className="text-right">Kunder med behov</div>
+          <div className="text-right">Vekst (30 d)</div>
+          <div className="text-right">Etterspørsel</div>
         </div>
-      </Section>
-    </>
+
+        {/* Data rows */}
+        {REGULATIONS.map((r) => {
+          const status = STATUS_LABELS[r.status];
+          return (
+            <div
+              key={r.name}
+              className="grid grid-cols-4 gap-3 px-4 py-3 items-center hover:bg-accent/40 transition-colors"
+            >
+              <div className="font-medium text-foreground">{r.name}</div>
+              <div className="text-right text-sm font-semibold tabular-nums">{r.customers}</div>
+              <div className="text-right">
+                <Badge variant="outline" className="text-xs text-success border-success/30">
+                  {r.growth}
+                </Badge>
+              </div>
+              <div className="text-right">
+                <Badge variant="outline" className={`text-[11px] ${status.cls}`}>
+                  {status.label}
+                </Badge>
+              </div>
+            </div>
+          );
+        })}
+      </Card>
+
+      {/* Summary card */}
+      <Card className="p-5 mt-5 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <div className="text-4xl font-bold text-foreground tabular-nums">{withNeed}</div>
+          <div className="text-sm text-muted-foreground">
+            av totalt {totalCustomers} kunder har minst ett regelverksbehov
+            <span className="ml-1 text-xs">({Math.round((withNeed / totalCustomers) * 100)}%)</span>
+          </div>
+        </div>
+      </Card>
+    </Section>
   );
 }
 
@@ -462,7 +403,9 @@ function WidgetBody({ id }: { id: string }) {
       );
 
     case "top-services":
-      return <TopServicesDrilldown />;
+      return <RegulatoryOverview />;
+
+
 
 
     case "campaigns":
