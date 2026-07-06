@@ -1478,6 +1478,8 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     category: 'governance',
     name: 'Data Breach Notification Procedures',
     name_no: 'Prosedyrer for varsling av databrudd',
+    action_title: 'Establish data breach notification procedures',
+    action_title_no: 'Etabler prosedyrer for varsling av databrudd',
     description: 'Establish procedures to detect, investigate, and report personal data breaches within 72 hours to supervisory authorities.',
     description_no: 'Etabler prosedyrer for å oppdage, undersøke og rapportere brudd på personopplysningssikkerheten innen 72 timer til tilsynsmyndigheter.',
     priority: 'critical',
