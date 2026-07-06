@@ -900,7 +900,17 @@ function ClaimDevelopmentChart() {
     <Card onClick={() => navigate("/msp-partner/widget/claim-development")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-start justify-between mb-1">
         <div>
-          <h3 className="text-base font-semibold text-foreground">Aktiveringer over tid</h3>
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-base font-semibold text-foreground">Aktiveringer over tid</h3>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right" className="max-w-[260px]">
+                <p className="text-xs">Antall kunder som har godkjent et tilbud der partneren har aktivert et gitt antall regelverk på deres vegne.</p>
+              </TooltipContent>
+            </UITooltip>
+          </div>
           <p className="text-xs text-muted-foreground mt-0.5">
             Fra 6 til 47 aktiverte kunder · siste 6 mnd
           </p>
