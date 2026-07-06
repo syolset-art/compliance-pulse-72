@@ -16,6 +16,9 @@ import {
   Layers,
   CheckCircle2,
   Sparkles,
+  Info,
+  Users,
+  Send,
 } from "lucide-react";
 import {
   ResponsiveContainer,
