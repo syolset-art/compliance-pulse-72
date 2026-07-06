@@ -45,6 +45,10 @@ type LaraSuggestion = {
   impact: { reach: string; expectedClaims: string; revenue: string };
   steps: string[];
   cta: { primary: string; secondary: string; icon: typeof Mail };
+  regulation: "NIS2" | "GDPR" | "DORA" | "AI Act";
+  targetCount: number;
+  expectedEffect: string;
+  priority: "Høy" | "Middels" | "Lav";
 };
 
 const LARA_SUGGESTIONS: LaraSuggestion[] = [
@@ -63,38 +67,70 @@ const LARA_SUGGESTIONS: LaraSuggestion[] = [
       "Du får daglig statusrapport i innboksen",
     ],
     cta: { primary: "Start kampanje nå", secondary: "Tilpass mal", icon: Mail },
+    regulation: "NIS2",
+    targetCount: 28,
+    expectedEffect: "9–12 nye aktiveringer",
+    priority: "Høy",
   },
   {
     id: 2,
-    dot: "bg-status-followup",
-    text: "Følg opp Bergen Maskin — sertifikat utløpt",
-    icon: Clock,
-    title: "Bergen Maskin AS — ISO 27001 utløpt",
-    summary: "ISO 27001-sertifikatet utløp for 14 dager siden. Kunden har ikke lastet opp nytt bevis. Risiko for at de mister sertifisering — og at du mister rådgivningsmulighet.",
-    impact: { reach: "1 kunde", expectedClaims: "Beholde kunde + resertifisering", revenue: "~85 000 kr i prosjekt" },
+    dot: "bg-primary",
+    text: "GDPR årlig oppfriskning mot 46 kunder",
+    icon: Mail,
+    title: "GDPR årlig oppfriskning",
+    summary: "46 kunder har databehandleravtaler og ROPA-oppføringer som ikke er gjennomgått de siste 12 månedene. Lara har klargjort en fornyelseskampanje.",
+    impact: { reach: "46 kunder", expectedClaims: "30+ fornyelser", revenue: "~180 000 kr ARR" },
     steps: [
-      "Ring kontaktperson Erik Solheim (CISO)",
-      "Send forhåndsskrevet e-post med tilbud om resertifiseringsløp",
-      "Book oppfølging i kalender om 7 dager",
-      "Lara overvåker Brreg + datatilsyn for nye signaler",
+      "Send påminnelse om årlig GDPR-gjennomgang",
+      "Automatisk sjekk av DPA-status og ROPA-oppdateringer",
+      "Lara foreslår oppdaterte tekster per kunde",
+      "Fornyelsesrapport til deg ukentlig",
     ],
-    cta: { primary: "Ring nå", secondary: "Send e-post", icon: Phone },
+    cta: { primary: "Start kampanje", secondary: "Tilpass mal", icon: Mail },
+    regulation: "GDPR",
+    targetCount: 46,
+    expectedEffect: "30+ fornyelser",
+    priority: "Middels",
   },
   {
     id: 3,
-    dot: "bg-primary",
-    text: "Book intro med Vestland Logistikk — ny CEO",
-    icon: Users,
-    title: "Vestland Logistikk — ny CEO",
-    summary: "Brreg-signal: ny CEO registrert i går. Statistisk topp-tidspunkt for å introdusere compliance-rådgivning. Selskapet er DORA-eksponert (transport + finansielle tjenester).",
-    impact: { reach: "1 kunde", expectedClaims: "Ny rådgivningskontrakt", revenue: "~150 000 kr ARR" },
+    dot: "bg-status-followup",
+    text: "DORA-beredskapssjekk mot 12 finanskunder",
+    icon: Target,
+    title: "DORA-beredskapssjekk",
+    summary: "12 kunder i finanssektoren omfattes av DORA, men mangler dokumentert IKT-risikovurdering. Lara kan starte en beredskapssjekk.",
+    impact: { reach: "12 kunder", expectedClaims: "8 risikovurderinger", revenue: "~140 000 kr ARR" },
     steps: [
-      "Lara har funnet CEO på LinkedIn — godkjenn introtekst",
-      "Send connect-forespørsel med personlig melding",
-      "Foreslå 20-min intromøte neste uke",
-      "Forbered briefing-pakke om DORA + transportbransjen",
+      "Send DORA-eksponeringsanalyse til hver kunde",
+      "Lara henter data fra Trust Profile og kartlegger gap",
+      "Foreslå prioriterte tiltak per kunde",
+      "Ukentlig statusrapport til deg",
     ],
-    cta: { primary: "Book møte", secondary: "Se briefing", icon: Calendar },
+    cta: { primary: "Start kampanje", secondary: "Tilpass mal", icon: Mail },
+    regulation: "DORA",
+    targetCount: 12,
+    expectedEffect: "8 risikovurderinger",
+    priority: "Høy",
+  },
+  {
+    id: 4,
+    dot: "bg-primary",
+    text: "AI Act-kartlegging mot 19 kunder med AI-systemer",
+    icon: Users,
+    title: "AI Act-kartlegging",
+    summary: "19 kunder har registrert AI-systemer, men mangler ROPA-oppføring og risikoklassifisering iht. AI Act. Lara kan kartlegge og opprette utkast.",
+    impact: { reach: "19 kunder", expectedClaims: "15 nye ROPA-oppføringer", revenue: "~95 000 kr ARR" },
+    steps: [
+      "Lara identifiserer AI-systemer i kundens portefølje",
+      "Klassifiserer risikonivå iht. AI Act",
+      "Genererer ROPA-utkast per system",
+      "Rådgiver godkjenner før publisering",
+    ],
+    cta: { primary: "Start kampanje", secondary: "Tilpass mal", icon: Mail },
+    regulation: "AI Act",
+    targetCount: 19,
+    expectedEffect: "15 nye ROPA-oppføringer",
+    priority: "Middels",
   },
 ];
 
