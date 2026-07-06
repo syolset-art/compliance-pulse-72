@@ -68,7 +68,7 @@ export function NextActionCards({ actions }: NextActionCardsProps) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground line-clamp-2">
-                    {isNorwegian ? action.name_no : action.name}
+                    {isNorwegian ? (action.action_title_no || action.name_no) : (action.action_title || action.name)}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                     {action.framework_id.toUpperCase()} · {action.requirement_id}
