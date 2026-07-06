@@ -956,7 +956,7 @@ function TopServicesWidget() {
               </UITooltip>
             </TooltipProvider>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">Etterspørsel per tjeneste — siste 30 dager</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Etterspørsel per regelverk — siste 30 dager</p>
         </div>
       </div>
 

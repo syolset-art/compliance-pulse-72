@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
@@ -15,10 +14,6 @@ import {
   Newspaper,
   Layers,
   CheckCircle2,
-  Sparkles,
-  Info,
-  Users,
-  Send,
 } from "lucide-react";
 import {
   ResponsiveContainer,
