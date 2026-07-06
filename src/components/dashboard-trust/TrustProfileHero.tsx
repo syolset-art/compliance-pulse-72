@@ -58,45 +58,56 @@ export function TrustProfileHero() {
     : null;
 
   return (
-    <Card className="p-5 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-      <div className="flex items-start gap-4">
-        <div className="h-12 w-12 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
-          <ShieldCheck className="h-6 w-6 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="text-lg font-semibold text-foreground">
-              {isNb ? "Din Trust Profile" : "Your Trust Profile"}
-            </h2>
-            <Badge variant={isPublished ? "default" : "secondary"} className="text-xs">
-              {isPublished ? (isNb ? "Publisert" : "Published") : (isNb ? "Ikke publisert" : "Not published")}
-            </Badge>
-          </div>
-          <p className="text-sm text-muted-foreground mt-1 truncate">{displayUrl}</p>
-          {updatedAt && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isNb ? "Sist oppdatert" : "Last updated"}: {updatedAt}
-            </p>
-          )}
-          <div className="flex flex-wrap gap-2 mt-4">
-            <Button size="sm" onClick={() => navigate("/trust-center/edit")}>
-              <Pencil className="h-3.5 w-3.5 mr-1.5" />
-              {isNb ? "Rediger profil" : "Edit profile"}
-            </Button>
-            {isPublished && (
-              <Button size="sm" variant="outline" asChild>
-                <a href={fullUrl} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-                  {isNb ? "Åpne profil" : "Open profile"}
+    <Card className="p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <ShieldCheck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-medium text-foreground">
+                {isNb ? "Din Trust Profile" : "Your Trust Profile"}
+              </h2>
+              <Badge variant={isPublished ? "default" : "secondary"} className="text-[10px] px-1.5 py-0">
+                {isPublished ? (isNb ? "Publisert" : "Published") : (isNb ? "Ikke publisert" : "Not published")}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2 mt-0.5">
+              {isPublished ? (
+                <a
+                  href={fullUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-muted-foreground hover:text-primary hover:underline truncate inline-flex items-center gap-1"
+                >
+                  {displayUrl}
+                  <ExternalLink className="h-3 w-3 flex-shrink-0" />
                 </a>
-              </Button>
-            )}
-            <Button size="sm" variant="outline" onClick={copyLink}>
-              {copied ? <Check className="h-3.5 w-3.5 mr-1.5" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
-              {isNb ? "Kopier lenke" : "Copy link"}
-            </Button>
+              ) : (
+                <span className="text-xs text-muted-foreground truncate">{displayUrl}</span>
+              )}
+              <button
+                onClick={copyLink}
+                className="inline-flex items-center text-muted-foreground hover:text-primary transition-colors"
+                title={isNb ? "Kopier lenke" : "Copy link"}
+              >
+                {copied ? (
+                  <Check className="h-3 w-3" />
+                ) : (
+                  <Copy className="h-3 w-3" />
+                )}
+              </button>
+              {updatedAt && (
+                <span className="text-[10px] text-muted-foreground/70 hidden sm:inline">
+                  · {updatedAt}
+                </span>
+              )}
+            </div>
           </div>
         </div>
+        <Button size="sm" onClick={() => navigate("/trust-center/edit")}>
+          <Pencil className="h-3.5 w-3.5 mr-1.5" />
+          {isNb ? "Rediger" : "Edit"}
+        </Button>
       </div>
     </Card>
   );
