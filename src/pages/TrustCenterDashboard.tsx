@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { TrustProfileHero } from "@/components/dashboard-trust/TrustProfileHero";
-import { TrustCustomerRequestsWidget } from "@/components/dashboard-trust/TrustCustomerRequestsWidget";
-import { CustomerDPAWidget } from "@/components/dashboard-trust/CustomerDPAWidget";
 import { UpcomingTrustFeaturesCard } from "@/components/dashboard-trust/UpcomingTrustFeaturesCard";
 import { AggregatedMaturityWidget } from "@/components/dashboard-v2/AggregatedMaturityWidget";
 import { NextActionCards } from "@/components/dashboard-v2/NextActionCards";
@@ -29,6 +29,66 @@ export default function TrustCenterDashboard() {
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const { grouped } = useComplianceRequirements();
   const { tasks: userTasks } = useUserTasks();
+
+  const { data: dpas = [] } = useQuery({
+    queryKey: ["trust-dashboard-dpas-actions"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("vendor_documents")
+        .select("id,file_name,valid_to")
+        .eq("document_type", "dpa")
+        .order("valid_to", { ascending: true, nullsFirst: false })
+        .limit(20);
+      return (data as any[]) || [];
+    },
+  });
+
+  const dpaActions = useMemo(() => {
+    const now = Date.now();
+    const soonMs = 60 * 24 * 60 * 60 * 1000;
+    const base = (id: string, name: string, name_no: string, priority: "critical" | "high") => ({
+      framework_id: "gdpr",
+      requirement_id: id,
+      name,
+      name_no,
+      action_title: name,
+      action_title_no: name_no,
+      category: "legal" as const,
+      priority,
+      status: "not_started" as const,
+      description: null,
+      description_no: null,
+      domain: "privacy" as const,
+      agent_capability: "manual" as const,
+      sort_order: 0,
+      is_active: true,
+      is_relevant: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      completed_at: null,
+      completed_by: null,
+      maturity_level: null,
+      progress_percent: 0,
+      is_ai_handling: false,
+      id,
+      _source: "dpa" as const,
+    });
+
+    if (!dpas.length) {
+      return [base("dpa-upload", "Upload Data Processing Agreement", "Last opp databehandleravtale", "critical")];
+    }
+    const expiring = dpas.filter((d) => d.valid_to && new Date(d.valid_to).getTime() - now < soonMs).slice(0, 2);
+    return expiring.map((d) => {
+      const overdue = new Date(d.valid_to).getTime() < now;
+      const label = d.file_name || (isNb ? "DPA" : "DPA");
+      return base(
+        `dpa-renew-${d.id}`,
+        overdue ? `Renew expired DPA: ${label}` : `Renew DPA: ${label}`,
+        overdue ? `Forny utløpt DPA: ${label}` : `Forny DPA: ${label}`,
+        overdue ? "critical" : "high",
+      );
+    });
+  }, [dpas, isNb]);
 
   const actions = useMemo(() => {
     const compliance = (grouped.incompleteManual || []).map((a) => ({ ...a, _source: "compliance" as const }));
@@ -59,10 +119,10 @@ export default function TrustCenterDashboard() {
         id: t.id,
         _source: "user" as const,
       }));
-    const all = [...compliance, ...open];
+    const all = [...dpaActions, ...compliance, ...open];
     all.sort((a, b) => (PRIORITY_ORDER[a.priority] ?? 4) - (PRIORITY_ORDER[b.priority] ?? 4));
     return all.slice(0, 5);
-  }, [grouped.incompleteManual, userTasks]);
+  }, [grouped.incompleteManual, userTasks, dpaActions]);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -82,12 +142,7 @@ export default function TrustCenterDashboard() {
 
           <AggregatedMaturityWidget />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <TrustCustomerRequestsWidget />
-            <CustomerDPAWidget />
-          </div>
-
-          <NextActionCards actions={actions} />
+          <NextActionCards actions={actions as any} />
 
           <UpcomingTrustFeaturesCard />
         </div>
