@@ -561,6 +561,8 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     category: 'people',
     name: 'Screening',
     name_no: 'Bakgrunnssjekk',
+    action_title: 'Implement background screening for personnel',
+    action_title_no: 'Innfør bakgrunnssjekk av personell',
     description: 'Background verification checks on all candidates to become personnel shall be carried out prior to joining the organization and on an ongoing basis.',
     description_no: 'Bakgrunnsverifiseringskontroller på alle kandidater som skal bli personell, skal gjennomføres før de begynner i organisasjonen og på løpende basis.',
     priority: 'high',
