@@ -333,35 +333,92 @@ function AvgTrustScoreWidget() {
 }
 
 
-function LaraSuggestions({ onSelect }: { onSelect: (s: LaraSuggestion) => void }) {
+const REG_STYLES: Record<LaraSuggestion["regulation"], string> = {
+  "NIS2": "bg-primary/10 text-primary border-primary/20",
+  "GDPR": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  "DORA": "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
+  "AI Act": "bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-400 border-fuchsia-500/20",
+};
+
+const PRIORITY_STYLES: Record<LaraSuggestion["priority"], string> = {
+  "Høy": "bg-destructive/10 text-destructive border-destructive/20",
+  "Middels": "bg-warning/10 text-warning border-warning/20",
+  "Lav": "bg-muted text-muted-foreground border-border",
+};
+
+function LaraSuggestionsTable({ onSelect }: { onSelect: (s: LaraSuggestion) => void }) {
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
 
-  const total = LARA_SUGGESTIONS.length;
-  const critical = LARA_SUGGESTIONS.filter((s) => s.dot === "bg-status-followup").length;
-  const top = LARA_SUGGESTIONS[0];
-
   return (
-    <Card className="p-4 bg-primary/5 border-primary/20">
-      <div className="flex items-center gap-4">
-        <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-          <Sparkles className="h-5 w-5 text-primary-foreground" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-foreground">Lara har en anbefaling til deg</div>
-          <div className="text-sm text-muted-foreground">
-            Du har {total} oppgaver som krever oppmerksomhet, hvorav {critical} er kritiske. Vil du starte en gjennomgang?
+    <Card className="p-5 bg-primary/[0.03] border-primary/20">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <Sparkles className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-base font-semibold text-foreground">Lara-forslag</div>
+            <div className="text-xs text-muted-foreground">
+              {LARA_SUGGESTIONS.length} anbefalinger klare for gjennomgang
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Button size="sm" onClick={() => onSelect(top)}>Vis plan</Button>
-          <button
-            onClick={() => setDismissed(true)}
-            className="text-sm text-muted-foreground hover:text-foreground px-2"
-          >
-            Ikke nå
-          </button>
-        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          className="text-muted-foreground hover:text-foreground p-1 -m-1"
+          aria-label="Skjul"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="overflow-x-auto -mx-5 px-5">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-[11px] uppercase tracking-wider text-muted-foreground border-b border-border">
+              <th className="text-left font-semibold py-2 pr-4">Regelverk</th>
+              <th className="text-left font-semibold py-2 pr-4">Anbefaling</th>
+              <th className="text-left font-semibold py-2 pr-4 whitespace-nowrap">Målgruppe</th>
+              <th className="text-left font-semibold py-2 pr-4">Forventet effekt</th>
+              <th className="text-left font-semibold py-2 pr-4">Prioritet</th>
+              <th className="text-right font-semibold py-2">Handling</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/60">
+            {LARA_SUGGESTIONS.map((s) => (
+              <tr key={s.id} className="hover:bg-accent/30 transition-colors">
+                <td className="py-3 pr-4 align-top">
+                  <Badge variant="outline" className={`text-[11px] font-semibold ${REG_STYLES[s.regulation]}`}>
+                    {s.regulation}
+                  </Badge>
+                </td>
+                <td className="py-3 pr-4 align-top">
+                  <div className="font-semibold text-foreground">{s.title}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2 max-w-md">
+                    {s.summary}
+                  </div>
+                </td>
+                <td className="py-3 pr-4 align-top whitespace-nowrap tabular-nums">
+                  {s.targetCount} kunder
+                </td>
+                <td className="py-3 pr-4 align-top text-foreground/90">
+                  {s.expectedEffect}
+                </td>
+                <td className="py-3 pr-4 align-top">
+                  <Badge variant="outline" className={`text-[11px] ${PRIORITY_STYLES[s.priority]}`}>
+                    {s.priority}
+                  </Badge>
+                </td>
+                <td className="py-3 text-right align-top">
+                  <Button size="sm" variant="outline" onClick={() => onSelect(s)} className="gap-1">
+                    Sett opp <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </Card>
   );
