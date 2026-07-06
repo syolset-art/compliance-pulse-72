@@ -13,7 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone, Settings, Newspaper, Video, GraduationCap, Zap, X, HelpCircle } from "lucide-react";
+import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Settings, X, HelpCircle } from "lucide-react";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -1106,127 +1106,6 @@ function LiveSignals() {
   );
 }
 
-// ---------- Campaigns widget ----------
-type ActiveCampaign = {
-  id: string;
-  title: string;
-  reach: number;
-  accepted: number;
-  startedDaysAgo: number;
-  daysLeft: number;
-  totalDays: number;
-};
-
-const ACTIVE_CAMPAIGNS: ActiveCampaign[] = [
-  { id: "nis2", title: "NIS2-vurdering", reach: 42, accepted: 11, startedDaysAgo: 18, daysLeft: 4, totalDays: 30 },
-  { id: "transparency", title: "Åpenhetsloven — redegjørelse", reach: 28, accepted: 9, startedDaysAgo: 12, daysLeft: 12, totalDays: 30 },
-  { id: "dpia", title: "DPIA for AI-systemer", reach: 22, accepted: 4, startedDaysAgo: 5, daysLeft: 21, totalDays: 30 },
-];
-
-function CampaignsWidget() {
-  const navigate = useNavigate();
-  return (
-    <Card className="p-5">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Megaphone className="h-4 w-4 text-primary" />
-          <h3 className="text-base font-semibold">Pågående kampanjer</h3>
-        </div>
-        <Button variant="ghost" size="sm" onClick={() => navigate("/msp-partner/widget/campaigns")} className="gap-1 text-xs h-7">
-          Lær mer <ChevronRight className="h-3.5 w-3.5" />
-        </Button>
-      </div>
-
-      <div className="space-y-3.5">
-        {ACTIVE_CAMPAIGNS.map((c) => {
-          const acceptPct = Math.round((c.accepted / c.reach) * 100);
-          const urgent = c.daysLeft <= 5;
-          const soon = c.daysLeft <= 14 && !urgent;
-          const barColor = urgent ? "bg-destructive" : soon ? "bg-warning" : "bg-primary";
-          const textColor = urgent ? "text-destructive" : soon ? "text-warning" : "text-muted-foreground";
-
-          return (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => navigate("/msp-messages")}
-              className="w-full text-left hover:bg-muted/40 rounded-md p-1.5 -mx-1.5 transition-colors"
-            >
-              <div className="flex items-baseline justify-between gap-3 mb-1.5">
-                <p className="text-sm font-medium text-foreground truncate">{c.title}</p>
-                <span className={`text-[12px] tabular-nums ${textColor}`}>{c.daysLeft}d igjen</span>
-              </div>
-              <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className={`absolute inset-y-0 left-0 ${barColor} rounded-full`} style={{ width: `${acceptPct}%` }} />
-              </div>
-              <p className="text-[12px] text-muted-foreground mt-1">{c.accepted} av {c.reach} svar · {acceptPct}%</p>
-            </button>
-          );
-        })}
-      </div>
-    </Card>
-  );
-}
-
-// ---------- News widget ----------
-type NewsItem = {
-  id: string;
-  kind: "feature" | "course" | "webinar";
-  title: string;
-  meta: string;
-  when: string;
-};
-
-const NEWS_ITEMS: NewsItem[] = [
-  { id: "n1", kind: "feature", title: "Lara kan nå generere DPIA-utkast", meta: "Ny funksjon", when: "I dag" },
-  { id: "n2", kind: "webinar", title: "NIS2 i praksis for MSP-er", meta: "Webinar · 28. mai · 10:00", when: "Om 7 dager" },
-  { id: "n3", kind: "course", title: "Kurs: Trust Profile-salg for MSP", meta: "45 min · sertifisering", when: "Tilgjengelig" },
-  { id: "n4", kind: "feature", title: "Automatisk leverandørkartlegging", meta: "Ny funksjon · Beta", when: "Denne uken" },
-];
-
-const NEWS_META: Record<NewsItem["kind"], { Icon: typeof Zap; label: string; cls: string }> = {
-  feature: { Icon: Zap, label: "Nyhet", cls: "text-primary bg-primary/10" },
-  course: { Icon: GraduationCap, label: "Kurs", cls: "text-success bg-success/10" },
-  webinar: { Icon: Video, label: "Webinar", cls: "text-warning bg-warning/10" },
-};
-
-function NewsWidget() {
-  const navigate = useNavigate();
-  return (
-    <Card onClick={() => navigate("/msp-partner/widget/news")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Newspaper className="h-4 w-4 text-primary" />
-          <h3 className="text-base font-semibold">Nyheter</h3>
-        </div>
-        <span className="text-[12px] text-muted-foreground">fra Mynder</span>
-      </div>
-
-      <ul className="space-y-2.5">
-        {NEWS_ITEMS.map((n) => {
-          const { Icon, cls } = NEWS_META[n.kind];
-          return (
-            <li
-              key={n.id}
-              className="flex gap-3 hover:bg-muted/40 rounded-md p-1.5 -mx-1.5 transition-colors cursor-pointer"
-            >
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 ${cls}`}>
-                <Icon className="h-4 w-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline justify-between gap-2">
-                  <p className="text-sm font-medium text-foreground truncate">{n.title}</p>
-                  <span className="text-[12px] text-muted-foreground shrink-0">{n.when}</span>
-                </div>
-                <p className="text-[12px] text-muted-foreground mt-0.5">{n.meta}</p>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-    </Card>
-  );
-}
 
 
 export default function MSPPartnerDashboard() {
@@ -1267,11 +1146,6 @@ export default function MSPPartnerDashboard() {
           </div>
 
           <TopServicesWidget />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <CampaignsWidget />
-            <NewsWidget />
-          </div>
 
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => navigate("/msp-dashboard")}>
