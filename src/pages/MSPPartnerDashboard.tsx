@@ -167,7 +167,7 @@ function PartnerHeader() {
       <div>
         <h1 className="text-3xl font-bold text-foreground">Hei, Beate</h1>
         <p className="text-muted-foreground mt-1">
-          Du har 7 nye meldinger og Lara har 3 forslag i dag
+          Du har 7 nye meldinger og Lara har 4 forslag i dag
         </p>
       </div>
       <div className="flex items-center gap-2">
