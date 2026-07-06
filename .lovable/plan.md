@@ -1,45 +1,26 @@
 
-## Mål
+## Kontekst
 
-Erstatt det store, ekspanderte "NIS2-aktiveringskampanje"-kortet på MSP-dashbordet med en kompakt **tabell over Lara-forslag**, der hver rad = ett forslag (f.eks. NIS2-aktivering, GDPR-oppfriskning, DORA-beredskap, AI Act-kartlegging).
+Det er partneren (MSP) som aktiverer regelverk på sine kunder. Widgeten "Aktiveringsgrad" på MSP-dashbordet snakker i dag om "kunder som har aktivert compliance-leveransen" — det er misvisende. Den skal i stedet vise hvor mange kunder som har **godkjent å få aktivert regelverk** som del av tilbudet fra partneren.
 
-## Endringer i `src/pages/MSPPartnerDashboard.tsx`
+## Endringer
 
-### 1. Ny datamodell `LARA_SUGGESTIONS`
-Array med 4 forslag:
-- **NIS2-aktiveringskampanje** — 28 kunder, forventet 9–12 aktiveringer, prioritet Høy
-- **GDPR årlig oppfriskning** — 46 kunder, forventet 30+ fornyelser, prioritet Middels
-- **DORA-beredskapssjekk** — 12 kunder (finans), forventet 8 risikovurderinger, prioritet Høy
-- **AI Act-kartlegging** — 19 kunder med AI-systemer, forventet 15 nye ROPA-oppføringer, prioritet Middels
+Kun tekst/etiketter i `src/pages/MSPPartnerDashboard.tsx` — ingen logikk, tall, ruter eller andre widgets endres.
 
-Felter per rad: `id`, `regelverk` (badge), `tittel`, `beskrivelse` (kort), `målgruppe` (antall kunder), `forventetEffekt`, `prioritet` (Høy/Middels/Lav med fargekoding).
+### `ClaimRateWidget` (linjer ~204–245)
+- **Overskrift (label):** "AKTIVERINGSGRAD" → **"GODKJENT AV KUNDE"**
+- **Hovedlinje:** "47 av 400 kunder har aktivert" → **"47 av 400 kunder har godkjent regelverkstilbud"**
+- **Underlinje:** "Kunder som har godkjent compliance-leveranse · +2 mnd" → **"Kunder som har akseptert regelverk aktivert av deg · +2 mnd"**
+- Ringen beholder "12%" og "aktive"-label endres til **"godkjent"**.
 
-### 2. Ny komponent `LaraSuggestionsTable`
-Erstatter dagens `LaraCampaignHero` / ekspanderte kort (linjene rundt 400–740 som viser stegene "1. Gjennomgå … 4. Tidsplan", rekkevidde/forventet-boks, "Slik utfører Lara dette", og knappene Avbryt / Sett opp kampanje).
+### `KPIS`-array (linje ~33)
+- `label`: "AKTIVERINGSGRAD" → **"GODKJENT AV KUNDE"**
+- `sub`: "47 av 400 kunder har aktivert compliance-leveransen" → **"47 av 400 kunder har godkjent regelverkstilbud"**
 
-Layout:
-- Kortheader: ikon + "Lara-forslag" + subtittel "4 anbefalinger klare for gjennomgang"
-- Tabell med kolonner:
-  1. **Regelverk** (fargekodet pill: NIS2, GDPR, DORA, AI Act)
-  2. **Anbefaling** (tittel + kort beskrivelse under)
-  3. **Målgruppe** (f.eks. "28 kunder")
-  4. **Forventet effekt**
-  5. **Prioritet** (statustagg)
-  6. **Handling** — sekundærknapp "Sett opp" per rad (åpner samme flow som før, men fra rad-nivå)
+### `PartnerHeader` (linje ~168)
+Beholdes uendret ("Du har 7 nye meldinger og Lara har 4 forslag i dag").
 
-- Ingen ekspanderte steg (Gjennomgå/Målgruppe/E-post/Tidsplan) synlig som standard — de tilhører "Sett opp"-flyten.
-
-### 3. Fjernes
-- Hero-kortet med progress-steg (1–4), rekkevidde/forventet-bokser, "Slik utfører Lara dette"-accordion, og Avbryt/Sett opp-knapper på toppen.
-- Ubrukte states/imports knyttet til stegvisning.
-
-### 4. Beholdes
-- Meldingslinjen "Du har 7 nye meldinger og Lara har 3 forslag i dag" (endres til "4 forslag" for å matche tabellen).
-- Alt annet på dashbordet (widgets, kundeliste osv.) er urørt.
-
-## Teknisk
-
-- Fil: kun `src/pages/MSPPartnerDashboard.tsx`.
-- Bruker eksisterende shadcn `Table`, `Badge`, `Button`.
-- Fargekoding regelverk-pills via Tailwind semantic tokens (ingen hardkodede farger).
-- Ingen ruter, backend eller nye filer.
+## Utenfor scope
+- Ingen endring i data eller prosenter.
+- Andre widgets (Pågående kampanjer, Trust score, Lara-forslag-tabell osv.) er ikke berørt.
+- Ingen endring i navigasjon eller drilldown-siden `/msp-partner/widget/claim-rate` — det håndteres separat hvis ønskelig.
