@@ -1392,6 +1392,8 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     category: 'legal',
     name: 'Consent Management',
     name_no: 'Samtykkeadministrasjon',
+    action_title: 'Set up consent management mechanisms',
+    action_title_no: 'Sett opp mekanismer for samtykkeadministrasjon',
     description: 'Implement mechanisms to obtain, record, and manage valid consent for data processing where consent is the lawful basis.',
     description_no: 'Implementer mekanismer for å innhente, registrere og administrere gyldig samtykke for databehandling der samtykke er det lovlige grunnlaget.',
     priority: 'high',
