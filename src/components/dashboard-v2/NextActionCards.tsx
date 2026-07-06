@@ -77,6 +77,7 @@ export function NextActionCards({ actions }: NextActionCardsProps) {
               </div>
 
               <div className="flex items-center justify-between mt-auto pt-1">
+                {/* DEV NOTE: Vis XP-belønning kun dersom det er mulig å beregne poeng i forhold til scoring. */}
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-warning dark:text-warning">
                   <Zap className="h-3 w-3" />
                   +{xp} XP
