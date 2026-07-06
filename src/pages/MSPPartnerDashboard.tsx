@@ -1106,24 +1106,6 @@ function LiveSignals() {
   );
 }
 
-// ---------- Campaigns widget ----------
-type ActiveCampaign = {
-  id: string;
-  title: string;
-  reach: number;
-  accepted: number;
-  startedDaysAgo: number;
-  daysLeft: number;
-  totalDays: number;
-};
-
-const ACTIVE_CAMPAIGNS: ActiveCampaign[] = [
-  { id: "nis2", title: "NIS2-vurdering", reach: 42, accepted: 11, startedDaysAgo: 18, daysLeft: 4, totalDays: 30 },
-  { id: "transparency", title: "Åpenhetsloven — redegjørelse", reach: 28, accepted: 9, startedDaysAgo: 12, daysLeft: 12, totalDays: 30 },
-  { id: "dpia", title: "DPIA for AI-systemer", reach: 22, accepted: 4, startedDaysAgo: 5, daysLeft: 21, totalDays: 30 },
-];
-
-function CampaignsWidget() {
   const navigate = useNavigate();
   return (
     <Card className="p-5">
