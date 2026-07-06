@@ -1,49 +1,45 @@
+
 ## Mål
-Erstatte den nåværende steg-baserte drilldown-visningen («Steg 1/2/3») i `MSPWidgetDetail.tsx` (widget = `top-services`) med en ren, flat tabell-oversikt over 4 regelverk kundene trenger hjelp med.
 
-## Hva som fjernes
-- Hele `TopServicesDrilldown()`-komponenten (Steg 1 / Steg (Step 2 / Step 3 layout med explanations, interactive service list, and customer drilldown).
+Erstatt det store, ekspanderte "NIS2-aktiveringskampanje"-kortet på MSP-dashbordet med en kompakt **tabell over Lara-forslag**, der hver rad = ett forslag (f.eks. NIS2-aktivering, GDPR-oppfriskning, DORA-beredskap, AI Act-kartlegging).
 
-## Hva som bygges
-En ny `RegulatoryOverview()`-komponent som viser:
+## Endringer i `src/pages/MSPPartnerDashboard.tsx`
 
-1. **Tabell med regelverk** — 4 rader:
-   | Regelverk | Kunder med behov | Vekst (30 d) | Status |
-   |-----------|------------------|--------------|--------|
-   | GDPR | 142 | +12% | Høy |
-   | ISO 27001 | 118 | +24% | Høy |
-   | DORA | 81 | +4% | Middels |
-   | AI Act | 47 | +31% | Høy |
+### 1. Ny datamodell `LARA_SUGGESTIONS`
+Array med 4 forslag:
+- **NIS2-aktiveringskampanje** — 28 kunder, forventet 9–12 aktiveringer, prioritet Høy
+- **GDPR årlig oppfriskning** — 46 kunder, forventet 30+ fornyelser, prioritet Middels
+- **DORA-beredskapssjekk** — 12 kunder (finans), forventet 8 risikovurderinger, prioritet Høy
+- **AI Act-kartlegging** — 19 kunder med AI-systemer, forventet 15 nye ROPA-oppføringer, prioritet Middels
 
-2. **Statustagger** — fargekodede tags (f.eks. rød/oransje/grønn) som viser «Høy», «Middels» eller «Lav» etterspørsel.
+Felter per rad: `id`, `regelverk` (badge), `tittel`, `beskrivelse` (kort), `målgruppe` (antall kunder), `forventetEffekt`, `prioritet` (Høy/Middels/Lav med fargekoding).
 
-3. **Sekundært tallkort** — total antall kunder (400) og andelen som har minst ett regelverksbehov.
+### 2. Ny komponent `LaraSuggestionsTable`
+Erstatter dagens `LaraCampaignHero` / ekspanderte kort (linjene rundt 400–740 som viser stegene "1. Gjennomgå … 4. Tidsplan", rekkevidde/forventet-boks, "Slik utfører Lara dette", og knappene Avbryt / Sett opp kampanje).
 
-4. **Hjelpe-ikon** — beholdes fra dashboard-widget; tooltip forklarer at tallene er basert på åpne aktiviteter, gap i Trust Profile og innkommende forespørsler, oppdatert daglig av Lara.
+Layout:
+- Kortheader: ikon + "Lara-forslag" + subtittel "4 anbefalinger klare for gjennomgang"
+- Tabell med kolonner:
+  1. **Regelverk** (fargekodet pill: NIS2, GDPR, DORA, AI Act)
+  2. **Anbefaling** (tittel + kort beskrivelse under)
+  3. **Målgruppe** (f.eks. "28 kunder")
+  4. **Forventet effekt**
+  5. **Prioritet** (statustagg)
+  6. **Handling** — sekundærknapp "Sett opp" per rad (åpner samme flow som før, men fra rad-nivå)
 
-5. **Ingen klikk ned** — brukeren ønsket *kun oversikt*. Ingen utvidelser, ingen kundelister per regelverk.
+- Ingen ekspanderte steg (Gjennomgå/Målgruppe/E-post/Tidsplan) synlig som standard — de tilhører "Sett opp"-flyten.
 
-## Data
-Regulatorisk mock-data erstatter `TOP_SERVICES`:
-```ts
-const REGULATIONS = [
-  { name: "GDPR", customers: 142, growth: "+12%", status: "high" },
-  { name:  "ISO 27001", customers: 118, growth: "+24%", status: "high" },
-  { name: "DORA", customers: 81, growth: "+4%", status: "medium" },
-  { name: "AI Act", customers: 47, growth: "+31%", status: "high" },
-];
-```
+### 3. Fjernes
+- Hero-kortet med progress-steg (1–4), rekkevidde/forventet-bokser, "Slik utfører Lara dette"-accordion, og Avbryt/Sett opp-knapper på toppen.
+- Ubrukte states/imports knyttet til stegvisning.
 
-## Layout
-- Card med tabell-stil (ikke `<table>`, men grid-/flex-rader for mobilvennlighet).
-- Faste kolonnebredder: Regelverk (venstrejustert), Kunder (høyrejustert), Vekst (sentrert), Status (høyre).
-- Hover-effekt på rader for å markere at dette er lesbar data.
+### 4. Beholdes
+- Meldingslinjen "Du har 7 nye meldinger og Lara har 3 forslag i dag" (endres til "4 forslag" for å matche tabellen).
+- Alt annet på dashbordet (widgets, kundeliste osv.) er urørt.
 
-## Filer som endres
-- `src/pages/MSPWidgetDetail.tsx` — fjerne `TopServicesDrilldown`, legge til `RegulatoryOverview`, oppdatere `WIDGETS["top-services"]` metadata (hero-value = 388 = total, subtitle = «Regelverk porteføljekundene trenger hjelp med»).
-- `src/pages/MSPPartnerDashboard.tsx` — oppdatere widget-subtitle til «Etterspørsel per regelverk — siste 30 dager» (kun tekstendring).
+## Teknisk
 
-## Ikke i scope
-- Ingen nye ruter, filer, eller backend.
-- Ingen kundeliste/drilldown.
-- Ingen interaktive diagrammer.
+- Fil: kun `src/pages/MSPPartnerDashboard.tsx`.
+- Bruker eksisterende shadcn `Table`, `Badge`, `Button`.
+- Fargekoding regelverk-pills via Tailwind semantic tokens (ingen hardkodede farger).
+- Ingen ruter, backend eller nye filer.
