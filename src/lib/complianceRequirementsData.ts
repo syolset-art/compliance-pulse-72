@@ -1494,6 +1494,8 @@ export const GDPR_REQUIREMENTS: ComplianceRequirement[] = [
     category: 'governance',
     name: 'Data Protection Officer (DPO)',
     name_no: 'Personvernombud',
+    action_title: 'Appoint or document your Data Protection Officer',
+    action_title_no: 'Utnevn eller dokumenter ditt personvernombud',
     description: 'Appoint a DPO if required, or document the decision not to appoint one with justification.',
     description_no: 'Utnevn et personvernombud hvis påkrevd, eller dokumenter beslutningen om å ikke utnevne et med begrunnelse.',
     priority: 'high',
