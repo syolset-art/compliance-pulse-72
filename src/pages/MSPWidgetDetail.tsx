@@ -54,52 +54,17 @@ const SEGMENTS = [
   { label: "ISO 27001", count: 23, color: "hsl(35 70% 40%)" },
 ];
 
-const TOP_SERVICES = [
-  { label: "GDPR / Personvern", count: 142, growth: "+12%" },
-  { label: "ISO 27001-forberedelse", count: 118, growth: "+24%" },
-  { label: "Risikovurdering leverandører", count: 96, growth: "+8%" },
-  { label: "DPA / Databehandleravtaler", count: 81, growth: "+4%" },
-  { label: "Sikkerhetsopplæring", count: 64, growth: "+18%" },
-  { label: "Incident response-plan", count: 47, growth: "+31%" },
+const REGULATIONS = [
+  { name: "GDPR", customers: 142, growth: "+12%", status: "high" as const },
+  { name: "ISO 27001", customers: 118, growth: "+24%", status: "high" as const },
+  { name: "DORA", customers: 81, growth: "+4%", status: "medium" as const },
+  { name: "AI Act", customers: 47, growth: "+31%", status: "high" as const },
 ];
 
-type ServiceCustomer = { name: string; reason: string };
-const SERVICE_CUSTOMERS: Record<string, ServiceCustomer[]> = {
-  "GDPR / Personvern": [
-    { name: "Bergen Maskin AS", reason: "ROPA ikke oppdatert på 9 mnd" },
-    { name: "Sognefjord Helse AS", reason: "Datatilsyn-sak åpnet i forrige uke" },
-    { name: "Oslo Eiendom AS", reason: "Mangler personvernerklæring på 2 tjenester" },
-    { name: "Nordic Cargo AS", reason: "DPIA ikke gjennomført for AI-modul" },
-    { name: "Fjord IT AS", reason: "Innsynsforespørsler over SLA" },
-  ],
-  "ISO 27001-forberedelse": [
-    { name: "Vestland Logistikk", reason: "Har uttrykt ønske om sertifisering innen Q4" },
-    { name: "Helse Vest Klinikk", reason: "SoA mangler for 34 kontroller" },
-    { name: "Bergen Maskin AS", reason: "ISO-sertifikat utløpt for 14 dager siden" },
-    { name: "Nordic Cargo AS", reason: "Ledelsens gjennomgang overdue" },
-  ],
-  "Risikovurdering leverandører": [
-    { name: "Helse Vest Klinikk", reason: "18 leverandører uten risikovurdering" },
-    { name: "Oslo Eiendom AS", reason: "Kritisk SaaS-leverandør uten TPRM-score" },
-    { name: "Fjord IT AS", reason: "Har bedt om hjelp til subprosessor-kartlegging" },
-    { name: "Sognefjord Helse AS", reason: "3 leverandører flagget høyrisiko av Lara" },
-  ],
-  "DPA / Databehandleravtaler": [
-    { name: "Helse Vest Klinikk", reason: "DPA ikke på plass med ny leverandør" },
-    { name: "Oslo Eiendom AS", reason: "DPA mangler for 2 SaaS-systemer" },
-    { name: "Bergen Maskin AS", reason: "DPA utløper om 30 dager" },
-    { name: "Vestland Logistikk", reason: "Standard DPA-mal ikke signert" },
-  ],
-  "Sikkerhetsopplæring": [
-    { name: "Nordic Cargo AS", reason: "Kun 42% av ansatte har gjennomført opplæring" },
-    { name: "Fjord IT AS", reason: "Årlig opplæring overdue" },
-    { name: "Oslo Eiendom AS", reason: "Ny ledergruppe uten onboarding" },
-  ],
-  "Incident response-plan": [
-    { name: "Sognefjord Helse AS", reason: "Ingen dokumentert IR-plan" },
-    { name: "Bergen Maskin AS", reason: "IR-plan ikke testet siste 24 mnd" },
-    { name: "Helse Vest Klinikk", reason: "Mangler kontaktliste for varsling" },
-  ],
+const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
+  high: { label: "Høy", cls: "bg-destructive/10 text-destructive border-destructive/20" },
+  medium: { label: "Middels", cls: "bg-warning/10 text-warning border-warning/20" },
+  low: { label: "Lav", cls: "bg-success/10 text-success border-success/20" },
 };
 
 const FOLLOW_UP_CUSTOMERS = [
