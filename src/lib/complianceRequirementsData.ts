@@ -695,6 +695,8 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     category: 'physical',
     name: 'Physical entry',
     name_no: 'Fysisk adgang',
+    action_title: 'Set up physical entry controls',
+    action_title_no: 'Sett opp fysiske adgangskontroller',
     description: 'Secure areas shall be protected by appropriate entry controls and access points.',
     description_no: 'Sikre områder skal beskyttes av passende adgangskontroller og adgangspunkter.',
     priority: 'high',
