@@ -1248,7 +1248,7 @@ export default function MSPPartnerDashboard() {
       <main className="flex-1 overflow-auto pt-11">
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-5">
           <PartnerHeader />
-          {!activeSuggestion && <LaraSuggestions onSelect={setActiveSuggestion} />}
+          {!activeSuggestion && <LaraSuggestionsTable onSelect={setActiveSuggestion} />}
           {activeSuggestion && (
             <LaraSuggestionInline
               suggestion={activeSuggestion}
