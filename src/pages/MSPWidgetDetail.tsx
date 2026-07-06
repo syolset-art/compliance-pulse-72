@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Sidebar } from "@/components/Sidebar";
 import { Card } from "@/components/ui/card";
@@ -15,6 +16,9 @@ import {
   Layers,
   CheckCircle2,
   Sparkles,
+  Info,
+  Users,
+  Send,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -58,6 +62,45 @@ const TOP_SERVICES = [
   { label: "Sikkerhetsopplæring", count: 64, growth: "+18%" },
   { label: "Incident response-plan", count: 47, growth: "+31%" },
 ];
+
+type ServiceCustomer = { name: string; reason: string };
+const SERVICE_CUSTOMERS: Record<string, ServiceCustomer[]> = {
+  "GDPR / Personvern": [
+    { name: "Bergen Maskin AS", reason: "ROPA ikke oppdatert på 9 mnd" },
+    { name: "Sognefjord Helse AS", reason: "Datatilsyn-sak åpnet i forrige uke" },
+    { name: "Oslo Eiendom AS", reason: "Mangler personvernerklæring på 2 tjenester" },
+    { name: "Nordic Cargo AS", reason: "DPIA ikke gjennomført for AI-modul" },
+    { name: "Fjord IT AS", reason: "Innsynsforespørsler over SLA" },
+  ],
+  "ISO 27001-forberedelse": [
+    { name: "Vestland Logistikk", reason: "Har uttrykt ønske om sertifisering innen Q4" },
+    { name: "Helse Vest Klinikk", reason: "SoA mangler for 34 kontroller" },
+    { name: "Bergen Maskin AS", reason: "ISO-sertifikat utløpt for 14 dager siden" },
+    { name: "Nordic Cargo AS", reason: "Ledelsens gjennomgang overdue" },
+  ],
+  "Risikovurdering leverandører": [
+    { name: "Helse Vest Klinikk", reason: "18 leverandører uten risikovurdering" },
+    { name: "Oslo Eiendom AS", reason: "Kritisk SaaS-leverandør uten TPRM-score" },
+    { name: "Fjord IT AS", reason: "Har bedt om hjelp til subprosessor-kartlegging" },
+    { name: "Sognefjord Helse AS", reason: "3 leverandører flagget høyrisiko av Lara" },
+  ],
+  "DPA / Databehandleravtaler": [
+    { name: "Helse Vest Klinikk", reason: "DPA ikke på plass med ny leverandør" },
+    { name: "Oslo Eiendom AS", reason: "DPA mangler for 2 SaaS-systemer" },
+    { name: "Bergen Maskin AS", reason: "DPA utløper om 30 dager" },
+    { name: "Vestland Logistikk", reason: "Standard DPA-mal ikke signert" },
+  ],
+  "Sikkerhetsopplæring": [
+    { name: "Nordic Cargo AS", reason: "Kun 42% av ansatte har gjennomført opplæring" },
+    { name: "Fjord IT AS", reason: "Årlig opplæring overdue" },
+    { name: "Oslo Eiendom AS", reason: "Ny ledergruppe uten onboarding" },
+  ],
+  "Incident response-plan": [
+    { name: "Sognefjord Helse AS", reason: "Ingen dokumentert IR-plan" },
+    { name: "Bergen Maskin AS", reason: "IR-plan ikke testet siste 24 mnd" },
+    { name: "Helse Vest Klinikk", reason: "Mangler kontaktliste for varsling" },
+  ],
+};
 
 const FOLLOW_UP_CUSTOMERS = [
   { name: "Bergen Maskin AS", reason: "ISO 27001 utløpt 14 dager siden", category: "Kritiske avvik", tone: "destructive" as const },
@@ -178,13 +221,14 @@ const WIDGETS: Record<string, WidgetMeta> = {
   "top-services": {
     id: "top-services",
     title: "Tjenester kundene trenger mest hjelp med",
-    subtitle: "Etterspurte rådgivningsområder på tvers av portefølje",
+    subtitle: "Slik finner du hvilke kunder du bør kontakte — og hva du bør tilby dem.",
     icon: Layers,
     hero: { value: "142", sub: "kunder ønsker hjelp med GDPR / Personvern" },
     explainer:
-      "Tallene baseres på aktive saker, åpne aktiviteter og forespørsler fra kundens Trust Profile. Bruk listen som grunnlag for å pakketere rådgivningstjenester.",
+      "Tallene baseres på aktive saker, åpne aktiviteter og forespørsler fra kundens Trust Profile. Følg de tre stegene under: forstå tallene, velg en tjeneste du vil drille ned i, og se de konkrete kundene du bør kontakte — enten én-til-én eller via en kampanje.",
     ctas: [
       { label: "Se servicekatalog", href: "/msp-service-catalog", primary: true },
+      { label: "Opprett kampanje", href: "/msp-messages", primary: false },
     ],
   },
   "campaigns": {
@@ -219,6 +263,119 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">{title}</h2>
       {children}
     </div>
+  );
+}
+
+function TopServicesDrilldown() {
+  const navigate = useNavigate();
+  const [selected, setSelected] = useState<string>(TOP_SERVICES[0].label);
+  const max = Math.max(...TOP_SERVICES.map((s) => s.count));
+  const customers = SERVICE_CUSTOMERS[selected] ?? [];
+  const total = TOP_SERVICES.find((s) => s.label === selected)?.count ?? customers.length;
+
+  return (
+    <>
+      <Section title="Steg 1 · Forstå tallene">
+        <Card className="p-5 space-y-3 text-sm text-foreground leading-relaxed">
+          <div className="flex items-start gap-2">
+            <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <div>
+              <p>
+                <span className="font-medium">Én «kunde med behov»</span> = en kunde i porteføljen din som har
+                minst én åpen aktivitet, et gap i Trust Profile, eller en innkommende forespørsel innenfor
+                tjenesteområdet.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2">
+            <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <p>
+              <span className="font-medium">Lara oppdaterer tallene daglig</span> basert på nye signaler,
+              endringer i regelverk og aktiviteter kundene fullfører selv.
+            </p>
+          </div>
+          <div className="flex items-start gap-2">
+            <TrendingUp className="h-4 w-4 text-success shrink-0 mt-0.5" />
+            <p>
+              <span className="font-medium">Veksttrend (+%)</span> viser endring siste 30 dager sammenlignet
+              med forrige periode — bruk dette til å prioritere hvor du bygger tilbud først.
+            </p>
+          </div>
+        </Card>
+      </Section>
+
+      <Section title="Steg 2 · Velg tjeneste å drille ned i">
+        <Card className="p-3">
+          <div className="divide-y divide-border/60">
+            {TOP_SERVICES.map((s) => {
+              const active = s.label === selected;
+              return (
+                <button
+                  key={s.label}
+                  type="button"
+                  onClick={() => setSelected(s.label)}
+                  className={
+                    "w-full flex items-center gap-3 py-2.5 px-2 rounded-md text-left transition-colors " +
+                    (active
+                      ? "bg-primary/5 border-l-2 border-primary pl-3"
+                      : "hover:bg-accent/40 border-l-2 border-transparent pl-3")
+                  }
+                >
+                  <div className="w-64 text-sm text-foreground truncate">{s.label}</div>
+                  <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className={"h-full rounded-full " + (active ? "bg-primary" : "bg-primary/60")}
+                      style={{ width: `${(s.count / max) * 100}%` }}
+                    />
+                  </div>
+                  <div className="w-12 text-right text-sm font-semibold tabular-nums">{s.count}</div>
+                  <Badge variant="outline" className="text-xs text-success border-success/30">
+                    {s.growth}
+                  </Badge>
+                  <ArrowRight
+                    className={"h-3.5 w-3.5 shrink-0 " + (active ? "text-primary" : "text-muted-foreground")}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </Card>
+      </Section>
+
+      <Section title={`Steg 3 · Kunder som trenger «${selected}»`}>
+        <Card className="divide-y divide-border">
+          {customers.length === 0 ? (
+            <div className="p-5 text-sm text-muted-foreground">
+              Ingen kunder er flagget for denne tjenesten akkurat nå.
+            </div>
+          ) : (
+            customers.map((c) => (
+              <div key={c.name} className="flex items-center gap-3 p-4">
+                <Users className="h-4 w-4 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-foreground">{c.name}</div>
+                  <div className="text-xs text-muted-foreground">{c.reason}</div>
+                </div>
+                <Button size="sm" variant="ghost" onClick={() => navigate("/msp-partner")} className="gap-1">
+                  Åpne kundeprofil <ArrowRight className="h-3 w-3" />
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => navigate("/msp-messages")} className="gap-1">
+                  <Send className="h-3 w-3" /> Start kampanje
+                </Button>
+              </div>
+            ))
+          )}
+        </Card>
+        <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+          <span>
+            Viser {customers.length} av totalt {total} kunder med behov innen «{selected}».
+          </span>
+          <Button size="sm" variant="link" onClick={() => navigate("/msp-service-catalog")} className="gap-1 h-auto p-0">
+            Se alle i servicekatalog <ArrowRight className="h-3 w-3" />
+          </Button>
+        </div>
+      </Section>
+    </>
   );
 }
 
@@ -339,25 +496,9 @@ function WidgetBody({ id }: { id: string }) {
         </Section>
       );
 
-    case "top-services": {
-      const max = Math.max(...TOP_SERVICES.map((s) => s.count));
-      return (
-        <Section title="Rangering">
-          <Card className="p-5 space-y-3">
-            {TOP_SERVICES.map((s) => (
-              <div key={s.label} className="flex items-center gap-3">
-                <div className="w-64 text-sm text-foreground truncate">{s.label}</div>
-                <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${(s.count / max) * 100}%` }} />
-                </div>
-                <div className="w-12 text-right text-sm font-semibold tabular-nums">{s.count}</div>
-                <Badge variant="outline" className="text-xs text-success border-success/30">{s.growth}</Badge>
-              </div>
-            ))}
-          </Card>
-        </Section>
-      );
-    }
+    case "top-services":
+      return <TopServicesDrilldown />;
+
 
     case "campaigns":
       return (
