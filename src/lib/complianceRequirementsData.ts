@@ -591,6 +591,8 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     category: 'people',
     name: 'Information security awareness, education and training',
     name_no: 'Bevissthet, opplæring og trening i informasjonssikkerhet',
+    action_title: 'Launch an information security awareness and training program',
+    action_title_no: 'Start opplæringsprogram for informasjonssikkerhet',
     description: 'Personnel of the organization and relevant interested parties shall receive appropriate information security awareness, education and training and regular updates of the organization\'s information security policy.',
     description_no: 'Personell i organisasjonen og relevante interessenter skal motta passende bevissthet, utdanning og opplæring i informasjonssikkerhet og regelmessige oppdateringer av organisasjonens informasjonssikkerhetspolicy.',
     priority: 'critical',
