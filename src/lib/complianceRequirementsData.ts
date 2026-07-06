@@ -1587,6 +1587,8 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     category: 'governance',
     name: 'Human Oversight',
     name_no: 'Menneskelig tilsyn',
+    action_title: 'Design human oversight for high-risk AI systems',
+    action_title_no: 'Design menneskelig tilsyn for høyrisiko AI-systemer',
     description: 'Design high-risk AI systems to be effectively overseen by natural persons, including ability to intervene or stop operation.',
     description_no: 'Design høyrisiko AI-systemer slik at de effektivt kan overvåkes av fysiske personer, inkludert mulighet for å gripe inn eller stoppe operasjonen.',
     priority: 'critical',
