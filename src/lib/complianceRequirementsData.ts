@@ -1631,6 +1631,8 @@ export const AI_ACT_REQUIREMENTS: ComplianceRequirement[] = [
     category: 'governance',
     name: 'Conformity Assessment',
     name_no: 'Samsvarsvurdering',
+    action_title: 'Complete conformity assessment for AI systems',
+    action_title_no: 'Fullfør samsvarsvurdering for AI-systemer',
     description: 'Complete conformity assessment procedures for high-risk AI systems before placing on market.',
     description_no: 'Fullfør samsvarsvurderingsprosedyrer for høyrisiko AI-systemer før de markedsføres.',
     priority: 'critical',
