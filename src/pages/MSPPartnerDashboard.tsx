@@ -45,6 +45,10 @@ type LaraSuggestion = {
   impact: { reach: string; expectedClaims: string; revenue: string };
   steps: string[];
   cta: { primary: string; secondary: string; icon: typeof Mail };
+  regulation: "NIS2" | "GDPR" | "DORA" | "AI Act";
+  targetCount: number;
+  expectedEffect: string;
+  priority: "Høy" | "Middels" | "Lav";
 };
 
 const LARA_SUGGESTIONS: LaraSuggestion[] = [
@@ -63,38 +67,70 @@ const LARA_SUGGESTIONS: LaraSuggestion[] = [
       "Du får daglig statusrapport i innboksen",
     ],
     cta: { primary: "Start kampanje nå", secondary: "Tilpass mal", icon: Mail },
+    regulation: "NIS2",
+    targetCount: 28,
+    expectedEffect: "9–12 nye aktiveringer",
+    priority: "Høy",
   },
   {
     id: 2,
-    dot: "bg-status-followup",
-    text: "Følg opp Bergen Maskin — sertifikat utløpt",
-    icon: Clock,
-    title: "Bergen Maskin AS — ISO 27001 utløpt",
-    summary: "ISO 27001-sertifikatet utløp for 14 dager siden. Kunden har ikke lastet opp nytt bevis. Risiko for at de mister sertifisering — og at du mister rådgivningsmulighet.",
-    impact: { reach: "1 kunde", expectedClaims: "Beholde kunde + resertifisering", revenue: "~85 000 kr i prosjekt" },
+    dot: "bg-primary",
+    text: "GDPR årlig oppfriskning mot 46 kunder",
+    icon: Mail,
+    title: "GDPR årlig oppfriskning",
+    summary: "46 kunder har databehandleravtaler og ROPA-oppføringer som ikke er gjennomgått de siste 12 månedene. Lara har klargjort en fornyelseskampanje.",
+    impact: { reach: "46 kunder", expectedClaims: "30+ fornyelser", revenue: "~180 000 kr ARR" },
     steps: [
-      "Ring kontaktperson Erik Solheim (CISO)",
-      "Send forhåndsskrevet e-post med tilbud om resertifiseringsløp",
-      "Book oppfølging i kalender om 7 dager",
-      "Lara overvåker Brreg + datatilsyn for nye signaler",
+      "Send påminnelse om årlig GDPR-gjennomgang",
+      "Automatisk sjekk av DPA-status og ROPA-oppdateringer",
+      "Lara foreslår oppdaterte tekster per kunde",
+      "Fornyelsesrapport til deg ukentlig",
     ],
-    cta: { primary: "Ring nå", secondary: "Send e-post", icon: Phone },
+    cta: { primary: "Start kampanje", secondary: "Tilpass mal", icon: Mail },
+    regulation: "GDPR",
+    targetCount: 46,
+    expectedEffect: "30+ fornyelser",
+    priority: "Middels",
   },
   {
     id: 3,
-    dot: "bg-primary",
-    text: "Book intro med Vestland Logistikk — ny CEO",
-    icon: Users,
-    title: "Vestland Logistikk — ny CEO",
-    summary: "Brreg-signal: ny CEO registrert i går. Statistisk topp-tidspunkt for å introdusere compliance-rådgivning. Selskapet er DORA-eksponert (transport + finansielle tjenester).",
-    impact: { reach: "1 kunde", expectedClaims: "Ny rådgivningskontrakt", revenue: "~150 000 kr ARR" },
+    dot: "bg-status-followup",
+    text: "DORA-beredskapssjekk mot 12 finanskunder",
+    icon: Target,
+    title: "DORA-beredskapssjekk",
+    summary: "12 kunder i finanssektoren omfattes av DORA, men mangler dokumentert IKT-risikovurdering. Lara kan starte en beredskapssjekk.",
+    impact: { reach: "12 kunder", expectedClaims: "8 risikovurderinger", revenue: "~140 000 kr ARR" },
     steps: [
-      "Lara har funnet CEO på LinkedIn — godkjenn introtekst",
-      "Send connect-forespørsel med personlig melding",
-      "Foreslå 20-min intromøte neste uke",
-      "Forbered briefing-pakke om DORA + transportbransjen",
+      "Send DORA-eksponeringsanalyse til hver kunde",
+      "Lara henter data fra Trust Profile og kartlegger gap",
+      "Foreslå prioriterte tiltak per kunde",
+      "Ukentlig statusrapport til deg",
     ],
-    cta: { primary: "Book møte", secondary: "Se briefing", icon: Calendar },
+    cta: { primary: "Start kampanje", secondary: "Tilpass mal", icon: Mail },
+    regulation: "DORA",
+    targetCount: 12,
+    expectedEffect: "8 risikovurderinger",
+    priority: "Høy",
+  },
+  {
+    id: 4,
+    dot: "bg-primary",
+    text: "AI Act-kartlegging mot 19 kunder med AI-systemer",
+    icon: Users,
+    title: "AI Act-kartlegging",
+    summary: "19 kunder har registrert AI-systemer, men mangler ROPA-oppføring og risikoklassifisering iht. AI Act. Lara kan kartlegge og opprette utkast.",
+    impact: { reach: "19 kunder", expectedClaims: "15 nye ROPA-oppføringer", revenue: "~95 000 kr ARR" },
+    steps: [
+      "Lara identifiserer AI-systemer i kundens portefølje",
+      "Klassifiserer risikonivå iht. AI Act",
+      "Genererer ROPA-utkast per system",
+      "Rådgiver godkjenner før publisering",
+    ],
+    cta: { primary: "Start kampanje", secondary: "Tilpass mal", icon: Mail },
+    regulation: "AI Act",
+    targetCount: 19,
+    expectedEffect: "15 nye ROPA-oppføringer",
+    priority: "Middels",
   },
 ];
 
@@ -131,7 +167,7 @@ function PartnerHeader() {
       <div>
         <h1 className="text-3xl font-bold text-foreground">Hei, Beate</h1>
         <p className="text-muted-foreground mt-1">
-          Du har 7 nye meldinger og Lara har 3 forslag i dag
+          Du har 7 nye meldinger og Lara har 4 forslag i dag
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -297,35 +333,92 @@ function AvgTrustScoreWidget() {
 }
 
 
-function LaraSuggestions({ onSelect }: { onSelect: (s: LaraSuggestion) => void }) {
+const REG_STYLES: Record<LaraSuggestion["regulation"], string> = {
+  "NIS2": "bg-primary/10 text-primary border-primary/20",
+  "GDPR": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  "DORA": "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
+  "AI Act": "bg-fuchsia-500/10 text-fuchsia-700 dark:text-fuchsia-400 border-fuchsia-500/20",
+};
+
+const PRIORITY_STYLES: Record<LaraSuggestion["priority"], string> = {
+  "Høy": "bg-destructive/10 text-destructive border-destructive/20",
+  "Middels": "bg-warning/10 text-warning border-warning/20",
+  "Lav": "bg-muted text-muted-foreground border-border",
+};
+
+function LaraSuggestionsTable({ onSelect }: { onSelect: (s: LaraSuggestion) => void }) {
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
 
-  const total = LARA_SUGGESTIONS.length;
-  const critical = LARA_SUGGESTIONS.filter((s) => s.dot === "bg-status-followup").length;
-  const top = LARA_SUGGESTIONS[0];
-
   return (
-    <Card className="p-4 bg-primary/5 border-primary/20">
-      <div className="flex items-center gap-4">
-        <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-          <Sparkles className="h-5 w-5 text-primary-foreground" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-foreground">Lara har en anbefaling til deg</div>
-          <div className="text-sm text-muted-foreground">
-            Du har {total} oppgaver som krever oppmerksomhet, hvorav {critical} er kritiske. Vil du starte en gjennomgang?
+    <Card className="p-5 bg-primary/[0.03] border-primary/20">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+            <Sparkles className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-base font-semibold text-foreground">Lara-forslag</div>
+            <div className="text-xs text-muted-foreground">
+              {LARA_SUGGESTIONS.length} anbefalinger klare for gjennomgang
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Button size="sm" onClick={() => onSelect(top)}>Vis plan</Button>
-          <button
-            onClick={() => setDismissed(true)}
-            className="text-sm text-muted-foreground hover:text-foreground px-2"
-          >
-            Ikke nå
-          </button>
-        </div>
+        <button
+          onClick={() => setDismissed(true)}
+          className="text-muted-foreground hover:text-foreground p-1 -m-1"
+          aria-label="Skjul"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="overflow-x-auto -mx-5 px-5">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-[11px] uppercase tracking-wider text-muted-foreground border-b border-border">
+              <th className="text-left font-semibold py-2 pr-4">Regelverk</th>
+              <th className="text-left font-semibold py-2 pr-4">Anbefaling</th>
+              <th className="text-left font-semibold py-2 pr-4 whitespace-nowrap">Målgruppe</th>
+              <th className="text-left font-semibold py-2 pr-4">Forventet effekt</th>
+              <th className="text-left font-semibold py-2 pr-4">Prioritet</th>
+              <th className="text-right font-semibold py-2">Handling</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border/60">
+            {LARA_SUGGESTIONS.map((s) => (
+              <tr key={s.id} className="hover:bg-accent/30 transition-colors">
+                <td className="py-3 pr-4 align-top">
+                  <Badge variant="outline" className={`text-[11px] font-semibold ${REG_STYLES[s.regulation]}`}>
+                    {s.regulation}
+                  </Badge>
+                </td>
+                <td className="py-3 pr-4 align-top">
+                  <div className="font-semibold text-foreground">{s.title}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2 max-w-md">
+                    {s.summary}
+                  </div>
+                </td>
+                <td className="py-3 pr-4 align-top whitespace-nowrap tabular-nums">
+                  {s.targetCount} kunder
+                </td>
+                <td className="py-3 pr-4 align-top text-foreground/90">
+                  {s.expectedEffect}
+                </td>
+                <td className="py-3 pr-4 align-top">
+                  <Badge variant="outline" className={`text-[11px] ${PRIORITY_STYLES[s.priority]}`}>
+                    {s.priority}
+                  </Badge>
+                </td>
+                <td className="py-3 text-right align-top">
+                  <Button size="sm" variant="outline" onClick={() => onSelect(s)} className="gap-1">
+                    Sett opp <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </Card>
   );
@@ -1155,7 +1248,7 @@ export default function MSPPartnerDashboard() {
       <main className="flex-1 overflow-auto pt-11">
         <div className="container max-w-7xl mx-auto py-8 px-4 md:px-8 space-y-5">
           <PartnerHeader />
-          {!activeSuggestion && <LaraSuggestions onSelect={setActiveSuggestion} />}
+          {!activeSuggestion && <LaraSuggestionsTable onSelect={setActiveSuggestion} />}
           {activeSuggestion && (
             <LaraSuggestionInline
               suggestion={activeSuggestion}
