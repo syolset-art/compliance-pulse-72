@@ -997,7 +997,27 @@ function PortfolioSegmentation() {
   return (
     <Card onClick={() => navigate("/msp-partner/widget/segmentation")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-foreground">Portefølje-segmentering</h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="text-base font-semibold text-foreground">Portefølje-segmentering</h3>
+          <TooltipProvider delayDuration={150}>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Hva viser denne widgeten?"
+                >
+                  <HelpCircle className="h-3.5 w-3.5" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                Porteføljen din gruppert etter hovedkategori. Hver søyle viser hvor mange kunder
+                som tilhører segmentet. Klikk widgeten for å se detaljer.
+              </TooltipContent>
+            </UITooltip>
+          </TooltipProvider>
+        </div>
         <span className="text-xs text-muted-foreground">Lara · oppdatert i går</span>
       </div>
       <div className="space-y-3">
