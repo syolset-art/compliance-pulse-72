@@ -679,6 +679,8 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     category: 'physical',
     name: 'Physical security perimeters',
     name_no: 'Fysiske sikkerhetsperimetere',
+    action_title: 'Define and secure physical security perimeters',
+    action_title_no: 'Definer og sikre fysiske sikkerhetsperimetere',
     description: 'Security perimeters shall be defined and used to protect areas that contain information and other associated assets.',
     description_no: 'Sikkerhetsperimetere skal defineres og brukes for å beskytte områder som inneholder informasjon og andre tilknyttede eiendeler.',
     priority: 'high',
