@@ -83,6 +83,17 @@ export function TopBar() {
 
   const currentRoleLabel = AVAILABLE_ROLES.find((r) => r.key === activeRole);
 
+  const { data: messageCount = 0 } = useQuery({
+    queryKey: ["topbar-customer-request-count"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("customer_compliance_requests" as any)
+        .select("id", { count: "exact", head: true })
+        .not("status", "in", "(archived,responded)");
+      return count ?? 0;
+    },
+  });
+
   return (
     <div className="fixed top-0 right-0 z-40 h-11 border-b border-border bg-background/95 backdrop-blur-sm flex items-center gap-1 px-4 left-0 md:left-64 transition-colors">
 
