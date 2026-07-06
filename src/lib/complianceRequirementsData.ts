@@ -12,6 +12,8 @@ export interface ComplianceRequirement {
   category: RequirementCategory;
   name: string;
   name_no: string;
+  action_title?: string;
+  action_title_no?: string;
   description: string;
   description_no: string;
   priority: RequirementPriority;
