@@ -108,17 +108,30 @@ export function TopBar() {
         </TooltipContent>
       </Tooltip>
 
-      {/* Notifications bell (pulses during demo) */}
-      <button
-        onClick={() => navigate("/customer-requests")}
-        className={cn("relative p-2 rounded-lg hover:bg-muted transition-colors", demoActive && "animate-pulse")}
-        title={isNb ? "Varsler" : "Notifications"}
-      >
-        <Bell className={cn("h-4 w-4", demoActive ? "text-primary" : "text-muted-foreground")} />
-        {demoActive && (
-          <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
-        )}
-      </button>
+      {/* Notifications bell */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={() => navigate("/customer-requests")}
+            className={cn("relative p-2 rounded-lg hover:bg-muted transition-colors", demoActive && "animate-pulse")}
+          >
+            <Bell className={cn("h-4 w-4", (demoActive || messageCount > 0) ? "text-primary" : "text-muted-foreground")} />
+            {messageCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-semibold flex items-center justify-center ring-2 ring-background">
+                {messageCount > 9 ? "9+" : messageCount}
+              </span>
+            )}
+            {messageCount === 0 && demoActive && (
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
+            )}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p className="text-sm">
+            {isNb ? `Meldinger${messageCount > 0 ? ` (${messageCount})` : ""}` : `Messages${messageCount > 0 ? ` (${messageCount})` : ""}`}
+          </p>
+        </TooltipContent>
+      </Tooltip>
 
 
       {/* Profile avatar with dropdown */}
