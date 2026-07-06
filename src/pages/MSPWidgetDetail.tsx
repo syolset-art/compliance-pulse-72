@@ -63,6 +63,45 @@ const TOP_SERVICES = [
   { label: "Incident response-plan", count: 47, growth: "+31%" },
 ];
 
+type ServiceCustomer = { name: string; reason: string };
+const SERVICE_CUSTOMERS: Record<string, ServiceCustomer[]> = {
+  "GDPR / Personvern": [
+    { name: "Bergen Maskin AS", reason: "ROPA ikke oppdatert på 9 mnd" },
+    { name: "Sognefjord Helse AS", reason: "Datatilsyn-sak åpnet i forrige uke" },
+    { name: "Oslo Eiendom AS", reason: "Mangler personvernerklæring på 2 tjenester" },
+    { name: "Nordic Cargo AS", reason: "DPIA ikke gjennomført for AI-modul" },
+    { name: "Fjord IT AS", reason: "Innsynsforespørsler over SLA" },
+  ],
+  "ISO 27001-forberedelse": [
+    { name: "Vestland Logistikk", reason: "Har uttrykt ønske om sertifisering innen Q4" },
+    { name: "Helse Vest Klinikk", reason: "SoA mangler for 34 kontroller" },
+    { name: "Bergen Maskin AS", reason: "ISO-sertifikat utløpt for 14 dager siden" },
+    { name: "Nordic Cargo AS", reason: "Ledelsens gjennomgang overdue" },
+  ],
+  "Risikovurdering leverandører": [
+    { name: "Helse Vest Klinikk", reason: "18 leverandører uten risikovurdering" },
+    { name: "Oslo Eiendom AS", reason: "Kritisk SaaS-leverandør uten TPRM-score" },
+    { name: "Fjord IT AS", reason: "Har bedt om hjelp til subprosessor-kartlegging" },
+    { name: "Sognefjord Helse AS", reason: "3 leverandører flagget høyrisiko av Lara" },
+  ],
+  "DPA / Databehandleravtaler": [
+    { name: "Helse Vest Klinikk", reason: "DPA ikke på plass med ny leverandør" },
+    { name: "Oslo Eiendom AS", reason: "DPA mangler for 2 SaaS-systemer" },
+    { name: "Bergen Maskin AS", reason: "DPA utløper om 30 dager" },
+    { name: "Vestland Logistikk", reason: "Standard DPA-mal ikke signert" },
+  ],
+  "Sikkerhetsopplæring": [
+    { name: "Nordic Cargo AS", reason: "Kun 42% av ansatte har gjennomført opplæring" },
+    { name: "Fjord IT AS", reason: "Årlig opplæring overdue" },
+    { name: "Oslo Eiendom AS", reason: "Ny ledergruppe uten onboarding" },
+  ],
+  "Incident response-plan": [
+    { name: "Sognefjord Helse AS", reason: "Ingen dokumentert IR-plan" },
+    { name: "Bergen Maskin AS", reason: "IR-plan ikke testet siste 24 mnd" },
+    { name: "Helse Vest Klinikk", reason: "Mangler kontaktliste for varsling" },
+  ],
+};
+
 const FOLLOW_UP_CUSTOMERS = [
   { name: "Bergen Maskin AS", reason: "ISO 27001 utløpt 14 dager siden", category: "Kritiske avvik", tone: "destructive" as const },
   { name: "Sognefjord Helse AS", reason: "Datatilsyn-sak åpnet", category: "Kritiske avvik", tone: "destructive" as const },
