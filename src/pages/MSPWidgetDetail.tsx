@@ -383,25 +383,9 @@ function WidgetBody({ id }: { id: string }) {
         </Section>
       );
 
-    case "top-services": {
-      const max = Math.max(...TOP_SERVICES.map((s) => s.count));
-      return (
-        <Section title="Rangering">
-          <Card className="p-5 space-y-3">
-            {TOP_SERVICES.map((s) => (
-              <div key={s.label} className="flex items-center gap-3">
-                <div className="w-64 text-sm text-foreground truncate">{s.label}</div>
-                <div className="flex-1 h-2.5 bg-muted rounded-full overflow-hidden">
-                  <div className="h-full rounded-full bg-primary" style={{ width: `${(s.count / max) * 100}%` }} />
-                </div>
-                <div className="w-12 text-right text-sm font-semibold tabular-nums">{s.count}</div>
-                <Badge variant="outline" className="text-xs text-success border-success/30">{s.growth}</Badge>
-              </div>
-            ))}
-          </Card>
-        </Section>
-      );
-    }
+    case "top-services":
+      return <TopServicesDrilldown />;
+
 
     case "campaigns":
       return (
