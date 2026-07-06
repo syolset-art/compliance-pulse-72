@@ -359,6 +359,8 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     category: 'organizational',
     name: 'Information security incident management planning and preparation',
     name_no: 'Planlegging og forberedelse av hendelseshåndtering',
+    action_title: 'Plan and prepare for information security incident management',
+    action_title_no: 'Planlegg og forbered hendelseshåndtering for informasjonssikkerhet',
     description: 'The organization shall plan and prepare for managing information security incidents by defining, establishing and communicating information security incident management processes, roles and responsibilities.',
     description_no: 'Organisasjonen skal planlegge og forberede seg på håndtering av informasjonssikkerhetshendelser ved å definere, etablere og kommunisere prosesser, roller og ansvar for hendelseshåndtering.',
     priority: 'critical',
