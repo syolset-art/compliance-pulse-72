@@ -13,7 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Megaphone, Settings, Newspaper, Video, GraduationCap, Zap, X, HelpCircle } from "lucide-react";
+import { Sparkles, ArrowUpRight, TrendingUp, ChevronRight, ChevronDown, Mail, Phone, Calendar, CheckCircle2, Users, Target, Clock, FileText, Send, ThumbsUp, Settings, X, HelpCircle } from "lucide-react";
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -1267,11 +1267,6 @@ export default function MSPPartnerDashboard() {
           </div>
 
           <TopServicesWidget />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <CampaignsWidget />
-            <NewsWidget />
-          </div>
 
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => navigate("/msp-dashboard")}>
