@@ -579,13 +579,8 @@ export default function MSPWidgetDetail() {
 
           {/* Hero */}
           <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Icon className="h-5 w-5" />
-              </div>
-              <Badge variant="outline" className="text-xs border-primary/30 text-primary">
-                <Sparkles className="h-3 w-3 mr-1" /> Widget-detalj
-              </Badge>
+            <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <Icon className="h-5 w-5" />
             </div>
             <h1 className="text-3xl font-bold text-foreground tracking-tight">{meta.title}</h1>
             <p className="text-muted-foreground">{meta.subtitle}</p>
