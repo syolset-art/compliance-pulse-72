@@ -178,13 +178,14 @@ const WIDGETS: Record<string, WidgetMeta> = {
   "top-services": {
     id: "top-services",
     title: "Tjenester kundene trenger mest hjelp med",
-    subtitle: "Etterspurte rådgivningsområder på tvers av portefølje",
+    subtitle: "Slik finner du hvilke kunder du bør kontakte — og hva du bør tilby dem.",
     icon: Layers,
     hero: { value: "142", sub: "kunder ønsker hjelp med GDPR / Personvern" },
     explainer:
-      "Tallene baseres på aktive saker, åpne aktiviteter og forespørsler fra kundens Trust Profile. Bruk listen som grunnlag for å pakketere rådgivningstjenester.",
+      "Tallene baseres på aktive saker, åpne aktiviteter og forespørsler fra kundens Trust Profile. Følg de tre stegene under: forstå tallene, velg en tjeneste du vil drille ned i, og se de konkrete kundene du bør kontakte — enten én-til-én eller via en kampanje.",
     ctas: [
       { label: "Se servicekatalog", href: "/msp-service-catalog", primary: true },
+      { label: "Opprett kampanje", href: "/msp-messages", primary: false },
     ],
   },
   "campaigns": {
