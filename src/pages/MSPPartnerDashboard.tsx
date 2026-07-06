@@ -928,11 +928,44 @@ function TopServicesWidget() {
   const navigate = useNavigate();
   const max = Math.max(...TOP_SERVICES.map((s) => s.count));
   return (
-    <Card onClick={() => navigate("/msp-partner/widget/top-services")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-foreground">Tjenester kundene trenger mest hjelp med</h3>
-        <span className="text-xs text-muted-foreground">på tvers av portefølje</span>
+    <Card
+      onClick={() => navigate("/msp-partner/widget/top-services")}
+      className="p-5 cursor-pointer hover:border-primary/40 transition-colors"
+    >
+      <div className="flex items-start justify-between mb-1 gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-base font-semibold text-foreground">Tjenester kundene trenger mest hjelp med</h3>
+            <TooltipProvider delayDuration={150}>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Hva viser denne widgeten?"
+                  >
+                    <HelpCircle className="h-3.5 w-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+                  Antall kunder i porteføljen din som har åpne aktiviteter, forespørsler eller gap
+                  innenfor hvert tjenesteområde. Kilde: kundenes Trust Profile og Lara-signaler.
+                  Bruk listen til å pakketere og selge rådgivning.
+                </TooltipContent>
+              </UITooltip>
+            </TooltipProvider>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">Etterspørsel per tjeneste — siste 30 dager</p>
+        </div>
       </div>
+
+      <div className="flex items-center gap-3 mt-4 mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+        <div className="w-56">Tjeneste</div>
+        <div className="flex-1" />
+        <div className="w-12 text-right">Kunder</div>
+      </div>
+
       <div className="space-y-2.5">
         {TOP_SERVICES.map((s) => (
           <div key={s.label} className="flex items-center gap-3">
@@ -943,6 +976,12 @@ function TopServicesWidget() {
             <div className="w-12 text-right text-sm font-semibold tabular-nums">{s.count}</div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-end">
+        <span className="text-xs font-medium text-primary flex items-center gap-1">
+          Se detaljer og handlinger <ChevronRight className="h-3.5 w-3.5" />
+        </span>
       </div>
     </Card>
   );
