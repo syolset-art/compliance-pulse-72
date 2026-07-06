@@ -77,6 +77,8 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     category: 'organizational',
     name: 'Management responsibilities',
     name_no: 'Ledelsesansvar',
+    action_title: 'Define management responsibilities for information security',
+    action_title_no: 'Fastsett ledelsesansvar for informasjonssikkerhet',
     description: 'Management shall require all personnel to apply information security in accordance with the established information security policy.',
     description_no: 'Ledelsen skal kreve at alt personell anvender informasjonssikkerhet i samsvar med den etablerte informasjonssikkerhetspolicyen.',
     priority: 'high',
