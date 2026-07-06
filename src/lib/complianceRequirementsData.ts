@@ -389,6 +389,8 @@ export const ISO27001_CONTROLS: ComplianceRequirement[] = [
     category: 'organizational',
     name: 'Response to information security incidents',
     name_no: 'Respons på sikkerhetshendelser',
+    action_title: 'Document response procedures for information security incidents',
+    action_title_no: 'Dokumenter responsprosedyrer for sikkerhetshendelser',
     description: 'Information security incidents shall be responded to in accordance with the documented procedures.',
     description_no: 'Informasjonssikkerhetshendelser skal håndteres i samsvar med dokumenterte prosedyrer.',
     priority: 'critical',
