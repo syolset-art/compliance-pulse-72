@@ -35,7 +35,6 @@ import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSectio
 import { ResourcesSection } from "@/components/trust-center/edit/ResourcesSection";
 import { SubprocessorsSection } from "@/components/trust-center/edit/SubprocessorsSection";
 import { BrandingSection } from "@/components/trust-center/edit/BrandingSection";
-import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
 import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
 import { frameworks as frameworkDefs } from "@/lib/frameworkDefinitions";
