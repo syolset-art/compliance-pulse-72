@@ -676,7 +676,7 @@ const TrustCenterEditProfile = () => {
           { text: isNb ? "Fyll ut selskapsinformasjon (navn, org.nr, kontaktperson)" : "Fill in company info (name, org number, contact)" },
           { text: isNb ? "Beskriv hva virksomheten leverer" : "Describe what your company delivers" },
           { text: isNb ? "Besvar egenerklæringer i alle fire kontrollområder" : "Answer self-assessments in all four control areas" },
-          { text: isNb ? "Gå til forhåndsvisning og publiser" : "Go to preview and publish" },
+          { text: isNb ? "Gå til forhåndsvisning" : "Go to preview" },
         ]}
         actions={[
           {
