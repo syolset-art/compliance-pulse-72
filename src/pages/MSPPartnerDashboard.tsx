@@ -950,7 +950,7 @@ function ClaimDevelopmentChart() {
                 <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-[260px]">
-                <p className="text-xs">Antall kunder som har godkjent et tilbud der partneren har aktivert et gitt antall regelverk på deres vegne.</p>
+                <p className="text-xs">Viser hvor mange regelverk din kundeportefølje har aktivert over tid.</p>
               </TooltipContent>
             </UITooltip>
           </div>
