@@ -665,11 +665,11 @@ const TrustCenterEditProfile = () => {
               : "Uploaded policies and certifications add weight to the self-assessments.",
           },
         ]}
-        whyTitle={isNb ? "Readiness-indikatoren" : "The readiness indicator"}
+        whyTitle={isNb ? "Profilkompletthet" : "Profile completeness"}
         whyDescription={
           isNb
-            ? "Readiness-indikatoren øverst viser deg hvor langt du er fra å kunne publisere. Den sjekker selskapsinformasjon, kontrollområder og rammeverk. Grønn betyr klar for publisering."
-            : "The readiness indicator at the top shows how far you are from being able to publish. It checks company information, control areas, and frameworks. Green means ready to publish."
+            ? "Indikatoren øverst viser deg hvor komplett profilen din er. Den sjekker selskapsinformasjon, kontrollområder og rammeverk. Grønn betyr godt utfylt."
+            : "The indicator at the top shows how complete your profile is. It checks company information, control areas, and frameworks. Green means well completed."
         }
         stepsHeading={isNb ? "Anbefalt rekkefølge" : "Recommended order"}
         steps={[
