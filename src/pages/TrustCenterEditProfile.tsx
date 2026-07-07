@@ -35,7 +35,6 @@ import { AIVendorsSection } from "@/components/trust-center/edit/AIVendorsSectio
 import { ResourcesSection } from "@/components/trust-center/edit/ResourcesSection";
 import { SubprocessorsSection } from "@/components/trust-center/edit/SubprocessorsSection";
 import { BrandingSection } from "@/components/trust-center/edit/BrandingSection";
-import { PublishStickyBar } from "@/components/trust-center/edit/PublishStickyBar";
 import { SavedIndicator } from "@/components/trust-center/edit/SavedIndicator";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
 import { frameworks as frameworkDefs } from "@/lib/frameworkDefinitions";
@@ -294,29 +293,6 @@ const TrustCenterEditProfile = () => {
               </div>
             </div>
 
-            {/* Trust Center URL — flyttet opp */}
-            <Card className="p-4 space-y-3 border-primary/20 bg-primary/5">
-              <div className="flex items-center gap-2 text-sm">
-                <Link2 className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {isNb
-                  ? "Dette er din offentlige lenke til din Trust Center-profil. Kopier og del med kunder og partnere."
-                  : "This is your public link to your Trust Center profile. Copy and share with customers and partners."}
-              </p>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 min-w-0">
-                  <code className="text-sm font-mono text-foreground truncate block">{publicUrl}</code>
-                </div>
-                <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate("/trust-center/profile")}>
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={handleCopyUrl}>
-                  {copiedUrl ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
-            </Card>
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Virksomhet */}
@@ -621,29 +597,7 @@ const TrustCenterEditProfile = () => {
               </p>
             </div>
 
-            {/* Spacer for sticky bar */}
-            <div className="h-24" />
           </div>
-
-          {/* Sticky publish bar */}
-          <PublishStickyBar
-            readinessPercent={trustScore}
-            passedCount={trustScore}
-            totalCount={100}
-            lastEditedAt={(asset?.metadata as any)?.last_edited_at || asset?.updated_at}
-            lastPublishedAt={(asset?.metadata as any)?.last_published_at}
-            onPreview={() => navigate("/trust-center/profile")}
-            onPublish={async () => {
-              if (!asset?.id) return;
-              const nowIso = new Date().toISOString();
-              const currentMeta = (asset?.metadata || {}) as Record<string, any>;
-              const nextMeta = { ...currentMeta, last_published_at: nowIso };
-              await supabase.from("assets").update({ metadata: nextMeta as any }).eq("id", asset.id);
-              queryClient.invalidateQueries({ queryKey: ["self-asset-edit"] });
-              queryClient.invalidateQueries({ queryKey: ["self-asset-profile"] });
-              toast.success(isNb ? "Trust Profile publisert" : "Trust Profile published");
-            }}
-          />
         </main>
       </div>
 
@@ -663,8 +617,8 @@ const TrustCenterEditProfile = () => {
             icon: Building2,
             title: isNb ? "Selskapsinformasjon" : "Company information",
             description: isNb
-              ? "Navn, org.nr, kontaktperson og bransje må være utfylt for å kunne publisere."
-              : "Name, org number, contact person and industry must be filled to publish.",
+              ? "Navn, org.nr, kontaktperson og bransje må være utfylt for en komplett profil."
+              : "Name, org number, contact person and industry must be filled for a complete profile.",
           },
           {
             icon: Shield,
@@ -688,18 +642,18 @@ const TrustCenterEditProfile = () => {
               : "Uploaded policies and certifications add weight to the self-assessments.",
           },
         ]}
-        whyTitle={isNb ? "Readiness-indikatoren" : "The readiness indicator"}
+        whyTitle={isNb ? "Profilkompletthet" : "Profile completeness"}
         whyDescription={
           isNb
-            ? "Readiness-indikatoren øverst viser deg hvor langt du er fra å kunne publisere. Den sjekker selskapsinformasjon, kontrollområder og rammeverk. Grønn betyr klar for publisering."
-            : "The readiness indicator at the top shows how far you are from being able to publish. It checks company information, control areas, and frameworks. Green means ready to publish."
+            ? "Indikatoren øverst viser deg hvor komplett profilen din er. Den sjekker selskapsinformasjon, kontrollområder og rammeverk. Grønn betyr godt utfylt."
+            : "The indicator at the top shows how complete your profile is. It checks company information, control areas, and frameworks. Green means well completed."
         }
         stepsHeading={isNb ? "Anbefalt rekkefølge" : "Recommended order"}
         steps={[
           { text: isNb ? "Fyll ut selskapsinformasjon (navn, org.nr, kontaktperson)" : "Fill in company info (name, org number, contact)" },
           { text: isNb ? "Beskriv hva virksomheten leverer" : "Describe what your company delivers" },
           { text: isNb ? "Besvar egenerklæringer i alle fire kontrollområder" : "Answer self-assessments in all four control areas" },
-          { text: isNb ? "Gå til forhåndsvisning og publiser" : "Go to preview and publish" },
+          { text: isNb ? "Gå til forhåndsvisning" : "Go to preview" },
         ]}
         actions={[
           {
