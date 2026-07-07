@@ -1405,17 +1405,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                 Preview
               </button>
               <button
-                onClick={() => setActiveTab("publish")}
-                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
-                  activeTab === "publish"
-                    ? "bg-background text-foreground shadow-sm border border-border"
-                    : "text-muted-foreground hover:text-foreground hover:bg-background/50"
-                }`}
-              >
-                <Share2 className="h-4 w-4" />
-                Share & Publish
-              </button>
-              <button
                 onClick={() => setActiveTab("benchmark")}
                 className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all ${
                   activeTab === "benchmark"
