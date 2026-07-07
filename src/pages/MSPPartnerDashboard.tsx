@@ -955,7 +955,7 @@ function ClaimDevelopmentChart() {
             </UITooltip>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Fra 6 til 47 aktiverte kunder · siste 6 mnd
+            Fra 6 til 47 aktiverte regelverk · siste 6 mnd
           </p>
         </div>
         <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs gap-1 hover:bg-emerald-500/10">
