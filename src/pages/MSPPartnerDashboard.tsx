@@ -264,7 +264,22 @@ function NeedsFollowUpWidget() {
           <Target className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Pågående Kampanjer</div>
+          <div className="flex items-center gap-1.5">
+            <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Pågående Kampanjer</div>
+            <TooltipProvider delayDuration={100}>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle
+                    className="h-3.5 w-3.5 text-muted-foreground cursor-help"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-xs">
+                  Oversikt over aktive kampanjer per kunde — for eksempel NIS2-aktivering, ISO 27001-resertifisering og DORA gap-analyse. Tallene viser hvor mange kunder som deltar i hver kampanje.
+                </TooltipContent>
+              </UITooltip>
+            </TooltipProvider>
+          </div>
           <div className="flex items-baseline gap-1.5">
             <span className="text-2xl font-bold leading-none tabular-nums">{total}</span>
             <span className="text-xs text-muted-foreground">kunder</span>
