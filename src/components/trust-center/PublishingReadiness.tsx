@@ -99,8 +99,8 @@ export function PublishingReadiness({
       textColor: "text-success",
       borderColor: "border-success/30",
       bgColor: "bg-success/5",
-      msgNb: "Klar for publisering",
-      msgEn: "Ready to publish",
+      msgNb: "Profilen er godt utfylt",
+      msgEn: "Profile is well completed",
       icon: CheckCircle2,
     },
     almost: {
@@ -108,8 +108,8 @@ export function PublishingReadiness({
       textColor: "text-warning",
       borderColor: "border-warning/30",
       bgColor: "bg-warning/5",
-      msgNb: "Nesten klar — noen områder gjenstår",
-      msgEn: "Almost ready — some areas remain",
+      msgNb: "Nesten komplett — noen områder gjenstår",
+      msgEn: "Almost complete — some areas remain",
       icon: AlertTriangle,
     },
     notReady: {
@@ -117,8 +117,8 @@ export function PublishingReadiness({
       textColor: "text-destructive",
       borderColor: "border-destructive/30",
       bgColor: "bg-destructive/5",
-      msgNb: "Ikke klar for publisering — flere områder må fylles ut",
-      msgEn: "Not ready to publish — more areas need to be completed",
+      msgNb: "Flere områder må fylles ut",
+      msgEn: "More areas need to be completed",
       icon: AlertTriangle,
     },
   }[level];
