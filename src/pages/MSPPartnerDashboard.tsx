@@ -322,7 +322,22 @@ function AvgTrustScoreWidget() {
         </div>
       </div>
       <div className="min-w-0">
-        <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Trust score</div>
+        <div className="flex items-center gap-1.5">
+          <div className="text-[11px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">Trust score</div>
+          <TooltipProvider delayDuration={100}>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle
+                  className="h-3.5 w-3.5 text-muted-foreground cursor-help"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs text-xs">
+                Trust Score er en samlet modenhetsvurdering per kunde (0–100) basert på Governance, Operations, Privacy og Third-Party. Snittet viser hvor solid hele porteføljen står samlet.
+              </TooltipContent>
+            </UITooltip>
+          </TooltipProvider>
+        </div>
         <div className="text-sm text-foreground mt-0.5">Snitt portefølje</div>
         <div className="text-xs text-muted-foreground mt-1">
           <span className="text-success font-semibold">+{delta}</span> siste 30 dager
