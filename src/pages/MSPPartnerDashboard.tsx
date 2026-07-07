@@ -234,7 +234,20 @@ function ClaimRateWidget() {
           </div>
         </div>
         <div className="min-w-0">
-          <div className="text-[11px] uppercase tracking-[0.15em] text-white/80 font-semibold">Godkjent av kunde</div>
+          <div className="flex items-center gap-1.5">
+            <div className="text-[11px] uppercase tracking-[0.15em] text-white/80 font-semibold">Godkjent av kunde</div>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle
+                  className="h-3.5 w-3.5 text-white/60 cursor-help"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[260px]">
+                <p>Denne widgeten viser hvor mange av kundene dine som har godkjent tilbud om regelverksaktivering (f.eks. NIS2, ISO 27001, DORA). Jo høyere andel, desto større inntektspotensial.</p>
+              </TooltipContent>
+            </UITooltip>
+          </div>
           <div className="text-sm text-white/90 mt-0.5">47 av 400 kunder har godkjent regelverkstilbud</div>
           <div className="text-xs text-white/70 mt-1">Kunder som har akseptert regelverk aktivert av deg · <span className="text-emerald-200 font-semibold">+2 mnd</span></div>
         </div>
