@@ -1313,7 +1313,9 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     ? (isNb
                       ? "Produkt- eller tjenesteprofil slik den vises for kunder og partnere."
                       : "Product or service profile as seen by customers and partners.")
-                    : "Shareable compliance profile for due diligence"}
+                    : (isNb
+                      ? "Samlet oversikt over din virksomhets sikkerhet og personvern."
+                      : "Overview of your organization's security and privacy.")}
                 </p>
               </div>
             </div>
