@@ -293,29 +293,6 @@ const TrustCenterEditProfile = () => {
               </div>
             </div>
 
-            {/* Trust Center URL — flyttet opp */}
-            <Card className="p-4 space-y-3 border-primary/20 bg-primary/5">
-              <div className="flex items-center gap-2 text-sm">
-                <Link2 className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-foreground">{isNb ? "Din Trust Center URL" : "Your Trust Center URL"}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {isNb
-                  ? "Dette er din offentlige lenke til din Trust Center-profil. Kopier og del med kunder og partnere."
-                  : "This is your public link to your Trust Center profile. Copy and share with customers and partners."}
-              </p>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 min-w-0">
-                  <code className="text-sm font-mono text-foreground truncate block">{publicUrl}</code>
-                </div>
-                <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={() => navigate("/trust-center/profile")}>
-                  <Eye className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" className="h-9 w-9 shrink-0" onClick={handleCopyUrl}>
-                  {copiedUrl ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                </Button>
-              </div>
-            </Card>
 
             {/* ═══════════════════════════════════════════ */}
             {/* SECTION: Virksomhet */}
