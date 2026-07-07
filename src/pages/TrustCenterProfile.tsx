@@ -1316,39 +1316,6 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                     : "Shareable compliance profile for due diligence"}
                 </p>
               </div>
-              {isOwnProfile && (
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-1.5 h-8"
-                    onClick={() => setShareDialogOpen(true)}
-                  >
-                    <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
-                    {isNb ? "Del" : "Share"}
-                  </Button>
-                  {isPublished ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-1.5 h-8 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => setUnpublishConfirmOpen(true)}
-                    >
-                      <Lock className="h-3.5 w-3.5" aria-hidden="true" />
-                      {isNb ? "Fjern publisering" : "Unpublish"}
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      className="gap-1.5 h-8 bg-primary hover:bg-primary/90"
-                      onClick={openPublishDialog}
-                    >
-                      <Globe className="h-3.5 w-3.5" aria-hidden="true" />
-                      {isNb ? "Publiser" : "Publish"}
-                    </Button>
-                  )}
-                </div>
-              )}
             </div>
 
             {isOwnProfile && asset?.id && (companyProfile?.org_number || asset?.description) && (
