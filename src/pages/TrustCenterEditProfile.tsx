@@ -640,8 +640,8 @@ const TrustCenterEditProfile = () => {
             icon: Building2,
             title: isNb ? "Selskapsinformasjon" : "Company information",
             description: isNb
-              ? "Navn, org.nr, kontaktperson og bransje må være utfylt for å kunne publisere."
-              : "Name, org number, contact person and industry must be filled to publish.",
+              ? "Navn, org.nr, kontaktperson og bransje må være utfylt for en komplett profil."
+              : "Name, org number, contact person and industry must be filled for a complete profile.",
           },
           {
             icon: Shield,
