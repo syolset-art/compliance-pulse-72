@@ -1343,38 +1343,23 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                       </p>
                       <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
                         {isNb
-                          ? "Trust Profilen din er ikke aktivert ennå. Lara kombinerer offentlig informasjon med det du allerede har lagt inn i Mynder, og setter opp et førsteutkast for deg. Når du aktiverer overtar du eierskapet — du bestemmer selv hva som vises og hvem som får se den."
-                          : "Your Trust Profile is not activated yet. Lara combines public information with what you already have in Mynder and sets up a first draft for you. When you activate, you take ownership — you decide what is shown and who gets to see it."}
+                          ? "Trust Profilen din er ikke aktivert ennå. Lara kombinerer offentlig informasjon med det du allerede har lagt inn i Mynder, og setter opp et førsteutkast for deg. Når du aktiverer overtar du eierskapet — du bestemmer selv hva som vises."
+                          : "Your Trust Profile is not activated yet. Lara combines public information with what you already have in Mynder and sets up a first draft for you. When you activate, you take ownership — you decide what is shown."}
                       </p>
                     </div>
 
-                    <div className="grid sm:grid-cols-2 gap-2">
-                      <div className="rounded-lg border border-border bg-background/60 p-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Globe className="h-3.5 w-3.5 text-primary" />
-                          <p className="text-sm font-medium text-foreground">
-                            {isNb ? "Publiser på Trust Center" : "Publish on Trust Center"}
-                          </p>
-                        </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {isNb
-                            ? "Bli synlig i det offentlige registeret over virksomheters Trust Profiler — så kunder og partnere kan finne dere."
-                            : "Become visible in the public registry of company Trust Profiles — so customers and partners can find you."}
+                    <div className="rounded-lg border border-border bg-background/60 p-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                        <p className="text-sm font-medium text-foreground">
+                          {isNb ? "Samlet oversikt" : "Unified overview"}
                         </p>
                       </div>
-                      <div className="rounded-lg border border-border bg-background/60 p-3">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Lock className="h-3.5 w-3.5 text-primary" />
-                          <p className="text-sm font-medium text-foreground">
-                            {isNb ? "Del kun med utvalgte" : "Share with selected only"}
-                          </p>
-                        </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {isNb
-                            ? "Hold profilen privat og del den via lenke med utvalgte kunder, partnere og leverandører."
-                            : "Keep the profile private and share it via link with selected customers, partners and vendors."}
-                        </p>
-                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {isNb
+                          ? "Få en samlet oversikt over virksomhetens sikkerhet, personvern og etterlevelse på ett sted."
+                          : "Get a unified overview of your organization's security, privacy and compliance in one place."}
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-2 pt-1">
@@ -1382,7 +1367,7 @@ const TrustCenterProfile = ({ assetId: propAssetId, readOnly = false }: { assetI
                         {isNb ? "Aktiver profilen" : "Activate profile"}
                       </Button>
                       <p className="text-sm text-muted-foreground">
-                        {isNb ? "Du velger synlighet i neste steg." : "You choose visibility in the next step."}
+                        {isNb ? "Deling med kunder og leverandører kommer senere." : "Sharing with customers and vendors is coming later."}
                       </p>
                     </div>
                   </div>
