@@ -312,12 +312,6 @@ const TrustCenterProducts = () => {
                     >
                       {svc.asset_type === "saas" ? "SaaS" : "Service"}
                     </Badge>
-                    <Badge
-                      variant={svc.publish_mode === "public" ? "default" : "outline"}
-                      className="text-[13px]"
-                    >
-                      {svc.publish_mode === "public" ? "Publisert" : "Utkast"}
-                    </Badge>
                   </div>
                   <Button variant="ghost" size="sm" className="text-xs gap-1 h-7">
                     <ExternalLink className="h-3 w-3" />
