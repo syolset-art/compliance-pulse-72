@@ -309,48 +309,31 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     );
                   })()}
 
-                  {/* Statusbadge — vis bevis-badge kun når det tilfører info utover progress */}
-                  {sameLabel ? (
-                    <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", primaryCfg.badgeClass)}>
-                      <PrimaryIcon className={cn("h-3 w-3", primaryCfg.iconClass)} />
-                      {primaryLabel}
-                      {isVerifiedDue && state.revalidationDaysLeft != null && (
-                        <TooltipProvider delayDuration={200}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span
-                                className="ml-1 pl-1.5 border-l border-warning/40 inline-flex items-center gap-0.5 text-warning cursor-help"
-                                onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
-                              >
-                                <Clock className="h-3 w-3" />
-                                {state.revalidationDaysLeft}d
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs">
-                              {isNb
-                                ? `Re-attesteres om ${state.revalidationDaysLeft} dager`
-                                : `Re-attestation in ${state.revalidationDaysLeft} days`}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      )}
-                    </Badge>
-                  ) : state.evidence === "required" ? (
-                    // Ikke vis "Dokumentasjon mangler"-pill — indikatoren over dekker det
-                    <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}>
-                      {isNb ? progressCfg.labelNb : progressCfg.labelEn}
-                    </Badge>
-                  ) : (
-                    <>
-                      <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", evidenceCfg.badgeClass)}>
-                        <EvidenceIcon className={cn("h-3 w-3", evidenceCfg.iconClass)} />
-                        {formatEvidenceLabel(state, isNb)}
-                      </Badge>
-                      <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}>
-                        {isNb ? progressCfg.labelNb : progressCfg.labelEn}
-                      </Badge>
-                    </>
-                  )}
+                  {/* Statusbadge — kun fremdrift (progress), aldri bevis-attestering */}
+                  <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}>
+                    <ProgressIcon className={cn("h-3 w-3", progressCfg.iconClass)} />
+                    {progressLabel}
+                    {isVerifiedDue && state.revalidationDaysLeft != null && (
+                      <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className="ml-1 pl-1.5 border-l border-warning/40 inline-flex items-center gap-0.5 text-warning cursor-help"
+                              onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                            >
+                              <Clock className="h-3 w-3" />
+                              {state.revalidationDaysLeft}d
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs">
+                            {isNb
+                              ? `Re-attesteres om ${state.revalidationDaysLeft} dager`
+                              : `Re-attestation in ${state.revalidationDaysLeft} days`}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                  </Badge>
 
                   {/* Kapasitets-badge fjernet — skapte usikkerhet */}
 
