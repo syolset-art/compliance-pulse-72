@@ -22,6 +22,7 @@ import {
   getProgressConfig,
   type RequirementUiState,
   type ProgressStatus,
+  type EvidenceDocument,
 } from "@/lib/requirementStatusModel";
 import { cn } from "@/lib/utils";
 
