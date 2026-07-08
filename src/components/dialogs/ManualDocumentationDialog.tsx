@@ -133,10 +133,21 @@ export function ManualDocumentationDialog({
       });
       return;
     }
-    if (status === "implemented" && !file) {
+    if ((status === "implemented" || status === "verified") && !file) {
       toast({
         title: "Last opp dokumentasjon",
-        description: "Legg ved et dokument som viser at kravet er implementert",
+        description:
+          status === "verified"
+            ? "Last opp det signerte dokumentet fra uavhengig organ"
+            : "Legg ved et dokument som viser at kravet er implementert",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (status === "verified" && (!verifiedConfirmed || !verifierName.trim())) {
+      toast({
+        title: "Bekreft verifisering",
+        description: "Oppgi uavhengig organ og bekreft at dokumentet er signert av dem",
         variant: "destructive",
       });
       return;
@@ -160,7 +171,8 @@ export function ManualDocumentationDialog({
                 summary: summary || undefined,
               }
             : undefined,
-        verificationStatus: "self_reported",
+        verificationStatus: status === "verified" ? "verified" : "self_reported",
+        verifiedBy: status === "verified" ? verifierName.trim() : undefined,
       };
     }
 
