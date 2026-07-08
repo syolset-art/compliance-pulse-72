@@ -360,6 +360,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         sourceRequirementName: string;
                         uploadedBy: string;
                         uploadedAt: string;
+                        classification?: string;
+                        coversRequirements?: string[];
                         onAccept: () => void;
                       };
                       if (bucketOf(state.progress) !== "met") {
@@ -375,14 +377,35 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             const uploadedAt = otherState?.verification?.internalConfirmer?.date
                               ?? otherState?.attestedBy?.date
                               ?? "3. juni 2026";
+                            // Finn alle andre krav dette dokumentet allerede dekker
+                            const alsoCovers = requirements
+                              .filter((r) => {
+                                if (r.requirement_id === other.requirement_id) return false;
+                                if (r.requirement_id === req.requirement_id) return false;
+                                return uiStates[r.requirement_id]?.documents?.some((d) => d.name === doc.name);
+                              })
+                              .map((r) => r.name_no);
+                            // Enkel klassifisering ut fra filnavn
+                            const lower = doc.name.toLowerCase();
+                            const classification = lower.includes("policy")
+                              ? "Policy"
+                              : lower.includes("prosedyre") || lower.includes("procedure")
+                                ? "Prosedyre"
+                                : lower.includes("avtale") || lower.includes("dpa")
+                                  ? "Avtale"
+                                  : lower.includes("rapport")
+                                    ? "Rapport"
+                                    : "Dokumentasjon";
                             crossRef = {
                               name: doc.name,
                               sourceRequirementName: other.name_no,
                               uploadedBy: uploader,
                               uploadedAt,
+                              classification,
+                              coversRequirements: [req.name_no, ...alsoCovers],
                               onAccept: () => {
                                 handleDocSave(req.requirement_id, "implemented", "", { ...doc });
-                                toast.success("Dokument gjenbrukt", {
+                                toast.success("Bekreftet", {
                                   description: `${doc.name} er koblet til ${req.name_no}`,
                                 });
                               },
