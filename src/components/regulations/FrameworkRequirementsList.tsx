@@ -298,24 +298,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     </>
                   )}
 
-                  {/* Kapasitets-badge — nøytral */}
-                  <TooltipProvider delayDuration={200}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Badge
-                          variant="outline"
-                          className="gap-1.5 text-xs font-medium text-muted-foreground cursor-help"
-                          onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
-                        >
-                          <CapIcon className="h-3 w-3" />
-                          {cap.label}
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[240px]">
-                        <p className="text-xs">{cap.tooltip}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  {/* Kapasitets-badge fjernet — skapte usikkerhet */}
+
 
                   {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </div>
