@@ -257,10 +257,41 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 mt-1">
-                  {/* Dokument- og bevis-tellere fjernet — status sier alt */}
+                  {/* Subtil dokumentasjonsindikator — kun for besvarte krav */}
+                  {(() => {
+                    const docCount = state.documents?.length ?? 0;
+                    const isAnswered =
+                      state.progress === "in_progress" ||
+                      state.progress === "implemented" ||
+                      state.progress === "verified";
+                    if (docCount === 0 && !isAnswered) return null;
+                    const missing = docCount === 0 && isAnswered;
+                    return (
+                      <TooltipProvider delayDuration={200}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span
+                              className={cn(
+                                "inline-flex items-center gap-0.5 text-[11px] tabular-nums cursor-help",
+                                missing ? "text-warning/70" : "text-muted-foreground",
+                              )}
+                              onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                            >
+                              <Paperclip className="h-3.5 w-3.5" />
+                              {docCount > 0 && docCount}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="text-xs max-w-[220px]">
+                            {missing
+                              ? (isNb ? "Dokumentasjon mangler for denne statusen" : "Documentation missing for this status")
+                              : (isNb ? `${docCount} dokument${docCount === 1 ? "" : "er"} lastet opp` : `${docCount} document${docCount === 1 ? "" : "s"} uploaded`)}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })()}
 
-
-                  {/* Ett samlet statusbadge — dedup når fremdrift == bevistilstand */}
+                  {/* Statusbadge — vis bevis-badge kun når det tilfører info utover progress */}
                   {sameLabel ? (
                     <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", primaryCfg.badgeClass)}>
                       <PrimaryIcon className={cn("h-3 w-3", primaryCfg.iconClass)} />
@@ -285,6 +316,11 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           </Tooltip>
                         </TooltipProvider>
                       )}
+                    </Badge>
+                  ) : state.evidence === "required" ? (
+                    // Ikke vis "Dokumentasjon mangler"-pill — indikatoren over dekker det
+                    <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}>
+                      {isNb ? progressCfg.labelNb : progressCfg.labelEn}
                     </Badge>
                   ) : (
                     <>

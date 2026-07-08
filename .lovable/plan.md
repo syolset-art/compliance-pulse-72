@@ -1,41 +1,30 @@
 
-# Konsistent terminologi: Bevis (evidence) vs. Dokumentasjon (documentation)
+# Dempet dokumentasjons-indikator i kravlisten
 
-I dag brukes "bevis" og "dokumentasjon" om hverandre. Vi trenger én klar definisjon som brukes overalt.
+Erstatter "Dokumentasjon mangler"-pillet med en mye mer diskret indikator, og skjuler den helt for krav som ikke er besvart (der er "manglende dokumentasjon" ikke handlingsrettet — brukeren har ikke tatt stilling ennå).
 
-## Terminologi (forslag)
+## Endring i `FrameworkRequirementsList.tsx`
 
-- **Bevis** = *tilstanden* som viser at et krav er oppfylt (self_reported → attested → verified). Dette er en kvalitetsdimensjon.
-- **Dokumentasjon** = *innholdet* — de faktiske filene/dokumentene som utgjør beviset (PDF, DOCX, sertifikat, attestasjon).
+**Dagens visning:** To badges (progress + evidence) i toppraden, hvor "Dokumentasjon mangler" ofte vises som eget pill i warning-farge.
 
-Kort formel: **Dokumentasjon er selve filen. Bevis er hvor mye tillit vi kan ha til den.**
+**Ny visning:**
 
-## Endringer i UI-tekst (ManualDocumentationDialog)
+1. **Fjern "Dokumentasjon mangler"-pillet fra rad-headeren helt.** Progress-pillet ("Implementert", "Pågår", "Verifisert" etc.) står alene.
 
-| Sted | Før | Etter |
-|---|---|---|
-| Status-hjelp (implementert) | "innført, krever egenrapportert dokumentasjon" | "innført — bevis er egenrapportert dokumentasjon dere har lastet opp" |
-| Status-hjelp (verifisert) | "krever signert dokument fra uavhengig organ" | "bevis er signert/attestert av uavhengig organ" |
-| Upload-label | "Last opp dokumentasjon" | Beholdes (dette *er* dokumentasjon) |
-| Upload-hjelp tittel | "Hvorfor er dokumentasjon påkrevd?" | "Hvorfor kreves dokumentasjon som bevis?" |
-| Upload-hjelp brødtekst | "Uten dokumentasjon regnes kravet som egenrapportert og gir lav bevisverdi" | "Uten dokumentasjon har kravet ingen bevisverdi — det står bare som en påstand" |
-| Verifisert-callout / bekreftelse | "Last opp det signerte dokumentet…" / "opplastede dokumentet er signert" | Behold "dokument(et)" — konkret filreferanse |
+2. **Ny subtil indikator** — kun et lite `Paperclip`-ikon (h-3.5) plassert til venstre for progress-pillet:
+   - **Har dokumentasjon:** `text-muted-foreground` + liten teller (`Paperclip · 2`) — nøytralt.
+   - **Mangler dokumentasjon** *og* status ∈ {`in_progress`, `implemented`, `verified`}: `Paperclip` i `text-warning/70` uten fyll, med tooltip: *"Dokumentasjon mangler for denne statusen"*.
+   - **Ikke besvart / Ikke relevant:** **ingen** ikon — vi maser ikke om dokumentasjon når kravet ikke er tatt stilling til.
 
-## Endringer i eksisterende badges (requirementStatusModel)
+3. **Dedup-logikken i statusbadges** oppdateres slik at når `evidence === "required"` og progress ikke er verifisert, viser vi bare progress-pillet (ikke lenger dobbelt-badge). Bevis-badgen vises kun når evidence gir tilleggsinfo utover progress (attested, verified, revalidation_due).
 
-- "Bevis påkrevd" → "Dokumentasjon mangler" (mer handlingsrettet; brukeren skal laste opp *dokumentasjon*)
-- Beholder "Egenrapportert / Attestert / Verifisert" som **bevisnivåer** — disse beskriver graden av tillit, ikke selve filen.
+## Effekt
 
-## Regel som formuleres i memory
-
-Legger til en `mem://style/terminology-evidence-vs-documentation` som:
-- **Dokumentasjon (documentation)** = filen/artefakten. Brukes i knapper og opplasting.
-- **Bevis (evidence)** = tillitsgrad. Brukes i badges/statusspråk (evidence tier).
-- Ikke bland: si aldri "krever bevis" om en filopplasting — si "krever dokumentasjon". Si aldri "dokumentasjonsnivå" om tillit — si "bevisnivå".
+- Ikke-besvart krav: kun ett dempet progress-pill, ingen dokumentasjonsstøy.
+- Pågår/implementert uten dokumentasjon: én liten warning-tonet paperclip som subtil visuell påminnelse.
+- Med dokumentasjon: nøytralt paperclip + teller.
 
 ## Ikke inkludert
-- Ingen refaktor av `evidenceStatus.ts`-nøkler eller `EvidenceState`-typer (kun labels/UI-tekst).
-- Ingen endringer i andre dialogs/komponenter i denne omgang — vi kan speile til `RequirementCard`, `VendorControlsTab` og `AddVerificationDialog` som oppfølging.
-- i18n-nøkler for de nye/endrede tekstene i denne dialogen: kun norsk oppdateres nå; engelsk/nederlandsk fortsatt kun for `verifyConfirm`-blokken (eksisterende).
-
-Vil du at jeg også skal oppdatere `RequirementCard.tsx` og `VendorControlsTab.tsx` med samme språk i samme runde?
+- Ingen endring i `requirementStatusModel` — `EvidenceState`-typen beholdes; kun visningen i listen endres.
+- Ingen endring i ekspandert kort — der kan brukeren fortsatt se full dokumentasjonsstatus.
+- Ingen endring i `RequirementCard.tsx` / `VendorControlsTab.tsx` i denne runden.
