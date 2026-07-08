@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, AlertTriangle, Shield, ChevronDown, ChevronUp, FileText } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface VendorControlsTabProps {
   assetId: string;
@@ -90,20 +91,31 @@ export const VendorControlsTab = ({ assetId }: VendorControlsTabProps) => {
             <CollapsibleContent>
               <CardContent className="pt-0 px-0 pb-0">
                 {controls.map((c: any) => (
-                  <div key={c.key} className="flex items-center justify-between px-4 py-2.5 border-t">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <StatusIcon status={c.status} />
-                      <span className="text-sm">{isNb ? c.labelNb : c.labelEn}</span>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant={c.status === "implemented" ? "default" : c.status === "partial" ? "secondary" : "destructive"} className="text-[13px] px-1.5">
-                        {c.status === "implemented" ? "OK" : c.status === "partial" ? (isNb ? "Delvis" : "Partial") : (isNb ? "Mangler" : "Missing")}
-                      </Badge>
-                      {c.verificationSource && (
-                        <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                      )}
-                    </div>
-                  </div>
+                  <TooltipProvider key={c.key} delayDuration={300}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center justify-between px-4 py-2.5 border-t cursor-pointer hover:bg-muted/30 transition-colors">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <StatusIcon status={c.status} />
+                            <span className="text-sm">{isNb ? c.labelNb : c.labelEn}</span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Badge variant={c.status === "implemented" ? "default" : c.status === "partial" ? "secondary" : "destructive"} className="text-[13px] px-1.5">
+                              {c.status === "implemented" ? "OK" : c.status === "partial" ? (isNb ? "Delvis" : "Partial") : (isNb ? "Mangler" : "Missing")}
+                            </Badge>
+                            {c.verificationSource && (
+                              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                            )}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        <p className="text-xs">
+                          {isNb ? "Klikk på kravet for å lese mer og utføre oppgaven" : "Click the requirement to read more and complete the task"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ))}
               </CardContent>
             </CollapsibleContent>
