@@ -1,45 +1,50 @@
-## Mål
+## Problem
 
-Når et krav har status **Verifisert**, må det være tydelig at verifiseringen er gjort av en uavhengig ekstern aktør, hvem det er, når det ble gjort, og hvem internt som har bekreftet dette. Dokumentasjonen skal fortsatt være tilgjengelig, men skal knyttes til verifikatoren.
+Etter at brukeren velger status **Implementert** (via ManualDocumentationDialog), er kravet låst i "delvis" — det finnes ingen vei videre til **Verifisert** inne i kravraden. I tillegg tar Lara-forklaringsboksen mye plass etter at dokumentasjon allerede er lagt inn, som gjør UI-et rotete.
 
-## Endringer
+## Løsning
 
-### 1. Datamodell (`src/lib/requirementStatusModel.ts`)
+Én kompakt statuslinje øverst i det utvidede kravet som lar brukeren bytte mellom `Implementert` og `Verifisert` (og tilbake), uten dialogbokser eller store paneler.
 
-Utvid `RequirementUiState` med et strukturert `verification`-objekt (kun brukt når `progress === "verified"`):
+### 1. Inline statusbytte (kompakt)
 
-- `externalVerifier`: navn (f.eks. "BDO Norge AS"), person (f.eks. "Erik Solheim, Lead Auditor"), standard (f.eks. "ISO 27001:2022"), dato, rapportreferanse.
-- `internalConfirmer`: navn, rolle, dato — personen internt som har bekreftet at ekstern uavhengig aktør er brukt.
+Legg til én liten linje rett under kravets beskrivelse når `state.progress === "implemented"` eller `"verified"`:
 
-Fjern `attestedBy` fra de to verifiserte demo-casene og erstatt med `verification`-blokk. Sett `verifiedBy` + `verifiedAt` på dokumentene som faktisk er verifisert av ekstern aktør (typisk attestasjon/sertifikat), slik at "Verifisert av uavhengig organ"-badgen på dokumentet blir riktig.
-
-### 2. Expanded panel (`FrameworkRequirementsList.tsx`)
-
-Legg til en ny verifikasjonsboks i det utvidede panelet, plassert rett over dokumentasjonslisten, som kun vises når `state.progress === "verified"` og `state.verification` finnes:
-
-```text
-┌─ Verifisert av uavhengig aktør ────────────────────┐
-│  BDO Norge AS · ISO 27001:2022                      │
-│  Erik Solheim, Lead Auditor · 8. juli 2026          │
-│  Rapport: BDO-2026-0472                             │
-│  ─────────────────────────────────────────────────  │
-│  Bekreftet internt av                               │
-│  Vilde Gjellestad, Compliance Lead · 10. juli 2026  │
-└─────────────────────────────────────────────────────┘
+```
+[Status: Implementert ▾]   Marker som verifisert →
 ```
 
-Design:
-- Outline-kort med `border-success/40`, subtil `bg-success/5`.
-- Øvre seksjon: ShieldCheck-ikon (success) + ekstern aktør, revisor-person, standard, dato, rapportreferanse.
-- Skillelinje, deretter nedre seksjon: UserCheck-ikon (success) + intern bekrefter, rolle, dato.
-- Kompakt (text-sm/text-xs), Apple-minimal, ingen fylte fargefelt.
+- Venstre: liten status-pille (samme visuelle språk som eksisterende progress-pill), klikkbar → åpner en enkel popover med statusvalgene (`Ikke besvart`, `Under arbeid`, `Implementert`, `Verifisert`, `Ikke aktuell`). Endring oppdaterer `uiStates` direkte.
+- Høyre (kun når `implemented`): en subtil link-knapp `Marker som verifisert →` som åpner en liten inline-form (ikke dialog) med to felt:
+  - `Verifisert av` (tekst, f.eks. "PwC" eller intern rolle)
+  - `Dato` (default i dag)
+  - `Bekreft`-knapp
+  På bekreft: sett `progress: "verified"`, `evidence: "verified"`, og opprett et minimalt `verification`-objekt slik at seksjonen på linje 526 renderes.
 
-### 3. Dokumentliste
+Nedgradere: fra `verified` skal statusbyttet i pillen tillate å gå tilbake til `implemented` (rydder `verification`-feltet).
 
-Fjern den gamle "Attestert · [dato]"-linjen i topplinjen av dokumentkortet. For dokumenter med `verificationStatus === "verified"`: vis `verifiedBy` og `verifiedAt` som en liten linje under filnavnet (f.eks. "Verifisert av BDO Norge AS · 8. juli 2026"), i tillegg til den eksisterende badgen. Ingen endring for egenrapporterte dokumenter.
+### 2. Redusere støy i Lara-boksen når dokumentasjon finnes
 
-## Ikke i scope
+Når `state.documents.length > 0` og `bucketOf(state.progress) !== "not_met"`:
+- Ikke rendre den store `LaraDataSourceExplainer`-boksen. Erstatt med én kompakt linje:
+  `Lara har registrert dokumentasjon — {N} dokument · {status}` med en liten `Endre`-lenke som scroller til dokumentlisten.
+- Cross-reference-forslaget (finn dokument fra annet krav) skal fortsatt vises, men kun når `state.documents.length === 0`.
 
-- Ingen backend/schema-endringer — dette er demo-UI-state.
-- Ingen endring av statusbadgen til høyre i rad-header.
-- Ingen ny arbeidsflyt for å registrere ekstern verifisering (kommer separat).
+### 3. Skjule kommentar-panelet når status ikke er `partial`/`in_progress`
+
+Kommentar-veilederen (chips + input) vises i dag når `bucketOf === "partial"`, som inkluderer `implemented`. Fjern kommentar-panelet når `progress === "implemented"` — det er ikke lenger "delvis" i praktisk forstand. Behold kun for `in_progress`.
+
+## Filer som endres
+
+- `src/components/regulations/FrameworkRequirementsList.tsx`
+  - Ny inline status-rad rett etter `<p>{req.description_no}</p>` (rundt linje 352)
+  - Betinget rendring av `LaraDataSourceExplainer` (rundt linje 354)
+  - Betingelsen på kommentar-panelet (rundt linje 404)
+  - Utvide `handleDocSave` / legge til liten helper for statusbytte uten dokument
+- Ingen endringer i `LaraDataSourceExplainer.tsx` eller dialogen.
+
+## Ute-av-scope
+
+- Ingen endring i datamodell eller backend.
+- Ingen endring i den eksisterende ManualDocumentationDialog.
+- Beholder eksisterende verifiseringsvisning (grønt panel med ekstern verifier + intern bekrefter) uendret.
