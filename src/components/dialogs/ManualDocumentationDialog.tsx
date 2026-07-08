@@ -250,8 +250,8 @@ export function ManualDocumentationDialog({
                 <ul className="space-y-1 text-muted-foreground">
                   <li><span className="text-foreground">Ikke påbegynt</span> — kravet er ikke adressert.</li>
                   <li><span className="text-foreground">Pågår</span> — arbeid pågår, ikke ferdig.</li>
-                  <li><span className="text-foreground">Implementert</span> — innført, krever egenrapportert dokumentasjon.</li>
-                  <li><span className="text-foreground">Verifisert</span> — krever signert dokument fra uavhengig organ (revisor, sertifiseringsorgan).</li>
+                  <li><span className="text-foreground">Implementert</span> — innført; bevis er egenrapportert dokumentasjon dere har lastet opp.</li>
+                  <li><span className="text-foreground">Verifisert</span> — bevis er signert eller attestert av uavhengig organ (revisor, sertifiseringsorgan).</li>
                 </ul>
               </FieldHelp>
             </div>
@@ -308,10 +308,10 @@ export function ManualDocumentationDialog({
                     {status === "verified" ? "Last opp signert dokument" : "Last opp dokumentasjon"} <span className="text-destructive">*</span>
                   </Label>
                   <FieldHelp>
-                    <p className="font-medium mb-1">Hvorfor er dokumentasjon påkrevd?</p>
+                    <p className="font-medium mb-1">Hvorfor kreves dokumentasjon som bevis?</p>
                     <p className="text-muted-foreground mb-2">
                       Status <span className="text-foreground">{status === "verified" ? "Verifisert" : "Implementert"}</span> krever at kravet kan dokumenteres.
-                      Uten dokumentasjon regnes kravet som egenrapportert og gir lav bevisverdi mot revisor og kunder.
+                      Uten dokumentasjon har kravet ingen bevisverdi — det står bare som en påstand mot revisor og kunder.
                     </p>
                     <p className="font-medium mb-1">Typisk dokumentasjon for {hint.articleLabel}:</p>
                     <ul className="space-y-0.5 text-muted-foreground">

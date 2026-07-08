@@ -114,8 +114,8 @@ export const PROGRESS_CONFIG: Record<ProgressStatus, StatusConfig> = {
 
 export const EVIDENCE_CONFIG: Record<EvidenceState, StatusConfig> = {
   required: {
-    labelNb: "Bevis påkrevd",
-    labelEn: "Evidence required",
+    labelNb: "Dokumentasjon mangler",
+    labelEn: "Documentation missing",
     icon: FileText,
     badgeClass: "bg-transparent text-foreground border-warning/40",
     iconClass: "text-warning",

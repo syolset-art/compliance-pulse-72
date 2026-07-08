@@ -1,43 +1,41 @@
 
-# Kontekstuelle hjelpeikoner i `ManualDocumentationDialog`
+# Konsistent terminologi: Bevis (evidence) vs. Dokumentasjon (documentation)
 
-Erstatter "Neste steg"-callouten med diskrete `HelpCircle`-ikoner ved siden av hver felt-label. Hjelpeteksten vises i Tooltip/Popover, slik at dialogen blir renere og brukeren får hjelp der de trenger det.
+I dag brukes "bevis" og "dokumentasjon" om hverandre. Vi trenger én klar definisjon som brukes overalt.
 
-## Endringer i `src/components/dialogs/ManualDocumentationDialog.tsx`
+## Terminologi (forslag)
 
-**1. Ny liten hjelpekomponent (inline i filen):**
-`FieldHelp({ children })` — `HelpCircle` (h-3.5) i `text-muted-foreground` som trigger for en Popover med kort forklaring (maks ~3 setninger).
+- **Bevis** = *tilstanden* som viser at et krav er oppfylt (self_reported → attested → verified). Dette er en kvalitetsdimensjon.
+- **Dokumentasjon** = *innholdet* — de faktiske filene/dokumentene som utgjør beviset (PDF, DOCX, sertifikat, attestasjon).
 
-**2. Status-feltet**
-- Fjern "Neste steg: last opp dokumentasjon…"-callouten som vises under Select ved `implemented`.
-- Legg hjelpeikon på Status-label: *"Ikke påbegynt → Pågår → Implementert → Verifisert. Kun Verifisert krever signert dokument fra uavhengig organ."*
-- Behold Verifisert-info-callouten (den er handling-krevende, ikke bare veiledning).
+Kort formel: **Dokumentasjon er selve filen. Bevis er hvor mye tillit vi kan ha til den.**
 
-**3. Kommentar-feltet**
-- Hjelpeikon på Kommentar-label:  
-  *"Beskriv kort hvordan dere oppfyller kravet i praksis — hvilke rutiner, systemer eller ansvar dere har på plass. Dette hjelper Lara å vurdere modenhet og gir revisor kontekst."*
-- Oppdater placeholder til å være mer konkret: *"F.eks. 'Vi har databehandleravtale med alle underleverandører, gjennomgått årlig av DPO.'"*
+## Endringer i UI-tekst (ManualDocumentationDialog)
 
-**4. Last-opp-feltet**
-- Hjelpeikon på "Last opp dokumentasjon"-label, med dynamisk innhold basert på `requirementId`:
-  - **Hvorfor obligatorisk:** *"For status Implementert / Verifisert krever regelverket at kravet kan dokumenteres. Uten dokumentasjon regnes kravet som egenrapportert og gir lav bevisverdi."*
-  - **Vanlig dokumentasjon for dette kravet:** liste hentet fra ny helper (se punkt 5).
+| Sted | Før | Etter |
+|---|---|---|
+| Status-hjelp (implementert) | "innført, krever egenrapportert dokumentasjon" | "innført — bevis er egenrapportert dokumentasjon dere har lastet opp" |
+| Status-hjelp (verifisert) | "krever signert dokument fra uavhengig organ" | "bevis er signert/attestert av uavhengig organ" |
+| Upload-label | "Last opp dokumentasjon" | Beholdes (dette *er* dokumentasjon) |
+| Upload-hjelp tittel | "Hvorfor er dokumentasjon påkrevd?" | "Hvorfor kreves dokumentasjon som bevis?" |
+| Upload-hjelp brødtekst | "Uten dokumentasjon regnes kravet som egenrapportert og gir lav bevisverdi" | "Uten dokumentasjon har kravet ingen bevisverdi — det står bare som en påstand" |
+| Verifisert-callout / bekreftelse | "Last opp det signerte dokumentet…" / "opplastede dokumentet er signert" | Behold "dokument(et)" — konkret filreferanse |
 
-**5. Ny helper: `src/lib/requirementDocumentationHints.ts`**
-Eksporterer `getTypicalDocumentation(requirementId: string): { articles: string[]; typicalDocs: string[] }`.
-- Slår opp mot eksisterende `requirementDataSourceMap.ts` / `regulatoryArticles.ts` for artikkelnummer.
-- Har en enkel mapping fra artikkel-prefiks (f.eks. "Art. 28" → ["Databehandleravtale", "Underleverandøroversikt"], "Art. 32" → ["Sikkerhetspolicy", "Risikovurdering", "Testrapport"], etc.).
-- Fallback: `["Policy", "Prosedyre", "Rutinebeskrivelse"]`.
+## Endringer i eksisterende badges (requirementStatusModel)
 
-Popover-innholdet rendres som:
-```
-Hvorfor obligatorisk: <forklaring>
-Typisk dokumentasjon for Art. 28:
-· Databehandleravtale
-· Underleverandøroversikt
-```
+- "Bevis påkrevd" → "Dokumentasjon mangler" (mer handlingsrettet; brukeren skal laste opp *dokumentasjon*)
+- Beholder "Egenrapportert / Attestert / Verifisert" som **bevisnivåer** — disse beskriver graden av tillit, ikke selve filen.
+
+## Regel som formuleres i memory
+
+Legger til en `mem://style/terminology-evidence-vs-documentation` som:
+- **Dokumentasjon (documentation)** = filen/artefakten. Brukes i knapper og opplasting.
+- **Bevis (evidence)** = tillitsgrad. Brukes i badges/statusspråk (evidence tier).
+- Ikke bland: si aldri "krever bevis" om en filopplasting — si "krever dokumentasjon". Si aldri "dokumentasjonsnivå" om tillit — si "bevisnivå".
 
 ## Ikke inkludert
-- Ingen endring i `FrameworkRequirementsList.tsx` — dialogen får `requirementId` fra props (allerede tilgjengelig).
-- Ingen ny AI-kall; hint-mapping er statisk. Kan senere byttes ut med Lara-basert forslag.
-- Ingen endring i statusvalgene eller uploader-oppførselen.
+- Ingen refaktor av `evidenceStatus.ts`-nøkler eller `EvidenceState`-typer (kun labels/UI-tekst).
+- Ingen endringer i andre dialogs/komponenter i denne omgang — vi kan speile til `RequirementCard`, `VendorControlsTab` og `AddVerificationDialog` som oppfølging.
+- i18n-nøkler for de nye/endrede tekstene i denne dialogen: kun norsk oppdateres nå; engelsk/nederlandsk fortsatt kun for `verifyConfirm`-blokken (eksisterende).
+
+Vil du at jeg også skal oppdatere `RequirementCard.tsx` og `VendorControlsTab.tsx` med samme språk i samme runde?
