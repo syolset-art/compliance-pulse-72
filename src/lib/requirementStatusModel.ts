@@ -203,12 +203,37 @@ export function demoUiStateFor(id: string, seed = 0): RequirementUiState {
       return {
         progress: "verified",
         evidence: "verified",
-        attestedBy: { name: "Vilde Gjellestad", role: "Compliance", date: "8. juli 2026" },
+        verification: {
+          externalVerifier: {
+            name: "BDO Norge AS",
+            person: "Erik Solheim, Lead Auditor",
+            standard: "ISO 27001:2022",
+            date: "8. juli 2026",
+            reportRef: "BDO-2026-0472",
+          },
+          internalConfirmer: {
+            name: "Vilde Gjellestad",
+            role: "Compliance Lead",
+            date: "10. juli 2026",
+          },
+        },
         evidenceCount: { collected: 3, required: 3 },
         documents: [
           { name: "Sikkerhetspolicy_v3.pdf", kind: "PDF" },
-          { name: "ISO 27001-sertifikat 2026.pdf", kind: "PDF" },
-          { name: "Attestasjon_2026-07-08.pdf", kind: "Attestasjon" },
+          {
+            name: "ISO 27001-sertifikat 2026.pdf",
+            kind: "PDF",
+            verificationStatus: "verified",
+            verifiedBy: "BDO Norge AS",
+            verifiedAt: "8. juli 2026",
+          },
+          {
+            name: "Revisjonsrapport_BDO-2026-0472.pdf",
+            kind: "Rapport",
+            verificationStatus: "verified",
+            verifiedBy: "BDO Norge AS",
+            verifiedAt: "8. juli 2026",
+          },
         ],
       };
     case 2:
@@ -216,11 +241,30 @@ export function demoUiStateFor(id: string, seed = 0): RequirementUiState {
         progress: "verified",
         evidence: "revalidation_due",
         revalidationDaysLeft: 14,
-        attestedBy: { name: "Ola Nordmann", role: "CISO", date: "12. jan 2026" },
+        verification: {
+          externalVerifier: {
+            name: "Nemko Digital",
+            person: "Anne Berg, Sertifiseringsleder",
+            standard: "ISO 27701:2019",
+            date: "12. jan 2026",
+            reportRef: "NEMKO-2026-118",
+          },
+          internalConfirmer: {
+            name: "Ola Nordmann",
+            role: "CISO",
+            date: "15. jan 2026",
+          },
+        },
         evidenceCount: { collected: 2, required: 2 },
         documents: [
           { name: "Hendelseslogg_2025-Q4.xlsx", kind: "XLSX" },
-          { name: "Attestasjon_2026-01-12.pdf", kind: "Attestasjon" },
+          {
+            name: "Attestasjon_2026-01-12.pdf",
+            kind: "Attestasjon",
+            verificationStatus: "verified",
+            verifiedBy: "Nemko Digital",
+            verifiedAt: "12. jan 2026",
+          },
         ],
       };
     case 3:
