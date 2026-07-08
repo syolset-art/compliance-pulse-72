@@ -1,7 +1,9 @@
 import { CheckCircle2, Circle, Clock, MinusCircle, ArrowRight, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AgentCapabilityBadge } from "./AgentCapabilityBadge";
 import { cn } from "@/lib/utils";
 import type { AgentCapability, RequirementPriority } from "@/lib/complianceRequirementsData";
