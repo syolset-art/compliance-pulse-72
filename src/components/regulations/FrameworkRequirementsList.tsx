@@ -154,7 +154,9 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
             ? { progress: "verified", evidence: "verified", documents, evidenceCount: { collected: 1, required: 1 } }
             : status === "in_progress"
               ? { progress: "in_progress", evidence: "self_reported", documents }
-              : { progress: "not_answered", evidence: "required", documents };
+              : status === "not_applicable"
+                ? { progress: "not_applicable", evidence: "out_of_scope", documents }
+                : { progress: "not_answered", evidence: "required", documents };
       return { ...prev, [requirementId]: next };
     });
   };
