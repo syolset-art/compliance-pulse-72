@@ -198,6 +198,26 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </div>
       </div>
 
+      <div className="relative mb-3">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={isNb ? "Søk i krav eller beskrivelse…" : "Search requirements or description…"}
+          className="pl-9 pr-9 h-9"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted text-muted-foreground"
+            aria-label={isNb ? "Tøm søk" : "Clear search"}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
       <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)} className="mb-4">
         <TabsList className="w-full grid grid-cols-4">
           <TabsTrigger value="all">Alle</TabsTrigger>
@@ -206,6 +226,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           <TabsTrigger value="met">Oppfylt ({counts.met})</TabsTrigger>
         </TabsList>
       </Tabs>
+
+      {filtered.length === 0 && (
+        <div className="text-center py-8 text-sm text-muted-foreground">
+          {isNb ? "Ingen krav matcher søket." : "No requirements match your search."}
+        </div>
+      )}
+
 
       <div className="space-y-3">
         {filtered.map((req) => {
