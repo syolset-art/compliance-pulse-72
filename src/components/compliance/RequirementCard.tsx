@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, Clock, MinusCircle, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle2, Circle, Clock, MinusCircle, ArrowRight, Loader2, UserCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -7,6 +7,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { AgentCapabilityBadge } from "./AgentCapabilityBadge";
 import { cn } from "@/lib/utils";
 import type { AgentCapability, RequirementPriority } from "@/lib/complianceRequirementsData";
+import {
+  demoUiStateFor,
+  formatEvidenceLabel,
+  getEvidenceConfig,
+  getProgressConfig,
+  type RequirementUiState,
+} from "@/lib/requirementStatusModel";
+
 
 export type RequirementStatus = 'not_started' | 'in_progress' | 'completed' | 'not_applicable';
 
@@ -23,6 +31,15 @@ interface RequirementCardProps {
   onViewDetails?: () => void;
   compact?: boolean;
   className?: string;
+  /** Valgfri overstyring av bevis+fremdrift. Ellers utledes deterministisk fra id/status. */
+  uiState?: RequirementUiState;
+}
+
+function deriveUiState(status: RequirementStatus, id: string): RequirementUiState {
+  if (status === "completed") return demoUiStateFor(id, 1);
+  if (status === "in_progress") return demoUiStateFor(id, 5);
+  if (status === "not_applicable") return { progress: "not_applicable", evidence: "out_of_scope" };
+  return { progress: "not_answered", evidence: "required" };
 }
 
 const statusConfig: Record<RequirementStatus, {
@@ -31,6 +48,7 @@ const statusConfig: Record<RequirementStatus, {
   colorClass: string;
   bgClass: string;
 }> = {
+
   completed: {
     icon: CheckCircle2,
     label: 'Completed',
@@ -79,16 +97,24 @@ export function RequirementCard({
   onStartTask,
   onViewDetails,
   compact = false,
-  className
+  className,
+  uiState
 }: RequirementCardProps) {
   const statusInfo = statusConfig[status];
   const priorityInfo = priorityConfig[priority];
-  const StatusIcon = statusInfo.icon;
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb";
   const tooltipText = isNb
     ? "Klikk på kravet for å lese mer og utføre oppgaven"
     : "Click the requirement to read more and complete the task";
+
+  const ui = uiState ?? deriveUiState(status, requirementId);
+  const progressCfg = getProgressConfig(ui.progress);
+  const evidenceCfg = getEvidenceConfig(ui.evidence);
+  const ProgressIcon = progressCfg.icon;
+  const EvidenceIcon = evidenceCfg.icon;
+  const isMuted = ui.progress === "not_applicable" || ui.evidence === "out_of_scope";
+  const isVerified = ui.progress === "verified" && ui.evidence === "verified";
 
   if (compact) {
     return (
@@ -98,22 +124,28 @@ export function RequirementCard({
             <div
               className={cn(
                 "flex items-center justify-between py-2 px-3 rounded-lg border transition-colors cursor-pointer",
-                status === 'completed' ? 'bg-status-closed/10/50 dark:bg-emerald-950/20 border-status-closed/20 dark:border-status-closed' : 'bg-card border-border hover:bg-muted/50',
+                isVerified
+                  ? "bg-success/5 border-success/30"
+                  : "bg-card border-border hover:bg-muted/50",
+                isMuted && "opacity-60",
                 className
               )}
             >
               <div className="flex items-center gap-3 min-w-0 flex-1">
-                <StatusIcon className={cn("h-4 w-4 flex-shrink-0", statusInfo.colorClass)} />
+                <ProgressIcon className={cn("h-4 w-4 flex-shrink-0", progressCfg.iconClass)} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-mono text-muted-foreground">{requirementId}</span>
-                    <span className={cn("text-sm font-medium truncate", status === 'completed' && 'text-muted-foreground line-through')}>
+                    <span className={cn("text-sm font-medium truncate", isMuted && "line-through")}>
                       {name}
                     </span>
                   </div>
                 </div>
               </div>
-              <AgentCapabilityBadge capability={agentCapability} showLabel={false} size="sm" />
+              <Badge variant="outline" className={cn("gap-1 text-[10px] font-medium", evidenceCfg.badgeClass)}>
+                <EvidenceIcon className="h-3 w-3" />
+                {formatEvidenceLabel(ui, isNb)}
+              </Badge>
             </div>
           </TooltipTrigger>
           <TooltipContent side="top" className="max-w-xs">
@@ -131,18 +163,19 @@ export function RequirementCard({
           <div
             className={cn(
               "flex items-start justify-between p-4 rounded-lg border transition-all group cursor-pointer",
-              status === 'completed'
-                ? 'bg-status-closed/10/50 dark:bg-emerald-950/20 border-status-closed/20 dark:border-status-closed'
-                : 'bg-card border-border hover:border-primary/30 hover:shadow-sm',
+              isVerified
+                ? "bg-success/5 border-success/30"
+                : "bg-card border-border hover:border-primary/30 hover:shadow-sm",
+              isMuted && "opacity-60",
               className
             )}
           >
             <div className="flex items-start gap-3 min-w-0 flex-1">
               <div className={cn("p-1.5 rounded-md mt-0.5", statusInfo.bgClass)}>
                 {isAiHandling ? (
-                  <Loader2 className={cn("h-4 w-4 animate-spin", statusInfo.colorClass)} />
+                  <Loader2 className={cn("h-4 w-4 animate-spin", progressCfg.iconClass)} />
                 ) : (
-                  <StatusIcon className={cn("h-4 w-4", statusInfo.colorClass)} />
+                  <ProgressIcon className={cn("h-4 w-4", progressCfg.iconClass)} />
                 )}
               </div>
 
@@ -151,19 +184,21 @@ export function RequirementCard({
                   <span className="text-xs font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                     {requirementId}
                   </span>
-                  <span className={cn(
-                    "font-medium text-sm",
-                    status === 'completed' && 'text-muted-foreground'
-                  )}>
+                  <span className={cn("font-medium text-sm", isMuted && "text-muted-foreground")}>
                     {name}
                   </span>
                 </div>
 
-                {description && status !== 'completed' && (
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {description}
+                {ui.attestedBy ? (
+                  <p className="text-xs text-success flex items-center gap-1.5">
+                    <UserCheck className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">
+                      {isNb ? "Attestert av" : "Attested by"} {ui.attestedBy.name} ({ui.attestedBy.role}) · {ui.attestedBy.date}
+                    </span>
                   </p>
-                )}
+                ) : description && !isVerified ? (
+                  <p className="text-xs text-muted-foreground line-clamp-2">{description}</p>
+                ) : null}
 
                 {status === 'in_progress' && progressPercent > 0 && (
                   <div className="flex items-center gap-2 pt-1">
@@ -182,15 +217,33 @@ export function RequirementCard({
             </div>
 
             <div className="flex items-center gap-2 flex-shrink-0 ml-3">
-              {priority !== 'low' && status !== 'completed' && (
+              {priority !== 'low' && !isVerified && (
                 <Badge variant={priorityInfo.variant} className="text-xs">
                   {priorityInfo.label}
                 </Badge>
               )}
 
+              {/* Bevis-badge */}
+              <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", evidenceCfg.badgeClass)}>
+                <EvidenceIcon className="h-3 w-3" />
+                {formatEvidenceLabel(ui, isNb)}
+              </Badge>
+
+              {/* Bevis-teller */}
+              {ui.evidenceCount && (
+                <Badge variant="outline" className="text-xs font-mono tabular-nums text-muted-foreground">
+                  {ui.evidenceCount.collected}/{ui.evidenceCount.required}
+                </Badge>
+              )}
+
+              {/* Fremdrifts-badge */}
+              <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}>
+                {isNb ? progressCfg.labelNb : progressCfg.labelEn}
+              </Badge>
+
               <AgentCapabilityBadge capability={agentCapability} size="sm" />
 
-              {status === 'not_started' && onStartTask && (
+              {ui.progress === 'not_answered' && onStartTask && (
                 <Button
                   variant="ghost"
                   size="sm"
@@ -210,3 +263,4 @@ export function RequirementCard({
     </TooltipProvider>
   );
 }
+
