@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, AlertTriangle, Shield, ChevronDown, ChevronUp, FileText } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface VendorControlsTabProps {
   assetId: string;
