@@ -93,6 +93,7 @@ export function ManualDocumentationDialog({
   onSave,
 }: ManualDocumentationDialogProps) {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [status, setStatus] = useState("");
   const [comment, setComment] = useState("");
   const [file, setFile] = useState<File | null>(null);
