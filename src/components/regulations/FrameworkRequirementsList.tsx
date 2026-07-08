@@ -354,7 +354,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {state.progress !== "verified" && state.progress !== "not_applicable" && (() => {
                       // Finn et dokument fra et annet krav som Lara kan gjenbruke.
                       // Demo: bruk første dokument fra et annet krav som har dokumenter.
-                      const currentHasDocs = (state.documents?.length ?? 0) > 0;
+                      
                       let crossRef: undefined | {
                         name: string;
                         sourceRequirementName: string;
@@ -362,11 +362,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         uploadedAt: string;
                         onAccept: () => void;
                       };
-                      if (!currentHasDocs && bucketOf(state.progress) !== "met") {
+                      if (bucketOf(state.progress) !== "met") {
+                        const currentDocNames = new Set((state.documents ?? []).map((d) => d.name));
                         for (const other of requirements) {
                           if (other.requirement_id === req.requirement_id) continue;
                           const otherState = uiStates[other.requirement_id];
-                          const doc = otherState?.documents?.[0];
+                          const doc = otherState?.documents?.find((d) => !currentDocNames.has(d.name));
                           if (doc) {
                             const uploader = otherState?.verification?.internalConfirmer?.name
                               ?? otherState?.attestedBy?.name
