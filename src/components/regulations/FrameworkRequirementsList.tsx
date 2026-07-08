@@ -165,6 +165,67 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     });
   };
 
+  const handleStatusChange = (requirementId: string, next: ProgressStatus) => {
+    setUiStates((prev) => {
+      const cur = prev[requirementId] ?? { progress: "not_answered", evidence: "required" };
+      const documents = cur.documents ?? [];
+      let updated: RequirementUiState;
+      if (next === "verified") {
+        updated = {
+          ...cur,
+          progress: "verified",
+          evidence: "verified",
+          documents,
+          evidenceCount: { collected: Math.max(1, documents.length), required: Math.max(1, documents.length) },
+        };
+      } else if (next === "implemented") {
+        const { verification, ...rest } = cur;
+        updated = {
+          ...rest,
+          progress: "implemented",
+          evidence: "self_reported",
+          documents,
+        };
+      } else if (next === "in_progress") {
+        const { verification, ...rest } = cur;
+        updated = { ...rest, progress: "in_progress", evidence: "self_reported", documents };
+      } else if (next === "not_applicable") {
+        const { verification, ...rest } = cur;
+        updated = { ...rest, progress: "not_applicable", evidence: "out_of_scope", documents };
+      } else {
+        const { verification, ...rest } = cur;
+        updated = { ...rest, progress: "not_answered", evidence: "required", documents };
+      }
+      return { ...prev, [requirementId]: updated };
+    });
+  };
+
+  const confirmVerification = (requirementId: string) => {
+    const name = verifyName.trim();
+    const date = verifyDate.trim() || new Date().toLocaleDateString(isNb ? "nb-NO" : "en-GB", { year: "numeric", month: "long", day: "numeric" });
+    if (!name) return;
+    setUiStates((prev) => {
+      const cur = prev[requirementId] ?? { progress: "not_answered", evidence: "required" };
+      const documents = cur.documents ?? [];
+      const updated: RequirementUiState = {
+        ...cur,
+        progress: "verified",
+        evidence: "verified",
+        documents,
+        evidenceCount: { collected: Math.max(1, documents.length), required: Math.max(1, documents.length) },
+        verification: {
+          externalVerifier: { name, date },
+          internalConfirmer: { name: "Vilde Gjellestad", role: isNb ? "Leverandøransvarlig" : "Vendor Manager", date },
+        },
+      };
+      return { ...prev, [requirementId]: updated };
+    });
+    setVerifyingId(null);
+    setVerifyName("");
+    setVerifyDate("");
+    toast.success(isNb ? "Markert som verifisert" : "Marked as verified");
+  };
+
 
   if (requirements.length === 0) {
     return (
