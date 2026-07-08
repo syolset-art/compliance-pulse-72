@@ -226,7 +226,7 @@ export function ManualDocumentationDialog({
                 <SelectItem value="not_started">Ikke påbegynt</SelectItem>
                 <SelectItem value="in_progress">Pågår</SelectItem>
                 <SelectItem value="implemented">Implementert</SelectItem>
-                <SelectItem value="verified" disabled>
+                <SelectItem value="verified">
                   <div className="flex flex-col">
                     <span>Verifisert</span>
                     <span className="text-[11px] text-muted-foreground">
@@ -241,6 +241,14 @@ export function ManualDocumentationDialog({
                 <Sparkles className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
                 <span>
                   Neste steg: last opp dokumentasjon. Du kan senere be om uavhengig verifisering fra dokumentkortet.
+                </span>
+              </div>
+            )}
+            {status === "verified" && (
+              <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/5 p-2.5 text-xs text-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 mt-0.5 text-success shrink-0" />
+                <span>
+                  Last opp det signerte dokumentet fra uavhengig organ (revisor, sertifiseringsorgan e.l.) og bekreft under.
                 </span>
               </div>
             )}
