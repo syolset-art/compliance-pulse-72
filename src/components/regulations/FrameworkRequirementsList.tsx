@@ -272,16 +272,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   )}>
                     {req.name_no}
                   </h4>
-                  {state.attestedBy ? (
-                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
-                      <UserCheck className="h-3.5 w-3.5 shrink-0 text-success" />
-                      <span className="truncate">
-                        {isNb ? "Attestert av" : "Attested by"} {state.attestedBy.name} ({state.attestedBy.role}) · {state.attestedBy.date}
-                      </span>
-                    </p>
-                  ) : (
-                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
-                  )}
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 mt-1">
                   {/* Subtil dokumentasjonsindikator — kun for besvarte krav */}
