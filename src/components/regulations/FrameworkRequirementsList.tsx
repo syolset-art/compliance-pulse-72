@@ -159,19 +159,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     });
   };
 
-  const handleRequestVerification = (requirementId: string, docName: string) => {
-    setUiStates((prev) => {
-      const cur = prev[requirementId];
-      if (!cur?.documents) return prev;
-      const documents = cur.documents.map((d) =>
-        d.name === docName ? { ...d, verificationStatus: "pending_verification" as const } : d,
-      );
-      return { ...prev, [requirementId]: { ...cur, documents } };
-    });
-    toast.info("Uavhengig verifisering kommer snart", {
-      description: "Vi varsler deg når tjenesten er tilgjengelig.",
-    });
-  };
 
   if (requirements.length === 0) {
     return (
