@@ -78,6 +78,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [draftNote, setDraftNote] = useState<string>("");
+  const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Handle highlight from chart event click
@@ -178,55 +179,54 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               ref={(el) => { reqRefs.current[req.requirement_id] = el; }}
               className={`rounded-lg border bg-card transition-all ${highlightRequirementId === req.requirement_id ? "ring-2 ring-primary/50" : ""}`}
             >
-              <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setExpandedId(isExpanded ? null : req.requirement_id)}
-                      aria-expanded={isExpanded}
-                      className="w-full p-4 flex items-start gap-3 text-left hover:bg-muted/30 transition-colors"
-                    >
-                      <div className="mt-1 shrink-0">
-                        {state.status === "met" ? (
-                          <CheckCircle2 className="h-5 w-5 text-status-closed" />
-                        ) : state.status === "partial" ? (
-                          <CircleAlert className="h-5 w-5 text-warning" />
-                        ) : (
-                          <Circle className="h-5 w-5 text-destructive/60" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-base font-semibold text-foreground leading-snug">
-                          {req.name_no}
-                        </h4>
-                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0 mt-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Badge variant="outline" className="gap-1.5 text-xs font-medium cursor-help">
-                              <CapIcon className="h-3 w-3" />
-                              {cap.label}
-                            </Badge>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="max-w-[240px]">
-                            <p className="text-xs">{cap.tooltip}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                        <span className={`text-sm font-semibold tabular-nums ${
-                          state.progress === 100 ? "text-status-closed" : state.progress > 0 ? "text-warning" : "text-muted-foreground"
-                        }`}>
-                          {state.progress}%
-                        </span>
-                        {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-                      </div>
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs">
-                    <p className="text-xs">Klikk på kravet for å lese mer og utføre oppgaven</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <button
+                onClick={() => { setExpandedId(isExpanded ? null : req.requirement_id); setCursorTip(null); }}
+                onMouseMove={(e) => setCursorTip({ x: e.clientX, y: e.clientY })}
+                onMouseLeave={() => setCursorTip(null)}
+                aria-expanded={isExpanded}
+                className="w-full p-4 flex items-start gap-3 text-left hover:bg-muted/30 transition-colors"
+              >
+                <div className="mt-1 shrink-0">
+                  {state.status === "met" ? (
+                    <CheckCircle2 className="h-5 w-5 text-status-closed" />
+                  ) : state.status === "partial" ? (
+                    <CircleAlert className="h-5 w-5 text-warning" />
+                  ) : (
+                    <Circle className="h-5 w-5 text-destructive/60" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-base font-semibold text-foreground leading-snug">
+                    {req.name_no}
+                  </h4>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0 mt-1">
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant="outline"
+                          className="gap-1.5 text-xs font-medium cursor-help"
+                          onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                        >
+                          <CapIcon className="h-3 w-3" />
+                          {cap.label}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[240px]">
+                        <p className="text-xs">{cap.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <span className={`text-sm font-semibold tabular-nums ${
+                    state.progress === 100 ? "text-status-closed" : state.progress > 0 ? "text-warning" : "text-muted-foreground"
+                  }`}>
+                    {state.progress}%
+                  </span>
+                  {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                </div>
+              </button>
 
               {isExpanded && (
                 <div className="px-4 pb-4">
@@ -342,6 +342,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           requirementName={docDialog.name}
           onSave={(status) => handleDocSave(docDialog.id, status)}
         />
+      )}
+
+      {cursorTip && (
+        <div
+          className="pointer-events-none fixed z-50 rounded-md bg-popover text-popover-foreground border shadow-md px-2.5 py-1.5 text-xs max-w-xs"
+          style={{ left: cursorTip.x + 14, top: cursorTip.y + 16 }}
+        >
+          Klikk på kravet for å lese mer og utføre oppgaven
+        </div>
       )}
     </div>
   );
