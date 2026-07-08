@@ -579,7 +579,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       );
                     })()}
 
-                    {bucketOf(state.progress) === "partial" && (
+                    {state.progress === "in_progress" && (
                       <div className="space-y-2">
                         {reqNotes[req.requirement_id] && editingNoteId !== req.requirement_id ? (
                           <div className="p-3 rounded-lg bg-muted/50 border">
