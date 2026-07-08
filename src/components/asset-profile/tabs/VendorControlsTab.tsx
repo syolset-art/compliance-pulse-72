@@ -100,33 +100,59 @@ export const VendorControlsTab = ({ assetId }: VendorControlsTabProps) => {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="pt-0 px-0 pb-0">
-                {controls.map((c: any) => (
-                  <TooltipProvider key={c.key} delayDuration={300}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="flex items-center justify-between px-4 py-2.5 border-t cursor-pointer hover:bg-muted/30 transition-colors">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <StatusIcon status={c.status} />
-                            <span className="text-sm">{isNb ? c.labelNb : c.labelEn}</span>
+                {controls.map((c: any) => {
+                  const ui = uiFor(c);
+                  const progressCfg = getProgressConfig(ui.progress);
+                  const evidenceCfg = getEvidenceConfig(ui.evidence);
+                  const ProgressIcon = progressCfg.icon;
+                  const EvidenceIcon = evidenceCfg.icon;
+                  const isMuted = ui.progress === "not_applicable" || ui.evidence === "out_of_scope";
+                  return (
+                    <TooltipProvider key={c.key} delayDuration={300}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className={cn(
+                            "flex items-center justify-between px-4 py-2.5 border-t cursor-pointer hover:bg-muted/30 transition-colors",
+                            isMuted && "opacity-60",
+                          )}>
+                            <div className="flex flex-col min-w-0 gap-0.5">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <ProgressIcon className={cn("h-4 w-4 shrink-0", progressCfg.iconClass)} />
+                                <span className="text-sm truncate">{isNb ? c.labelNb : c.labelEn}</span>
+                              </div>
+                              {ui.attestedBy && (
+                                <span className="text-xs text-success flex items-center gap-1 pl-6">
+                                  <UserCheck className="h-3 w-3" />
+                                  {isNb ? "Attestert av" : "Attested by"} {ui.attestedBy.name} ({ui.attestedBy.role}) · {ui.attestedBy.date}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <Badge variant="outline" className={cn("gap-1 text-xs font-medium", evidenceCfg.badgeClass)}>
+                                <EvidenceIcon className="h-3 w-3" />
+                                {formatEvidenceLabel(ui, isNb)}
+                              </Badge>
+                              {ui.evidenceCount && (
+                                <Badge variant="outline" className="text-xs font-mono tabular-nums text-muted-foreground">
+                                  {ui.evidenceCount.collected}/{ui.evidenceCount.required}
+                                </Badge>
+                              )}
+                              <Badge variant="outline" className={cn("gap-1 text-xs font-medium", progressCfg.badgeClass)}>
+                                {isNb ? progressCfg.labelNb : progressCfg.labelEn}
+                              </Badge>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <Badge variant={c.status === "implemented" ? "default" : c.status === "partial" ? "secondary" : "destructive"} className="text-[13px] px-1.5">
-                              {c.status === "implemented" ? "OK" : c.status === "partial" ? (isNb ? "Delvis" : "Partial") : (isNb ? "Mangler" : "Missing")}
-                            </Badge>
-                            {c.verificationSource && (
-                              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                            )}
-                          </div>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-xs">
-                        <p className="text-xs">
-                          {isNb ? "Klikk på kravet for å lese mer og utføre oppgaven" : "Click the requirement to read more and complete the task"}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ))}
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <p className="text-xs">
+                            {isNb ? "Klikk på kravet for å lese mer og utføre oppgaven" : "Click the requirement to read more and complete the task"}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  );
+                })}
+
               </CardContent>
             </CollapsibleContent>
           </Card>
