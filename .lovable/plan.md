@@ -36,7 +36,7 @@ Design:
 
 ### 3. Dokumentliste
 
-For dokumenter med `verificationStatus === "verified"`: vis `verifiedBy` og `verifiedAt` som en liten linje under filnavnet (f.eks. "Verifisert av BDO Norge AS · 8. juli 2026"), i tillegg til den eksisterende badgen. Ingen endring for egenrapporterte dokumenter.
+Fjern den gamle "Attestert · [dato]"-linjen i topplinjen av dokumentkortet. For dokumenter med `verificationStatus === "verified"`: vis `verifiedBy` og `verifiedAt` som en liten linje under filnavnet (f.eks. "Verifisert av BDO Norge AS · 8. juli 2026"), i tillegg til den eksisterende badgen. Ingen endring for egenrapporterte dokumenter.
 
 ## Ikke i scope
 
