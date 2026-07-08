@@ -318,7 +318,19 @@ export function ManualDocumentationDialog({
             <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="F.eks. 'Vi har databehandleravtale med alle underleverandører, gjennomgått årlig av DPO.'"
+              placeholder={
+                status === "not_started"
+                  ? "F.eks. 'Vi har ikke startet, men planlegger å adressere dette i Q3.'"
+                  : status === "in_progress"
+                    ? "F.eks. 'Utkast til rutine er skrevet, avventer godkjenning fra ledelsen.'"
+                    : status === "implemented"
+                      ? "F.eks. 'Vi har databehandleravtale med alle underleverandører, gjennomgått årlig av DPO.'"
+                      : status === "verified"
+                        ? "F.eks. 'Rutinen er revidert av BDO i juni 2026, med signert attestasjon vedlagt.'"
+                        : status === "not_applicable"
+                          ? "F.eks. 'Vi behandler ikke personopplysninger om barn, derfor gjelder ikke dette kravet.'"
+                          : "Velg status for å se et eksempel…"
+              }
               className="min-h-[80px]"
             />
           </div>
