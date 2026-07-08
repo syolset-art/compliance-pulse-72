@@ -38,6 +38,15 @@ export interface AttestationInfo {
 export interface EvidenceDocument {
   name: string;
   kind: string; // e.g. "PDF", "DOCX", "URL", "Attestasjon"
+  classification?: {
+    docType: string;
+    articles: string[];
+    confidence: number;
+    summary?: string;
+  };
+  verificationStatus?: "self_reported" | "pending_verification" | "verified";
+  verifiedBy?: string;
+  verifiedAt?: string;
 }
 
 export interface RequirementUiState {

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download } from "lucide-react";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles } from "lucide-react";
 
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
@@ -22,6 +22,7 @@ import {
   getProgressConfig,
   type RequirementUiState,
   type ProgressStatus,
+  type EvidenceDocument,
 } from "@/lib/requirementStatusModel";
 import { cn } from "@/lib/utils";
 
@@ -124,15 +125,40 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     return requirements.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === filter);
   }, [filter, requirements, uiStates]);
 
-  const handleDocSave = (requirementId: string, status: string) => {
+  const handleDocSave = (requirementId: string, status: string, _comment: string, doc?: EvidenceDocument) => {
     setUiStates((prev) => {
+      const existingDocs = prev[requirementId]?.documents ?? [];
+      const documents = doc ? [doc, ...existingDocs] : existingDocs;
       const next: RequirementUiState =
-        status === "fulfilled"
-          ? { progress: "verified", evidence: "verified", evidenceCount: { collected: 1, required: 1 } }
-          : status === "partial"
-            ? { progress: "in_progress", evidence: "self_reported" }
-            : { progress: "not_answered", evidence: "required" };
+        status === "implemented"
+          ? {
+              progress: "implemented",
+              evidence: "self_reported",
+              documents,
+              evidenceCount: { collected: documents.length, required: Math.max(1, documents.length) },
+            }
+          : status === "fulfilled"
+            ? { progress: "verified", evidence: "verified", documents, evidenceCount: { collected: 1, required: 1 } }
+            : status === "partial"
+              ? { progress: "in_progress", evidence: "self_reported", documents }
+              : status === "not_applicable"
+                ? { progress: "not_applicable", evidence: "out_of_scope", documents }
+                : { progress: "not_answered", evidence: "required", documents };
       return { ...prev, [requirementId]: next };
+    });
+  };
+
+  const handleRequestVerification = (requirementId: string, docName: string) => {
+    setUiStates((prev) => {
+      const cur = prev[requirementId];
+      if (!cur?.documents) return prev;
+      const documents = cur.documents.map((d) =>
+        d.name === docName ? { ...d, verificationStatus: "pending_verification" as const } : d,
+      );
+      return { ...prev, [requirementId]: { ...cur, documents } };
+    });
+    toast.info("Uavhengig verifisering kommer snart", {
+      description: "Vi varsler deg når tjenesten er tilgjengelig.",
     });
   };
 
@@ -395,18 +421,102 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           )}
                         </div>
                         <ul className="divide-y">
-                          {state.documents.map((d) => (
-                            <li key={d.name} className="flex items-center justify-between px-3 py-2 text-sm hover:bg-muted/30 transition-colors">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-                                <span className="truncate">{d.name}</span>
-                                <span className="text-[10px] uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">{d.kind}</span>
-                              </div>
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 shrink-0" onClick={(e) => { e.stopPropagation(); toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name }); }}>
-                                <Download className="h-3.5 w-3.5" />
-                              </Button>
-                            </li>
-                          ))}
+                          {state.documents.map((d) => {
+                            const vStatus = d.verificationStatus ?? "self_reported";
+                            const vLabel =
+                              vStatus === "verified"
+                                ? (isNb ? "Verifisert" : "Verified")
+                                : vStatus === "pending_verification"
+                                  ? (isNb ? "Til verifisering" : "Pending verification")
+                                  : (isNb ? "Egenrapportert" : "Self-reported");
+                            const vClass =
+                              vStatus === "verified"
+                                ? "text-success border-success/40"
+                                : vStatus === "pending_verification"
+                                  ? "text-warning border-warning/40"
+                                  : "text-muted-foreground border-border";
+                            const canDownload = vStatus === "verified";
+                            return (
+                              <li key={d.name} className="px-3 py-2.5 text-sm space-y-2 hover:bg-muted/30 transition-colors">
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                                    <span className="truncate font-medium">{d.name}</span>
+                                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">{d.kind}</span>
+                                  </div>
+                                  <Badge variant="outline" className={cn("gap-1 text-[10px] font-medium shrink-0", vClass)}>
+                                    {vStatus === "verified" && <ShieldCheck className="h-3 w-3" />}
+                                    {vLabel}
+                                  </Badge>
+                                </div>
+
+                                {d.classification && (
+                                  <div className="flex items-start gap-1.5 text-xs text-muted-foreground pl-6">
+                                    <Sparkles className="h-3 w-3 mt-0.5 text-primary shrink-0" />
+                                    <span className="min-w-0">
+                                      <span className="font-medium text-foreground">{d.classification.docType}</span>
+                                      {d.classification.articles.length > 0 && (
+                                        <> · {isNb ? "dekker" : "covers"} {d.classification.articles.join(", ")}</>
+                                      )}
+                                      {d.classification.confidence > 0 && (
+                                        <> · {Math.round(d.classification.confidence * 100)}% {isNb ? "sikker" : "confident"}</>
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
+
+                                <div className="flex items-center justify-end gap-2 pl-6">
+                                  <TooltipProvider delayDuration={200}>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <span>
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="h-7 gap-1.5 text-xs"
+                                            disabled={!canDownload}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
+                                            }}
+                                          >
+                                            <Download className="h-3 w-3" />
+                                            {isNb ? "Last ned" : "Download"}
+                                          </Button>
+                                        </span>
+                                      </TooltipTrigger>
+                                      {!canDownload && (
+                                        <TooltipContent side="top" className="max-w-[240px]">
+                                          <p className="text-xs">{isNb ? "Tilgjengelig etter uavhengig verifisering" : "Available after independent verification"}</p>
+                                        </TooltipContent>
+                                      )}
+                                    </Tooltip>
+                                  </TooltipProvider>
+
+                                  {vStatus !== "verified" && (
+                                    <Button
+                                      variant={vStatus === "pending_verification" ? "outline" : "default"}
+                                      size="sm"
+                                      className="h-7 gap-1.5 text-xs"
+                                      disabled={vStatus === "pending_verification"}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRequestVerification(req.requirement_id, d.name);
+                                      }}
+                                    >
+                                      <ShieldCheck className="h-3 w-3" />
+                                      {vStatus === "pending_verification"
+                                        ? (isNb ? "Venter på verifisering" : "Awaiting verification")
+                                        : (isNb ? "Be om verifisering" : "Request verification")}
+                                      <Badge variant="secondary" className="ml-1 h-4 px-1 text-[9px] font-semibold">
+                                        {isNb ? "Kommer" : "Soon"}
+                                      </Badge>
+                                    </Button>
+                                  )}
+                                </div>
+                              </li>
+                            );
+                          })}
                         </ul>
                       </div>
                     )}
@@ -435,7 +545,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           onOpenChange={(open) => { if (!open) setDocDialog(null); }}
           requirementId={docDialog.id}
           requirementName={docDialog.name}
-          onSave={(status) => handleDocSave(docDialog.id, status)}
+          onSave={(status, comment, doc) => handleDocSave(docDialog.id, status, comment, doc)}
         />
       )}
 
