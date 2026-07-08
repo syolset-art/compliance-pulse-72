@@ -491,6 +491,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                   </Badge>
                                 </div>
 
+                                {isVerifiedDoc && d.verifiedBy && (
+                                  <div className="text-[11px] text-muted-foreground pl-6">
+                                    {isNb ? "Verifisert av" : "Verified by"} {d.verifiedBy}
+                                    {d.verifiedAt && <> · {d.verifiedAt}</>}
+                                  </div>
+                                )}
+
+
                                 {d.classification && (
                                   <div className="flex items-start gap-1.5 text-xs text-muted-foreground pl-6">
                                     <Sparkles className="h-3 w-3 mt-0.5 text-primary shrink-0" />
