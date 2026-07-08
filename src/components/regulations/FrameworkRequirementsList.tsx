@@ -182,6 +182,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const EvidenceIcon = evidenceCfg.icon;
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
           const isVerified = state.progress === "verified" && state.evidence === "verified";
+          const progressLabel = isNb ? progressCfg.labelNb : progressCfg.labelEn;
+          const evidenceLabel = formatEvidenceLabel(state, isNb);
+          const sameLabel = progressLabel === evidenceLabel;
+          // Ved dedup: bruk evidence-cfg som primær (bevis-tilstanden er mer informativ)
+          const primaryCfg = evidenceCfg;
+          const PrimaryIcon = primaryCfg.icon;
+          const primaryLabel = evidenceLabel;
+
 
           return (
             <div
