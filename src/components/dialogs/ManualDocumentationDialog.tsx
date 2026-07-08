@@ -239,9 +239,20 @@ export function ManualDocumentationDialog({
         <div className="space-y-5 pt-2">
           {/* Status */}
           <div className="space-y-2">
-            <Label className="font-semibold">
-              Status <span className="text-destructive">*</span>
-            </Label>
+            <div className="flex items-center gap-1.5">
+              <Label className="font-semibold">
+                Status <span className="text-destructive">*</span>
+              </Label>
+              <FieldHelp>
+                <p className="font-medium mb-1">Statusskala</p>
+                <ul className="space-y-1 text-muted-foreground">
+                  <li><span className="text-foreground">Ikke påbegynt</span> — kravet er ikke adressert.</li>
+                  <li><span className="text-foreground">Pågår</span> — arbeid pågår, ikke ferdig.</li>
+                  <li><span className="text-foreground">Implementert</span> — innført, krever egenrapportert dokumentasjon.</li>
+                  <li><span className="text-foreground">Verifisert</span> — krever signert dokument fra uavhengig organ (revisor, sertifiseringsorgan).</li>
+                </ul>
+              </FieldHelp>
+            </div>
             <p className="text-xs text-muted-foreground">Hvordan oppfyller dere dette kravet?</p>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger>
@@ -261,14 +272,6 @@ export function ManualDocumentationDialog({
                 </SelectItem>
               </SelectContent>
             </Select>
-            {status === "implemented" && (
-              <div className="flex items-start gap-2 rounded-md border border-primary/20 bg-primary/5 p-2.5 text-xs text-foreground">
-                <Sparkles className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
-                <span>
-                  Neste steg: last opp dokumentasjon. Du kan senere be om uavhengig verifisering fra dokumentkortet.
-                </span>
-              </div>
-            )}
             {status === "verified" && (
               <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/5 p-2.5 text-xs text-foreground">
                 <ShieldCheck className="h-3.5 w-3.5 mt-0.5 text-success shrink-0" />
@@ -281,22 +284,48 @@ export function ManualDocumentationDialog({
 
           {/* Comment */}
           <div className="space-y-2">
-            <Label className="font-semibold">Kommentar</Label>
+            <div className="flex items-center gap-1.5">
+              <Label className="font-semibold">Kommentar</Label>
+              <FieldHelp>
+                <p className="font-medium mb-1">Hva skal du skrive?</p>
+                <p className="text-muted-foreground">
+                  Beskriv kort hvordan dere oppfyller kravet i praksis — hvilke rutiner, systemer eller ansvarlige dere har på plass.
+                  Dette hjelper Lara å vurdere modenhet og gir revisor kontekst.
+                </p>
+              </FieldHelp>
+            </div>
             <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Beskriv hvordan kravet oppfylles i praksis..."
+              placeholder="F.eks. 'Vi har databehandleravtale med alle underleverandører, gjennomgått årlig av DPO.'"
               className="min-h-[80px]"
             />
           </div>
 
           {/* Uploader — for Implementert og Verifisert */}
-          {(status === "implemented" || status === "verified") && (
+          {(status === "implemented" || status === "verified") && (() => {
+            const hint = getTypicalDocumentation(requirementId);
+            return (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="font-semibold">
-                  {status === "verified" ? "Last opp signert dokument" : "Last opp dokumentasjon"} <span className="text-destructive">*</span>
-                </Label>
+                <div className="flex items-center gap-1.5">
+                  <Label className="font-semibold">
+                    {status === "verified" ? "Last opp signert dokument" : "Last opp dokumentasjon"} <span className="text-destructive">*</span>
+                  </Label>
+                  <FieldHelp>
+                    <p className="font-medium mb-1">Hvorfor er dokumentasjon påkrevd?</p>
+                    <p className="text-muted-foreground mb-2">
+                      Status <span className="text-foreground">{status === "verified" ? "Verifisert" : "Implementert"}</span> krever at kravet kan dokumenteres.
+                      Uten dokumentasjon regnes kravet som egenrapportert og gir lav bevisverdi mot revisor og kunder.
+                    </p>
+                    <p className="font-medium mb-1">Typisk dokumentasjon for {hint.articleLabel}:</p>
+                    <ul className="space-y-0.5 text-muted-foreground">
+                      {hint.typicalDocs.map((d) => (
+                        <li key={d}>· {d}</li>
+                      ))}
+                    </ul>
+                  </FieldHelp>
+                </div>
                 <Badge variant="outline" className="gap-1 text-[10px]">
                   <Sparkles className="h-3 w-3 text-primary" />
                   Lara klassifiserer
