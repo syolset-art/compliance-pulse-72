@@ -424,21 +424,24 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                               </Button>
                             </div>
                           </div>
-                        ) : (
+                        ) : editingNoteId === req.requirement_id ? (
                           <div className="space-y-2">
                             <Textarea
                               value={draftNote}
                               onChange={(e) => setDraftNote(e.target.value)}
-                              placeholder="Legg til notat om hva som gjenstår..."
-                              className="min-h-[80px] text-sm"
-                              onFocus={() => {
-                                if (editingNoteId !== req.requirement_id) {
-                                  setEditingNoteId(req.requirement_id);
-                                  setDraftNote(reqNotes[req.requirement_id] || "");
-                                }
-                              }}
+                              placeholder="F.eks. 'Mangler signatur fra CISO — planlagt uke 42.'"
+                              className="min-h-[60px] text-sm"
+                              autoFocus
                             />
-                            <div className="flex justify-end">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 text-xs"
+                                onClick={() => { setEditingNoteId(null); setDraftNote(""); }}
+                              >
+                                Avbryt
+                              </Button>
                               <Button
                                 size="sm"
                                 className="h-8 gap-1.5 text-xs"
@@ -455,6 +458,16 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                               </Button>
                             </div>
                           </div>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2"
+                            onClick={() => { setEditingNoteId(req.requirement_id); setDraftNote(""); }}
+                          >
+                            <MessageSquare className="h-3.5 w-3.5" />
+                            Legg til kommentar om hva som gjenstår
+                          </Button>
                         )}
                       </div>
                     )}
