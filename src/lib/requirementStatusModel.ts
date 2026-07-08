@@ -178,69 +178,69 @@ export function demoUiStateFor(id: string, seed = 0): RequirementUiState {
       return {
         progress: "verified",
         evidence: "verified",
-        attestedBy: {
-          name: "Vilde Gjellestad",
-          role: "Compliance",
-          date: "8. juli 2026",
-        },
-        evidenceCount: { collected: 18, required: 18 },
+        attestedBy: { name: "Vilde Gjellestad", role: "Compliance", date: "8. juli 2026" },
+        evidenceCount: { collected: 3, required: 3 },
+        documents: [
+          { name: "Sikkerhetspolicy_v3.pdf", kind: "PDF" },
+          { name: "ISO 27001-sertifikat 2026.pdf", kind: "PDF" },
+          { name: "Attestasjon_2026-07-08.pdf", kind: "Attestasjon" },
+        ],
       };
     case 2:
       return {
         progress: "verified",
         evidence: "revalidation_due",
         revalidationDaysLeft: 14,
-        attestedBy: {
-          name: "Ola Nordmann",
-          role: "CISO",
-          date: "12. jan 2026",
-        },
-        evidenceCount: { collected: 6, required: 6 },
+        attestedBy: { name: "Ola Nordmann", role: "CISO", date: "12. jan 2026" },
+        evidenceCount: { collected: 2, required: 2 },
+        documents: [
+          { name: "Hendelseslogg_2025-Q4.xlsx", kind: "XLSX" },
+          { name: "Attestasjon_2026-01-12.pdf", kind: "Attestasjon" },
+        ],
       };
     case 3:
     case 4:
       return {
         progress: "implemented",
         evidence: "attested",
-        attestedBy: {
-          name: "Kari Hansen",
-          role: "DPO",
-          date: "3. juni 2026",
-        },
-        evidenceCount: { collected: 4, required: 5 },
+        attestedBy: { name: "Kari Hansen", role: "DPO", date: "3. juni 2026" },
+        evidenceCount: { collected: 2, required: 3 },
+        documents: [
+          { name: "Databehandleravtale.pdf", kind: "PDF" },
+          { name: "Attestasjon_2026-06-03.pdf", kind: "Attestasjon" },
+        ],
       };
     case 5:
       return {
         progress: "implemented",
         evidence: "self_reported",
-        evidenceCount: { collected: 2, required: 4 },
+        evidenceCount: { collected: 1, required: 3 },
+        documents: [
+          { name: "Intern_beskrivelse.docx", kind: "DOCX" },
+        ],
       };
     case 6:
     case 7:
       return {
         progress: "in_progress",
         evidence: "required",
-        evidenceCount: { collected: 1, required: 4 },
+        evidenceCount: { collected: 0, required: 3 },
       };
     case 8:
     case 9:
-      return {
-        progress: "not_answered",
-        evidence: "required",
-      };
+      return { progress: "not_answered", evidence: "required" };
     case 10:
-      return {
-        progress: "not_applicable",
-        evidence: "out_of_scope",
-      };
+      return { progress: "not_applicable", evidence: "out_of_scope" };
     default:
       return {
         progress: "in_progress",
         evidence: "self_reported",
-        evidenceCount: { collected: 3, required: 6 },
+        evidenceCount: { collected: 1, required: 4 },
+        documents: [{ name: "Utkast_kontroller.docx", kind: "DOCX" }],
       };
   }
 }
+
 
 /** Map en legacy "met/partial/not_met"-status til ny UI-modell. */
 export function uiStateFromLegacyStatus(
