@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import * as SelectPrimitive from "@radix-ui/react-select";
+import { Check } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -264,22 +266,38 @@ export function ManualDocumentationDialog({
                 <SelectItem value="not_started">Ikke påbegynt</SelectItem>
                 <SelectItem value="in_progress">Pågår</SelectItem>
                 <SelectItem value="implemented">Implementert</SelectItem>
-                <SelectItem value="verified">
+                <SelectPrimitive.Item
+                  value="verified"
+                  className="relative flex w-full cursor-default select-none items-start rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground"
+                >
+                  <span className="absolute left-2 top-2 flex h-3.5 w-3.5 items-center justify-center">
+                    <SelectPrimitive.ItemIndicator>
+                      <Check className="h-4 w-4" />
+                    </SelectPrimitive.ItemIndicator>
+                  </span>
                   <div className="flex flex-col">
-                    <span>Verifisert</span>
+                    <SelectPrimitive.ItemText>Verifisert</SelectPrimitive.ItemText>
                     <span className="text-[11px] text-foreground/70">
                       Krever signert dokument fra uavhengig organ
                     </span>
                   </div>
-                </SelectItem>
-                <SelectItem value="not_applicable">
+                </SelectPrimitive.Item>
+                <SelectPrimitive.Item
+                  value="not_applicable"
+                  className="relative flex w-full cursor-default select-none items-start rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-accent focus:text-accent-foreground"
+                >
+                  <span className="absolute left-2 top-2 flex h-3.5 w-3.5 items-center justify-center">
+                    <SelectPrimitive.ItemIndicator>
+                      <Check className="h-4 w-4" />
+                    </SelectPrimitive.ItemIndicator>
+                  </span>
                   <div className="flex flex-col">
-                    <span>Ikke relevant</span>
+                    <SelectPrimitive.ItemText>Ikke relevant</SelectPrimitive.ItemText>
                     <span className="text-[11px] text-foreground/70">
                       Kravet gjelder ikke for din organisasjon
                     </span>
                   </div>
-                </SelectItem>
+                </SelectPrimitive.Item>
               </SelectContent>
             </Select>
           </div>
