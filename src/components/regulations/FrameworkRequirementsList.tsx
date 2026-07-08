@@ -125,15 +125,40 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     return requirements.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === filter);
   }, [filter, requirements, uiStates]);
 
-  const handleDocSave = (requirementId: string, status: string) => {
+  const handleDocSave = (requirementId: string, status: string, _comment: string, doc?: EvidenceDocument) => {
     setUiStates((prev) => {
+      const existingDocs = prev[requirementId]?.documents ?? [];
+      const documents = doc ? [doc, ...existingDocs] : existingDocs;
       const next: RequirementUiState =
-        status === "fulfilled"
-          ? { progress: "verified", evidence: "verified", evidenceCount: { collected: 1, required: 1 } }
-          : status === "partial"
-            ? { progress: "in_progress", evidence: "self_reported" }
-            : { progress: "not_answered", evidence: "required" };
+        status === "implemented"
+          ? {
+              progress: "implemented",
+              evidence: "self_reported",
+              documents,
+              evidenceCount: { collected: documents.length, required: Math.max(1, documents.length) },
+            }
+          : status === "fulfilled"
+            ? { progress: "verified", evidence: "verified", documents, evidenceCount: { collected: 1, required: 1 } }
+            : status === "partial"
+              ? { progress: "in_progress", evidence: "self_reported", documents }
+              : status === "not_applicable"
+                ? { progress: "not_applicable", evidence: "out_of_scope", documents }
+                : { progress: "not_answered", evidence: "required", documents };
       return { ...prev, [requirementId]: next };
+    });
+  };
+
+  const handleRequestVerification = (requirementId: string, docName: string) => {
+    setUiStates((prev) => {
+      const cur = prev[requirementId];
+      if (!cur?.documents) return prev;
+      const documents = cur.documents.map((d) =>
+        d.name === docName ? { ...d, verificationStatus: "pending_verification" as const } : d,
+      );
+      return { ...prev, [requirementId]: { ...cur, documents } };
+    });
+    toast.info("Uavhengig verifisering kommer snart", {
+      description: "Vi varsler deg når tjenesten er tilgjengelig.",
     });
   };
 
