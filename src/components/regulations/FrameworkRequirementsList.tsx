@@ -415,6 +415,47 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
                     )}
 
+                    {/* Verifisering (ekstern uavhengig aktør + intern bekreftelse) */}
+                    {state.progress === "verified" && state.verification && (
+                      <div className="rounded-lg border border-success/40 bg-success/5">
+                        <div className="px-3 py-2.5 flex items-start gap-2">
+                          <ShieldCheck className="h-4 w-4 text-success mt-0.5 shrink-0" />
+                          <div className="min-w-0 flex-1 space-y-0.5">
+                            <div className="text-xs font-medium text-foreground">
+                              {isNb ? "Verifisert av uavhengig aktør" : "Verified by independent body"}
+                            </div>
+                            <div className="text-sm text-foreground">
+                              {state.verification.externalVerifier.name}
+                              {state.verification.externalVerifier.standard && (
+                                <span className="text-muted-foreground"> · {state.verification.externalVerifier.standard}</span>
+                              )}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {state.verification.externalVerifier.person && <>{state.verification.externalVerifier.person} · </>}
+                              {state.verification.externalVerifier.date}
+                              {state.verification.externalVerifier.reportRef && (
+                                <> · {isNb ? "Rapport" : "Report"}: <span className="font-mono">{state.verification.externalVerifier.reportRef}</span></>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <Separator />
+                        <div className="px-3 py-2.5 flex items-start gap-2">
+                          <UserCheck className="h-4 w-4 text-success mt-0.5 shrink-0" />
+                          <div className="min-w-0 flex-1 space-y-0.5">
+                            <div className="text-xs font-medium text-foreground">
+                              {isNb ? "Bekreftet internt av" : "Confirmed internally by"}
+                            </div>
+                            <div className="text-sm text-foreground">
+                              {state.verification.internalConfirmer.name}
+                              <span className="text-muted-foreground">, {state.verification.internalConfirmer.role}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">{state.verification.internalConfirmer.date}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Dokumentasjonsliste */}
                     {state.documents && state.documents.length > 0 && (
                       <div className="rounded-lg border bg-muted/20">
@@ -424,12 +465,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             {isNb ? "Dokumentasjon" : "Documentation"}
                             <span className="text-muted-foreground font-normal">({state.documents.length})</span>
                           </div>
-                          {state.attestedBy && (
-                            <span className="text-[11px] text-muted-foreground">
-                              {isNb ? "Attestert" : "Attested"} · {state.attestedBy.date}
-                            </span>
-                          )}
                         </div>
+
                         <ul className="divide-y">
                           {state.documents.map((d) => {
                             const vStatus = d.verificationStatus ?? "self_reported";
@@ -453,6 +490,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                     {vLabel}
                                   </Badge>
                                 </div>
+
+                                {isVerifiedDoc && d.verifiedBy && (
+                                  <div className="text-[11px] text-muted-foreground pl-6">
+                                    {isNb ? "Verifisert av" : "Verified by"} {d.verifiedBy}
+                                    {d.verifiedAt && <> · {d.verifiedAt}</>}
+                                  </div>
+                                )}
+
 
                                 {d.classification && (
                                   <div className="flex items-start gap-1.5 text-xs text-muted-foreground pl-6">

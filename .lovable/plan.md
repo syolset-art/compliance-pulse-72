@@ -1,30 +1,45 @@
+## Mål
 
-# Dempet dokumentasjons-indikator i kravlisten
+Når et krav har status **Verifisert**, må det være tydelig at verifiseringen er gjort av en uavhengig ekstern aktør, hvem det er, når det ble gjort, og hvem internt som har bekreftet dette. Dokumentasjonen skal fortsatt være tilgjengelig, men skal knyttes til verifikatoren.
 
-Erstatter "Dokumentasjon mangler"-pillet med en mye mer diskret indikator, og skjuler den helt for krav som ikke er besvart (der er "manglende dokumentasjon" ikke handlingsrettet — brukeren har ikke tatt stilling ennå).
+## Endringer
 
-## Endring i `FrameworkRequirementsList.tsx`
+### 1. Datamodell (`src/lib/requirementStatusModel.ts`)
 
-**Dagens visning:** To badges (progress + evidence) i toppraden, hvor "Dokumentasjon mangler" ofte vises som eget pill i warning-farge.
+Utvid `RequirementUiState` med et strukturert `verification`-objekt (kun brukt når `progress === "verified"`):
 
-**Ny visning:**
+- `externalVerifier`: navn (f.eks. "BDO Norge AS"), person (f.eks. "Erik Solheim, Lead Auditor"), standard (f.eks. "ISO 27001:2022"), dato, rapportreferanse.
+- `internalConfirmer`: navn, rolle, dato — personen internt som har bekreftet at ekstern uavhengig aktør er brukt.
 
-1. **Fjern "Dokumentasjon mangler"-pillet fra rad-headeren helt.** Progress-pillet ("Implementert", "Pågår", "Verifisert" etc.) står alene.
+Fjern `attestedBy` fra de to verifiserte demo-casene og erstatt med `verification`-blokk. Sett `verifiedBy` + `verifiedAt` på dokumentene som faktisk er verifisert av ekstern aktør (typisk attestasjon/sertifikat), slik at "Verifisert av uavhengig organ"-badgen på dokumentet blir riktig.
 
-2. **Ny subtil indikator** — kun et lite `Paperclip`-ikon (h-3.5) plassert til venstre for progress-pillet:
-   - **Har dokumentasjon:** `text-muted-foreground` + liten teller (`Paperclip · 2`) — nøytralt.
-   - **Mangler dokumentasjon** *og* status ∈ {`in_progress`, `implemented`, `verified`}: `Paperclip` i `text-warning/70` uten fyll, med tooltip: *"Dokumentasjon mangler for denne statusen"*.
-   - **Ikke besvart / Ikke relevant:** **ingen** ikon — vi maser ikke om dokumentasjon når kravet ikke er tatt stilling til.
+### 2. Expanded panel (`FrameworkRequirementsList.tsx`)
 
-3. **Dedup-logikken i statusbadges** oppdateres slik at når `evidence === "required"` og progress ikke er verifisert, viser vi bare progress-pillet (ikke lenger dobbelt-badge). Bevis-badgen vises kun når evidence gir tilleggsinfo utover progress (attested, verified, revalidation_due).
+Legg til en ny verifikasjonsboks i det utvidede panelet, plassert rett over dokumentasjonslisten, som kun vises når `state.progress === "verified"` og `state.verification` finnes:
 
-## Effekt
+```text
+┌─ Verifisert av uavhengig aktør ────────────────────┐
+│  BDO Norge AS · ISO 27001:2022                      │
+│  Erik Solheim, Lead Auditor · 8. juli 2026          │
+│  Rapport: BDO-2026-0472                             │
+│  ─────────────────────────────────────────────────  │
+│  Bekreftet internt av                               │
+│  Vilde Gjellestad, Compliance Lead · 10. juli 2026  │
+└─────────────────────────────────────────────────────┘
+```
 
-- Ikke-besvart krav: kun ett dempet progress-pill, ingen dokumentasjonsstøy.
-- Pågår/implementert uten dokumentasjon: én liten warning-tonet paperclip som subtil visuell påminnelse.
-- Med dokumentasjon: nøytralt paperclip + teller.
+Design:
+- Outline-kort med `border-success/40`, subtil `bg-success/5`.
+- Øvre seksjon: ShieldCheck-ikon (success) + ekstern aktør, revisor-person, standard, dato, rapportreferanse.
+- Skillelinje, deretter nedre seksjon: UserCheck-ikon (success) + intern bekrefter, rolle, dato.
+- Kompakt (text-sm/text-xs), Apple-minimal, ingen fylte fargefelt.
 
-## Ikke inkludert
-- Ingen endring i `requirementStatusModel` — `EvidenceState`-typen beholdes; kun visningen i listen endres.
-- Ingen endring i ekspandert kort — der kan brukeren fortsatt se full dokumentasjonsstatus.
-- Ingen endring i `RequirementCard.tsx` / `VendorControlsTab.tsx` i denne runden.
+### 3. Dokumentliste
+
+For dokumenter med `verificationStatus === "verified"`: vis `verifiedBy` og `verifiedAt` som en liten linje under filnavnet (f.eks. "Verifisert av BDO Norge AS · 8. juli 2026"), i tillegg til den eksisterende badgen. Ingen endring for egenrapporterte dokumenter.
+
+## Ikke i scope
+
+- Ingen backend/schema-endringer — dette er demo-UI-state.
+- Ingen endring av statusbadgen til høyre i rad-header.
+- Ingen ny arbeidsflyt for å registrere ekstern verifisering (kommer separat).
