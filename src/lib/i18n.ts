@@ -26,6 +26,7 @@ i18n
       convertDetectedLanguage: (lng: string) => {
         const base = (lng || '').toLowerCase().split('-')[0];
         if (base === 'nb' || base === 'nn' || base === 'no') return 'nb';
+        if (base === 'nl') return 'nl';
         return 'en';
       },
     },
