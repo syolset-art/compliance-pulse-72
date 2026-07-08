@@ -1,15 +1,18 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ShieldCheck, Pencil } from "lucide-react";
+import { ShieldCheck, Pencil, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import ShareTrustProfileDialog from "@/components/trust-center/ShareTrustProfileDialog";
 
 export function TrustProfileHero() {
   const { i18n } = useTranslation();
   const isNb = i18n.language === "nb" || i18n.language === "no";
   const navigate = useNavigate();
+  const [shareOpen, setShareOpen] = useState(false);
 
   const { data: companyProfile } = useQuery({
     queryKey: ["company-profile-trust-hero"],
@@ -40,26 +43,46 @@ export function TrustProfileHero() {
     : null;
 
   return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <ShieldCheck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-          <div className="min-w-0">
-            <h2 className="text-sm font-medium text-foreground">
-              {isNb ? "Din Trust Profile" : "Your Trust Profile"}
-            </h2>
-            {updatedAt && (
-              <p className="text-[10px] text-muted-foreground/70 mt-0.5">
-                {isNb ? "Sist oppdatert" : "Last updated"}: {updatedAt}
-              </p>
-            )}
+    <>
+      <Card className="p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <ShieldCheck className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <div className="min-w-0">
+              <h2 className="text-sm font-medium text-foreground">
+                {isNb ? "Din Trust Profile" : "Your Trust Profile"}
+              </h2>
+              {updatedAt && (
+                <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                  {isNb ? "Sist oppdatert" : "Last updated"}: {updatedAt}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShareOpen(true)}
+              disabled={!ownAsset?.id}
+            >
+              <Share2 className="h-3.5 w-3.5 mr-1.5" />
+              {isNb ? "Del profil" : "Share profile"}
+            </Button>
+            <Button size="sm" onClick={() => navigate("/trust-center/edit")}>
+              <Pencil className="h-3.5 w-3.5 mr-1.5" />
+              {isNb ? "Rediger" : "Edit"}
+            </Button>
           </div>
         </div>
-        <Button size="sm" onClick={() => navigate("/trust-center/edit")}>
-          <Pencil className="h-3.5 w-3.5 mr-1.5" />
-          {isNb ? "Rediger" : "Edit"}
-        </Button>
-      </div>
-    </Card>
+      </Card>
+      {ownAsset?.id && (
+        <ShareTrustProfileDialog
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+          assetId={ownAsset.id}
+        />
+      )}
+    </>
   );
 }

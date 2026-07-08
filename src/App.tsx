@@ -99,6 +99,7 @@ import TrustCenterEditProfile from "./pages/TrustCenterEditProfile";
 import TrustCenterMasterDocuments from "./pages/TrustCenterMasterDocuments";
 import TrustEngine from "./pages/TrustEngine";
 import PublicTrustProfile from "./pages/PublicTrustProfile";
+import SharedTrustProfile from "./pages/SharedTrustProfile";
 import MynderAdminDashboard from "./pages/MynderAdminDashboard";
 import BoardDashboard from "./pages/BoardDashboard";
 
@@ -120,6 +121,7 @@ const App = () => (
                 <GlobalChatProvider>
                 <Routes>
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/s/:token" element={<SharedTrustProfile />} />
                   <Route path="/" element={<Index />} />
                   <Route path="/ai-setup" element={<AIAgentSetup />} />
                   <Route path="/ai-registry" element={<AISystemRegistry />} />
