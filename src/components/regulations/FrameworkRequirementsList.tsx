@@ -254,40 +254,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 mt-1">
-                  {/* Dokument-teller (klikkbar via ekspandering) */}
-                  {state.documents && state.documents.length > 0 && (
-                    <TooltipProvider delayDuration={200}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span
-                            className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 px-1.5 py-0.5 text-xs font-medium text-foreground"
-                            onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
-                          >
-                            <Paperclip className="h-3 w-3 text-muted-foreground" />
-                            {state.documents.length}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-[260px]">
-                          <p className="text-xs font-medium mb-1">{isNb ? "Dokumentasjon" : "Documentation"}</p>
-                          <ul className="text-xs text-muted-foreground space-y-0.5">
-                            {state.documents.slice(0, 4).map((d) => (
-                              <li key={d.name} className="truncate">· {d.name}</li>
-                            ))}
-                            {state.documents.length > 4 && (
-                              <li className="italic">+{state.documents.length - 4} {isNb ? "til" : "more"}</li>
-                            )}
-                          </ul>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  )}
+                  {/* Dokument- og bevis-tellere fjernet — status sier alt */}
 
-                  {/* Bevis-tellingen (X/Y) — vises kun når det gir mening (ikke identisk med doc-teller) */}
-                  {state.evidenceCount && state.evidenceCount.required > 0 && (
-                    <span className="inline-flex items-center rounded-md border border-border bg-transparent px-1.5 py-0.5 text-[11px] font-mono tabular-nums text-muted-foreground">
-                      {state.evidenceCount.collected}/{state.evidenceCount.required}
-                    </span>
-                  )}
 
                   {/* Ett samlet statusbadge — dedup når fremdrift == bevistilstand */}
                   {sameLabel ? (
