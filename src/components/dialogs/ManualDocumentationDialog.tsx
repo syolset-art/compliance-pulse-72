@@ -75,6 +75,8 @@ export function ManualDocumentationDialog({
   const [summary, setSummary] = useState<string>("");
   const [confidence, setConfidence] = useState<number | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [verifiedConfirmed, setVerifiedConfirmed] = useState(false);
+  const [verifierName, setVerifierName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const { state: aiState, classify, reset: resetAi } = useClassifyEvidence();
 
@@ -86,6 +88,8 @@ export function ManualDocumentationDialog({
     setArticles("");
     setSummary("");
     setConfidence(null);
+    setVerifiedConfirmed(false);
+    setVerifierName("");
     resetAi();
   };
 
