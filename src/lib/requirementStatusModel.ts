@@ -35,13 +35,20 @@ export interface AttestationInfo {
   date: string; // presentert dato-string
 }
 
+export interface EvidenceDocument {
+  name: string;
+  kind: string; // e.g. "PDF", "DOCX", "URL", "Attestasjon"
+}
+
 export interface RequirementUiState {
   progress: ProgressStatus;
   evidence: EvidenceState;
   attestedBy?: AttestationInfo;
   evidenceCount?: { collected: number; required: number };
   revalidationDaysLeft?: number;
+  documents?: EvidenceDocument[];
 }
+
 
 export interface StatusConfig {
   labelNb: string;
