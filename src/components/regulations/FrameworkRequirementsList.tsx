@@ -425,39 +425,66 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             </div>
                           </div>
                         ) : editingNoteId === req.requirement_id ? (
-                          <div className="space-y-2">
-                            <Textarea
-                              value={draftNote}
-                              onChange={(e) => setDraftNote(e.target.value)}
-                              placeholder="F.eks. 'Mangler signatur fra CISO — planlagt uke 42.'"
-                              className="min-h-[60px] text-sm"
-                              autoFocus
-                            />
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 text-xs"
-                                onClick={() => { setEditingNoteId(null); setDraftNote(""); }}
-                              >
-                                Avbryt
-                              </Button>
-                              <Button
-                                size="sm"
-                                className="h-8 gap-1.5 text-xs"
-                                disabled={!draftNote.trim()}
-                                onClick={() => {
-                                  setReqNotes((prev) => ({ ...prev, [req.requirement_id]: draftNote.trim() }));
-                                  setEditingNoteId(null);
-                                  setDraftNote("");
-                                  toast.success("Notat lagret", { description: `Notat for ${req.name_no} er oppdatert` });
-                                }}
-                              >
-                                <Save className="h-3.5 w-3.5" />
-                                Lagre notat
-                              </Button>
-                            </div>
-                          </div>
+                          (() => {
+                            const suggestions = [
+                              "Mangler signatur fra ansvarlig",
+                              "Venter på godkjenning fra ledelsen",
+                              "Under utarbeidelse — ferdig neste kvartal",
+                              "Trenger ekstern gjennomgang",
+                            ];
+                            const saveNote = (text: string) => {
+                              setReqNotes((prev) => ({ ...prev, [req.requirement_id]: text }));
+                              setEditingNoteId(null);
+                              setDraftNote("");
+                              toast.success("Notat lagret", { description: `Notat for ${req.name_no} er oppdatert` });
+                            };
+                            return (
+                              <div className="p-3 rounded-lg border bg-muted/30 space-y-2.5">
+                                <p className="text-xs text-muted-foreground">
+                                  Hva gjenstår? Velg et vanlig svar eller skriv ditt eget.
+                                </p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {suggestions.map((s) => (
+                                    <button
+                                      key={s}
+                                      type="button"
+                                      onClick={() => saveNote(s)}
+                                      className="text-xs px-2.5 py-1 rounded-full border bg-background hover:bg-accent hover:border-primary/40 transition-colors"
+                                    >
+                                      {s}
+                                    </button>
+                                  ))}
+                                </div>
+                                <div className="flex items-center gap-2 pt-1">
+                                  <Input
+                                    value={draftNote}
+                                    onChange={(e) => setDraftNote(e.target.value)}
+                                    placeholder="Egen kommentar (valgfritt)"
+                                    className="h-8 text-xs"
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter" && draftNote.trim()) saveNote(draftNote.trim());
+                                    }}
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 text-xs shrink-0"
+                                    onClick={() => { setEditingNoteId(null); setDraftNote(""); }}
+                                  >
+                                    Avbryt
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    className="h-8 text-xs shrink-0"
+                                    disabled={!draftNote.trim()}
+                                    onClick={() => saveNote(draftNote.trim())}
+                                  >
+                                    Lagre
+                                  </Button>
+                                </div>
+                              </div>
+                            );
+                          })()
                         ) : (
                           <Button
                             variant="ghost"
@@ -466,7 +493,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             onClick={() => { setEditingNoteId(req.requirement_id); setDraftNote(""); }}
                           >
                             <MessageSquare className="h-3.5 w-3.5" />
-                            Legg til kommentar om hva som gjenstår
+                            Legg til kommentar (valgfritt)
                           </Button>
                         )}
                       </div>
