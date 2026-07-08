@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
@@ -83,6 +84,9 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [draftNote, setDraftNote] = useState<string>("");
   const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [verifyName, setVerifyName] = useState<string>("");
+  const [verifyDate, setVerifyDate] = useState<string>("");
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -159,6 +163,67 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                 : { progress: "not_answered", evidence: "required", documents };
       return { ...prev, [requirementId]: next };
     });
+  };
+
+  const handleStatusChange = (requirementId: string, next: ProgressStatus) => {
+    setUiStates((prev) => {
+      const cur = prev[requirementId] ?? { progress: "not_answered", evidence: "required" };
+      const documents = cur.documents ?? [];
+      let updated: RequirementUiState;
+      if (next === "verified") {
+        updated = {
+          ...cur,
+          progress: "verified",
+          evidence: "verified",
+          documents,
+          evidenceCount: { collected: Math.max(1, documents.length), required: Math.max(1, documents.length) },
+        };
+      } else if (next === "implemented") {
+        const { verification, ...rest } = cur;
+        updated = {
+          ...rest,
+          progress: "implemented",
+          evidence: "self_reported",
+          documents,
+        };
+      } else if (next === "in_progress") {
+        const { verification, ...rest } = cur;
+        updated = { ...rest, progress: "in_progress", evidence: "self_reported", documents };
+      } else if (next === "not_applicable") {
+        const { verification, ...rest } = cur;
+        updated = { ...rest, progress: "not_applicable", evidence: "out_of_scope", documents };
+      } else {
+        const { verification, ...rest } = cur;
+        updated = { ...rest, progress: "not_answered", evidence: "required", documents };
+      }
+      return { ...prev, [requirementId]: updated };
+    });
+  };
+
+  const confirmVerification = (requirementId: string) => {
+    const name = verifyName.trim();
+    const date = verifyDate.trim() || new Date().toLocaleDateString(isNb ? "nb-NO" : "en-GB", { year: "numeric", month: "long", day: "numeric" });
+    if (!name) return;
+    setUiStates((prev) => {
+      const cur = prev[requirementId] ?? { progress: "not_answered", evidence: "required" };
+      const documents = cur.documents ?? [];
+      const updated: RequirementUiState = {
+        ...cur,
+        progress: "verified",
+        evidence: "verified",
+        documents,
+        evidenceCount: { collected: Math.max(1, documents.length), required: Math.max(1, documents.length) },
+        verification: {
+          externalVerifier: { name, date },
+          internalConfirmer: { name: "Vilde Gjellestad", role: isNb ? "Leverandøransvarlig" : "Vendor Manager", date },
+        },
+      };
+      return { ...prev, [requirementId]: updated };
+    });
+    setVerifyingId(null);
+    setVerifyName("");
+    setVerifyDate("");
+    toast.success(isNb ? "Markert som verifisert" : "Marked as verified");
   };
 
 
@@ -351,7 +416,97 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <div className="space-y-4">
                     <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
 
-                    {state.progress !== "verified" && state.progress !== "not_applicable" && (() => {
+                    {/* Kompakt statusrad — synlig når et krav har fått en status */}
+                    {(state.progress === "implemented" || state.progress === "verified" || state.progress === "in_progress") && (
+                      <div className="flex flex-wrap items-center gap-3 text-xs">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button
+                              type="button"
+                              className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 hover:bg-muted/60 transition-colors"
+                            >
+                              <span className="text-muted-foreground">{isNb ? "Status:" : "Status:"}</span>
+                              <span className="font-medium text-foreground">
+                                {isNb ? getProgressConfig(state.progress).labelNb : getProgressConfig(state.progress).labelEn}
+                              </span>
+                              <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent align="start" className="w-56 p-1">
+                            {(["not_answered","in_progress","implemented","verified","not_applicable"] as ProgressStatus[]).map((s) => {
+                              const cfg = getProgressConfig(s);
+                              const active = state.progress === s;
+                              return (
+                                <button
+                                  key={s}
+                                  type="button"
+                                  onClick={() => handleStatusChange(req.requirement_id, s)}
+                                  className={cn(
+                                    "w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-muted text-left",
+                                    active && "bg-muted font-medium",
+                                  )}
+                                >
+                                  <cfg.icon className={cn("h-3.5 w-3.5", cfg.iconClass)} />
+                                  {isNb ? cfg.labelNb : cfg.labelEn}
+                                  {active && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-primary" />}
+                                </button>
+                              );
+                            })}
+                          </PopoverContent>
+                        </Popover>
+
+                        {state.progress === "implemented" && verifyingId !== req.requirement_id && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setVerifyingId(req.requirement_id);
+                              setVerifyName("");
+                              setVerifyDate(new Date().toISOString().slice(0, 10));
+                            }}
+                            className="inline-flex items-center gap-1 text-primary hover:underline"
+                          >
+                            {isNb ? "Marker som verifisert" : "Mark as verified"}
+                            <ArrowRight className="h-3 w-3" />
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Inline verifiseringsform (kompakt, ingen dialog) */}
+                    {verifyingId === req.requirement_id && (
+                      <div className="rounded-md border bg-muted/20 p-2.5 flex flex-wrap items-end gap-2">
+                        <div className="flex-1 min-w-[160px]">
+                          <label className="text-[11px] text-muted-foreground block mb-1">{isNb ? "Verifisert av" : "Verified by"}</label>
+                          <Input
+                            value={verifyName}
+                            onChange={(e) => setVerifyName(e.target.value)}
+                            placeholder={isNb ? "F.eks. PwC eller intern rolle" : "e.g. PwC or internal role"}
+                            className="h-8 text-xs"
+                            autoFocus
+                            onKeyDown={(e) => { if (e.key === "Enter" && verifyName.trim()) confirmVerification(req.requirement_id); }}
+                          />
+                        </div>
+                        <div className="w-[140px]">
+                          <label className="text-[11px] text-muted-foreground block mb-1">{isNb ? "Dato" : "Date"}</label>
+                          <Input
+                            type="date"
+                            value={verifyDate}
+                            onChange={(e) => setVerifyDate(e.target.value)}
+                            className="h-8 text-xs"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => { setVerifyingId(null); setVerifyName(""); }}>
+                            {isNb ? "Avbryt" : "Cancel"}
+                          </Button>
+                          <Button size="sm" className="h-8 text-xs" disabled={!verifyName.trim()} onClick={() => confirmVerification(req.requirement_id)}>
+                            {isNb ? "Bekreft" : "Confirm"}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {state.progress !== "verified" && state.progress !== "not_applicable" && (state.documents?.length ?? 0) === 0 && (() => {
                       // Finn et dokument fra et annet krav som Lara kan gjenbruke.
                       // Demo: bruk første dokument fra et annet krav som har dokumenter.
                       
@@ -424,7 +579,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       );
                     })()}
 
-                    {bucketOf(state.progress) === "partial" && (
+                    {state.progress === "in_progress" && (
                       <div className="space-y-2">
                         {reqNotes[req.requirement_id] && editingNoteId !== req.requirement_id ? (
                           <div className="p-3 rounded-lg bg-muted/50 border">
