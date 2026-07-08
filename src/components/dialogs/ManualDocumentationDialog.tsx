@@ -449,7 +449,8 @@ export function ManualDocumentationDialog({
                 </div>
               )}
             </div>
-          )}
+            );
+          })()}
 
           {/* Verifisert-bekreftelse */}
           {status === "verified" && (
