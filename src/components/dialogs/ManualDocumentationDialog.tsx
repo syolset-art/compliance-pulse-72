@@ -250,8 +250,8 @@ export function ManualDocumentationDialog({
                 <ul className="space-y-1 text-muted-foreground">
                   <li><span className="text-foreground">Ikke påbegynt</span> — kravet er ikke adressert.</li>
                   <li><span className="text-foreground">Pågår</span> — arbeid pågår, ikke ferdig.</li>
-                  <li><span className="text-foreground">Implementert</span> — innført, krever egenrapportert dokumentasjon.</li>
-                  <li><span className="text-foreground">Verifisert</span> — krever signert dokument fra uavhengig organ (revisor, sertifiseringsorgan).</li>
+                  <li><span className="text-foreground">Implementert</span> — innført; bevis er egenrapportert dokumentasjon dere har lastet opp.</li>
+                  <li><span className="text-foreground">Verifisert</span> — bevis er signert eller attestert av uavhengig organ (revisor, sertifiseringsorgan).</li>
                 </ul>
               </FieldHelp>
             </div>
