@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,40 +7,37 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import {
-  ChevronDown,
-  ChevronUp,
-  CircleAlert,
-  CheckCircle2,
-  Circle,
-  Users,
-  Bot,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck } from "lucide-react";
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
 import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
 import { MessageSquare, Save, Pencil } from "lucide-react";
+import {
+  demoUiStateFor,
+  formatEvidenceLabel,
+  getEvidenceConfig,
+  getProgressConfig,
+  type RequirementUiState,
+  type ProgressStatus,
+} from "@/lib/requirementStatusModel";
+import { cn } from "@/lib/utils";
 
-type DemoStatus = "not_met" | "partial" | "met";
+type FilterKey = "all" | "not_met" | "partial" | "met";
 
-interface RequirementState {
-  status: DemoStatus;
-  progress: number;
+/** Map ny fremdrift → legacy filter-bøtte for tabs. */
+function bucketOf(progress: ProgressStatus): "met" | "partial" | "not_met" | "na" {
+  if (progress === "verified") return "met";
+  if (progress === "implemented" || progress === "in_progress") return "partial";
+  if (progress === "not_applicable") return "na";
+  return "not_met";
 }
 
-function generateDemoStates(requirements: ComplianceRequirement[]): Record<string, RequirementState> {
-  const states: Record<string, RequirementState> = {};
-  requirements.forEach((req, i) => {
-    const hash = (req.requirement_id.charCodeAt(req.requirement_id.length - 1) + i) % 10;
-    if (hash < 3) {
-      states[req.requirement_id] = { status: "met", progress: 100 };
-    } else if (hash === 3) {
-      states[req.requirement_id] = { status: "partial", progress: 50 };
-    } else {
-      states[req.requirement_id] = { status: "not_met", progress: 0 };
-    }
+function generateUiStates(requirements: ComplianceRequirement[]): Record<string, RequirementUiState> {
+  const states: Record<string, RequirementUiState> = {};
+  requirements.forEach((req) => {
+    states[req.requirement_id] = demoUiStateFor(req.requirement_id);
   });
   return states;
 }
@@ -72,8 +70,10 @@ interface FrameworkRequirementsListProps {
 }
 
 export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlightRequirementId }: FrameworkRequirementsListProps) => {
+  const { i18n } = useTranslation();
+  const isNb = i18n.language !== "en";
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "not_met" | "partial" | "met">("all");
+  const [filter, setFilter] = useState<FilterKey>("all");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -81,7 +81,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Handle highlight from chart event click
   useEffect(() => {
     if (highlightRequirementId) {
       setFilter("all");
@@ -98,38 +97,42 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     return ALL_ADDITIONAL_REQUIREMENTS.filter((r) => r.framework_id === frameworkId);
   }, [frameworkId]);
 
-  const [reqStates, setReqStates] = useState<Record<string, RequirementState>>(() =>
-    generateDemoStates(requirements)
+  const [uiStates, setUiStates] = useState<Record<string, RequirementUiState>>(() =>
+    generateUiStates(requirements)
   );
 
   const counts = useMemo(() => {
-    const met = Object.values(reqStates).filter((s) => s.status === "met").length;
-    const partial = Object.values(reqStates).filter((s) => s.status === "partial").length;
-    const notMet = Object.values(reqStates).filter((s) => s.status === "not_met").length;
+    let met = 0, partial = 0, notMet = 0;
+    for (const s of Object.values(uiStates)) {
+      const b = bucketOf(s.progress);
+      if (b === "met") met++;
+      else if (b === "partial") partial++;
+      else if (b === "not_met") notMet++;
+    }
     const auto = requirements.filter((r) => r.agent_capability === "full").length;
     const manual = requirements.filter((r) => r.agent_capability !== "full").length;
-    const result = { met, partial, notMet, auto, manual, total: requirements.length };
-    return result;
-  }, [reqStates, requirements]);
+    return { met, partial, notMet, auto, manual, total: requirements.length };
+  }, [uiStates, requirements]);
 
-  // Report counts up
   useMemo(() => {
     onCountsChange?.(counts);
   }, [counts, onCountsChange]);
 
   const filtered = useMemo(() => {
     if (filter === "all") return requirements;
-    return requirements.filter((r) => reqStates[r.requirement_id]?.status === filter);
-  }, [filter, requirements, reqStates]);
+    return requirements.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === filter);
+  }, [filter, requirements, uiStates]);
 
   const handleDocSave = (requirementId: string, status: string) => {
-    setReqStates((prev) => ({
-      ...prev,
-      [requirementId]: {
-        status: status === "fulfilled" ? "met" : status === "partial" ? "partial" : "not_met",
-        progress: status === "fulfilled" ? 100 : status === "partial" ? 50 : 0,
-      },
-    }));
+    setUiStates((prev) => {
+      const next: RequirementUiState =
+        status === "fulfilled"
+          ? { progress: "verified", evidence: "verified", evidenceCount: { collected: 1, required: 1 } }
+          : status === "partial"
+            ? { progress: "in_progress", evidence: "self_reported" }
+            : { progress: "not_answered", evidence: "required" };
+      return { ...prev, [requirementId]: next };
+    });
   };
 
   if (requirements.length === 0) {
@@ -157,7 +160,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </div>
       </div>
 
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)} className="mb-4">
+      <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)} className="mb-4">
         <TabsList className="w-full grid grid-cols-4">
           <TabsTrigger value="all">Alle</TabsTrigger>
           <TabsTrigger value="not_met">Ikke oppfylt ({counts.notMet})</TabsTrigger>
@@ -168,16 +171,27 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
       <div className="space-y-3">
         {filtered.map((req) => {
-          const state = reqStates[req.requirement_id] || { status: "not_met", progress: 0 };
+          const state = uiStates[req.requirement_id] ?? { progress: "not_answered", evidence: "required" };
           const isExpanded = expandedId === req.requirement_id;
           const cap = capabilityLabel[req.agent_capability];
           const CapIcon = cap.icon;
+          const progressCfg = getProgressConfig(state.progress);
+          const evidenceCfg = getEvidenceConfig(state.evidence);
+          const ProgressIcon = progressCfg.icon;
+          const EvidenceIcon = evidenceCfg.icon;
+          const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
+          const isVerified = state.progress === "verified" && state.evidence === "verified";
 
           return (
             <div
               key={req.requirement_id}
               ref={(el) => { reqRefs.current[req.requirement_id] = el; }}
-              className={`rounded-lg border bg-card transition-all ${highlightRequirementId === req.requirement_id ? "ring-2 ring-primary/50" : ""}`}
+              className={cn(
+                "rounded-lg border bg-card transition-all",
+                highlightRequirementId === req.requirement_id && "ring-2 ring-primary/50",
+                isVerified && "border-success/40 bg-success/5",
+                isMuted && "opacity-60",
+              )}
             >
               <button
                 onClick={() => { setExpandedId(isExpanded ? null : req.requirement_id); setCursorTip(null); }}
@@ -187,21 +201,68 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                 className="w-full p-4 flex items-start gap-3 text-left hover:bg-muted/30 transition-colors"
               >
                 <div className="mt-1 shrink-0">
-                  {state.status === "met" ? (
-                    <CheckCircle2 className="h-5 w-5 text-status-closed" />
-                  ) : state.status === "partial" ? (
-                    <CircleAlert className="h-5 w-5 text-warning" />
-                  ) : (
-                    <Circle className="h-5 w-5 text-destructive/60" />
-                  )}
+                  <ProgressIcon className={cn("h-5 w-5", progressCfg.iconClass)} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-base font-semibold text-foreground leading-snug">
+                  <h4 className={cn(
+                    "text-base font-semibold text-foreground leading-snug",
+                    isMuted && "line-through decoration-1",
+                  )}>
                     {req.name_no}
                   </h4>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
+                  {state.attestedBy ? (
+                    <p className="text-xs text-success mt-1 flex items-center gap-1.5">
+                      <UserCheck className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">
+                        {isNb ? "Attestert av" : "Attested by"} {state.attestedBy.name} ({state.attestedBy.role}) · {state.attestedBy.date}
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
+                  )}
                 </div>
-                <div className="flex items-center gap-3 shrink-0 mt-1">
+                <div className="flex items-center gap-2 shrink-0 mt-1">
+                  {/* Bevis-badge */}
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          variant="outline"
+                          className={cn("gap-1.5 text-xs font-medium", evidenceCfg.badgeClass)}
+                          onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                        >
+                          <EvidenceIcon className="h-3 w-3" />
+                          {formatEvidenceLabel(state, isNb)}
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-[260px]">
+                        <p className="text-xs font-medium">{isNb ? evidenceCfg.labelNb : evidenceCfg.labelEn}</p>
+                        {state.evidenceCount && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {state.evidenceCount.collected}/{state.evidenceCount.required} {isNb ? "bevis" : "evidence"}
+                          </p>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  {/* Bevis-teller (kun når full dekning ikke er trivielt) */}
+                  {state.evidenceCount && (
+                    <Badge variant="outline" className="text-xs font-mono tabular-nums text-muted-foreground">
+                      {state.evidenceCount.collected}/{state.evidenceCount.required}
+                    </Badge>
+                  )}
+
+                  {/* Status-badge */}
+                  <Badge
+                    variant="outline"
+                    className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}
+                    onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                  >
+                    {isNb ? progressCfg.labelNb : progressCfg.labelEn}
+                  </Badge>
+
+                  {/* Kapasitets-badge */}
                   <TooltipProvider delayDuration={200}>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -219,11 +280,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                  <span className={`text-sm font-semibold tabular-nums ${
-                    state.progress === 100 ? "text-status-closed" : state.progress > 0 ? "text-warning" : "text-muted-foreground"
-                  }`}>
-                    {state.progress}%
-                  </span>
+
                   {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </div>
               </button>
@@ -234,22 +291,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <div className="space-y-4">
                     <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
 
-                    <p className={`text-base font-semibold ${
-                      state.status === "met" ? "text-status-closed" : state.status === "partial" ? "text-warning" : "text-destructive"
-                    }`}>
-                      Status: {state.status === "met" ? "Oppfylt" : state.status === "partial" ? "Delvis oppfylt" : "Ikke oppfylt"}
-                    </p>
-
-                    {state.status !== "met" && (
+                    {state.progress !== "verified" && state.progress !== "not_applicable" && (
                       <LaraDataSourceExplainer
                         requirement={req}
-                        status={state.status}
+                        status={bucketOf(state.progress) === "met" ? "met" : bucketOf(state.progress) === "partial" ? "partial" : "not_met"}
                         onManualDocument={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
                       />
                     )}
 
-                    {/* Inline note for partial status */}
-                    {state.status === "partial" && (
+                    {bucketOf(state.progress) === "partial" && (
                       <div className="space-y-2">
                         {reqNotes[req.requirement_id] && editingNoteId !== req.requirement_id ? (
                           <div className="p-3 rounded-lg bg-muted/50 border">
@@ -307,12 +357,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
                     )}
 
-                    {/* Dokumenter-knapp er nå integrert i LaraDataSourceExplainer */}
-                    {state.status === "met" && (
-                      <div className="flex items-center gap-2 p-3 rounded-lg bg-status-closed/10 dark:bg-emerald-950/20 border border-status-closed/20 dark:border-status-closed">
-                        <CheckCircle2 className="h-4 w-4 text-status-closed" />
-                        <span className="text-sm text-status-closed dark:text-status-closed">
-                          Dette kravet er dokumentert og verifisert.
+                    {state.progress === "verified" && (
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-success/10 border border-success/25">
+                        <CheckCircle2 className="h-4 w-4 text-success" />
+                        <span className="text-sm text-success">
+                          {isNb
+                            ? state.attestedBy
+                              ? `Verifisert · Attestert av ${state.attestedBy.name} (${state.attestedBy.role}) den ${state.attestedBy.date}.`
+                              : "Dette kravet er dokumentert og verifisert."
+                            : "This requirement is documented and verified."}
                         </span>
                       </div>
                     )}
