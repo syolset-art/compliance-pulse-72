@@ -272,15 +272,8 @@ export function ManualDocumentationDialog({
                 </SelectItem>
               </SelectContent>
             </Select>
-            {status === "verified" && (
-              <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/5 p-2.5 text-xs text-foreground">
-                <ShieldCheck className="h-3.5 w-3.5 mt-0.5 text-success shrink-0" />
-                <span>
-                  Last opp det signerte dokumentet fra uavhengig organ (revisor, sertifiseringsorgan e.l.) og bekreft under.
-                </span>
-              </div>
-            )}
           </div>
+
 
           {/* Comment */}
           <div className="space-y-2">
