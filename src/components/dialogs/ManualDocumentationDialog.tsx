@@ -266,12 +266,12 @@ export function ManualDocumentationDialog({
             />
           </div>
 
-          {/* Uploader — only when Implementert */}
-          {status === "implemented" && (
+          {/* Uploader — for Implementert og Verifisert */}
+          {(status === "implemented" || status === "verified") && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="font-semibold">
-                  Last opp dokumentasjon <span className="text-destructive">*</span>
+                  {status === "verified" ? "Last opp signert dokument" : "Last opp dokumentasjon"} <span className="text-destructive">*</span>
                 </Label>
                 <Badge variant="outline" className="gap-1 text-[10px]">
                   <Sparkles className="h-3 w-3 text-primary" />
