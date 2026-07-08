@@ -1,0 +1,10 @@
+{
+  "manualDocDialog": {
+    "verifyConfirm": {
+      "title": "Bevestig onafhankelijke verificatie",
+      "orgLabel": "Onafhankelijke instantie",
+      "orgPlaceholder": "bv. BDO, DNV, TÜV, Bureau Veritas",
+      "checkboxText": "Ik bevestig dat het geüploade document is ondertekend of geattesteerd door de opgegeven onafhankelijke instantie en dat de inhoud correct is."
+    }
+  }
+}
