@@ -31,6 +31,15 @@ interface RequirementCardProps {
   onViewDetails?: () => void;
   compact?: boolean;
   className?: string;
+  /** Valgfri overstyring av bevis+fremdrift. Ellers utledes deterministisk fra id/status. */
+  uiState?: RequirementUiState;
+}
+
+function deriveUiState(status: RequirementStatus, id: string): RequirementUiState {
+  if (status === "completed") return demoUiStateFor(id, 1);
+  if (status === "in_progress") return demoUiStateFor(id, 5);
+  if (status === "not_applicable") return { progress: "not_applicable", evidence: "out_of_scope" };
+  return { progress: "not_answered", evidence: "required" };
 }
 
 const statusConfig: Record<RequirementStatus, {
@@ -39,6 +48,7 @@ const statusConfig: Record<RequirementStatus, {
   colorClass: string;
   bgClass: string;
 }> = {
+
   completed: {
     icon: CheckCircle2,
     label: 'Completed',
