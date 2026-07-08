@@ -465,7 +465,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             const vStatus = d.verificationStatus ?? "self_reported";
                             const isVerifiedDoc = vStatus === "verified";
                             const vLabel = isVerifiedDoc
-                              ? (isNb ? "Verifisert av uavhengig organ" : "Verified by independent body")
+                              ? (isNb ? "Verifisert" : "Verified")
                               : (isNb ? "Egenrapportert" : "Self-reported");
                             const vClass = isVerifiedDoc
                               ? "text-success border-success/40"
