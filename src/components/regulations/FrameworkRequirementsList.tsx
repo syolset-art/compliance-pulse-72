@@ -123,9 +123,20 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   }, [counts, onCountsChange]);
 
   const filtered = useMemo(() => {
-    if (filter === "all") return requirements;
-    return requirements.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === filter);
-  }, [filter, requirements, uiStates]);
+    const q = search.trim().toLowerCase();
+    let list = requirements;
+    if (filter !== "all") {
+      list = list.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === filter);
+    }
+    if (q) {
+      list = list.filter((r) =>
+        r.name_no.toLowerCase().includes(q) ||
+        r.description_no.toLowerCase().includes(q) ||
+        r.requirement_id.toLowerCase().includes(q),
+      );
+    }
+    return list;
+  }, [filter, requirements, uiStates, search]);
 
   const handleDocSave = (requirementId: string, status: string, _comment: string, doc?: EvidenceDocument) => {
     setUiStates((prev) => {
