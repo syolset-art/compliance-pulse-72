@@ -28,6 +28,7 @@ import {
   X,
   Sparkles,
   AlertCircle,
+  ShieldCheck,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useClassifyEvidence } from "@/hooks/useClassifyEvidence";
