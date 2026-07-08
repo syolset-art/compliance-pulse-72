@@ -29,7 +29,10 @@ import {
   Sparkles,
   AlertCircle,
   ShieldCheck,
+  HelpCircle,
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { getTypicalDocumentation } from "@/lib/requirementDocumentationHints";
 import { useToast } from "@/hooks/use-toast";
 import { useClassifyEvidence } from "@/hooks/useClassifyEvidence";
 import type { EvidenceDocument } from "@/lib/requirementStatusModel";
