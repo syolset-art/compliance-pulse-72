@@ -206,13 +206,16 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const EvidenceIcon = evidenceCfg.icon;
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
           const isVerified = state.progress === "verified" && state.evidence === "verified";
+          const isVerifiedDue = state.progress === "verified" && state.evidence === "revalidation_due";
           const progressLabel = isNb ? progressCfg.labelNb : progressCfg.labelEn;
           const evidenceLabel = formatEvidenceLabel(state, isNb);
-          const sameLabel = progressLabel === evidenceLabel;
-          // Ved dedup: bruk evidence-cfg som primær (bevis-tilstanden er mer informativ)
-          const primaryCfg = evidenceCfg;
+          // Slå sammen når labels er like, eller når det er Verifisert m/ re-attestering nær
+          const sameLabel = progressLabel === evidenceLabel || isVerifiedDue;
+          // Ved dedup: bruk evidence-cfg som primær (bevis-tilstanden er mer informativ), men for
+          // "verifisert m/ re-attestering nær" vil vi vise Verifisert-pill med warning-teller
+          const primaryCfg = isVerifiedDue ? progressCfg : evidenceCfg;
           const PrimaryIcon = primaryCfg.icon;
-          const primaryLabel = evidenceLabel;
+          const primaryLabel = isVerifiedDue ? progressLabel : evidenceLabel;
 
 
           return (
