@@ -3630,6 +3630,97 @@ export type Database = {
         }
         Relationships: []
       }
+      trust_share_link_views: {
+        Row: {
+          id: string
+          ip_hash: string | null
+          link_id: string
+          user_agent: string | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          ip_hash?: string | null
+          link_id: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          ip_hash?: string | null
+          link_id?: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_share_link_views_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "trust_share_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trust_share_links: {
+        Row: {
+          asset_id: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          last_viewed_at: string | null
+          password_hash: string | null
+          personal_message: string | null
+          recipient_email: string | null
+          recipient_name: string | null
+          revoked_at: string | null
+          token: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          password_hash?: string | null
+          personal_message?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          revoked_at?: string | null
+          token: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          password_hash?: string | null
+          personal_message?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          revoked_at?: string | null
+          token?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trust_share_links_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       uploaded_documents: {
         Row: {
           analysis_results: Json | null
