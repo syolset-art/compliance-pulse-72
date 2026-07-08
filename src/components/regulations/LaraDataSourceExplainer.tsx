@@ -9,6 +9,8 @@ export interface LaraCrossReferenceDoc {
   sourceRequirementName: string;
   uploadedBy: string;
   uploadedAt: string;
+  classification?: string;
+  coversRequirements?: string[];
   onAccept: () => void;
 }
 
