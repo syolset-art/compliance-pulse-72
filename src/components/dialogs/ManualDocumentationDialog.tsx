@@ -205,12 +205,27 @@ export function ManualDocumentationDialog({
                 <SelectValue placeholder="Velg status..." />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="not_started">Ikke påbegynt</SelectItem>
+                <SelectItem value="in_progress">Pågår</SelectItem>
                 <SelectItem value="implemented">Implementert</SelectItem>
-                <SelectItem value="partial">Delvis oppfylt</SelectItem>
-                <SelectItem value="not_fulfilled">Ikke oppfylt</SelectItem>
-                <SelectItem value="not_applicable">Ikke relevant</SelectItem>
+                <SelectItem value="verified" disabled>
+                  <div className="flex flex-col">
+                    <span>Verifisert</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Krever signert dokument fra uavhengig organ
+                    </span>
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
+            {status === "implemented" && (
+              <div className="flex items-start gap-2 rounded-md border border-primary/20 bg-primary/5 p-2.5 text-xs text-foreground">
+                <Sparkles className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />
+                <span>
+                  Neste steg: last opp dokumentasjon. Du kan senere be om uavhengig verifisering fra dokumentkortet.
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Comment */}
