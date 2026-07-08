@@ -35,13 +35,20 @@ export interface AttestationInfo {
   date: string; // presentert dato-string
 }
 
+export interface EvidenceDocument {
+  name: string;
+  kind: string; // e.g. "PDF", "DOCX", "URL", "Attestasjon"
+}
+
 export interface RequirementUiState {
   progress: ProgressStatus;
   evidence: EvidenceState;
   attestedBy?: AttestationInfo;
   evidenceCount?: { collected: number; required: number };
   revalidationDaysLeft?: number;
+  documents?: EvidenceDocument[];
 }
+
 
 export interface StatusConfig {
   labelNb: string;
@@ -53,40 +60,45 @@ export interface StatusConfig {
   iconClass: string;
 }
 
+/**
+ * Dempet designspråk: alle badges er nøytrale outline i utgangspunktet.
+ * Kun små fargeaksenter på ikonet + kant. Ingen fylte fargefelt utenom
+ * subtile advarsler.
+ */
 export const PROGRESS_CONFIG: Record<ProgressStatus, StatusConfig> = {
   not_answered: {
     labelNb: "Ikke besvart",
     labelEn: "Not answered",
     icon: Circle,
-    badgeClass: "bg-muted/60 text-muted-foreground border border-border",
+    badgeClass: "bg-transparent text-muted-foreground border-border",
     iconClass: "text-muted-foreground",
   },
   in_progress: {
     labelNb: "Pågår",
     labelEn: "In progress",
     icon: CircleDashed,
-    badgeClass: "bg-warning/15 text-warning border border-warning/30",
+    badgeClass: "bg-transparent text-foreground border-warning/40",
     iconClass: "text-warning",
   },
   implemented: {
     labelNb: "Implementert",
     labelEn: "Implemented",
     icon: CheckCircle2,
-    badgeClass: "bg-primary/10 text-primary border border-primary/30",
+    badgeClass: "bg-transparent text-foreground border-border",
     iconClass: "text-primary",
   },
   verified: {
     labelNb: "Verifisert",
     labelEn: "Verified",
     icon: ShieldCheck,
-    badgeClass: "bg-success/15 text-success border border-success/30",
+    badgeClass: "bg-transparent text-foreground border-success/40",
     iconClass: "text-success",
   },
   not_applicable: {
     labelNb: "Ikke relevant",
     labelEn: "Not applicable",
     icon: CircleSlash,
-    badgeClass: "bg-muted/40 text-muted-foreground border border-border",
+    badgeClass: "bg-transparent text-muted-foreground border-border",
     iconClass: "text-muted-foreground",
   },
 };
@@ -96,45 +108,46 @@ export const EVIDENCE_CONFIG: Record<EvidenceState, StatusConfig> = {
     labelNb: "Bevis påkrevd",
     labelEn: "Evidence required",
     icon: FileText,
-    badgeClass: "bg-warning/10 text-warning border border-warning/25",
+    badgeClass: "bg-transparent text-foreground border-warning/40",
     iconClass: "text-warning",
   },
   self_reported: {
     labelNb: "Egenrapportert",
     labelEn: "Self-reported",
     icon: FileText,
-    badgeClass: "bg-muted/60 text-muted-foreground border border-border",
+    badgeClass: "bg-transparent text-muted-foreground border-border",
     iconClass: "text-muted-foreground",
   },
   attested: {
     labelNb: "Attestert",
     labelEn: "Attested",
     icon: UserCheck,
-    badgeClass: "bg-success/15 text-success border border-success/30",
+    badgeClass: "bg-transparent text-foreground border-success/40",
     iconClass: "text-success",
   },
   verified: {
     labelNb: "Verifisert",
     labelEn: "Verified",
     icon: ShieldCheck,
-    badgeClass: "bg-success/15 text-success border border-success/30",
+    badgeClass: "bg-transparent text-foreground border-success/40",
     iconClass: "text-success",
   },
   revalidation_due: {
     labelNb: "Re-attesteres snart",
     labelEn: "Re-attestation due",
     icon: Clock,
-    badgeClass: "bg-warning/15 text-warning border border-warning/30",
+    badgeClass: "bg-transparent text-foreground border-warning/40",
     iconClass: "text-warning",
   },
   out_of_scope: {
     labelNb: "Utenfor scope",
     labelEn: "Out of scope",
     icon: CircleSlash,
-    badgeClass: "bg-muted/40 text-muted-foreground border border-border",
+    badgeClass: "bg-transparent text-muted-foreground border-border",
     iconClass: "text-muted-foreground",
   },
 };
+
 
 export const getProgressConfig = (p: ProgressStatus) => PROGRESS_CONFIG[p];
 export const getEvidenceConfig = (e: EvidenceState) => EVIDENCE_CONFIG[e];
@@ -165,69 +178,69 @@ export function demoUiStateFor(id: string, seed = 0): RequirementUiState {
       return {
         progress: "verified",
         evidence: "verified",
-        attestedBy: {
-          name: "Vilde Gjellestad",
-          role: "Compliance",
-          date: "8. juli 2026",
-        },
-        evidenceCount: { collected: 18, required: 18 },
+        attestedBy: { name: "Vilde Gjellestad", role: "Compliance", date: "8. juli 2026" },
+        evidenceCount: { collected: 3, required: 3 },
+        documents: [
+          { name: "Sikkerhetspolicy_v3.pdf", kind: "PDF" },
+          { name: "ISO 27001-sertifikat 2026.pdf", kind: "PDF" },
+          { name: "Attestasjon_2026-07-08.pdf", kind: "Attestasjon" },
+        ],
       };
     case 2:
       return {
         progress: "verified",
         evidence: "revalidation_due",
         revalidationDaysLeft: 14,
-        attestedBy: {
-          name: "Ola Nordmann",
-          role: "CISO",
-          date: "12. jan 2026",
-        },
-        evidenceCount: { collected: 6, required: 6 },
+        attestedBy: { name: "Ola Nordmann", role: "CISO", date: "12. jan 2026" },
+        evidenceCount: { collected: 2, required: 2 },
+        documents: [
+          { name: "Hendelseslogg_2025-Q4.xlsx", kind: "XLSX" },
+          { name: "Attestasjon_2026-01-12.pdf", kind: "Attestasjon" },
+        ],
       };
     case 3:
     case 4:
       return {
         progress: "implemented",
         evidence: "attested",
-        attestedBy: {
-          name: "Kari Hansen",
-          role: "DPO",
-          date: "3. juni 2026",
-        },
-        evidenceCount: { collected: 4, required: 5 },
+        attestedBy: { name: "Kari Hansen", role: "DPO", date: "3. juni 2026" },
+        evidenceCount: { collected: 2, required: 3 },
+        documents: [
+          { name: "Databehandleravtale.pdf", kind: "PDF" },
+          { name: "Attestasjon_2026-06-03.pdf", kind: "Attestasjon" },
+        ],
       };
     case 5:
       return {
         progress: "implemented",
         evidence: "self_reported",
-        evidenceCount: { collected: 2, required: 4 },
+        evidenceCount: { collected: 1, required: 3 },
+        documents: [
+          { name: "Intern_beskrivelse.docx", kind: "DOCX" },
+        ],
       };
     case 6:
     case 7:
       return {
         progress: "in_progress",
         evidence: "required",
-        evidenceCount: { collected: 1, required: 4 },
+        evidenceCount: { collected: 0, required: 3 },
       };
     case 8:
     case 9:
-      return {
-        progress: "not_answered",
-        evidence: "required",
-      };
+      return { progress: "not_answered", evidence: "required" };
     case 10:
-      return {
-        progress: "not_applicable",
-        evidence: "out_of_scope",
-      };
+      return { progress: "not_applicable", evidence: "out_of_scope" };
     default:
       return {
         progress: "in_progress",
         evidence: "self_reported",
-        evidenceCount: { collected: 3, required: 6 },
+        evidenceCount: { collected: 1, required: 4 },
+        documents: [{ name: "Utkast_kontroller.docx", kind: "DOCX" }],
       };
   }
 }
+
 
 /** Map en legacy "met/partial/not_met"-status til ny UI-modell. */
 export function uiStateFromLegacyStatus(

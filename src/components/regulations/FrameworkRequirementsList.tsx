@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck } from "lucide-react";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download } from "lucide-react";
+
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
@@ -181,6 +182,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const EvidenceIcon = evidenceCfg.icon;
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
           const isVerified = state.progress === "verified" && state.evidence === "verified";
+          const progressLabel = isNb ? progressCfg.labelNb : progressCfg.labelEn;
+          const evidenceLabel = formatEvidenceLabel(state, isNb);
+          const sameLabel = progressLabel === evidenceLabel;
+          // Ved dedup: bruk evidence-cfg som primær (bevis-tilstanden er mer informativ)
+          const primaryCfg = evidenceCfg;
+          const PrimaryIcon = primaryCfg.icon;
+          const primaryLabel = evidenceLabel;
+
 
           return (
             <div
@@ -189,7 +198,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               className={cn(
                 "rounded-lg border bg-card transition-all",
                 highlightRequirementId === req.requirement_id && "ring-2 ring-primary/50",
-                isVerified && "border-success/40 bg-success/5",
                 isMuted && "opacity-60",
               )}
             >
@@ -211,8 +219,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {req.name_no}
                   </h4>
                   {state.attestedBy ? (
-                    <p className="text-xs text-success mt-1 flex items-center gap-1.5">
-                      <UserCheck className="h-3.5 w-3.5 shrink-0" />
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+                      <UserCheck className="h-3.5 w-3.5 shrink-0 text-success" />
                       <span className="truncate">
                         {isNb ? "Attestert av" : "Attested by"} {state.attestedBy.name} ({state.attestedBy.role}) · {state.attestedBy.date}
                       </span>
@@ -221,54 +229,67 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-2 shrink-0 mt-1">
-                  {/* Bevis-badge */}
-                  <TooltipProvider delayDuration={200}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Badge
-                          variant="outline"
-                          className={cn("gap-1.5 text-xs font-medium", evidenceCfg.badgeClass)}
-                          onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
-                        >
-                          <EvidenceIcon className="h-3 w-3" />
-                          {formatEvidenceLabel(state, isNb)}
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[260px]">
-                        <p className="text-xs font-medium">{isNb ? evidenceCfg.labelNb : evidenceCfg.labelEn}</p>
-                        {state.evidenceCount && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {state.evidenceCount.collected}/{state.evidenceCount.required} {isNb ? "bevis" : "evidence"}
-                          </p>
-                        )}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  {/* Bevis-teller (kun når full dekning ikke er trivielt) */}
-                  {state.evidenceCount && (
-                    <Badge variant="outline" className="text-xs font-mono tabular-nums text-muted-foreground">
-                      {state.evidenceCount.collected}/{state.evidenceCount.required}
-                    </Badge>
+                <div className="flex items-center gap-1.5 shrink-0 mt-1">
+                  {/* Dokument-teller (klikkbar via ekspandering) */}
+                  {state.documents && state.documents.length > 0 && (
+                    <TooltipProvider delayDuration={200}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span
+                            className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 px-1.5 py-0.5 text-xs font-medium text-foreground"
+                            onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                          >
+                            <Paperclip className="h-3 w-3 text-muted-foreground" />
+                            {state.documents.length}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[260px]">
+                          <p className="text-xs font-medium mb-1">{isNb ? "Dokumentasjon" : "Documentation"}</p>
+                          <ul className="text-xs text-muted-foreground space-y-0.5">
+                            {state.documents.slice(0, 4).map((d) => (
+                              <li key={d.name} className="truncate">· {d.name}</li>
+                            ))}
+                            {state.documents.length > 4 && (
+                              <li className="italic">+{state.documents.length - 4} {isNb ? "til" : "more"}</li>
+                            )}
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
 
-                  {/* Status-badge */}
-                  <Badge
-                    variant="outline"
-                    className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}
-                    onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
-                  >
-                    {isNb ? progressCfg.labelNb : progressCfg.labelEn}
-                  </Badge>
+                  {/* Bevis-tellingen (X/Y) — vises kun når det gir mening (ikke identisk med doc-teller) */}
+                  {state.evidenceCount && state.evidenceCount.required > 0 && (
+                    <span className="inline-flex items-center rounded-md border border-border bg-transparent px-1.5 py-0.5 text-[11px] font-mono tabular-nums text-muted-foreground">
+                      {state.evidenceCount.collected}/{state.evidenceCount.required}
+                    </span>
+                  )}
 
-                  {/* Kapasitets-badge */}
+                  {/* Ett samlet statusbadge — dedup når fremdrift == bevistilstand */}
+                  {sameLabel ? (
+                    <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", primaryCfg.badgeClass)}>
+                      <PrimaryIcon className={cn("h-3 w-3", primaryCfg.iconClass)} />
+                      {primaryLabel}
+                    </Badge>
+                  ) : (
+                    <>
+                      <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", evidenceCfg.badgeClass)}>
+                        <EvidenceIcon className={cn("h-3 w-3", evidenceCfg.iconClass)} />
+                        {formatEvidenceLabel(state, isNb)}
+                      </Badge>
+                      <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}>
+                        {isNb ? progressCfg.labelNb : progressCfg.labelEn}
+                      </Badge>
+                    </>
+                  )}
+
+                  {/* Kapasitets-badge — nøytral */}
                   <TooltipProvider delayDuration={200}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Badge
                           variant="outline"
-                          className="gap-1.5 text-xs font-medium cursor-help"
+                          className="gap-1.5 text-xs font-medium text-muted-foreground cursor-help"
                           onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
                         >
                           <CapIcon className="h-3 w-3" />
@@ -284,6 +305,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </div>
               </button>
+
 
               {isExpanded && (
                 <div className="px-4 pb-4">
@@ -357,18 +379,38 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
                     )}
 
-                    {state.progress === "verified" && (
-                      <div className="flex items-center gap-2 p-3 rounded-lg bg-success/10 border border-success/25">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        <span className="text-sm text-success">
-                          {isNb
-                            ? state.attestedBy
-                              ? `Verifisert · Attestert av ${state.attestedBy.name} (${state.attestedBy.role}) den ${state.attestedBy.date}.`
-                              : "Dette kravet er dokumentert og verifisert."
-                            : "This requirement is documented and verified."}
-                        </span>
+                    {/* Dokumentasjonsliste */}
+                    {state.documents && state.documents.length > 0 && (
+                      <div className="rounded-lg border bg-muted/20">
+                        <div className="flex items-center justify-between px-3 py-2 border-b">
+                          <div className="flex items-center gap-2 text-xs font-medium text-foreground">
+                            <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />
+                            {isNb ? "Dokumentasjon" : "Documentation"}
+                            <span className="text-muted-foreground font-normal">({state.documents.length})</span>
+                          </div>
+                          {state.attestedBy && (
+                            <span className="text-[11px] text-muted-foreground">
+                              {isNb ? "Attestert" : "Attested"} · {state.attestedBy.date}
+                            </span>
+                          )}
+                        </div>
+                        <ul className="divide-y">
+                          {state.documents.map((d) => (
+                            <li key={d.name} className="flex items-center justify-between px-3 py-2 text-sm hover:bg-muted/30 transition-colors">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                                <span className="truncate">{d.name}</span>
+                                <span className="text-[10px] uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">{d.kind}</span>
+                              </div>
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 shrink-0" onClick={(e) => { e.stopPropagation(); toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name }); }}>
+                                <Download className="h-3.5 w-3.5" />
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     )}
+
 
                     <p className="text-xs text-muted-foreground pt-2 border-t">
                       Referanse: <span className="font-mono">{req.requirement_id}</span>
