@@ -63,6 +63,27 @@ function extForFile(name: string): string {
   return (m?.[1] || "FILE").toUpperCase();
 }
 
+function FieldHelp({ children }: { children: React.ReactNode }) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Hjelp"
+        >
+          <HelpCircle className="h-3.5 w-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" align="start" className="w-80 text-xs leading-relaxed">
+        {children}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
+
 export function ManualDocumentationDialog({
   open,
   onOpenChange,
