@@ -461,7 +461,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           onOpenChange={(open) => { if (!open) setDocDialog(null); }}
           requirementId={docDialog.id}
           requirementName={docDialog.name}
-          onSave={(status) => handleDocSave(docDialog.id, status)}
+          onSave={(status, comment, doc) => handleDocSave(docDialog.id, status, comment, doc)}
         />
       )}
 
