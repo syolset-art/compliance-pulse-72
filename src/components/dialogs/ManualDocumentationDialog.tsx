@@ -267,7 +267,7 @@ export function ManualDocumentationDialog({
                 <SelectItem value="verified">
                   <div className="flex flex-col">
                     <span>Verifisert</span>
-                    <span className="text-[11px] text-muted-foreground group-hover:text-accent-foreground/80 group-focus:text-accent-foreground/80 data-[highlighted]:text-accent-foreground/80">
+                    <span className="text-[11px] text-foreground/70">
                       Krever signert dokument fra uavhengig organ
                     </span>
                   </div>
@@ -275,7 +275,7 @@ export function ManualDocumentationDialog({
                 <SelectItem value="not_applicable">
                   <div className="flex flex-col">
                     <span>Ikke relevant</span>
-                    <span className="text-[11px] text-muted-foreground group-hover:text-accent-foreground/80 group-focus:text-accent-foreground/80 data-[highlighted]:text-accent-foreground/80">
+                    <span className="text-[11px] text-foreground/70">
                       Kravet gjelder ikke for din organisasjon
                     </span>
                   </div>
