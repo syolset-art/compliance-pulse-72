@@ -1,4 +1,12 @@
 {
+  "manualDocDialog": {
+    "verifyConfirm": {
+      "title": "Confirm independent verification",
+      "orgLabel": "Independent body",
+      "orgPlaceholder": "e.g. BDO, DNV, TÜV, Bureau Veritas",
+      "checkboxText": "I confirm the uploaded document is signed or attested by the named independent body and that its content is accurate."
+    }
+  },
   "nav": {
     "dashboard": "Dashboard",
     "myWorkAreas": "Work Areas",

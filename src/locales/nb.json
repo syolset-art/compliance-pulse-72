@@ -1,4 +1,12 @@
 {
+  "manualDocDialog": {
+    "verifyConfirm": {
+      "title": "Bekreft uavhengig verifisering",
+      "orgLabel": "Uavhengig organ",
+      "orgPlaceholder": "f.eks. BDO, DNV, TÜV, Bureau Veritas",
+      "checkboxText": "Jeg bekrefter at det opplastede dokumentet er signert eller attestert av oppgitt uavhengig organ, og at innholdet er korrekt."
+    }
+  },
   "nav": {
     "dashboard": "Dashboard",
     "myWorkAreas": "Arbeidsområder",

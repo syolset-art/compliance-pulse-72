@@ -4,6 +4,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import nb from '@/locales/nb.json';
 import en from '@/locales/en.json';
+import nl from '@/locales/nl.json';
 
 i18n
   .use(LanguageDetector)
@@ -12,9 +13,10 @@ i18n
     resources: {
       nb: { translation: nb },
       en: { translation: en },
+      nl: { translation: nl },
     },
     fallbackLng: 'nb',
-    supportedLngs: ['nb', 'en'],
+    supportedLngs: ['nb', 'en', 'nl'],
     nonExplicitSupportedLngs: true,
     load: 'languageOnly',
     detection: {
@@ -24,6 +26,7 @@ i18n
       convertDetectedLanguage: (lng: string) => {
         const base = (lng || '').toLowerCase().split('-')[0];
         if (base === 'nb' || base === 'nn' || base === 'no') return 'nb';
+        if (base === 'nl') return 'nl';
         return 'en';
       },
     },

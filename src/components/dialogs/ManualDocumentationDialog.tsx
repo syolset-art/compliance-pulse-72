@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -92,6 +93,7 @@ export function ManualDocumentationDialog({
   onSave,
 }: ManualDocumentationDialogProps) {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [status, setStatus] = useState("");
   const [comment, setComment] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -450,14 +452,16 @@ export function ManualDocumentationDialog({
             <div className="space-y-3 rounded-lg border border-success/30 bg-success/5 p-3">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-success" />
-                <Label className="font-semibold text-sm">Bekreft uavhengig verifisering</Label>
+                <Label className="font-semibold text-sm">{t("manualDocDialog.verifyConfirm.title")}</Label>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Uavhengig organ <span className="text-destructive">*</span></Label>
+                <Label className="text-xs">
+                  {t("manualDocDialog.verifyConfirm.orgLabel")} <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   value={verifierName}
                   onChange={(e) => setVerifierName(e.target.value)}
-                  placeholder="f.eks. BDO, DNV, Nemko"
+                  placeholder={t("manualDocDialog.verifyConfirm.orgPlaceholder")}
                 />
               </div>
               <label className="flex items-start gap-2 text-xs cursor-pointer">
@@ -466,9 +470,7 @@ export function ManualDocumentationDialog({
                   onCheckedChange={(v) => setVerifiedConfirmed(v === true)}
                   className="mt-0.5"
                 />
-                <span>
-                  Jeg bekrefter at det opplastede dokumentet er signert/attestert av oppgitt uavhengig organ, og at innholdet er korrekt.
-                </span>
+                <span>{t("manualDocDialog.verifyConfirm.checkboxText")}</span>
               </label>
             </div>
           )}
