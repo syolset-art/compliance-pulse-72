@@ -272,6 +272,14 @@ export function ManualDocumentationDialog({
                     </span>
                   </div>
                 </SelectItem>
+                <SelectItem value="not_applicable">
+                  <div className="flex flex-col">
+                    <span>Ikke relevant</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Kravet gjelder ikke for din organisasjon
+                    </span>
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
