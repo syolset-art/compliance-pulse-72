@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -26,6 +28,7 @@ import {
   X,
   Sparkles,
   AlertCircle,
+  ShieldCheck,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useClassifyEvidence } from "@/hooks/useClassifyEvidence";
@@ -73,6 +76,8 @@ export function ManualDocumentationDialog({
   const [summary, setSummary] = useState<string>("");
   const [confidence, setConfidence] = useState<number | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [verifiedConfirmed, setVerifiedConfirmed] = useState(false);
+  const [verifierName, setVerifierName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const { state: aiState, classify, reset: resetAi } = useClassifyEvidence();
 
@@ -84,6 +89,8 @@ export function ManualDocumentationDialog({
     setArticles("");
     setSummary("");
     setConfidence(null);
+    setVerifiedConfirmed(false);
+    setVerifierName("");
     resetAi();
   };
 
@@ -127,10 +134,21 @@ export function ManualDocumentationDialog({
       });
       return;
     }
-    if (status === "implemented" && !file) {
+    if ((status === "implemented" || status === "verified") && !file) {
       toast({
         title: "Last opp dokumentasjon",
-        description: "Legg ved et dokument som viser at kravet er implementert",
+        description:
+          status === "verified"
+            ? "Last opp det signerte dokumentet fra uavhengig organ"
+            : "Legg ved et dokument som viser at kravet er implementert",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (status === "verified" && (!verifiedConfirmed || !verifierName.trim())) {
+      toast({
+        title: "Bekreft verifisering",
+        description: "Oppgi uavhengig organ og bekreft at dokumentet er signert av dem",
         variant: "destructive",
       });
       return;
@@ -154,7 +172,8 @@ export function ManualDocumentationDialog({
                 summary: summary || undefined,
               }
             : undefined,
-        verificationStatus: "self_reported",
+        verificationStatus: status === "verified" ? "verified" : "self_reported",
+        verifiedBy: status === "verified" ? verifierName.trim() : undefined,
       };
     }
 
@@ -208,7 +227,7 @@ export function ManualDocumentationDialog({
                 <SelectItem value="not_started">Ikke påbegynt</SelectItem>
                 <SelectItem value="in_progress">Pågår</SelectItem>
                 <SelectItem value="implemented">Implementert</SelectItem>
-                <SelectItem value="verified" disabled>
+                <SelectItem value="verified">
                   <div className="flex flex-col">
                     <span>Verifisert</span>
                     <span className="text-[11px] text-muted-foreground">
@@ -226,6 +245,14 @@ export function ManualDocumentationDialog({
                 </span>
               </div>
             )}
+            {status === "verified" && (
+              <div className="flex items-start gap-2 rounded-md border border-success/30 bg-success/5 p-2.5 text-xs text-foreground">
+                <ShieldCheck className="h-3.5 w-3.5 mt-0.5 text-success shrink-0" />
+                <span>
+                  Last opp det signerte dokumentet fra uavhengig organ (revisor, sertifiseringsorgan e.l.) og bekreft under.
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Comment */}
@@ -239,12 +266,12 @@ export function ManualDocumentationDialog({
             />
           </div>
 
-          {/* Uploader — only when Implementert */}
-          {status === "implemented" && (
+          {/* Uploader — for Implementert og Verifisert */}
+          {(status === "implemented" || status === "verified") && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="font-semibold">
-                  Last opp dokumentasjon <span className="text-destructive">*</span>
+                  {status === "verified" ? "Last opp signert dokument" : "Last opp dokumentasjon"} <span className="text-destructive">*</span>
                 </Label>
                 <Badge variant="outline" className="gap-1 text-[10px]">
                   <Sparkles className="h-3 w-3 text-primary" />
@@ -368,6 +395,34 @@ export function ManualDocumentationDialog({
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Verifisert-bekreftelse */}
+          {status === "verified" && (
+            <div className="space-y-3 rounded-lg border border-success/30 bg-success/5 p-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-success" />
+                <Label className="font-semibold text-sm">Bekreft uavhengig verifisering</Label>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Uavhengig organ <span className="text-destructive">*</span></Label>
+                <Input
+                  value={verifierName}
+                  onChange={(e) => setVerifierName(e.target.value)}
+                  placeholder="f.eks. BDO, DNV, Nemko"
+                />
+              </div>
+              <label className="flex items-start gap-2 text-xs cursor-pointer">
+                <Checkbox
+                  checked={verifiedConfirmed}
+                  onCheckedChange={(v) => setVerifiedConfirmed(v === true)}
+                  className="mt-0.5"
+                />
+                <span>
+                  Jeg bekrefter at det opplastede dokumentet er signert/attestert av oppgitt uavhengig organ, og at innholdet er korrekt.
+                </span>
+              </label>
             </div>
           )}
         </div>
