@@ -308,10 +308,10 @@ export function ManualDocumentationDialog({
                     {status === "verified" ? "Last opp signert dokument" : "Last opp dokumentasjon"} <span className="text-destructive">*</span>
                   </Label>
                   <FieldHelp>
-                    <p className="font-medium mb-1">Hvorfor er dokumentasjon påkrevd?</p>
+                    <p className="font-medium mb-1">Hvorfor kreves dokumentasjon som bevis?</p>
                     <p className="text-muted-foreground mb-2">
                       Status <span className="text-foreground">{status === "verified" ? "Verifisert" : "Implementert"}</span> krever at kravet kan dokumenteres.
-                      Uten dokumentasjon regnes kravet som egenrapportert og gir lav bevisverdi mot revisor og kunder.
+                      Uten dokumentasjon har kravet ingen bevisverdi — det står bare som en påstand mot revisor og kunder.
                     </p>
                     <p className="font-medium mb-1">Typisk dokumentasjon for {hint.articleLabel}:</p>
                     <ul className="space-y-0.5 text-muted-foreground">
