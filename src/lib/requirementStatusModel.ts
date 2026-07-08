@@ -49,10 +49,26 @@ export interface EvidenceDocument {
   verifiedAt?: string;
 }
 
+export interface VerificationInfo {
+  externalVerifier: {
+    name: string;          // e.g. "BDO Norge AS"
+    person?: string;       // e.g. "Erik Solheim, Lead Auditor"
+    standard?: string;     // e.g. "ISO 27001:2022"
+    date: string;
+    reportRef?: string;
+  };
+  internalConfirmer: {
+    name: string;
+    role: string;
+    date: string;
+  };
+}
+
 export interface RequirementUiState {
   progress: ProgressStatus;
   evidence: EvidenceState;
   attestedBy?: AttestationInfo;
+  verification?: VerificationInfo;
   evidenceCount?: { collected: number; required: number };
   revalidationDaysLeft?: number;
   documents?: EvidenceDocument[];
