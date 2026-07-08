@@ -190,7 +190,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               className={cn(
                 "rounded-lg border bg-card transition-all",
                 highlightRequirementId === req.requirement_id && "ring-2 ring-primary/50",
-                isVerified && "border-success/40 bg-success/5",
                 isMuted && "opacity-60",
               )}
             >
@@ -212,8 +211,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {req.name_no}
                   </h4>
                   {state.attestedBy ? (
-                    <p className="text-xs text-success mt-1 flex items-center gap-1.5">
-                      <UserCheck className="h-3.5 w-3.5 shrink-0" />
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+                      <UserCheck className="h-3.5 w-3.5 shrink-0 text-success" />
                       <span className="truncate">
                         {isNb ? "Attestert av" : "Attested by"} {state.attestedBy.name} ({state.attestedBy.role}) · {state.attestedBy.date}
                       </span>
@@ -222,54 +221,67 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-2 shrink-0 mt-1">
-                  {/* Bevis-badge */}
-                  <TooltipProvider delayDuration={200}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Badge
-                          variant="outline"
-                          className={cn("gap-1.5 text-xs font-medium", evidenceCfg.badgeClass)}
-                          onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
-                        >
-                          <EvidenceIcon className="h-3 w-3" />
-                          {formatEvidenceLabel(state, isNb)}
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="max-w-[260px]">
-                        <p className="text-xs font-medium">{isNb ? evidenceCfg.labelNb : evidenceCfg.labelEn}</p>
-                        {state.evidenceCount && (
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {state.evidenceCount.collected}/{state.evidenceCount.required} {isNb ? "bevis" : "evidence"}
-                          </p>
-                        )}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  {/* Bevis-teller (kun når full dekning ikke er trivielt) */}
-                  {state.evidenceCount && (
-                    <Badge variant="outline" className="text-xs font-mono tabular-nums text-muted-foreground">
-                      {state.evidenceCount.collected}/{state.evidenceCount.required}
-                    </Badge>
+                <div className="flex items-center gap-1.5 shrink-0 mt-1">
+                  {/* Dokument-teller (klikkbar via ekspandering) */}
+                  {state.documents && state.documents.length > 0 && (
+                    <TooltipProvider delayDuration={200}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span
+                            className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 px-1.5 py-0.5 text-xs font-medium text-foreground"
+                            onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                          >
+                            <Paperclip className="h-3 w-3 text-muted-foreground" />
+                            {state.documents.length}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[260px]">
+                          <p className="text-xs font-medium mb-1">{isNb ? "Dokumentasjon" : "Documentation"}</p>
+                          <ul className="text-xs text-muted-foreground space-y-0.5">
+                            {state.documents.slice(0, 4).map((d) => (
+                              <li key={d.name} className="truncate">· {d.name}</li>
+                            ))}
+                            {state.documents.length > 4 && (
+                              <li className="italic">+{state.documents.length - 4} {isNb ? "til" : "more"}</li>
+                            )}
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
 
-                  {/* Status-badge */}
-                  <Badge
-                    variant="outline"
-                    className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}
-                    onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
-                  >
-                    {isNb ? progressCfg.labelNb : progressCfg.labelEn}
-                  </Badge>
+                  {/* Bevis-tellingen (X/Y) — vises kun når det gir mening (ikke identisk med doc-teller) */}
+                  {state.evidenceCount && state.evidenceCount.required > 0 && (
+                    <span className="inline-flex items-center rounded-md border border-border bg-transparent px-1.5 py-0.5 text-[11px] font-mono tabular-nums text-muted-foreground">
+                      {state.evidenceCount.collected}/{state.evidenceCount.required}
+                    </span>
+                  )}
 
-                  {/* Kapasitets-badge */}
+                  {/* Ett samlet statusbadge — dedup når fremdrift == bevistilstand */}
+                  {sameLabel ? (
+                    <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", primaryCfg.badgeClass)}>
+                      <PrimaryIcon className={cn("h-3 w-3", primaryCfg.iconClass)} />
+                      {primaryLabel}
+                    </Badge>
+                  ) : (
+                    <>
+                      <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", evidenceCfg.badgeClass)}>
+                        <EvidenceIcon className={cn("h-3 w-3", evidenceCfg.iconClass)} />
+                        {formatEvidenceLabel(state, isNb)}
+                      </Badge>
+                      <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}>
+                        {isNb ? progressCfg.labelNb : progressCfg.labelEn}
+                      </Badge>
+                    </>
+                  )}
+
+                  {/* Kapasitets-badge — nøytral */}
                   <TooltipProvider delayDuration={200}>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Badge
                           variant="outline"
-                          className="gap-1.5 text-xs font-medium cursor-help"
+                          className="gap-1.5 text-xs font-medium text-muted-foreground cursor-help"
                           onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
                         >
                           <CapIcon className="h-3 w-3" />
@@ -285,6 +297,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </div>
               </button>
+
 
               {isExpanded && (
                 <div className="px-4 pb-4">
