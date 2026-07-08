@@ -1,4 +1,4 @@
-import { CheckCircle2, Circle, Clock, MinusCircle, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle2, Circle, Clock, MinusCircle, ArrowRight, Loader2, UserCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -7,6 +7,14 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { AgentCapabilityBadge } from "./AgentCapabilityBadge";
 import { cn } from "@/lib/utils";
 import type { AgentCapability, RequirementPriority } from "@/lib/complianceRequirementsData";
+import {
+  demoUiStateFor,
+  formatEvidenceLabel,
+  getEvidenceConfig,
+  getProgressConfig,
+  type RequirementUiState,
+} from "@/lib/requirementStatusModel";
+
 
 export type RequirementStatus = 'not_started' | 'in_progress' | 'completed' | 'not_applicable';
 
