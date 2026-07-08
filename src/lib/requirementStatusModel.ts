@@ -60,40 +60,45 @@ export interface StatusConfig {
   iconClass: string;
 }
 
+/**
+ * Dempet designspråk: alle badges er nøytrale outline i utgangspunktet.
+ * Kun små fargeaksenter på ikonet + kant. Ingen fylte fargefelt utenom
+ * subtile advarsler.
+ */
 export const PROGRESS_CONFIG: Record<ProgressStatus, StatusConfig> = {
   not_answered: {
     labelNb: "Ikke besvart",
     labelEn: "Not answered",
     icon: Circle,
-    badgeClass: "bg-muted/60 text-muted-foreground border border-border",
+    badgeClass: "bg-transparent text-muted-foreground border-border",
     iconClass: "text-muted-foreground",
   },
   in_progress: {
     labelNb: "Pågår",
     labelEn: "In progress",
     icon: CircleDashed,
-    badgeClass: "bg-warning/15 text-warning border border-warning/30",
+    badgeClass: "bg-transparent text-foreground border-warning/40",
     iconClass: "text-warning",
   },
   implemented: {
     labelNb: "Implementert",
     labelEn: "Implemented",
     icon: CheckCircle2,
-    badgeClass: "bg-primary/10 text-primary border border-primary/30",
+    badgeClass: "bg-transparent text-foreground border-border",
     iconClass: "text-primary",
   },
   verified: {
     labelNb: "Verifisert",
     labelEn: "Verified",
     icon: ShieldCheck,
-    badgeClass: "bg-success/15 text-success border border-success/30",
+    badgeClass: "bg-transparent text-foreground border-success/40",
     iconClass: "text-success",
   },
   not_applicable: {
     labelNb: "Ikke relevant",
     labelEn: "Not applicable",
     icon: CircleSlash,
-    badgeClass: "bg-muted/40 text-muted-foreground border border-border",
+    badgeClass: "bg-transparent text-muted-foreground border-border",
     iconClass: "text-muted-foreground",
   },
 };
@@ -103,45 +108,46 @@ export const EVIDENCE_CONFIG: Record<EvidenceState, StatusConfig> = {
     labelNb: "Bevis påkrevd",
     labelEn: "Evidence required",
     icon: FileText,
-    badgeClass: "bg-warning/10 text-warning border border-warning/25",
+    badgeClass: "bg-transparent text-foreground border-warning/40",
     iconClass: "text-warning",
   },
   self_reported: {
     labelNb: "Egenrapportert",
     labelEn: "Self-reported",
     icon: FileText,
-    badgeClass: "bg-muted/60 text-muted-foreground border border-border",
+    badgeClass: "bg-transparent text-muted-foreground border-border",
     iconClass: "text-muted-foreground",
   },
   attested: {
     labelNb: "Attestert",
     labelEn: "Attested",
     icon: UserCheck,
-    badgeClass: "bg-success/15 text-success border border-success/30",
+    badgeClass: "bg-transparent text-foreground border-success/40",
     iconClass: "text-success",
   },
   verified: {
     labelNb: "Verifisert",
     labelEn: "Verified",
     icon: ShieldCheck,
-    badgeClass: "bg-success/15 text-success border border-success/30",
+    badgeClass: "bg-transparent text-foreground border-success/40",
     iconClass: "text-success",
   },
   revalidation_due: {
     labelNb: "Re-attesteres snart",
     labelEn: "Re-attestation due",
     icon: Clock,
-    badgeClass: "bg-warning/15 text-warning border border-warning/30",
+    badgeClass: "bg-transparent text-foreground border-warning/40",
     iconClass: "text-warning",
   },
   out_of_scope: {
     labelNb: "Utenfor scope",
     labelEn: "Out of scope",
     icon: CircleSlash,
-    badgeClass: "bg-muted/40 text-muted-foreground border border-border",
+    badgeClass: "bg-transparent text-muted-foreground border-border",
     iconClass: "text-muted-foreground",
   },
 };
+
 
 export const getProgressConfig = (p: ProgressStatus) => PROGRESS_CONFIG[p];
 export const getEvidenceConfig = (e: EvidenceState) => EVIDENCE_CONFIG[e];
