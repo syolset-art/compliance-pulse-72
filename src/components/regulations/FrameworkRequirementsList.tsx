@@ -354,7 +354,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     {state.progress !== "verified" && state.progress !== "not_applicable" && (() => {
                       // Finn et dokument fra et annet krav som Lara kan gjenbruke.
                       // Demo: bruk første dokument fra et annet krav som har dokumenter.
-                      const currentHasDocs = (state.documents?.length ?? 0) > 0;
+                      
                       let crossRef: undefined | {
                         name: string;
                         sourceRequirementName: string;
