@@ -343,6 +343,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           onSave={(status) => handleDocSave(docDialog.id, status)}
         />
       )}
+
+      {cursorTip && (
+        <div
+          className="pointer-events-none fixed z-50 rounded-md bg-popover text-popover-foreground border shadow-md px-2.5 py-1.5 text-xs max-w-xs"
+          style={{ left: cursorTip.x + 14, top: cursorTip.y + 16 }}
+        >
+          Klikk på kravet for å lese mer og utføre oppgaven
+        </div>
+      )}
     </div>
   );
 };
