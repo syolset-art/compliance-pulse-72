@@ -379,18 +379,38 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
                     )}
 
-                    {state.progress === "verified" && (
-                      <div className="flex items-center gap-2 p-3 rounded-lg bg-success/10 border border-success/25">
-                        <CheckCircle2 className="h-4 w-4 text-success" />
-                        <span className="text-sm text-success">
-                          {isNb
-                            ? state.attestedBy
-                              ? `Verifisert · Attestert av ${state.attestedBy.name} (${state.attestedBy.role}) den ${state.attestedBy.date}.`
-                              : "Dette kravet er dokumentert og verifisert."
-                            : "This requirement is documented and verified."}
-                        </span>
+                    {/* Dokumentasjonsliste */}
+                    {state.documents && state.documents.length > 0 && (
+                      <div className="rounded-lg border bg-muted/20">
+                        <div className="flex items-center justify-between px-3 py-2 border-b">
+                          <div className="flex items-center gap-2 text-xs font-medium text-foreground">
+                            <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />
+                            {isNb ? "Dokumentasjon" : "Documentation"}
+                            <span className="text-muted-foreground font-normal">({state.documents.length})</span>
+                          </div>
+                          {state.attestedBy && (
+                            <span className="text-[11px] text-muted-foreground">
+                              {isNb ? "Attestert" : "Attested"} · {state.attestedBy.date}
+                            </span>
+                          )}
+                        </div>
+                        <ul className="divide-y">
+                          {state.documents.map((d) => (
+                            <li key={d.name} className="flex items-center justify-between px-3 py-2 text-sm hover:bg-muted/30 transition-colors">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
+                                <span className="truncate">{d.name}</span>
+                                <span className="text-[10px] uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">{d.kind}</span>
+                              </div>
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 shrink-0" onClick={(e) => { e.stopPropagation(); toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name }); }}>
+                                <Download className="h-3.5 w-3.5" />
+                              </Button>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     )}
+
 
                     <p className="text-xs text-muted-foreground pt-2 border-t">
                       Referanse: <span className="font-mono">{req.requirement_id}</span>
