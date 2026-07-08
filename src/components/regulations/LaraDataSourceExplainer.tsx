@@ -23,6 +23,7 @@ export function LaraDataSourceExplainer({
   requirement,
   status,
   onManualDocument,
+  crossReferenceDoc,
 }: LaraDataSourceExplainerProps) {
   const source = getRequirementDataSource(requirement);
   const capability = requirement.agent_capability;
