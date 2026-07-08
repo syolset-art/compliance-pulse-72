@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock } from "lucide-react";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
@@ -76,6 +77,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const isNb = i18n.language !== "en";
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [search, setSearch] = useState("");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
@@ -121,9 +123,20 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   }, [counts, onCountsChange]);
 
   const filtered = useMemo(() => {
-    if (filter === "all") return requirements;
-    return requirements.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === filter);
-  }, [filter, requirements, uiStates]);
+    const q = search.trim().toLowerCase();
+    let list = requirements;
+    if (filter !== "all") {
+      list = list.filter((r) => bucketOf(uiStates[r.requirement_id]?.progress ?? "not_answered") === filter);
+    }
+    if (q) {
+      list = list.filter((r) =>
+        r.name_no.toLowerCase().includes(q) ||
+        r.description_no.toLowerCase().includes(q) ||
+        r.requirement_id.toLowerCase().includes(q),
+      );
+    }
+    return list;
+  }, [filter, requirements, uiStates, search]);
 
   const handleDocSave = (requirementId: string, status: string, _comment: string, doc?: EvidenceDocument) => {
     setUiStates((prev) => {
@@ -185,6 +198,26 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         </div>
       </div>
 
+      <div className="relative mb-3">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={isNb ? "Søk i krav eller beskrivelse…" : "Search requirements or description…"}
+          className="pl-9 pr-9 h-9"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted text-muted-foreground"
+            aria-label={isNb ? "Tøm søk" : "Clear search"}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
       <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)} className="mb-4">
         <TabsList className="w-full grid grid-cols-4">
           <TabsTrigger value="all">Alle</TabsTrigger>
@@ -193,6 +226,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           <TabsTrigger value="met">Oppfylt ({counts.met})</TabsTrigger>
         </TabsList>
       </Tabs>
+
+      {filtered.length === 0 && (
+        <div className="text-center py-8 text-sm text-muted-foreground">
+          {isNb ? "Ingen krav matcher søket." : "No requirements match your search."}
+        </div>
+      )}
+
 
       <div className="space-y-3">
         {filtered.map((req) => {
