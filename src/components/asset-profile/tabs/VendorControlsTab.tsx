@@ -1,12 +1,20 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, AlertTriangle, Shield, ChevronDown, ChevronUp, FileText } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Shield, ChevronDown, ChevronUp, UserCheck } from "lucide-react";
 import { useTrustControlEvaluation } from "@/hooks/useTrustControlEvaluation";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  demoUiStateFor,
+  formatEvidenceLabel,
+  getEvidenceConfig,
+  getProgressConfig,
+  type RequirementUiState,
+} from "@/lib/requirementStatusModel";
+import { cn } from "@/lib/utils";
 
 interface VendorControlsTabProps {
   assetId: string;
@@ -19,11 +27,13 @@ const AREA_META: Record<string, { labelNb: string; labelEn: string; color: strin
   vendor: { labelNb: "Tredjepart og verdikjede", labelEn: "Third-Party & Supply Chain", color: "text-warning" },
 };
 
-const StatusIcon = ({ status }: { status: string }) => {
-  if (status === "implemented") return <CheckCircle2 className="h-4 w-4 text-success shrink-0" />;
-  if (status === "partial") return <AlertTriangle className="h-4 w-4 text-warning shrink-0" />;
-  return <XCircle className="h-4 w-4 text-destructive shrink-0" />;
-};
+/** Utled ui-state fra kontrollens rå status. */
+function uiFor(c: { key: string; status: string }): RequirementUiState {
+  if (c.status === "implemented") return demoUiStateFor(c.key, 1);
+  if (c.status === "partial") return demoUiStateFor(c.key, 5);
+  return { progress: "not_answered", evidence: "required" };
+}
+
 
 export const VendorControlsTab = ({ assetId }: VendorControlsTabProps) => {
   const { i18n } = useTranslation();
