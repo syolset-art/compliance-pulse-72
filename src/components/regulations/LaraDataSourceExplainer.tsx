@@ -1,18 +1,29 @@
-import { Bot, Users, Sparkles, FileQuestion } from "lucide-react";
+import { Bot, Users, Sparkles, FileQuestion, FileText, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { ComponentType } from "react";
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import { getRequirementDataSource } from "@/lib/requirementDataSourceMap";
+
+export interface LaraCrossReferenceDoc {
+  name: string;
+  sourceRequirementName: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  onAccept: () => void;
+}
 
 interface LaraDataSourceExplainerProps {
   requirement: ComplianceRequirement;
   status: "not_met" | "partial" | "met";
   onManualDocument: () => void;
+  crossReferenceDoc?: LaraCrossReferenceDoc;
 }
 
 export function LaraDataSourceExplainer({
   requirement,
   status,
   onManualDocument,
+  crossReferenceDoc,
 }: LaraDataSourceExplainerProps) {
   const source = getRequirementDataSource(requirement);
   const capability = requirement.agent_capability;
@@ -65,6 +76,38 @@ export function LaraDataSourceExplainer({
       <p className="text-sm text-foreground/80 leading-relaxed pl-11">
         {explanation}
       </p>
+
+      {crossReferenceDoc && (
+        <div className="ml-11 rounded-md border bg-background/60 p-3 space-y-2">
+          <div className="flex items-start gap-2">
+            <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+            <p className="text-xs text-foreground">
+              Lara har funnet et dokument som allerede er lastet opp og som kan dekke dette kravet.
+            </p>
+          </div>
+          <div className="flex items-start gap-2 pl-5">
+            <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-medium text-foreground truncate">{crossReferenceDoc.name}</div>
+              <div className="text-[11px] text-muted-foreground">
+                Lastet opp under <span className="text-foreground/80">{crossReferenceDoc.sourceRequirementName}</span> · {crossReferenceDoc.uploadedBy} · {crossReferenceDoc.uploadedAt}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end pl-5">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 h-7 text-xs rounded-pill"
+              onClick={crossReferenceDoc.onAccept}
+            >
+              <Check className="h-3.5 w-3.5" />
+              Bruk dette dokumentet
+            </Button>
+          </div>
+        </div>
+      )}
+
 
       <div className="flex flex-col sm:flex-row gap-2 pl-11">
         {/* Sekundær CTA — dokumenter manuelt */}

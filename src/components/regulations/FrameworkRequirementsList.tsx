@@ -351,13 +351,54 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <div className="space-y-4">
                     <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
 
-                    {state.progress !== "verified" && state.progress !== "not_applicable" && (
-                      <LaraDataSourceExplainer
-                        requirement={req}
-                        status={bucketOf(state.progress) === "met" ? "met" : bucketOf(state.progress) === "partial" ? "partial" : "not_met"}
-                        onManualDocument={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
-                      />
-                    )}
+                    {state.progress !== "verified" && state.progress !== "not_applicable" && (() => {
+                      // Finn et dokument fra et annet krav som Lara kan gjenbruke.
+                      // Demo: bruk første dokument fra et annet krav som har dokumenter.
+                      const currentHasDocs = (state.documents?.length ?? 0) > 0;
+                      let crossRef: undefined | {
+                        name: string;
+                        sourceRequirementName: string;
+                        uploadedBy: string;
+                        uploadedAt: string;
+                        onAccept: () => void;
+                      };
+                      if (!currentHasDocs && bucketOf(state.progress) !== "met") {
+                        for (const other of requirements) {
+                          if (other.requirement_id === req.requirement_id) continue;
+                          const otherState = uiStates[other.requirement_id];
+                          const doc = otherState?.documents?.[0];
+                          if (doc) {
+                            const uploader = otherState?.verification?.internalConfirmer?.name
+                              ?? otherState?.attestedBy?.name
+                              ?? "Vilde Gjellestad";
+                            const uploadedAt = otherState?.verification?.internalConfirmer?.date
+                              ?? otherState?.attestedBy?.date
+                              ?? "3. juni 2026";
+                            crossRef = {
+                              name: doc.name,
+                              sourceRequirementName: other.name_no,
+                              uploadedBy: uploader,
+                              uploadedAt,
+                              onAccept: () => {
+                                handleDocSave(req.requirement_id, "implemented", "", { ...doc });
+                                toast.success("Dokument gjenbrukt", {
+                                  description: `${doc.name} er koblet til ${req.name_no}`,
+                                });
+                              },
+                            };
+                            break;
+                          }
+                        }
+                      }
+                      return (
+                        <LaraDataSourceExplainer
+                          requirement={req}
+                          status={bucketOf(state.progress) === "met" ? "met" : bucketOf(state.progress) === "partial" ? "partial" : "not_met"}
+                          onManualDocument={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
+                          crossReferenceDoc={crossRef}
+                        />
+                      );
+                    })()}
 
                     {bucketOf(state.progress) === "partial" && (
                       <div className="space-y-2">
