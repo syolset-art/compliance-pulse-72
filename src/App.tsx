@@ -121,6 +121,7 @@ const App = () => (
                 <GlobalChatProvider>
                 <Routes>
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/s/:token" element={<SharedTrustProfile />} />
                   <Route path="/" element={<Index />} />
                   <Route path="/ai-setup" element={<AIAgentSetup />} />
                   <Route path="/ai-registry" element={<AISystemRegistry />} />
