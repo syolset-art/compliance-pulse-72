@@ -472,19 +472,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         <ul className="divide-y">
                           {state.documents.map((d) => {
                             const vStatus = d.verificationStatus ?? "self_reported";
-                            const vLabel =
-                              vStatus === "verified"
-                                ? (isNb ? "Verifisert" : "Verified")
-                                : vStatus === "pending_verification"
-                                  ? (isNb ? "Til verifisering" : "Pending verification")
-                                  : (isNb ? "Egenrapportert" : "Self-reported");
-                            const vClass =
-                              vStatus === "verified"
-                                ? "text-success border-success/40"
-                                : vStatus === "pending_verification"
-                                  ? "text-warning border-warning/40"
-                                  : "text-muted-foreground border-border";
-                            const canDownload = vStatus === "verified";
+                            const isVerifiedDoc = vStatus === "verified";
+                            const vLabel = isVerifiedDoc
+                              ? (isNb ? "Verifisert av uavhengig organ" : "Verified by independent body")
+                              : (isNb ? "Egenrapportert" : "Self-reported");
+                            const vClass = isVerifiedDoc
+                              ? "text-success border-success/40"
+                              : "text-muted-foreground border-border";
                             return (
                               <li key={d.name} className="px-3 py-2.5 text-sm space-y-2 hover:bg-muted/30 transition-colors">
                                 <div className="flex items-center justify-between gap-2">
@@ -494,7 +488,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                     <span className="text-[10px] uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">{d.kind}</span>
                                   </div>
                                   <Badge variant="outline" className={cn("gap-1 text-[10px] font-medium shrink-0", vClass)}>
-                                    {vStatus === "verified" && <ShieldCheck className="h-3 w-3" />}
+                                    {isVerifiedDoc && <ShieldCheck className="h-3 w-3" />}
                                     {vLabel}
                                   </Badge>
                                 </div>
@@ -515,53 +509,18 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                 )}
 
                                 <div className="flex items-center justify-end gap-2 pl-6">
-                                  <TooltipProvider delayDuration={200}>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <span>
-                                          <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-7 gap-1.5 text-xs"
-                                            disabled={!canDownload}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
-                                            }}
-                                          >
-                                            <Download className="h-3 w-3" />
-                                            {isNb ? "Last ned" : "Download"}
-                                          </Button>
-                                        </span>
-                                      </TooltipTrigger>
-                                      {!canDownload && (
-                                        <TooltipContent side="top" className="max-w-[240px]">
-                                          <p className="text-xs">{isNb ? "Tilgjengelig etter uavhengig verifisering" : "Available after independent verification"}</p>
-                                        </TooltipContent>
-                                      )}
-                                    </Tooltip>
-                                  </TooltipProvider>
-
-                                  {vStatus !== "verified" && (
-                                    <Button
-                                      variant={vStatus === "pending_verification" ? "outline" : "default"}
-                                      size="sm"
-                                      className="h-7 gap-1.5 text-xs"
-                                      disabled={vStatus === "pending_verification"}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRequestVerification(req.requirement_id, d.name);
-                                      }}
-                                    >
-                                      <ShieldCheck className="h-3 w-3" />
-                                      {vStatus === "pending_verification"
-                                        ? (isNb ? "Venter på verifisering" : "Awaiting verification")
-                                        : (isNb ? "Be om verifisering" : "Request verification")}
-                                      <Badge variant="secondary" className="ml-1 h-4 px-1 text-[9px] font-semibold">
-                                        {isNb ? "Kommer" : "Soon"}
-                                      </Badge>
-                                    </Button>
-                                  )}
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 gap-1.5 text-xs"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
+                                    }}
+                                  >
+                                    <Download className="h-3 w-3" />
+                                    {isNb ? "Last ned" : "Download"}
+                                  </Button>
                                 </div>
                               </li>
                             );
