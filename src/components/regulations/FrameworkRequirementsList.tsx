@@ -419,44 +419,35 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
                     {/* Verifisering (ekstern uavhengig aktør + intern bekreftelse) */}
                     {state.progress === "verified" && state.verification && (
-                      <div className="rounded-lg border border-success/40 bg-success/5">
-                        <div className="px-3 py-2.5 flex items-start gap-2">
-                          <ShieldCheck className="h-4 w-4 text-success mt-0.5 shrink-0" />
-                          <div className="min-w-0 flex-1 space-y-0.5">
-                            <div className="text-xs font-medium text-foreground">
-                              {isNb ? "Verifisert av uavhengig aktør" : "Verified by independent body"}
-                            </div>
-                            <div className="text-sm text-foreground">
-                              {state.verification.externalVerifier.name}
-                              {state.verification.externalVerifier.standard && (
-                                <span className="text-muted-foreground"> · {state.verification.externalVerifier.standard}</span>
-                              )}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {state.verification.externalVerifier.person && <>{state.verification.externalVerifier.person} · </>}
-                              {state.verification.externalVerifier.date}
-                              {state.verification.externalVerifier.reportRef && (
-                                <> · {isNb ? "Rapport" : "Report"}: <span className="font-mono">{state.verification.externalVerifier.reportRef}</span></>
-                              )}
-                            </div>
+                      <div className="rounded-md border bg-muted/20 px-3 py-2 text-xs space-y-1">
+                        <div className="flex items-start gap-2">
+                          <ShieldCheck className="h-3.5 w-3.5 text-success mt-0.5 shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <span className="text-muted-foreground">{isNb ? "Verifisert av" : "Verified by"} </span>
+                            <span className="text-foreground font-medium">{state.verification.externalVerifier.name}</span>
+                            {state.verification.externalVerifier.standard && (
+                              <span className="text-muted-foreground"> · {state.verification.externalVerifier.standard}</span>
+                            )}
+                            <span className="text-muted-foreground"> · {state.verification.externalVerifier.date}</span>
+                            {state.verification.externalVerifier.reportRef && (
+                              <span className="text-muted-foreground"> · {isNb ? "Rapport" : "Report"} <span className="font-mono text-foreground/80">{state.verification.externalVerifier.reportRef}</span></span>
+                            )}
+                            {state.verification.externalVerifier.person && (
+                              <div className="text-muted-foreground">{state.verification.externalVerifier.person}</div>
+                            )}
                           </div>
                         </div>
-                        <Separator />
-                        <div className="px-3 py-2.5 flex items-start gap-2">
-                          <UserCheck className="h-4 w-4 text-success mt-0.5 shrink-0" />
-                          <div className="min-w-0 flex-1 space-y-0.5">
-                            <div className="text-xs font-medium text-foreground">
-                              {isNb ? "Bekreftet internt av" : "Confirmed internally by"}
-                            </div>
-                            <div className="text-sm text-foreground">
-                              {state.verification.internalConfirmer.name}
-                              <span className="text-muted-foreground">, {state.verification.internalConfirmer.role}</span>
-                            </div>
-                            <div className="text-xs text-muted-foreground">{state.verification.internalConfirmer.date}</div>
+                        <div className="flex items-start gap-2 pt-1 border-t border-border/60">
+                          <UserCheck className="h-3.5 w-3.5 text-muted-foreground mt-1 shrink-0" />
+                          <div className="min-w-0 flex-1 pt-0.5">
+                            <span className="text-muted-foreground">{isNb ? "Bekreftet av" : "Confirmed by"} </span>
+                            <span className="text-foreground">{state.verification.internalConfirmer.name}</span>
+                            <span className="text-muted-foreground">, {state.verification.internalConfirmer.role} · {state.verification.internalConfirmer.date}</span>
                           </div>
                         </div>
                       </div>
                     )}
+
 
                     {/* Dokumentasjonsliste */}
                     {state.documents && state.documents.length > 0 && (
