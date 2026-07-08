@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles } from "lucide-react";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock } from "lucide-react";
 
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
@@ -206,13 +206,16 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const EvidenceIcon = evidenceCfg.icon;
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
           const isVerified = state.progress === "verified" && state.evidence === "verified";
+          const isVerifiedDue = state.progress === "verified" && state.evidence === "revalidation_due";
           const progressLabel = isNb ? progressCfg.labelNb : progressCfg.labelEn;
           const evidenceLabel = formatEvidenceLabel(state, isNb);
-          const sameLabel = progressLabel === evidenceLabel;
-          // Ved dedup: bruk evidence-cfg som primær (bevis-tilstanden er mer informativ)
-          const primaryCfg = evidenceCfg;
+          // Slå sammen når labels er like, eller når det er Verifisert m/ re-attestering nær
+          const sameLabel = progressLabel === evidenceLabel || isVerifiedDue;
+          // Ved dedup: bruk evidence-cfg som primær (bevis-tilstanden er mer informativ), men for
+          // "verifisert m/ re-attestering nær" vil vi vise Verifisert-pill med warning-teller
+          const primaryCfg = isVerifiedDue ? progressCfg : evidenceCfg;
           const PrimaryIcon = primaryCfg.icon;
-          const primaryLabel = evidenceLabel;
+          const primaryLabel = isVerifiedDue ? progressLabel : evidenceLabel;
 
 
           return (
@@ -262,6 +265,26 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", primaryCfg.badgeClass)}>
                       <PrimaryIcon className={cn("h-3 w-3", primaryCfg.iconClass)} />
                       {primaryLabel}
+                      {isVerifiedDue && state.revalidationDaysLeft != null && (
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span
+                                className="ml-1 pl-1.5 border-l border-warning/40 inline-flex items-center gap-0.5 text-warning cursor-help"
+                                onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                              >
+                                <Clock className="h-3 w-3" />
+                                {state.revalidationDaysLeft}d
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">
+                              {isNb
+                                ? `Re-attesteres om ${state.revalidationDaysLeft} dager`
+                                : `Re-attestation in ${state.revalidationDaysLeft} days`}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </Badge>
                   ) : (
                     <>

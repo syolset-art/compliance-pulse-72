@@ -1,36 +1,23 @@
-# Forenklede statusvalg: Ikke påbegynt · Pågår · Implementert · Verifisert
 
-Erstatter dagens fire statusvalg (Oppfylt, Delvis oppfylt, Ikke oppfylt, Ikke relevant) i `ManualDocumentationDialog` med en tydelig fremdriftsakse på fire trinn. Verifisert-trinnet krever signert dokument fra uavhengig organ og gjøres derfor ikke direkte valgbart — bruker må gå via "Be om verifisering"-flyten.
+# Ett Verifisert-pill med innebygd re-attesteringsvarsel
 
-## Statusvalg (ny)
+I dag viser kravlisten to badges når kravet er verifisert men snart må re-attesteres: "Verifisert" (progress) + "Re-attesteres om X d" (evidence). Det er dobbel info. Vi slår det sammen til ett pill.
 
-| Verdi | Label | Beskrivelse i UI |
-|---|---|---|
-| `not_started` | Ikke påbegynt | Kravet er ikke adressert enda. |
-| `in_progress` | Pågår | Arbeid pågår, ikke ferdig implementert. |
-| `implemented` | Implementert | Kravet er innført. Krever opplastet dokumentasjon. |
-| `verified` | Verifisert | Låst valg — krever signert bekreftelse fra uavhengig organ. |
+## Endring i `FrameworkRequirementsList.tsx`
 
-"Ikke relevant" tas ut av dialogen (kan legges tilbake senere som eget "scope"-valg hvis ønsket).
+**Dedup-logikken utvides:** Når `progress === "verified"` OG `evidence === "revalidation_due"`, behandle det som samme status og vis kun ett Verifisert-pill.
 
-## Endringer
+**Pillet får et lite varselelement** når re-attestering nærmer seg:
+- ShieldCheck-ikon (uendret) + "Verifisert"-tekst
+- Etterfulgt av en subtil `Clock`-ikon + "Xd" i `text-warning`, adskilt med en tynn skille (`border-l border-warning/30 pl-1.5`)
+- Tooltip på hover: "Re-attesteres om X dager"
 
-**`src/components/dialogs/ManualDocumentationDialog.tsx`**
-- Bytt SelectItem-listen til de fire nye verdiene.
-- `verified` renderes som disabled SelectItem med hjelpetekst: *"Krever signert dokument fra uavhengig organ — be om verifisering fra Implementert-status."*
-- Under Select: liten info-callout når status = `implemented`: *"Neste steg: Last opp dokumentasjon. Du kan senere be om uavhengig verifisering herfra."*
-- Under Select: liten info-callout når status = `verified` (om noen får det via annen vei): *"Verifisering krever signert bekreftelse fra uavhengig organ. Kommer snart — foreløpig kan du be om verifisering på det opplastede dokumentet."*
-- Uploader-panel vises fortsatt kun ved `implemented` (uendret).
+**Farger:** Beholder success-border som primær ramme; kun det lille tellerelementet bruker warning-farge for å signalisere at handling nærmer seg — uten å bytte pilltype.
 
-**`src/components/regulations/FrameworkRequirementsList.tsx`**
-- Utvid `handleDocSave`-mappingen:
-  - `not_started` → `{ progress: "not_answered", evidence: "required" }`
-  - `in_progress` → `{ progress: "in_progress", evidence: "self_reported" }`
-  - `implemented` → uendret (implementert + self_reported + documents)
-  - `verified` → `{ progress: "verified", evidence: "verified" }` (beholdt for kompletthet, men UI-en tillater det ikke direkte)
-- Fjern nå ubrukte grener (`fulfilled`, `partial`, `not_applicable`, `not_fulfilled`).
+## Fallback
+- Hvis `revalidationDaysLeft` mangler eller er null: ingen ekstra teller vises.
+- Hvis `progress === "verified"` men `evidence` er noe annet enn `verified`/`revalidation_due` (sjelden): behold gammel dual-badge-visning.
 
 ## Ikke inkludert
-- Automatisk sending til uavhengig organ (fortsatt "Kommer"-flyt via dokumentkortet).
-- Endring av filtertabs i kravlisten — mapping via `bucketOf(progress)` fortsetter å fungere.
-- Endring av `RequirementCard.tsx` / `VendorControlsTab.tsx` — samme mønster kan speiles senere.
+- Ingen endringer i statusmodell (`requirementStatusModel.ts`) — kun visning.
+- Ingen endring i `RequirementCard.tsx` / `VendorControlsTab.tsx` (kan speiles senere ved behov).
