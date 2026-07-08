@@ -265,6 +265,26 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", primaryCfg.badgeClass)}>
                       <PrimaryIcon className={cn("h-3 w-3", primaryCfg.iconClass)} />
                       {primaryLabel}
+                      {isVerifiedDue && state.revalidationDaysLeft != null && (
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span
+                                className="ml-1 pl-1.5 border-l border-warning/40 inline-flex items-center gap-0.5 text-warning cursor-help"
+                                onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                              >
+                                <Clock className="h-3 w-3" />
+                                {state.revalidationDaysLeft}d
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">
+                              {isNb
+                                ? `Re-attesteres om ${state.revalidationDaysLeft} dager`
+                                : `Re-attestation in ${state.revalidationDaysLeft} days`}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </Badge>
                   ) : (
                     <>
