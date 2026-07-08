@@ -1,12 +1,22 @@
-import { Bot, Users, Sparkles, FileQuestion } from "lucide-react";
+import { Bot, Users, Sparkles, FileQuestion, FileText, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { ComponentType } from "react";
 import type { ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import { getRequirementDataSource } from "@/lib/requirementDataSourceMap";
+
+export interface LaraCrossReferenceDoc {
+  name: string;
+  sourceRequirementName: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  onAccept: () => void;
+}
 
 interface LaraDataSourceExplainerProps {
   requirement: ComplianceRequirement;
   status: "not_met" | "partial" | "met";
   onManualDocument: () => void;
+  crossReferenceDoc?: LaraCrossReferenceDoc;
 }
 
 export function LaraDataSourceExplainer({
