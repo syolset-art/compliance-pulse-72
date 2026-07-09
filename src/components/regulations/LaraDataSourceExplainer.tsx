@@ -60,40 +60,6 @@ export function LaraDataSourceExplainer({
       : "Lara har ikke funnet en automatisk datakilde for dette kravet ennå.";
   }
 
-  if (crossReferenceDoc) {
-    return (
-      <div className="flex items-center gap-2 border-l-2 border-primary/40 pl-2.5 py-1.5 text-xs">
-        <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
-        <div className="min-w-0 flex-1 truncate text-muted-foreground">
-          <span className="text-foreground">Lara fant </span>
-          <span className="font-medium text-foreground">{crossReferenceDoc.name}</span>
-          {crossReferenceDoc.classification && (
-            <> <span className="px-1">·</span>{crossReferenceDoc.classification}</>
-          )}
-          {crossReferenceDoc.coversRequirements && crossReferenceDoc.coversRequirements.length > 0 && (
-            <>
-              {" "}<span className="px-1">·</span>dekker{" "}
-              <span className="text-foreground/80">
-                {crossReferenceDoc.coversRequirements.slice(0, 2).join(", ")}
-              </span>
-              {crossReferenceDoc.coversRequirements.length > 2 && (
-                <> +{crossReferenceDoc.coversRequirements.length - 2} til</>
-              )}
-            </>
-          )}
-          <> <span className="px-1">·</span>{crossReferenceDoc.uploadedBy}, {crossReferenceDoc.uploadedAt}</>
-        </div>
-        <Button
-          size="sm"
-          className="gap-1 h-7 text-xs rounded-pill shrink-0"
-          onClick={crossReferenceDoc.onAccept}
-        >
-          <Check className="h-3.5 w-3.5" />
-          Bekreft
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3">
