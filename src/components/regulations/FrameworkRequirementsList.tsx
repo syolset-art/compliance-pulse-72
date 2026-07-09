@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X, ArrowRight } from "lucide-react";
+import { ChevronDown, ChevronUp, Users, Bot, CheckCircle2, UserCheck, Paperclip, FileText as FileIcon, Download, ShieldCheck, Sparkles, Clock, Search, X, ArrowRight, HelpCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
 import { getRequirementsByFramework } from "@/lib/complianceRequirementsData";
@@ -546,9 +546,23 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-foreground">
-                          {isNb ? "Kommentar" : "Comment"}
-                        </label>
+                        <div className="flex items-center gap-1.5">
+                          <label className="text-xs font-medium text-foreground">
+                            {isNb ? "Kommentar" : "Comment"}
+                          </label>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button type="button" onClick={(e) => e.stopPropagation()} className="text-muted-foreground hover:text-foreground">
+                                <HelpCircle className="h-3.5 w-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[240px] text-xs">
+                              {isNb
+                                ? "Forklar kort hvordan kravet er oppfylt hos dere — f.eks. rutine, ansvarlig eller referanse. Dette gjør vurderingen sporbar ved revisjon."
+                                : "Briefly explain how the requirement is met — e.g. routine, owner or reference. This makes the assessment auditable."}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                         <Textarea
                           value={reqNotes[req.requirement_id] ?? ""}
                           onChange={(e) => setReqNotes((prev) => ({ ...prev, [req.requirement_id]: e.target.value }))}
@@ -559,17 +573,32 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
 
                       <div className="flex items-center justify-between gap-2 pt-1">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-8 gap-1.5 text-xs"
-                          onClick={(e) => { e.stopPropagation(); setDocDialog({ id: req.requirement_id, name: req.name_no }); }}
-                        >
-                          <Paperclip className="h-3.5 w-3.5" />
-                          {isNb ? "Tilknytt dokument" : "Attach document"}
-                        </Button>
+                        <div className="flex items-center gap-1.5">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-8 gap-1.5 text-xs"
+                            onClick={(e) => { e.stopPropagation(); setDocDialog({ id: req.requirement_id, name: req.name_no }); }}
+                          >
+                            <Paperclip className="h-3.5 w-3.5" />
+                            {isNb ? "Tilknytt dokument" : "Attach document"}
+                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button type="button" onClick={(e) => e.stopPropagation()} className="text-muted-foreground hover:text-foreground">
+                                <HelpCircle className="h-3.5 w-3.5" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[240px] text-xs">
+                              {isNb
+                                ? "Last opp eller koble til et dokument som beviser at kravet er oppfylt — f.eks. policy, rutine, avtale eller skjermbilde."
+                                : "Upload or link a document that proves the requirement is met — e.g. policy, routine, agreement or screenshot."}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                       </div>
+
                     </div>
 
 
