@@ -416,6 +416,60 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <div className="space-y-4">
                     <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
 
+                    {/* Kompakt dokumentasjonsliste — subtil, tett */}
+                    {state.documents && state.documents.length > 0 && (
+                      <ul className="space-y-1">
+                        {state.documents.map((d) => {
+                          const vStatus = d.verificationStatus ?? "self_reported";
+                          const isVerifiedDoc = vStatus === "verified";
+                          return (
+                            <li
+                              key={d.name}
+                              className="group flex items-center gap-2 text-xs py-1 border-b border-border/40 last:border-0"
+                            >
+                              <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="truncate font-medium text-foreground">{d.name}</span>
+                              <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{d.kind}</span>
+                              {d.classification && d.classification.articles.length > 0 && (
+                                <span className="text-muted-foreground truncate hidden sm:inline">
+                                  · {isNb ? "dekker" : "covers"} {d.classification.articles.slice(0, 2).join(", ")}
+                                  {d.classification.articles.length > 2 && ` +${d.classification.articles.length - 2}`}
+                                </span>
+                              )}
+                              <span className="ml-auto flex items-center gap-2 shrink-0">
+                                {isVerifiedDoc ? (
+                                  <TooltipProvider delayDuration={200}>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <ShieldCheck className="h-3.5 w-3.5 text-success" />
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">
+                                        {isNb ? "Verifisert" : "Verified"}{d.verifiedBy ? ` · ${d.verifiedBy}` : ""}{d.verifiedAt ? ` · ${d.verifiedAt}` : ""}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                ) : (
+                                  <span className="text-[10px] text-muted-foreground">{isNb ? "Egenrapportert" : "Self-reported"}</span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
+                                  }}
+                                  className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                  aria-label={isNb ? "Last ned" : "Download"}
+                                >
+                                  <Download className="h-3.5 w-3.5" />
+                                </button>
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+
+
                     {/* Kompakt statusrad — alltid synlig, brukeren kan alltid endre status */}
                     <div className="flex flex-wrap items-center gap-3 text-xs">
                       <Popover>
