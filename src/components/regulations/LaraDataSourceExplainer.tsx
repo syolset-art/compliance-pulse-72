@@ -80,49 +80,35 @@ export function LaraDataSourceExplainer({
       </p>
 
       {crossReferenceDoc && (
-        <div className="ml-11 rounded-md border border-primary/30 bg-background p-3 space-y-2.5">
-          <div className="flex items-start gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-            <p className="text-xs text-foreground">
-              Lara fant et dokument som matcher dokumentasjonskravet for dette kontrollpunktet.
-            </p>
-          </div>
-          <div className="flex items-start gap-2 pl-5">
-            <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <div className="text-sm font-medium text-foreground truncate">{crossReferenceDoc.name}</div>
-              <div className="text-[11px] text-muted-foreground">
-                Lastet opp under <span className="text-foreground/80">{crossReferenceDoc.sourceRequirementName}</span> · {crossReferenceDoc.uploadedBy} · {crossReferenceDoc.uploadedAt}
-              </div>
-              <div className="flex flex-wrap gap-1 pt-0.5">
-                {crossReferenceDoc.classification && (
-                  <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground border">
-                    Klassifisert: {crossReferenceDoc.classification}
-                  </span>
+        <div className="ml-11 flex items-center gap-2 border-l-2 border-primary/40 pl-2.5 py-1 text-xs">
+          <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+          <div className="min-w-0 flex-1 truncate text-muted-foreground">
+            <span className="text-foreground">Lara fant </span>
+            <span className="font-medium text-foreground">{crossReferenceDoc.name}</span>
+            {crossReferenceDoc.classification && (
+              <> <span className="px-1">·</span>{crossReferenceDoc.classification}</>
+            )}
+            {crossReferenceDoc.coversRequirements && crossReferenceDoc.coversRequirements.length > 0 && (
+              <>
+                {" "}<span className="px-1">·</span>dekker{" "}
+                <span className="text-foreground/80">
+                  {crossReferenceDoc.coversRequirements.slice(0, 2).join(", ")}
+                </span>
+                {crossReferenceDoc.coversRequirements.length > 2 && (
+                  <> +{crossReferenceDoc.coversRequirements.length - 2} til</>
                 )}
-                {crossReferenceDoc.coversRequirements?.slice(0, 3).map((r) => (
-                  <span key={r} className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                    Dekker: {r}
-                  </span>
-                ))}
-                {crossReferenceDoc.coversRequirements && crossReferenceDoc.coversRequirements.length > 3 && (
-                  <span className="text-[10px] text-muted-foreground">
-                    +{crossReferenceDoc.coversRequirements.length - 3} til
-                  </span>
-                )}
-              </div>
-            </div>
+              </>
+            )}
+            <> <span className="px-1">·</span>{crossReferenceDoc.uploadedBy}, {crossReferenceDoc.uploadedAt}</>
           </div>
-          <div className="flex justify-end pl-5">
-            <Button
-              size="sm"
-              className="gap-1.5 h-7 text-xs rounded-pill"
-              onClick={crossReferenceDoc.onAccept}
-            >
-              <Check className="h-3.5 w-3.5" />
-              Bekreft — dokumentet er OK
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            className="gap-1 h-7 text-xs rounded-pill shrink-0"
+            onClick={crossReferenceDoc.onAccept}
+          >
+            <Check className="h-3.5 w-3.5" />
+            Bekreft
+          </Button>
         </div>
       )}
 

@@ -1,50 +1,33 @@
-## Problem
+## Mål
 
-Etter at brukeren velger status **Implementert** (via ManualDocumentationDialog), er kravet låst i "delvis" — det finnes ingen vei videre til **Verifisert** inne i kravraden. I tillegg tar Lara-forklaringsboksen mye plass etter at dokumentasjon allerede er lagt inn, som gjør UI-et rotete.
+Kollaps hele Lara-forslagskortet til én kompakt linje inne i den utvidede kravraden. Ingen egen boks — bare en subtil rad brukeren kan bekrefte med ett klikk.
 
-## Løsning
-
-Én kompakt statuslinje øverst i det utvidede kravet som lar brukeren bytte mellom `Implementert` og `Verifisert` (og tilbake), uten dialogbokser eller store paneler.
-
-### 1. Inline statusbytte (kompakt)
-
-Legg til én liten linje rett under kravets beskrivelse når `state.progress === "implemented"` eller `"verified"`:
+## Ny visning
 
 ```
-[Status: Implementert ▾]   Marker som verifisert →
+✨  Lara fant Sikkerhetspolicy_v3.pdf  ·  Policy  ·  dekker Krav A, Krav B  ·  Vilde Gjellestad, 10. juli 2026        [ Bekreft ]
 ```
 
-- Venstre: liten status-pille (samme visuelle språk som eksisterende progress-pill), klikkbar → åpner en enkel popover med statusvalgene (`Ikke besvart`, `Under arbeid`, `Implementert`, `Verifisert`, `Ikke aktuell`). Endring oppdaterer `uiStates` direkte.
-- Høyre (kun når `implemented`): en subtil link-knapp `Marker som verifisert →` som åpner en liten inline-form (ikke dialog) med to felt:
-  - `Verifisert av` (tekst, f.eks. "PwC" eller intern rolle)
-  - `Dato` (default i dag)
-  - `Bekreft`-knapp
-  På bekreft: sett `progress: "verified"`, `evidence: "verified"`, og opprett et minimalt `verification`-objekt slik at seksjonen på linje 526 renderes.
+- Én horisontal linje, `text-xs`, ingen kantet boks/bakgrunn (evt. `border-l-2 border-primary/30 pl-2` for subtil markering).
+- Sparkles-ikon foran som Lara-signatur.
+- Dokumentnavn i `font-medium`.
+- Meta-segmenter (klassifisering, dekker, opplaster/dato) skilles med `·` i `text-muted-foreground`.
+- Ved 3+ krav: "dekker Krav A, Krav B +2 til".
+- Én knapp helt til høyre: `Bekreft` (kompakt, `h-7 text-xs`, primær variant).
 
-Nedgradere: fra `verified` skal statusbyttet i pillen tillate å gå tilbake til `implemented` (rydder `verification`-feltet).
+## Endringer
 
-### 2. Redusere støy i Lara-boksen når dokumentasjon finnes
+### `LaraDataSourceExplainer.tsx`
 
-Når `state.documents.length > 0` og `bucketOf(state.progress) !== "not_met"`:
-- Ikke rendre den store `LaraDataSourceExplainer`-boksen. Erstatt med én kompakt linje:
-  `Lara har registrert dokumentasjon — {N} dokument · {status}` med en liten `Endre`-lenke som scroller til dokumentlisten.
-- Cross-reference-forslaget (finn dokument fra annet krav) skal fortsatt vises, men kun når `state.documents.length === 0`.
+- Erstatt hele `crossReferenceDoc`-blokken (linje 82–127) med den nye enkeltlinje-varianten.
+- Behold `LaraCrossReferenceDoc`-interfacet uendret (samme props).
+- Ingen endring i hovedforklaringen eller "Dokumenter manuelt"-CTA.
 
-### 3. Skjule kommentar-panelet når status ikke er `partial`/`in_progress`
+### Ingen andre filer
 
-Kommentar-veilederen (chips + input) vises i dag når `bucketOf === "partial"`, som inkluderer `implemented`. Fjern kommentar-panelet når `progress === "implemented"` — det er ikke lenger "delvis" i praktisk forstand. Behold kun for `in_progress`.
-
-## Filer som endres
-
-- `src/components/regulations/FrameworkRequirementsList.tsx`
-  - Ny inline status-rad rett etter `<p>{req.description_no}</p>` (rundt linje 352)
-  - Betinget rendring av `LaraDataSourceExplainer` (rundt linje 354)
-  - Betingelsen på kommentar-panelet (rundt linje 404)
-  - Utvide `handleDocSave` / legge til liten helper for statusbytte uten dokument
-- Ingen endringer i `LaraDataSourceExplainer.tsx` eller dialogen.
+- `FrameworkRequirementsList.tsx`: uendret (den bygger allerede `crossRef` med klassifisering + coversRequirements).
 
 ## Ute-av-scope
 
-- Ingen endring i datamodell eller backend.
-- Ingen endring i den eksisterende ManualDocumentationDialog.
-- Beholder eksisterende verifiseringsvisning (grønt panel med ekstern verifier + intern bekrefter) uendret.
+- Ingen endring i datamodell.
+- Ingen endring på det andre plukket (statuspille / verifisering) som ble bygget forrige runde.
