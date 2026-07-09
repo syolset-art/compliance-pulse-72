@@ -226,6 +226,52 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     toast.success(isNb ? "Markert som verifisert" : "Marked as verified");
   };
 
+  const renderStatusControl = (requirementId: string, state: RequirementUiState) => {
+    const currentCfg = getProgressConfig(state.progress);
+    const CurrentIcon = currentCfg.icon;
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            onClick={(e) => e.stopPropagation()}
+            className={cn(
+              "inline-flex h-7 items-center gap-1.5 rounded-full border bg-background px-2.5 text-xs font-medium shadow-sm transition-colors hover:bg-muted/60",
+              currentCfg.badgeClass,
+            )}
+            aria-label={isNb ? "Endre status" : "Change status"}
+          >
+            <CurrentIcon className={cn("h-3 w-3", currentCfg.iconClass)} />
+            <span>{isNb ? currentCfg.labelNb : currentCfg.labelEn}</span>
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-56 p-1">
+          {(["not_answered", "in_progress", "implemented", "verified", "not_applicable"] as ProgressStatus[]).map((s) => {
+            const cfg = getProgressConfig(s);
+            const StatusIcon = cfg.icon;
+            const active = state.progress === s;
+            return (
+              <button
+                key={s}
+                type="button"
+                onClick={() => handleStatusChange(requirementId, s)}
+                className={cn(
+                  "w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-muted text-left",
+                  active && "bg-muted font-medium",
+                )}
+              >
+                <StatusIcon className={cn("h-3.5 w-3.5", cfg.iconClass)} />
+                {isNb ? cfg.labelNb : cfg.labelEn}
+                {active && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-primary" />}
+              </button>
+            );
+          })}
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
 
   if (requirements.length === 0) {
     return (
@@ -322,10 +368,19 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                 isMuted && "opacity-60",
               )}
             >
-              <button
+              <div
                 onClick={() => { setExpandedId(isExpanded ? null : req.requirement_id); setCursorTip(null); }}
                 onMouseMove={(e) => setCursorTip({ x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setCursorTip(null)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setExpandedId(isExpanded ? null : req.requirement_id);
+                    setCursorTip(null);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
                 aria-expanded={isExpanded}
                 className="w-full p-4 flex items-start gap-3 text-left hover:bg-muted/30 transition-colors"
               >
@@ -376,38 +431,36 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     );
                   })()}
 
-                  {/* Statusbadge — kun fremdrift (progress), aldri bevis-attestering */}
-                  <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", progressCfg.badgeClass)}>
-                    <ProgressIcon className={cn("h-3 w-3", progressCfg.iconClass)} />
-                    {progressLabel}
-                    {isVerifiedDue && state.revalidationDaysLeft != null && (
-                      <TooltipProvider delayDuration={200}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span
-                              className="ml-1 pl-1.5 border-l border-warning/40 inline-flex items-center gap-0.5 text-warning cursor-help"
-                              onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
-                            >
-                              <Clock className="h-3 w-3" />
-                              {state.revalidationDaysLeft}d
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" className="text-xs">
-                            {isNb
-                              ? `Re-attesteres om ${state.revalidationDaysLeft} dager`
-                              : `Re-attestation in ${state.revalidationDaysLeft} days`}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    )}
-                  </Badge>
+                  {renderStatusControl(req.requirement_id, state)}
+
+                  {isVerifiedDue && state.revalidationDaysLeft != null && (
+                    <TooltipProvider delayDuration={200}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span
+                            className="inline-flex h-7 items-center gap-0.5 rounded-full border border-warning/40 px-2 text-xs text-warning cursor-help"
+                            onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Clock className="h-3 w-3" />
+                            {state.revalidationDaysLeft}d
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-xs">
+                          {isNb
+                            ? `Re-attesteres om ${state.revalidationDaysLeft} dager`
+                            : `Re-attestation in ${state.revalidationDaysLeft} days`}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
 
                   {/* Kapasitets-badge fjernet — skapte usikkerhet */}
 
 
                   {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </div>
-              </button>
+              </div>
 
 
               {isExpanded && (
@@ -415,22 +468,41 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <Separator className="mb-4" />
                   <div className="space-y-3">
 
-                    {/* Dokumentasjon øverst — subtil, tett */}
-                    {state.documents && state.documents.length > 0 && (
-                      <ul className="divide-y divide-border/30">
-                        {state.documents.map((d) => {
+                    {/* Dokumentasjon øverst — alltid synlig, subtil og tett */}
+                    <div className="border-y border-border/40 py-1.5 text-[11px]">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="inline-flex items-center gap-1 font-medium text-muted-foreground shrink-0">
+                          <Paperclip className="h-3 w-3" />
+                          {isNb ? "Dokumentasjon" : "Documentation"}
+                        </span>
+                        <span className="truncate text-muted-foreground">
+                          {(state.documents?.length ?? 0) > 0
+                            ? `${state.documents?.length ?? 0} ${isNb ? "dokument" : "document"}${(state.documents?.length ?? 0) === 1 ? "" : isNb ? "er" : "s"}`
+                            : isNb ? "Ingen dokumenter lagt til" : "No documents added"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
+                          className="ml-auto shrink-0 text-primary hover:underline"
+                        >
+                          {isNb ? "Legg til" : "Add"}
+                        </button>
+                      </div>
+                      {state.documents && state.documents.length > 0 && (
+                        <ul className="mt-1 divide-y divide-border/20">
+                          {state.documents.slice(0, 3).map((d) => {
                           const vStatus = d.verificationStatus ?? "self_reported";
                           const isVerifiedDoc = vStatus === "verified";
                           return (
                             <li
                               key={d.name}
-                              className="group flex items-center gap-1.5 text-[11px] py-1 min-w-0"
+                              className="group flex items-center gap-1.5 py-0.5 min-w-0 text-muted-foreground"
                             >
                               <FileIcon className="h-3 w-3 text-muted-foreground shrink-0" />
-                              <span className="truncate font-medium text-foreground min-w-[120px] max-w-[220px]">{d.name}</span>
-                              <span className="text-[10px] uppercase text-muted-foreground shrink-0">{d.classification?.docType ?? d.kind}</span>
+                              <span className="truncate text-foreground min-w-[120px] max-w-[240px]">{d.name}</span>
+                              <span className="text-[10px] uppercase shrink-0">{d.classification?.docType ?? d.kind}</span>
                               {d.classification && d.classification.articles.length > 0 && (
-                                <span className="text-muted-foreground truncate hidden sm:inline">
+                                <span className="truncate hidden sm:inline">
                                   · {isNb ? "dekker" : "covers"} {d.classification.articles.slice(0, 2).join(", ")}
                                   {d.classification.articles.length > 2 && ` +${d.classification.articles.length - 2}`}
                                 </span>
@@ -465,8 +537,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             </li>
                           );
                         })}
-                      </ul>
-                    )}
+                          {state.documents.length > 3 && (
+                            <li className="py-0.5 text-muted-foreground">
+                              +{state.documents.length - 3} {isNb ? "flere" : "more"}
+                            </li>
+                          )}
+                        </ul>
+                      )}
+                    </div>
 
                     {state.progress !== "verified" && state.progress !== "not_applicable" && (state.documents?.length ?? 0) === 0 && (() => {
                       // Finn et dokument fra et annet krav som Lara kan gjenbruke.
@@ -542,45 +620,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     })()}
 
 
-                    {/* Kompakt statusrad — alltid synlig, brukeren kan alltid endre status */}
-                    <div className="flex flex-wrap items-center gap-3 text-xs">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button
-                            type="button"
-                            className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 hover:bg-muted/60 transition-colors"
-                          >
-                            <span className="text-muted-foreground">{isNb ? "Status:" : "Status:"}</span>
-                            <span className="font-medium text-foreground">
-                              {isNb ? getProgressConfig(state.progress).labelNb : getProgressConfig(state.progress).labelEn}
-                            </span>
-                            <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent align="start" className="w-56 p-1">
-                          {(["not_answered","in_progress","implemented","verified","not_applicable"] as ProgressStatus[]).map((s) => {
-                            const cfg = getProgressConfig(s);
-                            const active = state.progress === s;
-                            return (
-                              <button
-                                key={s}
-                                type="button"
-                                onClick={() => handleStatusChange(req.requirement_id, s)}
-                                className={cn(
-                                  "w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-muted text-left",
-                                  active && "bg-muted font-medium",
-                                )}
-                              >
-                                <cfg.icon className={cn("h-3.5 w-3.5", cfg.iconClass)} />
-                                {isNb ? cfg.labelNb : cfg.labelEn}
-                                {active && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-primary" />}
-                              </button>
-                            );
-                          })}
-                        </PopoverContent>
-                      </Popover>
-
-                      {state.progress === "implemented" && verifyingId !== req.requirement_id && (
+                    {state.progress === "implemented" && verifyingId !== req.requirement_id && (
+                      <div className="flex justify-end text-xs">
                         <button
                           type="button"
                           onClick={() => {
@@ -593,8 +634,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           {isNb ? "Marker som verifisert" : "Mark as verified"}
                           <ArrowRight className="h-3 w-3" />
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
 
                     {/* Inline verifiseringsform (kompakt, ingen dialog) */}
