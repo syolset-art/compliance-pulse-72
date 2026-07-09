@@ -1,44 +1,33 @@
-## Problem
+## Mål
 
-Når `crossReferenceDoc` finnes viser vi fortsatt:
-- Overskrift "Lara har delvis data — dette gjenstår"
-- "Lara henter dette fra: Dokumenter"
-- Forklaringsparagraf "Lara kan forberede et utkast basert på …"
-- Og *så* enkeltlinjen med forslaget
+Ekspandert kravkort i `FrameworkRequirementsList.tsx` skal se ut som referansebildet: rent, minimalt, to blokker — "Automatisk vurdering" og "Manuell dokumentering" (alltid tilgjengelig, inline).
 
-Det er nettopp den støyen brukeren vil bort fra. Meldingen skal være så enkel som: "Jeg fant dette dokumentet som matcher — bekreft."
+## Endringer (kun i `src/components/regulations/FrameworkRequirementsList.tsx`, ekspandert seksjon rundt linje 450–773)
 
-## Endring
+Fjern følgende fra ekspandert visning:
+- Repetert `req.description_no`-paragraf (linje 724) — beskrivelsen står allerede i headeren.
+- "Referanse: …"-linjen (linje 726–728).
+- Den lange "Verifisert av … · Bekreftet av …"-blokken (linje 731–754). Verifikasjon vises allerede via status-pillen; detaljene flyttes til tooltip på pillen (utenfor scope hvis komplekst — da bare skjules).
+- Den store "Oppdater status og dokumentasjon"-outline-knappen (linje 760–770).
+- Den separate "Marker som verifisert"-lenken + inline verify-form (linje 574–624) — erstattes av status-dropdown i manuell-blokken.
+- Standalone `reqNotes`/kommentar-blokk (linje 626–722) — kommentar flyttes inn i manuell-blokken som textarea.
 
-### `LaraDataSourceExplainer.tsx`
+Behold / omorganiser slik at rekkefølgen blir:
 
-Når `crossReferenceDoc` er satt, render kun en kompakt variant — ingen ytre `bg-primary/5`-boks, ingen heading, ingen "henter fra"-linje, ingen forklaringsparagraf, ingen "Dokumenter manuelt"-CTA.
+1. **Kompakt dokumentasjonslinje** (allerede på plass, linje 456–498) — øverst, uendret.
+2. **Automatisk vurdering** — én tett linje med Lara-ikon + "X AI-dokument(er) · Y AI-vurderinger har begrunnelse", pakket i en subtil `border rounded-md px-3 py-2`. Bruker eksisterende `LaraDataSourceExplainer` i redusert form, eller en ny mini-komponent inline i denne filen (foretrukket — mindre kode).
+3. **Manuell dokumentering** (alltid synlig, ikke bak knapp):
+   - Header: ikon + "Manuell dokumentering" + kort undertekst "Bekreft om dette kravet oppfylles …".
+   - `Status *` — shadcn `Select` bundet til `state.progress` (`not_answered`/`in_progress`/`implemented`/`verified`/`not_applicable`). Endring kaller `handleDocSave(req.requirement_id, nyStatus, kommentar, undefined)`.
+   - `Kommentar / dokumentasjon` — `Textarea` bundet til lokal `reqNotes[req.requirement_id]`, lagres onBlur.
+   - `Tilknyttede dokumenter` — enkel selector-knapp som åpner eksisterende `ManualDocumentationDialog` (dialog beholdes for filvalg/opplasting), pluss "Last opp nytt"-knapp øverst til høyre som gjør det samme.
+   - `Lagre`-knapp nederst til høyre (disabled til noe er endret).
 
-Ny visning i det tilfellet:
+`ManualDocumentationDialog` og `docDialog`-state beholdes uendret — brukes bare for filvalg/opplasting-flyten fra manuell-blokken.
 
-```
-✨  Lara fant Sikkerhetspolicy_v3.pdf  ·  Policy  ·  dekker Krav A, Krav B  ·  Vilde Gjellestad, 10. juli 2026        [ Bekreft ]
-```
+## Ute av scope
 
-Konkret: helt øverst i `return` legger vi til en early-return-gren:
-
-```tsx
-if (crossReferenceDoc) {
-  return (
-    <div className="flex items-center gap-2 border-l-2 border-primary/40 pl-2.5 py-1.5 text-xs">
-      {/* samme enkeltlinje som allerede finnes, uten ml-11 */}
-    </div>
-  );
-}
-```
-
-Den eksisterende store return-blokken (heading + forklaring + "Dokumenter manuelt"-CTA) beholdes uendret for tilfellet uten forslag.
-
-### Ingen andre filer
-
-`FrameworkRequirementsList.tsx` er uendret — komponenten kalles allerede med både `crossReferenceDoc` og `onManualDocument`; sistnevnte brukes bare når det ikke finnes forslag.
-
-## Ute-av-scope
-
-- Ingen endring i datamodell eller i statuspille/verifisering.
-- "Dokumenter manuelt"-CTA er fortsatt tilgjengelig i tilfeller uten forslag.
+- Ingen endringer i datamodell, `requirementStatusModel`, eller `handleDocSave`-signatur.
+- Ingen endringer i den kollapsede radvisningen (status-pille, dokument-teller, chevron).
+- Ingen endring i `LaraDataSourceExplainer`-komponenten hvis vi lager inline mini-visning i stedet.
+- Ingen endring i tekst-innhold på tvers av filer (i18n-nøkler ikke berørt — norske strenger inline som i dag).
