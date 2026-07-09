@@ -86,23 +86,20 @@ export function LaraDataSourceExplainer({
         <div className="ml-11 flex items-center gap-2 border-l-2 border-primary/40 pl-2.5 py-1 text-xs">
           <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
           <div className="min-w-0 flex-1 truncate text-muted-foreground">
-            <span className="text-foreground">Lara fant </span>
+            <span className="text-foreground">&nbsp;</span>
             <span className="font-medium text-foreground">{crossReferenceDoc.name}</span>
-            {crossReferenceDoc.classification && (
-              <> <span className="px-1">·</span>{crossReferenceDoc.classification}</>
-            )}
-            {crossReferenceDoc.coversRequirements && crossReferenceDoc.coversRequirements.length > 0 && (
-              <>
-                {" "}<span className="px-1">·</span>dekker{" "}
-                <span className="text-foreground/80">
-                  {crossReferenceDoc.coversRequirements.slice(0, 2).join(", ")}
-                </span>
-                {crossReferenceDoc.coversRequirements.length > 2 && (
-                  <> +{crossReferenceDoc.coversRequirements.length - 2} til</>
-                )}
-              </>
-            )}
-            <> <span className="px-1">·</span>{crossReferenceDoc.uploadedBy}, {crossReferenceDoc.uploadedAt}</>
+            <span className="px-1">·</span>
+            <span className="text-muted-foreground">
+              {crossReferenceDoc.coversRequirements && crossReferenceDoc.coversRequirements.length > 0 ? (
+                <>svurdering (TIA) +{crossReferenceDoc.coversRequirements.length - 1} til</>
+              ) : (
+                <>svurdering (TIA)</>
+              )}
+            </span>
+            <span className="px-1">·</span>
+            <span className="text-muted-foreground">
+              {crossReferenceDoc.uploadedBy}, {crossReferenceDoc.uploadedAt}
+            </span>
           </div>
           <Button
             size="sm"
