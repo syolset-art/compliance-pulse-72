@@ -128,10 +128,12 @@ export const VendorControlsTab = ({ assetId }: VendorControlsTabProps) => {
                               )}
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
-                              <Badge variant="outline" className={cn("gap-1 text-xs font-medium", evidenceCfg.badgeClass)}>
-                                <EvidenceIcon className="h-3 w-3" />
-                                {formatEvidenceLabel(ui, isNb)}
-                              </Badge>
+                              {ui.evidence !== "self_reported" && (
+                                <Badge variant="outline" className={cn("gap-1 text-xs font-medium", evidenceCfg.badgeClass)}>
+                                  <EvidenceIcon className="h-3 w-3" />
+                                  {formatEvidenceLabel(ui, isNb)}
+                                </Badge>
+                              )}
                               {ui.evidenceCount && (
                                 <Badge variant="outline" className="text-xs font-mono tabular-nums text-muted-foreground">
                                   {ui.evidenceCount.collected}/{ui.evidenceCount.required}
