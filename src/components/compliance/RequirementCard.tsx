@@ -226,10 +226,12 @@ export function RequirementCard({
               )}
 
               {/* Bevis-badge */}
-              <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", evidenceCfg.badgeClass)}>
-                <EvidenceIcon className="h-3 w-3" />
-                {formatEvidenceLabel(ui, isNb)}
-              </Badge>
+              {ui.evidence !== "self_reported" && (
+                <Badge variant="outline" className={cn("gap-1.5 text-xs font-medium", evidenceCfg.badgeClass)}>
+                  <EvidenceIcon className="h-3 w-3" />
+                  {formatEvidenceLabel(ui, isNb)}
+                </Badge>
+              )}
 
               {/* Bevis-teller */}
               {ui.evidenceCount && (
