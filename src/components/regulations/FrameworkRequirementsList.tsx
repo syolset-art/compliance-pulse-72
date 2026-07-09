@@ -497,15 +497,36 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
                     </div>
 
-                    {/* Automatisk vurdering — én tett linje */}
-                    <div className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs">
-                      <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
-                      <span className="font-medium text-foreground">
-                        {isNb ? "Automatisk vurdering" : "Automatic assessment"}
-                      </span>
-                      <span className="text-muted-foreground truncate">
-                        · {state.documents?.length ?? 0} {isNb ? "AI-dokument(er)" : "AI document(s)"}
-                      </span>
+                    {/* Automatisk vurdering — én tett linje med klikkbare AI-dokumenter */}
+                    <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs space-y-1.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span className="font-medium text-foreground">
+                          {isNb ? "Automatisk vurdering" : "Automatic assessment"}
+                        </span>
+                        <span className="text-muted-foreground truncate">
+                          · {state.documents?.length ?? 0} {isNb ? "AI-dokument(er)" : "AI document(s)"}
+                        </span>
+                      </div>
+                      {(state.documents?.length ?? 0) > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-5">
+                          {state.documents?.map((d) => (
+                            <button
+                              key={d.name}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
+                              }}
+                              className="inline-flex items-center gap-1 max-w-[220px] rounded border border-border/60 bg-background px-1.5 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+                              title={isNb ? `Åpne ${d.name}` : `Open ${d.name}`}
+                            >
+                              <FileIcon className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{d.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     {/* Manuell dokumentering — alltid tilgjengelig, inline */}
