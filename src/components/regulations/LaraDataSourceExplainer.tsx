@@ -62,15 +62,13 @@ export function LaraDataSourceExplainer({
 
 
   return (
-    <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3">
-      <div className="flex items-start gap-3">
-        <div className="shrink-0 rounded-full bg-primary/10 p-2">
-          <Icon className="h-4 w-4 text-primary" />
-        </div>
-        <div className="flex-1 min-w-0 space-y-1">
-          <p className="text-sm font-semibold text-foreground">{heading}</p>
+    <div className="rounded-md border border-border/50 bg-muted/20 px-3 py-2 space-y-2">
+      <div className="flex items-start gap-2">
+        <Icon className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+        <div className="flex-1 min-w-0 space-y-0.5">
+          <p className="text-xs font-medium text-foreground">{heading}</p>
           {source && capability !== "manual" && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground">
               Lara henter dette fra:{" "}
               <span className="font-medium text-foreground">{source.module}</span>
             </p>
@@ -78,31 +76,37 @@ export function LaraDataSourceExplainer({
         </div>
       </div>
 
-      <p className="text-sm text-foreground/80 leading-relaxed pl-11">
+      <p className="text-xs text-muted-foreground leading-snug pl-5">
         {explanation}
       </p>
 
       {crossReferenceDoc && (
-        <div className="ml-11 flex items-center gap-2 border-l-2 border-primary/40 pl-2.5 py-1 text-xs">
-          <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+        <div className="ml-5 flex items-center gap-1.5 text-[11px] min-w-0">
+          <FileText className="h-3 w-3 text-muted-foreground shrink-0" />
           <div className="min-w-0 flex-1 truncate text-muted-foreground">
-            <span className="text-foreground">&nbsp;</span>
             <span className="font-medium text-foreground">{crossReferenceDoc.name}</span>
+            {crossReferenceDoc.classification && (
+              <>
+                <span className="px-1">·</span>
+                <span>{crossReferenceDoc.classification}</span>
+              </>
+            )}
             <span className="px-1">·</span>
-            <span className="text-muted-foreground">
+            <span>
               {crossReferenceDoc.coversRequirements && crossReferenceDoc.coversRequirements.length > 0 ? (
-                <>svurdering (TIA) +{crossReferenceDoc.coversRequirements.length - 1} til</>
+                <>{crossReferenceDoc.coversRequirements.slice(0, 2).join(", ")}{crossReferenceDoc.coversRequirements.length > 2 && ` +${crossReferenceDoc.coversRequirements.length - 2} til`}</>
               ) : (
-                <>svurdering (TIA)</>
+                <>Matcher dokumentasjonskravet</>
               )}
             </span>
             <span className="px-1">·</span>
-            <span className="text-muted-foreground">
+            <span>
               {crossReferenceDoc.uploadedBy}, {crossReferenceDoc.uploadedAt}
             </span>
           </div>
           <Button
             size="sm"
+            variant="outline"
             className="gap-1 h-7 text-xs rounded-pill shrink-0"
             onClick={crossReferenceDoc.onAccept}
           >
@@ -113,7 +117,7 @@ export function LaraDataSourceExplainer({
       )}
 
 
-      <div className="flex flex-col sm:flex-row gap-2 pl-11">
+      <div className="flex flex-col sm:flex-row gap-2 pl-5">
         {/* Sekundær CTA — dokumenter manuelt */}
         <Button
           size="sm"
