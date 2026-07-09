@@ -417,61 +417,59 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
 
                     {/* Kompakt statusrad — alltid synlig, brukeren kan alltid endre status */}
-                    {(
-
-                      <div className="flex flex-wrap items-center gap-3 text-xs">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button
-                              type="button"
-                              className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 hover:bg-muted/60 transition-colors"
-                            >
-                              <span className="text-muted-foreground">{isNb ? "Status:" : "Status:"}</span>
-                              <span className="font-medium text-foreground">
-                                {isNb ? getProgressConfig(state.progress).labelNb : getProgressConfig(state.progress).labelEn}
-                              </span>
-                              <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent align="start" className="w-56 p-1">
-                            {(["not_answered","in_progress","implemented","verified","not_applicable"] as ProgressStatus[]).map((s) => {
-                              const cfg = getProgressConfig(s);
-                              const active = state.progress === s;
-                              return (
-                                <button
-                                  key={s}
-                                  type="button"
-                                  onClick={() => handleStatusChange(req.requirement_id, s)}
-                                  className={cn(
-                                    "w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-muted text-left",
-                                    active && "bg-muted font-medium",
-                                  )}
-                                >
-                                  <cfg.icon className={cn("h-3.5 w-3.5", cfg.iconClass)} />
-                                  {isNb ? cfg.labelNb : cfg.labelEn}
-                                  {active && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-primary" />}
-                                </button>
-                              );
-                            })}
-                          </PopoverContent>
-                        </Popover>
-
-                        {state.progress === "implemented" && verifyingId !== req.requirement_id && (
+                    <div className="flex flex-wrap items-center gap-3 text-xs">
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <button
                             type="button"
-                            onClick={() => {
-                              setVerifyingId(req.requirement_id);
-                              setVerifyName("");
-                              setVerifyDate(new Date().toISOString().slice(0, 10));
-                            }}
-                            className="inline-flex items-center gap-1 text-primary hover:underline"
+                            className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 hover:bg-muted/60 transition-colors"
                           >
-                            {isNb ? "Marker som verifisert" : "Mark as verified"}
-                            <ArrowRight className="h-3 w-3" />
+                            <span className="text-muted-foreground">{isNb ? "Status:" : "Status:"}</span>
+                            <span className="font-medium text-foreground">
+                              {isNb ? getProgressConfig(state.progress).labelNb : getProgressConfig(state.progress).labelEn}
+                            </span>
+                            <ChevronDown className="h-3 w-3 text-muted-foreground" />
                           </button>
-                        )}
-                      </div>
-                    )}
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-56 p-1">
+                          {(["not_answered","in_progress","implemented","verified","not_applicable"] as ProgressStatus[]).map((s) => {
+                            const cfg = getProgressConfig(s);
+                            const active = state.progress === s;
+                            return (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => handleStatusChange(req.requirement_id, s)}
+                                className={cn(
+                                  "w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-muted text-left",
+                                  active && "bg-muted font-medium",
+                                )}
+                              >
+                                <cfg.icon className={cn("h-3.5 w-3.5", cfg.iconClass)} />
+                                {isNb ? cfg.labelNb : cfg.labelEn}
+                                {active && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-primary" />}
+                              </button>
+                            );
+                          })}
+                        </PopoverContent>
+                      </Popover>
+
+                      {state.progress === "implemented" && verifyingId !== req.requirement_id && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVerifyingId(req.requirement_id);
+                            setVerifyName("");
+                            setVerifyDate(new Date().toISOString().slice(0, 10));
+                          }}
+                          className="inline-flex items-center gap-1 text-primary hover:underline"
+                        >
+                          {isNb ? "Marker som verifisert" : "Mark as verified"}
+                          <ArrowRight className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
+
 
                     {/* Inline verifiseringsform (kompakt, ingen dialog) */}
                     {verifyingId === req.requirement_id && (
