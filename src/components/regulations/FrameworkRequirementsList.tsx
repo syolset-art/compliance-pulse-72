@@ -19,8 +19,6 @@ import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSource
 import { MessageSquare, Save, Pencil } from "lucide-react";
 import {
   demoUiStateFor,
-  formatEvidenceLabel,
-  getEvidenceConfig,
   getProgressConfig,
   type RequirementUiState,
   type ProgressStatus,
