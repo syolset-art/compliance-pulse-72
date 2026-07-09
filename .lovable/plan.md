@@ -1,33 +1,44 @@
-## Mål
+## Problem
 
-Kollaps hele Lara-forslagskortet til én kompakt linje inne i den utvidede kravraden. Ingen egen boks — bare en subtil rad brukeren kan bekrefte med ett klikk.
+Når `crossReferenceDoc` finnes viser vi fortsatt:
+- Overskrift "Lara har delvis data — dette gjenstår"
+- "Lara henter dette fra: Dokumenter"
+- Forklaringsparagraf "Lara kan forberede et utkast basert på …"
+- Og *så* enkeltlinjen med forslaget
 
-## Ny visning
+Det er nettopp den støyen brukeren vil bort fra. Meldingen skal være så enkel som: "Jeg fant dette dokumentet som matcher — bekreft."
+
+## Endring
+
+### `LaraDataSourceExplainer.tsx`
+
+Når `crossReferenceDoc` er satt, render kun en kompakt variant — ingen ytre `bg-primary/5`-boks, ingen heading, ingen "henter fra"-linje, ingen forklaringsparagraf, ingen "Dokumenter manuelt"-CTA.
+
+Ny visning i det tilfellet:
 
 ```
 ✨  Lara fant Sikkerhetspolicy_v3.pdf  ·  Policy  ·  dekker Krav A, Krav B  ·  Vilde Gjellestad, 10. juli 2026        [ Bekreft ]
 ```
 
-- Én horisontal linje, `text-xs`, ingen kantet boks/bakgrunn (evt. `border-l-2 border-primary/30 pl-2` for subtil markering).
-- Sparkles-ikon foran som Lara-signatur.
-- Dokumentnavn i `font-medium`.
-- Meta-segmenter (klassifisering, dekker, opplaster/dato) skilles med `·` i `text-muted-foreground`.
-- Ved 3+ krav: "dekker Krav A, Krav B +2 til".
-- Én knapp helt til høyre: `Bekreft` (kompakt, `h-7 text-xs`, primær variant).
+Konkret: helt øverst i `return` legger vi til en early-return-gren:
 
-## Endringer
+```tsx
+if (crossReferenceDoc) {
+  return (
+    <div className="flex items-center gap-2 border-l-2 border-primary/40 pl-2.5 py-1.5 text-xs">
+      {/* samme enkeltlinje som allerede finnes, uten ml-11 */}
+    </div>
+  );
+}
+```
 
-### `LaraDataSourceExplainer.tsx`
-
-- Erstatt hele `crossReferenceDoc`-blokken (linje 82–127) med den nye enkeltlinje-varianten.
-- Behold `LaraCrossReferenceDoc`-interfacet uendret (samme props).
-- Ingen endring i hovedforklaringen eller "Dokumenter manuelt"-CTA.
+Den eksisterende store return-blokken (heading + forklaring + "Dokumenter manuelt"-CTA) beholdes uendret for tilfellet uten forslag.
 
 ### Ingen andre filer
 
-- `FrameworkRequirementsList.tsx`: uendret (den bygger allerede `crossRef` med klassifisering + coversRequirements).
+`FrameworkRequirementsList.tsx` er uendret — komponenten kalles allerede med både `crossReferenceDoc` og `onManualDocument`; sistnevnte brukes bare når det ikke finnes forslag.
 
 ## Ute-av-scope
 
-- Ingen endring i datamodell.
-- Ingen endring på det andre plukket (statuspille / verifisering) som ble bygget forrige runde.
+- Ingen endring i datamodell eller i statuspille/verifisering.
+- "Dokumenter manuelt"-CTA er fortsatt tilgjengelig i tilfeller uten forslag.
