@@ -416,61 +416,114 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <div className="space-y-4">
                     <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
 
-                    {/* Kompakt statusrad — synlig når et krav har fått en status */}
-                    {(state.progress === "implemented" || state.progress === "verified" || state.progress === "in_progress") && (
-                      <div className="flex flex-wrap items-center gap-3 text-xs">
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <button
-                              type="button"
-                              className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 hover:bg-muted/60 transition-colors"
+                    {/* Kompakt dokumentasjonsliste — subtil, tett */}
+                    {state.documents && state.documents.length > 0 && (
+                      <ul className="space-y-1">
+                        {state.documents.map((d) => {
+                          const vStatus = d.verificationStatus ?? "self_reported";
+                          const isVerifiedDoc = vStatus === "verified";
+                          return (
+                            <li
+                              key={d.name}
+                              className="group flex items-center gap-2 text-xs py-1 border-b border-border/40 last:border-0"
                             >
-                              <span className="text-muted-foreground">{isNb ? "Status:" : "Status:"}</span>
-                              <span className="font-medium text-foreground">
-                                {isNb ? getProgressConfig(state.progress).labelNb : getProgressConfig(state.progress).labelEn}
-                              </span>
-                              <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                            </button>
-                          </PopoverTrigger>
-                          <PopoverContent align="start" className="w-56 p-1">
-                            {(["not_answered","in_progress","implemented","verified","not_applicable"] as ProgressStatus[]).map((s) => {
-                              const cfg = getProgressConfig(s);
-                              const active = state.progress === s;
-                              return (
+                              <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="truncate font-medium text-foreground">{d.name}</span>
+                              <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{d.kind}</span>
+                              {d.classification && d.classification.articles.length > 0 && (
+                                <span className="text-muted-foreground truncate hidden sm:inline">
+                                  · {isNb ? "dekker" : "covers"} {d.classification.articles.slice(0, 2).join(", ")}
+                                  {d.classification.articles.length > 2 && ` +${d.classification.articles.length - 2}`}
+                                </span>
+                              )}
+                              <span className="ml-auto flex items-center gap-2 shrink-0">
+                                {isVerifiedDoc ? (
+                                  <TooltipProvider delayDuration={200}>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <ShieldCheck className="h-3.5 w-3.5 text-success" />
+                                      </TooltipTrigger>
+                                      <TooltipContent side="top" className="text-xs">
+                                        {isNb ? "Verifisert" : "Verified"}{d.verifiedBy ? ` · ${d.verifiedBy}` : ""}{d.verifiedAt ? ` · ${d.verifiedAt}` : ""}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                ) : (
+                                  <span className="text-[10px] text-muted-foreground">{isNb ? "Egenrapportert" : "Self-reported"}</span>
+                                )}
                                 <button
-                                  key={s}
                                   type="button"
-                                  onClick={() => handleStatusChange(req.requirement_id, s)}
-                                  className={cn(
-                                    "w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-muted text-left",
-                                    active && "bg-muted font-medium",
-                                  )}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
+                                  }}
+                                  className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                  aria-label={isNb ? "Last ned" : "Download"}
                                 >
-                                  <cfg.icon className={cn("h-3.5 w-3.5", cfg.iconClass)} />
-                                  {isNb ? cfg.labelNb : cfg.labelEn}
-                                  {active && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-primary" />}
+                                  <Download className="h-3.5 w-3.5" />
                                 </button>
-                              );
-                            })}
-                          </PopoverContent>
-                        </Popover>
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
 
-                        {state.progress === "implemented" && verifyingId !== req.requirement_id && (
+
+                    {/* Kompakt statusrad — alltid synlig, brukeren kan alltid endre status */}
+                    <div className="flex flex-wrap items-center gap-3 text-xs">
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <button
                             type="button"
-                            onClick={() => {
-                              setVerifyingId(req.requirement_id);
-                              setVerifyName("");
-                              setVerifyDate(new Date().toISOString().slice(0, 10));
-                            }}
-                            className="inline-flex items-center gap-1 text-primary hover:underline"
+                            className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 hover:bg-muted/60 transition-colors"
                           >
-                            {isNb ? "Marker som verifisert" : "Mark as verified"}
-                            <ArrowRight className="h-3 w-3" />
+                            <span className="text-muted-foreground">{isNb ? "Status:" : "Status:"}</span>
+                            <span className="font-medium text-foreground">
+                              {isNb ? getProgressConfig(state.progress).labelNb : getProgressConfig(state.progress).labelEn}
+                            </span>
+                            <ChevronDown className="h-3 w-3 text-muted-foreground" />
                           </button>
-                        )}
-                      </div>
-                    )}
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-56 p-1">
+                          {(["not_answered","in_progress","implemented","verified","not_applicable"] as ProgressStatus[]).map((s) => {
+                            const cfg = getProgressConfig(s);
+                            const active = state.progress === s;
+                            return (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => handleStatusChange(req.requirement_id, s)}
+                                className={cn(
+                                  "w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-muted text-left",
+                                  active && "bg-muted font-medium",
+                                )}
+                              >
+                                <cfg.icon className={cn("h-3.5 w-3.5", cfg.iconClass)} />
+                                {isNb ? cfg.labelNb : cfg.labelEn}
+                                {active && <CheckCircle2 className="h-3.5 w-3.5 ml-auto text-primary" />}
+                              </button>
+                            );
+                          })}
+                        </PopoverContent>
+                      </Popover>
+
+                      {state.progress === "implemented" && verifyingId !== req.requirement_id && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setVerifyingId(req.requirement_id);
+                            setVerifyName("");
+                            setVerifyDate(new Date().toISOString().slice(0, 10));
+                          }}
+                          className="inline-flex items-center gap-1 text-primary hover:underline"
+                        >
+                          {isNb ? "Marker som verifisert" : "Mark as verified"}
+                          <ArrowRight className="h-3 w-3" />
+                        </button>
+                      )}
+                    </div>
+
 
                     {/* Inline verifiseringsform (kompakt, ingen dialog) */}
                     {verifyingId === req.requirement_id && (
@@ -709,84 +762,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     )}
 
 
-                    {/* Dokumentasjonsliste */}
-                    {state.documents && state.documents.length > 0 && (
-                      <div className="rounded-lg border bg-muted/20">
-                        <div className="flex items-center justify-between px-3 py-2 border-b">
-                          <div className="flex items-center gap-2 text-xs font-medium text-foreground">
-                            <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />
-                            {isNb ? "Dokumentasjon" : "Documentation"}
-                            <span className="text-muted-foreground font-normal">({state.documents.length})</span>
-                          </div>
-                        </div>
-
-                        <ul className="divide-y">
-                          {state.documents.map((d) => {
-                            const vStatus = d.verificationStatus ?? "self_reported";
-                            const isVerifiedDoc = vStatus === "verified";
-                            const vLabel = isVerifiedDoc
-                              ? (isNb ? "Verifisert" : "Verified")
-                              : (isNb ? "Egenrapportert" : "Self-reported");
-                            const vClass = isVerifiedDoc
-                              ? "text-success border-success/40"
-                              : "text-muted-foreground border-border";
-                            return (
-                              <li key={d.name} className="px-3 py-2.5 text-sm space-y-2 hover:bg-muted/30 transition-colors">
-                                <div className="flex items-center justify-between gap-2">
-                                  <div className="flex items-center gap-2 min-w-0">
-                                    <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
-                                    <span className="truncate font-medium">{d.name}</span>
-                                    <span className="text-[10px] uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded shrink-0">{d.kind}</span>
-                                  </div>
-                                  <Badge variant="outline" className={cn("gap-1 text-[10px] font-medium shrink-0", vClass)}>
-                                    {isVerifiedDoc && <ShieldCheck className="h-3 w-3" />}
-                                    {vLabel}
-                                  </Badge>
-                                </div>
-
-                                {isVerifiedDoc && d.verifiedBy && (
-                                  <div className="text-[11px] text-muted-foreground pl-6">
-                                    {isNb ? "Verifisert av" : "Verified by"} {d.verifiedBy}
-                                    {d.verifiedAt && <> · {d.verifiedAt}</>}
-                                  </div>
-                                )}
-
-
-                                {d.classification && (
-                                  <div className="flex items-start gap-1.5 text-xs text-muted-foreground pl-6">
-                                    <Sparkles className="h-3 w-3 mt-0.5 text-primary shrink-0" />
-                                    <span className="min-w-0">
-                                      <span className="font-medium text-foreground">{d.classification.docType}</span>
-                                      {d.classification.articles.length > 0 && (
-                                        <> · {isNb ? "dekker" : "covers"} {d.classification.articles.join(", ")}</>
-                                      )}
-                                      {d.classification.confidence > 0 && (
-                                        <> · {Math.round(d.classification.confidence * 100)}% {isNb ? "sikker" : "confident"}</>
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
-
-                                <div className="flex items-center justify-end gap-2 pl-6">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-7 gap-1.5 text-xs"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
-                                    }}
-                                  >
-                                    <Download className="h-3 w-3" />
-                                    {isNb ? "Last ned" : "Download"}
-                                  </Button>
-                                </div>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
-                    )}
 
 
                     <p className="text-xs text-muted-foreground pt-2 border-t">
