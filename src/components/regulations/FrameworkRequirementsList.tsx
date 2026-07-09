@@ -452,18 +452,41 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <Separator className="mb-4" />
                   <div className="space-y-3">
 
-                    {/* Dokumentasjon øverst — alltid synlig, subtil og tett */}
-                    <div className="border-y border-border/40 py-1.5 text-[11px]">
+                    {/* Dokumentasjon øverst — én subtil og tett linje */}
+                    <div className="border-y border-border/40 py-1.5 text-[11px] text-muted-foreground">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="inline-flex items-center gap-1 font-medium text-muted-foreground shrink-0">
                           <Paperclip className="h-3 w-3" />
                           {isNb ? "Dokumentasjon" : "Documentation"}
                         </span>
-                        <span className="truncate text-muted-foreground">
-                          {(state.documents?.length ?? 0) > 0
-                            ? `${state.documents?.length ?? 0} ${isNb ? "dokument" : "document"}${(state.documents?.length ?? 0) === 1 ? "" : isNb ? "er" : "s"}`
-                            : isNb ? "Ingen dokumenter lagt til" : "No documents added"}
-                        </span>
+                        {(state.documents?.length ?? 0) > 0 ? (
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+                            {state.documents?.slice(0, 3).map((d) => {
+                              const isVerifiedDoc = (d.verificationStatus ?? "self_reported") === "verified";
+                              return (
+                                <button
+                                  key={d.name}
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
+                                  }}
+                                  className="inline-flex items-center gap-1 min-w-0 max-w-[180px] hover:text-foreground"
+                                  title={d.name}
+                                >
+                                  <FileIcon className="h-3 w-3 shrink-0" />
+                                  <span className="truncate">{d.name}</span>
+                                  {isVerifiedDoc && <ShieldCheck className="h-3 w-3 text-success shrink-0" />}
+                                </button>
+                              );
+                            })}
+                            {state.documents && state.documents.length > 3 && (
+                              <span className="shrink-0">+{state.documents.length - 3}</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="truncate flex-1">{isNb ? "Ingen dokumenter lagt til" : "No documents added"}</span>
+                        )}
                         <button
                           type="button"
                           onClick={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
@@ -472,62 +495,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           {isNb ? "Legg til" : "Add"}
                         </button>
                       </div>
-                      {state.documents && state.documents.length > 0 && (
-                        <ul className="mt-1 divide-y divide-border/20">
-                          {state.documents.slice(0, 3).map((d) => {
-                          const vStatus = d.verificationStatus ?? "self_reported";
-                          const isVerifiedDoc = vStatus === "verified";
-                          return (
-                            <li
-                              key={d.name}
-                              className="group flex items-center gap-1.5 py-0.5 min-w-0 text-muted-foreground"
-                            >
-                              <FileIcon className="h-3 w-3 text-muted-foreground shrink-0" />
-                              <span className="truncate text-foreground min-w-[120px] max-w-[240px]">{d.name}</span>
-                              <span className="text-[10px] uppercase shrink-0">{d.classification?.docType ?? d.kind}</span>
-                              {d.classification && d.classification.articles.length > 0 && (
-                                <span className="truncate hidden sm:inline">
-                                  · {isNb ? "dekker" : "covers"} {d.classification.articles.slice(0, 2).join(", ")}
-                                  {d.classification.articles.length > 2 && ` +${d.classification.articles.length - 2}`}
-                                </span>
-                              )}
-                              <span className="ml-auto flex items-center gap-2 shrink-0">
-                                {isVerifiedDoc ? (
-                                  <TooltipProvider delayDuration={200}>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <ShieldCheck className="h-3 w-3 text-success" />
-                                      </TooltipTrigger>
-                                      <TooltipContent side="top" className="text-xs">
-                                        {isNb ? "Verifisert" : "Verified"}{d.verifiedBy ? ` · ${d.verifiedBy}` : ""}{d.verifiedAt ? ` · ${d.verifiedAt}` : ""}
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                ) : (
-                                  <span className="text-[10px] text-muted-foreground">{isNb ? "Egenrapportert" : "Self-reported"}</span>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
-                                  }}
-                                  className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                                  aria-label={isNb ? "Last ned" : "Download"}
-                                >
-                                  <Download className="h-3 w-3" />
-                                </button>
-                              </span>
-                            </li>
-                          );
-                        })}
-                          {state.documents.length > 3 && (
-                            <li className="py-0.5 text-muted-foreground">
-                              +{state.documents.length - 3} {isNb ? "flere" : "more"}
-                            </li>
-                          )}
-                        </ul>
-                      )}
                     </div>
 
                     {state.progress !== "verified" && state.progress !== "not_applicable" && (state.documents?.length ?? 0) === 0 && (() => {
