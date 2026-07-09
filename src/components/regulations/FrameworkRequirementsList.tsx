@@ -756,6 +756,18 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
 
 
+                    {/* Alltid tilgjengelig — brukeren kan når som helst overstyre status og dokumentasjon */}
+                    <div className="pt-2 flex justify-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full max-w-md h-9 gap-2 text-sm"
+                        onClick={(e) => { e.stopPropagation(); setDocDialog({ id: req.requirement_id, name: req.name_no }); }}
+                      >
+                        <Users className="h-4 w-4 text-primary" />
+                        {isNb ? "Oppdater status og dokumentasjon" : "Update status and documentation"}
+                      </Button>
+                    </div>
 
                   </div>
                 </div>
