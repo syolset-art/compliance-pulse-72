@@ -413,23 +413,22 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
               {isExpanded && (
                 <div className="px-4 pb-4">
                   <Separator className="mb-4" />
-                  <div className="space-y-4">
-                    <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
+                  <div className="space-y-3">
 
-                    {/* Kompakt dokumentasjonsliste — subtil, tett */}
+                    {/* Dokumentasjon øverst — subtil, tett */}
                     {state.documents && state.documents.length > 0 && (
-                      <ul className="space-y-1">
+                      <ul className="divide-y divide-border/30">
                         {state.documents.map((d) => {
                           const vStatus = d.verificationStatus ?? "self_reported";
                           const isVerifiedDoc = vStatus === "verified";
                           return (
                             <li
                               key={d.name}
-                              className="group flex items-center gap-2 text-xs py-1 border-b border-border/40 last:border-0"
+                              className="group flex items-center gap-1.5 text-[11px] py-1 min-w-0"
                             >
-                              <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                              <span className="truncate font-medium text-foreground">{d.name}</span>
-                              <span className="text-[10px] uppercase tracking-wide text-muted-foreground shrink-0">{d.kind}</span>
+                              <FileIcon className="h-3 w-3 text-muted-foreground shrink-0" />
+                              <span className="truncate font-medium text-foreground min-w-[120px] max-w-[220px]">{d.name}</span>
+                              <span className="text-[10px] uppercase text-muted-foreground shrink-0">{d.kind}</span>
                               {d.classification && d.classification.articles.length > 0 && (
                                 <span className="text-muted-foreground truncate hidden sm:inline">
                                   · {isNb ? "dekker" : "covers"} {d.classification.articles.slice(0, 2).join(", ")}
@@ -441,7 +440,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                   <TooltipProvider delayDuration={200}>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <ShieldCheck className="h-3.5 w-3.5 text-success" />
+                                        <ShieldCheck className="h-3 w-3 text-success" />
                                       </TooltipTrigger>
                                       <TooltipContent side="top" className="text-xs">
                                         {isNb ? "Verifisert" : "Verified"}{d.verifiedBy ? ` · ${d.verifiedBy}` : ""}{d.verifiedAt ? ` · ${d.verifiedAt}` : ""}
@@ -460,7 +459,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                   className="text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
                                   aria-label={isNb ? "Last ned" : "Download"}
                                 >
-                                  <Download className="h-3.5 w-3.5" />
+                                  <Download className="h-3 w-3" />
                                 </button>
                               </span>
                             </li>
@@ -468,6 +467,79 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         })}
                       </ul>
                     )}
+
+                    {state.progress !== "verified" && state.progress !== "not_applicable" && (state.documents?.length ?? 0) === 0 && (() => {
+                      // Finn et dokument fra et annet krav som Lara kan gjenbruke.
+                      // Demo: bruk første dokument fra et annet krav som har dokumenter.
+                      
+                      let crossRef: undefined | {
+                        name: string;
+                        sourceRequirementName: string;
+                        uploadedBy: string;
+                        uploadedAt: string;
+                        classification?: string;
+                        coversRequirements?: string[];
+                        onAccept: () => void;
+                      };
+                      if (bucketOf(state.progress) !== "met") {
+                        const currentDocNames = new Set((state.documents ?? []).map((d) => d.name));
+                        for (const other of requirements) {
+                          if (other.requirement_id === req.requirement_id) continue;
+                          const otherState = uiStates[other.requirement_id];
+                          const doc = otherState?.documents?.find((d) => !currentDocNames.has(d.name));
+                          if (doc) {
+                            const uploader = otherState?.verification?.internalConfirmer?.name
+                              ?? otherState?.attestedBy?.name
+                              ?? "Vilde Gjellestad";
+                            const uploadedAt = otherState?.verification?.internalConfirmer?.date
+                              ?? otherState?.attestedBy?.date
+                              ?? "3. juni 2026";
+                            // Finn alle andre krav dette dokumentet allerede dekker
+                            const alsoCovers = requirements
+                              .filter((r) => {
+                                if (r.requirement_id === other.requirement_id) return false;
+                                if (r.requirement_id === req.requirement_id) return false;
+                                return uiStates[r.requirement_id]?.documents?.some((d) => d.name === doc.name);
+                              })
+                              .map((r) => r.name_no);
+                            // Enkel klassifisering ut fra filnavn
+                            const lower = doc.name.toLowerCase();
+                            const classification = lower.includes("policy")
+                              ? "Policy"
+                              : lower.includes("prosedyre") || lower.includes("procedure")
+                                ? "Prosedyre"
+                                : lower.includes("avtale") || lower.includes("dpa")
+                                  ? "Avtale"
+                                  : lower.includes("rapport")
+                                    ? "Rapport"
+                                    : "Dokumentasjon";
+                            crossRef = {
+                              name: doc.name,
+                              sourceRequirementName: other.name_no,
+                              uploadedBy: uploader,
+                              uploadedAt,
+                              classification,
+                              coversRequirements: [req.name_no, ...alsoCovers],
+                              onAccept: () => {
+                                handleDocSave(req.requirement_id, "implemented", "", { ...doc });
+                                toast.success("Bekreftet", {
+                                  description: `${doc.name} er koblet til ${req.name_no}`,
+                                });
+                              },
+                            };
+                            break;
+                          }
+                        }
+                      }
+                      return (
+                        <LaraDataSourceExplainer
+                          requirement={req}
+                          status={bucketOf(state.progress) === "met" ? "met" : bucketOf(state.progress) === "partial" ? "partial" : "not_met"}
+                          onManualDocument={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
+                          crossReferenceDoc={crossRef}
+                        />
+                      );
+                    })()}
 
 
                     {/* Kompakt statusrad — alltid synlig, brukeren kan alltid endre status */}
@@ -558,79 +630,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         </div>
                       </div>
                     )}
-
-                    {state.progress !== "verified" && state.progress !== "not_applicable" && (state.documents?.length ?? 0) === 0 && (() => {
-                      // Finn et dokument fra et annet krav som Lara kan gjenbruke.
-                      // Demo: bruk første dokument fra et annet krav som har dokumenter.
-                      
-                      let crossRef: undefined | {
-                        name: string;
-                        sourceRequirementName: string;
-                        uploadedBy: string;
-                        uploadedAt: string;
-                        classification?: string;
-                        coversRequirements?: string[];
-                        onAccept: () => void;
-                      };
-                      if (bucketOf(state.progress) !== "met") {
-                        const currentDocNames = new Set((state.documents ?? []).map((d) => d.name));
-                        for (const other of requirements) {
-                          if (other.requirement_id === req.requirement_id) continue;
-                          const otherState = uiStates[other.requirement_id];
-                          const doc = otherState?.documents?.find((d) => !currentDocNames.has(d.name));
-                          if (doc) {
-                            const uploader = otherState?.verification?.internalConfirmer?.name
-                              ?? otherState?.attestedBy?.name
-                              ?? "Vilde Gjellestad";
-                            const uploadedAt = otherState?.verification?.internalConfirmer?.date
-                              ?? otherState?.attestedBy?.date
-                              ?? "3. juni 2026";
-                            // Finn alle andre krav dette dokumentet allerede dekker
-                            const alsoCovers = requirements
-                              .filter((r) => {
-                                if (r.requirement_id === other.requirement_id) return false;
-                                if (r.requirement_id === req.requirement_id) return false;
-                                return uiStates[r.requirement_id]?.documents?.some((d) => d.name === doc.name);
-                              })
-                              .map((r) => r.name_no);
-                            // Enkel klassifisering ut fra filnavn
-                            const lower = doc.name.toLowerCase();
-                            const classification = lower.includes("policy")
-                              ? "Policy"
-                              : lower.includes("prosedyre") || lower.includes("procedure")
-                                ? "Prosedyre"
-                                : lower.includes("avtale") || lower.includes("dpa")
-                                  ? "Avtale"
-                                  : lower.includes("rapport")
-                                    ? "Rapport"
-                                    : "Dokumentasjon";
-                            crossRef = {
-                              name: doc.name,
-                              sourceRequirementName: other.name_no,
-                              uploadedBy: uploader,
-                              uploadedAt,
-                              classification,
-                              coversRequirements: [req.name_no, ...alsoCovers],
-                              onAccept: () => {
-                                handleDocSave(req.requirement_id, "implemented", "", { ...doc });
-                                toast.success("Bekreftet", {
-                                  description: `${doc.name} er koblet til ${req.name_no}`,
-                                });
-                              },
-                            };
-                            break;
-                          }
-                        }
-                      }
-                      return (
-                        <LaraDataSourceExplainer
-                          requirement={req}
-                          status={bucketOf(state.progress) === "met" ? "met" : bucketOf(state.progress) === "partial" ? "partial" : "not_met"}
-                          onManualDocument={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
-                          crossReferenceDoc={crossRef}
-                        />
-                      );
-                    })()}
 
                     {state.progress === "in_progress" && (
                       <div className="space-y-2">
@@ -730,7 +729,13 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
                     )}
 
-                    {/* Verifisering — subtil, tett variant */}
+                    <p className="text-sm text-foreground leading-relaxed pt-1">{req.description_no}</p>
+
+                    <p className="text-xs text-muted-foreground pt-2 border-t">
+                      Referanse: <span className="font-mono">{req.requirement_id}</span>
+                    </p>
+
+                    {/* Verifisering — subtil, tett variant helt nederst */}
                     {state.progress === "verified" && state.verification && (
                       <div className="text-xs text-muted-foreground space-y-0.5">
                         <div className="flex items-start gap-1.5">
@@ -760,9 +765,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
 
 
-                    <p className="text-xs text-muted-foreground pt-2 border-t">
-                      Referanse: <span className="font-mono">{req.requirement_id}</span>
-                    </p>
                   </div>
                 </div>
               )}
