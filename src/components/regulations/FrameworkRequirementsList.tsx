@@ -122,7 +122,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     return { met, partial, notMet, auto, manual, total: requirements.length };
   }, [uiStates, requirements]);
 
-  useMemo(() => {
+  useEffect(() => {
     onCountsChange?.(counts);
   }, [counts, onCountsChange]);
 
@@ -338,24 +338,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         {filtered.map((req) => {
           const state = uiStates[req.requirement_id] ?? { progress: "not_answered", evidence: "required" };
           const isExpanded = expandedId === req.requirement_id;
-          const cap = capabilityLabel[req.agent_capability];
-          const CapIcon = cap.icon;
           const progressCfg = getProgressConfig(state.progress);
-          const evidenceCfg = getEvidenceConfig(state.evidence);
           const ProgressIcon = progressCfg.icon;
-          const EvidenceIcon = evidenceCfg.icon;
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
-          const isVerified = state.progress === "verified" && state.evidence === "verified";
           const isVerifiedDue = state.progress === "verified" && state.evidence === "revalidation_due";
-          const progressLabel = isNb ? progressCfg.labelNb : progressCfg.labelEn;
-          const evidenceLabel = formatEvidenceLabel(state, isNb);
-          // Slå sammen når labels er like, eller når det er Verifisert m/ re-attestering nær
-          const sameLabel = progressLabel === evidenceLabel || isVerifiedDue;
-          // Ved dedup: bruk evidence-cfg som primær (bevis-tilstanden er mer informativ), men for
-          // "verifisert m/ re-attestering nær" vil vi vise Verifisert-pill med warning-teller
-          const primaryCfg = isVerifiedDue ? progressCfg : evidenceCfg;
-          const PrimaryIcon = primaryCfg.icon;
-          const primaryLabel = isVerifiedDue ? progressLabel : evidenceLabel;
 
 
           return (
