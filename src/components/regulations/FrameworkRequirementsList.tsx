@@ -497,277 +497,81 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
                     </div>
 
-                    {state.progress !== "verified" && state.progress !== "not_applicable" && (state.documents?.length ?? 0) === 0 && (() => {
-                      // Finn et dokument fra et annet krav som Lara kan gjenbruke.
-                      // Demo: bruk første dokument fra et annet krav som har dokumenter.
-                      
-                      let crossRef: undefined | {
-                        name: string;
-                        sourceRequirementName: string;
-                        uploadedBy: string;
-                        uploadedAt: string;
-                        classification?: string;
-                        coversRequirements?: string[];
-                        onAccept: () => void;
-                      };
-                      if (bucketOf(state.progress) !== "met") {
-                        const currentDocNames = new Set((state.documents ?? []).map((d) => d.name));
-                        for (const other of requirements) {
-                          if (other.requirement_id === req.requirement_id) continue;
-                          const otherState = uiStates[other.requirement_id];
-                          const doc = otherState?.documents?.find((d) => !currentDocNames.has(d.name));
-                          if (doc) {
-                            const uploader = otherState?.verification?.internalConfirmer?.name
-                              ?? otherState?.attestedBy?.name
-                              ?? "Vilde Gjellestad";
-                            const uploadedAt = otherState?.verification?.internalConfirmer?.date
-                              ?? otherState?.attestedBy?.date
-                              ?? "3. juni 2026";
-                            // Finn alle andre krav dette dokumentet allerede dekker
-                            const alsoCovers = requirements
-                              .filter((r) => {
-                                if (r.requirement_id === other.requirement_id) return false;
-                                if (r.requirement_id === req.requirement_id) return false;
-                                return uiStates[r.requirement_id]?.documents?.some((d) => d.name === doc.name);
-                              })
-                              .map((r) => r.name_no);
-                            // Enkel klassifisering ut fra filnavn
-                            const lower = doc.name.toLowerCase();
-                            const classification = lower.includes("policy")
-                              ? "Policy"
-                              : lower.includes("prosedyre") || lower.includes("procedure")
-                                ? "Prosedyre"
-                                : lower.includes("avtale") || lower.includes("dpa")
-                                  ? "Avtale"
-                                  : lower.includes("rapport")
-                                    ? "Rapport"
-                                    : "Dokumentasjon";
-                            crossRef = {
-                              name: doc.name,
-                              sourceRequirementName: other.name_no,
-                              uploadedBy: uploader,
-                              uploadedAt,
-                              classification,
-                              coversRequirements: [req.name_no, ...alsoCovers],
-                              onAccept: () => {
-                                handleDocSave(req.requirement_id, "implemented", "", { ...doc });
-                                toast.success("Bekreftet", {
-                                  description: `${doc.name} er koblet til ${req.name_no}`,
-                                });
-                              },
-                            };
-                            break;
-                          }
-                        }
-                      }
-                      return (
-                        <LaraDataSourceExplainer
-                          requirement={req}
-                          status={bucketOf(state.progress) === "met" ? "met" : bucketOf(state.progress) === "partial" ? "partial" : "not_met"}
-                          onManualDocument={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
-                          crossReferenceDoc={crossRef}
-                        />
-                      );
-                    })()}
-
-
-                    {state.progress === "implemented" && verifyingId !== req.requirement_id && (
-                      <div className="flex justify-end text-xs">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setVerifyingId(req.requirement_id);
-                            setVerifyName("");
-                            setVerifyDate(new Date().toISOString().slice(0, 10));
-                          }}
-                          className="inline-flex items-center gap-1 text-primary hover:underline"
-                        >
-                          {isNb ? "Marker som verifisert" : "Mark as verified"}
-                          <ArrowRight className="h-3 w-3" />
-                        </button>
-                      </div>
-                    )}
-
-
-                    {/* Inline verifiseringsform (kompakt, ingen dialog) */}
-                    {verifyingId === req.requirement_id && (
-                      <div className="rounded-md border bg-muted/20 p-2.5 flex flex-wrap items-end gap-2">
-                        <div className="flex-1 min-w-[160px]">
-                          <label className="text-[11px] text-muted-foreground block mb-1">{isNb ? "Verifisert av" : "Verified by"}</label>
-                          <Input
-                            value={verifyName}
-                            onChange={(e) => setVerifyName(e.target.value)}
-                            placeholder={isNb ? "F.eks. PwC eller intern rolle" : "e.g. PwC or internal role"}
-                            className="h-8 text-xs"
-                            autoFocus
-                            onKeyDown={(e) => { if (e.key === "Enter" && verifyName.trim()) confirmVerification(req.requirement_id); }}
-                          />
-                        </div>
-                        <div className="w-[140px]">
-                          <label className="text-[11px] text-muted-foreground block mb-1">{isNb ? "Dato" : "Date"}</label>
-                          <Input
-                            type="date"
-                            value={verifyDate}
-                            onChange={(e) => setVerifyDate(e.target.value)}
-                            className="h-8 text-xs"
-                          />
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => { setVerifyingId(null); setVerifyName(""); }}>
-                            {isNb ? "Avbryt" : "Cancel"}
-                          </Button>
-                          <Button size="sm" className="h-8 text-xs" disabled={!verifyName.trim()} onClick={() => confirmVerification(req.requirement_id)}>
-                            {isNb ? "Bekreft" : "Confirm"}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {state.progress === "in_progress" && (
-                      <div className="space-y-2">
-                        {reqNotes[req.requirement_id] && editingNoteId !== req.requirement_id ? (
-                          <div className="p-3 rounded-lg bg-muted/50 border">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-start gap-2 min-w-0">
-                                <MessageSquare className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-                                <p className="text-sm text-foreground whitespace-pre-wrap">{reqNotes[req.requirement_id]}</p>
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 gap-1 text-xs shrink-0"
-                                onClick={() => {
-                                  setEditingNoteId(req.requirement_id);
-                                  setDraftNote(reqNotes[req.requirement_id]);
-                                }}
-                              >
-                                <Pencil className="h-3 w-3" />
-                                Rediger
-                              </Button>
-                            </div>
-                          </div>
-                        ) : editingNoteId === req.requirement_id ? (
-                          (() => {
-                            const suggestions = [
-                              "Mangler signatur fra ansvarlig",
-                              "Venter på godkjenning fra ledelsen",
-                              "Under utarbeidelse — ferdig neste kvartal",
-                              "Trenger ekstern gjennomgang",
-                            ];
-                            const saveNote = (text: string) => {
-                              setReqNotes((prev) => ({ ...prev, [req.requirement_id]: text }));
-                              setEditingNoteId(null);
-                              setDraftNote("");
-                              toast.success("Notat lagret", { description: `Notat for ${req.name_no} er oppdatert` });
-                            };
-                            return (
-                              <div className="p-3 rounded-lg border bg-muted/30 space-y-2.5">
-                                <p className="text-xs text-muted-foreground">
-                                  Hva gjenstår? Velg et vanlig svar eller skriv ditt eget.
-                                </p>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {suggestions.map((s) => (
-                                    <button
-                                      key={s}
-                                      type="button"
-                                      onClick={() => saveNote(s)}
-                                      className="text-xs px-2.5 py-1 rounded-full border bg-background hover:bg-accent hover:border-primary/40 transition-colors"
-                                    >
-                                      {s}
-                                    </button>
-                                  ))}
-                                </div>
-                                <div className="flex items-center gap-2 pt-1">
-                                  <Input
-                                    value={draftNote}
-                                    onChange={(e) => setDraftNote(e.target.value)}
-                                    placeholder="Egen kommentar (valgfritt)"
-                                    className="h-8 text-xs"
-                                    onKeyDown={(e) => {
-                                      if (e.key === "Enter" && draftNote.trim()) saveNote(draftNote.trim());
-                                    }}
-                                  />
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 text-xs shrink-0"
-                                    onClick={() => { setEditingNoteId(null); setDraftNote(""); }}
-                                  >
-                                    Avbryt
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    className="h-8 text-xs shrink-0"
-                                    disabled={!draftNote.trim()}
-                                    onClick={() => saveNote(draftNote.trim())}
-                                  >
-                                    Lagre
-                                  </Button>
-                                </div>
-                              </div>
-                            );
-                          })()
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 gap-1.5 text-xs text-muted-foreground hover:text-foreground px-2"
-                            onClick={() => { setEditingNoteId(req.requirement_id); setDraftNote(""); }}
-                          >
-                            <MessageSquare className="h-3.5 w-3.5" />
-                            Legg til kommentar (valgfritt)
-                          </Button>
-                        )}
-                      </div>
-                    )}
-
-                    <p className="text-sm text-foreground leading-relaxed pt-1">{req.description_no}</p>
-
-                    <p className="text-xs text-muted-foreground pt-2 border-t">
-                      Referanse: <span className="font-mono">{req.requirement_id}</span>
-                    </p>
-
-                    {/* Verifisering — subtil, tett variant helt nederst */}
-                    {state.progress === "verified" && state.verification && (
-                      <div className="text-xs text-muted-foreground space-y-0.5">
-                        <div className="flex items-start gap-1.5">
-                          <ShieldCheck className="h-3.5 w-3.5 text-success mt-0.5 shrink-0" />
-                          <span className="min-w-0">
-                            {isNb ? "Verifisert av" : "Verified by"}{" "}
-                            <span className="text-foreground font-medium">{state.verification.externalVerifier.name}</span>
-                            {state.verification.externalVerifier.standard && <> · {state.verification.externalVerifier.standard}</>}
-                            <> · {state.verification.externalVerifier.date}</>
-                            {state.verification.externalVerifier.reportRef && (
-                              <> · {isNb ? "Rapport" : "Report"} <span className="font-mono text-foreground/80">{state.verification.externalVerifier.reportRef}</span></>
-                            )}
-                            {state.verification.externalVerifier.person && <> · {state.verification.externalVerifier.person}</>}
-                          </span>
-                        </div>
-                        <div className="flex items-start gap-1.5 pl-5">
-                          <span className="min-w-0">
-                            {isNb ? "Bekreftet av" : "Confirmed by"}{" "}
-                            <span className="text-foreground">{state.verification.internalConfirmer.name}</span>
-                            , {state.verification.internalConfirmer.role} · {state.verification.internalConfirmer.date}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-
-
-
-                    {/* Alltid tilgjengelig — brukeren kan når som helst overstyre status og dokumentasjon */}
-                    <div className="pt-2 flex justify-center">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full max-w-md h-9 gap-2 text-sm"
-                        onClick={(e) => { e.stopPropagation(); setDocDialog({ id: req.requirement_id, name: req.name_no }); }}
-                      >
-                        <Users className="h-4 w-4 text-primary" />
-                        {isNb ? "Oppdater status og dokumentasjon" : "Update status and documentation"}
-                      </Button>
+                    {/* Automatisk vurdering — én tett linje */}
+                    <div className="flex items-center gap-2 rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs">
+                      <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span className="font-medium text-foreground">
+                        {isNb ? "Automatisk vurdering" : "Automatic assessment"}
+                      </span>
+                      <span className="text-muted-foreground truncate">
+                        · {state.documents?.length ?? 0} {isNb ? "AI-dokument(er)" : "AI document(s)"}
+                      </span>
                     </div>
+
+                    {/* Manuell dokumentering — alltid tilgjengelig, inline */}
+                    <div className="rounded-md border border-border/60 bg-card p-3 space-y-3">
+                      <div className="flex items-start gap-2">
+                        <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                          <Users className="h-3.5 w-3.5 text-primary" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-foreground leading-tight">
+                            {isNb ? "Manuell dokumentering" : "Manual documentation"}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {isNb ? "Bekreft status og legg til dokumentasjon." : "Confirm status and attach documentation."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-foreground">
+                          {isNb ? "Status" : "Status"} <span className="text-destructive">*</span>
+                        </label>
+                        <select
+                          value={state.progress}
+                          onChange={(e) => handleStatusChange(req.requirement_id, e.target.value as ProgressStatus)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        >
+                          {(["not_answered", "in_progress", "implemented", "verified", "not_applicable"] as ProgressStatus[]).map((s) => {
+                            const cfg = getProgressConfig(s);
+                            return (
+                              <option key={s} value={s}>
+                                {isNb ? cfg.labelNb : cfg.labelEn}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-foreground">
+                          {isNb ? "Kommentar" : "Comment"}
+                        </label>
+                        <Textarea
+                          value={reqNotes[req.requirement_id] ?? ""}
+                          onChange={(e) => setReqNotes((prev) => ({ ...prev, [req.requirement_id]: e.target.value }))}
+                          onClick={(e) => e.stopPropagation()}
+                          placeholder={isNb ? "Beskriv kort hvordan kravet oppfylles…" : "Briefly describe how the requirement is met…"}
+                          className="min-h-[70px] text-sm resize-none"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 pt-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-1.5 text-xs"
+                          onClick={(e) => { e.stopPropagation(); setDocDialog({ id: req.requirement_id, name: req.name_no }); }}
+                        >
+                          <Paperclip className="h-3.5 w-3.5" />
+                          {isNb ? "Tilknytt dokument" : "Attach document"}
+                        </Button>
+                      </div>
+                    </div>
+
 
                   </div>
                 </div>
