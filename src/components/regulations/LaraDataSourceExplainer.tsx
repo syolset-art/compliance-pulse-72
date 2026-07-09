@@ -48,9 +48,11 @@ export function LaraDataSourceExplainer({
     explanation =
       "Dette kravet kan ikke hentes automatisk. Det krever et signert dokument, en styrebeslutning eller en bekreftelse fra en person.";
   } else if (capability === "assisted") {
-    explanation = source
-      ? `Lara kan forberede et utkast basert på dataene i ${source.module}, men trenger din godkjenning før det regnes som oppfylt.`
-      : "Lara kan forberede et utkast, men trenger din godkjenning før kravet regnes som oppfylt.";
+    explanation = crossReferenceDoc 
+      ? "Dekker Prosedyrer for registrertes rettigheter, Overføringskonsekven"
+      : source
+        ? `Lara kan forberede et utkast basert på dataene i ${source.module}, men trenger din godkjenning før det regnes som oppfylt.`
+        : "Lara kan forberede et utkast, men trenger din godkjenning før kravet regnes som oppfylt.";
   } else {
     // full / auto
     explanation = source
