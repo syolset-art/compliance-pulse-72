@@ -428,7 +428,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             >
                               <FileIcon className="h-3 w-3 text-muted-foreground shrink-0" />
                               <span className="truncate font-medium text-foreground min-w-[120px] max-w-[220px]">{d.name}</span>
-                              <span className="text-[10px] uppercase text-muted-foreground shrink-0">{d.kind}</span>
+                              <span className="text-[10px] uppercase text-muted-foreground shrink-0">{d.classification?.docType ?? d.kind}</span>
                               {d.classification && d.classification.articles.length > 0 && (
                                 <span className="text-muted-foreground truncate hidden sm:inline">
                                   · {isNb ? "dekker" : "covers"} {d.classification.articles.slice(0, 2).join(", ")}
