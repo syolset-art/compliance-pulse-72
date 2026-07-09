@@ -416,8 +416,9 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <div className="space-y-4">
                     <p className="text-sm text-foreground leading-relaxed">{req.description_no}</p>
 
-                    {/* Kompakt statusrad — synlig når et krav har fått en status */}
-                    {(state.progress === "implemented" || state.progress === "verified" || state.progress === "in_progress") && (
+                    {/* Kompakt statusrad — alltid synlig, brukeren kan alltid endre status */}
+                    {(
+
                       <div className="flex flex-wrap items-center gap-3 text-xs">
                         <Popover>
                           <PopoverTrigger asChild>
