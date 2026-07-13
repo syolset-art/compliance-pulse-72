@@ -375,6 +375,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const ProgressIcon = progressCfg.icon;
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
           const isVerifiedDue = state.progress === "verified" && state.evidence === "revalidation_due";
+          const fulfillment = inferFulfillment(req);
 
 
           return (
@@ -407,12 +408,38 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <ProgressIcon className={cn("h-5 w-5", progressCfg.iconClass)} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className={cn(
-                    "text-base font-semibold text-foreground leading-snug",
-                    isMuted && "line-through decoration-1",
-                  )}>
-                    {req.name_no}
-                  </h4>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className={cn(
+                      "text-base font-semibold text-foreground leading-snug",
+                      isMuted && "line-through decoration-1",
+                    )}>
+                      {req.name_no}
+                    </h4>
+                    <TooltipProvider delayDuration={200}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span
+                            onClick={(e) => e.stopPropagation()}
+                            onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium cursor-help",
+                              fulfillment.pillClass,
+                            )}
+                          >
+                            {fulfillment.evidenceMandatory ? (
+                              <Paperclip className="h-3 w-3" />
+                            ) : (
+                              <CheckCircle2 className="h-3 w-3" />
+                            )}
+                            {isNb ? fulfillment.labelNo : fulfillment.labelEn}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[260px] text-xs">
+                          {isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 mt-1">
