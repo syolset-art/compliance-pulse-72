@@ -16,6 +16,7 @@ import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequiremen
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
 import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
+import { VerifyRequirementDialog, type VerifyRequirementResult } from "@/components/regulations/VerifyRequirementDialog";
 import { MessageSquare, Save, Pencil } from "lucide-react";
 import {
   demoUiStateFor,
