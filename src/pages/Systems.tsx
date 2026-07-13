@@ -866,7 +866,7 @@ export default function Systems() {
         </div>
       </main>
 
-      <AddSystemDialog
+      <DiscoverSystemsDialog
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
         onSystemAdded={(status) => {
