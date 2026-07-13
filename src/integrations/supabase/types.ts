@@ -1164,6 +1164,66 @@ export type Database = {
         }
         Relationships: []
       }
+      discovered_systems: {
+        Row: {
+          created_at: string
+          external_id: string | null
+          first_seen: string | null
+          id: string
+          last_seen: string | null
+          match_asset_id: string | null
+          match_trust_profile_id: string | null
+          match_vendor_id: string | null
+          notes: string | null
+          raw_metadata: Json
+          raw_name: string
+          raw_vendor: string | null
+          source: string
+          status: string
+          updated_at: string
+          user_id: string
+          users_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          external_id?: string | null
+          first_seen?: string | null
+          id?: string
+          last_seen?: string | null
+          match_asset_id?: string | null
+          match_trust_profile_id?: string | null
+          match_vendor_id?: string | null
+          notes?: string | null
+          raw_metadata?: Json
+          raw_name: string
+          raw_vendor?: string | null
+          source: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          users_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          external_id?: string | null
+          first_seen?: string | null
+          id?: string
+          last_seen?: string | null
+          match_asset_id?: string | null
+          match_trust_profile_id?: string | null
+          match_vendor_id?: string | null
+          notes?: string | null
+          raw_metadata?: Json
+          raw_name?: string
+          raw_vendor?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          users_count?: number | null
+        }
+        Relationships: []
+      }
       document_expiry_notifications: {
         Row: {
           asset_id: string
