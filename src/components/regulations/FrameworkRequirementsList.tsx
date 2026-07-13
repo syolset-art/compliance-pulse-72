@@ -646,16 +646,18 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
 
                       <div className="flex items-center justify-between gap-2 pt-1">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <Button
                             type="button"
-                            variant="outline"
+                            variant={fulfillment.evidenceMandatory ? "default" : "outline"}
                             size="sm"
                             className="h-8 gap-1.5 text-xs"
                             onClick={(e) => { e.stopPropagation(); setDocDialog({ id: req.requirement_id, name: req.name_no }); }}
                           >
                             <Paperclip className="h-3.5 w-3.5" />
-                            {isNb ? "Tilknytt dokument" : "Attach document"}
+                            {fulfillment.evidenceMandatory
+                              ? (isNb ? "Last opp bevis (påkrevd)" : "Upload evidence (required)")
+                              : (isNb ? "Tilknytt dokument (valgfritt)" : "Attach document (optional)")}
                           </Button>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -663,12 +665,22 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                 <HelpCircle className="h-3.5 w-3.5" />
                               </button>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[240px] text-xs">
-                              {isNb
-                                ? "Last opp eller koble til et dokument som beviser at kravet er oppfylt — f.eks. policy, rutine, avtale eller skjermbilde."
-                                : "Upload or link a document that proves the requirement is met — e.g. policy, routine, agreement or screenshot."}
+                            <TooltipContent side="top" className="max-w-[260px] text-xs">
+                              {fulfillment.evidenceMandatory
+                                ? (isNb
+                                    ? "Dette kravet må dokumenteres med opplastet bevis (policy, avtale, sertifikat, rapport)."
+                                    : "This requirement must be documented with uploaded evidence (policy, agreement, certificate, report).")
+                                : (isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn)}
                             </TooltipContent>
                           </Tooltip>
+                          {!fulfillment.evidenceMandatory && (
+                            <span className="text-[11px] text-muted-foreground">
+                              {isNb ? "Primær vei: " : "Primary path: "}
+                              <span className="font-medium text-foreground">
+                                {isNb ? fulfillment.primaryActionNo : fulfillment.primaryActionEn}
+                              </span>
+                            </span>
+                          )}
                         </div>
                       </div>
 
