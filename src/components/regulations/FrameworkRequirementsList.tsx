@@ -198,30 +198,64 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     });
   };
 
-  const confirmVerification = (requirementId: string) => {
-    const name = verifyName.trim();
-    const date = verifyDate.trim() || new Date().toLocaleDateString(isNb ? "nb-NO" : "en-GB", { year: "numeric", month: "long", day: "numeric" });
-    if (!name) return;
+  const applyVerification = (requirementId: string, result: VerifyRequirementResult) => {
+    const dateLabel = new Date(result.date).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
+      year: "numeric", month: "long", day: "numeric",
+    });
+    const validUntilLabel = new Date(result.validUntil).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
+      year: "numeric", month: "long", day: "numeric",
+    });
+    const daysLeft = Math.max(
+      0,
+      Math.round((new Date(result.validUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+    );
+    const dueSoon = daysLeft <= 60;
+
     setUiStates((prev) => {
-      const cur = prev[requirementId] ?? { progress: "not_answered", evidence: "required" };
-      const documents = cur.documents ?? [];
+      const cur = prev[requirementId] ?? { progress: "not_answered" as ProgressStatus, evidence: "required" as const };
+      const existingDocs = cur.documents ?? [];
+      const newDoc: EvidenceDocument = {
+        name: result.reportRef
+          ? `${result.reportRef}.pdf`
+          : (isNb ? `Verifikasjon_${result.date}.pdf` : `Verification_${result.date}.pdf`),
+        kind: isNb ? "Verifikasjon" : "Verification",
+        verificationStatus: "verified",
+        verifiedBy: result.name,
+        verifiedAt: dateLabel,
+      };
       const updated: RequirementUiState = {
         ...cur,
         progress: "verified",
-        evidence: "verified",
-        documents,
-        evidenceCount: { collected: Math.max(1, documents.length), required: Math.max(1, documents.length) },
+        evidence: dueSoon ? "revalidation_due" : "verified",
+        revalidationDaysLeft: dueSoon ? daysLeft : undefined,
+        documents: [newDoc, ...existingDocs],
+        evidenceCount: { collected: Math.max(1, existingDocs.length + 1), required: Math.max(1, existingDocs.length + 1) },
         verification: {
-          externalVerifier: { name, date },
-          internalConfirmer: { name: "Vilde Gjellestad", role: isNb ? "Leverandøransvarlig" : "Vendor Manager", date },
+          externalVerifier: {
+            name: result.name,
+            person: result.person,
+            standard: result.standard,
+            date: dateLabel,
+            reportRef: result.reportRef,
+            validUntil: result.validUntil,
+            verifierType: result.verifierType,
+          },
+          internalConfirmer: {
+            name: "Vilde Gjellestad",
+            role: isNb ? "Leverandøransvarlig" : "Vendor Manager",
+            date: dateLabel,
+          },
         },
       };
       return { ...prev, [requirementId]: updated };
     });
     setVerifyingId(null);
-    setVerifyName("");
-    setVerifyDate("");
-    toast.success(isNb ? "Markert som verifisert" : "Marked as verified");
+    setVerifyingLabel("");
+    toast.success(
+      isNb
+        ? `Markert som verifisert — gyldig til ${validUntilLabel}`
+        : `Marked as verified — valid until ${validUntilLabel}`,
+    );
   };
 
   const renderStatusControl = (requirementId: string, state: RequirementUiState) => {
