@@ -567,7 +567,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         </label>
                         <select
                           value={state.progress}
-                          onChange={(e) => handleStatusChange(req.requirement_id, e.target.value as ProgressStatus)}
+                          onChange={(e) => {
+                            const next = e.target.value as ProgressStatus;
+                            if (next === "verified" && state.progress !== "verified") {
+                              setVerifyingId(req.requirement_id);
+                              setVerifyingLabel(isNb ? (req.name_no || req.name) : req.name);
+                              return;
+                            }
+                            handleStatusChange(req.requirement_id, next);
+                          }}
                           onClick={(e) => e.stopPropagation()}
                           className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         >
