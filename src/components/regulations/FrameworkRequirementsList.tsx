@@ -84,8 +84,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [draftNote, setDraftNote] = useState<string>("");
   const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
-  const [verifyName, setVerifyName] = useState<string>("");
-  const [verifyDate, setVerifyDate] = useState<string>("");
+  const [verifyingLabel, setVerifyingLabel] = useState<string>("");
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
