@@ -36,7 +36,6 @@ import {
   TrendingUp,
   AlertTriangle,
 } from "lucide-react";
-import { AddSystemDialog } from "@/components/dialogs/AddSystemDialog";
 import { DiscoverSystemsDialog } from "@/components/systems/DiscoverSystemsDialog";
 import {
   Select,
