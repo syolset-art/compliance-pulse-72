@@ -25,6 +25,7 @@ import {
   type ProgressStatus,
   type EvidenceDocument,
 } from "@/lib/requirementStatusModel";
+import { inferFulfillment } from "@/lib/requirementFulfillment";
 import { cn } from "@/lib/utils";
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
