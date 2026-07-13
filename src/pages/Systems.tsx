@@ -419,7 +419,7 @@ export default function Systems() {
           <p className="text-muted-foreground mb-4">{isNb ? "Legg til systemer organisasjonen bruker for å holde oversikt." : "Add the systems your organization uses to keep an overview."}</p>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            {isNb ? "Legg til system" : "Add system"}
+            {isNb ? "Oppdag systemer" : "Discover systems"}
           </Button>
         </div>
 
@@ -465,7 +465,7 @@ export default function Systems() {
           <p className="text-muted-foreground mb-4">{isNb ? "Legg til systemer organisasjonen bruker for å holde oversikt." : "Add the systems your organization uses to keep an overview."}</p>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            {isNb ? "Legg til system" : "Add system"}
+            {isNb ? "Oppdag systemer" : "Discover systems"}
           </Button>
         </div>
       );
@@ -639,7 +639,7 @@ export default function Systems() {
           <p className="text-muted-foreground mb-4">{isNb ? "Legg til systemer organisasjonen bruker for å holde oversikt." : "Add the systems your organization uses to keep an overview."}</p>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            {isNb ? "Legg til system" : "Add system"}
+            {isNb ? "Oppdag systemer" : "Discover systems"}
           </Button>
         </div>
       );
@@ -749,7 +749,7 @@ export default function Systems() {
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" />
-                {isNb ? "Legg til system" : "Add system"}
+                {isNb ? "Oppdag systemer" : "Discover systems"}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
