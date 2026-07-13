@@ -671,6 +671,17 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         />
       )}
 
+      <VerifyRequirementDialog
+        open={!!verifyingId}
+        onOpenChange={(o) => {
+          if (!o) { setVerifyingId(null); setVerifyingLabel(""); }
+        }}
+        requirementLabel={verifyingLabel}
+        onConfirm={(result) => {
+          if (verifyingId) applyVerification(verifyingId, result);
+        }}
+      />
+
       {cursorTip && (
         <div
           className="pointer-events-none fixed z-50 rounded-md bg-popover text-popover-foreground border shadow-md px-2.5 py-1.5 text-xs max-w-xs"
