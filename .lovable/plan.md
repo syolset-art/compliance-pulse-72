@@ -1,100 +1,67 @@
-# Oppdag systemer — automatisert systemkartlegging med Lara
+## Mål
 
-## Endring i UX
+Når brukeren setter status til **Verifisert** i statusnedtrekket i regelverkslisten (`/regulations`), skal en modal åpnes som tvinger fram bekreftelse av at det er en **ekstern, uavhengig part** som har verifisert, hvem det er, dato, og et **auto-forslag til gyldighetsperiode** før re-verifisering kreves.
 
-Erstatt knappen **"Legg til system"** på Assets-siden med **"Oppdag systemer"**. Klikk åpner en dialog med fire kilder:
+## Endringer
 
-| Kilde | Ikon | Hva Lara gjør |
-|---|---|---|
-| 🔵 Koble til Microsoft | Microsoft-logo | Henter apper fra Entra ID + Defender for Cloud Apps (shadow IT via Graph API) |
-| 🟢 Koble til Google Workspace | Google-logo | Henter tilkoblede apper fra Admin SDK |
-| 🟣 Last opp Excel | Excel-ikon | Parser opplastet .xlsx med systemliste (kolonner: navn, leverandør, formål) |
-| 🟠 Registrer manuelt | Blyant | Dagens flyt (`AddAssetDialog`) |
+### 1. Ny komponent: `src/components/regulations/VerifyRequirementDialog.tsx`
 
-## Brukerflyt (Microsoft, primær)
+Modal (shadcn `Dialog`) som åpnes fra `FrameworkRequirementsList`. Felter:
 
-1. Bruker klikker **Oppdag systemer** → velger **Koble til Microsoft**.
-2. OAuth-samtykke (Lara ber om `Application.Read.All`, `AuditLog.Read.All`, `Directory.Read.All`, `DiscoveredApp.Read.All` for Defender).
-3. Statuspanel: "Lara skanner Microsoft-miljøet …" (viser: Entra apps, Defender discovered apps, aktive brukere).
-4. **Discovery-innboks** vises som kortliste. For hvert oppdaget system kjører Lara den 3-stegs matching-pipelinen (se under) og markerer utfall.
-5. Bruker godkjenner ett-for-ett eller "Godkjenn alle høy tillit".
+- **Type verifikator** (radiogruppe, styrer auto-forslag):
+  - Eksternt revisjonsselskap / sertifiseringsorgan (f.eks. BDO, DNV, Nemko) — auto 12 mnd
+  - Sertifisering ISO/IEC (ISO 27001, 27701, 9001) — auto 36 mnd (årlig oppfølging)
+  - SOC 2 Type II-rapport — auto 12 mnd
+  - Penetrasjonstest / teknisk revisjon — auto 12 mnd
+  - Attestasjonsbrev fra uavhengig part — auto 12 mnd
+- **Navn på uavhengig part** (påkrevd, fritekst — org.navn)
+- **Person / rolle** (valgfritt — f.eks. «Erik Solheim, Lead Auditor»)
+- **Standard / rammeverksreferanse** (valgfritt — f.eks. «ISO 27001:2022»)
+- **Rapportreferanse** (valgfritt)
+- **Verifiseringsdato** (dato-picker, default i dag)
+- **Gyldig til** (dato-picker, forhåndsutfylt basert på type; kan overstyres). Viser hjelpetekst «Foreslått basert på {type}. Endre om nødvendig.»
+- **Bekreftelseshuk** (påkrevd): «Jeg bekrefter at ovennevnte part er uavhengig av vår virksomhet og har verifisert dette kravet.»
 
-## Lara sin 3-stegs matching (kjøres per oppdaget system)
+Knapper: Avbryt / Registrer verifikasjon (disabled til navn + huk er satt).
+
+Utsteder resultat `{ verifierType, name, person?, standard?, reportRef?, date, validUntil }` til forelder.
+
+### 2. `src/components/regulations/FrameworkRequirementsList.tsx`
+
+- I `<select>` `onChange`: hvis `next === "verified"`, **ikke** kall `handleStatusChange` direkte — sett i stedet `verifyingId = req.requirement_id` og åpne dialogen. Alle andre statuser går som før.
+- Erstatt eksisterende enkle `confirmVerification` (bruker kun navn+dato) med en variant som tar hele resultatet fra dialogen og skriver:
+  - `progress: "verified"`
+  - `evidence: "verified"` (eller `"revalidation_due"` hvis `validUntil` er innen 60 dager)
+  - `revalidationDaysLeft` beregnet fra `validUntil`
+  - `verification.externalVerifier`: `{ name, person, standard, date, reportRef }`
+  - `verification.internalConfirmer`: gjeldende bruker (samme som i dag: «Vilde Gjellestad» i demo)
+  - Legg til nytt `EvidenceDocument` med `verificationStatus: "verified"`, `verifiedBy: name`, `verifiedAt: date` slik at det vises i evidence-listen.
+- Hvis brukeren avbryter dialogen: rull tilbake selectens visuelle verdi (styrt via `state.progress` som ikke endres, så selecten reflekterer forrige verdi automatisk).
+- Fjern de gamle inline `verifyName` / `verifyDate` state-variablene til fordel for dialogens interne state.
+
+### 3. `src/lib/requirementStatusModel.ts`
+
+- Utvid `VerificationInfo.externalVerifier` med `validUntil?: string` (ISO-dato).
+- Legg til hjelper `suggestValidityMonths(type: VerifierType): number` og typeliste `VERIFIER_TYPES` (id, labelNb, labelEn, defaultMonths) — brukes både av dialog og evt. framtidig kort.
+
+### 4. i18n
+
+- Alle strenger i dialogen ligger inline med `isNb`-toggle, i tråd med resten av filen. Ingen nye nøkler i `nb.json`/`en.json` nødvendig (matcher eksisterende mønster i denne visningen).
+
+## Tekniske detaljer
 
 ```text
-                oppdaget system: "Slack"
-                         │
-                         ▼
-┌────────────────────────────────────────────────┐
-│ 1. Trust Profile fra før?                      │
-│    → søk i vår globale trust_profile-database  │
-│      (system_templates + delte trust-profiler) │
-├────────────────────────────────────────────────┤
-│  Ja → Koble til eksisterende trust profile     │
-│  Nei ↓                                         │
-└────────────────────────────────────────────────┘
-                         ▼
-┌────────────────────────────────────────────────┐
-│ 2. Leverandørrelasjon i kundens vendors?       │
-│    → match på vendor-navn / domene             │
-├────────────────────────────────────────────────┤
-│  Ja → Bruk eksisterende vendor                 │
-│  Nei → Opprett ny Vendor (Lara beriker)        │
-└────────────────────────────────────────────────┘
-                         ▼
-┌────────────────────────────────────────────────┐
-│ 3. Systemkort finnes i kundens assets?         │
-├────────────────────────────────────────────────┤
-│  Ja → Marker som duplikat, tilby "slå sammen"  │
-│  Nei → Opprett System (asset), lenk til vendor │
-│        + trust profile fra steg 1              │
-└────────────────────────────────────────────────┘
-                         ▼
-                     Ferdig ✓
+select onChange
+  ├─ next !== "verified"  → handleStatusChange (uendret)
+  └─ next === "verified"  → openVerifyDialog(reqId)
+                              └─ onConfirm(result) → applyVerification(reqId, result)
+                              └─ onCancel        → lukk uten endring
 ```
 
-Alle tre stegene vises som checkbokser på kortet i innboksen, med Lara-badge "auto-matchet" eller "kunden må bekrefte".
+Auto-forslag: `validUntil = addMonths(date, VERIFIER_TYPES[type].defaultMonths)`. Endring av «Type verifikator» oppdaterer `validUntil` med mindre brukeren har redigert feltet manuelt (spor via `validUntilDirty`-flag).
 
-## Akseptansekriterier
+## Utenfor scope
 
-- "Legg til system"-knappen finnes ikke lenger — kun "Oppdag systemer".
-- Alle fire kilder tilgjengelig fra samme dialog.
-- Ingen asset opprettes uten godkjenning (også ved høy tillit — men "Godkjenn alle" er ett klikk).
-- Hvert opprettet system har `source: "microsoft_entra" | "microsoft_defender" | "google_workspace" | "excel_import" | "manual"` og lenke til rå-funn.
-- Trust profile-match dedupliserer på tvers av kunder (samme "Slack" gjenbruker samme trust profile).
-- Vendor opprettes automatisk kun når steg 2 gir null match; ellers gjenbrukes eksisterende.
-- Bruker kan koble fra Microsoft/Google når som helst; tokens slettes.
-
-## Teknisk
-
-**Ny tabell:**
-- `discovered_systems` (org_id, source, external_id, raw_name, raw_vendor, raw_metadata, users_count, first_seen, last_seen, match_trust_profile_id, match_vendor_id, match_asset_id, status: pending/approved/rejected/merged)
-
-Bruker eksisterende `integration_connections` + `integration_providers` (allerede i skjemaet). Legger til providers `microsoft_entra`, `microsoft_defender`, `google_workspace`.
-
-**Edge functions:**
-- `microsoft-oauth-callback` — token-utveksling, lagrer i `integration_connections`
-- `scan-microsoft-systems` — kaller Graph `/applications`, `/servicePrincipals`, `/security/dataDiscovery/cloudAppDiscovery/uploadedStreams` (Defender), aggregerer, upsert til `discovered_systems`
-- `scan-google-workspace` — Admin SDK `/customer/my_customer/apps`
-- `parse-excel-systems` — leser xlsx, ekstraherer rader
-- `match-discovered-system` — kjører 3-stegs pipeline (trust profile lookup → vendor match → asset dedup), oppdaterer `match_*_id` på raden
-- `approve-discovered-system` — utfører de tre create/link-operasjonene og skriver til `assets` + `system_vendors`
-
-**UI-komponenter:**
-- `src/components/systems/DiscoverSystemsDialog.tsx` — de fire valgene
-- `src/components/systems/DiscoveryInbox.tsx` — kortliste med 3-stegs status
-- `src/components/systems/ExcelUploadStep.tsx` — dra-og-slipp + kolonnemapping
-
-**Erstattes:** knappen som i dag åpner `AddAssetDialog` → åpner i stedet `DiscoverSystemsDialog`. "Registrer manuelt" i dialogen fortsetter å bruke `AddAssetDialog`.
-
-## Ut av scope for denne iterasjonen
-
-- Sanntids-synk (kun manuell + planlagt daglig kjøring i første versjon)
-- Okta / Jamf / andre IdP-er (forberedes i `integration_providers`, ikke implementeres)
-- Kostnadsanalyse / lisensoptimalisering fra Defender-data
-- Automatisk deling av oppdagede systemer med MSP-partner
-
-## Åpne spørsmål før build
-
-1. **Microsoft-tilgang**: Skal vi bruke **Lovable-connector** (raskest, admin-samtykke via Lovable) eller kreve at kunden lager egen **Azure AD app-registrering** (mer arbeid, men kunden eier full kontroll og Defender-lisens-scope)? Anbefaler Lovable-connector for MVP, med opsjon om egen app senere.
-2. **Excel-format**: Skal vi definere én fast mal (kolonner: `Systemnavn | Leverandør | Formål | Antall brukere`) som kunden laster ned først, eller la Lara auto-mappe vilkårlige kolonner? Anbefaler fast mal for MVP.
+- Persistens mot Supabase (`vendor_documents.verification_*` finnes allerede, men denne siden bruker lokal `uiStates`; migrering til DB er en egen oppgave).
+- E-post/kalendervarsel når `validUntil` nærmer seg (kan hektes på `check-evidence-freshness`-funksjonen senere).
+- Endring av tilsvarende flyt i `VendorControlsTab` / `RequirementCard` — samme dialog kan gjenbrukes senere.
