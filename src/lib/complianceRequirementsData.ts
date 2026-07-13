@@ -6,6 +6,19 @@ export type RequirementPriority = 'critical' | 'high' | 'medium' | 'low';
 export type RequirementDomain = 'privacy' | 'security' | 'ai';
 export type RequirementCategory = 'organizational' | 'people' | 'physical' | 'technological' | 'legal' | 'governance';
 
+/**
+ * Fulfillment-type: hvordan kravet primært oppfylles.
+ * Se src/lib/requirementFulfillment.ts for full definisjon og default-inferens.
+ */
+export type RequirementFulfillmentType =
+  | 'document_required'
+  | 'document_optional'
+  | 'process_confirmation'
+  | 'attestation'
+  | 'action'
+  | 'assessment'
+  | 'not_applicable_allowed';
+
 export interface ComplianceRequirement {
   framework_id: string;
   requirement_id: string;
@@ -21,6 +34,10 @@ export interface ComplianceRequirement {
   sla_category?: string;
   agent_capability: AgentCapability;
   sort_order: number;
+  /** Overstyrer hvordan kravet oppfylles. Utledes automatisk hvis ikke satt. */
+  fulfillment_type?: RequirementFulfillmentType;
+  /** Overstyrer om dokumentopplasting er obligatorisk. Utledes fra fulfillment_type hvis ikke satt. */
+  evidence_mandatory?: boolean;
 }
 
 // ============================================
