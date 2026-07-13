@@ -56,12 +56,77 @@ export interface VerificationInfo {
     standard?: string;     // e.g. "ISO 27001:2022"
     date: string;
     reportRef?: string;
+    validUntil?: string;   // ISO date — når re-verifisering kreves
+    verifierType?: VerifierType;
   };
   internalConfirmer: {
     name: string;
     role: string;
     date: string;
   };
+}
+
+export type VerifierType =
+  | "external_audit_firm"
+  | "iso_certification_body"
+  | "soc2_report"
+  | "pentest"
+  | "attestation_letter";
+
+export interface VerifierTypeConfig {
+  value: VerifierType;
+  labelNb: string;
+  labelEn: string;
+  descriptionNb: string;
+  descriptionEn: string;
+  defaultMonths: number;
+}
+
+export const VERIFIER_TYPES: VerifierTypeConfig[] = [
+  {
+    value: "iso_certification_body",
+    labelNb: "ISO/IEC-sertifisering",
+    labelEn: "ISO/IEC certification",
+    descriptionNb: "Akkreditert sertifiseringsorgan (ISO 27001, 27701, 9001 m.fl.)",
+    descriptionEn: "Accredited certification body (ISO 27001, 27701, 9001 etc.)",
+    defaultMonths: 36,
+  },
+  {
+    value: "external_audit_firm",
+    labelNb: "Eksternt revisjonsselskap",
+    labelEn: "External audit firm",
+    descriptionNb: "Uavhengig revisor (BDO, DNV, Nemko, KPMG m.fl.)",
+    descriptionEn: "Independent auditor (BDO, DNV, Nemko, KPMG etc.)",
+    defaultMonths: 12,
+  },
+  {
+    value: "soc2_report",
+    labelNb: "SOC 2 Type II-rapport",
+    labelEn: "SOC 2 Type II report",
+    descriptionNb: "Uavhengig rapport gyldig i observasjonsperioden",
+    descriptionEn: "Independent report valid across the observation period",
+    defaultMonths: 12,
+  },
+  {
+    value: "pentest",
+    labelNb: "Penetrasjonstest / teknisk revisjon",
+    labelEn: "Penetration test / technical audit",
+    descriptionNb: "Uavhengig teknisk testing",
+    descriptionEn: "Independent technical testing",
+    defaultMonths: 12,
+  },
+  {
+    value: "attestation_letter",
+    labelNb: "Attestasjonsbrev fra uavhengig part",
+    labelEn: "Attestation letter from independent party",
+    descriptionNb: "Skriftlig bekreftelse fra ekstern uavhengig part",
+    descriptionEn: "Written confirmation from external independent party",
+    defaultMonths: 12,
+  },
+];
+
+export function suggestValidityMonths(type: VerifierType): number {
+  return VERIFIER_TYPES.find((t) => t.value === type)?.defaultMonths ?? 12;
 }
 
 export interface RequirementUiState {
