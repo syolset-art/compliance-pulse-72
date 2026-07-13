@@ -25,6 +25,7 @@ import {
   type ProgressStatus,
   type EvidenceDocument,
 } from "@/lib/requirementStatusModel";
+import { inferFulfillment } from "@/lib/requirementFulfillment";
 import { cn } from "@/lib/utils";
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
@@ -374,6 +375,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           const ProgressIcon = progressCfg.icon;
           const isMuted = state.progress === "not_applicable" || state.evidence === "out_of_scope";
           const isVerifiedDue = state.progress === "verified" && state.evidence === "revalidation_due";
+          const fulfillment = inferFulfillment(req);
 
 
           return (
@@ -406,12 +408,38 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <ProgressIcon className={cn("h-5 w-5", progressCfg.iconClass)} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className={cn(
-                    "text-base font-semibold text-foreground leading-snug",
-                    isMuted && "line-through decoration-1",
-                  )}>
-                    {req.name_no}
-                  </h4>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className={cn(
+                      "text-base font-semibold text-foreground leading-snug",
+                      isMuted && "line-through decoration-1",
+                    )}>
+                      {req.name_no}
+                    </h4>
+                    <TooltipProvider delayDuration={200}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span
+                            onClick={(e) => e.stopPropagation()}
+                            onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium cursor-help",
+                              fulfillment.pillClass,
+                            )}
+                          >
+                            {fulfillment.evidenceMandatory ? (
+                              <Paperclip className="h-3 w-3" />
+                            ) : (
+                              <CheckCircle2 className="h-3 w-3" />
+                            )}
+                            {isNb ? fulfillment.labelNo : fulfillment.labelEn}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[260px] text-xs">
+                          {isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 mt-1">
@@ -618,16 +646,18 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
 
                       <div className="flex items-center justify-between gap-2 pt-1">
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <Button
                             type="button"
-                            variant="outline"
+                            variant={fulfillment.evidenceMandatory ? "default" : "outline"}
                             size="sm"
                             className="h-8 gap-1.5 text-xs"
                             onClick={(e) => { e.stopPropagation(); setDocDialog({ id: req.requirement_id, name: req.name_no }); }}
                           >
                             <Paperclip className="h-3.5 w-3.5" />
-                            {isNb ? "Tilknytt dokument" : "Attach document"}
+                            {fulfillment.evidenceMandatory
+                              ? (isNb ? "Last opp bevis (påkrevd)" : "Upload evidence (required)")
+                              : (isNb ? "Tilknytt dokument (valgfritt)" : "Attach document (optional)")}
                           </Button>
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -635,12 +665,22 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                 <HelpCircle className="h-3.5 w-3.5" />
                               </button>
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-[240px] text-xs">
-                              {isNb
-                                ? "Last opp eller koble til et dokument som beviser at kravet er oppfylt — f.eks. policy, rutine, avtale eller skjermbilde."
-                                : "Upload or link a document that proves the requirement is met — e.g. policy, routine, agreement or screenshot."}
+                            <TooltipContent side="top" className="max-w-[260px] text-xs">
+                              {fulfillment.evidenceMandatory
+                                ? (isNb
+                                    ? "Dette kravet må dokumenteres med opplastet bevis (policy, avtale, sertifikat, rapport)."
+                                    : "This requirement must be documented with uploaded evidence (policy, agreement, certificate, report).")
+                                : (isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn)}
                             </TooltipContent>
                           </Tooltip>
+                          {!fulfillment.evidenceMandatory && (
+                            <span className="text-[11px] text-muted-foreground">
+                              {isNb ? "Primær vei: " : "Primary path: "}
+                              <span className="font-medium text-foreground">
+                                {isNb ? fulfillment.primaryActionNo : fulfillment.primaryActionEn}
+                              </span>
+                            </span>
+                          )}
                         </div>
                       </div>
 
