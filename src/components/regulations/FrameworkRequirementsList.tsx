@@ -16,6 +16,7 @@ import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequiremen
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
 import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
+import { VerifyRequirementDialog, type VerifyRequirementResult } from "@/components/regulations/VerifyRequirementDialog";
 import { MessageSquare, Save, Pencil } from "lucide-react";
 import {
   demoUiStateFor,
@@ -83,8 +84,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [draftNote, setDraftNote] = useState<string>("");
   const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
-  const [verifyName, setVerifyName] = useState<string>("");
-  const [verifyDate, setVerifyDate] = useState<string>("");
+  const [verifyingLabel, setVerifyingLabel] = useState<string>("");
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -198,30 +198,64 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     });
   };
 
-  const confirmVerification = (requirementId: string) => {
-    const name = verifyName.trim();
-    const date = verifyDate.trim() || new Date().toLocaleDateString(isNb ? "nb-NO" : "en-GB", { year: "numeric", month: "long", day: "numeric" });
-    if (!name) return;
+  const applyVerification = (requirementId: string, result: VerifyRequirementResult) => {
+    const dateLabel = new Date(result.date).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
+      year: "numeric", month: "long", day: "numeric",
+    });
+    const validUntilLabel = new Date(result.validUntil).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
+      year: "numeric", month: "long", day: "numeric",
+    });
+    const daysLeft = Math.max(
+      0,
+      Math.round((new Date(result.validUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+    );
+    const dueSoon = daysLeft <= 60;
+
     setUiStates((prev) => {
-      const cur = prev[requirementId] ?? { progress: "not_answered", evidence: "required" };
-      const documents = cur.documents ?? [];
+      const cur = prev[requirementId] ?? { progress: "not_answered" as ProgressStatus, evidence: "required" as const };
+      const existingDocs = cur.documents ?? [];
+      const newDoc: EvidenceDocument = {
+        name: result.reportRef
+          ? `${result.reportRef}.pdf`
+          : (isNb ? `Verifikasjon_${result.date}.pdf` : `Verification_${result.date}.pdf`),
+        kind: isNb ? "Verifikasjon" : "Verification",
+        verificationStatus: "verified",
+        verifiedBy: result.name,
+        verifiedAt: dateLabel,
+      };
       const updated: RequirementUiState = {
         ...cur,
         progress: "verified",
-        evidence: "verified",
-        documents,
-        evidenceCount: { collected: Math.max(1, documents.length), required: Math.max(1, documents.length) },
+        evidence: dueSoon ? "revalidation_due" : "verified",
+        revalidationDaysLeft: dueSoon ? daysLeft : undefined,
+        documents: [newDoc, ...existingDocs],
+        evidenceCount: { collected: Math.max(1, existingDocs.length + 1), required: Math.max(1, existingDocs.length + 1) },
         verification: {
-          externalVerifier: { name, date },
-          internalConfirmer: { name: "Vilde Gjellestad", role: isNb ? "Leverandøransvarlig" : "Vendor Manager", date },
+          externalVerifier: {
+            name: result.name,
+            person: result.person,
+            standard: result.standard,
+            date: dateLabel,
+            reportRef: result.reportRef,
+            validUntil: result.validUntil,
+            verifierType: result.verifierType,
+          },
+          internalConfirmer: {
+            name: "Vilde Gjellestad",
+            role: isNb ? "Leverandøransvarlig" : "Vendor Manager",
+            date: dateLabel,
+          },
         },
       };
       return { ...prev, [requirementId]: updated };
     });
     setVerifyingId(null);
-    setVerifyName("");
-    setVerifyDate("");
-    toast.success(isNb ? "Markert som verifisert" : "Marked as verified");
+    setVerifyingLabel("");
+    toast.success(
+      isNb
+        ? `Markert som verifisert — gyldig til ${validUntilLabel}`
+        : `Marked as verified — valid until ${validUntilLabel}`,
+    );
   };
 
   const renderStatusControl = (requirementId: string, state: RequirementUiState) => {
@@ -533,7 +567,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         </label>
                         <select
                           value={state.progress}
-                          onChange={(e) => handleStatusChange(req.requirement_id, e.target.value as ProgressStatus)}
+                          onChange={(e) => {
+                            const next = e.target.value as ProgressStatus;
+                            if (next === "verified" && state.progress !== "verified") {
+                              setVerifyingId(req.requirement_id);
+                              setVerifyingLabel(isNb ? (req.name_no || req.name) : req.name);
+                              return;
+                            }
+                            handleStatusChange(req.requirement_id, next);
+                          }}
                           onClick={(e) => e.stopPropagation()}
                           className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         >
@@ -628,6 +670,17 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           onSave={(status, comment, doc) => handleDocSave(docDialog.id, status, comment, doc)}
         />
       )}
+
+      <VerifyRequirementDialog
+        open={!!verifyingId}
+        onOpenChange={(o) => {
+          if (!o) { setVerifyingId(null); setVerifyingLabel(""); }
+        }}
+        requirementLabel={verifyingLabel}
+        onConfirm={(result) => {
+          if (verifyingId) applyVerification(verifyingId, result);
+        }}
+      />
 
       {cursorTip && (
         <div
