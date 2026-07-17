@@ -523,10 +523,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       if (!req.covered_articles || req.covered_articles.length === 0) return null;
                       const pct = Math.round(cov.ratio * 100);
                       const barColor = pct === 100 ? "bg-success" : pct >= 60 ? "bg-warning" : "bg-destructive";
+                      const coveredSet = new Set(cov.covered);
                       return (
-                        <div className="rounded-md border border-border/60 bg-muted/20 p-2.5">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[11px] font-medium text-foreground">
+                        <details className="group rounded-md border border-border/60 bg-muted/20 p-2.5 [&_summary::-webkit-details-marker]:hidden">
+                          <summary className="flex items-center justify-between cursor-pointer list-none">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-foreground">
+                              <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform group-open:rotate-180" />
                               {isNb ? "Artikkeldekning" : "Article coverage"}
                             </span>
                             <span
@@ -540,27 +542,51 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                 <ShieldCheck className="inline h-3 w-3 ml-1 text-success" aria-label={isNb ? "Signert" : "Signed"} />
                               )}
                             </span>
-                          </div>
-                          <div className="h-1.5 w-full rounded-full bg-border overflow-hidden">
+                          </summary>
+                          <div className="mt-1.5 h-1.5 w-full rounded-full bg-border overflow-hidden">
                             <div className={cn("h-full transition-all", barColor)} style={{ width: `${pct}%` }} />
                           </div>
-                          {cov.missing.length > 0 && (
-                            <div className="mt-1.5 flex flex-wrap gap-1">
-                              {cov.missing.map((a) => (
-                                <span key={a} className="inline-flex items-center rounded border border-warning/40 px-1.5 py-0.5 text-[10px] text-warning">
-                                  {a}
-                                </span>
-                              ))}
+                          {cov.required.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {cov.required.map((a) => {
+                                const isCovered = coveredSet.has(a);
+                                return (
+                                  <Tooltip key={a}>
+                                    <TooltipTrigger asChild>
+                                      <span
+                                        className={cn(
+                                          "inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px]",
+                                          isCovered
+                                            ? "border-success/40 text-success bg-success/5"
+                                            : "border-warning/40 text-warning bg-warning/5",
+                                        )}
+                                      >
+                                        {isCovered ? (
+                                          <CheckCircle2 className="h-2.5 w-2.5" />
+                                        ) : (
+                                          <X className="h-2.5 w-2.5" />
+                                        )}
+                                        {a}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="text-xs">
+                                      {isCovered
+                                        ? isNb ? "Dekket av bevis" : "Covered by evidence"
+                                        : isNb ? "Ikke dekket ennå" : "Not covered yet"}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                );
+                              })}
                             </div>
                           )}
                           {pct < 100 && (
-                            <p className="mt-1.5 text-[10px] text-muted-foreground">
+                            <p className="mt-2 text-[10px] text-muted-foreground">
                               {isNb
                                 ? "Score gir kun delvis uttelling til alle artikler er dekket."
                                 : "Score is only partial until all articles are covered."}
                             </p>
                           )}
-                        </div>
+                        </details>
                       );
                     })()}
 
