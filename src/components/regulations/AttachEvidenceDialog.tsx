@@ -27,6 +27,7 @@ import {
   AlertCircle,
   ChevronDown,
   ChevronUp,
+  X,
 } from "lucide-react";
 import type { EvidenceDocument } from "@/lib/requirementStatusModel";
 import { supabase } from "@/integrations/supabase/client";
