@@ -146,10 +146,12 @@ export function AttachEvidenceDialog({
   const isNb = i18n.language !== "en";
   const [phase, setPhase] = useState<Phase>({ kind: "select" });
   const [showArticles, setShowArticles] = useState(false);
+  const [showReviewArticles, setShowReviewArticles] = useState(false);
 
   const reset = useCallback(() => {
     setPhase({ kind: "select" });
     setShowArticles(false);
+    setShowReviewArticles(false);
   }, []);
 
   const handleFile = useCallback(
