@@ -154,6 +154,10 @@ export interface RequirementUiState {
   evidenceCount?: { collected: number; required: number };
   revalidationDaysLeft?: number;
   documents?: EvidenceDocument[];
+  /** Artikler AI/Lara har bekreftet som dekket av minst ett tilknyttet dokument. */
+  coveredArticles?: string[];
+  /** Artikler som ikke er dekket av noe dokument enda. */
+  missingArticles?: string[];
 }
 
 
