@@ -35,15 +35,32 @@ export interface AttestationInfo {
   date: string; // presentert dato-string
 }
 
+export interface DocumentSignature {
+  /** True hvis dokumentet er digitalt signert eller inneholder identifiserbar signatur. */
+  isSigned: boolean;
+  /** Personen/organisasjonen som har signert, om oppdaget. */
+  signedBy?: string;
+  /** ISO-dato signaturen ble påført. */
+  signedAt?: string;
+  /** Ekstern utsteder (BDO, DNV, Nemko …) — hvis relevant. */
+  issuer?: string;
+}
+
 export interface EvidenceDocument {
   name: string;
   kind: string; // e.g. "PDF", "DOCX", "URL", "Attestasjon"
   classification?: {
     docType: string;
+    /** Artikler/kontrollpunkter dokumentet dekker (avledet av Lara). */
     articles: string[];
     confidence: number;
     summary?: string;
   };
+  /**
+   * Signatur påvirker IKKE score — kun tillitsgrad (evidence state).
+   * Se scoringEngine for detaljer.
+   */
+  signature?: DocumentSignature;
   verificationStatus?: "self_reported" | "pending_verification" | "verified";
   verifiedBy?: string;
   verifiedAt?: string;
