@@ -84,8 +84,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [draftNote, setDraftNote] = useState<string>("");
   const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
-  const [verifyingId, setVerifyingId] = useState<string | null>(null);
-  const [verifyingLabel, setVerifyingLabel] = useState<string>("");
+  const [attachDialog, setAttachDialog] = useState<{ id: string; name: string; description?: string; articles?: string[] } | null>(null);
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
