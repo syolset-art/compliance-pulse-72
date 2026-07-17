@@ -1,11 +1,33 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
-import { Upload, FileText, ShieldCheck, Sparkles, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Upload,
+  FileText,
+  ShieldCheck,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import type { EvidenceDocument } from "@/lib/requirementStatusModel";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -24,16 +46,18 @@ interface Props {
   requirementId: string;
   requirementName: string;
   requirementDescription?: string;
-  /** Artikler kravet skal dekke — brukes til dekningsanalyse. */
   coveredArticles?: string[];
   onConfirm: (result: AttachEvidenceResult) => void;
 }
 
+type PhaseKind = "select" | "analyzing" | "review" | "error";
 type Phase =
   | { kind: "select" }
   | { kind: "analyzing"; fileName: string }
-  | { kind: "review"; result: AttachEvidenceResult }
+  | { kind: "review"; result: AttachEvidenceResult; fileName: string }
   | { kind: "error"; message: string };
+
+const STEPS: PhaseKind[] = ["select", "analyzing", "review"];
 
 function readAsText(file: File): Promise<string> {
   return new Promise((resolve) => {
@@ -42,6 +66,72 @@ function readAsText(file: File): Promise<string> {
     r.onerror = () => resolve("");
     r.readAsText(file);
   });
+}
+
+function StepDots({ current, isNb }: { current: PhaseKind; isNb: boolean }) {
+  const labels: Record<PhaseKind, { no: string; en: string }> = {
+    select: { no: "Last opp", en: "Upload" },
+    analyzing: { no: "Analyser", en: "Analyze" },
+    review: { no: "Bekreft", en: "Confirm" },
+    error: { no: "", en: "" },
+  };
+  const currentIdx = STEPS.indexOf(current === "error" ? "select" : current);
+  return (
+    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+      {STEPS.map((s, i) => {
+        const active = i === currentIdx;
+        const done = i < currentIdx;
+        return (
+          <div key={s} className="flex items-center gap-1.5">
+            <div
+              className={cn(
+                "h-1.5 w-1.5 rounded-full transition-colors",
+                active
+                  ? "bg-primary"
+                  : done
+                    ? "bg-primary/40"
+                    : "bg-muted-foreground/30",
+              )}
+            />
+            <span
+              className={cn(
+                "transition-colors",
+                active ? "text-foreground font-medium" : done ? "text-muted-foreground" : "",
+              )}
+            >
+              {isNb ? labels[s].no : labels[s].en}
+            </span>
+            {i < STEPS.length - 1 && (
+              <span className="text-muted-foreground/40 ml-0.5">·</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function AnalyzingIndicator({ isNb }: { isNb: boolean }) {
+  const phasesNo = ["Leser dokument", "Matcher artikler", "Sjekker signatur"];
+  const phasesEn = ["Reading document", "Matching articles", "Checking signature"];
+  const phases = isNb ? phasesNo : phasesEn;
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((p) => (p + 1) % phases.length), 1200);
+    return () => clearInterval(t);
+  }, [phases.length]);
+  return (
+    <div className="flex flex-col items-center gap-3 py-8">
+      <div className="relative h-8 w-8">
+        <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
+        <div className="absolute inset-0 rounded-full border-2 border-t-primary animate-spin" />
+        <Sparkles className="absolute inset-0 m-auto h-3.5 w-3.5 text-primary" />
+      </div>
+      <div className="h-4 text-xs text-foreground transition-opacity">
+        {phases[idx]}…
+      </div>
+    </div>
+  );
 }
 
 export function AttachEvidenceDialog({
@@ -56,8 +146,12 @@ export function AttachEvidenceDialog({
   const { i18n } = useTranslation();
   const isNb = i18n.language !== "en";
   const [phase, setPhase] = useState<Phase>({ kind: "select" });
+  const [showArticles, setShowArticles] = useState(false);
 
-  const reset = useCallback(() => setPhase({ kind: "select" }), []);
+  const reset = useCallback(() => {
+    setPhase({ kind: "select" });
+    setShowArticles(false);
+  }, []);
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -92,7 +186,7 @@ export function AttachEvidenceDialog({
         const ratio: number =
           typeof coverage.coverageRatio === "number"
             ? Math.max(0, Math.min(1, coverage.coverageRatio))
-            : covered.length > 0 && (covered.length + missing.length) > 0
+            : covered.length > 0 && covered.length + missing.length > 0
               ? covered.length / (covered.length + missing.length)
               : 0;
 
@@ -121,6 +215,7 @@ export function AttachEvidenceDialog({
 
         setPhase({
           kind: "review",
+          fileName: file.name,
           result: {
             document,
             coveredArticles: covered,
@@ -147,7 +242,8 @@ export function AttachEvidenceDialog({
     [requirementId, requirementName, requirementDescription, coveredArticles, isNb],
   );
 
-  const percent = phase.kind === "review" ? Math.round(phase.result.coverageRatio * 100) : 0;
+  const percent =
+    phase.kind === "review" ? Math.round(phase.result.coverageRatio * 100) : 0;
 
   return (
     <Dialog
@@ -157,23 +253,25 @@ export function AttachEvidenceDialog({
         onOpenChange(o);
       }}
     >
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+      <DialogContent className="max-w-md">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="flex items-center gap-2 text-base">
             <Sparkles className="h-4 w-4 text-primary" />
             {isNb ? "Tilknytt bevis" : "Attach evidence"}
           </DialogTitle>
-          <DialogDescription className="text-xs">
-            {isNb
-              ? `Last opp et dokument. Lara analyserer hvilke artikler det dekker for «${requirementName}».`
-              : `Upload a document. Lara analyzes which articles it covers for "${requirementName}".`}
+          <DialogDescription className="text-xs text-muted-foreground truncate">
+            {requirementName}
           </DialogDescription>
+          <StepDots
+            current={phase.kind === "error" ? "select" : phase.kind}
+            isNb={isNb}
+          />
         </DialogHeader>
 
         {phase.kind === "select" && (
           <div className="space-y-3">
             <label
-              className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-8 text-center hover:bg-muted/40 cursor-pointer transition-colors"
+              className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-5 text-center hover:bg-muted/40 hover:border-primary/40 cursor-pointer transition-colors"
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -181,13 +279,11 @@ export function AttachEvidenceDialog({
                 if (f) handleFile(f);
               }}
             >
-              <Upload className="h-6 w-6 text-muted-foreground" />
+              <Upload className="h-5 w-5 text-muted-foreground" />
               <div className="text-sm font-medium text-foreground">
-                {isNb ? "Dra fil hit eller klikk for å velge" : "Drop a file here or click to browse"}
+                {isNb ? "Dra fil hit eller velg" : "Drop a file or browse"}
               </div>
-              <div className="text-xs text-muted-foreground">
-                {isNb ? "PDF, DOCX, TXT" : "PDF, DOCX, TXT"}
-              </div>
+              <div className="text-[11px] text-muted-foreground">PDF · DOCX · TXT</div>
               <input
                 type="file"
                 className="hidden"
@@ -198,82 +294,102 @@ export function AttachEvidenceDialog({
                 }}
               />
             </label>
+
             {(coveredArticles?.length ?? 0) > 0 && (
-              <div className="text-xs text-muted-foreground">
-                <div className="font-medium text-foreground mb-1">
-                  {isNb ? "Kravet skal dekke:" : "This requirement covers:"}
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {coveredArticles!.map((a) => (
-                    <Badge key={a} variant="outline" className="text-[10px]">
-                      {a}
-                    </Badge>
-                  ))}
-                </div>
+              <button
+                type="button"
+                onClick={() => setShowArticles((v) => !v)}
+                className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showArticles ? (
+                  <ChevronUp className="h-3 w-3" />
+                ) : (
+                  <ChevronDown className="h-3 w-3" />
+                )}
+                {isNb
+                  ? `${coveredArticles!.length} artikler kravet skal dekke`
+                  : `${coveredArticles!.length} articles this requirement must cover`}
+              </button>
+            )}
+            {showArticles && (coveredArticles?.length ?? 0) > 0 && (
+              <div className="flex flex-wrap gap-1 pl-4">
+                {coveredArticles!.map((a) => (
+                  <Badge key={a} variant="outline" className="text-[10px] font-normal">
+                    {a}
+                  </Badge>
+                ))}
               </div>
             )}
           </div>
         )}
 
-        {phase.kind === "analyzing" && (
-          <div className="flex flex-col items-center justify-center gap-3 py-8">
-            <Loader2 className="h-6 w-6 text-primary animate-spin" />
-            <div className="text-sm text-foreground">
-              {isNb ? "Lara analyserer dokumentet…" : "Lara is analyzing the document…"}
-            </div>
-            <div className="text-xs text-muted-foreground">{phase.fileName}</div>
-          </div>
-        )}
+        {phase.kind === "analyzing" && <AnalyzingIndicator isNb={isNb} />}
 
         {phase.kind === "review" && (
-          <div className="space-y-4">
-            <div className="rounded-lg border bg-card p-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium truncate">{phase.result.document.name}</span>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-muted-foreground">
-                    {isNb ? "Dekning" : "Coverage"}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-xs font-semibold tabular-nums",
-                      percent === 100
-                        ? "text-success"
-                        : percent >= 60
-                          ? "text-warning"
-                          : "text-destructive",
-                    )}
-                  >
-                    {phase.result.coveredArticles.length}/
-                    {phase.result.coveredArticles.length + phase.result.missingArticles.length ||
-                      "?"}{" "}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-xs">
+              <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <span className="font-medium truncate">{phase.fileName}</span>
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <ShieldCheck
+                      className={cn(
+                        "h-3.5 w-3.5 ml-auto shrink-0",
+                        phase.result.hasSignedDocument
+                          ? "text-success"
+                          : "text-muted-foreground/40",
+                      )}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[220px] text-xs">
+                    {phase.result.hasSignedDocument
+                      ? isNb
+                        ? `Signert${phase.result.document.signature?.issuer ? ` av ${phase.result.document.signature.issuer}` : ""}. Signaturen styrker tillitsgraden, ikke score.`
+                        : `Signed${phase.result.document.signature?.issuer ? ` by ${phase.result.document.signature.issuer}` : ""}. Signature strengthens trust, not score.`
+                      : isNb
+                        ? "Ingen signatur oppdaget."
+                        : "No signature detected."}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] text-muted-foreground">
+                  {isNb ? "Dekning" : "Coverage"}
+                </span>
+                <span
+                  className={cn(
+                    "text-xs font-semibold tabular-nums",
+                    percent === 100
+                      ? "text-success"
+                      : percent >= 60
+                        ? "text-warning"
+                        : "text-destructive",
+                  )}
+                >
+                  {phase.result.coveredArticles.length}/
+                  {phase.result.coveredArticles.length +
+                    phase.result.missingArticles.length || "?"}
+                  <span className="text-muted-foreground font-normal ml-1">
                     ({percent}%)
                   </span>
-                </div>
-                <Progress value={percent} className="h-2" />
+                </span>
               </div>
-              {phase.result.document.classification?.summary && (
-                <p className="text-xs text-muted-foreground italic">
-                  {phase.result.document.classification.summary}
-                </p>
-              )}
+              <Progress value={percent} className="h-1.5" />
             </div>
 
             {phase.result.coveredArticles.length > 0 && (
-              <div>
-                <div className="text-xs font-medium text-foreground mb-1 flex items-center gap-1">
-                  <CheckCircle2 className="h-3 w-3 text-success" />
-                  {isNb ? "Dekket" : "Covered"}
-                </div>
+              <div className="flex items-start gap-1.5">
+                <CheckCircle2 className="h-3 w-3 mt-1 text-success shrink-0" />
                 <div className="flex flex-wrap gap-1">
                   {phase.result.coveredArticles.map((a) => (
                     <Badge
                       key={a}
                       variant="outline"
-                      className="text-[10px] border-success/40 text-success"
+                      className="text-[10px] font-normal border-success/40 text-success"
                     >
                       {a}
                     </Badge>
@@ -283,101 +399,65 @@ export function AttachEvidenceDialog({
             )}
 
             {phase.result.missingArticles.length > 0 && (
-              <div>
-                <div className="text-xs font-medium text-foreground mb-1 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3 text-warning" />
-                  {isNb ? "Mangler dekning" : "Not covered"}
-                </div>
+              <div className="flex items-start gap-1.5">
+                <AlertCircle className="h-3 w-3 mt-1 text-warning shrink-0" />
                 <div className="flex flex-wrap gap-1">
                   {phase.result.missingArticles.map((a) => (
                     <Badge
                       key={a}
                       variant="outline"
-                      className="text-[10px] border-warning/40 text-warning"
+                      className="text-[10px] font-normal border-warning/40 text-warning"
                     >
                       {a}
                     </Badge>
                   ))}
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-1">
-                  {isNb
-                    ? "Manglende dekning reduserer score for dette kravet."
-                    : "Missing coverage reduces the score for this requirement."}
-                </p>
               </div>
             )}
-
-            <div
-              className={cn(
-                "flex items-start gap-2 rounded-md border p-2 text-xs",
-                phase.result.hasSignedDocument
-                  ? "border-success/40 bg-success/5"
-                  : "border-border bg-muted/30",
-              )}
-            >
-              <ShieldCheck
-                className={cn(
-                  "h-4 w-4 mt-0.5 shrink-0",
-                  phase.result.hasSignedDocument ? "text-success" : "text-muted-foreground",
-                )}
-              />
-              <div>
-                <div className="font-medium text-foreground">
-                  {phase.result.hasSignedDocument
-                    ? isNb
-                      ? "Signatur oppdaget"
-                      : "Signature detected"
-                    : isNb
-                      ? "Ingen signatur oppdaget"
-                      : "No signature detected"}
-                </div>
-                <div className="text-muted-foreground">
-                  {isNb
-                    ? "Signatur påvirker ikke score — den forsterker kun tillitsgraden."
-                    : "Signature does not affect score — it only strengthens trust level."}
-                </div>
-                {phase.result.document.signature?.issuer && (
-                  <div className="text-muted-foreground mt-0.5">
-                    {isNb ? "Utsteder: " : "Issuer: "}
-                    <span className="text-foreground">{phase.result.document.signature.issuer}</span>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         )}
 
         {phase.kind === "error" && (
           <div className="flex flex-col items-center gap-2 py-6 text-center">
-            <AlertCircle className="h-6 w-6 text-destructive" />
+            <AlertCircle className="h-5 w-5 text-destructive" />
             <div className="text-sm text-foreground">{phase.message}</div>
           </div>
         )}
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           {phase.kind === "review" ? (
             <>
-              <Button variant="ghost" onClick={reset}>
-                {isNb ? "Last opp annet dokument" : "Upload another"}
+              <Button variant="ghost" size="sm" onClick={reset}>
+                {isNb ? "Bytt fil" : "Change file"}
               </Button>
               <Button
+                size="sm"
                 onClick={() => {
                   onConfirm(phase.result);
                   reset();
                   onOpenChange(false);
-                  toast.success(
-                    isNb
-                      ? `Bevis tilknyttet (${Math.round(phase.result.coverageRatio * 100)}% dekning)`
-                      : `Evidence attached (${Math.round(phase.result.coverageRatio * 100)}% coverage)`,
-                  );
                 }}
               >
-                {isNb ? "Bekreft og tilknytt" : "Confirm & attach"}
+                {isNb ? "Bekreft" : "Confirm"}
+              </Button>
+            </>
+          ) : phase.kind === "error" ? (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
+                {isNb ? "Lukk" : "Close"}
+              </Button>
+              <Button size="sm" onClick={reset}>
+                {isNb ? "Prøv igjen" : "Try again"}
               </Button>
             </>
           ) : (
-            <Button variant="ghost" onClick={() => onOpenChange(false)}>
-              {phase.kind === "error" ? (isNb ? "Lukk" : "Close") : isNb ? "Avbryt" : "Cancel"}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+              disabled={phase.kind === "analyzing"}
+            >
+              {isNb ? "Avbryt" : "Cancel"}
             </Button>
           )}
         </DialogFooter>
