@@ -244,12 +244,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       };
       return { ...prev, [requirementId]: updated };
     });
-    setAttachDialog(null);
-    const pct = Math.round(result.coverageRatio * 100);
+    const covered = result.coveredArticles.length;
+    const total = covered + result.missingArticles.length;
     toast.success(
       isNb
-        ? `Bevis tilknyttet — ${pct}% dekning${result.hasSignedDocument ? " (signert)" : ""}`
-        : `Evidence attached — ${pct}% coverage${result.hasSignedDocument ? " (signed)" : ""}`,
+        ? `Bevis tilknyttet${total ? ` — ${covered}/${total} artikler dekket` : ""}`
+        : `Evidence attached${total ? ` — ${covered}/${total} articles covered` : ""}`,
     );
   };
 
