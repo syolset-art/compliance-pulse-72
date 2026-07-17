@@ -739,14 +739,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                 : (isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn)}
                             </TooltipContent>
                           </Tooltip>
-                          {!fulfillment.evidenceMandatory && (
-                            <span className="text-[11px] text-muted-foreground">
-                              {isNb ? "Primær vei: " : "Primary path: "}
-                              <span className="font-medium text-foreground">
-                                {isNb ? fulfillment.primaryActionNo : fulfillment.primaryActionEn}
-                              </span>
-                            </span>
-                          )}
+                        </div>
+                      </div>
+
+                    </div>
                         </div>
                       </div>
 
