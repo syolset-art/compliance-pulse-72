@@ -520,8 +520,9 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
                     {/* Dekningsbar — vises kun når kravet har artikkelliste */}
                     {(() => {
-                      const cov = calculateCoverage(req.covered_articles, state.documents);
-                      if (!req.covered_articles || req.covered_articles.length === 0) return null;
+                      const articles = getArticlesForRequirement(req);
+                      const cov = calculateCoverage(articles, state.documents);
+                      if (articles.length === 0) return null;
                       const pct = Math.round(cov.ratio * 100);
                       const barColor = pct === 100 ? "bg-success" : pct >= 60 ? "bg-warning" : "bg-destructive";
                       const coveredSet = new Set(cov.covered);
