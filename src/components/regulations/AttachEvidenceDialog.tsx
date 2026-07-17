@@ -111,22 +111,32 @@ function StepDots({ current, isNb }: { current: PhaseKind; isNb: boolean }) {
 }
 
 function AnalyzingIndicator({ isNb }: { isNb: boolean }) {
-  const phasesNo = ["Leser dokument", "Matcher artikler", "Sjekker signatur"];
-  const phasesEn = ["Reading document", "Matching articles", "Checking signature"];
+  const phasesNo = [
+    "Leser dokument",
+    "Matcher innhold mot artiklene kravet skal dekke",
+    "Beregner dekningsgrad – jo flere artikler som treffer, jo høyere skår",
+    "Sjekker signatur (styrker tillit, ikke skår)",
+  ];
+  const phasesEn = [
+    "Reading document",
+    "Matching content against the articles this requirement must cover",
+    "Calculating coverage – more matched articles means a higher score",
+    "Checking signature (strengthens trust, not score)",
+  ];
   const phases = isNb ? phasesNo : phasesEn;
   const [idx, setIdx] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setIdx((p) => (p + 1) % phases.length), 1200);
+    const t = setInterval(() => setIdx((p) => (p + 1) % phases.length), 1600);
     return () => clearInterval(t);
   }, [phases.length]);
   return (
-    <div className="flex flex-col items-center gap-3 py-8">
+    <div className="flex flex-col items-center gap-3 py-8 px-6 text-center">
       <div className="relative h-8 w-8">
         <div className="absolute inset-0 rounded-full border-2 border-primary/20" />
         <div className="absolute inset-0 rounded-full border-2 border-t-primary animate-spin" />
         <Sparkles className="absolute inset-0 m-auto h-3.5 w-3.5 text-primary" />
       </div>
-      <div className="h-4 text-xs text-foreground transition-opacity">
+      <div className="min-h-[2.5rem] max-w-sm text-xs text-foreground leading-relaxed transition-opacity">
         {phases[idx]}…
       </div>
     </div>
