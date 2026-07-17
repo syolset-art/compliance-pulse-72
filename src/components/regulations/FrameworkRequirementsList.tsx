@@ -26,6 +26,7 @@ import {
   type EvidenceDocument,
 } from "@/lib/requirementStatusModel";
 import { inferFulfillment, calculateCoverage } from "@/lib/requirementFulfillment";
+import { getArticlesForRequirement } from "@/lib/requirementArticles";
 import { cn } from "@/lib/utils";
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
@@ -519,8 +520,9 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
                     {/* Dekningsbar — vises kun når kravet har artikkelliste */}
                     {(() => {
-                      const cov = calculateCoverage(req.covered_articles, state.documents);
-                      if (!req.covered_articles || req.covered_articles.length === 0) return null;
+                      const articles = getArticlesForRequirement(req);
+                      const cov = calculateCoverage(articles, state.documents);
+                      if (articles.length === 0) return null;
                       const pct = Math.round(cov.ratio * 100);
                       const barColor = pct === 100 ? "bg-success" : pct >= 60 ? "bg-warning" : "bg-destructive";
                       const coveredSet = new Set(cov.covered);
@@ -644,7 +646,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             id: req.requirement_id,
                             name: isNb ? (req.name_no || req.name) : req.name,
                             description: isNb ? req.description_no : req.description,
-                            articles: req.covered_articles,
+                            articles: getArticlesForRequirement(req),
                           })}
                           className="ml-auto shrink-0 text-primary hover:underline"
                         >
@@ -683,7 +685,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                 id: req.requirement_id,
                                 name: isNb ? (req.name_no || req.name) : req.name,
                                 description: isNb ? req.description_no : req.description,
-                                articles: req.covered_articles,
+                                articles: getArticlesForRequirement(req),
                               });
                               return;
                             }
@@ -743,7 +745,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                 id: req.requirement_id,
                                 name: isNb ? (req.name_no || req.name) : req.name,
                                 description: isNb ? req.description_no : req.description,
-                                articles: req.covered_articles,
+                                articles: getArticlesForRequirement(req),
                               });
                             }}
                           >
