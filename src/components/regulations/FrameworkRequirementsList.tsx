@@ -655,7 +655,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             variant={fulfillment.evidenceMandatory ? "default" : "outline"}
                             size="sm"
                             className="h-8 gap-1.5 text-xs"
-                            onClick={(e) => { e.stopPropagation(); setDocDialog({ id: req.requirement_id, name: req.name_no }); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAttachDialog({
+                                id: req.requirement_id,
+                                name: isNb ? (req.name_no || req.name) : req.name,
+                                description: isNb ? req.description_no : req.description,
+                                articles: req.covered_articles,
+                              });
+                            }}
                           >
                             <Paperclip className="h-3.5 w-3.5" />
                             {fulfillment.evidenceMandatory
