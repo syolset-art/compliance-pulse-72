@@ -16,7 +16,7 @@ import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequiremen
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
 import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
-import { VerifyRequirementDialog, type VerifyRequirementResult } from "@/components/regulations/VerifyRequirementDialog";
+import { AttachEvidenceDialog, type AttachEvidenceResult } from "@/components/regulations/AttachEvidenceDialog";
 import { MessageSquare, Save, Pencil } from "lucide-react";
 import {
   demoUiStateFor,
@@ -25,7 +25,7 @@ import {
   type ProgressStatus,
   type EvidenceDocument,
 } from "@/lib/requirementStatusModel";
-import { inferFulfillment } from "@/lib/requirementFulfillment";
+import { inferFulfillment, calculateCoverage } from "@/lib/requirementFulfillment";
 import { cn } from "@/lib/utils";
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
