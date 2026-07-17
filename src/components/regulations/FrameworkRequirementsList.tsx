@@ -199,63 +199,58 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     });
   };
 
-  const applyVerification = (requirementId: string, result: VerifyRequirementResult) => {
-    const dateLabel = new Date(result.date).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
-      year: "numeric", month: "long", day: "numeric",
-    });
-    const validUntilLabel = new Date(result.validUntil).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
-      year: "numeric", month: "long", day: "numeric",
-    });
-    const daysLeft = Math.max(
-      0,
-      Math.round((new Date(result.validUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    );
-    const dueSoon = daysLeft <= 60;
-
+  const applyEvidenceAttachment = (
+    requirementId: string,
+    req: ComplianceRequirement,
+    result: AttachEvidenceResult,
+  ) => {
     setUiStates((prev) => {
       const cur = prev[requirementId] ?? { progress: "not_answered" as ProgressStatus, evidence: "required" as const };
       const existingDocs = cur.documents ?? [];
-      const newDoc: EvidenceDocument = {
-        name: result.reportRef
-          ? `${result.reportRef}.pdf`
-          : (isNb ? `Verifikasjon_${result.date}.pdf` : `Verification_${result.date}.pdf`),
-        kind: isNb ? "Verifikasjon" : "Verification",
-        verificationStatus: "verified",
-        verifiedBy: result.name,
-        verifiedAt: dateLabel,
-      };
+      const documents = [result.document, ...existingDocs];
+
+      // Recompute coverage across ALL attached documents (union).
+      const coverage = calculateCoverage(req.covered_articles, documents);
+      const fullCoverage = coverage.ratio >= 1;
+      const hasSignedDoc = coverage.hasSignedDocument;
+
+      // Progress logic:
+      //   - Full coverage + signed  → verified
+      //   - Full coverage           → implemented (attested)
+      //   - Partial coverage        → implemented (self_reported) — score reflects the gap
+      let progress: ProgressStatus = "implemented";
+      let evidence: RequirementUiState["evidence"] = "self_reported";
+      if (fullCoverage && hasSignedDoc) {
+        progress = "verified";
+        evidence = "verified";
+      } else if (fullCoverage) {
+        progress = "implemented";
+        evidence = "attested";
+      } else if (coverage.ratio > 0) {
+        progress = "implemented";
+        evidence = "self_reported";
+      }
+
       const updated: RequirementUiState = {
         ...cur,
-        progress: "verified",
-        evidence: dueSoon ? "revalidation_due" : "verified",
-        revalidationDaysLeft: dueSoon ? daysLeft : undefined,
-        documents: [newDoc, ...existingDocs],
-        evidenceCount: { collected: Math.max(1, existingDocs.length + 1), required: Math.max(1, existingDocs.length + 1) },
-        verification: {
-          externalVerifier: {
-            name: result.name,
-            person: result.person,
-            standard: result.standard,
-            date: dateLabel,
-            reportRef: result.reportRef,
-            validUntil: result.validUntil,
-            verifierType: result.verifierType,
-          },
-          internalConfirmer: {
-            name: "Vilde Gjellestad",
-            role: isNb ? "Leverandøransvarlig" : "Vendor Manager",
-            date: dateLabel,
-          },
+        progress,
+        evidence,
+        documents,
+        coveredArticles: coverage.covered,
+        missingArticles: coverage.missing,
+        evidenceCount: {
+          collected: coverage.covered.length,
+          required: coverage.required.length || documents.length,
         },
       };
       return { ...prev, [requirementId]: updated };
     });
-    setVerifyingId(null);
-    setVerifyingLabel("");
+    setAttachDialog(null);
+    const pct = Math.round(result.coverageRatio * 100);
     toast.success(
       isNb
-        ? `Markert som verifisert — gyldig til ${validUntilLabel}`
-        : `Marked as verified — valid until ${validUntilLabel}`,
+        ? `Bevis tilknyttet — ${pct}% dekning${result.hasSignedDocument ? " (signert)" : ""}`
+        : `Evidence attached — ${pct}% coverage${result.hasSignedDocument ? " (signed)" : ""}`,
     );
   };
 
