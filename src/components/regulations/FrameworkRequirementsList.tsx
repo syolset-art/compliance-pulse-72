@@ -743,10 +743,6 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </div>
 
                     </div>
-                        </div>
-                      </div>
-
-                    </div>
 
 
                   </div>
