@@ -508,6 +508,53 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <Separator className="mb-4" />
                   <div className="space-y-3">
 
+                    {/* Dekningsbar — vises kun når kravet har artikkelliste */}
+                    {(() => {
+                      const cov = calculateCoverage(req.covered_articles, state.documents);
+                      if (!req.covered_articles || req.covered_articles.length === 0) return null;
+                      const pct = Math.round(cov.ratio * 100);
+                      const barColor = pct === 100 ? "bg-success" : pct >= 60 ? "bg-warning" : "bg-destructive";
+                      return (
+                        <div className="rounded-md border border-border/60 bg-muted/20 p-2.5">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[11px] font-medium text-foreground">
+                              {isNb ? "Artikkeldekning" : "Article coverage"}
+                            </span>
+                            <span
+                              className={cn(
+                                "text-[11px] font-semibold tabular-nums",
+                                pct === 100 ? "text-success" : pct >= 60 ? "text-warning" : "text-muted-foreground",
+                              )}
+                            >
+                              {cov.covered.length}/{cov.required.length} ({pct}%)
+                              {cov.hasSignedDocument && (
+                                <ShieldCheck className="inline h-3 w-3 ml-1 text-success" aria-label={isNb ? "Signert" : "Signed"} />
+                              )}
+                            </span>
+                          </div>
+                          <div className="h-1.5 w-full rounded-full bg-border overflow-hidden">
+                            <div className={cn("h-full transition-all", barColor)} style={{ width: `${pct}%` }} />
+                          </div>
+                          {cov.missing.length > 0 && (
+                            <div className="mt-1.5 flex flex-wrap gap-1">
+                              {cov.missing.map((a) => (
+                                <span key={a} className="inline-flex items-center rounded border border-warning/40 px-1.5 py-0.5 text-[10px] text-warning">
+                                  {a}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {pct < 100 && (
+                            <p className="mt-1.5 text-[10px] text-muted-foreground">
+                              {isNb
+                                ? "Score gir kun delvis uttelling til alle artikler er dekket."
+                                : "Score is only partial until all articles are covered."}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })()}
+
                     {/* Dokumentasjon — én tett linje med AI-indikator */}
                     <div className="border-y border-border/40 py-1.5 text-[11px] text-muted-foreground">
                       <div className="flex items-center gap-2 min-w-0">
