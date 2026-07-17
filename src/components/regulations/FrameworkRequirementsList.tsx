@@ -592,8 +592,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           onChange={(e) => {
                             const next = e.target.value as ProgressStatus;
                             if (next === "verified" && state.progress !== "verified") {
-                              setVerifyingId(req.requirement_id);
-                              setVerifyingLabel(isNb ? (req.name_no || req.name) : req.name);
+                              setAttachDialog({
+                                id: req.requirement_id,
+                                name: isNb ? (req.name_no || req.name) : req.name,
+                                description: isNb ? req.description_no : req.description,
+                                articles: req.covered_articles,
+                              });
                               return;
                             }
                             handleStatusChange(req.requirement_id, next);
