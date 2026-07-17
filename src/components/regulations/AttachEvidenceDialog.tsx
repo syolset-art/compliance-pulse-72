@@ -146,10 +146,12 @@ export function AttachEvidenceDialog({
   const isNb = i18n.language !== "en";
   const [phase, setPhase] = useState<Phase>({ kind: "select" });
   const [showArticles, setShowArticles] = useState(false);
+  const [showReviewArticles, setShowReviewArticles] = useState(false);
 
   const reset = useCallback(() => {
     setPhase({ kind: "select" });
     setShowArticles(false);
+    setShowReviewArticles(false);
   }, []);
 
   const handleFile = useCallback(
@@ -403,43 +405,56 @@ export function AttachEvidenceDialog({
 
                   {total > 0 && (
                     <div>
-                      <div className="text-[11px] text-muted-foreground mb-1.5">
-                        {isNb ? "Artikler kravet skal dekke" : "Articles this requirement must cover"}
-                      </div>
-                      <div className="grid grid-cols-1 gap-1">
-                        {required.map((a) => {
-                          const isCovered = coveredSet.has(a);
-                          return (
-                            <TooltipProvider key={a} delayDuration={200}>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex items-center gap-2 text-[11px] cursor-default">
-                                    <span
-                                      className={cn(
-                                        "h-1.5 w-1.5 rounded-full shrink-0",
-                                        isCovered ? "bg-success" : "bg-warning/60",
-                                      )}
-                                    />
-                                    <span
-                                      className={cn(
-                                        "truncate",
-                                        isCovered ? "text-foreground" : "text-muted-foreground",
-                                      )}
-                                    >
-                                      {a}
-                                    </span>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="text-xs">
-                                  {isCovered
-                                    ? isNb ? "Dekket av dokumentet" : "Covered by the document"
-                                    : isNb ? "Ikke dekket — trenger ytterligere bevis" : "Not covered — needs additional evidence"}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          );
-                        })}
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowReviewArticles((v) => !v)}
+                        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showReviewArticles ? (
+                          <ChevronUp className="h-3 w-3" />
+                        ) : (
+                          <ChevronDown className="h-3 w-3" />
+                        )}
+                        {isNb
+                          ? `${total} artikler kravet skal dekke`
+                          : `${total} articles this requirement must cover`}
+                      </button>
+                      {showReviewArticles && (
+                        <div className="grid grid-cols-1 gap-1 pl-4 mt-1.5">
+                          {required.map((a) => {
+                            const isCovered = coveredSet.has(a);
+                            return (
+                              <TooltipProvider key={a} delayDuration={200}>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="flex items-center gap-2 text-[11px] cursor-default">
+                                      <span
+                                        className={cn(
+                                          "h-1.5 w-1.5 rounded-full shrink-0",
+                                          isCovered ? "bg-success" : "bg-warning/60",
+                                        )}
+                                      />
+                                      <span
+                                        className={cn(
+                                          "truncate",
+                                          isCovered ? "text-foreground" : "text-muted-foreground",
+                                        )}
+                                      >
+                                        {a}
+                                      </span>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="text-xs">
+                                    {isCovered
+                                      ? isNb ? "Dekket av dokumentet" : "Covered by the document"
+                                      : isNb ? "Ikke dekket — trenger ytterligere bevis" : "Not covered — needs additional evidence"}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   )}
                 </>
