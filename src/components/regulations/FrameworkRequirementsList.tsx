@@ -709,16 +709,20 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         />
       )}
 
-      <VerifyRequirementDialog
-        open={!!verifyingId}
-        onOpenChange={(o) => {
-          if (!o) { setVerifyingId(null); setVerifyingLabel(""); }
-        }}
-        requirementLabel={verifyingLabel}
-        onConfirm={(result) => {
-          if (verifyingId) applyVerification(verifyingId, result);
-        }}
-      />
+      {attachDialog && (
+        <AttachEvidenceDialog
+          open={!!attachDialog}
+          onOpenChange={(o) => { if (!o) setAttachDialog(null); }}
+          requirementId={attachDialog.id}
+          requirementName={attachDialog.name}
+          requirementDescription={attachDialog.description}
+          coveredArticles={attachDialog.articles}
+          onConfirm={(result) => {
+            const req = requirements.find((r) => r.requirement_id === attachDialog.id);
+            if (req) applyEvidenceAttachment(attachDialog.id, req, result);
+          }}
+        />
+      )}
 
       {cursorTip && (
         <div
