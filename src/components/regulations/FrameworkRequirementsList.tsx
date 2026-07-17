@@ -415,21 +415,29 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           <span
                             onClick={(e) => e.stopPropagation()}
                             onMouseEnter={(e) => { e.stopPropagation(); setCursorTip(null); }}
-                            className={cn(
-                              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium cursor-help",
-                              fulfillment.pillClass,
-                            )}
+                            className="inline-flex items-center ml-1 text-muted-foreground/60 hover:text-muted-foreground transition-colors cursor-help"
+                            aria-label={isNb ? fulfillment.labelNo : fulfillment.labelEn}
                           >
                             {fulfillment.evidenceMandatory ? (
-                              <Paperclip className="h-3 w-3" />
+                              <Paperclip className="h-3.5 w-3.5" />
                             ) : (
-                              <CheckCircle2 className="h-3 w-3" />
+                              <CheckCircle2 className="h-3.5 w-3.5" />
                             )}
-                            {isNb ? fulfillment.labelNo : fulfillment.labelEn}
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-[260px] text-xs">
-                          {isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn}
+                          <div className="font-medium mb-0.5">
+                            {isNb ? fulfillment.labelNo : fulfillment.labelEn}
+                          </div>
+                          <div>{isNb ? fulfillment.descriptionNo : fulfillment.descriptionEn}</div>
+                          {!fulfillment.evidenceMandatory && (
+                            <div className="mt-1 text-muted-foreground">
+                              {isNb ? "Primær vei: " : "Primary path: "}
+                              <span className="font-medium text-foreground">
+                                {isNb ? fulfillment.primaryActionNo : fulfillment.primaryActionEn}
+                              </span>
+                            </div>
+                          )}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
