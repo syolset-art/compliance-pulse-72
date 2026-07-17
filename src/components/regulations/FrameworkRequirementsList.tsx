@@ -16,7 +16,7 @@ import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequiremen
 import type { ComplianceRequirement, AgentCapability } from "@/lib/complianceRequirementsData";
 import { ManualDocumentationDialog } from "@/components/dialogs/ManualDocumentationDialog";
 import { LaraDataSourceExplainer } from "@/components/regulations/LaraDataSourceExplainer";
-import { VerifyRequirementDialog, type VerifyRequirementResult } from "@/components/regulations/VerifyRequirementDialog";
+import { AttachEvidenceDialog, type AttachEvidenceResult } from "@/components/regulations/AttachEvidenceDialog";
 import { MessageSquare, Save, Pencil } from "lucide-react";
 import {
   demoUiStateFor,
@@ -25,7 +25,7 @@ import {
   type ProgressStatus,
   type EvidenceDocument,
 } from "@/lib/requirementStatusModel";
-import { inferFulfillment } from "@/lib/requirementFulfillment";
+import { inferFulfillment, calculateCoverage } from "@/lib/requirementFulfillment";
 import { cn } from "@/lib/utils";
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
@@ -84,8 +84,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [draftNote, setDraftNote] = useState<string>("");
   const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
-  const [verifyingId, setVerifyingId] = useState<string | null>(null);
-  const [verifyingLabel, setVerifyingLabel] = useState<string>("");
+  const [attachDialog, setAttachDialog] = useState<{ id: string; name: string; description?: string; articles?: string[] } | null>(null);
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -199,63 +198,58 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
     });
   };
 
-  const applyVerification = (requirementId: string, result: VerifyRequirementResult) => {
-    const dateLabel = new Date(result.date).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
-      year: "numeric", month: "long", day: "numeric",
-    });
-    const validUntilLabel = new Date(result.validUntil).toLocaleDateString(isNb ? "nb-NO" : "en-GB", {
-      year: "numeric", month: "long", day: "numeric",
-    });
-    const daysLeft = Math.max(
-      0,
-      Math.round((new Date(result.validUntil).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
-    );
-    const dueSoon = daysLeft <= 60;
-
+  const applyEvidenceAttachment = (
+    requirementId: string,
+    req: ComplianceRequirement,
+    result: AttachEvidenceResult,
+  ) => {
     setUiStates((prev) => {
       const cur = prev[requirementId] ?? { progress: "not_answered" as ProgressStatus, evidence: "required" as const };
       const existingDocs = cur.documents ?? [];
-      const newDoc: EvidenceDocument = {
-        name: result.reportRef
-          ? `${result.reportRef}.pdf`
-          : (isNb ? `Verifikasjon_${result.date}.pdf` : `Verification_${result.date}.pdf`),
-        kind: isNb ? "Verifikasjon" : "Verification",
-        verificationStatus: "verified",
-        verifiedBy: result.name,
-        verifiedAt: dateLabel,
-      };
+      const documents = [result.document, ...existingDocs];
+
+      // Recompute coverage across ALL attached documents (union).
+      const coverage = calculateCoverage(req.covered_articles, documents);
+      const fullCoverage = coverage.ratio >= 1;
+      const hasSignedDoc = coverage.hasSignedDocument;
+
+      // Progress logic:
+      //   - Full coverage + signed  → verified
+      //   - Full coverage           → implemented (attested)
+      //   - Partial coverage        → implemented (self_reported) — score reflects the gap
+      let progress: ProgressStatus = "implemented";
+      let evidence: RequirementUiState["evidence"] = "self_reported";
+      if (fullCoverage && hasSignedDoc) {
+        progress = "verified";
+        evidence = "verified";
+      } else if (fullCoverage) {
+        progress = "implemented";
+        evidence = "attested";
+      } else if (coverage.ratio > 0) {
+        progress = "implemented";
+        evidence = "self_reported";
+      }
+
       const updated: RequirementUiState = {
         ...cur,
-        progress: "verified",
-        evidence: dueSoon ? "revalidation_due" : "verified",
-        revalidationDaysLeft: dueSoon ? daysLeft : undefined,
-        documents: [newDoc, ...existingDocs],
-        evidenceCount: { collected: Math.max(1, existingDocs.length + 1), required: Math.max(1, existingDocs.length + 1) },
-        verification: {
-          externalVerifier: {
-            name: result.name,
-            person: result.person,
-            standard: result.standard,
-            date: dateLabel,
-            reportRef: result.reportRef,
-            validUntil: result.validUntil,
-            verifierType: result.verifierType,
-          },
-          internalConfirmer: {
-            name: "Vilde Gjellestad",
-            role: isNb ? "Leverandøransvarlig" : "Vendor Manager",
-            date: dateLabel,
-          },
+        progress,
+        evidence,
+        documents,
+        coveredArticles: coverage.covered,
+        missingArticles: coverage.missing,
+        evidenceCount: {
+          collected: coverage.covered.length,
+          required: coverage.required.length || documents.length,
         },
       };
       return { ...prev, [requirementId]: updated };
     });
-    setVerifyingId(null);
-    setVerifyingLabel("");
+    setAttachDialog(null);
+    const pct = Math.round(result.coverageRatio * 100);
     toast.success(
       isNb
-        ? `Markert som verifisert — gyldig til ${validUntilLabel}`
-        : `Marked as verified — valid until ${validUntilLabel}`,
+        ? `Bevis tilknyttet — ${pct}% dekning${result.hasSignedDocument ? " (signert)" : ""}`
+        : `Evidence attached — ${pct}% coverage${result.hasSignedDocument ? " (signed)" : ""}`,
     );
   };
 
@@ -514,6 +508,53 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                   <Separator className="mb-4" />
                   <div className="space-y-3">
 
+                    {/* Dekningsbar — vises kun når kravet har artikkelliste */}
+                    {(() => {
+                      const cov = calculateCoverage(req.covered_articles, state.documents);
+                      if (!req.covered_articles || req.covered_articles.length === 0) return null;
+                      const pct = Math.round(cov.ratio * 100);
+                      const barColor = pct === 100 ? "bg-success" : pct >= 60 ? "bg-warning" : "bg-destructive";
+                      return (
+                        <div className="rounded-md border border-border/60 bg-muted/20 p-2.5">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[11px] font-medium text-foreground">
+                              {isNb ? "Artikkeldekning" : "Article coverage"}
+                            </span>
+                            <span
+                              className={cn(
+                                "text-[11px] font-semibold tabular-nums",
+                                pct === 100 ? "text-success" : pct >= 60 ? "text-warning" : "text-muted-foreground",
+                              )}
+                            >
+                              {cov.covered.length}/{cov.required.length} ({pct}%)
+                              {cov.hasSignedDocument && (
+                                <ShieldCheck className="inline h-3 w-3 ml-1 text-success" aria-label={isNb ? "Signert" : "Signed"} />
+                              )}
+                            </span>
+                          </div>
+                          <div className="h-1.5 w-full rounded-full bg-border overflow-hidden">
+                            <div className={cn("h-full transition-all", barColor)} style={{ width: `${pct}%` }} />
+                          </div>
+                          {cov.missing.length > 0 && (
+                            <div className="mt-1.5 flex flex-wrap gap-1">
+                              {cov.missing.map((a) => (
+                                <span key={a} className="inline-flex items-center rounded border border-warning/40 px-1.5 py-0.5 text-[10px] text-warning">
+                                  {a}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {pct < 100 && (
+                            <p className="mt-1.5 text-[10px] text-muted-foreground">
+                              {isNb
+                                ? "Score gir kun delvis uttelling til alle artikler er dekket."
+                                : "Score is only partial until all articles are covered."}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })()}
+
                     {/* Dokumentasjon — én tett linje med AI-indikator */}
                     <div className="border-y border-border/40 py-1.5 text-[11px] text-muted-foreground">
                       <div className="flex items-center gap-2 min-w-0">
@@ -564,7 +605,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         )}
                         <button
                           type="button"
-                          onClick={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
+                          onClick={() => setAttachDialog({
+                            id: req.requirement_id,
+                            name: isNb ? (req.name_no || req.name) : req.name,
+                            description: isNb ? req.description_no : req.description,
+                            articles: req.covered_articles,
+                          })}
                           className="ml-auto shrink-0 text-primary hover:underline"
                         >
                           {isNb ? "Legg til" : "Add"}
@@ -598,8 +644,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           onChange={(e) => {
                             const next = e.target.value as ProgressStatus;
                             if (next === "verified" && state.progress !== "verified") {
-                              setVerifyingId(req.requirement_id);
-                              setVerifyingLabel(isNb ? (req.name_no || req.name) : req.name);
+                              setAttachDialog({
+                                id: req.requirement_id,
+                                name: isNb ? (req.name_no || req.name) : req.name,
+                                description: isNb ? req.description_no : req.description,
+                                articles: req.covered_articles,
+                              });
                               return;
                             }
                             handleStatusChange(req.requirement_id, next);
@@ -652,7 +702,15 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             variant={fulfillment.evidenceMandatory ? "default" : "outline"}
                             size="sm"
                             className="h-8 gap-1.5 text-xs"
-                            onClick={(e) => { e.stopPropagation(); setDocDialog({ id: req.requirement_id, name: req.name_no }); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAttachDialog({
+                                id: req.requirement_id,
+                                name: isNb ? (req.name_no || req.name) : req.name,
+                                description: isNb ? req.description_no : req.description,
+                                articles: req.covered_articles,
+                              });
+                            }}
                           >
                             <Paperclip className="h-3.5 w-3.5" />
                             {fulfillment.evidenceMandatory
@@ -711,16 +769,20 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         />
       )}
 
-      <VerifyRequirementDialog
-        open={!!verifyingId}
-        onOpenChange={(o) => {
-          if (!o) { setVerifyingId(null); setVerifyingLabel(""); }
-        }}
-        requirementLabel={verifyingLabel}
-        onConfirm={(result) => {
-          if (verifyingId) applyVerification(verifyingId, result);
-        }}
-      />
+      {attachDialog && (
+        <AttachEvidenceDialog
+          open={!!attachDialog}
+          onOpenChange={(o) => { if (!o) setAttachDialog(null); }}
+          requirementId={attachDialog.id}
+          requirementName={attachDialog.name}
+          requirementDescription={attachDialog.description}
+          coveredArticles={attachDialog.articles}
+          onConfirm={(result) => {
+            const req = requirements.find((r) => r.requirement_id === attachDialog.id);
+            if (req) applyEvidenceAttachment(attachDialog.id, req, result);
+          }}
+        />
+      )}
 
       {cursorTip && (
         <div

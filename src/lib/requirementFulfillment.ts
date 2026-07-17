@@ -200,3 +200,80 @@ export function inferFulfillment(req: ComplianceRequirement): FulfillmentInfo {
 export function getFulfillmentMeta(type: FulfillmentType) {
   return FULFILLMENT_META[type];
 }
+
+// ─── Dekningsanalyse ────────────────────────────────────────────
+//
+// Score-effekt: hvis kravet har `covered_articles`, gis kun delvis
+// score-uttelling per andel dekket. Signatur på dokumentene påvirker
+// IKKE score — kun evidence-state (tillitsgrad).
+
+export interface CoverageResult {
+  /** Artikler kravet forventer å ha dekning for. */
+  required: string[];
+  /** Artikler som er dekket av minst ett tilknyttet dokument. */
+  covered: string[];
+  /** Artikler som mangler dekning. */
+  missing: string[];
+  /** 0..1. 1 hvis kravet ikke har artikkelliste (ingen partial-scoring). */
+  ratio: number;
+  /** Antall artikler som mangler dekning. */
+  gapCount: number;
+  /** True hvis minst ett dokument har oppdaget signatur. */
+  hasSignedDocument: boolean;
+}
+
+/**
+ * Beregner dekningsgrad for et krav basert på tilknyttede dokumenter.
+ * Returnerer ratio = 1 hvis kravet ikke har artikkelliste (bakoverkompatibelt).
+ */
+export function calculateCoverage(
+  requiredArticles: string[] | undefined,
+  documents: Array<{ classification?: { articles?: string[] }; signature?: { isSigned?: boolean } }> | undefined,
+): CoverageResult {
+  const required = requiredArticles ?? [];
+  const docs = documents ?? [];
+  const hasSignedDocument = docs.some((d) => d.signature?.isSigned === true);
+
+  if (required.length === 0) {
+    // Ingen artikkelliste — full uttelling så snart det finnes minst ett dokument.
+    return {
+      required,
+      covered: [],
+      missing: [],
+      ratio: docs.length > 0 ? 1 : 0,
+      gapCount: 0,
+      hasSignedDocument,
+    };
+  }
+
+  const coveredSet = new Set<string>();
+  for (const doc of docs) {
+    for (const a of doc.classification?.articles ?? []) {
+      if (required.includes(a)) coveredSet.add(a);
+    }
+  }
+  const covered = required.filter((a) => coveredSet.has(a));
+  const missing = required.filter((a) => !coveredSet.has(a));
+
+  return {
+    required,
+    covered,
+    missing,
+    ratio: covered.length / required.length,
+    gapCount: missing.length,
+    hasSignedDocument,
+  };
+}
+
+/**
+ * Justerer et modenhetsnivå (0–4) med dekningsgraden.
+ * Signatur påvirker IKKE — den forsterker kun tillitsgraden separat.
+ */
+export function effectiveMaturity(
+  level: 0 | 1 | 2 | 3 | 4,
+  coverageRatio: number,
+  evidenceMandatory: boolean,
+): number {
+  if (!evidenceMandatory) return level;
+  return level * Math.min(1, Math.max(0, coverageRatio));
+}

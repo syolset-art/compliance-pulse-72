@@ -38,6 +38,12 @@ export interface ComplianceRequirement {
   fulfillment_type?: RequirementFulfillmentType;
   /** Overstyrer om dokumentopplasting er obligatorisk. Utledes fra fulfillment_type hvis ikke satt. */
   evidence_mandatory?: boolean;
+  /**
+   * Artikler/kontrollpunkter kravet må dekke — brukes av Lara for å måle
+   * dekningsgrad på opplastet dokumentasjon. Eksempel: ["GDPR Art. 13", "GDPR Art. 14"].
+   * Hvis udefinert brukes hele kravet som én enhet.
+   */
+  covered_articles?: string[];
 }
 
 // ============================================
