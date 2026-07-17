@@ -244,6 +244,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
       };
       return { ...prev, [requirementId]: updated };
     });
+    setAttachDialog(null);
     const covered = result.coveredArticles.length;
     const total = covered + result.missingArticles.length;
     toast.success(
