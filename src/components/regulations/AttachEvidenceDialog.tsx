@@ -322,11 +322,12 @@ export function AttachEvidenceDialog({
               </button>
             )}
             {showArticles && (coveredArticles?.length ?? 0) > 0 && (
-              <div className="flex flex-wrap gap-1 pl-4">
+              <div className="grid grid-cols-1 gap-1 pl-4">
                 {coveredArticles!.map((a) => (
-                  <Badge key={a} variant="outline" className="text-[10px] font-normal">
-                    {a}
-                  </Badge>
+                  <div key={a} className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <span className="h-1 w-1 rounded-full bg-muted-foreground/50 shrink-0" />
+                    <span className="truncate">{a}</span>
+                  </div>
                 ))}
               </div>
             )}
