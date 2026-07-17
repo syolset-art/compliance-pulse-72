@@ -549,27 +549,28 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             <div className={cn("h-full transition-all", barColor)} style={{ width: `${pct}%` }} />
                           </div>
                           {cov.required.length > 0 && (
-                            <div className="mt-2 flex flex-wrap gap-1">
+                            <div className="mt-2 grid grid-cols-1 gap-1">
                               {cov.required.map((a) => {
                                 const isCovered = coveredSet.has(a);
                                 return (
                                   <Tooltip key={a}>
                                     <TooltipTrigger asChild>
-                                      <span
-                                        className={cn(
-                                          "inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px]",
-                                          isCovered
-                                            ? "border-success/40 text-success bg-success/5"
-                                            : "border-warning/40 text-warning bg-warning/5",
-                                        )}
-                                      >
-                                        {isCovered ? (
-                                          <CheckCircle2 className="h-2.5 w-2.5" />
-                                        ) : (
-                                          <X className="h-2.5 w-2.5" />
-                                        )}
-                                        {a}
-                                      </span>
+                                      <div className="flex items-center gap-2 text-[11px] cursor-default">
+                                        <span
+                                          className={cn(
+                                            "h-1.5 w-1.5 rounded-full shrink-0",
+                                            isCovered ? "bg-success" : "bg-warning/60",
+                                          )}
+                                        />
+                                        <span
+                                          className={cn(
+                                            "truncate",
+                                            isCovered ? "text-foreground" : "text-muted-foreground",
+                                          )}
+                                        >
+                                          {a}
+                                        </span>
+                                      </div>
                                     </TooltipTrigger>
                                     <TooltipContent side="top" className="text-xs">
                                       {isCovered

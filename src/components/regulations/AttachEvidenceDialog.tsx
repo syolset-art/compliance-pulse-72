@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+
 import {
   Tooltip,
   TooltipContent,
@@ -23,11 +23,9 @@ import {
   FileText,
   ShieldCheck,
   Sparkles,
-  CheckCircle2,
   AlertCircle,
   ChevronDown,
   ChevronUp,
-  X,
 } from "lucide-react";
 import type { EvidenceDocument } from "@/lib/requirementStatusModel";
 import { supabase } from "@/integrations/supabase/client";
@@ -324,11 +322,12 @@ export function AttachEvidenceDialog({
               </button>
             )}
             {showArticles && (coveredArticles?.length ?? 0) > 0 && (
-              <div className="flex flex-wrap gap-1 pl-4">
+              <div className="grid grid-cols-1 gap-1 pl-4">
                 {coveredArticles!.map((a) => (
-                  <Badge key={a} variant="outline" className="text-[10px] font-normal">
-                    {a}
-                  </Badge>
+                  <div key={a} className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <span className="h-1 w-1 rounded-full bg-muted-foreground/50 shrink-0" />
+                    <span className="truncate">{a}</span>
+                  </div>
                 ))}
               </div>
             )}
@@ -407,28 +406,29 @@ export function AttachEvidenceDialog({
                       <div className="text-[11px] text-muted-foreground mb-1.5">
                         {isNb ? "Artikler kravet skal dekke" : "Articles this requirement must cover"}
                       </div>
-                      <div className="flex flex-wrap gap-1">
+                      <div className="grid grid-cols-1 gap-1">
                         {required.map((a) => {
                           const isCovered = coveredSet.has(a);
                           return (
                             <TooltipProvider key={a} delayDuration={200}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span
-                                    className={cn(
-                                      "inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px]",
-                                      isCovered
-                                        ? "border-success/40 text-success bg-success/5"
-                                        : "border-warning/40 text-warning bg-warning/5",
-                                    )}
-                                  >
-                                    {isCovered ? (
-                                      <CheckCircle2 className="h-2.5 w-2.5" />
-                                    ) : (
-                                      <X className="h-2.5 w-2.5" />
-                                    )}
-                                    {a}
-                                  </span>
+                                  <div className="flex items-center gap-2 text-[11px] cursor-default">
+                                    <span
+                                      className={cn(
+                                        "h-1.5 w-1.5 rounded-full shrink-0",
+                                        isCovered ? "bg-success" : "bg-warning/60",
+                                      )}
+                                    />
+                                    <span
+                                      className={cn(
+                                        "truncate",
+                                        isCovered ? "text-foreground" : "text-muted-foreground",
+                                      )}
+                                    >
+                                      {a}
+                                    </span>
+                                  </div>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" className="text-xs">
                                   {isCovered
