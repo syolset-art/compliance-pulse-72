@@ -26,6 +26,7 @@ import {
   type EvidenceDocument,
 } from "@/lib/requirementStatusModel";
 import { inferFulfillment, calculateCoverage } from "@/lib/requirementFulfillment";
+import { getArticlesForRequirement } from "@/lib/requirementArticles";
 import { cn } from "@/lib/utils";
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
@@ -644,7 +645,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                             id: req.requirement_id,
                             name: isNb ? (req.name_no || req.name) : req.name,
                             description: isNb ? req.description_no : req.description,
-                            articles: req.covered_articles,
+                            articles: getArticlesForRequirement(req),
                           })}
                           className="ml-auto shrink-0 text-primary hover:underline"
                         >
@@ -683,7 +684,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                 id: req.requirement_id,
                                 name: isNb ? (req.name_no || req.name) : req.name,
                                 description: isNb ? req.description_no : req.description,
-                                articles: req.covered_articles,
+                                articles: getArticlesForRequirement(req),
                               });
                               return;
                             }
@@ -743,7 +744,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                                 id: req.requirement_id,
                                 name: isNb ? (req.name_no || req.name) : req.name,
                                 description: isNb ? req.description_no : req.description,
-                                articles: req.covered_articles,
+                                articles: getArticlesForRequirement(req),
                               });
                             }}
                           >
