@@ -558,7 +558,12 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                         )}
                         <button
                           type="button"
-                          onClick={() => setDocDialog({ id: req.requirement_id, name: req.name_no })}
+                          onClick={() => setAttachDialog({
+                            id: req.requirement_id,
+                            name: isNb ? (req.name_no || req.name) : req.name,
+                            description: isNb ? req.description_no : req.description,
+                            articles: req.covered_articles,
+                          })}
                           className="ml-auto shrink-0 text-primary hover:underline"
                         >
                           {isNb ? "Legg til" : "Add"}
