@@ -33,6 +33,7 @@ interface CustomerLike {
   account_manager?: string | null;
   onboarding_completed?: boolean | null;
   last_activity_at?: string | null;
+  business_description?: string | null;
 }
 
 type StatusKey = "draft" | "invited" | "claimed" | "archived";
