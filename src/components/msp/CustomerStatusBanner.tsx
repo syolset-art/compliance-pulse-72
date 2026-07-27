@@ -428,10 +428,10 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        className="text-xs text-primary hover:underline"
+                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-muted transition-opacity"
                         aria-label="Endre ansvarlig"
                       >
-                        Endre
+                        <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-64 p-1" align="start">
