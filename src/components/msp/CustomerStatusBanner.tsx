@@ -138,7 +138,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
   };
 
   // Inline edit state for contact fields
-  type Field = "name" | "email" | "role" | "url";
+  type Field = "name" | "email" | "role" | "url" | "description";
   const [editField, setEditField] = useState<Field | null>(null);
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
