@@ -49,7 +49,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
-import { Badge } from "@/components/ui/badge";
+
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
 import { WorkspaceSwitcher } from "@/components/sidebar/WorkspaceSwitcher";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
@@ -284,7 +284,7 @@ const SidebarContent = () => {
   const isPartner = companyProfile?.is_msp_partner === true;
 
   // Partner module overrides — when in compliance mode as a partner, the heavy
-  // modules (Core, Registre, Vendors, "Flere tjenester", "Bli partner") are hidden
+  // modules (Core, Registre, Vendors, "Moduler", "Bli partner") are hidden
   // by default and can be re-enabled from Innstillinger → Andre moduler.
   const [enabledPartnerModules, setEnabledPartnerModules] = useState<PartnerModuleKey[]>(() => getEnabledPartnerModules());
   useEffect(() => {
@@ -380,7 +380,7 @@ const SidebarContent = () => {
   const isCoreActivating = activatingModules.has("core") && !(selectedCoreAtOnboarding || hasCoreAccess);
   const isAssetsActivating = activatingModules.has("assets") && !(selectedRegistriesAtOnboarding || hasRegistriesAccess);
 
-  // "Flere tjenester" collects anything not shown normally
+  // "Moduler" collects anything not shown normally
   const showExploreSection = !showCoreNormal || !showVendorsNormal || !showAssetsNormal || !hasAgentsAccess;
   
   const [companyOpen, setCompanyOpen] = useState(() => location.pathname.startsWith("/msp-") || location.pathname.startsWith("/admin/") || location.pathname === "/subscriptions");
@@ -416,7 +416,7 @@ const SidebarContent = () => {
     if (isRegistriesActive) setRegistriesOpen(true);
   }, [isRegistriesActive]);
 
-  // "Flere tjenester" combines items from sections not shown normally, split by category
+  // "Moduler" combines items from sections not shown normally, split by category
   const exploreCoreItems = !showCoreNormal ? [...coreNav, systemsLink] : [];
   const exploreRegistryItems = [
     ...(!showVendorsNormal ? [vendorLink] : []),
@@ -754,7 +754,7 @@ const SidebarContent = () => {
           isRegistriesActive,
         ))}
 
-        {/* "Flere tjenester" — for modules NOT selected at onboarding */}
+        {/* "Moduler" — for modules NOT selected at onboarding */}
         {showExploreSection && !partnerHides("more") && (
           <>
             {(showCoreNormal || showVendorsNormal || showAssetsNormal) && <div className="my-2 border-b border-sidebar-border/40" />}
@@ -770,12 +770,9 @@ const SidebarContent = () => {
               >
                 <div className="flex items-center gap-2.5">
                   <Sparkles className="h-[18px] w-[18px]" />
-                   <span className="text-sm font-semibold">{t("nav.moreServices", "Flere tjenester")}</span>
+                   <span className="text-sm font-semibold">{t("nav.moreServices", "Moduler")}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Badge variant="outline" className="text-sm px-1.5 py-0 h-5 font-normal text-primary border-primary/30">
-                    {t("nav.exploreBadge", "Utforsk")}
-                  </Badge>
                   <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", exploreOpen && "rotate-180")} />
                 </div>
               </button>

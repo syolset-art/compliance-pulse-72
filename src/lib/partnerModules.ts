@@ -36,8 +36,8 @@ export const PARTNER_MODULES: PartnerModuleDef[] = [
   },
   {
     key: "more",
-    labelNb: "Flere tjenester",
-    labelEn: "More services",
+    labelNb: "Moduler",
+    labelEn: "Modules",
     descNb: "Utforsk og legg til tilleggsmoduler.",
     descEn: "Explore and add extra modules.",
   },
