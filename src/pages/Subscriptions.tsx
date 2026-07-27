@@ -720,6 +720,22 @@ export default function Subscriptions() {
         onConfirm={handleCoreTierConfirm}
       />
 
+      <ChangeVendorTierDialog
+        open={changeVendorTierOpen}
+        onOpenChange={setChangeVendorTierOpen}
+        currentTierId={vendorTierId}
+        usedVendors={vendorCount ?? 0}
+        onConfirm={handleVendorTierSelect}
+      />
+      <ConfirmVendorTierChangeDialog
+        open={!!pendingVendorTierId}
+        onOpenChange={(open) => { if (!open) setPendingVendorTierId(null); }}
+        currentTierId={vendorTierId}
+        nextTierId={pendingVendorTierId}
+        onConfirm={handleVendorTierConfirm}
+      />
+
+
 
       <AlertDialog open={!!confirmDeactivate} onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}>
         <AlertDialogContent>
