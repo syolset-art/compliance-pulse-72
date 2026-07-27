@@ -118,72 +118,86 @@ export function ModuleCard({
     usageLine = <p className="text-xs text-muted-foreground mt-2">{priceLabel}</p>;
   }
 
+  const showFreePrice = isIncluded || (status === "active" && price === 0);
+
   return (
     <Card className="border-border bg-card transition-shadow hover:shadow-sm">
-      <div className="p-5 flex items-start gap-6">
-        {/* Left: info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-semibold text-foreground text-base">{title}</h3>
-            <span
-              className={cn(
-                "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border",
-                cfg.bg,
-                cfg.text,
-                cfg.border,
-              )}
-            >
-              {cfg.label}
-            </span>
-            {priceLabel && !isIncluded && status === "active" && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-primary/20 bg-primary/5 text-primary">
-                {priceLabel}
+      <div className="p-5">
+        <div className="flex items-start gap-6">
+          {/* Left: info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold text-foreground text-base">{title}</h3>
+              <span
+                className={cn(
+                  "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border",
+                  cfg.bg,
+                  cfg.text,
+                  cfg.border,
+                )}
+              >
+                {cfg.label}
               </span>
+              {priceLabel && !isIncluded && status === "active" && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-primary/20 bg-primary/5 text-primary">
+                  {priceLabel}
+                </span>
+              )}
+              {showFreePrice && !isIncluded && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-primary/20 bg-primary/5 text-primary">
+                  Gratis
+                </span>
+              )}
+            </div>
+            {description && (
+              <p className="text-sm text-muted-foreground leading-snug mt-1">{description}</p>
+            )}
+            {usageLine}
+          </div>
+
+          {/* Right: price + actions */}
+          <div className="shrink-0 text-right flex flex-col items-end gap-2 min-w-[180px]">
+            {showFreePrice ? (
+              <div>
+                <div className="text-xl font-bold text-primary">Gratis</div>
+                <div className="text-xs text-muted-foreground">
+                  {isIncluded ? "inkludert i Core" : priceLabel ?? ""}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="text-xl font-bold text-foreground">{formattedPrice} kr</div>
+                <div className="text-xs text-muted-foreground">per måned</div>
+              </div>
+            )}
+
+            {action !== "none" && (
+              <div className="flex items-center gap-2">
+                {canDeactivate && (
+                  <button
+                    type="button"
+                    onClick={onDeactivate}
+                    className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    {deactivateLabel || "Avbestill"}
+                  </button>
+                )}
+                <Button
+                  variant={status === "inactive" ? "default" : "outline"}
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={onClick}
+                >
+                  {actionLabel[action]}
+                </Button>
+              </div>
             )}
           </div>
-          {description && (
-            <p className="text-sm text-muted-foreground leading-snug mt-1">{description}</p>
-          )}
-          {usageLine}
         </div>
 
-        {/* Right: price + actions */}
-        <div className="shrink-0 text-right flex flex-col items-end gap-2 min-w-[180px]">
-          {isIncluded ? (
-            <div>
-              <div className="text-xl font-bold text-primary">Gratis</div>
-              <div className="text-xs text-muted-foreground">inkludert i Core</div>
-            </div>
-          ) : (
-            <div>
-              <div className="text-xl font-bold text-foreground">{formattedPrice} kr</div>
-              <div className="text-xs text-muted-foreground">per måned</div>
-            </div>
-          )}
-
-          {action !== "none" && (
-            <div className="flex items-center gap-2">
-              {canDeactivate && (
-                <button
-                  type="button"
-                  onClick={onDeactivate}
-                  className="text-xs text-muted-foreground hover:text-destructive transition-colors"
-                >
-                  {deactivateLabel || "Avbestill"}
-                </button>
-              )}
-              <Button
-                variant={status === "inactive" ? "default" : "outline"}
-                size="sm"
-                className="h-8 text-xs"
-                onClick={onClick}
-              >
-                {actionLabel[action]}
-              </Button>
-            </div>
-          )}
-        </div>
+        {footer && <div className="mt-4">{footer}</div>}
       </div>
     </Card>
   );
+
 }
