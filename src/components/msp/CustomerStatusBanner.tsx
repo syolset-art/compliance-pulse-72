@@ -180,11 +180,21 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
       setEmailErr("Ugyldig e-post");
       return;
     }
-    if (editField === "url" && trimmed) {
+    if (editField === "url") {
+      if (!trimmed) {
+        setUrlErr("Nettadresse er påkrevd");
+        return;
+      }
+      const candidate = trimmed.startsWith("http://") || trimmed.startsWith("https://") ? trimmed : `https://${trimmed}`;
       try {
-        new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+        const u = new URL(candidate);
+        // Krev gyldig hostname med minst ett punktum og en TLD på 2+ tegn
+        if (!/^([a-z0-9-]+\.)+[a-z]{2,}$/i.test(u.hostname)) {
+          setUrlErr("Ugyldig nettadresse (f.eks. kunde.no)");
+          return;
+        }
       } catch {
-        setUrlErr("Ugyldig nettadresse");
+        setUrlErr("Ugyldig nettadresse (f.eks. kunde.no)");
         return;
       }
     }
