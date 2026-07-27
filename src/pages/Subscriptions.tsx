@@ -193,6 +193,9 @@ export default function Subscriptions() {
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
   const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(new Set());
   const [confirmDeactivate, setConfirmDeactivate] = useState<{ id: string; title: string } | null>(null);
+  const [coreTierId, setCoreTierId] = useState<CoreTierId>(DEFAULT_CORE_TIER_ID);
+  const [changeCoreTierOpen, setChangeCoreTierOpen] = useState(false);
+  const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
