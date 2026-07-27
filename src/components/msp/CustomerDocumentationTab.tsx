@@ -1,17 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
-  FileText,
-  Sparkles,
   Upload,
   Circle,
   CheckCircle2,
   Info,
   ShieldCheck,
+  ScrollText,
+  Link as LinkIcon,
+  Globe,
+  ExternalLink,
+  ArrowRight,
 } from "lucide-react";
-import { DOCUMENT_SLOTS } from "@/lib/trustMaturityQuestions";
 import { toast } from "sonner";
 import {
   Tooltip,
@@ -19,15 +23,67 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { frameworks } from "@/lib/frameworkDefinitions";
+import { getRequirementsByFramework, type ComplianceRequirement } from "@/lib/complianceRequirementsData";
+import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
+import { inferFulfillment } from "@/lib/requirementFulfillment";
 
 interface Props {
   customerId: string;
   customerName: string;
+  activeFrameworkIds: string[];
+  customerUrl?: string | null;
+  onGoToRegulations?: () => void;
 }
 
 const accessKey = (id: string) => `msp.customer.laraDocAccess.${id}`;
 
-export function CustomerDocumentationTab({ customerId, customerName }: Props) {
+/** Krav som representerer en publisert personvernerklæring. */
+function isPrivacyPolicyRequirement(req: ComplianceRequirement): boolean {
+  const id = req.requirement_id.toLowerCase();
+  const hay = `${req.name} ${req.name_no}`.toLowerCase();
+  return (
+    id.includes("gdpr:art13") ||
+    id.includes("gdpr:art14") ||
+    id.includes("privacy_notice") ||
+    id.includes("privacy_policy") ||
+    hay.includes("personvernerklær") ||
+    hay.includes("privacy notice") ||
+    hay.includes("privacy policy")
+  );
+}
+
+interface RequiredDoc {
+  key: string;
+  requirementId: string;
+  title: string;
+  description: string;
+  frameworkId: string;
+  frameworkName: string;
+  isPrivacyPolicy: boolean;
+}
+
+function normalizeUrl(u: string): string {
+  const t = u.trim();
+  if (!t) return "";
+  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+}
+
+export function CustomerDocumentationTab({
+  customerId,
+  customerName,
+  activeFrameworkIds,
+  customerUrl,
+  onGoToRegulations,
+}: Props) {
   const [access, setAccess] = useState(false);
 
   useEffect(() => {
@@ -51,9 +107,112 @@ export function CustomerDocumentationTab({ customerId, customerName }: Props) {
     );
   };
 
+  // Utled lovpålagte dokumenter fra kundens aktive regelverk
+  const groupedDocs = useMemo(() => {
+    const map = new Map<string, { frameworkName: string; docs: RequiredDoc[] }>();
+    for (const fid of activeFrameworkIds) {
+      const fw = frameworks.find((f) => f.id === fid);
+      if (!fw) continue;
+      const reqs = [
+        ...getRequirementsByFramework(fid),
+        ...ALL_ADDITIONAL_REQUIREMENTS.filter((r) => r.framework_id === fid),
+      ];
+      const docs: RequiredDoc[] = [];
+      const seen = new Set<string>();
+      for (const r of reqs) {
+        const ff = inferFulfillment(r);
+        if (!ff.evidenceMandatory && ff.type !== "document_required") continue;
+        if (seen.has(r.requirement_id)) continue;
+        seen.add(r.requirement_id);
+        docs.push({
+          key: `${fid}:${r.requirement_id}`,
+          requirementId: r.requirement_id,
+          title: r.name_no || r.name,
+          description: r.description_no || r.description || "",
+          frameworkId: fid,
+          frameworkName: fw.name,
+          isPrivacyPolicy: isPrivacyPolicyRequirement(r),
+        });
+      }
+      if (docs.length > 0) map.set(fid, { frameworkName: fw.name, docs });
+    }
+    return map;
+  }, [activeFrameworkIds]);
+
+  const totalDocs = useMemo(
+    () => Array.from(groupedDocs.values()).reduce((n, g) => n + g.docs.length, 0),
+    [groupedDocs],
+  );
+
+  // Personvernerklæring-dialog
+  const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [privacyUrl, setPrivacyUrl] = useState("");
+  const [privacyUrlErr, setPrivacyUrlErr] = useState<string | null>(null);
+  const [privacyLoading, setPrivacyLoading] = useState(false);
+  const openPrivacyDialog = (fromWebsite: boolean) => {
+    setPrivacyUrlErr(null);
+    if (fromWebsite && customerUrl) {
+      // Foreslå typisk sti
+      const base = normalizeUrl(customerUrl).replace(/\/$/, "");
+      setPrivacyUrl(`${base}/personvernerklaering`);
+    } else {
+      setPrivacyUrl("");
+    }
+    setPrivacyOpen(true);
+  };
+  const submitPrivacy = () => {
+    const t = privacyUrl.trim();
+    if (!t) {
+      setPrivacyUrlErr("Lim inn en URL eller last opp dokumentet i stedet");
+      return;
+    }
+    try {
+      new URL(normalizeUrl(t));
+    } catch {
+      setPrivacyUrlErr("Ugyldig URL");
+      return;
+    }
+    setPrivacyLoading(true);
+    setTimeout(() => {
+      setPrivacyLoading(false);
+      setPrivacyOpen(false);
+      toast.success("Personvernerklæring registrert", {
+        description: "Lara analyserer innholdet og kobler det til relevante krav.",
+      });
+    }, 900);
+  };
+
+  // ─── Tom-tilstand: ingen aktive regelverk ───
+  if (activeFrameworkIds.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <h2 className="text-base font-semibold text-foreground">Dokumentasjon</h2>
+        </div>
+        <Card className="p-8 border-dashed border-border text-center">
+          <div className="mx-auto h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+            <ScrollText className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <h3 className="text-sm font-semibold text-foreground mb-1.5">
+            Ingen regelverk kartlagt enda
+          </h3>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
+            Dokumentasjonskravene bestemmes av hvilke regelverk {customerName} er underlagt.
+            Kjør en kartlegging for å se hvilke bevis som er lovpålagte.
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <Button onClick={onGoToRegulations} className="gap-1.5">
+              Gå til Regelverk <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // ─── Normal-tilstand ───
   return (
     <div className="space-y-4">
-      {/* Header med info-ikon i stedet for fullt kort */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h2 className="text-base font-semibold text-foreground">Dokumentasjon</h2>
@@ -66,17 +225,20 @@ export function CustomerDocumentationTab({ customerId, customerName }: Props) {
               </TooltipTrigger>
               <TooltipContent side="right" className="max-w-xs bg-popover border border-border p-3 text-popover-foreground shadow-md rounded-md">
                 <p className="text-xs leading-relaxed">
-                  Gi Lara tilgang til {customerName} sin dokumentasjon — DPA-er, policyer,
-                  hendelsesplaner og andre filer. Lara leser dokumentene og bruker dem som
-                  grunnlag for baseline-svar, gap-analyse og forslag til tiltak.
+                  Bevisene under er utledet fra regelverkene {customerName} er tilknyttet.
+                  Last opp dokumenter — eller registrer en URL for publiserte dokumenter
+                  som personvernerklæring.
                 </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
+        <span className="text-xs text-muted-foreground">
+          {totalDocs} bevis fra {groupedDocs.size} regelverk
+        </span>
       </div>
 
-      {/* Samtykke / tilgang */}
+      {/* Lara-samtykke */}
       <Card className="p-4 sm:p-5 border-border bg-card">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -108,57 +270,147 @@ export function CustomerDocumentationTab({ customerId, customerName }: Props) {
         </div>
       </Card>
 
-      {/* Dokumentliste */}
-      <Card className="p-4 sm:p-5 border-border">
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <h3 className="text-sm font-semibold text-foreground">Dokumenter</h3>
-          <span className="text-xs text-muted-foreground">
-            {DOCUMENT_SLOTS.length} forventede dokumenter
-          </span>
-        </div>
-        <div className="divide-y divide-border/60">
-          {DOCUMENT_SLOTS.map((slot) => {
-            const uploaded = false; // prototype: ingen reell opplasting enda
-            const StatusIcon = uploaded ? CheckCircle2 : Circle;
-            return (
-              <div key={slot.id} className="flex items-start gap-3 py-3">
-                <StatusIcon
-                  className={`h-4 w-4 shrink-0 mt-0.5 ${
-                    uploaded ? "text-success" : "text-muted-foreground/50"
-                  }`}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{slot.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{slot.description}</p>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1.5 shrink-0"
-                  onClick={() =>
-                    toast.info("Opplasting kommer snart", {
-                      description: "I prototypen er dokumentopplasting ikke aktivert.",
-                    })
-                  }
-                >
-                  <Upload className="h-3.5 w-3.5" />
-                  Last opp
-                </Button>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
+      {/* Dokumenter gruppert per regelverk */}
+      <div className="space-y-3">
+        {Array.from(groupedDocs.entries()).map(([fid, group]) => (
+          <Card key={fid} className="p-4 sm:p-5 border-border">
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h3 className="text-sm font-semibold text-foreground truncate">
+                {group.frameworkName}
+              </h3>
+              <span className="text-xs text-muted-foreground shrink-0">
+                {group.docs.length} bevis
+              </span>
+            </div>
+            <div className="divide-y divide-border/60">
+              {group.docs.map((doc) => {
+                const uploaded = false; // prototype
+                const StatusIcon = uploaded ? CheckCircle2 : Circle;
+                return (
+                  <div key={doc.key} className="flex items-start gap-3 py-3">
+                    <StatusIcon
+                      className={`h-4 w-4 shrink-0 mt-0.5 ${
+                        uploaded ? "text-success" : "text-muted-foreground/50"
+                      }`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{doc.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                        {doc.description}
+                      </p>
+                      {doc.isPrivacyPolicy && customerUrl && (
+                        <p className="text-[11px] text-muted-foreground mt-1 inline-flex items-center gap-1">
+                          <Globe className="h-3 w-3" />
+                          Kan finnes på{" "}
+                          <a
+                            href={normalizeUrl(customerUrl)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-primary hover:underline inline-flex items-center gap-0.5"
+                          >
+                            {customerUrl.replace(/^https?:\/\//, "")}
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {doc.isPrivacyPolicy && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1.5"
+                          onClick={() => openPrivacyDialog(Boolean(customerUrl))}
+                        >
+                          <LinkIcon className="h-3.5 w-3.5" />
+                          {customerUrl ? "Hent fra nettside" : "Legg inn URL"}
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5"
+                        onClick={() =>
+                          toast.info("Opplasting kommer snart", {
+                            description: "I prototypen er dokumentopplasting ikke aktivert.",
+                          })
+                        }
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        Last opp
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        ))}
+      </div>
 
-      {/* Info nederst */}
+      {/* Fotnote */}
       <div className="flex items-start gap-2 text-xs text-muted-foreground px-1">
         <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
         <p>
           Når dokumentasjon mangler, baserer Lara svarene på antakelser om typiske norske
-          SMB-er i kundens bransje. Last opp dokumenter for høyere presisjon — Laras
-          begrunnelse vises da som et direkte sitat fra dokumentet.
+          SMB-er i kundens bransje. Last opp dokumenter eller lim inn URL for høyere
+          presisjon — Laras begrunnelse vises da som et direkte sitat fra kilden.
         </p>
       </div>
+
+      {/* Personvernerklæring-dialog */}
+      <Dialog open={privacyOpen} onOpenChange={setPrivacyOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Personvernerklæring</DialogTitle>
+            <DialogDescription>
+              {customerUrl
+                ? "Vi har foreslått en mulig plassering basert på kundens nettside. Bekreft URL-en, endre den, eller last opp dokumentet i stedet."
+                : "Lim inn en direkte URL til den publiserte erklæringen — eller last opp dokumentet."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">URL til publisert erklæring</Label>
+              <Input
+                value={privacyUrl}
+                onChange={(e) => {
+                  setPrivacyUrl(e.target.value);
+                  setPrivacyUrlErr(null);
+                }}
+                placeholder="https://example.no/personvernerklaering"
+              />
+              {privacyUrlErr && (
+                <p className="text-xs text-destructive">{privacyUrlErr}</p>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Ingen publisert erklæring?{" "}
+              <button
+                type="button"
+                className="text-primary hover:underline"
+                onClick={() => {
+                  setPrivacyOpen(false);
+                  toast.info("Opplasting kommer snart", {
+                    description: "I prototypen er dokumentopplasting ikke aktivert.",
+                  });
+                }}
+              >
+                Last opp dokumentet i stedet
+              </button>
+              .
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPrivacyOpen(false)}>
+              Avbryt
+            </Button>
+            <Button onClick={submitPrivacy} disabled={privacyLoading}>
+              {privacyLoading ? "Registrerer…" : "Lagre URL"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
