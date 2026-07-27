@@ -95,17 +95,19 @@ export function ModuleCard({
     );
   } else if (hasBar) {
     const pct = Math.min(100, Math.round((usageNum / limitNum) * 100));
+    const atCap = usageNum >= limitNum;
     usageLine = (
       <div className="mt-3 space-y-1.5 max-w-xs">
-        <p className="text-xs text-muted-foreground">
+        <p className={cn("text-xs", atCap ? "text-amber-700" : "text-muted-foreground")}>
           {usageNum} av {limitNum} {usageSuffix ?? ""} i bruk
         </p>
         <div className="h-1 rounded-full bg-muted overflow-hidden">
           <div
-            className="h-full bg-primary rounded-full transition-all"
+            className={cn("h-full rounded-full transition-all", atCap ? "bg-amber-500" : "bg-primary")}
             style={{ width: `${pct}%` }}
           />
         </div>
+
       </div>
     );
   } else if (usage) {
