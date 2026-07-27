@@ -35,10 +35,13 @@ import {
   PLANS, ORDERED_PLANS, FRAMEWORK_ADDONS, FREE_FRAMEWORKS,
   formatKr, getYearlySavingsKr, planNameToTier, PLAN_TIERS,
   getFrameworkMonthlyPrice,
-  type PlanId, type BillingInterval,
+  CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier,
+  type PlanId, type BillingInterval, type CoreTierId,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
+import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
+import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { cn } from "@/lib/utils";
 
