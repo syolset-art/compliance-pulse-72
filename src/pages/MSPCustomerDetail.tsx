@@ -34,6 +34,7 @@ import { TrustProfileTakeoverInfoDialog } from "@/components/msp/TrustProfileTak
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { CustomerDocumentationTab } from "@/components/msp/CustomerDocumentationTab";
+import { CustomerModulesTab } from "@/components/msp/CustomerModulesTab";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { MATURITY_AREAS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 
