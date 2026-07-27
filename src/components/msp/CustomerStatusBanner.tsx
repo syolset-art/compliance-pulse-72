@@ -253,9 +253,6 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-lg md:text-xl font-bold text-foreground truncate">{customer.customer_name}</h1>
-                <Badge variant="outline" className="text-xs px-2 py-0 border-primary/40 text-primary font-medium">
-                  {customer.subscription_plan || "Gratis"}
-                </Badge>
                 {customer.active_frameworks && customer.active_frameworks.length > 0 && (
                   <Badge variant="outline" className="text-xs px-2 py-0 gap-1">
                     <Shield className="h-3 w-3" aria-hidden="true" />
