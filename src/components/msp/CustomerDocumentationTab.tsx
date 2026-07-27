@@ -151,6 +151,35 @@ export function CustomerDocumentationTab({
     [groupedDocs],
   );
 
+  // Regelverk-filter (multi-select). Default: alle valgt.
+  const [selectedFrameworks, setSelectedFrameworks] = useState<Set<string>>(
+    () => new Set(activeFrameworkIds),
+  );
+  useEffect(() => {
+    setSelectedFrameworks(new Set(activeFrameworkIds));
+  }, [activeFrameworkIds]);
+
+  const visibleGroups = useMemo(
+    () => Array.from(groupedDocs.entries()).filter(([fid]) => selectedFrameworks.has(fid)),
+    [groupedDocs, selectedFrameworks],
+  );
+  const visibleDocCount = useMemo(
+    () => visibleGroups.reduce((n, [, g]) => n + g.docs.length, 0),
+    [visibleGroups],
+  );
+
+  const toggleFramework = (fid: string) => {
+    setSelectedFrameworks((prev) => {
+      const next = new Set(prev);
+      if (next.has(fid)) next.delete(fid);
+      else next.add(fid);
+      return next;
+    });
+  };
+  const allSelected = selectedFrameworks.size === groupedDocs.size;
+  const [filterOpen, setFilterOpen] = useState(false);
+
+
   // Personvernerklæring-dialog
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [privacyUrl, setPrivacyUrl] = useState("");
