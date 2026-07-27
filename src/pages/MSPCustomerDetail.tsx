@@ -470,6 +470,7 @@ export default function MSPCustomerDetail() {
                 customerId={customerId!}
                 customerName={customer.name || customer.customer_name || "Kunden"}
                 activeFrameworkIds={activeFrameworkIds}
+                onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}
               />
             </TabsContent>
 
