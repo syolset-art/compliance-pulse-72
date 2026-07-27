@@ -175,10 +175,6 @@ export function getFrameworkMonthlyPrice(frameworkId: string): number {
   return FRAMEWORK_ADDONS[frameworkId]?.monthlyPriceKr ?? 0;
 }
 
-export function getFrameworkMonthlyPrice(frameworkId: string): number {
-  const yearly = getFrameworkYearlyPrice(frameworkId);
-  return yearly > 0 ? Math.round(yearly / 12) : 0;
-}
 
 export function formatKr(amountKr: number): string {
   return new Intl.NumberFormat("nb-NO", {
