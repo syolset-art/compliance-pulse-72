@@ -117,7 +117,7 @@ export const ORDERED_PLANS: PlanId[] = ["starter", "growth", "professional", "en
 // ─── Mynder Core module tiers ───────────────────────────────────────
 // Mynder Core is its own module priced by system capacity.
 
-export type CoreTierId = "tier_20" | "tier_50" | "tier_100";
+export type CoreTierId = "tier_free" | "tier_20" | "tier_50" | "tier_100";
 
 export interface CoreTier {
   id: CoreTierId;
@@ -125,19 +125,27 @@ export interface CoreTier {
   shortLabel: string;    // e.g. "Inntil 20"
   systemLimit: number;
   monthlyPriceKr: number;
+  isFree?: boolean;
 }
 
 export const CORE_TIERS: CoreTier[] = [
-  { id: "tier_20",  label: "Inntil 20 systemer",  shortLabel: "Inntil 20",  systemLimit: 20,  monthlyPriceKr: 1499 },
-  { id: "tier_50",  label: "Inntil 50 systemer",  shortLabel: "Inntil 50",  systemLimit: 50,  monthlyPriceKr: 2499 },
-  { id: "tier_100", label: "Inntil 100 systemer", shortLabel: "Inntil 100", systemLimit: 100, monthlyPriceKr: 4999 },
+  { id: "tier_free", label: "Inntil 5 systemer",   shortLabel: "Inntil 5",   systemLimit: 5,   monthlyPriceKr: 0,    isFree: true },
+  { id: "tier_20",   label: "Inntil 20 systemer",  shortLabel: "Inntil 20",  systemLimit: 20,  monthlyPriceKr: 1499 },
+  { id: "tier_50",   label: "Inntil 50 systemer",  shortLabel: "Inntil 50",  systemLimit: 50,  monthlyPriceKr: 2499 },
+  { id: "tier_100",  label: "Inntil 100 systemer", shortLabel: "Inntil 100", systemLimit: 100, monthlyPriceKr: 4999 },
 ];
 
-export const DEFAULT_CORE_TIER_ID: CoreTierId = "tier_50";
+export const DEFAULT_CORE_TIER_ID: CoreTierId = "tier_free";
 
 export function getCoreTier(id: CoreTierId): CoreTier {
-  return CORE_TIERS.find((t) => t.id === id) ?? CORE_TIERS[1];
+  return CORE_TIERS.find((t) => t.id === id) ?? CORE_TIERS[0];
 }
+
+export function getNextCoreTier(id: CoreTierId): CoreTier | null {
+  const idx = CORE_TIERS.findIndex((t) => t.id === id);
+  return idx >= 0 && idx < CORE_TIERS.length - 1 ? CORE_TIERS[idx + 1] : null;
+}
+
 
 // ─── Plan-level add-ons ─────────────────────────────────────────────
 
