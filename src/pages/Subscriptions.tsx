@@ -38,6 +38,7 @@ import {
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
+import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { cn } from "@/lib/utils";
 
 // Map current legacy tier to new PlanId for highlighting
@@ -286,15 +287,18 @@ export default function Subscriptions() {
   const assetMonthlyPrice = 690;
   const partnerWorkspaceMonthlyPrice = 990;
 
-  const isMspPartner = !!companyProfile?.is_msp_partner;
+  const { mode: workspaceMode, availableModes } = useWorkspaceMode();
+  const hasPartnerAccess = !!companyProfile?.is_msp_partner
+    || workspaceMode === "partner"
+    || availableModes.includes("partner");
   const totalMonthly = useMemo(() => {
     let total = planPrice;
     if (activeFrameworkCount > 0) total += frameworkMonthlyPrice;
     total += vendorMonthlyPrice;
     total += assetMonthlyPrice;
-    if (isMspPartner) total += partnerWorkspaceMonthlyPrice;
+    if (hasPartnerAccess) total += partnerWorkspaceMonthlyPrice;
     return total;
-  }, [planPrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, isMspPartner]);
+  }, [planPrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess]);
 
   const activeModuleCount = useMemo(() => {
     let count = 1; // Core always active
@@ -302,9 +306,9 @@ export default function Subscriptions() {
     count += 1; // Vendors
     count += 1; // Assets
     count += 1; // Trust Profile
-    if (isMspPartner) count += 1;
+    if (hasPartnerAccess) count += 1;
     return count;
-  }, [activeFrameworkCount, isMspPartner]);
+  }, [activeFrameworkCount, hasPartnerAccess]);
 
   const handleSelectPlan = (planId: PlanId) => {
     if (planId === "enterprise") {
@@ -471,15 +475,15 @@ export default function Subscriptions() {
               icon={Users}
               title="Partner Workspace"
               description="For MSP-er og samarbeidspartnere"
-              status={deactivatedModules.has("partner") ? "inactive" : isMspPartner ? "active" : "inactive"}
-              price={!deactivatedModules.has("partner") && isMspPartner ? partnerWorkspaceMonthlyPrice : 0}
-              priceLabel={isMspPartner && !deactivatedModules.has("partner") ? "Aktivert partnerportal" : "Kontakt salg for aktivering"}
-              action={deactivatedModules.has("partner") ? "activate" : isMspPartner ? "open" : "activate"}
+              status={deactivatedModules.has("partner") ? "inactive" : hasPartnerAccess ? "active" : "inactive"}
+              price={!deactivatedModules.has("partner") && hasPartnerAccess ? partnerWorkspaceMonthlyPrice : 0}
+              priceLabel={hasPartnerAccess && !deactivatedModules.has("partner") ? "Aktivert partnerportal" : "Kontakt salg for aktivering"}
+              action={deactivatedModules.has("partner") ? "activate" : hasPartnerAccess ? "open" : "activate"}
               onClick={() => {
                 if (deactivatedModules.has("partner")) return reactivateModule("partner");
-                return isMspPartner ? navigate("/msp") : toast.info("Ta kontakt med salg på sales@mynder.no for å aktivere Partner Workspace.");
+                return hasPartnerAccess ? navigate("/msp") : toast.info("Ta kontakt med salg på sales@mynder.no for å aktivere Partner Workspace.");
               }}
-              onDeactivate={isMspPartner ? () => requestDeactivate("partner", "Partner Workspace") : undefined}
+              onDeactivate={hasPartnerAccess ? () => requestDeactivate("partner", "Partner Workspace") : undefined}
               accentColor="slate"
             />
           </section>

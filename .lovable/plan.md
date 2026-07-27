@@ -1,23 +1,25 @@
-Legg til et nytt "Vekst"-nivå mellom Starter og Profesjonell i abonnementsplanen.
+## Mål
+Når brukeren er i Partner-modus (`useWorkspaceMode().mode === "partner"`) skal "Partner Workspace"-kortet i `Subscriptions.tsx` vises som aktivert, uavhengig av `companyProfile.is_msp_partner`-flagget.
 
-## Nytt nivå: Vekst
-
-- **Pris:** 1 990 kr/mnd (19 900 kr/år)
-- **Grenser:** inntil 20 leverandører, 20 systemer, 2 arbeidsområder, 2 regelverk inkludert
-- **Posisjonering:** For virksomheter som har vokst forbi Starter (5+) men ikke trenger ubegrenset
+## Bakgrunn
+I dag styres aktivering av Partner Workspace-kortet kun av `companyProfile.is_msp_partner` som hentes fra `company_profiles`-tabellen. Men Partner-modus kan være aktiv via `WorkspaceModeContext` (vist i topbar-switcheren) uten at dette flagget er satt korrekt i profilen — da vises modulen feilaktig som "Ikke aktivert" selv om brukeren står i Partner-modus.
 
 ## Endringer
 
-1. **`src/lib/planConstants.ts`**
-   - Utvid `PlanId` med `"growth"`
-   - Legg til `PLANS.growth` med priser, grenser og features
-   - Oppdater `ORDERED_PLANS` til `["starter", "growth", "professional", "enterprise"]`
-   - Flytt `popular: true` fra Profesjonell til Vekst (den nye anbefalte)
-   - Oppdater `planNameToTier` til å mappe `"growth"` → passende legacy tier
+### `src/pages/Subscriptions.tsx`
+1. Importer `useWorkspaceMode` fra `@/contexts/WorkspaceModeContext`.
+2. Les `mode` og `availableModes` fra hooken.
+3. Endre aktiveringslogikken slik at Partner Workspace regnes som aktivert dersom **enten**:
+   - `companyProfile.is_msp_partner === true`, **eller**
+   - `mode === "partner"`, eller `availableModes` inkluderer `"partner"` (brukeren har tilgang til Partner-arbeidsområdet).
+4. Oppdater alle referanser til `isMspPartner` i `ModuleCard`-blokken for Partner Workspace (status, pris, priceLabel, action, onClick, onDeactivate) til å bruke den nye avledede verdien `hasPartnerAccess`.
+5. Sørg for at `totalMonthly`-beregningen også bruker `hasPartnerAccess` slik at 990 kr inkluderes når Partner-modus er aktiv.
 
-2. **UI som rendrer plankort**
-   - Sjekke `src/pages/Subscriptions.tsx` og dialogen "Endre nivå" – de itererer over `ORDERED_PLANS` og skal automatisk plukke opp det nye kortet
-   - Verifisere at grid-layouten håndterer 4 kort pent (evt. `lg:grid-cols-4`)
+### Ingen andre filer endres
+Kun frontend-visning i Subscriptions-siden speiler nå Partner-modus-tilstanden.
 
-## Ikke inkludert
-Ingen endringer i backend/DB – plan-id lagres som streng og støtter nytt navn direkte.
+## Akseptansekriterier
+- Bruker som står i Partner-modus (Partner-modus-pillen synlig i topbar) ser Partner Workspace-kortet som **Aktivert** med pris 990 kr/mnd og "Åpne"-handling.
+- Totalsum inkluderer 990 kr når Partner-modus er aktiv.
+- Bruker uten Partner-tilgang ser fortsatt kortet som "Ikke aktivert" med "Kontakt salg"-handling.
+- Deaktivering via kebab-meny fungerer som før for brukere med Partner-tilgang.
