@@ -304,7 +304,8 @@ export default function Subscriptions() {
 
   const coreTier = getCoreTier(coreTierId);
   const corePrice = coreTier.monthlyPriceKr;
-  const vendorMonthlyPrice = 1089;
+  const vendorTier = getVendorTier(vendorTierId);
+  const vendorMonthlyPrice = vendorTier.monthlyPriceKr;
   const assetMonthlyPrice = 690;
   const partnerWorkspaceMonthlyPrice = 990;
 
