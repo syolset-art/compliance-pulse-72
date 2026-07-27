@@ -440,6 +440,9 @@ export default function MSPCustomerDetail() {
               <CustomerDocumentationTab
                 customerId={customerId!}
                 customerName={customer.name || customer.customer_name || "Kunden"}
+                activeFrameworkIds={activeFrameworkIds}
+                customerUrl={customer.url}
+                onGoToRegulations={() => handleTabChange("regulations")}
               />
             </TabsContent>
 
