@@ -118,11 +118,20 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
     setAccountManager(customer.account_manager ?? getAccountManagerOverride(customer.id));
   }, [customer.id, customer.account_manager]);
 
-  const handleAssign = (name: string) => {
+  const handleAssign = async (name: string) => {
+    const { error } = await supabase
+      .from("msp_customers")
+      .update({ account_manager: name })
+      .eq("id", customer.id);
+    if (error) {
+      toast.error("Kunne ikke lagre ansvarlig");
+      return;
+    }
     setAccountManagerOverride(customer.id, name);
     setAccountManager(name);
     setAssignOpen(false);
     toast.success(`${name} er satt som ansvarlig`);
+    onUpdate?.();
   };
 
   // Inline edit state for contact fields
