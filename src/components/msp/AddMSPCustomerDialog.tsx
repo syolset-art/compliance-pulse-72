@@ -737,25 +737,28 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
               {COUNTRIES.map((c) => (
                 <button
                   key={c.code}
-                  disabled={!c.supported}
                   onClick={() => {
                     setForm({ ...form, country_code: c.code });
-                    setStep("search");
+                    if (c.supported) {
+                      setStep("search");
+                    } else {
+                      setStep("manual");
+                    }
                   }}
-                  className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
-                    c.supported
-                      ? "border-border hover:border-primary hover:bg-primary/5"
-                      : "border-border opacity-50 cursor-not-allowed"
-                  } ${form.country_code === c.code ? "border-primary bg-primary/5" : ""}`}
+                  className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-colors border-border hover:border-primary hover:bg-primary/5 ${
+                    form.country_code === c.code ? "border-primary bg-primary/5" : ""
+                  }`}
                 >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <MapPin className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-foreground">{c.name}</p>
-                    <p className="text-xs text-muted-foreground">{c.registry}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {c.supported ? c.registry : `Registersøk kommer – registrer manuelt`}
+                    </p>
                   </div>
-                  {!c.supported && <Badge variant="outline" className="text-xs">Kommer snart</Badge>}
+                  {!c.supported && <Badge variant="outline" className="text-xs">Manuell</Badge>}
                 </button>
               ))}
             </div>
