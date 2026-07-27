@@ -345,6 +345,29 @@ export default function Subscriptions() {
     });
   };
 
+  const handleVendorTierSelect = (nextTierId: VendorTierId) => {
+    setPendingVendorTierId(nextTierId);
+    setChangeVendorTierOpen(false);
+  };
+
+  const handleVendorTierConfirm = () => {
+    if (!pendingVendorTierId) return;
+    const prev = vendorTierId;
+    const nextLabel = getVendorTier(pendingVendorTierId).label.toLowerCase();
+    setVendorTierId(pendingVendorTierId);
+    setPendingVendorTierId(null);
+    toast(`Leverandørmodul er endret til ${nextLabel}.`, {
+      action: {
+        label: "Angre",
+        onClick: () => {
+          setVendorTierId(prev);
+          toast.success("Endringen er angret.");
+        },
+      },
+      duration: 10000,
+    });
+  };
+
   const activeModuleCount = useMemo(() => {
     let count = 1; // Core always active
     if (activeFrameworkCount > 0) count += 1;
