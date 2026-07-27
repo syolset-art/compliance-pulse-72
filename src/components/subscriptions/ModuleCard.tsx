@@ -1,7 +1,13 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, ExternalLink, Settings2, Sparkles } from "lucide-react";
+import { ExternalLink, Settings2, Sparkles, MoreVertical, PowerOff } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export type ModuleStatus = "active" | "inactive" | "included";
 
@@ -17,6 +23,8 @@ export interface ModuleCardProps {
   usageLimit?: string;
   action: "open" | "activate" | "change" | "manage" | "none";
   onClick?: () => void;
+  onDeactivate?: () => void;
+  deactivateLabel?: string;
   accentColor?: "purple" | "blue" | "emerald" | "amber" | "rose" | "slate";
 }
 
