@@ -528,7 +528,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
             </div>
 
             <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-[10px] uppercase tracking-wider text-foreground/60 font-medium">Ansvarlig:</span>
+              <span className="text-[10px] uppercase tracking-wider text-foreground/60 font-medium">KUNDEKONTAKT:</span>
               {accountManager ? (
                 <span className="inline-flex items-center gap-1 text-foreground">
                   <span className="truncate">{accountManager}</span>
