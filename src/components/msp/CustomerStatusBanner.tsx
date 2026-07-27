@@ -328,9 +328,18 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                 {!customer.url && (
                   <>
                     <span className="text-muted-foreground/50" aria-hidden="true">·</span>
-                    <button onClick={() => startEdit("url")} className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
-                      <Globe className="h-3 w-3" aria-hidden="true" /> Legg til nettside
-                    </button>
+                    <TooltipProvider delayDuration={150}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button onClick={() => startEdit("url")} className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
+                            <Globe className="h-3 w-3" aria-hidden="true" /> Legg til nettside
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-xs">
+                          <p className="text-sm">Vi bruker nettsiden til å hente informasjon om kundens varer og tjenester, og kan også finne personvernerklæringen derfra.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </>
                 )}
               </div>
