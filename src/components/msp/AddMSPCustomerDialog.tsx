@@ -213,11 +213,15 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     }
   };
 
-  // Select company → verify
+  // Select company → verify + enrich (BrReg detail → subunit → AI fallback)
   const handleSelectCompany = async (company: BrregResult) => {
     setSelectedCompany(company);
     setStep("verifying");
     setDuplicateFound(false);
+    setIndustrySource("none");
+    setEnrichStep("main");
+
+    // Duplicate check
     try {
       const { data } = await supabase
         .from("msp_customers")
@@ -230,7 +234,76 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         return;
       }
     } catch { /* ignore */ }
-    setTimeout(() => setStep("contact"), 2000);
+
+    // Enrich industry
+    let enriched: BrregResult = { ...company };
+    const isMissing = (c: BrregResult) => {
+      const b = c.naeringskode1?.beskrivelse?.trim().toLowerCase();
+      return !b || b === "uoppgitt" || b === "ikke oppgitt";
+    };
+
+    // 1. Full detail on main entity
+    try {
+      const detailRes = await fetch(
+        `https://data.brreg.no/enhetsregisteret/api/enheter/${company.organisasjonsnummer}`
+      );
+      if (detailRes.ok) {
+        const d = await detailRes.json();
+        enriched = {
+          ...enriched,
+          naeringskode1: d.naeringskode1 || enriched.naeringskode1,
+          antallAnsatte: d.antallAnsatte ?? enriched.antallAnsatte,
+          forretningsadresse: d.forretningsadresse || enriched.forretningsadresse,
+        };
+        if (!isMissing(enriched)) setIndustrySource("brreg_main");
+      }
+    } catch { /* ignore */ }
+
+    // 2. Try subunits if still missing
+    if (isMissing(enriched)) {
+      setEnrichStep("subunit");
+      try {
+        const subRes = await fetch(
+          `https://data.brreg.no/enhetsregisteret/api/underenheter?overordnetEnhet=${company.organisasjonsnummer}&size=10`
+        );
+        if (subRes.ok) {
+          const subData = await subRes.json();
+          const subs: any[] = subData._embedded?.underenheter || [];
+          const hit = subs.find(
+            (s) => s.naeringskode1?.beskrivelse &&
+                   s.naeringskode1.beskrivelse.trim().toLowerCase() !== "uoppgitt"
+          );
+          if (hit) {
+            enriched.naeringskode1 = hit.naeringskode1;
+            setIndustrySource("brreg_subunit");
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
+    // 3. AI fallback
+    if (isMissing(enriched)) {
+      setEnrichStep("ai");
+      try {
+        const { data: aiRes } = await supabase.functions.invoke("suggest-industry", {
+          body: {
+            name: company.navn,
+            org_number: company.organisasjonsnummer,
+            country_code: form.country_code,
+          },
+        });
+        if (aiRes?.industry && aiRes.industry !== "Ukjent bransje") {
+          enriched.naeringskode1 = { kode: "", beskrivelse: aiRes.industry };
+          setIndustrySource("ai_suggested");
+        }
+      } catch { /* ignore */ }
+    } else if (industrySource === "none") {
+      // safety: source set to subunit above already if applicable
+    }
+
+    setEnrichStep("done");
+    setSelectedCompany(enriched);
+    setTimeout(() => setStep("contact"), 800);
   };
 
   const mapEmployees = (n?: number): string => {
