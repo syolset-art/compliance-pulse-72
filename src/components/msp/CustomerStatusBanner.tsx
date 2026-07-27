@@ -125,6 +125,47 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
     toast.success(`${name} er satt som ansvarlig`);
   };
 
+  // Inline edit state for contact fields
+  type Field = "name" | "email" | "role";
+  const [editField, setEditField] = useState<Field | null>(null);
+  const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [emailErr, setEmailErr] = useState<string | null>(null);
+  const [emailPopOpen, setEmailPopOpen] = useState(false);
+
+  const startEdit = (f: Field) => {
+    setEmailErr(null);
+    setDraft(
+      f === "name" ? (customer.contact_person || "") :
+      f === "email" ? (customer.contact_email || "") :
+      (customer.contact_company_role || "")
+    );
+    setEditField(f);
+  };
+
+  const saveEdit = async () => {
+    if (!editField) return;
+    const trimmed = draft.trim();
+    if (editField === "email" && trimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setEmailErr("Ugyldig e-post");
+      return;
+    }
+    const col = editField === "name" ? "contact_person" : editField === "email" ? "contact_email" : "contact_company_role";
+    setSaving(true);
+    const { error } = await supabase
+      .from("msp_customers")
+      .update({ [col]: trimmed || null } as any)
+      .eq("id", customer.id);
+    setSaving(false);
+    if (error) {
+      toast.error("Kunne ikke lagre");
+      return;
+    }
+    toast.success("Kontakt oppdatert");
+    setEditField(null);
+    onUpdate?.();
+  };
+
   const maturityLabel =
     status.key === "claimed" ? "godkjent av kunden" :
     status.key === "invited" ? "under onboarding" :
