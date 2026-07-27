@@ -125,17 +125,18 @@ export interface FrameworkAddon {
   id: string;
   name: string;
   yearlyPriceKr: number;
+  monthlyPriceKr: number;
   includes: string[];
 }
 
 export const FRAMEWORK_ADDONS: Record<string, FrameworkAddon> = {
-  nis2: { id: "nis2", name: "NIS2", yearlyPriceKr: 50000, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  dora: { id: "dora", name: "DORA", yearlyPriceKr: 50000, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  apenhetsloven: { id: "apenhetsloven", name: "Åpenhetsloven", yearlyPriceKr: 50000, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  "ai-act": { id: "ai-act", name: "EU AI Act", yearlyPriceKr: 50000, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  cra: { id: "cra", name: "CRA", yearlyPriceKr: 50000, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  transparency_act: { id: "transparency_act", name: "Åpenhetsloven", yearlyPriceKr: 50000, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
-  ai_act: { id: "ai_act", name: "EU AI Act", yearlyPriceKr: 50000, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
+  nis2: { id: "nis2", name: "NIS2", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
+  dora: { id: "dora", name: "DORA", yearlyPriceKr: 8900, monthlyPriceKr: 890, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
+  apenhetsloven: { id: "apenhetsloven", name: "Åpenhetsloven", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
+  "ai-act": { id: "ai-act", name: "EU AI Act", yearlyPriceKr: 8900, monthlyPriceKr: 890, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
+  cra: { id: "cra", name: "CRA", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
+  transparency_act: { id: "transparency_act", name: "Åpenhetsloven", yearlyPriceKr: 4900, monthlyPriceKr: 490, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
+  ai_act: { id: "ai_act", name: "EU AI Act", yearlyPriceKr: 8900, monthlyPriceKr: 890, includes: ["Gap-analyse", "Tiltaksliste", "Modenhetsvurdering", "Rapportdeling"] },
 };
 
 // ─── Free inclusions (used in marketing copy) ───────────────────────
