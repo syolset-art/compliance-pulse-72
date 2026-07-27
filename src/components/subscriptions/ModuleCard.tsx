@@ -80,10 +80,13 @@ export function ModuleCard({
   usageLimit,
   action,
   onClick,
+  onDeactivate,
+  deactivateLabel,
   accentColor = "purple",
 }: ModuleCardProps) {
   const cfg = statusConfig[status];
   const accent = accentConfig[accentColor];
+  const canDeactivate = !!onDeactivate && status === "active";
 
   const formattedPrice = new Intl.NumberFormat("no-NB", {
     style: "currency",
