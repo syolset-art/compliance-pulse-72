@@ -1,43 +1,37 @@
-## Mål
-Når en ny kunde legges til, skal bransje automatisk hentes fra offentlig register (BrReg) — med fallback til AI-forslag når hovedenheten mangler bransje. «Uoppgitt» skal ikke lenger vises som endelig verdi.
+## Plan: Utvid kontaktblokk i CustomerStatusBanner med e-post og rolle
 
-## Bakgrunn
-BrReg søke-endepunktet returnerer ofte `naeringskode1.beskrivelse = "Uoppgitt"` på hovedenheter fordi den reelle bransjekoden ligger på **underenheten** (f.eks. filial/avdeling). I dag brukes kun søkeresultatet direkte, og «Uoppgitt» skrives til `msp_customers.industry`.
+Utvider «Kontakt:»-linjen i `src/components/msp/CustomerStatusBanner.tsx` til å vise tre felt (navn, e-post, rolle) med inline-redigering og en «send melding»-handling på e-post.
 
-## Endringer
+### Endringer i `src/components/msp/CustomerStatusBanner.tsx`
 
-### 1. Berik BrReg-data ved valg (`handleSelectCompany`)
-Når en bruker velger en virksomhet:
-1. Hent full detalj på hovedenhet: `GET /enhetsregisteret/api/enheter/{orgnr}` (bekrefter navn, adresse, ansatte).
-2. Hvis `naeringskode1` mangler eller `beskrivelse === "Uoppgitt"`:
-   - Hent underenheter: `GET /enhetsregisteret/api/underenheter?overordnetEnhet={orgnr}&size=10`
-   - Velg første underenhet med gyldig `naeringskode1` (ikke «Uoppgitt»).
-   - Bruk den bransjen på kunden.
-3. Hvis fortsatt tomt → gå til AI-fallback (steg 2).
+**1. Ny inline-redigerbar kontaktblokk (erstatter linje ~278–295)**
+- Viser tre chips på én linje: navn · e-post · rolle
+- Hvert felt har blyant-ikon ved hover for å redigere
+- Tomme felt vises som subtile «+ Legg til e-post» / «+ Legg til rolle» knapper (border-dashed, warning-farget hint)
+- E-post-chip er klikkbar → åpner liten popover med:
+  - «Send e-post» (mailto: med forhåndsutfylt emne «Vedrørende Trust Profile – {kundenavn}»)
+  - «Kopier adresse»
 
-### 2. AI-fallback via edge function
-Ny edge function `suggest-industry`:
-- Input: `{ name, org_number, country_code }`
-- Bruker Lovable AI (`google/gemini-3.6-flash`) med kort prompt: «Foreslå NACE-lignende bransjebeskrivelse på norsk basert på virksomhetsnavn. Returner kun én kort setning, maks 60 tegn.»
-- Returnerer `{ industry, source: "ai_suggested", confidence: "low"|"medium" }`.
-- Kalles kun når BrReg (hovedenhet + underenhet) ikke gir bransje.
+**2. Redigeringsmodus per felt**
+- Klikk på blyant → felt blir til `<Input>` med Lagre/Avbryt
+- Ved lagring: `supabase.from("msp_customers").update({ ... }).eq("id", customer.id)`
+- Validering: e-post må matche regex, ellers inline feilmelding
+- Suksess: `toast.success` + kall `onUpdate?.()` for å refreshe parent
 
-### 3. UI-oppdateringer i `AddMSPCustomerDialog.tsx`
-- I verifiseringssteget: vis en linje til i eksisterende progress-indikator:
-  - «Henter bransje fra register» → «Sjekker underenheter» → «AI foreslår bransje» (kun de stegene som faktisk kjøres).
-- På bekreftelsessteget: hvis bransjen kommer fra AI, vis liten `Sparkles`-indikator med tooltip «Foreslått av Lara – kan endres».
-- Behold mulighet for å redigere bransje manuelt i «Registrer manuelt»-flyten (uendret).
+**3. Ny prop**
+```ts
+onUpdate?: () => void;
+```
+Kalles etter vellykket lagring så MSPCustomerView kan invalidere query.
 
-### 4. Persistens
-- Skriv `industry` som før i `msp_customers.industry`.
-- Ingen skjemaendring nødvendig — vi lagrer kun den beste verdien vi finner. AI-flagg holdes i minne under wizard, ikke lagret.
+**4. Databasekolonner**
+Bruker eksisterende `contact_person`, `contact_email`, `contact_company_role` i `msp_customers` — ingen migrasjon.
 
-## Ikke inkludert
-- Ingen endring i onboarding-flyten for egen organisasjon (`Onboarding.tsx`, `CompanyInfoForm.tsx`).
-- Ingen ny kolonne for «industry_source» i databasen (kan legges til senere hvis nødvendig).
-- Ingen endring av «Uoppgitt»-verdier på eksisterende kunder (kan gjøres via egen backfill-oppgave).
+### Design
+- Følger samme mønster som `ContactPersonField.tsx` (stiplet border ved manglende felt, warning-farge, kompakt inline UI)
+- Ingen store dialoger — alt inline i banneret for å holde det stramt
+- E-post rendres som `text-primary hover:underline` for tydelig klikkbarhet
 
-## Tekniske detaljer
-- Filer som endres: `src/components/msp/AddMSPCustomerDialog.tsx`
-- Ny fil: `supabase/functions/suggest-industry/index.ts`
-- Ingen migreringer, ingen nye secrets (bruker eksisterende `LOVABLE_API_KEY`).
+### Ikke inkludert
+- Ingen ny edge-funksjon for e-post — bruker `mailto:` (kan senere byttes til transaksjonell e-post uten UI-endring)
+- Ansvarlig-linje, badges og status-stripe beholdes uendret
