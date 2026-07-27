@@ -1,0 +1,7 @@
+INSERT INTO public.msp_customers (msp_user_id, customer_name, org_number, industry, employees, compliance_score, active_frameworks, onboarding_completed, status, contact_person, contact_email, subscription_plan, country_code, last_activity_at)
+VALUES
+  ('00000000-0000-0000-0000-000000000000', 'Sørlandet Advokatfirma', '918273645', 'Juridisk', '11-50', 0, ARRAY['GDPR']::text[], false, 'draft', 'Ingrid Solberg', 'ingrid@sorlandet-advokat.no', 'Gratis', 'NO', now() - interval '2 days'),
+  ('00000000-0000-0000-0000-000000000000', 'Nord Bygg & Anlegg AS', '923456781', 'Bygg og anlegg', '51-200', 0, ARRAY['GDPR','ISO27001']::text[], false, 'draft', 'Petter Hansen', 'petter@nordbygg.no', 'Gratis', 'NO', now() - interval '5 days'),
+  ('00000000-0000-0000-0000-000000000000', 'Fjord Tannlegesenter', '912345678', 'Helse', '1-10', 0, ARRAY['GDPR','Normen']::text[], false, 'draft', 'Kari Lund', 'kari@fjordtann.no', 'Gratis', 'NO', now() - interval '1 day'),
+  ('00000000-0000-0000-0000-000000000000', 'Vestlandet Reisebyrå AS', '934567812', 'Reiseliv', '11-50', 0, ARRAY['GDPR']::text[], false, 'draft', 'Tore Berg', 'tore@vestlandreiser.no', 'Gratis', 'NO', now() - interval '9 days'),
+  ('00000000-0000-0000-0000-000000000000', 'Innlandet Regnskapshjelp', '956781234', 'Regnskap', '1-10', 0, ARRAY['GDPR','Bokføringsloven']::text[], false, 'draft', 'Anna Myhre', 'anna@innlandetregnskap.no', 'Gratis', 'NO', now() - interval '12 days');
