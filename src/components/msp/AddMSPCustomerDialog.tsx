@@ -1348,7 +1348,15 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <div className="text-xs text-muted-foreground pl-6 space-y-0.5">
                   <p>Org.nr: {selectedCompany.organisasjonsnummer}</p>
                   {selectedCompany.naeringskode1?.beskrivelse && (
-                    <p>Bransje: {selectedCompany.naeringskode1.beskrivelse}</p>
+                    <p className="inline-flex items-center gap-1">
+                      Bransje: {selectedCompany.naeringskode1.beskrivelse}
+                      {industrySource === "ai_suggested" && (
+                        <Sparkles
+                          className="h-3 w-3 text-primary"
+                          aria-label="Foreslått av Lara – kan endres"
+                        />
+                      )}
+                    </p>
                   )}
                   {form.contact_person && <p>Kontakt: {form.contact_person}</p>}
                   {form.contact_email && <p>E-post: {form.contact_email}</p>}
