@@ -320,20 +320,104 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
 
           {/* Footer: Kontakt hos kunde · Ansvarlig hos oss */}
           <div className="border-t border-border pt-2 flex flex-wrap items-center gap-x-6 gap-y-1.5 text-xs">
-            <div className="flex items-center gap-1.5 min-w-0">
+            <div className="flex items-center gap-x-2 gap-y-1 min-w-0 flex-wrap">
               <span className="text-[10px] uppercase tracking-wider text-foreground/60 font-medium">Kontakt:</span>
-              {customer.contact_person ? (
-                <span className="inline-flex items-center gap-1 text-foreground">
+
+              {/* Name */}
+              {editField === "name" ? (
+                <span className="inline-flex items-center gap-1">
+                  <Input autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Navn"
+                    className="h-6 text-xs w-40 px-2" maxLength={100}
+                    onKeyDown={(e) => { if (e.key === "Enter") saveEdit(); if (e.key === "Escape") setEditField(null); }} />
+                  <button onClick={saveEdit} disabled={saving} className="p-0.5 text-success hover:bg-success/10 rounded" aria-label="Lagre"><Check className="h-3 w-3" /></button>
+                  <button onClick={() => setEditField(null)} className="p-0.5 text-muted-foreground hover:bg-muted rounded" aria-label="Avbryt"><X className="h-3 w-3" /></button>
+                </span>
+              ) : customer.contact_person ? (
+                <span className="group inline-flex items-center gap-1 text-foreground">
+                  <User className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
                   <span className="truncate">{customer.contact_person}</span>
-                  {customer.contact_email && (
-                    <a href={`mailto:${customer.contact_email}`} className="text-muted-foreground hover:text-primary" aria-label={`E-post til ${customer.contact_person}`}>
-                      <Mail className="h-3 w-3" aria-hidden="true" />
-                    </a>
-                  )}
+                  <button onClick={() => startEdit("name")} className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-muted transition-opacity" aria-label="Rediger navn">
+                    <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
+                  </button>
                 </span>
               ) : (
-                <button className="inline-flex items-center gap-1 text-primary hover:underline">
-                  <UserPlus className="h-3 w-3" aria-hidden="true" /> Legg til
+                <button onClick={() => startEdit("name")} className="inline-flex items-center gap-1 text-primary hover:underline">
+                  <UserPlus className="h-3 w-3" aria-hidden="true" /> Legg til navn
+                </button>
+              )}
+
+              <span className="text-muted-foreground/40" aria-hidden="true">·</span>
+
+              {/* Email */}
+              {editField === "email" ? (
+                <span className="inline-flex items-center gap-1">
+                  <span className="inline-flex flex-col">
+                    <Input autoFocus type="email" value={draft} onChange={(e) => { setDraft(e.target.value); setEmailErr(null); }}
+                      placeholder="kontakt@firma.no"
+                      className={cn("h-6 text-xs w-52 px-2", emailErr && "border-destructive")} maxLength={255}
+                      onKeyDown={(e) => { if (e.key === "Enter") saveEdit(); if (e.key === "Escape") setEditField(null); }} />
+                    {emailErr && <span className="text-[10px] text-destructive mt-0.5">{emailErr}</span>}
+                  </span>
+                  <button onClick={saveEdit} disabled={saving} className="p-0.5 text-success hover:bg-success/10 rounded" aria-label="Lagre"><Check className="h-3 w-3" /></button>
+                  <button onClick={() => setEditField(null)} className="p-0.5 text-muted-foreground hover:bg-muted rounded" aria-label="Avbryt"><X className="h-3 w-3" /></button>
+                </span>
+              ) : customer.contact_email ? (
+                <span className="group inline-flex items-center gap-1">
+                  <Popover open={emailPopOpen} onOpenChange={setEmailPopOpen}>
+                    <PopoverTrigger asChild>
+                      <button className="inline-flex items-center gap-1 text-primary hover:underline max-w-[220px]" aria-label="E-post-handlinger">
+                        <Mail className="h-3 w-3" aria-hidden="true" />
+                        <span className="truncate">{customer.contact_email}</span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-56 p-1" align="start">
+                      <a
+                        href={`mailto:${customer.contact_email}?subject=${encodeURIComponent(`Vedrørende Trust Profile – ${customer.customer_name}`)}`}
+                        onClick={() => setEmailPopOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-sm"
+                      >
+                        <Send className="h-3.5 w-3.5 text-primary" /> Send e-post
+                      </a>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(customer.contact_email!); toast.success("E-post kopiert"); setEmailPopOpen(false); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-md hover:bg-muted text-sm text-left"
+                      >
+                        <Copy className="h-3.5 w-3.5 text-muted-foreground" /> Kopier adresse
+                      </button>
+                    </PopoverContent>
+                  </Popover>
+                  <button onClick={() => startEdit("email")} className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-muted transition-opacity" aria-label="Rediger e-post">
+                    <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
+                  </button>
+                </span>
+              ) : (
+                <button onClick={() => startEdit("email")} className="inline-flex items-center gap-1 rounded-md border border-dashed border-warning/50 bg-warning/5 px-1.5 py-0.5 text-warning hover:bg-warning/10">
+                  <Mail className="h-3 w-3" aria-hidden="true" /> Legg til e-post
+                </button>
+              )}
+
+              <span className="text-muted-foreground/40" aria-hidden="true">·</span>
+
+              {/* Role */}
+              {editField === "role" ? (
+                <span className="inline-flex items-center gap-1">
+                  <Input autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="F.eks. Daglig leder"
+                    className="h-6 text-xs w-44 px-2" maxLength={100}
+                    onKeyDown={(e) => { if (e.key === "Enter") saveEdit(); if (e.key === "Escape") setEditField(null); }} />
+                  <button onClick={saveEdit} disabled={saving} className="p-0.5 text-success hover:bg-success/10 rounded" aria-label="Lagre"><Check className="h-3 w-3" /></button>
+                  <button onClick={() => setEditField(null)} className="p-0.5 text-muted-foreground hover:bg-muted rounded" aria-label="Avbryt"><X className="h-3 w-3" /></button>
+                </span>
+              ) : customer.contact_company_role ? (
+                <span className="group inline-flex items-center gap-1 text-foreground/80">
+                  <Briefcase className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                  <span className="truncate">{customer.contact_company_role}</span>
+                  <button onClick={() => startEdit("role")} className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-muted transition-opacity" aria-label="Rediger rolle">
+                    <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
+                  </button>
+                </span>
+              ) : (
+                <button onClick={() => startEdit("role")} className="inline-flex items-center gap-1 rounded-md border border-dashed border-warning/50 bg-warning/5 px-1.5 py-0.5 text-warning hover:bg-warning/10">
+                  <Briefcase className="h-3 w-3" aria-hidden="true" /> Legg til rolle
                 </button>
               )}
             </div>
