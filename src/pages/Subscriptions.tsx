@@ -186,6 +186,24 @@ export default function Subscriptions() {
   const [activationFramework, setActivationFramework] = useState<Framework | null>(null);
   const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
+  const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(new Set());
+  const [confirmDeactivate, setConfirmDeactivate] = useState<{ id: string; title: string } | null>(null);
+
+  const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
+  const confirmDeactivation = () => {
+    if (!confirmDeactivate) return;
+    setDeactivatedModules((prev) => new Set(prev).add(confirmDeactivate.id));
+    toast.success(`${confirmDeactivate.title} er deaktivert. Endringen trer i kraft ved neste faktureringsperiode.`);
+    setConfirmDeactivate(null);
+  };
+  const reactivateModule = (id: string) => {
+    setDeactivatedModules((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+    toast.success("Modulen er reaktivert.");
+  };
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
     queryKey: ["selected-frameworks-sub"],
