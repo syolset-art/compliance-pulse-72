@@ -89,7 +89,7 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
         ? `${activeFrameworkIds.length} aktive: ${frameworkNames.slice(0, 3).join(", ")}${frameworkNames.length > 3 ? "…" : ""}`
         : "Ingen aktive regelverk",
       price: activeFrameworkIds.length * 836, // demo pricing
-      primaryAction: { label: "Legg til regelverk", onClick: notImplemented("Legg til regelverk") },
+      primaryAction: { label: "Endre regelverk", onClick: () => setEditOpen(true) },
     },
     {
       key: "vendors",
