@@ -27,6 +27,7 @@ interface CustomerLike {
   url?: string | null;
   contact_person?: string | null;
   contact_email?: string | null;
+  contact_company_role?: string | null;
   account_manager?: string | null;
   onboarding_completed?: boolean | null;
   last_activity_at?: string | null;
