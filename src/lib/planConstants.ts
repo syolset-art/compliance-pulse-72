@@ -110,7 +110,7 @@ export const PLANS: Record<PlanId, Plan> = {
   },
 };
 
-export const ORDERED_PLANS: PlanId[] = ["starter", "professional", "enterprise"];
+export const ORDERED_PLANS: PlanId[] = ["starter", "growth", "professional", "enterprise"];
 
 // ─── Plan-level add-ons ─────────────────────────────────────────────
 
