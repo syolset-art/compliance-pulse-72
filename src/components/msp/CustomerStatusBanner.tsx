@@ -328,18 +328,35 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                 {!customer.url && (
                   <>
                     <span className="text-muted-foreground/50" aria-hidden="true">·</span>
-                    <TooltipProvider delayDuration={150}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button onClick={() => startEdit("url")} className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
-                            <Globe className="h-3 w-3" aria-hidden="true" /> Legg til nettside
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="max-w-xs">
-                          <p className="text-sm">Vi bruker nettsiden til å hente informasjon om kundens varer og tjenester, og kan også finne personvernerklæringen derfra.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    {editField === "url" ? (
+                      <span className="inline-flex items-center gap-1">
+                        <Globe className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                        <Input
+                          autoFocus
+                          value={draft}
+                          onChange={(e) => { setDraft(e.target.value); setUrlErr(null); }}
+                          placeholder="f.eks. kunde.no"
+                          className="h-6 text-xs px-1.5 py-0 w-48"
+                          onKeyDown={(e) => { if (e.key === "Enter") saveEdit(); if (e.key === "Escape") setEditField(null); }}
+                        />
+                        <button onClick={saveEdit} disabled={saving} className="p-0.5 text-success hover:bg-success/10 rounded" aria-label="Lagre"><Check className="h-3 w-3" /></button>
+                        <button onClick={() => setEditField(null)} className="p-0.5 text-muted-foreground hover:bg-muted rounded" aria-label="Avbryt"><X className="h-3 w-3" /></button>
+                        {urlErr && <span className="text-[11px] text-destructive ml-1">{urlErr}</span>}
+                      </span>
+                    ) : (
+                      <TooltipProvider delayDuration={150}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button onClick={() => startEdit("url")} className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
+                              <Globe className="h-3 w-3" aria-hidden="true" /> Legg til nettside
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom" className="max-w-xs">
+                            <p className="text-sm">Vi bruker nettsiden til å hente informasjon om kundens varer og tjenester, og kan også finne personvernerklæringen derfra.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </>
                 )}
               </div>
