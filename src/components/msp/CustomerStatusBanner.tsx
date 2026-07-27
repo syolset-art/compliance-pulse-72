@@ -444,6 +444,40 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                   <Briefcase className="h-3 w-3" aria-hidden="true" /> Legg til rolle
                 </button>
               )}
+
+              <span className="text-muted-foreground/40" aria-hidden="true">·</span>
+
+              {/* URL */}
+              {editField === "url" ? (
+                <span className="inline-flex items-center gap-1">
+                  <span className="inline-flex flex-col">
+                    <Input
+                      autoFocus
+                      value={draft}
+                      onChange={(e) => { setDraft(e.target.value); setUrlErr(null); }}
+                      placeholder="https://example.no"
+                      className={cn("h-6 text-xs w-56 px-2", urlErr && "border-destructive")}
+                      maxLength={255}
+                      onKeyDown={(e) => { if (e.key === "Enter") saveEdit(); if (e.key === "Escape") setEditField(null); }}
+                    />
+                    {urlErr && <span className="text-[10px] text-destructive mt-0.5">{urlErr}</span>}
+                  </span>
+                  <button onClick={saveEdit} disabled={saving} className="p-0.5 text-success hover:bg-success/10 rounded" aria-label="Lagre"><Check className="h-3 w-3" /></button>
+                  <button onClick={() => setEditField(null)} className="p-0.5 text-muted-foreground hover:bg-muted rounded" aria-label="Avbryt"><X className="h-3 w-3" /></button>
+                </span>
+              ) : customer.url ? (
+                <span className="group inline-flex items-center gap-1 text-foreground/80">
+                  <Globe className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                  <span className="truncate">{hostname}</span>
+                  <button onClick={() => startEdit("url")} className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-muted transition-opacity" aria-label="Rediger nettside">
+                    <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
+                  </button>
+                </span>
+              ) : (
+                <button onClick={() => startEdit("url")} className="inline-flex items-center gap-1 rounded-md border border-dashed border-warning/50 bg-warning/5 px-1.5 py-0.5 text-warning hover:bg-warning/10">
+                  <Globe className="h-3 w-3" aria-hidden="true" /> Legg til nettside
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-1.5 min-w-0">
