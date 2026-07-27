@@ -1011,7 +1011,94 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           </div>
         )}
 
-        {/* Step: Contact info */}
+        {/* Step: Manual entry (fallback when no register hit / unsupported country) */}
+        {step === "manual" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-lg">Registrer virksomhet manuelt</DialogTitle>
+              <DialogDescription className="text-sm">
+                Fyll inn grunnleggende informasjon. Du kan berike Trust Profilen senere.
+              </DialogDescription>
+            </DialogHeader>
+            {stepIndicator}
+            <div className="space-y-4">
+              <div>
+                <Label className="flex items-center gap-1.5 text-sm">
+                  <Building2 className="h-3.5 w-3.5" /> Virksomhetsnavn <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  value={manual.customer_name}
+                  onChange={(e) => setManual({ ...manual, customer_name: e.target.value })}
+                  placeholder="Firmanavn AS"
+                  autoFocus
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm">Org.nr / registreringsnr</Label>
+                  <Input
+                    value={manual.org_number}
+                    onChange={(e) => setManual({ ...manual, org_number: e.target.value })}
+                    placeholder="Valgfritt"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm">Antall ansatte</Label>
+                  <Select
+                    value={manual.employees}
+                    onValueChange={(v) => setManual({ ...manual, employees: v as any })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Velg" /></SelectTrigger>
+                    <SelectContent>
+                      {["1-10", "11-50", "51-200", "201-500", "500+"].map((e) => (
+                        <SelectItem key={e} value={e}>{e}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm">Bransje</Label>
+                <Input
+                  value={manual.industry}
+                  onChange={(e) => setManual({ ...manual, industry: e.target.value })}
+                  placeholder="F.eks. Regnskap, Teknologi, Helse"
+                />
+              </div>
+
+              <div className="flex justify-between pt-2">
+                <Button variant="ghost" size="sm" onClick={() => setStep(form.country_code === "NO" ? "search" : "country")} className="gap-1">
+                  <ArrowLeft className="h-4 w-4" /> Tilbake
+                </Button>
+                <Button
+                  disabled={!manual.customer_name.trim()}
+                  onClick={() => {
+                    // Synthesize a BrregResult-like object so downstream steps work unchanged
+                    const emp = manual.employees === "1-10" ? 5
+                      : manual.employees === "11-50" ? 30
+                      : manual.employees === "51-200" ? 100
+                      : manual.employees === "201-500" ? 300
+                      : manual.employees === "500+" ? 600
+                      : undefined;
+                    setSelectedCompany({
+                      organisasjonsnummer: manual.org_number.trim() || `MANUAL-${Date.now()}`,
+                      navn: manual.customer_name.trim(),
+                      naeringskode1: manual.industry.trim()
+                        ? { kode: "", beskrivelse: manual.industry.trim() }
+                        : undefined,
+                      antallAnsatte: emp,
+                    });
+                    setStep("contact");
+                  }}
+                >
+                  Neste: Kontakt
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+
+
         {step === "contact" && selectedCompany && (
           <>
             <DialogHeader>
