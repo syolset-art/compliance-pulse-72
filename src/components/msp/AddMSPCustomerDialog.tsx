@@ -103,6 +103,14 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     country_code: "NO",
   });
 
+  // Manual entry (used when BrReg has no hit, or country not supported)
+  const [manual, setManual] = useState({
+    customer_name: "",
+    org_number: "",
+    industry: "",
+    employees: "" as "" | "1-10" | "11-50" | "51-200" | "201-500" | "500+",
+  });
+
   // License info
   const { data: licenseInfo } = useQuery({
     queryKey: ["msp-license-info", user?.id],
