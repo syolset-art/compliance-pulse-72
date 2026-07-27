@@ -77,6 +77,7 @@ export default function MSPCustomerDetail() {
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, laraRationales: baselineRationales, setLaraRationales: setBaselineRationales, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
 
+  const queryClient = useQueryClient();
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
     queryFn: async () => {
