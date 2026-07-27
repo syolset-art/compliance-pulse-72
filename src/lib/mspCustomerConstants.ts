@@ -50,9 +50,14 @@ export const SUBSCRIPTION_PLANS = MSP_SUBSCRIPTION_TIERS.map((t) => t.name);
 
 export const COMPANY_ROLES = [
   "Daglig leder",
-  "IT-sjef / CTO",
-  "Administrasjonsleder",
-  "Avdelingsleder",
+  "Styreleder",
+  "CFO",
+  "CTO/CIO",
+  "DPO/Personvernombud",
+  "CISO/Sikkerhetsleder",
+  "Compliance Manager",
+  "IT-ansvarlig",
+  "HR-ansvarlig",
   "Annet",
 ];
 
