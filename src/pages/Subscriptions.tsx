@@ -592,6 +592,23 @@ export default function Subscriptions() {
         open={!!activationFramework} onOpenChange={(open) => { if (!open) setActivationFramework(null); }}
         framework={activationFramework}
       />
+
+      <AlertDialog open={!!confirmDeactivate} onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deaktivere {confirmDeactivate?.title}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Modulen forblir tilgjengelig til utløpet av inneværende faktureringsperiode. Etter det stanses fakturering, og data forblir lagret i 90 dager før automatisk sletting. Du kan reaktivere modulen når som helst.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeactivation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Deaktiver modul
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
