@@ -636,6 +636,22 @@ export default function Subscriptions() {
         framework={activationFramework}
       />
 
+      <ChangeCoreTierDialog
+        open={changeCoreTierOpen}
+        onOpenChange={setChangeCoreTierOpen}
+        currentTierId={coreTierId}
+        usedSystems={systemsCount ?? 0}
+        onConfirm={handleCoreTierSelect}
+      />
+      <ConfirmCoreTierChangeDialog
+        open={!!pendingCoreTierId}
+        onOpenChange={(open) => { if (!open) setPendingCoreTierId(null); }}
+        currentTierId={coreTierId}
+        nextTierId={pendingCoreTierId}
+        onConfirm={handleCoreTierConfirm}
+      />
+
+
       <AlertDialog open={!!confirmDeactivate} onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
