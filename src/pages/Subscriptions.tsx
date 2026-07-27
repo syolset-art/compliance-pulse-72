@@ -287,15 +287,18 @@ export default function Subscriptions() {
   const assetMonthlyPrice = 690;
   const partnerWorkspaceMonthlyPrice = 990;
 
-  const isMspPartner = !!companyProfile?.is_msp_partner;
+  const { mode: workspaceMode, availableModes } = useWorkspaceMode();
+  const hasPartnerAccess = !!companyProfile?.is_msp_partner
+    || workspaceMode === "partner"
+    || availableModes.includes("partner");
   const totalMonthly = useMemo(() => {
     let total = planPrice;
     if (activeFrameworkCount > 0) total += frameworkMonthlyPrice;
     total += vendorMonthlyPrice;
     total += assetMonthlyPrice;
-    if (isMspPartner) total += partnerWorkspaceMonthlyPrice;
+    if (hasPartnerAccess) total += partnerWorkspaceMonthlyPrice;
     return total;
-  }, [planPrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, isMspPartner]);
+  }, [planPrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess]);
 
   const activeModuleCount = useMemo(() => {
     let count = 1; // Core always active
