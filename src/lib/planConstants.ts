@@ -114,6 +114,31 @@ export const PLANS: Record<PlanId, Plan> = {
 
 export const ORDERED_PLANS: PlanId[] = ["starter", "growth", "professional", "enterprise"];
 
+// ─── Mynder Core module tiers ───────────────────────────────────────
+// Mynder Core is its own module priced by system capacity.
+
+export type CoreTierId = "tier_20" | "tier_50" | "tier_100";
+
+export interface CoreTier {
+  id: CoreTierId;
+  label: string;         // e.g. "Inntil 20 systemer"
+  shortLabel: string;    // e.g. "Inntil 20"
+  systemLimit: number;
+  monthlyPriceKr: number;
+}
+
+export const CORE_TIERS: CoreTier[] = [
+  { id: "tier_20",  label: "Inntil 20 systemer",  shortLabel: "Inntil 20",  systemLimit: 20,  monthlyPriceKr: 1499 },
+  { id: "tier_50",  label: "Inntil 50 systemer",  shortLabel: "Inntil 50",  systemLimit: 50,  monthlyPriceKr: 2499 },
+  { id: "tier_100", label: "Inntil 100 systemer", shortLabel: "Inntil 100", systemLimit: 100, monthlyPriceKr: 4999 },
+];
+
+export const DEFAULT_CORE_TIER_ID: CoreTierId = "tier_50";
+
+export function getCoreTier(id: CoreTierId): CoreTier {
+  return CORE_TIERS.find((t) => t.id === id) ?? CORE_TIERS[1];
+}
+
 // ─── Plan-level add-ons ─────────────────────────────────────────────
 
 export const EXTRA_WORK_AREA_PRICE_KR = 190; // /mnd, only on Starter

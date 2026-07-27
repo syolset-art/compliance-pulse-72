@@ -35,10 +35,13 @@ import {
   PLANS, ORDERED_PLANS, FRAMEWORK_ADDONS, FREE_FRAMEWORKS,
   formatKr, getYearlySavingsKr, planNameToTier, PLAN_TIERS,
   getFrameworkMonthlyPrice,
-  type PlanId, type BillingInterval,
+  CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier,
+  type PlanId, type BillingInterval, type CoreTierId,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
+import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
+import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { cn } from "@/lib/utils";
 
@@ -190,6 +193,9 @@ export default function Subscriptions() {
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
   const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(new Set());
   const [confirmDeactivate, setConfirmDeactivate] = useState<{ id: string; title: string } | null>(null);
+  const [coreTierId, setCoreTierId] = useState<CoreTierId>(DEFAULT_CORE_TIER_ID);
+  const [changeCoreTierOpen, setChangeCoreTierOpen] = useState(false);
+  const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
@@ -290,7 +296,8 @@ export default function Subscriptions() {
   }));
   const frameworkMonthlyPrice = frameworkBreakdown.reduce((sum, item) => sum + item.priceKr, 0);
 
-  const planPrice = planConfig.monthlyPriceKr === -1 ? 0 : (planConfig.monthlyPriceKr || 0);
+  const coreTier = getCoreTier(coreTierId);
+  const corePrice = coreTier.monthlyPriceKr;
   const vendorMonthlyPrice = 1089;
   const assetMonthlyPrice = 690;
   const partnerWorkspaceMonthlyPrice = 990;
@@ -300,13 +307,36 @@ export default function Subscriptions() {
     || workspaceMode === "partner"
     || availableModes.includes("partner");
   const totalMonthly = useMemo(() => {
-    let total = planPrice;
+    let total = corePrice;
     if (activeFrameworkCount > 0) total += frameworkMonthlyPrice;
     total += vendorMonthlyPrice;
     total += assetMonthlyPrice;
     if (hasPartnerAccess) total += partnerWorkspaceMonthlyPrice;
     return total;
-  }, [planPrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess]);
+  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess]);
+
+  const handleCoreTierSelect = (nextTierId: CoreTierId) => {
+    setPendingCoreTierId(nextTierId);
+    setChangeCoreTierOpen(false);
+  };
+
+  const handleCoreTierConfirm = () => {
+    if (!pendingCoreTierId) return;
+    const prev = coreTierId;
+    const nextLabel = getCoreTier(pendingCoreTierId).label.toLowerCase();
+    setCoreTierId(pendingCoreTierId);
+    setPendingCoreTierId(null);
+    toast(`Mynder Core er endret til ${nextLabel}.`, {
+      action: {
+        label: "Angre",
+        onClick: () => {
+          setCoreTierId(prev);
+          toast.success("Endringen er angret.");
+        },
+      },
+      duration: 10000,
+    });
+  };
 
   const activeModuleCount = useMemo(() => {
     let count = 1; // Core always active
@@ -408,15 +438,15 @@ export default function Subscriptions() {
             <ModuleCard
               icon={LayoutGrid}
               title="Mynder Core"
-              description={planConfig.displayName}
+              description="Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter."
               status="active"
-              price={planPrice}
-              priceLabel={currentPlanId === "starter" ? "Gratis" : "Basisplattform"}
+              price={corePrice}
+              priceLabel={coreTier.label}
               usage={String(systemsCount ?? 0)}
-              usageLimit={coreLimit}
+              usageLimit={String(coreTier.systemLimit)}
               usageSuffix="systemer"
               action="change"
-              onClick={() => setChangePlanOpen(true)}
+              onClick={() => setChangeCoreTierOpen(true)}
               accentColor="purple"
             />
 
@@ -605,6 +635,22 @@ export default function Subscriptions() {
         open={!!activationFramework} onOpenChange={(open) => { if (!open) setActivationFramework(null); }}
         framework={activationFramework}
       />
+
+      <ChangeCoreTierDialog
+        open={changeCoreTierOpen}
+        onOpenChange={setChangeCoreTierOpen}
+        currentTierId={coreTierId}
+        usedSystems={systemsCount ?? 0}
+        onConfirm={handleCoreTierSelect}
+      />
+      <ConfirmCoreTierChangeDialog
+        open={!!pendingCoreTierId}
+        onOpenChange={(open) => { if (!open) setPendingCoreTierId(null); }}
+        currentTierId={coreTierId}
+        nextTierId={pendingCoreTierId}
+        onConfirm={handleCoreTierConfirm}
+      />
+
 
       <AlertDialog open={!!confirmDeactivate} onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}>
         <AlertDialogContent>
