@@ -296,7 +296,8 @@ export default function Subscriptions() {
   }));
   const frameworkMonthlyPrice = frameworkBreakdown.reduce((sum, item) => sum + item.priceKr, 0);
 
-  const planPrice = planConfig.monthlyPriceKr === -1 ? 0 : (planConfig.monthlyPriceKr || 0);
+  const coreTier = getCoreTier(coreTierId);
+  const corePrice = coreTier.monthlyPriceKr;
   const vendorMonthlyPrice = 1089;
   const assetMonthlyPrice = 690;
   const partnerWorkspaceMonthlyPrice = 990;
@@ -306,13 +307,36 @@ export default function Subscriptions() {
     || workspaceMode === "partner"
     || availableModes.includes("partner");
   const totalMonthly = useMemo(() => {
-    let total = planPrice;
+    let total = corePrice;
     if (activeFrameworkCount > 0) total += frameworkMonthlyPrice;
     total += vendorMonthlyPrice;
     total += assetMonthlyPrice;
     if (hasPartnerAccess) total += partnerWorkspaceMonthlyPrice;
     return total;
-  }, [planPrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess]);
+  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess]);
+
+  const handleCoreTierSelect = (nextTierId: CoreTierId) => {
+    setPendingCoreTierId(nextTierId);
+    setChangeCoreTierOpen(false);
+  };
+
+  const handleCoreTierConfirm = () => {
+    if (!pendingCoreTierId) return;
+    const prev = coreTierId;
+    const nextLabel = getCoreTier(pendingCoreTierId).label.toLowerCase();
+    setCoreTierId(pendingCoreTierId);
+    setPendingCoreTierId(null);
+    toast(`Mynder Core er endret til ${nextLabel}.`, {
+      action: {
+        label: "Angre",
+        onClick: () => {
+          setCoreTierId(prev);
+          toast.success("Endringen er angret.");
+        },
+      },
+      duration: 10000,
+    });
+  };
 
   const activeModuleCount = useMemo(() => {
     let count = 1; // Core always active
