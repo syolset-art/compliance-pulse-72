@@ -115,18 +115,39 @@ export function ModuleCard({
             </div>
           </div>
 
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border shrink-0",
-              cfg.border,
-              cfg.bg,
-              cfg.text
+          <div className="flex items-center gap-1 shrink-0">
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border",
+                cfg.border,
+                cfg.bg,
+                cfg.text
+              )}
+            >
+              <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
+              {cfg.label}
+            </span>
+            {canDeactivate && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground">
+                    <MoreVertical className="h-3.5 w-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={onDeactivate}
+                    className="text-destructive focus:text-destructive gap-2"
+                  >
+                    <PowerOff className="h-3.5 w-3.5" />
+                    {deactivateLabel || "Deaktiver modul"}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
-          >
-            <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
-            {cfg.label}
-          </span>
+          </div>
         </div>
+
 
         <div className="mt-4 flex items-end justify-between gap-4">
           <div className="min-w-0">
