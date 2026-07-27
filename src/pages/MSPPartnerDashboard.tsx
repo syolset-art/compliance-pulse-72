@@ -143,6 +143,34 @@ const CLAIM_TREND = [
   { month: "apr", value: 47 },
 ];
 
+// Partner default currency (prototype). Change here to reflect partner setting.
+const PARTNER_CURRENCY = "NOK";
+const PARTNER_LOCALE = "nb-NO";
+
+// Accumulated service sales potential over the last 6 months, in partner currency.
+const SERVICE_POTENTIAL_TREND = [
+  { month: "nov", value: 420000 },
+  { month: "des", value: 680000 },
+  { month: "jan", value: 1050000 },
+  { month: "feb", value: 1480000 },
+  { month: "mar", value: 1920000 },
+  { month: "apr", value: 2400000 },
+];
+
+function formatPartnerCurrency(amount: number, compact = true) {
+  try {
+    return new Intl.NumberFormat(PARTNER_LOCALE, {
+      style: "currency",
+      currency: PARTNER_CURRENCY,
+      maximumFractionDigits: 0,
+      notation: compact ? "compact" : "standard",
+    }).format(amount);
+  } catch {
+    return `${amount} ${PARTNER_CURRENCY}`;
+  }
+}
+
+
 const SEGMENTS = [
   { label: "NIS2-eksponert", count: 71, color: "bg-primary", widthPct: 35 },
   { label: "Sky-avhengig", count: 186, color: "bg-purple-400", widthPct: 92 },
@@ -936,31 +964,40 @@ function LaraSuggestionInline({
 
 function ClaimDevelopmentChart() {
   const navigate = useNavigate();
-  const data = CLAIM_TREND;
+  const data = SERVICE_POTENTIAL_TREND;
   const last = data[data.length - 1];
+  const prev = data[data.length - 2];
+  const growth = prev ? Math.round(((last.value - prev.value) / prev.value) * 100) : 0;
+  const totalPotential = last.value;
+  const openGaps = 312;
+  const customerCount = 24;
+  const frameworkCount = 6;
 
   return (
     <Card onClick={() => navigate("/msp-partner/widget/claim-development")} className="p-5 cursor-pointer hover:border-primary/40 transition-colors">
       <div className="flex items-start justify-between mb-1">
         <div>
           <div className="flex items-center gap-1.5">
-            <h3 className="text-base font-semibold text-foreground">Aktiveringer over tid</h3>
+            <h3 className="text-base font-semibold text-foreground">Salgspotensial fra gap-analyser</h3>
             <UITooltip>
               <TooltipTrigger asChild>
                 <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
               </TooltipTrigger>
-              <TooltipContent side="right" className="max-w-[260px]">
-                <p className="text-xs">Viser hvor mange regelverk din kundeportefølje har aktivert over tid.</p>
+              <TooltipContent side="right" className="max-w-[280px]">
+                <p className="text-xs">
+                  Estimert tjenestesalg partner kan levere for å lukke gap i kundenes aktiverte regelverk.
+                  Basert på antall åpne krav × snittpris per tjeneste, i partnerens standardvaluta.
+                </p>
               </TooltipContent>
             </UITooltip>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Fra 6 til 47 aktiverte regelverk · siste 6 mnd
+            Basert på åpne krav i utvalgte regelverk hos {customerCount} kunder
           </p>
         </div>
         <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-xs gap-1 hover:bg-emerald-500/10">
           <TrendingUp className="h-3 w-3" />
-          +167%
+          +{growth}%
         </Badge>
       </div>
 
@@ -980,7 +1017,7 @@ function ClaimDevelopmentChart() {
               tickLine={false}
               tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
             />
-            <YAxis hide domain={[0, 55]} />
+            <YAxis hide domain={[0, "dataMax"]} />
             <Tooltip
               contentStyle={{
                 background: "hsl(var(--card))",
@@ -988,6 +1025,7 @@ function ClaimDevelopmentChart() {
                 borderRadius: 8,
                 fontSize: 12,
               }}
+              formatter={(value: number) => [formatPartnerCurrency(value), "Potensial"]}
             />
             <Area
               type="monotone"
@@ -1006,10 +1044,10 @@ function ClaimDevelopmentChart() {
               stroke="hsl(var(--card))"
               strokeWidth={2}
               label={{
-                value: String(last.value),
+                value: formatPartnerCurrency(last.value),
                 position: "right",
                 fill: "hsl(var(--primary))",
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: 700,
               }}
             />
@@ -1019,21 +1057,22 @@ function ClaimDevelopmentChart() {
 
       <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-border">
         <div>
-          <div className="text-2xl font-bold text-foreground">8</div>
-          <div className="text-xs text-muted-foreground">aktivert i april</div>
+          <div className="text-2xl font-bold text-foreground tabular-nums">{customerCount}</div>
+          <div className="text-xs text-muted-foreground">kunder · {frameworkCount} regelverk</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-foreground">12%</div>
-          <div className="text-xs text-muted-foreground">av portefølje</div>
+          <div className="text-2xl font-bold text-foreground tabular-nums">{openGaps}</div>
+          <div className="text-xs text-muted-foreground">åpne gap</div>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-primary">40%</div>
-          <div className="text-xs text-muted-foreground">mål 2026</div>
+          <div className="text-2xl font-bold text-primary tabular-nums">{formatPartnerCurrency(totalPotential)}</div>
+          <div className="text-xs text-muted-foreground">potensielt salg</div>
         </div>
       </div>
     </Card>
   );
 }
+
 
 function PortfolioSegmentation() {
   const navigate = useNavigate();
