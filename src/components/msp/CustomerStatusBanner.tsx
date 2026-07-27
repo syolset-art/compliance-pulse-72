@@ -143,6 +143,23 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
   const [emailErr, setEmailErr] = useState<string | null>(null);
   const [urlErr, setUrlErr] = useState<string | null>(null);
   const [emailPopOpen, setEmailPopOpen] = useState(false);
+  const [rolePopOpen, setRolePopOpen] = useState(false);
+
+  const saveRoleValue = async (value: string | null) => {
+    setSaving(true);
+    const { error } = await supabase
+      .from("msp_customers")
+      .update({ contact_company_role: value })
+      .eq("id", customer.id);
+    setSaving(false);
+    setRolePopOpen(false);
+    if (error) {
+      toast.error("Kunne ikke lagre rolle");
+      return;
+    }
+    toast.success(value ? "Rolle oppdatert" : "Rolle fjernet");
+    onUpdate?.();
+  };
 
   const startEdit = (f: Field) => {
     setEmailErr(null);
