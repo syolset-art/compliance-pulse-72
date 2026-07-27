@@ -35,7 +35,7 @@ import {
   PLANS, ORDERED_PLANS, FRAMEWORK_ADDONS, FREE_FRAMEWORKS,
   formatKr, getYearlySavingsKr, planNameToTier, PLAN_TIERS,
   getFrameworkMonthlyPrice,
-  CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier,
+  CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier, getNextCoreTier,
   type PlanId, type BillingInterval, type CoreTierId,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
@@ -435,20 +435,39 @@ export default function Subscriptions() {
 
           {/* Module grid */}
           <section className="space-y-3">
-            <ModuleCard
-              icon={LayoutGrid}
-              title="Mynder Core"
-              description="Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter."
-              status="active"
-              price={corePrice}
-              priceLabel={coreTier.label}
-              usage={String(systemsCount ?? 0)}
-              usageLimit={String(coreTier.systemLimit)}
-              usageSuffix="systemer"
-              action="change"
-              onClick={() => setChangeCoreTierOpen(true)}
-              accentColor="purple"
-            />
+            {(() => {
+              const used = systemsCount ?? 0;
+              const atCap = used >= coreTier.systemLimit;
+              const nextTier = getNextCoreTier(coreTierId);
+              const capFooter = atCap && nextTier ? (
+                <div className="flex items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50/60 px-3 py-2">
+                  <p className="text-xs text-amber-800">
+                    Dere har brukt opp plassen. Neste nivå gir plass til {nextTier.systemLimit} systemer for {formatKr(nextTier.monthlyPriceKr)} per måned.
+                  </p>
+                  <Button size="sm" variant="outline" className="h-7 text-xs shrink-0" onClick={() => setChangeCoreTierOpen(true)}>
+                    Endre nivå
+                  </Button>
+                </div>
+              ) : undefined;
+              return (
+                <ModuleCard
+                  icon={LayoutGrid}
+                  title="Mynder Core"
+                  description="Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter."
+                  status="active"
+                  price={corePrice}
+                  priceLabel={coreTier.label}
+                  usage={String(used)}
+                  usageLimit={String(coreTier.systemLimit)}
+                  usageSuffix="systemer"
+                  action="change"
+                  onClick={() => setChangeCoreTierOpen(true)}
+                  accentColor="purple"
+                  footer={capFooter}
+                />
+              );
+            })()}
+
 
             <ModuleCard
               icon={ShieldCheck}
