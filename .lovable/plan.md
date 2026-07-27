@@ -1,33 +1,66 @@
-## Mål
-Regelverk-modulkortet i Plan-oversikten skal speile at hvert aktiverte regelverk har sin egen pris — ikke en flat "836 kr/mnd" per regelverk.
 
-## Bakgrunn
-- `FRAMEWORK_ADDONS` i `src/lib/planConstants.ts` har allerede `yearlyPriceKr` per regelverk (i dag 50 000 kr/år for alle betalte), men prisen brukes ikke i månedskortet.
-- `Subscriptions.tsx` regner i dag `frameworkMonthlyPrice = paidFrameworkCount * 836`, som verken matcher `yearlyPriceKr/12` eller varierer per regelverk.
-- Kortet viser bare "836 kr/mnd" og "1 betalte regelverk" uten hvilke regelverk som koster hva.
+## Mynder Core som egen modul med nivåvalg
 
-## Endringer
+Mynder Core skal fungere som en selvstendig modul med tre nivåer basert på antall systemer, i stedet for å være koblet til plan-tier (Starter/Vekst/Profesjonell). Nivåene velges og endres direkte fra Moduler-siden, likt referansebildet.
 
-### 1. `src/lib/planConstants.ts`
-- Legg til `monthlyPriceKr` per addon i `FrameworkAddon` og `FRAMEWORK_ADDONS` slik at prisen kan variere per regelverk. Foreslåtte nivåer for prototype:
-  - Standard (NIS2, Åpenhetsloven, CRA): 490 kr/mnd
-  - Premium (DORA, EU AI Act): 890 kr/mnd
-- Legg til hjelper `getFrameworkMonthlyPrice(frameworkId)` som returnerer `monthlyPriceKr` (0 for gratis regelverk).
+## 1 · Nivåer på Mynder Core
 
-### 2. `src/pages/Subscriptions.tsx`
-- Erstatt `paidFrameworkCount * 836` med sum av `getFrameworkMonthlyPrice(fw.id)` for alle aktiverte regelverk (kun betalte teller).
-- Bygg en `paidFrameworkBreakdown`-liste `{ id, name, monthlyPriceKr }` for aktive, betalte regelverk.
-- Send breakdown-listen som en ny valgfri prop til `ModuleCard` (se punkt 3), eller vis den som `priceLabel`/undertekst i eksisterende felt.
-- Oppdater `totalMonthly`-avhengigheter uendret (fortsetter å bruke `frameworkMonthlyPrice`-summen).
+I `src/lib/planConstants.ts` legges det til en ny `CORE_TIERS`-konstant:
 
-### 3. `src/components/subscriptions/ModuleCard.tsx`
-- Legg til valgfri prop `breakdown?: Array<{ label: string; priceKr: number }>`.
-- Når `breakdown` er satt, render en kompakt liste under `priceLabel` med hvert element som `NIS2 · 490 kr/mnd` (liten grå tekst, én linje per regelverk, maks 4 synlige + "+N flere" hvis lengre).
-- Rør ikke øvrige kort — kun Regelverk-kortet vil sende breakdown.
+| Nivå | Grense | Pris/mnd |
+|------|--------|----------|
+| Inntil 20 systemer | 20 | 1 499 kr |
+| Inntil 50 systemer | 50 | 2 499 kr |
+| Inntil 100 systemer | 100 | 4 999 kr |
 
-## Akseptansekriterier
-- Regelverk-kort viser samlet månedspris = sum av aktive, betalte regelverks månedspriser.
-- Under prisen listes hvert betalte regelverk med navn og egen månedspris.
-- Gratis regelverk (GDPR, ISO 27001) telles i "aktive"-tall, men bidrar ikke til pris eller breakdown.
-- Totalsum nederst på siden bruker samme sum og oppdateres når regelverk aktiveres/deaktiveres.
-- Ingen endringer i andre modulkort eller i regelverksaktiveringsdialogen.
+Standardvalg for demo: **Inntil 50 systemer** (Nåværende). Nivået lagres i lokal state (evt. `useCompanyProfile`-feltet `core_tier` senere).
+
+## 2 · Kortet på Moduler-siden
+
+`ModuleCard` for Mynder Core oppdateres:
+- Statusbadge "Aktivert" (grønn) + pill "Inntil {N} systemer" (lilla) ved siden av tittel.
+- Beskrivelse: «Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter.»
+- Bruksrad: «{brukt} av {grense} systemer i bruk».
+- Pris fra valgt nivå.
+- CTA-knapp: **Endre nivå** (åpner nivådialog).
+
+## 3 · Nivådialog (`ChangeCoreTierDialog`)
+
+Ny komponent `src/components/dialogs/ChangeCoreTierDialog.tsx`:
+- Header: modulnavn + nåværende nivå.
+- Radiokort per nivå med pris til høyre.
+- Nåværende nivå merkes med grå pill «Nåværende».
+- Nivåer under faktisk bruk deaktiveres og viser rød hint: *«Dere bruker {n} systemer. Fjern {n − limit} system(er) for å velge dette nivået.»*
+- Nedre linje: «Fra {gammel} kr til **{ny} kr per måned** — {differanse} kr {mer|mindre}».
+- Knapper: Avbryt / **Endre nivå** (disabled til noe annet enn nåværende er valgt).
+
+## 4 · Bekreftelse — asymmetrisk opp/ned
+
+Etter Endre nivå åpnes `ConfirmCoreTierChangeDialog` med tekst avhengig av retning:
+- **Oppgradering:** «Endre til inntil {N} systemer?» — «Prisen går fra {A} til {B} i måneden. Det nye nivået gjelder med én gang, og differansen kommer på neste faktura.» CTA: **Endre for {B} kr/mnd** (umiddelbar).
+- **Nedgradering:** samme tittel — «Prisen går fra {A} til {B} i måneden. Nivået endres ved neste fakturaperiode, {dato}. Fram til da beholder dere plass til {gammel grense} systemer.» CTA: **Endre nivå** (planlagt, ikke umiddelbar).
+
+`dato` = første i neste måned.
+
+## 5 · Toast med Angre
+
+Etter bekreftelse: mørk toast nederst «Mynder Core er endret til inntil {N} systemer.» med **Angre**-lenke (~10 sek). Angre ruller tilbake til forrige nivå uten ny bekreftelse.
+
+## 6 · Ryddig av gammel logikk
+
+- `planPrice`, `coreLimit`, `planConfig.displayName` for Mynder Core-kortet erstattes av verdiene fra valgt Core-nivå. Plan-tier styrer ikke lenger systemgrensen.
+- `setChangePlanOpen` erstattes for Core-kortet av ny nivådialog. Eksisterende `ChangePlanDialog` beholdes for andre bruksområder (kan fases ut senere, ikke del av denne endringen).
+- `totalMonthly` inkluderer valgt Core-pris.
+
+## Tekniske detaljer
+
+Filer som opprettes:
+- `src/components/dialogs/ChangeCoreTierDialog.tsx`
+- `src/components/dialogs/ConfirmCoreTierChangeDialog.tsx`
+
+Filer som endres:
+- `src/lib/planConstants.ts` — legg til `CORE_TIERS` og typer.
+- `src/pages/Subscriptions.tsx` — state `coreTierId`/`pendingCoreTierId`, kobling til nye dialoger, oppdatert ModuleCard-props, toast + angre via `useToast`.
+- `src/components/subscriptions/ModuleCard.tsx` — ingen strukturell endring nødvendig; bruker eksisterende `action="change"`-varianten.
+
+Ingen backend-endringer i denne omgang — nivået holdes i lokal state til `company_profiles.core_tier` innføres senere.
