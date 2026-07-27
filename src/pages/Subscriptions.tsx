@@ -199,6 +199,9 @@ export default function Subscriptions() {
   const [coreTierId, setCoreTierId] = useState<CoreTierId>(DEFAULT_CORE_TIER_ID);
   const [changeCoreTierOpen, setChangeCoreTierOpen] = useState(false);
   const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
+  const [vendorTierId, setVendorTierId] = useState<VendorTierId>(DEFAULT_VENDOR_TIER_ID);
+  const [changeVendorTierOpen, setChangeVendorTierOpen] = useState(false);
+  const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
