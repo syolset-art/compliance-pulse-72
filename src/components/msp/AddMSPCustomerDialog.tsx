@@ -100,6 +100,9 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     contact_person: "",
     contact_email: "",
     contact_company_role: "",
+    account_manager: "",
+    has_website: true,
+    url: "",
     subscription_plan: "Gratis",
     country_code: "NO",
   });
