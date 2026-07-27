@@ -412,14 +412,16 @@ export default function Subscriptions() {
               icon={ShieldCheck}
               title="Regelverk"
               description={`${activeFrameworkCount} regelverk aktivert`}
-              status={activeFrameworkCount > 0 ? "active" : "inactive"}
-              price={frameworkMonthlyPrice}
+              status={deactivatedModules.has("frameworks") ? "inactive" : activeFrameworkCount > 0 ? "active" : "inactive"}
+              price={deactivatedModules.has("frameworks") ? 0 : frameworkMonthlyPrice}
               priceLabel={paidFrameworkCount > 0 ? `${paidFrameworkCount} betalte regelverk` : "Inkluderte regelverk"}
               usage={String(activeFrameworkCount)}
               usageLimit={String(allFrameworkDefs.length)}
               usageSuffix="aktive"
-              action="manage"
-              onClick={() => setEditFrameworksOpen(true)}
+              action={deactivatedModules.has("frameworks") ? "activate" : "manage"}
+              onClick={() => deactivatedModules.has("frameworks") ? reactivateModule("frameworks") : setEditFrameworksOpen(true)}
+              onDeactivate={() => requestDeactivate("frameworks", "Regelverk")}
+              deactivateLabel="Deaktiver alle regelverk"
               accentColor="blue"
             />
 
@@ -427,13 +429,14 @@ export default function Subscriptions() {
               icon={Briefcase}
               title="Leverandørmodul"
               description="TPRM og leverandørvurdering"
-              status="active"
-              price={vendorMonthlyPrice}
+              status={deactivatedModules.has("vendors") ? "inactive" : "active"}
+              price={deactivatedModules.has("vendors") ? 0 : vendorMonthlyPrice}
               usage={String(vendorCount ?? 0)}
               usageLimit={vendorLimit}
               usageSuffix="leverandører"
-              action="open"
-              onClick={() => navigate("/vendors")}
+              action={deactivatedModules.has("vendors") ? "activate" : "open"}
+              onClick={() => deactivatedModules.has("vendors") ? reactivateModule("vendors") : navigate("/vendors")}
+              onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
               accentColor="amber"
             />
 
@@ -441,13 +444,14 @@ export default function Subscriptions() {
               icon={Server}
               title="Assets"
               description="System- og eiendelsregister"
-              status="active"
-              price={assetMonthlyPrice}
+              status={deactivatedModules.has("assets") ? "inactive" : "active"}
+              price={deactivatedModules.has("assets") ? 0 : assetMonthlyPrice}
               usage={String(assetsCount ?? 0)}
               usageLimit={assetLimit}
               usageSuffix="eiendeler"
-              action="open"
-              onClick={() => navigate("/assets")}
+              action={deactivatedModules.has("assets") ? "activate" : "open"}
+              onClick={() => deactivatedModules.has("assets") ? reactivateModule("assets") : navigate("/assets")}
+              onDeactivate={() => requestDeactivate("assets", "Assets")}
               accentColor="emerald"
             />
 
