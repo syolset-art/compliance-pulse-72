@@ -6,9 +6,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, ArrowRight, Filter, X, Columns3 } from "lucide-react";
+import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, ArrowRight, Filter, X, Columns3, ScanSearch } from "lucide-react";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
+import { GapAnalysisWizardDialog } from "@/components/msp/GapAnalysisWizardDialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -334,6 +336,7 @@ export default function MSPDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [addOpen, setAddOpen] = useState(false);
+  const [gapOpen, setGapOpen] = useState(false);
   const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
@@ -530,6 +533,19 @@ export default function MSPDashboard() {
               </h1>
             </div>
             <div className="flex items-center gap-2">
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setGapOpen(true)} className="gap-2">
+                      <ScanSearch className="h-4 w-4" />
+                      Kjør GAP-analyse
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs">
+                    Se hvilke krav i valgte regelverk kundene mangler dekning for – og hvilke av dine tjenester som kan lukke gapene.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon"><MoreVertical className="h-4 w-4" /></Button>
@@ -912,6 +928,7 @@ export default function MSPDashboard() {
           </div>
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
+        <GapAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
       </main>
     </div>
   );
