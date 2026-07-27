@@ -36,12 +36,15 @@ import {
   formatKr, getYearlySavingsKr, planNameToTier, PLAN_TIERS,
   getFrameworkMonthlyPrice,
   CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier, getNextCoreTier,
-  type PlanId, type BillingInterval, type CoreTierId,
+  VENDOR_TIERS, DEFAULT_VENDOR_TIER_ID, getVendorTier, getNextVendorTier,
+  type PlanId, type BillingInterval, type CoreTierId, type VendorTierId,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
 import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
 import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
+import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
+import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { cn } from "@/lib/utils";
 
@@ -196,6 +199,9 @@ export default function Subscriptions() {
   const [coreTierId, setCoreTierId] = useState<CoreTierId>(DEFAULT_CORE_TIER_ID);
   const [changeCoreTierOpen, setChangeCoreTierOpen] = useState(false);
   const [pendingCoreTierId, setPendingCoreTierId] = useState<CoreTierId | null>(null);
+  const [vendorTierId, setVendorTierId] = useState<VendorTierId>(DEFAULT_VENDOR_TIER_ID);
+  const [changeVendorTierOpen, setChangeVendorTierOpen] = useState(false);
+  const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
@@ -298,7 +304,8 @@ export default function Subscriptions() {
 
   const coreTier = getCoreTier(coreTierId);
   const corePrice = coreTier.monthlyPriceKr;
-  const vendorMonthlyPrice = 1089;
+  const vendorTier = getVendorTier(vendorTierId);
+  const vendorMonthlyPrice = vendorTier.monthlyPriceKr;
   const assetMonthlyPrice = 690;
   const partnerWorkspaceMonthlyPrice = 990;
 
@@ -309,11 +316,11 @@ export default function Subscriptions() {
   const totalMonthly = useMemo(() => {
     let total = corePrice;
     if (activeFrameworkCount > 0) total += frameworkMonthlyPrice;
-    total += vendorMonthlyPrice;
-    total += assetMonthlyPrice;
-    if (hasPartnerAccess) total += partnerWorkspaceMonthlyPrice;
+    if (!deactivatedModules.has("vendors")) total += vendorMonthlyPrice;
+    if (!deactivatedModules.has("assets")) total += assetMonthlyPrice;
+    if (hasPartnerAccess && !deactivatedModules.has("partner")) total += partnerWorkspaceMonthlyPrice;
     return total;
-  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess]);
+  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess, deactivatedModules]);
 
   const handleCoreTierSelect = (nextTierId: CoreTierId) => {
     setPendingCoreTierId(nextTierId);
@@ -331,6 +338,29 @@ export default function Subscriptions() {
         label: "Angre",
         onClick: () => {
           setCoreTierId(prev);
+          toast.success("Endringen er angret.");
+        },
+      },
+      duration: 10000,
+    });
+  };
+
+  const handleVendorTierSelect = (nextTierId: VendorTierId) => {
+    setPendingVendorTierId(nextTierId);
+    setChangeVendorTierOpen(false);
+  };
+
+  const handleVendorTierConfirm = () => {
+    if (!pendingVendorTierId) return;
+    const prev = vendorTierId;
+    const nextLabel = getVendorTier(pendingVendorTierId).label.toLowerCase();
+    setVendorTierId(pendingVendorTierId);
+    setPendingVendorTierId(null);
+    toast(`Leverandørmodul er endret til ${nextLabel}.`, {
+      action: {
+        label: "Angre",
+        onClick: () => {
+          setVendorTierId(prev);
           toast.success("Endringen er angret.");
         },
       },
@@ -487,20 +517,40 @@ export default function Subscriptions() {
               accentColor="blue"
             />
 
-            <ModuleCard
-              icon={Briefcase}
-              title="Leverandørmodul"
-              description="TPRM og leverandørvurdering"
-              status={deactivatedModules.has("vendors") ? "inactive" : "active"}
-              price={deactivatedModules.has("vendors") ? 0 : vendorMonthlyPrice}
-              usage={String(vendorCount ?? 0)}
-              usageLimit={vendorLimit}
-              usageSuffix="leverandører"
-              action={deactivatedModules.has("vendors") ? "activate" : "open"}
-              onClick={() => deactivatedModules.has("vendors") ? reactivateModule("vendors") : navigate("/vendors")}
-              onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
-              accentColor="amber"
-            />
+            {(() => {
+              const used = vendorCount ?? 0;
+              const atCap = used >= vendorTier.vendorLimit;
+              const nextTier = getNextVendorTier(vendorTierId);
+              const isDeactivated = deactivatedModules.has("vendors");
+              const capFooter = !isDeactivated && atCap && nextTier ? (
+                <div className="flex items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50/60 px-3 py-2">
+                  <p className="text-xs text-amber-800">
+                    Dere har brukt opp plassen. Neste nivå gir plass til {nextTier.vendorLimit} leverandører for {formatKr(nextTier.monthlyPriceKr)} per måned.
+                  </p>
+                  <Button size="sm" variant="outline" className="h-7 text-xs shrink-0" onClick={() => setChangeVendorTierOpen(true)}>
+                    Endre nivå
+                  </Button>
+                </div>
+              ) : undefined;
+              return (
+                <ModuleCard
+                  icon={Briefcase}
+                  title="Leverandørmodul"
+                  description="TPRM og leverandørvurdering"
+                  status={isDeactivated ? "inactive" : "active"}
+                  price={isDeactivated ? 0 : vendorTier.monthlyPriceKr}
+                  priceLabel={isDeactivated ? undefined : vendorTier.label}
+                  usage={String(used)}
+                  usageLimit={String(vendorTier.vendorLimit)}
+                  usageSuffix="leverandører"
+                  action={isDeactivated ? "activate" : "change"}
+                  onClick={() => isDeactivated ? reactivateModule("vendors") : setChangeVendorTierOpen(true)}
+                  onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
+                  accentColor="amber"
+                  footer={capFooter}
+                />
+              );
+            })()}
 
             <ModuleCard
               icon={Server}
@@ -669,6 +719,22 @@ export default function Subscriptions() {
         nextTierId={pendingCoreTierId}
         onConfirm={handleCoreTierConfirm}
       />
+
+      <ChangeVendorTierDialog
+        open={changeVendorTierOpen}
+        onOpenChange={setChangeVendorTierOpen}
+        currentTierId={vendorTierId}
+        usedVendors={vendorCount ?? 0}
+        onConfirm={handleVendorTierSelect}
+      />
+      <ConfirmVendorTierChangeDialog
+        open={!!pendingVendorTierId}
+        onOpenChange={(open) => { if (!open) setPendingVendorTierId(null); }}
+        currentTierId={vendorTierId}
+        nextTierId={pendingVendorTierId}
+        onConfirm={handleVendorTierConfirm}
+      />
+
 
 
       <AlertDialog open={!!confirmDeactivate} onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}>
