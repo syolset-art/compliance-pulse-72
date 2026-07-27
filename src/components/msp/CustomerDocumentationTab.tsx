@@ -15,6 +15,8 @@ import {
   Globe,
   ExternalLink,
   ArrowRight,
+  Filter,
+  Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -31,6 +33,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { frameworks } from "@/lib/frameworkDefinitions";
 import { getRequirementsByFramework, type ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
@@ -144,6 +151,35 @@ export function CustomerDocumentationTab({
     [groupedDocs],
   );
 
+  // Regelverk-filter (multi-select). Default: alle valgt.
+  const [selectedFrameworks, setSelectedFrameworks] = useState<Set<string>>(
+    () => new Set(activeFrameworkIds),
+  );
+  useEffect(() => {
+    setSelectedFrameworks(new Set(activeFrameworkIds));
+  }, [activeFrameworkIds]);
+
+  const visibleGroups = useMemo(
+    () => Array.from(groupedDocs.entries()).filter(([fid]) => selectedFrameworks.has(fid)),
+    [groupedDocs, selectedFrameworks],
+  );
+  const visibleDocCount = useMemo(
+    () => visibleGroups.reduce((n, [, g]) => n + g.docs.length, 0),
+    [visibleGroups],
+  );
+
+  const toggleFramework = (fid: string) => {
+    setSelectedFrameworks((prev) => {
+      const next = new Set(prev);
+      if (next.has(fid)) next.delete(fid);
+      else next.add(fid);
+      return next;
+    });
+  };
+  const allSelected = selectedFrameworks.size === groupedDocs.size;
+  const [filterOpen, setFilterOpen] = useState(false);
+
+
   // Personvernerklæring-dialog
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [privacyUrl, setPrivacyUrl] = useState("");
@@ -235,8 +271,71 @@ export function CustomerDocumentationTab({
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-muted-foreground">
-            {totalDocs} bevis · {groupedDocs.size} regelverk
+            {visibleDocCount} bevis · {allSelected ? groupedDocs.size : `${selectedFrameworks.size}/${groupedDocs.size}`} regelverk
           </span>
+
+          {/* Regelverk-filter */}
+          <Popover open={filterOpen} onOpenChange={setFilterOpen}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={`inline-flex items-center gap-1.5 h-7 pl-2 pr-2 rounded-full border transition-colors ${
+                  allSelected
+                    ? "border-border bg-card hover:bg-muted/40"
+                    : "border-primary/40 bg-primary/5 hover:bg-primary/10"
+                }`}
+              >
+                <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-medium text-foreground">
+                  {allSelected ? "Alle regelverk" : `${selectedFrameworks.size} valgt`}
+                </span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-64 p-1">
+              <div className="flex items-center justify-between px-2 py-1.5">
+                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Vis dokumenter for
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedFrameworks(new Set(activeFrameworkIds))}
+                  className="text-[11px] text-primary hover:underline"
+                >
+                  Alle
+                </button>
+              </div>
+              <div className="max-h-72 overflow-y-auto">
+                {Array.from(groupedDocs.entries()).map(([fid, group]) => {
+                  const checked = selectedFrameworks.has(fid);
+                  return (
+                    <button
+                      key={fid}
+                      type="button"
+                      onClick={() => toggleFramework(fid)}
+                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-muted/60 text-left"
+                    >
+                      <span
+                        className={`h-4 w-4 rounded border flex items-center justify-center shrink-0 ${
+                          checked
+                            ? "bg-primary border-primary text-primary-foreground"
+                            : "border-border bg-background"
+                        }`}
+                      >
+                        {checked && <Check className="h-3 w-3" />}
+                      </span>
+                      <span className="text-sm text-foreground truncate flex-1">
+                        {group.frameworkName}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground tabular-nums">
+                        {group.docs.length}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
+
           <TooltipProvider delayDuration={150}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -260,7 +359,8 @@ export function CustomerDocumentationTab({
 
       {/* Dokumenter gruppert per regelverk */}
       <div className="space-y-3">
-        {Array.from(groupedDocs.entries()).map(([fid, group]) => (
+        {visibleGroups.map(([fid, group]) => (
+
           <Card key={fid} className="p-4 sm:p-5 border-border">
             <div className="flex items-center justify-between gap-2 mb-3">
               <h3 className="text-sm font-semibold text-foreground truncate">
