@@ -1,15 +1,18 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Layers, Shield, Package, Server, Globe, Plus, ExternalLink } from "lucide-react";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
+import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CustomerModulesTabProps {
   customerId: string;
   customerName: string;
   activeFrameworkIds: string[];
+  onUpdate?: () => void;
 }
 
 interface ModuleDef {
