@@ -220,7 +220,7 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
                       </button>
                     )}
                     <Button size="sm" variant="outline" onClick={m.primaryAction.onClick}>
-                      {m.primaryAction.label === "Legg til regelverk" && <Plus className="h-3.5 w-3.5 mr-1" />}
+                      {m.primaryAction.label === "Endre regelverk" && <Plus className="h-3.5 w-3.5 mr-1" />}
                       {m.primaryAction.label}
                     </Button>
                   </div>
