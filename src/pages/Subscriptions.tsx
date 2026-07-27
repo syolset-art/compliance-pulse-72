@@ -166,7 +166,8 @@ export default function Subscriptions() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { addons, activateAddon, currentTier, subscription } = useSubscription();
-  const tierConfig = PLAN_TIERS[currentTier];
+  const currentPlanId = tierToPlanId(subscription?.plan?.name);
+  const planConfig = PLANS[currentPlanId];
 
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -175,8 +176,6 @@ export default function Subscriptions() {
   const [activationFramework, setActivationFramework] = useState<Framework | null>(null);
   const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
-
-  const currentPlanId = tierToPlanId(subscription?.plan?.name);
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
     queryKey: ["selected-frameworks-sub"],
