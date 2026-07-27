@@ -135,18 +135,21 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
   };
 
   // Inline edit state for contact fields
-  type Field = "name" | "email" | "role";
+  type Field = "name" | "email" | "role" | "url";
   const [editField, setEditField] = useState<Field | null>(null);
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [emailErr, setEmailErr] = useState<string | null>(null);
+  const [urlErr, setUrlErr] = useState<string | null>(null);
   const [emailPopOpen, setEmailPopOpen] = useState(false);
 
   const startEdit = (f: Field) => {
     setEmailErr(null);
+    setUrlErr(null);
     setDraft(
       f === "name" ? (customer.contact_person || "") :
       f === "email" ? (customer.contact_email || "") :
+      f === "url" ? (customer.url || "") :
       (customer.contact_company_role || "")
     );
     setEditField(f);
@@ -159,11 +162,22 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
       setEmailErr("Ugyldig e-post");
       return;
     }
-    const col = editField === "name" ? "contact_person" : editField === "email" ? "contact_email" : "contact_company_role";
+    if (editField === "url" && trimmed) {
+      try {
+        new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+      } catch {
+        setUrlErr("Ugyldig nettadresse");
+        return;
+      }
+    }
+    const col = editField === "name" ? "contact_person" : editField === "email" ? "contact_email" : editField === "url" ? "url" : "contact_company_role";
+    const value = editField === "url" && trimmed
+      ? (trimmed.startsWith("http") ? trimmed : `https://${trimmed}`)
+      : trimmed || null;
     setSaving(true);
     const { error } = await supabase
       .from("msp_customers")
-      .update({ [col]: trimmed || null } as any)
+      .update({ [col]: value } as any)
       .eq("id", customer.id);
     setSaving(false);
     if (error) {
