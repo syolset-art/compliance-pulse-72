@@ -350,6 +350,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         org_number: selectedCompany.organisasjonsnummer,
         industry: selectedCompany.naeringskode1?.beskrivelse || null,
         employees: mapEmployees(selectedCompany.antallAnsatte) || null,
+        business_description: businessDescription || null,
         contact_person: form.contact_person || null,
         contact_email: form.contact_email || null,
         contact_company_role: form.contact_company_role || null,
