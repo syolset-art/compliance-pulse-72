@@ -1340,7 +1340,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   <ArrowLeft className="h-4 w-4" /> Tilbake
                 </Button>
                 <Button onClick={() => setStep("assessment")}>
-                  Neste: Kartlegging
+                  Kartlegg regelverk
                 </Button>
               </div>
             </div>
