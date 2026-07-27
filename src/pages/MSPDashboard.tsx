@@ -336,6 +336,7 @@ export default function MSPDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [addOpen, setAddOpen] = useState(false);
+  const [gapOpen, setGapOpen] = useState(false);
   const [view, setView] = useState<ViewMode>("table");
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
