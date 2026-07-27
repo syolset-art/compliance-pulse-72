@@ -491,7 +491,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                   )}
                 </PopoverContent>
               </Popover>
-
+            </div>
 
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="text-[10px] uppercase tracking-wider text-foreground/60 font-medium">KUNDEKONTAKT:</span>
