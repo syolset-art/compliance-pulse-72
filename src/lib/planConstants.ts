@@ -61,7 +61,7 @@ export const PLANS: Record<PlanId, Plan> = {
     yearlyPriceKr: 24900,
     limits: { vendors: -1, systems: -1, workAreas: -1, frameworksIncluded: 3 },
     popular: true,
-    ctaLabel: "Velg Profesjonell",
+    ctaLabel: "Velg\u00a0",
     features: [
       "Ubegrensede arbeidsområder",
       "Ubegrenset leverandører og systemer",
