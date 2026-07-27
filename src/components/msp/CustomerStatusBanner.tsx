@@ -446,27 +446,51 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
               <span className="text-muted-foreground/40" aria-hidden="true">·</span>
 
               {/* Role */}
-              {editField === "role" ? (
-                <span className="inline-flex items-center gap-1">
-                  <Input autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="F.eks. Daglig leder"
-                    className="h-6 text-xs w-44 px-2" maxLength={100}
-                    onKeyDown={(e) => { if (e.key === "Enter") saveEdit(); if (e.key === "Escape") setEditField(null); }} />
-                  <button onClick={saveEdit} disabled={saving} className="p-0.5 text-success hover:bg-success/10 rounded" aria-label="Lagre"><Check className="h-3 w-3" /></button>
-                  <button onClick={() => setEditField(null)} className="p-0.5 text-muted-foreground hover:bg-muted rounded" aria-label="Avbryt"><X className="h-3 w-3" /></button>
-                </span>
-              ) : customer.contact_company_role ? (
-                <span className="group inline-flex items-center gap-1 text-foreground/80">
-                  <Briefcase className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
-                  <span className="truncate">{customer.contact_company_role}</span>
-                  <button onClick={() => startEdit("role")} className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-muted transition-opacity" aria-label="Rediger rolle">
-                    <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
-                  </button>
-                </span>
-              ) : (
-                <button onClick={() => startEdit("role")} className="inline-flex items-center gap-1 rounded-md border border-dashed border-warning/50 bg-warning/5 px-1.5 py-0.5 text-warning hover:bg-warning/10">
-                  <Briefcase className="h-3 w-3" aria-hidden="true" /> Legg til rolle
-                </button>
-              )}
+              <Popover open={rolePopOpen} onOpenChange={setRolePopOpen}>
+                <PopoverTrigger asChild>
+                  {customer.contact_company_role ? (
+                    <button className="group inline-flex items-center gap-1 text-foreground/80 hover:bg-muted rounded px-1 -mx-1" aria-label="Endre rolle">
+                      <Briefcase className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                      <span className="truncate">{customer.contact_company_role}</span>
+                      <Pencil className="h-2.5 w-2.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </button>
+                  ) : (
+                    <button className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground" aria-label="Sett rolle">
+                      <Briefcase className="h-3 w-3" aria-hidden="true" />
+                      <span className="italic">Ikke satt</span>
+                      <Pencil className="h-2.5 w-2.5" />
+                    </button>
+                  )}
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-1 max-h-72 overflow-auto" align="start">
+                  {COMPANY_ROLES.map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => saveRoleValue(r)}
+                      disabled={saving}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-muted text-sm text-left",
+                        customer.contact_company_role === r && "bg-muted font-medium"
+                      )}
+                    >
+                      {customer.contact_company_role === r && <Check className="h-3.5 w-3.5 text-primary" />}
+                      <span className={cn(customer.contact_company_role !== r && "pl-5")}>{r}</span>
+                    </button>
+                  ))}
+                  {customer.contact_company_role && (
+                    <>
+                      <div className="my-1 border-t border-border" />
+                      <button
+                        onClick={() => saveRoleValue(null)}
+                        disabled={saving}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 rounded-md hover:bg-muted text-sm text-left text-muted-foreground"
+                      >
+                        <X className="h-3.5 w-3.5" /> Fjern rolle
+                      </button>
+                    </>
+                  )}
+                </PopoverContent>
+              </Popover>
 
               <span className="text-muted-foreground/40" aria-hidden="true">·</span>
 
