@@ -164,6 +164,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setAcronisImportedCount(0);
     setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis", country_code: "NO" });
     setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
+    setIndustrySource("none");
+    setEnrichStep("main");
   }, []);
 
 
