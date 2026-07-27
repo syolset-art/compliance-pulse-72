@@ -143,6 +143,34 @@ const CLAIM_TREND = [
   { month: "apr", value: 47 },
 ];
 
+// Partner default currency (prototype). Change here to reflect partner setting.
+const PARTNER_CURRENCY = "NOK";
+const PARTNER_LOCALE = "nb-NO";
+
+// Accumulated service sales potential over the last 6 months, in partner currency.
+const SERVICE_POTENTIAL_TREND = [
+  { month: "nov", value: 420000 },
+  { month: "des", value: 680000 },
+  { month: "jan", value: 1050000 },
+  { month: "feb", value: 1480000 },
+  { month: "mar", value: 1920000 },
+  { month: "apr", value: 2400000 },
+];
+
+function formatPartnerCurrency(amount: number, compact = true) {
+  try {
+    return new Intl.NumberFormat(PARTNER_LOCALE, {
+      style: "currency",
+      currency: PARTNER_CURRENCY,
+      maximumFractionDigits: 0,
+      notation: compact ? "compact" : "standard",
+    }).format(amount);
+  } catch {
+    return `${amount} ${PARTNER_CURRENCY}`;
+  }
+}
+
+
 const SEGMENTS = [
   { label: "NIS2-eksponert", count: 71, color: "bg-primary", widthPct: 35 },
   { label: "Sky-avhengig", count: 186, color: "bg-purple-400", widthPct: 92 },
