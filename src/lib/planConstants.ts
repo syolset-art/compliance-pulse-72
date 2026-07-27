@@ -49,8 +49,11 @@ export const PLANS: Record<PlanId, Plan> = {
       "Inntil 5 systemer",
       "Trust Profile (publiserbar)",
       "1 regelverk inkludert",
+      "Avvikshåndtering (inntil 5 systemer)",
+      "RoPA (inntil 5 systemer)",
       "Lara AI (grunnleggende)",
     ],
+
   },
   growth: {
     id: "growth",
