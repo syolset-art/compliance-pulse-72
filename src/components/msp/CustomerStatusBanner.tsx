@@ -217,14 +217,14 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
     setSaving(true);
     const { error } = await supabase
       .from("msp_customers")
-      .update(update)
+      .update(update as any)
       .eq("id", customer.id);
     setSaving(false);
     if (error) {
       toast.error("Kunne ikke lagre");
       return;
     }
-    toast.success("Kontakt oppdatert");
+    toast.success(editField === "description" ? "Beskrivelse oppdatert" : "Kontakt oppdatert");
     setEditField(null);
     onUpdate?.();
   };
