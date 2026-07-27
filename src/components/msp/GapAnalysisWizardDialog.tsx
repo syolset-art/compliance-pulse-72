@@ -309,17 +309,14 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
               <div className="space-y-2">
                 {results.map((r) => (
                   <div key={r.customerId} className="rounded-lg border p-3 space-y-2">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium text-foreground truncate">{r.customerName}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {r.gapCount} gap · {r.industry || "—"}
-                        </div>
-                      </div>
-                      <div className="text-sm font-semibold tabular-nums text-primary shrink-0">
-                        {formatCurrency(r.totalPotential)}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">{r.customerName}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {r.gapCount} gap · {r.industry || "—"}
                       </div>
                     </div>
+                  </div>
                     <div className="flex flex-wrap gap-1.5">
                       {r.services.map((s) => (
                         <Badge
