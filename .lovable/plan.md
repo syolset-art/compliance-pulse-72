@@ -1,32 +1,33 @@
+# Bytt widget: fra aktiveringer til salgspotensial fra gap-analyser
+
 ## Mål
-Når brukeren velger «Verifisert» som status, skal en subtil, veiledet flyt starte: last opp dokument → Lara analyserer artikkeldekning → resultat vises kompakt. Flyten finnes allerede via `AttachEvidenceDialog`, men trenger UX-polish for å være mer subtil, skalerbar og lett å forstå.
+Widgetet på MSP-partner dashbordet skal ikke lenger vise aktiverte regelverk over tid, men i stedet vise hvor mye partneren potensielt kan selge i tjenester basert på åpne gap i kunders utvalgte regelverk. Beløp vises i partnerens standardvaluta (ikke låst til NOK).
 
-## Endringer
+## Endringer (kun frontend, prototype-data)
 
-### 1. `src/components/regulations/AttachEvidenceDialog.tsx` — slankere dialog med tydelig 3-stegs mikroflyt
-- Kompakt header: fjern lange beskrivelser. Kun `«{requirementName}» → Last opp bevis` + liten hjelpe-ikon med tooltip for lengre forklaring.
-- Vis en subtil 3-punkts stegindikator øverst (`Last opp · Analyser · Bekreft`) med aktiv/ferdig-tilstander — små prikker, ingen store overskrifter.
-- **Steg 1 (select):** droparea beholdes, men mindre padding (`p-6` → `p-5`), kortere tekst. Artikkellisten «Kravet skal dekke» flyttes bak et lite `Vis artikler`-toggle for å redusere støy.
-- **Steg 2 (analyzing):** erstatt lang statisk tekst med en subtil animert linje med korte fasetekster som roterer hver 1.2s: `Leser dokumentet…` → `Sammenligner mot artikler…` → `Vurderer signatur…`. Bygger forståelse for hva AI gjør uten mye tekst.
-- **Steg 3 (review):** behold coverage-bar og badges, men fjern forklarende paragrafer under. Signaturblokk krympes til én linje ikon+tekst; detaljene (utsteder) vises kun ved hover/tooltip.
-- Konsistente knapper: primærknapp «Bekreft», sekundær «Bytt fil». Ingen toast med prosentandel — heller subtil bekreftelse (kort «Bevis tilknyttet»).
+### 1. `src/pages/MSPPartnerDashboard.tsx` – `ClaimDevelopmentChart`
+Beholder kort-plassering og størrelse, nytt innhold:
 
-### 2. `src/components/regulations/FrameworkRequirementsList.tsx` — subtil inline-status på kortet
-- Når `attachDialog` er aktiv for en req, vis en liten inline-chip på kortheaderen: `Analyserer…` med spinner (`h-3 w-3`) og `text-muted-foreground`. Fjernes når dialogen lukkes eller resultat er lagret.
-- Etter bekreftelse: coverage-baren som allerede vises under kravet blir kilden til visuell tilbakemelding — ingen ekstra bannere.
-- Fjern lang bekreftelses-toast; erstatt med kort `Bevis tilknyttet — {n}/{m} artikler dekket`.
+- **Tittel:** "Salgspotensial fra gap-analyser"
+- **Undertittel:** "Basert på åpne krav i utvalgte regelverk hos 24 kunder"
+- **Badge (grønn):** total potensial formatert i partnerens valuta, f.eks. "kr 2,4 M" / "$240k" / "€220k"
+- **Graf:** AreaChart over 6 mnd med akkumulert potensial – samme oppsett, ny dataserie.
+- **Bunn – 3 KPI-er:**
+  1. `24 kunder · 6 regelverk`
+  2. `312 åpne gap`
+  3. Potensielt salg i partnervaluta (uthevet i primærfarge)
 
-### 3. Mikrokopi (NO/EN)
-Kort, handlingsorientert:
-- Overskrift: `Tilknytt bevis` (uendret)
-- Undertittel: `Lara vurderer hvilke artikler dokumentet dekker.` (kortere)
-- Steg-labels: `Last opp` · `Analyser` · `Bekreft`
-- Analysefaser: `Leser dokument` · `Matcher artikler` · `Sjekker signatur`
+### 2. Valutahåndtering
+- Leser partnerens standardvaluta fra eksisterende MSP-billing-innstillinger hvis tilgjengelig (`msp_billing_settings` / `usePartnerInfo` / lignende). Undersøkes ved implementasjon; hvis ikke lett tilgjengelig brukes en enkel prototype-konstant `PARTNER_CURRENCY = "NOK"` som lett kan byttes.
+- Formatering via `Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 })` med kompakt notasjon for badge/KPI.
+- Ingen konvertering av tall – demo-tallene tolkes i den valgte valutaen.
 
-## Ute av scope
-- Ingen endringer i scoring, edge function `analyze-evidence-coverage`, eller datamodell.
-- Ingen endring i når dialogen trigges (allerede korrekt: ved valg av «Verifisert» og ved «Last opp bevis»-knappen).
+### 3. Ny data-konstant
+Legger til `SERVICE_POTENTIAL_TREND` (6 måneder, stigende) ved siden av `CLAIM_TREND` som beholdes uendret for `/msp-partner/widget/claim-development`.
 
-## Filer
-- `src/components/regulations/AttachEvidenceDialog.tsx` — omskriv innhold, behold API.
-- `src/components/regulations/FrameworkRequirementsList.tsx` — legg til inline `Analyserer…`-chip og kort toast.
+### 4. Tooltip
+"Estimert tjenestesalg partner kan levere for å lukke gap i kundenes aktiverte regelverk. Basert på antall åpne krav × snittpris per tjeneste, i partnerens standardvaluta."
+
+## Ikke i scope
+- Ingen ruteendring, ingen backend/DB-endringer, ingen andre widgets.
+- Ingen valutakonvertering eller FX-logikk.
