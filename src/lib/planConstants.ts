@@ -4,7 +4,7 @@
 
 export type BillingInterval = "monthly" | "yearly";
 
-export type PlanId = "starter" | "professional" | "enterprise";
+export type PlanId = "starter" | "growth" | "professional" | "enterprise";
 
 // Legacy alias for backward compatibility with existing components/hooks
 export type PlanTier = "free" | "basis" | "premium" | "enterprise";
