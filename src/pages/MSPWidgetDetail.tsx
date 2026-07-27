@@ -41,6 +41,52 @@ const CLAIM_TREND = [
   { month: "apr", value: 47 },
 ];
 
+// Partner default currency (prototype). Swap here to reflect partner setting.
+const PARTNER_CURRENCY = "NOK";
+const PARTNER_LOCALE = "nb-NO";
+
+function formatPartnerCurrency(amount: number, compact = true) {
+  try {
+    return new Intl.NumberFormat(PARTNER_LOCALE, {
+      style: "currency",
+      currency: PARTNER_CURRENCY,
+      maximumFractionDigits: 0,
+      notation: compact ? "compact" : "standard",
+    }).format(amount);
+  } catch {
+    return `${amount} ${PARTNER_CURRENCY}`;
+  }
+}
+
+const SERVICE_POTENTIAL_TREND_DETAIL = [
+  { month: "nov", value: 420000 },
+  { month: "des", value: 680000 },
+  { month: "jan", value: 1050000 },
+  { month: "feb", value: 1480000 },
+  { month: "mar", value: 1920000 },
+  { month: "apr", value: 2400000 },
+];
+
+const POTENTIAL_BY_FRAMEWORK = [
+  { framework: "GDPR", gaps: 92, avgPrice: 6500, potential: 92 * 6500 },
+  { framework: "ISO 27001", gaps: 78, avgPrice: 9500, potential: 78 * 9500 },
+  { framework: "NIS2", gaps: 54, avgPrice: 11000, potential: 54 * 11000 },
+  { framework: "DORA", gaps: 38, avgPrice: 12500, potential: 38 * 12500 },
+  { framework: "AI Act", gaps: 32, avgPrice: 8500, potential: 32 * 8500 },
+  { framework: "Åpenhetsloven", gaps: 18, avgPrice: 4500, potential: 18 * 4500 },
+];
+
+const TOP_POTENTIAL_CUSTOMERS = [
+  { name: "Bergen Energi AS", gaps: 42, potential: 385000 },
+  { name: "Sognefjord Helse AS", gaps: 36, potential: 312000 },
+  { name: "Nordic Cargo AS", gaps: 31, potential: 268000 },
+  { name: "Vestland Logistikk", gaps: 28, potential: 224000 },
+  { name: "Stavanger Finans", gaps: 24, potential: 205000 },
+  { name: "Fjord IT AS", gaps: 21, potential: 168000 },
+  { name: "Oslo Eiendom AS", gaps: 18, potential: 142000 },
+];
+
+
 const SEGMENTS = [
   { label: "NIS2-eksponert", count: 71, color: "hsl(var(--primary))" },
   { label: "Sky-avhengig", count: 186, color: "hsl(270 70% 70%)" },
@@ -156,16 +202,21 @@ const WIDGETS: Record<string, WidgetMeta> = {
   },
   "claim-development": {
     id: "claim-development",
-    title: "Aktivering over tid",
-    subtitle: "Hvordan aktiveringsgraden har utviklet seg",
+    title: "Salgspotensial fra gap-analyser",
+    subtitle: "Estimert tjenestesalg partner kan levere for å lukke gap i kundenes regelverk",
     icon: TrendingUp,
-    hero: { value: "+167%", sub: "vekst i aktiveringer siste 6 måneder (fra 6 til 47)" },
+    hero: {
+      value: formatPartnerCurrency(2400000),
+      sub: "312 åpne gap · 24 kunder · 6 aktiverte regelverk",
+    },
     explainer:
-      "Grafen viser nye aktiverte kunder per måned. Trenden lar deg se effekten av kampanjer og oppfølgingsarbeid. Et naturlig mål er å holde en stigende trend frem til 40% aktiveringsgrad er nådd.",
+      "Potensialet estimeres som antall åpne krav (gap) hos kundene × en snittpris per tjeneste for å lukke gapet. Prisene er i partnerens standardvaluta og oppdateres når du justerer tjenestekatalogen. Bruk dette som en topp-linje for hvor mye partneren kan omsette ved å hjelpe kundene å bli compliant.",
     ctas: [
-      { label: "Planlegg ny kampanje", href: "/msp-messages", primary: true },
+      { label: "Åpne servicekatalog", href: "/msp-service-catalog", primary: true },
+      { label: "Kjør kampanje mot kunder med gap", href: "/msp-messages" },
     ],
   },
+
   "segmentation": {
     id: "segmentation",
     title: "Portefølje-segmentering",
@@ -283,7 +334,6 @@ function RegulatoryOverview() {
 function WidgetBody({ id }: { id: string }) {
   switch (id) {
     case "claim-rate":
-    case "claim-development":
       return (
         <>
           <Section title="Utvikling siste 6 måneder">
@@ -325,6 +375,87 @@ function WidgetBody({ id }: { id: string }) {
           </Section>
         </>
       );
+
+    case "claim-development": {
+      const totalPotential = POTENTIAL_BY_FRAMEWORK.reduce((s, r) => s + r.potential, 0);
+      const totalGaps = POTENTIAL_BY_FRAMEWORK.reduce((s, r) => s + r.gaps, 0);
+      return (
+        <>
+          <Section title="Potensial siste 6 måneder">
+            <Card className="p-5">
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={SERVICE_POTENTIAL_TREND_DETAIL} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gPotential" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                      tickFormatter={(v: number) => formatPartnerCurrency(v)}
+                    />
+                    <Tooltip
+                      contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+                      formatter={(v: number) => [formatPartnerCurrency(v), "Potensial"]}
+                    />
+                    <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#gPotential)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </Section>
+
+          <Section title="Potensial per regelverk">
+            <Card className="divide-y divide-border">
+              <div className="grid grid-cols-4 gap-3 px-4 py-2.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <div>Regelverk</div>
+                <div className="text-right">Åpne gap</div>
+                <div className="text-right">Snittpris/gap</div>
+                <div className="text-right">Potensial</div>
+              </div>
+              {POTENTIAL_BY_FRAMEWORK.map((r) => (
+                <div key={r.framework} className="grid grid-cols-4 gap-3 px-4 py-3 items-center hover:bg-accent/40 transition-colors">
+                  <div className="font-medium text-foreground">{r.framework}</div>
+                  <div className="text-right text-sm tabular-nums">{r.gaps}</div>
+                  <div className="text-right text-sm tabular-nums text-muted-foreground">{formatPartnerCurrency(r.avgPrice, false)}</div>
+                  <div className="text-right text-sm font-semibold tabular-nums text-primary">{formatPartnerCurrency(r.potential)}</div>
+                </div>
+              ))}
+              <div className="grid grid-cols-4 gap-3 px-4 py-3 items-center bg-primary/[0.04]">
+                <div className="text-sm font-semibold text-foreground">Totalt</div>
+                <div className="text-right text-sm font-semibold tabular-nums">{totalGaps}</div>
+                <div />
+                <div className="text-right text-sm font-bold tabular-nums text-primary">{formatPartnerCurrency(totalPotential)}</div>
+              </div>
+            </Card>
+          </Section>
+
+          <Section title="Kunder med størst potensial">
+            <Card className="divide-y divide-border">
+              {TOP_POTENTIAL_CUSTOMERS.map((c) => (
+                <div key={c.name} className="flex items-center gap-3 p-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-foreground truncate">{c.name}</div>
+                    <div className="text-xs text-muted-foreground">{c.gaps} åpne gap</div>
+                  </div>
+                  <div className="text-sm font-semibold tabular-nums text-primary">{formatPartnerCurrency(c.potential)}</div>
+                  <Button size="sm" variant="ghost">
+                    Åpne kunde <ArrowRight className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              ))}
+            </Card>
+          </Section>
+        </>
+      );
+    }
+
 
     case "needs-follow-up": {
       const toneCls: Record<string, string> = {
