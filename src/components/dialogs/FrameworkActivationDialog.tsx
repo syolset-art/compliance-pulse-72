@@ -55,89 +55,49 @@ export function FrameworkActivationDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className={`p-2.5 rounded-xl ${category?.bgColor || 'bg-primary/10'}`}>
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg ${category?.bgColor || 'bg-primary/10'}`}>
               {CategoryIcon && (
-                <CategoryIcon className={`h-6 w-6 ${category?.color || 'text-primary'}`} />
+                <CategoryIcon className={`h-5 w-5 ${category?.color || 'text-primary'}`} />
               )}
             </div>
-            <div>
-              <Badge variant="secondary" className="mb-1 text-xs">
+            <div className="min-w-0">
+              <DialogTitle className="text-base font-medium">
+                {framework.name} aktivert
+              </DialogTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {category?.name}
-              </Badge>
-              <DialogTitle className="text-xl">{framework.name} aktivert</DialogTitle>
+              </p>
             </div>
           </div>
           <DialogDescription className="sr-only">
-            Informasjon om aktivering av {framework.name}
+            {framework.name} er aktivert
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
-          {/* Success */}
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-status-closed/10 border border-status-closed/20">
-            <CheckCircle2 className="h-5 w-5 text-status-closed flex-shrink-0" />
-            <p className="text-sm text-status-closed dark:text-status-closed">
-              {framework.name} er nå aktivt i din compliance-portefølje.
-            </p>
-          </div>
-
-          {/* Credits estimate */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
-            <Sparkles className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <p className="text-foreground">
-                Vi estimerer ca. <span className="font-semibold">~{estimated} credits</span> for å etablere baseline for {framework.name}.
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Du har {balance} credits tilgjengelig. Du vil bli varslet om du trenger å fylle på — enkelt og raskt.
-              </p>
-            </div>
-          </div>
-
-          {/* Score impact warning */}
-          <div className="flex items-start gap-3 p-3 rounded-lg bg-warning/10 border border-warning/20">
-            <TrendingDown className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-warning dark:text-warning">
-              <p className="font-medium mb-1">Compliance-skåren din vil gå ned</p>
-              <p className="text-xs text-warning dark:text-warning/80">
-                Når du legger til et nytt regelverk, beregnes skåren på nytt med de nye kravene inkludert. 
-                Skåren vil stige igjen etter hvert som du dokumenterer status på kravene.
-              </p>
-            </div>
-          </div>
-
-          {/* Lara help */}
-          <div className="flex items-start gap-3 p-4 rounded-lg bg-primary/5 border border-primary/20">
-            <MessageCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm text-foreground">
-                Lara hjelper deg med å etablere en baseline for {framework.name} — bare spør, 
-                så guider hun deg gjennom kravene steg for steg.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-3 gap-2"
-                onClick={handleAskLara}
-              >
-                <MessageCircle className="h-4 w-4" />
-                Spør Lara
-                <ArrowRight className="h-3 w-3" />
-              </Button>
-            </div>
+        <div className="pt-2 space-y-3 text-sm">
+          <p className="text-muted-foreground">
+            Skåren beregnes på nytt med de nye kravene og stiger etter hvert som du dokumenterer status.
+          </p>
+          <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-3">
+            <span>Estimert oppstart</span>
+            <span className="text-foreground">~{estimated} credits</span>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-end pt-2">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
+        <div className="flex items-center justify-end gap-2 pt-2">
+          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
             Lukk
+          </Button>
+          <Button size="sm" className="gap-2" onClick={handleAskLara}>
+            <MessageCircle className="h-4 w-4" />
+            Spør Lara
           </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
+
