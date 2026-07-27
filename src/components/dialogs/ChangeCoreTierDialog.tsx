@@ -1,0 +1,102 @@
+import { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CORE_TIERS, formatKr, getCoreTier, type CoreTierId } from "@/lib/planConstants";
+
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  currentTierId: CoreTierId;
+  usedSystems: number;
+  onConfirm: (nextTierId: CoreTierId) => void;
+}
+
+export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSystems, onConfirm }: Props) {
+  const [selected, setSelected] = useState<CoreTierId>(currentTierId);
+
+  useEffect(() => {
+    if (open) setSelected(currentTierId);
+  }, [open, currentTierId]);
+
+  const current = getCoreTier(currentTierId);
+  const next = getCoreTier(selected);
+  const diff = next.monthlyPriceKr - current.monthlyPriceKr;
+  const changed = selected !== currentTierId;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="text-lg">Endre nivå på Mynder Core</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-2">
+          {CORE_TIERS.map((tier) => {
+            const isCurrent = tier.id === currentTierId;
+            const isSelected = tier.id === selected;
+            const belowUsage = usedSystems > tier.systemLimit;
+            const disabled = belowUsage;
+            const overflow = usedSystems - tier.systemLimit;
+
+            return (
+              <button
+                key={tier.id}
+                type="button"
+                disabled={disabled}
+                onClick={() => setSelected(tier.id)}
+                className={cn(
+                  "w-full text-left rounded-lg border p-3 transition-all",
+                  isSelected && !disabled && "border-primary ring-1 ring-primary/30 bg-primary/5",
+                  !isSelected && !disabled && "border-border hover:border-primary/40",
+                  disabled && "border-border/60 opacity-60 cursor-not-allowed"
+                )}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span
+                      className={cn(
+                        "h-4 w-4 rounded-full border-2 shrink-0 flex items-center justify-center",
+                        isSelected && !disabled ? "border-primary" : "border-muted-foreground/40"
+                      )}
+                    >
+                      {isSelected && !disabled && <span className="h-2 w-2 rounded-full bg-primary" />}
+                    </span>
+                    <span className="text-sm font-medium text-foreground">{tier.label}</span>
+                    {isCurrent && (
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        Nåværende
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm font-semibold tabular-nums text-foreground shrink-0">
+                    {formatKr(tier.monthlyPriceKr)} <span className="text-xs font-normal text-muted-foreground">/mnd</span>
+                  </div>
+                </div>
+                {belowUsage && (
+                  <p className="mt-2 pl-7 text-xs text-destructive">
+                    Dere bruker {usedSystems} systemer. Fjern {overflow} system{overflow === 1 ? "" : "er"} for å velge dette nivået.
+                  </p>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {changed && (
+          <p className="text-xs text-muted-foreground pt-2 border-t">
+            Fra {formatKr(current.monthlyPriceKr)} til{" "}
+            <span className="font-semibold text-foreground">{formatKr(next.monthlyPriceKr)} per måned</span>
+            {" — "}
+            {formatKr(Math.abs(diff))} {diff > 0 ? "mer" : "mindre"}
+          </p>
+        )}
+
+        <DialogFooter className="pt-2">
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>Avbryt</Button>
+          <Button disabled={!changed} onClick={() => onConfirm(selected)}>Endre nivå</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
