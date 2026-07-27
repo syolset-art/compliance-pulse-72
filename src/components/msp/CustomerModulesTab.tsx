@@ -143,87 +143,85 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {modules.map((m) => {
           const Icon = m.icon;
           return (
-            <Card key={m.key} className="p-4 sm:p-5">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon className="h-4.5 w-4.5 text-primary" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-semibold text-foreground">{m.title}</h3>
-                      {m.activated ? (
-                        <Badge variant="secondary" className="bg-success/15 text-success border-transparent text-[10px] px-1.5 py-0">
-                          Aktivert
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">
-                          Ikke aktivert
-                        </Badge>
-                      )}
-                      {m.usage && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
-                          Inntil {m.usage.max} {m.usage.label}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{m.description}</p>
-
-                    {m.meta && (
-                      <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                        {m.key === "trust-profile" && <ExternalLink className="h-3 w-3" />}
-                        <span>{m.meta}</span>
-                      </div>
-                    )}
-
-                    {m.usage && (
-                      <div className="mt-2 space-y-1">
-                        <div className="text-xs text-muted-foreground">
-                          {m.usage.current} av {m.usage.max} {m.usage.label}
-                        </div>
-                        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                          <div
-                            className="h-full bg-primary rounded-full"
-                            style={{ width: `${Math.min(100, (m.usage.current / m.usage.max) * 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
+            <Card key={m.key} className="p-4 flex flex-col h-full">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <Icon className="h-4.5 w-4.5 text-primary" />
                 </div>
-
-                <div className="flex flex-row sm:flex-col items-end justify-between sm:justify-start sm:text-right gap-2 sm:min-w-[140px]">
-                  <div>
-                    {m.price === null ? (
-                      <div>
-                        <div className="text-base font-semibold text-primary">Gratis</div>
-                        <div className="text-[11px] text-muted-foreground">{m.priceLabel}</div>
-                      </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-sm font-semibold text-foreground">{m.title}</h3>
+                    {m.activated ? (
+                      <Badge variant="secondary" className="bg-success/15 text-success border-transparent text-[10px] px-1.5 py-0">
+                        Aktivert
+                      </Badge>
                     ) : (
-                      <div>
-                        <div className="text-base font-semibold text-foreground">{formatPrice(m.price)}</div>
-                        <div className="text-[11px] text-muted-foreground">per måned</div>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">
+                        Ikke aktivert
+                      </Badge>
+                    )}
+                    {m.usage && (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
+                        Inntil {m.usage.max} {m.usage.label}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{m.description}</p>
+
+                  {m.meta && (
+                    <div className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                      {m.key === "trust-profile" && <ExternalLink className="h-3 w-3" />}
+                      <span>{m.meta}</span>
+                    </div>
+                  )}
+
+                  {m.usage && (
+                    <div className="mt-2 space-y-1">
+                      <div className="text-xs text-muted-foreground">
+                        {m.usage.current} av {m.usage.max} {m.usage.label}
                       </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {m.secondaryAction && (
-                      <button
-                        onClick={m.secondaryAction.onClick}
-                        className="text-xs text-muted-foreground hover:text-destructive transition-colors"
-                      >
-                        {m.secondaryAction.label}
-                      </button>
-                    )}
-                    <Button size="sm" variant="outline" onClick={m.primaryAction.onClick}>
-                      {m.primaryAction.label === "Endre regelverk" && <Plus className="h-3.5 w-3.5 mr-1" />}
-                      {m.primaryAction.label}
-                    </Button>
-                  </div>
+                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full"
+                          style={{ width: `${Math.min(100, (m.usage.current / m.usage.max) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t flex flex-row items-center justify-between gap-2">
+                <div>
+                  {m.price === null ? (
+                    <div>
+                      <div className="text-base font-semibold text-primary">Gratis</div>
+                      <div className="text-[11px] text-muted-foreground">{m.priceLabel}</div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="text-base font-semibold text-foreground">{formatPrice(m.price)}</div>
+                      <div className="text-[11px] text-muted-foreground">per måned</div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {m.secondaryAction && (
+                    <button
+                      onClick={m.secondaryAction.onClick}
+                      className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                    >
+                      {m.secondaryAction.label}
+                    </button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={m.primaryAction.onClick}>
+                    {m.primaryAction.label === "Endre regelverk" && <Plus className="h-3.5 w-3.5 mr-1" />}
+                    {m.primaryAction.label}
+                  </Button>
                 </div>
               </div>
             </Card>
