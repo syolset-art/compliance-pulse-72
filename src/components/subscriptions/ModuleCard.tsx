@@ -26,6 +26,7 @@ export interface ModuleCardProps {
   onDeactivate?: () => void;
   deactivateLabel?: string;
   accentColor?: "purple" | "blue" | "emerald" | "amber" | "rose" | "slate";
+  breakdown?: Array<{ label: string; priceKr: number }>;
 }
 
 const statusConfig = {
