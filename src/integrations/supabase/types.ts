@@ -2136,6 +2136,7 @@ export type Database = {
       }
       msp_customers: {
         Row: {
+          account_manager: string | null
           acronis_device_count: number | null
           active_frameworks: string[] | null
           compliance_score: number | null
@@ -2158,8 +2159,10 @@ export type Database = {
           org_number: string | null
           status: string | null
           subscription_plan: string
+          url: string | null
         }
         Insert: {
+          account_manager?: string | null
           acronis_device_count?: number | null
           active_frameworks?: string[] | null
           compliance_score?: number | null
@@ -2182,8 +2185,10 @@ export type Database = {
           org_number?: string | null
           status?: string | null
           subscription_plan?: string
+          url?: string | null
         }
         Update: {
+          account_manager?: string | null
           acronis_device_count?: number | null
           active_frameworks?: string[] | null
           compliance_score?: number | null
@@ -2206,6 +2211,7 @@ export type Database = {
           org_number?: string | null
           status?: string | null
           subscription_plan?: string
+          url?: string | null
         }
         Relationships: []
       }
