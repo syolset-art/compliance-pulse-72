@@ -102,13 +102,14 @@ export default function AdminOrganisation() {
         }
       }
 
-      // Fetch active framework names
-      const { data: addons } = await supabase
-        .from("domain_addons")
-        .select("domain_id")
-        .eq("status", "active");
-      if (addons) {
-        setFrameworkNames(addons.map((a: any) => a.domain_id));
+      // Fetch active frameworks for the organization itself
+      const { data: selectedFrameworks } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name, category, is_selected")
+        .eq("is_selected", true)
+        .order("framework_name");
+      if (selectedFrameworks) {
+        setFrameworkNames(selectedFrameworks.map((f: any) => f.framework_name));
       }
 
       // Fetch work areas count
