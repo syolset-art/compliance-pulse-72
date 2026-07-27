@@ -46,7 +46,7 @@ interface BrregResult {
   forretningsadresse?: { kommune: string; poststed: string };
 }
 
-type Step = "method" | "country" | "search" | "results" | "verifying" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success" | "acronis" | "acronis-processing";
+type Step = "method" | "country" | "search" | "results" | "verifying" | "manual" | "contact" | "assessment" | "gap" | "confirm" | "success" | "bulk" | "bulk-success" | "acronis" | "acronis-processing";
 
 const ACRONIS_DEMO_TENANTS: Array<{
   tenant_id: string;
@@ -103,6 +103,14 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     country_code: "NO",
   });
 
+  // Manual entry (used when BrReg has no hit, or country not supported)
+  const [manual, setManual] = useState({
+    customer_name: "",
+    org_number: "",
+    industry: "",
+    employees: "" as "" | "1-10" | "11-50" | "51-200" | "201-500" | "500+",
+  });
+
   // License info
   const { data: licenseInfo } = useQuery({
     queryKey: ["msp-license-info", user?.id],
@@ -150,6 +158,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setAcronisImporting(false);
     setAcronisImportedCount(0);
     setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis", country_code: "NO" });
+    setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
   }, []);
 
 
@@ -511,8 +520,10 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
 
   const currentStepIndex = STEP_LABELS.indexOf(
-    step === "results" || step === "verifying" ? "search" : step === "success" ? "confirm" : step
+    step === "results" || step === "verifying" || step === "manual" ? "search" : step === "success" ? "confirm" : step
   );
+
+
 
   const stepIndicator = (
     <div className="flex items-center gap-2 mb-4">
@@ -728,25 +739,28 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
               {COUNTRIES.map((c) => (
                 <button
                   key={c.code}
-                  disabled={!c.supported}
                   onClick={() => {
                     setForm({ ...form, country_code: c.code });
-                    setStep("search");
+                    if (c.supported) {
+                      setStep("search");
+                    } else {
+                      setStep("manual");
+                    }
                   }}
-                  className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-colors ${
-                    c.supported
-                      ? "border-border hover:border-primary hover:bg-primary/5"
-                      : "border-border opacity-50 cursor-not-allowed"
-                  } ${form.country_code === c.code ? "border-primary bg-primary/5" : ""}`}
+                  className={`w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-colors border-border hover:border-primary hover:bg-primary/5 ${
+                    form.country_code === c.code ? "border-primary bg-primary/5" : ""
+                  }`}
                 >
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <MapPin className="h-4 w-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-foreground">{c.name}</p>
-                    <p className="text-xs text-muted-foreground">{c.registry}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {c.supported ? c.registry : `Registersøk kommer – registrer manuelt`}
+                    </p>
                   </div>
-                  {!c.supported && <Badge variant="outline" className="text-xs">Kommer snart</Badge>}
+                  {!c.supported && <Badge variant="outline" className="text-xs">Manuell</Badge>}
                 </button>
               ))}
             </div>
@@ -900,9 +914,18 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   {searchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 </Button>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setStep("country")} className="gap-1">
-                <ArrowLeft className="h-4 w-4" /> Tilbake
-              </Button>
+              <div className="flex items-center justify-between">
+                <Button variant="ghost" size="sm" onClick={() => setStep("country")} className="gap-1">
+                  <ArrowLeft className="h-4 w-4" /> Tilbake
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setStep("manual")}
+                  className="text-xs font-medium text-primary hover:underline"
+                >
+                  Finner du ikke virksomheten? Registrer manuelt
+                </button>
+              </div>
             </div>
           </>
         )}
@@ -988,7 +1011,94 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           </div>
         )}
 
-        {/* Step: Contact info */}
+        {/* Step: Manual entry (fallback when no register hit / unsupported country) */}
+        {step === "manual" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-lg">Registrer virksomhet manuelt</DialogTitle>
+              <DialogDescription className="text-sm">
+                Fyll inn grunnleggende informasjon. Du kan berike Trust Profilen senere.
+              </DialogDescription>
+            </DialogHeader>
+            {stepIndicator}
+            <div className="space-y-4">
+              <div>
+                <Label className="flex items-center gap-1.5 text-sm">
+                  <Building2 className="h-3.5 w-3.5" /> Virksomhetsnavn <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  value={manual.customer_name}
+                  onChange={(e) => setManual({ ...manual, customer_name: e.target.value })}
+                  placeholder="Firmanavn AS"
+                  autoFocus
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm">Org.nr / registreringsnr</Label>
+                  <Input
+                    value={manual.org_number}
+                    onChange={(e) => setManual({ ...manual, org_number: e.target.value })}
+                    placeholder="Valgfritt"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm">Antall ansatte</Label>
+                  <Select
+                    value={manual.employees}
+                    onValueChange={(v) => setManual({ ...manual, employees: v as any })}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Velg" /></SelectTrigger>
+                    <SelectContent>
+                      {["1-10", "11-50", "51-200", "201-500", "500+"].map((e) => (
+                        <SelectItem key={e} value={e}>{e}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm">Bransje</Label>
+                <Input
+                  value={manual.industry}
+                  onChange={(e) => setManual({ ...manual, industry: e.target.value })}
+                  placeholder="F.eks. Regnskap, Teknologi, Helse"
+                />
+              </div>
+
+              <div className="flex justify-between pt-2">
+                <Button variant="ghost" size="sm" onClick={() => setStep(form.country_code === "NO" ? "search" : "country")} className="gap-1">
+                  <ArrowLeft className="h-4 w-4" /> Tilbake
+                </Button>
+                <Button
+                  disabled={!manual.customer_name.trim()}
+                  onClick={() => {
+                    // Synthesize a BrregResult-like object so downstream steps work unchanged
+                    const emp = manual.employees === "1-10" ? 5
+                      : manual.employees === "11-50" ? 30
+                      : manual.employees === "51-200" ? 100
+                      : manual.employees === "201-500" ? 300
+                      : manual.employees === "500+" ? 600
+                      : undefined;
+                    setSelectedCompany({
+                      organisasjonsnummer: manual.org_number.trim() || `MANUAL-${Date.now()}`,
+                      navn: manual.customer_name.trim(),
+                      naeringskode1: manual.industry.trim()
+                        ? { kode: "", beskrivelse: manual.industry.trim() }
+                        : undefined,
+                      antallAnsatte: emp,
+                    });
+                    setStep("contact");
+                  }}
+                >
+                  Neste: Kontakt
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+
+
         {step === "contact" && selectedCompany && (
           <>
             <DialogHeader>
