@@ -63,14 +63,20 @@ export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSy
                       {isSelected && !disabled && <span className="h-2 w-2 rounded-full bg-primary" />}
                     </span>
                     <span className="text-sm font-medium text-foreground">{tier.label}</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
                     {isCurrent && (
                       <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                        Nåværende
+                        Nåværende nivå
                       </span>
                     )}
-                  </div>
-                  <div className="text-sm font-semibold tabular-nums text-foreground shrink-0">
-                    {formatKr(tier.monthlyPriceKr)} <span className="text-xs font-normal text-muted-foreground">/mnd</span>
+                    <div className="text-sm font-semibold tabular-nums text-foreground">
+                      {tier.isFree ? (
+                        <><span>Gratis</span> <span className="text-xs font-normal text-muted-foreground">alltid</span></>
+                      ) : (
+                        <>{formatKr(tier.monthlyPriceKr)} <span className="text-xs font-normal text-muted-foreground">/mnd</span></>
+                      )}
+                    </div>
                   </div>
                 </div>
                 {belowUsage && (
@@ -85,12 +91,16 @@ export function ChangeCoreTierDialog({ open, onOpenChange, currentTierId, usedSy
 
         {changed && (
           <p className="text-xs text-muted-foreground pt-2 border-t">
-            Fra {formatKr(current.monthlyPriceKr)} til{" "}
-            <span className="font-semibold text-foreground">{formatKr(next.monthlyPriceKr)} per måned</span>
-            {" — "}
-            {formatKr(Math.abs(diff))} {diff > 0 ? "mer" : "mindre"}
+            Fra {current.isFree ? "gratis" : formatKr(current.monthlyPriceKr)} til{" "}
+            <span className="font-semibold text-foreground">
+              {next.isFree ? "gratis" : `${formatKr(next.monthlyPriceKr)} per måned`}
+            </span>
+            {!current.isFree && !next.isFree && (
+              <> {" — "}{formatKr(Math.abs(diff))} {diff > 0 ? "mer" : "mindre"}</>
+            )}
           </p>
         )}
+
 
         <DialogFooter className="pt-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>Avbryt</Button>
