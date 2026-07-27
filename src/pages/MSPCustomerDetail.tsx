@@ -464,6 +464,14 @@ export default function MSPCustomerDetail() {
               />
             </TabsContent>
 
+            <TabsContent value="modules" className="mt-6">
+              <CustomerModulesTab
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
+                activeFrameworkIds={activeFrameworkIds}
+              />
+            </TabsContent>
+
           </Tabs>
         </div>
 
