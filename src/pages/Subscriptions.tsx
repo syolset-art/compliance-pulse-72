@@ -253,7 +253,7 @@ export default function Subscriptions() {
   const paidFrameworkCount = activeFrameworks.filter((fw) => !!FRAMEWORK_ADDONS[fw.id] && !(FREE_FRAMEWORKS as readonly string[]).includes(fw.id)).length;
   const frameworkMonthlyPrice = paidFrameworkCount * 836;
 
-  const planPrice = tierConfig.monthlyPriceKr === -1 ? 0 : (tierConfig.monthlyPriceKr || 0);
+  const planPrice = planConfig.monthlyPriceKr === -1 ? 0 : (planConfig.monthlyPriceKr || 0);
   const vendorMonthlyPrice = 1089;
   const assetMonthlyPrice = 690;
   const partnerWorkspaceMonthlyPrice = 990;
