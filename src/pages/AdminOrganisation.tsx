@@ -129,11 +129,11 @@ export default function AdminOrganisation() {
       const sysList = systems || [];
       const sysWithOwner = sysList.filter((s) => s.asset_owner);
 
-      // Fetch active frameworks
+      // Fetch active frameworks count
       const { data: frameworks } = await supabase
-        .from("domain_addons")
-        .select("id")
-        .eq("status", "active");
+        .from("selected_frameworks")
+        .select("id", { count: "exact", head: true })
+        .eq("is_selected", true);
 
       setStats({
         users: profile?.brreg_employees || 0,
