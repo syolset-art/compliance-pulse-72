@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Building2, Sparkles, ShieldCheck, Send, Archive, Mail, User, UserPlus, ExternalLink, Shield, Pencil, Check, X, Copy, Briefcase } from "lucide-react";
+import { Building2, Sparkles, ShieldCheck, Send, Archive, Mail, User, UserPlus, ExternalLink, Shield, Pencil, Check, X, Copy, Briefcase, Globe } from "lucide-react";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
