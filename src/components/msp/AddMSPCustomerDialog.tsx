@@ -520,7 +520,13 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
 
   const currentStepIndex = STEP_LABELS.indexOf(
-    step === "results" || step === "verifying" ? "search" : step === "success" ? "confirm" : step
+    step === "results" || step === "verifying" || step === "manual" ? "search" : step === "success" ? "confirm" : step
+  );
+
+  // Step index needs mapping for manual step too (treat as "search" position)
+  void currentStepIndex;
+  const _unused = (
+
   );
 
   const stepIndicator = (
