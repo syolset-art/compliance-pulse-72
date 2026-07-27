@@ -142,6 +142,11 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const [acronisImportedCount, setAcronisImportedCount] = useState(0);
   const [acronisProgressStep, setAcronisProgressStep] = useState(0);
 
+  // Industry enrichment progress (verifying step)
+  type IndustrySource = "brreg_main" | "brreg_subunit" | "ai_suggested" | "none";
+  const [industrySource, setIndustrySource] = useState<IndustrySource>("none");
+  const [enrichStep, setEnrichStep] = useState<"main" | "subunit" | "ai" | "done">("main");
+
 
   const reset = useCallback(() => {
     setStep("method");
