@@ -302,6 +302,14 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                     </a>
                   </>
                 )}
+                {!customer.url && (
+                  <>
+                    <span className="text-muted-foreground/50" aria-hidden="true">·</span>
+                    <button onClick={() => startEdit("url")} className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
+                      <Globe className="h-3 w-3" aria-hidden="true" /> Legg til nettside
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
