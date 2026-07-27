@@ -377,9 +377,26 @@ export default function AdminOrganisation() {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground mt-3">
-            {isNb ? "Aktivert:" : "Activated:"} <strong>{stats.activeFrameworks}</strong>
-          </p>
+          <div className="mt-3">
+            <p className="text-sm text-muted-foreground">
+              {isNb ? "Aktivert:" : "Activated:"} <strong>{stats.activeFrameworks}</strong>
+            </p>
+            {frameworkNames.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {frameworkNames.map((name) => (
+                  <Badge key={name} variant="secondary" className="text-xs font-normal">
+                    {name}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {isNb
+                  ? "Ingen regelverk aktivert. Klikk Rediger valg for å legge til."
+                  : "No frameworks activated. Click Edit selection to add."}
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
 
