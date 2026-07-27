@@ -928,6 +928,7 @@ export default function MSPDashboard() {
           </div>
 
         <AddMSPCustomerDialog open={addOpen} onOpenChange={setAddOpen} onSuccess={() => refetch()} />
+        <GapAnalysisWizardDialog open={gapOpen} onOpenChange={setGapOpen} customers={filtered} />
       </main>
     </div>
   );
