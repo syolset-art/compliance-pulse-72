@@ -517,20 +517,40 @@ export default function Subscriptions() {
               accentColor="blue"
             />
 
-            <ModuleCard
-              icon={Briefcase}
-              title="Leverandørmodul"
-              description="TPRM og leverandørvurdering"
-              status={deactivatedModules.has("vendors") ? "inactive" : "active"}
-              price={deactivatedModules.has("vendors") ? 0 : vendorMonthlyPrice}
-              usage={String(vendorCount ?? 0)}
-              usageLimit={vendorLimit}
-              usageSuffix="leverandører"
-              action={deactivatedModules.has("vendors") ? "activate" : "open"}
-              onClick={() => deactivatedModules.has("vendors") ? reactivateModule("vendors") : navigate("/vendors")}
-              onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
-              accentColor="amber"
-            />
+            {(() => {
+              const used = vendorCount ?? 0;
+              const atCap = used >= vendorTier.vendorLimit;
+              const nextTier = getNextVendorTier(vendorTierId);
+              const isDeactivated = deactivatedModules.has("vendors");
+              const capFooter = !isDeactivated && atCap && nextTier ? (
+                <div className="flex items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50/60 px-3 py-2">
+                  <p className="text-xs text-amber-800">
+                    Dere har brukt opp plassen. Neste nivå gir plass til {nextTier.vendorLimit} leverandører for {formatKr(nextTier.monthlyPriceKr)} per måned.
+                  </p>
+                  <Button size="sm" variant="outline" className="h-7 text-xs shrink-0" onClick={() => setChangeVendorTierOpen(true)}>
+                    Endre nivå
+                  </Button>
+                </div>
+              ) : undefined;
+              return (
+                <ModuleCard
+                  icon={Briefcase}
+                  title="Leverandørmodul"
+                  description="TPRM og leverandørvurdering"
+                  status={isDeactivated ? "inactive" : "active"}
+                  price={isDeactivated ? 0 : vendorTier.monthlyPriceKr}
+                  priceLabel={isDeactivated ? undefined : vendorTier.label}
+                  usage={String(used)}
+                  usageLimit={String(vendorTier.vendorLimit)}
+                  usageSuffix="leverandører"
+                  action={isDeactivated ? "activate" : "change"}
+                  onClick={() => isDeactivated ? reactivateModule("vendors") : setChangeVendorTierOpen(true)}
+                  onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
+                  accentColor="amber"
+                  footer={capFooter}
+                />
+              );
+            })()}
 
             <ModuleCard
               icon={Server}
