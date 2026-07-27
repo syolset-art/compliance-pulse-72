@@ -1217,7 +1217,15 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pl-6">
                   <span>Org.nr: {selectedCompany.organisasjonsnummer}</span>
                   {selectedCompany.naeringskode1?.beskrivelse && (
-                    <span>{selectedCompany.naeringskode1.beskrivelse}</span>
+                    <span className="inline-flex items-center gap-1">
+                      {selectedCompany.naeringskode1.beskrivelse}
+                      {industrySource === "ai_suggested" && (
+                        <Sparkles
+                          className="h-3 w-3 text-primary"
+                          aria-label="Foreslått av Lara – kan endres"
+                        />
+                      )}
+                    </span>
                   )}
                 </div>
               </div>
