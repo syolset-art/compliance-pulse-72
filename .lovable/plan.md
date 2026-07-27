@@ -1,29 +1,30 @@
-## Nytt menypunkt: «Moduler» på kundeprofilen
+## Virksomhetsbeskrivelse på kundeprofilen
 
-Legger til en ny fane «Moduler» i kundedetalj-visningen (`MSPCustomerDetail.tsx`, rute `/msp-dashboard/:id`). Fanen viser hvilke Mynder-moduler som er aktivert for den spesifikke kunden, i samme visuelle stil som skjermbildet partneren delte (Mynder Core, Regelverk, Leverandørmodul, Assets, Trust Profile).
+Legger til et felt for kort beskrivelse av virksomheten i `CustomerStatusBanner.tsx`, plassert rett under raden med bransje / ansatte / org.nr. Feltet er inline-redigerbart (samme mønster som URL og kontaktinfo) og forhåndsutfylles fra offentlige registre under onboarding.
 
 ### Hva som bygges
 
-1. **Ny TabsTrigger «Moduler»** ved siden av eksisterende faner (Veiledning, Kartlegging, Meldinger, Trust Profile, Dokumentasjon, Regelverk). Synkroniseres med `?tab=modules` i URL som de andre.
+1. **Ny kolonne** `business_description text` på `msp_customers` (nullable), med tilhørende GRANTs.
 
-2. **Ny komponent `CustomerModulesTab.tsx`** (under `src/components/msp/`) som viser en liste med modulkort:
-   - **Mynder Core** – status (Aktivert/Ikke aktivert), kort beskrivelse, bruksindikator (f.eks. «21 av 50 systemer i bruk» med progress-bar), månedspris, handlinger «Avbestill» / «Endre nivå».
-   - **Regelverk** – antall aktive regelverk + liste (GDPR, ISO 27001, …), pris, «Legg til regelverk».
-   - **Leverandørmodul** – antall registrerte leverandører, pris, «Åpne modulen».
-   - **Assets** – antall registrerte eiendeler, pris, «Åpne modulen».
-   - **Trust Profile** – markert «Inkludert» / Gratis, viser public URL (`trust.mynder.no/<slug>`), «Åpne modulen».
-   
-   Header med tittel «Moduler» og hjelpetekst: «Se hva denne kunden har aktivert, og hva som kan legges til. Endringer påvirker månedsprisen.»
+2. **UI i `CustomerStatusBanner.tsx`**:
+   - Ny rad under industri/ansatte/org.nr med ikonet `Info` og teksten som lest-visning.
+   - Tomt felt viser «Legg til beskrivelse» (dashed, samme stil som «Legg til nettside»), med tooltip: «Hentes automatisk fra offentlige registre under onboarding. Kan justeres manuelt.»
+   - Klikk åpner inline textarea (2–3 linjer) med Lagre / Avbryt. Maks ~500 tegn.
+   - `Sparkles`-ikon vises bak teksten når beskrivelsen kommer fra registeret (uendret siden onboarding), for å indikere Lara-hentet innhold.
 
-3. **Datakilde (prototype)**: leser aktiverings-flagg og tellere fra data som allerede finnes på kunden (aktive regelverk, antall systemer/leverandører/assets fra eksisterende hooks). Der data mangler i prototypen brukes rimelige demo-verdier slik at kortene ser komplette ut – i tråd med prototype-praksis i prosjektet.
+3. **Onboarding-forhåndsutfylling** i `AddMSPCustomerDialog.tsx`:
+   - Utvider eksisterende BRreg-lookup-flyt (samme sted som industri hentes) til også å lese `aktivitet` / `beskrivelse` fra enhetsregisteret hvis tilgjengelig. Faller tilbake til AI-forslag via eksisterende `suggest-company-description` edge function (finnes allerede i prosjektet) når registerbeskrivelse mangler.
+   - Verdien lagres på `msp_customers.business_description` når kunden opprettes.
 
-4. **Ingen backend-endringer** i denne runden – kun UI-fane. Faktisk aktivering/avbestilling kan kobles på senere; knappene viser toast som placeholder («Kommer»).
+4. **Ingen andre steder oppdateres** i denne runden – bare banner + onboarding-datafangst.
+
+### Filer
+- `supabase/migrations/*` – ny kolonne + GRANTs.
+- `src/components/msp/CustomerStatusBanner.tsx` – ny rad + inline-edit.
+- `src/components/msp/AddMSPCustomerDialog.tsx` – hent og lagre beskrivelse.
+- (Reuse) `supabase/functions/suggest-company-description/` – allerede tilgjengelig.
 
 ### Ikke i scope
-- Global sidebar-endring (menypunktet ligger i kundens tab-rad, ikke i venstre sidebar).
-- Ny tabell/kolonne i databasen for modul-abonnement per kunde.
-- Faktisk betalings-/prisberegning.
-
-### Filer som endres/opprettes
-- `src/pages/MSPCustomerDetail.tsx` – ny TabsTrigger + TabsContent «modules».
-- `src/components/msp/CustomerModulesTab.tsx` – ny komponent.
+- Redigering fra andre kundevisninger.
+- Historikk / diff av beskrivelsen.
+- Bulk-oppdatering av eksisterende kunder.

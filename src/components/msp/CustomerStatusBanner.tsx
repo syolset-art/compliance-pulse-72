@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Building2, Sparkles, ShieldCheck, Send, Archive, Mail, User, UserPlus, ExternalLink, Shield, Pencil, Check, X, Copy, Briefcase, Globe } from "lucide-react";
+import { Building2, Sparkles, ShieldCheck, Send, Archive, Mail, User, UserPlus, ExternalLink, Shield, Pencil, Check, X, Copy, Briefcase, Globe, Info } from "lucide-react";
 import { COMPANY_ROLES } from "@/lib/mspCustomerConstants";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -32,6 +33,7 @@ interface CustomerLike {
   account_manager?: string | null;
   onboarding_completed?: boolean | null;
   last_activity_at?: string | null;
+  business_description?: string | null;
 }
 
 type StatusKey = "draft" | "invited" | "claimed" | "archived";
@@ -136,7 +138,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
   };
 
   // Inline edit state for contact fields
-  type Field = "name" | "email" | "role" | "url";
+  type Field = "name" | "email" | "role" | "url" | "description";
   const [editField, setEditField] = useState<Field | null>(null);
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
@@ -168,6 +170,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
       f === "name" ? (customer.contact_person || "") :
       f === "email" ? (customer.contact_email || "") :
       f === "url" ? (customer.url || "") :
+      f === "description" ? (customer.business_description || "") :
       (customer.contact_company_role || "")
     );
     setEditField(f);
@@ -198,26 +201,30 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
         return;
       }
     }
-    const col = editField === "name" ? "contact_person" : editField === "email" ? "contact_email" : editField === "url" ? "url" : "contact_company_role";
+    if (editField === "description" && trimmed.length > 500) {
+      toast.error("Beskrivelsen kan være maks 500 tegn");
+      return;
+    }
     const value = editField === "url" && trimmed
       ? (trimmed.startsWith("http") ? trimmed : `https://${trimmed}`)
       : trimmed || null;
-    const update =
-      col === "contact_person" ? { contact_person: value } :
-      col === "contact_email" ? { contact_email: value } :
-      col === "url" ? { url: value } :
+    const update: Record<string, string | null> =
+      editField === "name" ? { contact_person: value } :
+      editField === "email" ? { contact_email: value } :
+      editField === "url" ? { url: value } :
+      editField === "description" ? { business_description: value } :
       { contact_company_role: value };
     setSaving(true);
     const { error } = await supabase
       .from("msp_customers")
-      .update(update)
+      .update(update as any)
       .eq("id", customer.id);
     setSaving(false);
     if (error) {
       toast.error("Kunne ikke lagre");
       return;
     }
-    toast.success("Kontakt oppdatert");
+    toast.success(editField === "description" ? "Beskrivelse oppdatert" : "Kontakt oppdatert");
     setEditField(null);
     onUpdate?.();
   };
@@ -368,6 +375,79 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                       </TooltipProvider>
                     )}
                   </>
+                )}
+              </div>
+
+              {/* Virksomhetsbeskrivelse */}
+              <div className="mt-1.5">
+                {editField === "description" ? (
+                  <div className="flex items-start gap-1.5">
+                    <Info className="h-3 w-3 mt-1 text-muted-foreground shrink-0" aria-hidden="true" />
+                    <div className="flex-1 min-w-0">
+                      <Textarea
+                        autoFocus
+                        value={draft}
+                        onChange={(e) => setDraft(e.target.value.slice(0, 500))}
+                        placeholder="Kort beskrivelse av hva virksomheten driver med…"
+                        rows={2}
+                        className="text-xs min-h-[52px] resize-none"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) saveEdit();
+                          if (e.key === "Escape") setEditField(null);
+                        }}
+                      />
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-[10px] text-muted-foreground">{draft.length}/500 · ⌘+Enter for å lagre</span>
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => setEditField(null)} className="text-[11px] text-muted-foreground hover:text-foreground px-1.5 py-0.5 rounded">Avbryt</button>
+                          <button onClick={saveEdit} disabled={saving} className="text-[11px] font-medium text-primary hover:bg-primary/10 px-1.5 py-0.5 rounded">Lagre</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : customer.business_description ? (
+                  <div className="group flex items-start gap-1.5 text-xs text-foreground/80">
+                    <Info className="h-3 w-3 mt-0.5 text-muted-foreground shrink-0" aria-hidden="true" />
+                    <p className="leading-snug flex-1 min-w-0">
+                      {customer.business_description}
+                      <TooltipProvider delayDuration={150}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex align-middle ml-1">
+                              <Sparkles className="h-3 w-3 text-primary/70" aria-hidden="true" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs">
+                            <p className="text-sm">Hentet fra offentlige registre under onboarding. Klikk på blyanten for å justere manuelt.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </p>
+                    <button
+                      onClick={() => startEdit("description")}
+                      className="opacity-0 group-hover:opacity-100 p-0.5 text-muted-foreground hover:text-foreground rounded shrink-0 transition-opacity"
+                      aria-label="Rediger beskrivelse"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <TooltipProvider delayDuration={150}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => startEdit("description")}
+                          className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                        >
+                          <Info className="h-3 w-3" aria-hidden="true" />
+                          Legg til beskrivelse av virksomheten
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-xs">
+                        <p className="text-sm">Hentes automatisk fra offentlige registre under onboarding. Kan justeres manuelt.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 )}
               </div>
             </div>

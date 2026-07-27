@@ -151,6 +151,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   type IndustrySource = "brreg_main" | "brreg_subunit" | "ai_suggested" | "none";
   const [industrySource, setIndustrySource] = useState<IndustrySource>("none");
   const [enrichStep, setEnrichStep] = useState<"main" | "subunit" | "ai" | "done">("main");
+  const [businessDescription, setBusinessDescription] = useState<string>("");
 
 
   const reset = useCallback(() => {
@@ -171,6 +172,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
     setIndustrySource("none");
     setEnrichStep("main");
+    setBusinessDescription("");
   }, []);
 
 
@@ -308,6 +310,22 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
     setEnrichStep("done");
     setSelectedCompany(enriched);
+
+    // Generate short business description from public register data (best-effort)
+    try {
+      const industryLabel = enriched.naeringskode1?.beskrivelse || "";
+      const { data: descRes } = await supabase.functions.invoke("suggest-company-description", {
+        body: {
+          companyName: enriched.navn,
+          industry: industryLabel,
+          language: "nb",
+        },
+      });
+      if (descRes?.suggestion) {
+        setBusinessDescription(String(descRes.suggestion).slice(0, 500));
+      }
+    } catch { /* ignore — description is optional */ }
+
     setTimeout(() => setStep("contact"), 800);
   };
 
@@ -332,6 +350,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         org_number: selectedCompany.organisasjonsnummer,
         industry: selectedCompany.naeringskode1?.beskrivelse || null,
         employees: mapEmployees(selectedCompany.antallAnsatte) || null,
+        business_description: businessDescription || null,
         contact_person: form.contact_person || null,
         contact_email: form.contact_email || null,
         contact_company_role: form.contact_company_role || null,
