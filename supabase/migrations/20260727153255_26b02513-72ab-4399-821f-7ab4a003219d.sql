@@ -1,0 +1,1 @@
+ALTER TABLE public.msp_customers ADD COLUMN IF NOT EXISTS business_description text;
