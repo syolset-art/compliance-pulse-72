@@ -434,6 +434,7 @@ export default function Subscriptions() {
               onClick={() => deactivatedModules.has("frameworks") ? reactivateModule("frameworks") : setEditFrameworksOpen(true)}
               onDeactivate={() => requestDeactivate("frameworks", "Regelverk")}
               deactivateLabel="Deaktiver alle regelverk"
+              breakdown={deactivatedModules.has("frameworks") ? undefined : frameworkBreakdown}
               accentColor="blue"
             />
 
