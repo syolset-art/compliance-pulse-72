@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Building2, Sparkles, ShieldCheck, Send, Archive, Mail, User, UserPlus, ExternalLink, Shield, Pencil, Check, X, Copy, Briefcase } from "lucide-react";
+import { Building2, Sparkles, ShieldCheck, Send, Archive, Mail, User, UserPlus, ExternalLink, Shield, Pencil, Check, X, Copy, Briefcase, Globe } from "lucide-react";
 import { LaraAvatar } from "@/components/asset-profile/LaraAvatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -118,26 +118,38 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
     setAccountManager(customer.account_manager ?? getAccountManagerOverride(customer.id));
   }, [customer.id, customer.account_manager]);
 
-  const handleAssign = (name: string) => {
+  const handleAssign = async (name: string) => {
+    const { error } = await supabase
+      .from("msp_customers")
+      .update({ account_manager: name })
+      .eq("id", customer.id);
+    if (error) {
+      toast.error("Kunne ikke lagre ansvarlig");
+      return;
+    }
     setAccountManagerOverride(customer.id, name);
     setAccountManager(name);
     setAssignOpen(false);
     toast.success(`${name} er satt som ansvarlig`);
+    onUpdate?.();
   };
 
   // Inline edit state for contact fields
-  type Field = "name" | "email" | "role";
+  type Field = "name" | "email" | "role" | "url";
   const [editField, setEditField] = useState<Field | null>(null);
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [emailErr, setEmailErr] = useState<string | null>(null);
+  const [urlErr, setUrlErr] = useState<string | null>(null);
   const [emailPopOpen, setEmailPopOpen] = useState(false);
 
   const startEdit = (f: Field) => {
     setEmailErr(null);
+    setUrlErr(null);
     setDraft(
       f === "name" ? (customer.contact_person || "") :
       f === "email" ? (customer.contact_email || "") :
+      f === "url" ? (customer.url || "") :
       (customer.contact_company_role || "")
     );
     setEditField(f);
@@ -150,11 +162,27 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
       setEmailErr("Ugyldig e-post");
       return;
     }
-    const col = editField === "name" ? "contact_person" : editField === "email" ? "contact_email" : "contact_company_role";
+    if (editField === "url" && trimmed) {
+      try {
+        new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+      } catch {
+        setUrlErr("Ugyldig nettadresse");
+        return;
+      }
+    }
+    const col = editField === "name" ? "contact_person" : editField === "email" ? "contact_email" : editField === "url" ? "url" : "contact_company_role";
+    const value = editField === "url" && trimmed
+      ? (trimmed.startsWith("http") ? trimmed : `https://${trimmed}`)
+      : trimmed || null;
+    const update =
+      col === "contact_person" ? { contact_person: value } :
+      col === "contact_email" ? { contact_email: value } :
+      col === "url" ? { url: value } :
+      { contact_company_role: value };
     setSaving(true);
     const { error } = await supabase
       .from("msp_customers")
-      .update({ [col]: trimmed || null } as any)
+      .update(update)
       .eq("id", customer.id);
     setSaving(false);
     if (error) {
@@ -277,6 +305,14 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                     <a href={customer.url || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
                       {hostname}<ExternalLink className="h-3 w-3" aria-hidden="true" />
                     </a>
+                  </>
+                )}
+                {!customer.url && (
+                  <>
+                    <span className="text-muted-foreground/50" aria-hidden="true">·</span>
+                    <button onClick={() => startEdit("url")} className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
+                      <Globe className="h-3 w-3" aria-hidden="true" /> Legg til nettside
+                    </button>
                   </>
                 )}
               </div>
@@ -411,6 +447,40 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
               ) : (
                 <button onClick={() => startEdit("role")} className="inline-flex items-center gap-1 rounded-md border border-dashed border-warning/50 bg-warning/5 px-1.5 py-0.5 text-warning hover:bg-warning/10">
                   <Briefcase className="h-3 w-3" aria-hidden="true" /> Legg til rolle
+                </button>
+              )}
+
+              <span className="text-muted-foreground/40" aria-hidden="true">·</span>
+
+              {/* URL */}
+              {editField === "url" ? (
+                <span className="inline-flex items-center gap-1">
+                  <span className="inline-flex flex-col">
+                    <Input
+                      autoFocus
+                      value={draft}
+                      onChange={(e) => { setDraft(e.target.value); setUrlErr(null); }}
+                      placeholder="https://example.no"
+                      className={cn("h-6 text-xs w-56 px-2", urlErr && "border-destructive")}
+                      maxLength={255}
+                      onKeyDown={(e) => { if (e.key === "Enter") saveEdit(); if (e.key === "Escape") setEditField(null); }}
+                    />
+                    {urlErr && <span className="text-[10px] text-destructive mt-0.5">{urlErr}</span>}
+                  </span>
+                  <button onClick={saveEdit} disabled={saving} className="p-0.5 text-success hover:bg-success/10 rounded" aria-label="Lagre"><Check className="h-3 w-3" /></button>
+                  <button onClick={() => setEditField(null)} className="p-0.5 text-muted-foreground hover:bg-muted rounded" aria-label="Avbryt"><X className="h-3 w-3" /></button>
+                </span>
+              ) : customer.url ? (
+                <span className="group inline-flex items-center gap-1 text-foreground/80">
+                  <Globe className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+                  <span className="truncate">{hostname}</span>
+                  <button onClick={() => startEdit("url")} className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-muted transition-opacity" aria-label="Rediger nettside">
+                    <Pencil className="h-2.5 w-2.5 text-muted-foreground" />
+                  </button>
+                </span>
+              ) : (
+                <button onClick={() => startEdit("url")} className="inline-flex items-center gap-1 rounded-md border border-dashed border-warning/50 bg-warning/5 px-1.5 py-0.5 text-warning hover:bg-warning/10">
+                  <Globe className="h-3 w-3" aria-hidden="true" /> Legg til nettside
                 </button>
               )}
             </div>

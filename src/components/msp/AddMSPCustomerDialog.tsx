@@ -5,6 +5,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -16,9 +17,10 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import {
   UserPlus, FileSpreadsheet, Server, ArrowLeft, Search, Building2,
-  MapPin, Loader2, CheckCircle2, User, Mail, Briefcase, Upload, AlertCircle, Trash2, Sparkles,
+  MapPin, Loader2, CheckCircle2, User, Mail, Briefcase, Upload, AlertCircle, Trash2, Sparkles, Globe,
 } from "lucide-react";
 import { COMPANY_ROLES, MSP_SUBSCRIPTION_TIERS } from "@/lib/mspCustomerConstants";
+import { PARTNER_TEAM } from "@/lib/partnerTeam";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatKr } from "@/lib/planConstants";
 import {
@@ -99,6 +101,9 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     contact_person: "",
     contact_email: "",
     contact_company_role: "",
+    account_manager: "",
+    has_website: true,
+    url: "",
     subscription_plan: "Gratis",
     country_code: "NO",
   });
@@ -162,7 +167,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setAcronisSelected(new Set());
     setAcronisImporting(false);
     setAcronisImportedCount(0);
-    setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis", country_code: "NO" });
+    setForm({ contact_person: "", contact_email: "", contact_company_role: "", account_manager: "", has_website: true, url: "", subscription_plan: "Gratis", country_code: "NO" });
     setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
     setIndustrySource("none");
     setEnrichStep("main");
@@ -330,6 +335,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         contact_person: form.contact_person || null,
         contact_email: form.contact_email || null,
         contact_company_role: form.contact_company_role || null,
+        account_manager: form.account_manager || null,
+        url: form.has_website ? form.url.trim() || null : null,
         country_code: form.country_code || "NO",
         compliance_score: complianceScore,
         initial_assessment_score: complianceScore,
@@ -1230,6 +1237,70 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1.5 text-sm">
+                  <Globe className="h-3.5 w-3.5" /> Nettside
+                </Label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, has_website: true })}
+                    className={cn(
+                      "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
+                      form.has_website
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:bg-muted"
+                    )}
+                  >
+                    Ja, har nettside
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, has_website: false, url: "" })}
+                    className={cn(
+                      "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
+                      !form.has_website
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:bg-muted"
+                    )}
+                  >
+                    Har ikke nettside
+                  </button>
+                </div>
+                {form.has_website && (
+                  <>
+                    <Input
+                      value={form.url}
+                      onChange={(e) => setForm({ ...form, url: e.target.value })}
+                      placeholder="https://example.no"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Bekreft at nettadressen stemmer. Mynder bruker den til å hente compliance-informasjon automatisk. Skanningen starter først når du går videre.
+                    </p>
+                  </>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-1.5 text-sm">
+                  <UserPlus className="h-3.5 w-3.5" /> Kundekontakt
+                </Label>
+                <Select
+                  value={form.account_manager}
+                  onValueChange={(v) => setForm({ ...form, account_manager: v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Velg partner-medlem" /></SelectTrigger>
+                  <SelectContent>
+                    {PARTNER_TEAM.map((m) => (
+                      <SelectItem key={m.id} value={m.name}>{m.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Hvem hos dere har ansvaret for denne kunden? De får varsler om kunden.
+                </p>
+              </div>
+
               <div>
                 <Label className="flex items-center gap-1.5 text-sm">
                   <User className="h-3.5 w-3.5" /> Kontaktperson
@@ -1358,6 +1429,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                       )}
                     </p>
                   )}
+                  {form.account_manager && <p>Kundekontakt: {form.account_manager}</p>}
+                  {form.url && <p>Nettside: {form.url}</p>}
                   {form.contact_person && <p>Kontakt: {form.contact_person}</p>}
                   {form.contact_email && <p>E-post: {form.contact_email}</p>}
                 </div>
