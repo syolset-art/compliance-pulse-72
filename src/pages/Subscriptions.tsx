@@ -280,8 +280,15 @@ export default function Subscriptions() {
   }, [activeFrameworkIds]);
 
   const activeFrameworkCount = activeFrameworks.length;
-  const paidFrameworkCount = activeFrameworks.filter((fw) => !!FRAMEWORK_ADDONS[fw.id] && !(FREE_FRAMEWORKS as readonly string[]).includes(fw.id)).length;
-  const frameworkMonthlyPrice = paidFrameworkCount * 836;
+  const paidActiveFrameworks = activeFrameworks.filter(
+    (fw) => !!FRAMEWORK_ADDONS[fw.id] && !(FREE_FRAMEWORKS as readonly string[]).includes(fw.id)
+  );
+  const paidFrameworkCount = paidActiveFrameworks.length;
+  const frameworkBreakdown = paidActiveFrameworks.map((fw) => ({
+    label: FRAMEWORK_ADDONS[fw.id]?.name ?? fw.name ?? fw.id,
+    priceKr: getFrameworkMonthlyPrice(fw.id),
+  }));
+  const frameworkMonthlyPrice = frameworkBreakdown.reduce((sum, item) => sum + item.priceKr, 0);
 
   const planPrice = planConfig.monthlyPriceKr === -1 ? 0 : (planConfig.monthlyPriceKr || 0);
   const vendorMonthlyPrice = 1089;
