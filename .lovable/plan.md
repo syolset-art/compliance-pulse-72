@@ -1,23 +1,29 @@
-## Mål
+## Nytt menypunkt: «Moduler» på kundeprofilen
 
-Krympe Lara-samtykke-boksen som i dag tar en hel kortbredde over dokumentlisten, og heller vise den som en subtil, elegant kontroll ved siden av dokumentasjons-overskriften.
+Legger til en ny fane «Moduler» i kundedetalj-visningen (`MSPCustomerDetail.tsx`, rute `/msp-dashboard/:id`). Fanen viser hvilke Mynder-moduler som er aktivert for den spesifikke kunden, i samme visuelle stil som skjermbildet partneren delte (Mynder Core, Regelverk, Leverandørmodul, Assets, Trust Profile).
 
-## Endring
+### Hva som bygges
 
-I `src/components/msp/CustomerDocumentationTab.tsx`:
+1. **Ny TabsTrigger «Moduler»** ved siden av eksisterende faner (Veiledning, Kartlegging, Meldinger, Trust Profile, Dokumentasjon, Regelverk). Synkroniseres med `?tab=modules` i URL som de andre.
 
-1. Fjerne det store `<Card>`-blokken (linje 242–271) som viser "Lara kan få lese-tilgang til opplastede dokumenter".
-2. Flytte kontrollen inn i header-raden ved siden av "Dokumentasjon"-tittelen (der teksten `{totalDocs} bevis fra {groupedDocs.size} regelverk` står nå).
-3. Ny kompakt form: en liten pill med Lara-avatar/ShieldCheck-ikon + kort label "Lara-tilgang" + en liten `Switch` (sm), gruppert i én rad. Tooltip via `Info`-ikon eller på hele pillen forklarer hva tilgangen betyr.
+2. **Ny komponent `CustomerModulesTab.tsx`** (under `src/components/msp/`) som viser en liste med modulkort:
+   - **Mynder Core** – status (Aktivert/Ikke aktivert), kort beskrivelse, bruksindikator (f.eks. «21 av 50 systemer i bruk» med progress-bar), månedspris, handlinger «Avbestill» / «Endre nivå».
+   - **Regelverk** – antall aktive regelverk + liste (GDPR, ISO 27001, …), pris, «Legg til regelverk».
+   - **Leverandørmodul** – antall registrerte leverandører, pris, «Åpne modulen».
+   - **Assets** – antall registrerte eiendeler, pris, «Åpne modulen».
+   - **Trust Profile** – markert «Inkludert» / Gratis, viser public URL (`trust.mynder.no/<slug>`), «Åpne modulen».
+   
+   Header med tittel «Moduler» og hjelpetekst: «Se hva denne kunden har aktivert, og hva som kan legges til. Endringer påvirker månedsprisen.»
 
-```text
-┌──────────────────────────────────────────────────────────────┐
-│ Dokumentasjon ⓘ        12 bevis · 3 regelverk   🛡 Lara-tilgang [◉]│
-└──────────────────────────────────────────────────────────────┘
-```
+3. **Datakilde (prototype)**: leser aktiverings-flagg og tellere fra data som allerede finnes på kunden (aktive regelverk, antall systemer/leverandører/assets fra eksisterende hooks). Der data mangler i prototypen brukes rimelige demo-verdier slik at kortene ser komplette ut – i tråd med prototype-praksis i prosjektet.
 
-## Detaljer
+4. **Ingen backend-endringer** i denne runden – kun UI-fane. Faktisk aktivering/avbestilling kan kobles på senere; knappene viser toast som placeholder («Kommer»).
 
-- Bruk `h-7` høyde på pill-containeren, `Switch` i `scale-75` for tettere visuelt uttrykk.
-- Beholde all funksjonalitet: `access`/`toggleAccess`, tooltip-tekst.
-- Ingen andre komponenter berøres.
+### Ikke i scope
+- Global sidebar-endring (menypunktet ligger i kundens tab-rad, ikke i venstre sidebar).
+- Ny tabell/kolonne i databasen for modul-abonnement per kunde.
+- Faktisk betalings-/prisberegning.
+
+### Filer som endres/opprettes
+- `src/pages/MSPCustomerDetail.tsx` – ny TabsTrigger + TabsContent «modules».
+- `src/components/msp/CustomerModulesTab.tsx` – ny komponent.

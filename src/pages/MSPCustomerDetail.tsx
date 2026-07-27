@@ -34,6 +34,7 @@ import { TrustProfileTakeoverInfoDialog } from "@/components/msp/TrustProfileTak
 import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { CustomerDocumentationTab } from "@/components/msp/CustomerDocumentationTab";
+import { CustomerModulesTab } from "@/components/msp/CustomerModulesTab";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { MATURITY_AREAS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 
@@ -324,6 +325,9 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="regulations" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Regelverk
                 </TabsTrigger>
+                <TabsTrigger value="modules" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
+                  Moduler
+                </TabsTrigger>
               </TabsList>
             </nav>
 
@@ -457,6 +461,14 @@ export default function MSPCustomerDetail() {
                   active_frameworks: customer.active_frameworks,
                   compliance_score: customer.compliance_score,
                 }}
+              />
+            </TabsContent>
+
+            <TabsContent value="modules" className="mt-6">
+              <CustomerModulesTab
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
+                activeFrameworkIds={activeFrameworkIds}
               />
             </TabsContent>
 
