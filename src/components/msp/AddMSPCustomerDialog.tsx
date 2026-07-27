@@ -172,6 +172,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
     setIndustrySource("none");
     setEnrichStep("main");
+    setBusinessDescription("");
   }, []);
 
 
