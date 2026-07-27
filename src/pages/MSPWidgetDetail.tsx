@@ -334,7 +334,6 @@ function RegulatoryOverview() {
 function WidgetBody({ id }: { id: string }) {
   switch (id) {
     case "claim-rate":
-    case "claim-development":
       return (
         <>
           <Section title="Utvikling siste 6 måneder">
@@ -376,6 +375,87 @@ function WidgetBody({ id }: { id: string }) {
           </Section>
         </>
       );
+
+    case "claim-development": {
+      const totalPotential = POTENTIAL_BY_FRAMEWORK.reduce((s, r) => s + r.potential, 0);
+      const totalGaps = POTENTIAL_BY_FRAMEWORK.reduce((s, r) => s + r.gaps, 0);
+      return (
+        <>
+          <Section title="Potensial siste 6 måneder">
+            <Card className="p-5">
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={SERVICE_POTENTIAL_TREND_DETAIL} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gPotential" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                      tickFormatter={(v: number) => formatPartnerCurrency(v)}
+                    />
+                    <Tooltip
+                      contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+                      formatter={(v: number) => [formatPartnerCurrency(v), "Potensial"]}
+                    />
+                    <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#gPotential)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
+          </Section>
+
+          <Section title="Potensial per regelverk">
+            <Card className="divide-y divide-border">
+              <div className="grid grid-cols-4 gap-3 px-4 py-2.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                <div>Regelverk</div>
+                <div className="text-right">Åpne gap</div>
+                <div className="text-right">Snittpris/gap</div>
+                <div className="text-right">Potensial</div>
+              </div>
+              {POTENTIAL_BY_FRAMEWORK.map((r) => (
+                <div key={r.framework} className="grid grid-cols-4 gap-3 px-4 py-3 items-center hover:bg-accent/40 transition-colors">
+                  <div className="font-medium text-foreground">{r.framework}</div>
+                  <div className="text-right text-sm tabular-nums">{r.gaps}</div>
+                  <div className="text-right text-sm tabular-nums text-muted-foreground">{formatPartnerCurrency(r.avgPrice, false)}</div>
+                  <div className="text-right text-sm font-semibold tabular-nums text-primary">{formatPartnerCurrency(r.potential)}</div>
+                </div>
+              ))}
+              <div className="grid grid-cols-4 gap-3 px-4 py-3 items-center bg-primary/[0.04]">
+                <div className="text-sm font-semibold text-foreground">Totalt</div>
+                <div className="text-right text-sm font-semibold tabular-nums">{totalGaps}</div>
+                <div />
+                <div className="text-right text-sm font-bold tabular-nums text-primary">{formatPartnerCurrency(totalPotential)}</div>
+              </div>
+            </Card>
+          </Section>
+
+          <Section title="Kunder med størst potensial">
+            <Card className="divide-y divide-border">
+              {TOP_POTENTIAL_CUSTOMERS.map((c) => (
+                <div key={c.name} className="flex items-center gap-3 p-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-foreground truncate">{c.name}</div>
+                    <div className="text-xs text-muted-foreground">{c.gaps} åpne gap</div>
+                  </div>
+                  <div className="text-sm font-semibold tabular-nums text-primary">{formatPartnerCurrency(c.potential)}</div>
+                  <Button size="sm" variant="ghost">
+                    Åpne kunde <ArrowRight className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              ))}
+            </Card>
+          </Section>
+        </>
+      );
+    }
+
 
     case "needs-follow-up": {
       const toneCls: Record<string, string> = {
