@@ -33,7 +33,7 @@ function formatPrice(n: number) {
 export function CustomerModulesTab({ customerId, customerName, activeFrameworkIds }: CustomerModulesTabProps) {
   const frameworkNames = useMemo(() => {
     return activeFrameworkIds
-      .map((id) => ALL_FRAMEWORKS.find((f) => f.id === id)?.shortName || ALL_FRAMEWORKS.find((f) => f.id === id)?.name || id)
+      .map((id) => ALL_FRAMEWORKS.find((f) => f.id === id)?.name || id)
       .filter(Boolean);
   }, [activeFrameworkIds]);
 
