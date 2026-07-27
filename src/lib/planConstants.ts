@@ -243,6 +243,7 @@ export function planNameToTier(name: string | undefined | null): PlanTier {
   if (!name) return "basis"; // default everyone to professional in demo
   const map: Record<string, PlanTier> = {
     free: "free", starter: "free",
+    growth: "basis", vekst: "basis",
     basis: "basis", professional: "basis",
     premium: "premium", pro: "premium",
     enterprise: "enterprise",
