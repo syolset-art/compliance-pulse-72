@@ -914,9 +914,18 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   {searchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 </Button>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setStep("country")} className="gap-1">
-                <ArrowLeft className="h-4 w-4" /> Tilbake
-              </Button>
+              <div className="flex items-center justify-between">
+                <Button variant="ghost" size="sm" onClick={() => setStep("country")} className="gap-1">
+                  <ArrowLeft className="h-4 w-4" /> Tilbake
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setStep("manual")}
+                  className="text-xs font-medium text-primary hover:underline"
+                >
+                  Finner du ikke virksomheten? Registrer manuelt
+                </button>
+              </div>
             </div>
           </>
         )}
