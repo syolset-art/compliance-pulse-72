@@ -151,6 +151,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   type IndustrySource = "brreg_main" | "brreg_subunit" | "ai_suggested" | "none";
   const [industrySource, setIndustrySource] = useState<IndustrySource>("none");
   const [enrichStep, setEnrichStep] = useState<"main" | "subunit" | "ai" | "done">("main");
+  const [businessDescription, setBusinessDescription] = useState<string>("");
 
 
   const reset = useCallback(() => {
