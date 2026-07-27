@@ -316,11 +316,11 @@ export default function Subscriptions() {
   const totalMonthly = useMemo(() => {
     let total = corePrice;
     if (activeFrameworkCount > 0) total += frameworkMonthlyPrice;
-    total += vendorMonthlyPrice;
-    total += assetMonthlyPrice;
-    if (hasPartnerAccess) total += partnerWorkspaceMonthlyPrice;
+    if (!deactivatedModules.has("vendors")) total += vendorMonthlyPrice;
+    if (!deactivatedModules.has("assets")) total += assetMonthlyPrice;
+    if (hasPartnerAccess && !deactivatedModules.has("partner")) total += partnerWorkspaceMonthlyPrice;
     return total;
-  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess]);
+  }, [corePrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, hasPartnerAccess, deactivatedModules]);
 
   const handleCoreTierSelect = (nextTierId: CoreTierId) => {
     setPendingCoreTierId(nextTierId);
