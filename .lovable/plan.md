@@ -1,44 +1,23 @@
-````text
-MÅL
-Utvide «Kontaktinformasjon»-steget i AddMSPCustomerDialog slik det matcher referansedesignet: nettside-felt med ja/nei-toggle, URL-input, valg av kundekontakt (ansvarlig partner), og hjelpetekster. Lagre nettside og kundekontakt i msp_customers og vis dem i CustomerStatusBanner.
+## Mål
 
-KONTEKST
-- AddMSPCustomerDialog.tsx har allerede en «contact»-step med kontaktperson, e-post og rolle.
-- msp_customers-tabellen har ikke kolonner for url eller account_manager i dag.
-- CustomerStatusBanner viser «Ansvarlig» via PARTNER_TEAM og localStorage-overstyringer, men verdien lagres ikke i databasen.
+Krympe Lara-samtykke-boksen som i dag tar en hel kortbredde over dokumentlisten, og heller vise den som en subtil, elegant kontroll ved siden av dokumentasjons-overskriften.
 
-ENDRINGER
+## Endring
 
-1. Database
-   Migrasjon som legger til i public.msp_customers:
-   - url (text, nullable)
-   - account_manager (text, nullable)
-   - Riktige GRANTs følger med (authenticated får SELECT/INSERT/UPDATE/DELETE, service_role ALL).
+I `src/components/msp/CustomerDocumentationTab.tsx`:
 
-2. AddMSPCustomerDialog.tsx – contact-step
-   - Nytt form-state: has_website (boolean), url (string).
-   - Nettside-seksjon:
-     - Toggle: «Ja, har nettside» / «Har ikke nettside».
-     - URL-input vises kun når «Ja» er valgt.
-     - Hjelpetekst: «Bekreft at nettadressen stemmer. Mynder bruker den til å hente compliance-informasjon automatisk. Skanningen starter først når du går videre.»
-   - Kundekontakt-seksjon:
-     - Dropdown med PARTNER_TEAM som valg.
-     - Hjelpetekst: «Hvem hos dere har ansvaret for denne kunden? De får varsler om kunden.»
-   - Oppdatere Neste-knapp til å gå til kartlegging (uendret flyt), men url/account_manager må være gyldig før videre.
+1. Fjerne det store `<Card>`-blokken (linje 242–271) som viser "Lara kan få lese-tilgang til opplastede dokumenter".
+2. Flytte kontrollen inn i header-raden ved siden av "Dokumentasjon"-tittelen (der teksten `{totalDocs} bevis fra {groupedDocs.size} regelverk` står nå).
+3. Ny kompakt form: en liten pill med Lara-avatar/ShieldCheck-ikon + kort label "Lara-tilgang" + en liten `Switch` (sm), gruppert i én rad. Tooltip via `Info`-ikon eller på hele pillen forklarer hva tilgangen betyr.
 
-3. AddMSPCustomerDialog.tsx – bekreftelse og lagring
-   - Vis nettside og kundekontakt i oppsummeringen (confirm-step).
-   - handleSave persisterer url og account_manager sammen med resten av kunden.
+```text
+┌──────────────────────────────────────────────────────────────┐
+│ Dokumentasjon ⓘ        12 bevis · 3 regelverk   🛡 Lara-tilgang [◉]│
+└──────────────────────────────────────────────────────────────┘
+```
 
-4. CustomerStatusBanner.tsx
-   - Hent account_manager fra kunden i stedet for (eller i tillegg til) localStorage-overstyringer.
-   - Vis nettside som klikkbar lenke dersom url finnes.
-   - Oppdatere «Endre ansvarlig»-popover til å lagre i databasen via Supabase-update, ikke bare localStorage.
+## Detaljer
 
-5. Verifisering
-   - Kjøre TypeScript-sjekk (tsgo/bun typecheck).
-   - Åpne dialogen i preview og sjekke at feltene vises, validering fungerer, og lagring lagrer url/account_manager.
-
-LEVERANSE
-- Én migrasjon + oppdaterte komponenter. Ingen endring i eksisterende stegrekkefølge utover å berike contact-steget.
-````
+- Bruk `h-7` høyde på pill-containeren, `Switch` i `scale-75` for tettere visuelt uttrykk.
+- Beholde all funksjonalitet: `access`/`toggleAccess`, tooltip-tekst.
+- Ingen andre komponenter berøres.
