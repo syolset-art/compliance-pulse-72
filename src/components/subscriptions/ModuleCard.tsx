@@ -84,6 +84,7 @@ export function ModuleCard({
   onDeactivate,
   deactivateLabel,
   accentColor = "purple",
+  breakdown,
 }: ModuleCardProps) {
   const cfg = statusConfig[status];
   const accent = accentConfig[accentColor];
