@@ -1074,13 +1074,35 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                     <span>Verifisert i {COUNTRIES.find(c => c.code === form.country_code)?.registry || "registeret"}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
-                    <span>Henter bransje, ansatte og adresse</span>
+                    {enrichStep === "main" ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                    ) : (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                    )}
+                    <span>Henter bransje, ansatte og adresse fra hovedenhet</span>
                   </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
-                    <span>Foreslår regelverk basert på bransje</span>
-                  </div>
+                  {(enrichStep === "subunit" || industrySource === "brreg_subunit" ||
+                    (enrichStep === "done" && industrySource === "ai_suggested") ||
+                    enrichStep === "ai") && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      {enrichStep === "subunit" ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                      ) : (
+                        <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                      )}
+                      <span>Sjekker underenheter for bransjekode</span>
+                    </div>
+                  )}
+                  {(enrichStep === "ai" || industrySource === "ai_suggested") && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      {enrichStep === "ai" ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                      ) : (
+                        <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                      )}
+                      <span>Lara foreslår bransje ut fra virksomhetsnavn</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
                     <span>Klargjør baseline for Trust Profile</span>
