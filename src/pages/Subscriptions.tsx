@@ -368,7 +368,7 @@ export default function Subscriptions() {
             <ModuleCard
               icon={LayoutGrid}
               title="Mynder Core"
-              description={tierConfig.displayName}
+              description={planConfig.displayName}
               status="active"
               price={planPrice}
               priceLabel={currentPlanId === "starter" ? "Gratis" : "Basisplattform"}
