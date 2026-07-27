@@ -1429,6 +1429,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                       )}
                     </p>
                   )}
+                  {form.account_manager && <p>Kundekontakt: {form.account_manager}</p>}
+                  {form.url && <p>Nettside: {form.url}</p>}
                   {form.contact_person && <p>Kontakt: {form.contact_person}</p>}
                   {form.contact_email && <p>E-post: {form.contact_email}</p>}
                 </div>
