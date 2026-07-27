@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import {
   PLANS, ORDERED_PLANS, FRAMEWORK_ADDONS, FREE_FRAMEWORKS,
   formatKr, getYearlySavingsKr, planNameToTier, PLAN_TIERS,
+  getFrameworkMonthlyPrice,
   type PlanId, type BillingInterval,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
