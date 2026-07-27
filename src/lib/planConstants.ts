@@ -146,6 +146,38 @@ export function getNextCoreTier(id: CoreTierId): CoreTier | null {
   return idx >= 0 && idx < CORE_TIERS.length - 1 ? CORE_TIERS[idx + 1] : null;
 }
 
+// ─── Vendor module tiers ────────────────────────────────────────────
+// Leverandørmodulen mirrors Core's model: free up to 5, then paid tiers.
+
+export type VendorTierId = "vendor_free" | "vendor_20" | "vendor_50" | "vendor_100";
+
+export interface VendorTier {
+  id: VendorTierId;
+  label: string;
+  shortLabel: string;
+  vendorLimit: number;
+  monthlyPriceKr: number;
+  isFree?: boolean;
+}
+
+export const VENDOR_TIERS: VendorTier[] = [
+  { id: "vendor_free", label: "Inntil 5 leverandører",   shortLabel: "Inntil 5",   vendorLimit: 5,   monthlyPriceKr: 0,    isFree: true },
+  { id: "vendor_20",   label: "Inntil 20 leverandører",  shortLabel: "Inntil 20",  vendorLimit: 20,  monthlyPriceKr: 1089 },
+  { id: "vendor_50",   label: "Inntil 50 leverandører",  shortLabel: "Inntil 50",  vendorLimit: 50,  monthlyPriceKr: 1990 },
+  { id: "vendor_100",  label: "Inntil 100 leverandører", shortLabel: "Inntil 100", vendorLimit: 100, monthlyPriceKr: 3990 },
+];
+
+export const DEFAULT_VENDOR_TIER_ID: VendorTierId = "vendor_free";
+
+export function getVendorTier(id: VendorTierId): VendorTier {
+  return VENDOR_TIERS.find((t) => t.id === id) ?? VENDOR_TIERS[0];
+}
+
+export function getNextVendorTier(id: VendorTierId): VendorTier | null {
+  const idx = VENDOR_TIERS.findIndex((t) => t.id === id);
+  return idx >= 0 && idx < VENDOR_TIERS.length - 1 ? VENDOR_TIERS[idx + 1] : null;
+}
+
 
 // ─── Plan-level add-ons ─────────────────────────────────────────────
 
