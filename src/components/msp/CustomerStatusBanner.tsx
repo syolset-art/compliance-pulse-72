@@ -201,14 +201,18 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
         return;
       }
     }
-    const col = editField === "name" ? "contact_person" : editField === "email" ? "contact_email" : editField === "url" ? "url" : "contact_company_role";
+    if (editField === "description" && trimmed.length > 500) {
+      toast.error("Beskrivelsen kan være maks 500 tegn");
+      return;
+    }
     const value = editField === "url" && trimmed
       ? (trimmed.startsWith("http") ? trimmed : `https://${trimmed}`)
       : trimmed || null;
-    const update =
-      col === "contact_person" ? { contact_person: value } :
-      col === "contact_email" ? { contact_email: value } :
-      col === "url" ? { url: value } :
+    const update: Record<string, string | null> =
+      editField === "name" ? { contact_person: value } :
+      editField === "email" ? { contact_email: value } :
+      editField === "url" ? { url: value } :
+      editField === "description" ? { business_description: value } :
       { contact_company_role: value };
     setSaving(true);
     const { error } = await supabase
