@@ -230,6 +230,16 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
           );
         })}
       </div>
+
+      <EditActiveFrameworksDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        activeFrameworkIds={activeSet}
+        onToggle={handleToggleFramework}
+        updatingId={updatingId}
+        title={`Endre regelverk — ${customerName}`}
+        description="Aktiver eller deaktiver regelverk for denne kunden. Endringer påvirker månedsprisen."
+      />
     </div>
   );
 }
