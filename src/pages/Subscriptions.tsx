@@ -1,21 +1,21 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Sparkles, Check, CreditCard, FileText, ArrowRight,
+  Sparkles, Check, CreditCard, FileText,
   CheckCircle2, Shield, Crown, Zap, Star,
-  ChevronDown, ChevronUp, Settings2, Building2,
+  Settings2, Building2,
+  LayoutGrid, Server, BookOpen, Briefcase, Users, ShieldCheck, Globe,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { frameworks as allFrameworkDefs, getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
 import { FrameworkPurchaseDialog } from "@/components/dialogs/FrameworkPurchaseDialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Sidebar } from "@/components/Sidebar";
@@ -27,6 +27,7 @@ import {
   type PlanId, type BillingInterval,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
+import { ModuleCard } from "@/components/subscriptions/ModuleCard";
 import { cn } from "@/lib/utils";
 
 // Map current legacy tier to new PlanId for highlighting
@@ -37,7 +38,7 @@ function tierToPlanId(tierName: string | undefined): PlanId {
   return "professional";
 }
 
-// ─── Plan Card ───────────────────────────────────────────────────────
+// ─── Plan Card (used in the change-plan dialog) ────────────────────────
 
 function PlanCard({
   plan,
@@ -73,7 +74,7 @@ function PlanCard({
         </Badge>
       )}
       {isCurrent && (
-        <Badge className="absolute -top-3 right-3 bg-success/10 text-success border-success/20 text-xs px-2">
+        <Badge className="absolute -top-3 right-3 bg-emerald-500/10 text-emerald-600 border-emerald-200 text-xs px-2">
           Nåværende plan
         </Badge>
       )}
@@ -92,7 +93,6 @@ function PlanCard({
           </div>
         </div>
 
-        {/* Price */}
         <div className="min-h-[64px]">
           {isContact ? (
             <div>
@@ -113,7 +113,7 @@ function PlanCard({
                 </span>
               </div>
               {interval === "yearly" && savings > 0 && (
-                <p className="text-xs text-success mt-1 font-medium">
+                <p className="text-xs text-emerald-600 mt-1 font-medium">
                   Spar {formatKr(savings)} per år
                 </p>
               )}
@@ -126,7 +126,6 @@ function PlanCard({
           )}
         </div>
 
-        {/* Features */}
         <div className="space-y-2 flex-1">
           {plan.features.map((feature, i) => (
             <div key={i} className="flex items-start gap-2">
@@ -136,7 +135,6 @@ function PlanCard({
           ))}
         </div>
 
-        {/* CTA */}
         {isCurrent ? (
           <Button variant="outline" className="w-full gap-2" disabled>
             <CheckCircle2 className="h-4 w-4" />
@@ -173,10 +171,10 @@ export default function Subscriptions() {
   const [billingInterval, setBillingInterval] = useState<BillingInterval>("monthly");
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [editFrameworksOpen, setEditFrameworksOpen] = useState(false);
+  const [changePlanOpen, setChangePlanOpen] = useState(false);
   const [activationFramework, setActivationFramework] = useState<Framework | null>(null);
   const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
-  const [expandedGroup, setExpandedGroup] = useState<string | null>("recommended");
 
   const currentPlanId = tierToPlanId(subscription?.plan?.name);
 
@@ -192,6 +190,54 @@ export default function Subscriptions() {
     },
   });
 
+  const { data: companyProfile } = useQuery({
+    queryKey: ["company-profile-sub"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("company_profile")
+        .select("name, is_msp_partner, domain")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: systemsCount } = useQuery({
+    queryKey: ["systems-count-sub"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("systems")
+        .select("*", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const { data: assetsCount } = useQuery({
+    queryKey: ["assets-count-sub"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("assets")
+        .select("*", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const { data: vendorCount } = useQuery({
+    queryKey: ["vendor-count-sub"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("assets")
+        .select("*", { count: "exact", head: true })
+        .eq("asset_type", "vendor");
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
   const activeFrameworkIds = useMemo(() => {
     const ids = new Set<string>();
     selectedFrameworks?.forEach((sf: any) => {
@@ -200,25 +246,50 @@ export default function Subscriptions() {
     return ids;
   }, [selectedFrameworks]);
 
-  const { mandatory, recommended, optional } = useMemo(() => {
-    const m: Framework[] = [];
-    const r: Framework[] = [];
-    const o: Framework[] = [];
-    allFrameworkDefs.forEach((fw) => {
-      if (fw.isMandatory) m.push(fw);
-      else if (fw.isRecommended) r.push(fw);
-      else o.push(fw);
-    });
-    return { mandatory: m, recommended: r, optional: o };
-  }, []);
+  const activeFrameworks = useMemo(() => {
+    return allFrameworkDefs.filter((fw) => activeFrameworkIds.has(fw.id));
+  }, [activeFrameworkIds]);
+
+  const activeFrameworkCount = activeFrameworks.length;
+  const paidFrameworkCount = activeFrameworks.filter((fw) => !!FRAMEWORK_ADDONS[fw.id] && !(FREE_FRAMEWORKS as readonly string[]).includes(fw.id)).length;
+  const frameworkMonthlyPrice = paidFrameworkCount * 836;
+
+  const planPrice = tierConfig.monthlyPriceKr === -1 ? 0 : (tierConfig.monthlyPriceKr || 0);
+  const vendorMonthlyPrice = 1089;
+  const assetMonthlyPrice = 690;
+  const partnerWorkspaceMonthlyPrice = 990;
+
+  const isMspPartner = !!companyProfile?.is_msp_partner;
+  const totalMonthly = useMemo(() => {
+    let total = planPrice;
+    if (activeFrameworkCount > 0) total += frameworkMonthlyPrice;
+    total += vendorMonthlyPrice;
+    total += assetMonthlyPrice;
+    if (isMspPartner) total += partnerWorkspaceMonthlyPrice;
+    return total;
+  }, [planPrice, activeFrameworkCount, frameworkMonthlyPrice, vendorMonthlyPrice, assetMonthlyPrice, isMspPartner]);
+
+  const activeModuleCount = useMemo(() => {
+    let count = 1; // Core always active
+    if (activeFrameworkCount > 0) count += 1;
+    count += 1; // Vendors
+    count += 1; // Assets
+    count += 1; // Trust Profile
+    if (isMspPartner) count += 1;
+    return count;
+  }, [activeFrameworkCount, isMspPartner]);
 
   const handleSelectPlan = (planId: PlanId) => {
     if (planId === "enterprise") {
       toast.info("Ta kontakt med salg på sales@mynder.no for tilbud.");
       return;
     }
-    if (planId === currentPlanId) return;
+    if (planId === currentPlanId) {
+      setChangePlanOpen(false);
+      return;
+    }
     toast.success(`Du har valgt ${PLANS[planId].displayName}-planen!`);
+    setChangePlanOpen(false);
   };
 
   const handleToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
@@ -260,79 +331,204 @@ export default function Subscriptions() {
     await executeToggleFramework(fw.id, false);
   };
 
-  const isPaidAddon = (fwId: string) => !!FRAMEWORK_ADDONS[fwId];
-  const getAddonPrice = (fwId: string) => FRAMEWORK_ADDONS[fwId]?.yearlyPriceKr || 0;
-  const activeCount = activeFrameworkIds.size;
-  const totalCount = allFrameworkDefs.length;
+  const coreLimit = tierConfig.limits.systems === -1 ? "ubegrenset" : `${tierConfig.limits.systems}`;
+  const vendorLimit = tierConfig.limits.vendors === -1 ? "ubegrenset" : `${tierConfig.limits.vendors}`;
+  const assetLimit = tierConfig.limits.assets === -1 ? "ubegrenset" : `${tierConfig.limits.assets}`;
+
+  const trustProfileUrl = companyProfile?.domain
+    ? `https://trust.mynder.no/${companyProfile.domain}`
+    : "https://trust.mynder.no";
 
   return (
     <div className="flex min-h-screen max-h-screen bg-background overflow-hidden">
       {!isMobile && <div className="w-64 flex-shrink-0"><Sidebar /></div>}
       {isMobile && <Sidebar />}
       <main className="flex-1 overflow-y-auto pt-11">
-        <div className="container max-w-5xl mx-auto p-6 space-y-10 pb-20">
+        <div className="container max-w-5xl mx-auto p-6 space-y-8 pb-20">
 
           {/* Hero heading */}
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Abonnement</h1>
-            <OrganizationContextBanner />
-            <p className="text-sm text-muted-foreground mt-1">
-              Velg planen som passer din virksomhet — forutsigbar månedspris uten skjulte kostnader.
-            </p>
-          </div>
-
-          {/* ── CURRENT PLAN BANNER ── */}
-          <Card className="border-primary/20 bg-primary/[0.02]">
-            <CardContent className="p-5 flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Crown className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Nåværende plan</p>
-                  <h3 className="text-lg font-bold text-foreground">{tierConfig.displayName}</h3>
-                </div>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-foreground">Moduler</h1>
+                <Badge variant="secondary" className="text-xs">{activeModuleCount} aktive</Badge>
               </div>
-              <Badge className="bg-success/10 text-success border-success/20">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                Aktiv
-              </Badge>
-            </CardContent>
-          </Card>
-
-          {/* ── BILLING INTERVAL TOGGLE ── */}
-          <div className="flex justify-center">
-            <div className="inline-flex items-center bg-muted rounded-full p-1 border border-border">
-              <button
-                onClick={() => setBillingInterval("monthly")}
-                className={cn(
-                  "px-5 py-1.5 text-sm font-medium rounded-full transition-all",
-                  billingInterval === "monthly"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Månedlig
-              </button>
-              <button
-                onClick={() => setBillingInterval("yearly")}
-                className={cn(
-                  "px-5 py-1.5 text-sm font-medium rounded-full transition-all flex items-center gap-2",
-                  billingInterval === "yearly"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Årlig
-                <Badge className="bg-success/10 text-success border-0 text-[12px] px-1.5">
-                  Spar 2 mnd
-                </Badge>
-              </button>
+              <OrganizationContextBanner />
+              <p className="text-sm text-muted-foreground mt-1">
+                Administrer aktive moduler og regelverk for {companyProfile?.name || "din organisasjon"}.
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground">Total månedlig</p>
+              <p className="text-xl font-bold text-foreground">{formatKr(totalMonthly)}/mnd</p>
             </div>
           </div>
 
-          {/* ── PLAN CARDS ── */}
-          <section className="space-y-4">
+          {/* Module grid */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <ModuleCard
+              icon={LayoutGrid}
+              title="Mynder Core"
+              description={tierConfig.displayName}
+              status="active"
+              price={planPrice}
+              priceLabel={currentPlanId === "starter" ? "Gratis" : "Basisplattform"}
+              usage={String(systemsCount ?? 0)}
+              usageLimit={coreLimit}
+              usageSuffix="systemer"
+              action="change"
+              onClick={() => setChangePlanOpen(true)}
+              accentColor="purple"
+            />
+
+            <ModuleCard
+              icon={ShieldCheck}
+              title="Regelverk"
+              description={`${activeFrameworkCount} regelverk aktivert`}
+              status={activeFrameworkCount > 0 ? "active" : "inactive"}
+              price={frameworkMonthlyPrice}
+              priceLabel={paidFrameworkCount > 0 ? `${paidFrameworkCount} betalte regelverk` : "Inkluderte regelverk"}
+              usage={String(activeFrameworkCount)}
+              usageLimit={String(allFrameworkDefs.length)}
+              usageSuffix="aktive"
+              action="manage"
+              onClick={() => setEditFrameworksOpen(true)}
+              accentColor="blue"
+            />
+
+            <ModuleCard
+              icon={Briefcase}
+              title="Leverandørmodul"
+              description="TPRM og leverandørvurdering"
+              status="active"
+              price={vendorMonthlyPrice}
+              usage={String(vendorCount ?? 0)}
+              usageLimit={vendorLimit}
+              usageSuffix="leverandører"
+              action="open"
+              onClick={() => navigate("/vendors")}
+              accentColor="amber"
+            />
+
+            <ModuleCard
+              icon={Server}
+              title="Assets"
+              description="System- og eiendelsregister"
+              status="active"
+              price={assetMonthlyPrice}
+              usage={String(assetsCount ?? 0)}
+              usageLimit={assetLimit}
+              usageSuffix="eiendeler"
+              action="open"
+              onClick={() => navigate("/assets")}
+              accentColor="emerald"
+            />
+
+            <ModuleCard
+              icon={Globe}
+              title="Trust Profile"
+              description="Offentlig tillitsside"
+              status="included"
+              price={0}
+              priceLabel="Inkludert i Core"
+              action="open"
+              onClick={() => window.open(trustProfileUrl, "_blank", "noopener,noreferrer")}
+              accentColor="rose"
+            />
+
+            <ModuleCard
+              icon={Users}
+              title="Partner Workspace"
+              description="For MSP-er og samarbeidspartnere"
+              status={isMspPartner ? "active" : "inactive"}
+              price={isMspPartner ? partnerWorkspaceMonthlyPrice : 0}
+              priceLabel={isMspPartner ? "Aktivert partnerportal" : "Kontakt salg for aktivering"}
+              action={isMspPartner ? "open" : "activate"}
+              onClick={() => isMspPartner ? navigate("/msp") : toast.info("Ta kontakt med salg på sales@mynder.no for å aktivere Partner Workspace.")}
+              accentColor="slate"
+            />
+          </section>
+
+          {/* Payment method */}
+          <section className="space-y-3">
+            <h2 className="text-sm font-semibold text-foreground">Betalingsmetode</h2>
+            <Card>
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 flex-1">
+                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">Kort / Stripe Link</span>
+                  </div>
+                  <Switch
+                    checked={paymentMethod === "card"}
+                    onCheckedChange={(checked) => setPaymentMethod(checked ? "card" : "invoice")}
+                  />
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 flex-1">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">Faktura</span>
+                  </div>
+                  <Switch
+                    checked={paymentMethod === "invoice"}
+                    onCheckedChange={(checked) => setPaymentMethod(checked ? "invoice" : "card")}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+
+          {/* Included note */}
+          <div className="bg-muted/30 rounded-lg p-4 border border-border">
+            <div className="flex items-start gap-3">
+              <Zap className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground">Alt AI-arbeid er inkludert</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Lara, slette-agenten og alle AI-drevne analyser er inkludert i planen din. Du betaler én forutsigbar pris hver måned — ingen telling av credits eller overraskelser på fakturaen.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Change plan dialog */}
+      <Dialog open={changePlanOpen} onOpenChange={setChangePlanOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Endre plan</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="flex justify-center">
+              <div className="inline-flex items-center bg-muted rounded-full p-1 border border-border">
+                <button
+                  onClick={() => setBillingInterval("monthly")}
+                  className={cn(
+                    "px-5 py-1.5 text-sm font-medium rounded-full transition-all",
+                    billingInterval === "monthly"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Månedlig
+                </button>
+                <button
+                  onClick={() => setBillingInterval("yearly")}
+                  className={cn(
+                    "px-5 py-1.5 text-sm font-medium rounded-full transition-all flex items-center gap-2",
+                    billingInterval === "yearly"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Årlig
+                  <Badge className="bg-emerald-500/10 text-emerald-600 border-0 text-[12px] px-1.5">
+                    Spar 2 mnd
+                  </Badge>
+                </button>
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               {ORDERED_PLANS.map((planId) => (
                 <PlanCard
@@ -344,183 +540,23 @@ export default function Subscriptions() {
                 />
               ))}
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-            {/* Plan info note */}
-            <div className="bg-muted/30 rounded-lg p-4 border border-border">
-              <div className="flex items-start gap-3">
-                <Zap className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-foreground">Alt AI-arbeid er inkludert</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Lara, slette-agenten og alle AI-drevne analyser er inkludert i planen din. Du betaler én forutsigbar pris hver måned — ingen telling av credits eller overraskelser på fakturaen.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ── REGELVERK (TILLEGG) ── */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5 text-primary" />
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">Regelverk — tillegg</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  GDPR og ISO 27001 er alltid inkludert. Andre regelverk legges til som tillegg.
-                </p>
-              </div>
-              <Badge variant="secondary" className="text-xs ml-auto">
-                {activeCount} av {totalCount} aktive
-              </Badge>
-            </div>
-
-            {/* Inkludert */}
-            <div className="space-y-2">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Inkludert — alltid gratis</h3>
-              <div className="flex flex-wrap gap-2">
-                {mandatory.map((fw) => (
-                  <div key={fw.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-success/20 bg-success/[0.04]">
-                    <CheckCircle2 className="h-3 w-3 text-success shrink-0" />
-                    <span className="text-xs font-medium text-foreground">{fw.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Anbefalt */}
-            <Collapsible open={expandedGroup === "recommended"} onOpenChange={(open) => setExpandedGroup(open ? "recommended" : null)}>
-              <CollapsibleTrigger className="flex items-center gap-2 w-full group">
-                <Star className="h-3.5 w-3.5 text-primary shrink-0" />
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Anbefalt for din virksomhet</h3>
-                <Badge variant="outline" className="text-xs ml-1">{recommended.filter(fw => activeFrameworkIds.has(fw.id)).length}/{recommended.length}</Badge>
-                <span className="ml-auto">
-                  {expandedGroup === "recommended" ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
-                </span>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 space-y-2">
-                {recommended.map((fw) => {
-                  const isActive = activeFrameworkIds.has(fw.id);
-                  const hasPaidAddon = isPaidAddon(fw.id);
-                  const price = hasPaidAddon ? getAddonPrice(fw.id) : 0;
-                  const isFree = (FREE_FRAMEWORKS as readonly string[]).includes(fw.id);
-                  const cat = getCategoryById(fw.category);
-                  const CatIcon = cat?.icon;
-                  return (
-                    <div key={fw.id} className={cn(
-                      "flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors",
-                      isActive ? "bg-primary/5 border-primary/20" : "bg-muted/30 border-border"
-                    )}>
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        {CatIcon && <div className={`p-1.5 rounded-md ${cat?.bgColor}`}><CatIcon className={`h-3.5 w-3.5 ${cat?.color}`} /></div>}
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-medium text-sm text-foreground">{fw.name}</span>
-                            {isFree && <Badge className="bg-success/10 text-success border-0 text-xs">Inkludert</Badge>}
-                            {hasPaidAddon && !isFree && <span className="text-xs text-muted-foreground font-medium">{formatKr(price)}/år</span>}
-                          </div>
-                        </div>
-                      </div>
-                      <Switch checked={isActive} onCheckedChange={() => handleToggleFramework(fw.id, isActive)} disabled={updatingFrameworkId === fw.id} />
-                    </div>
-                  );
-                })}
-              </CollapsibleContent>
-            </Collapsible>
-
-            {/* Valgfrie */}
-            <Collapsible open={expandedGroup === "optional"} onOpenChange={(open) => setExpandedGroup(open ? "optional" : null)}>
-              <CollapsibleTrigger className="flex items-center gap-2 w-full group">
-                <Shield className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Valgfrie tillegg</h3>
-                <Badge variant="outline" className="text-xs ml-1">{optional.filter(fw => activeFrameworkIds.has(fw.id)).length}/{optional.length}</Badge>
-                <span className="ml-auto">
-                  {expandedGroup === "optional" ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
-                </span>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-2 space-y-2">
-                {optional.map((fw) => {
-                  const isActive = activeFrameworkIds.has(fw.id);
-                  const hasPaidAddon = isPaidAddon(fw.id);
-                  const price = hasPaidAddon ? getAddonPrice(fw.id) : 0;
-                  const cat = getCategoryById(fw.category);
-                  const CatIcon = cat?.icon;
-                  return (
-                    <div key={fw.id} className={cn(
-                      "flex items-center justify-between gap-3 p-3 rounded-lg border transition-colors",
-                      isActive ? "bg-primary/5 border-primary/20" : "bg-muted/30 border-border"
-                    )}>
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        {CatIcon && <div className={`p-1.5 rounded-md ${cat?.bgColor}`}><CatIcon className={`h-3.5 w-3.5 ${cat?.color}`} /></div>}
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-medium text-sm text-foreground">{fw.name}</span>
-                            {hasPaidAddon && price > 0 && <span className="text-xs text-muted-foreground font-medium">{formatKr(price)}/år</span>}
-                          </div>
-                        </div>
-                      </div>
-                      <Switch checked={isActive} onCheckedChange={() => handleToggleFramework(fw.id, isActive)} disabled={updatingFrameworkId === fw.id} />
-                    </div>
-                  );
-                })}
-              </CollapsibleContent>
-            </Collapsible>
-
-            <div>
-              <Button variant="outline" size="sm" className="gap-2 text-xs" onClick={() => setEditFrameworksOpen(true)}>
-                <Settings2 className="h-3.5 w-3.5" />
-                Administrer alle regelverk
-              </Button>
-            </div>
-          </section>
-
-          {/* ── BETALINGSMETODE ── */}
-          <section className="space-y-3">
-            <Card>
-              <CardContent className="p-5 space-y-4">
-                <h3 className="text-sm font-semibold text-foreground">Betalingsmetode</h3>
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-2">
-                  <label className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
-                    paymentMethod === "card" ? "border-primary bg-primary/5" : "border-border"
-                  )}>
-                    <RadioGroupItem value="card" />
-                    <div className="flex-1">
-                      <span className="text-sm font-medium text-foreground">Kort / Stripe Link</span>
-                      <p className="text-xs text-muted-foreground">Umiddelbar betaling</p>
-                    </div>
-                    <CreditCard className="h-4 w-4 text-muted-foreground" />
-                  </label>
-                  <label className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
-                    paymentMethod === "invoice" ? "border-primary bg-primary/5" : "border-border"
-                  )}>
-                    <RadioGroupItem value="invoice" />
-                    <div className="flex-1">
-                      <span className="text-sm font-medium text-foreground">Faktura</span>
-                      <p className="text-xs text-muted-foreground">30 dagers betalingsfrist</p>
-                    </div>
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                  </label>
-                </RadioGroup>
-              </CardContent>
-            </Card>
-          </section>
-
-          {/* Framework dialogs */}
-          <EditActiveFrameworksDialog
-            open={editFrameworksOpen} onOpenChange={setEditFrameworksOpen}
-            activeFrameworkIds={activeFrameworkIds} onToggle={handleToggleFramework} updatingId={updatingFrameworkId}
-          />
-          <FrameworkPurchaseDialog
-            open={!!purchaseFramework} onOpenChange={(open) => { if (!open) setPurchaseFramework(null); }}
-            framework={purchaseFramework} onConfirm={handlePurchaseConfirm} isLoading={!!updatingFrameworkId}
-          />
-          <FrameworkActivationDialog
-            open={!!activationFramework} onOpenChange={(open) => { if (!open) setActivationFramework(null); }}
-            framework={activationFramework}
-          />
-        </div>
-      </main>
+      {/* Framework dialogs */}
+      <EditActiveFrameworksDialog
+        open={editFrameworksOpen} onOpenChange={setEditFrameworksOpen}
+        activeFrameworkIds={activeFrameworkIds} onToggle={handleToggleFramework} updatingId={updatingFrameworkId}
+      />
+      <FrameworkPurchaseDialog
+        open={!!purchaseFramework} onOpenChange={(open) => { if (!open) setPurchaseFramework(null); }}
+        framework={purchaseFramework} onConfirm={handlePurchaseConfirm} isLoading={!!updatingFrameworkId}
+      />
+      <FrameworkActivationDialog
+        open={!!activationFramework} onOpenChange={(open) => { if (!open) setActivationFramework(null); }}
+        framework={activationFramework}
+      />
     </div>
   );
 }
