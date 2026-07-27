@@ -1,63 +1,43 @@
-# GAP-analyse for MSP-partner
+## Mål
+Når en ny kunde legges til, skal bransje automatisk hentes fra offentlig register (BrReg) — med fallback til AI-forslag når hovedenheten mangler bransje. «Uoppgitt» skal ikke lenger vises som endelig verdi.
 
-Legg til en "Kjør GAP-analyse"-knapp øverst i kundelisten (`/msp-dashboard`) som åpner en 4-stegs veiviser: Regelverk → Kunder → Analyse → Rapport. Målet er å vise partneren hvilke gap kundene har, og hvilke av partnerens egne tjenester som kan dekke gapene – klart for tilbud.
+## Bakgrunn
+BrReg søke-endepunktet returnerer ofte `naeringskode1.beskrivelse = "Uoppgitt"` på hovedenheter fordi den reelle bransjekoden ligger på **underenheten** (f.eks. filial/avdeling). I dag brukes kun søkeresultatet direkte, og «Uoppgitt» skrives til `msp_customers.industry`.
 
-## 1. Innstigning i kundelisten
+## Endringer
 
-Fil: `src/pages/MSPDashboard.tsx` (rundt linje 532-546, header-actions).
+### 1. Berik BrReg-data ved valg (`handleSelectCompany`)
+Når en bruker velger en virksomhet:
+1. Hent full detalj på hovedenhet: `GET /enhetsregisteret/api/enheter/{orgnr}` (bekrefter navn, adresse, ansatte).
+2. Hvis `naeringskode1` mangler eller `beskrivelse === "Uoppgitt"`:
+   - Hent underenheter: `GET /enhetsregisteret/api/underenheter?overordnetEnhet={orgnr}&size=10`
+   - Velg første underenhet med gyldig `naeringskode1` (ikke «Uoppgitt»).
+   - Bruk den bransjen på kunden.
+3. Hvis fortsatt tomt → gå til AI-fallback (steg 2).
 
-- Ny knapp `Kjør GAP-analyse` (variant `outline`, `ScanSearch`-ikon) plasseres til venstre for `Vis GAP-matrise` / `Legg til kunde`.
-- Wrappes i `Tooltip`: "Se hvilke krav i valgte regelverk kundene mangler dekning for – og hvilke av dine tjenester som kan lukke gapene."
-- Åpner ny `GapAnalysisWizardDialog` med `customers`-listen som prop.
+### 2. AI-fallback via edge function
+Ny edge function `suggest-industry`:
+- Input: `{ name, org_number, country_code }`
+- Bruker Lovable AI (`google/gemini-3.6-flash`) med kort prompt: «Foreslå NACE-lignende bransjebeskrivelse på norsk basert på virksomhetsnavn. Returner kun én kort setning, maks 60 tegn.»
+- Returnerer `{ industry, source: "ai_suggested", confidence: "low"|"medium" }`.
+- Kalles kun når BrReg (hovedenhet + underenhet) ikke gir bransje.
 
-## 2. Veiviser – ny komponent
+### 3. UI-oppdateringer i `AddMSPCustomerDialog.tsx`
+- I verifiseringssteget: vis en linje til i eksisterende progress-indikator:
+  - «Henter bransje fra register» → «Sjekker underenheter» → «AI foreslår bransje» (kun de stegene som faktisk kjøres).
+- På bekreftelsessteget: hvis bransjen kommer fra AI, vis liten `Sparkles`-indikator med tooltip «Foreslått av Lara – kan endres».
+- Behold mulighet for å redigere bransje manuelt i «Registrer manuelt»-flyten (uendret).
 
-Ny fil: `src/components/msp/GapAnalysisWizardDialog.tsx`. Bruker `Dialog` + intern `step`-state (`1..4`), samme visuelle stil som `AddMSPCustomerDialog` (sirkler + piler i header slik som bilde 2/3/4).
+### 4. Persistens
+- Skriv `industry` som før i `msp_customers.industry`.
+- Ingen skjemaendring nødvendig — vi lagrer kun den beste verdien vi finner. AI-flagg holdes i minne under wizard, ikke lagret.
 
-### Steg 1 – Regelverk
-- Grid 2-kolonner med alle regelverk fra `frameworkDefinitions` (checkbox + navn + kort beskrivelse). Ingen valgt som default.
-- `Neste` disabled til minst ett valgt.
-
-### Steg 2 – Kunder (endring fra dagens flyt)
-- Ingen forhåndsvalg. Toolbar øverst: `Velg alle` / `Fjern alle` + søkefelt.
-- Liste med `Checkbox` per kunde (navn, bransje, TP-status). Teller "X av N valgt" nederst.
-- `Neste` disabled til minst én valgt.
-
-### Steg 3 – Analyse
-- Sentrert `Kjør analyse`-knapp. Ved klikk: 2-3 sek simulert kjøring med `AnalyzingIndicator` som roterer korte statuslinjer:
-  1. "Leser krav i valgte regelverk"
-  2. "Matcher kundenes dokumentasjon mot krav"
-  3. "Finner tjenester i din portefølje som kan dekke gap"
-- Under kjøring: liten teller "N kunder · M krav · K tjenester matchet".
-- Når ferdig → auto-videre til steg 4.
-
-### Steg 4 – Rapport
-- Oppsummering øverst: totalt antall gap, antall gap som matcher partnertjenester, estimert salgspotensial (bruk `formatPartnerCurrency` fra `MSPWidgetDetail.tsx` – flyttes til `src/lib/partnerCurrency.ts` for gjenbruk).
-- Tabell/kort per kunde med: kunde, antall gap, top 2-3 foreslåtte tjenester (chips), estimert verdi.
-- Foreslåtte tjenester hentes fra `SERVICE_LIBRARY` (`src/lib/serviceLibrary.ts`) via en enkel matcher (`matchServicesToGaps`) basert på kategori/regelverk – deterministisk demo-logikk.
-- Bunn-actions: `Lukk` + primærknapp `Opprett tilbud` som åpner eksisterende tilbud-flyt (`ProposalWizardDialog` hvis finnes, ellers navigerer til `/msp-partner/sales-guide` med prefill i query-string – bekreft ved bygging).
-
-## 3. Matcher-hjelper
-
-Ny fil: `src/lib/gapServiceMatcher.ts`.
-
-```ts
-matchServicesToGaps(frameworkIds: string[], customer: Customer): {
-  gapCount: number;
-  services: { id: string; name: string; estimatedValue: number }[];
-}
-```
-
-Prototype-logikk: fast mapping regelverk → tjenestenøkler (f.eks. GDPR → "Mynder Core", "Leverandørstyring"; NIS2 → "Pentest", "Backup"; ISO 27001 → "Mynder Core", "ISMS-drift"). Estimert verdi = `gapCount * avgPrice` per tjeneste.
-
-## 4. Ingenting utover dette
-
-- Ingen endring i database/edge-funksjoner – ren frontend-prototype.
-- Beholder eksisterende `Vis GAP-matrise`-knapp og `BulkGapAnalysisDialog` uendret; ny veiviser lever ved siden av.
-- Norsk tekst, kort og enkelt. Ingen nye avhengigheter.
+## Ikke inkludert
+- Ingen endring i onboarding-flyten for egen organisasjon (`Onboarding.tsx`, `CompanyInfoForm.tsx`).
+- Ingen ny kolonne for «industry_source» i databasen (kan legges til senere hvis nødvendig).
+- Ingen endring av «Uoppgitt»-verdier på eksisterende kunder (kan gjøres via egen backfill-oppgave).
 
 ## Tekniske detaljer
-
-- Steg-header: gjenbrukbar liten `WizardSteps`-komponent inline i dialogen (sirkel med tall/checkmark + pil), matcher stilen i bilde 2-4.
-- Analyseanimasjon: bruk mønsteret fra `AttachEvidenceDialog.tsx` (`AnalyzingIndicator` med `setInterval` og fade).
-- Tooltip på hovedknappen bruker eksisterende `Tooltip`/`TooltipProvider` fra `@/components/ui/tooltip`.
+- Filer som endres: `src/components/msp/AddMSPCustomerDialog.tsx`
+- Ny fil: `supabase/functions/suggest-industry/index.ts`
+- Ingen migreringer, ingen nye secrets (bruker eksisterende `LOVABLE_API_KEY`).

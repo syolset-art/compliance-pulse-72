@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import {
   UserPlus, FileSpreadsheet, Server, ArrowLeft, Search, Building2,
-  MapPin, Loader2, CheckCircle2, User, Mail, Briefcase, Upload, AlertCircle, Trash2,
+  MapPin, Loader2, CheckCircle2, User, Mail, Briefcase, Upload, AlertCircle, Trash2, Sparkles,
 } from "lucide-react";
 import { COMPANY_ROLES, MSP_SUBSCRIPTION_TIERS } from "@/lib/mspCustomerConstants";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -142,6 +142,11 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const [acronisImportedCount, setAcronisImportedCount] = useState(0);
   const [acronisProgressStep, setAcronisProgressStep] = useState(0);
 
+  // Industry enrichment progress (verifying step)
+  type IndustrySource = "brreg_main" | "brreg_subunit" | "ai_suggested" | "none";
+  const [industrySource, setIndustrySource] = useState<IndustrySource>("none");
+  const [enrichStep, setEnrichStep] = useState<"main" | "subunit" | "ai" | "done">("main");
+
 
   const reset = useCallback(() => {
     setStep("method");
@@ -159,6 +164,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setAcronisImportedCount(0);
     setForm({ contact_person: "", contact_email: "", contact_company_role: "", subscription_plan: "Gratis", country_code: "NO" });
     setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
+    setIndustrySource("none");
+    setEnrichStep("main");
   }, []);
 
 
@@ -206,11 +213,15 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     }
   };
 
-  // Select company → verify
+  // Select company → verify + enrich (BrReg detail → subunit → AI fallback)
   const handleSelectCompany = async (company: BrregResult) => {
     setSelectedCompany(company);
     setStep("verifying");
     setDuplicateFound(false);
+    setIndustrySource("none");
+    setEnrichStep("main");
+
+    // Duplicate check
     try {
       const { data } = await supabase
         .from("msp_customers")
@@ -223,7 +234,76 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         return;
       }
     } catch { /* ignore */ }
-    setTimeout(() => setStep("contact"), 2000);
+
+    // Enrich industry
+    let enriched: BrregResult = { ...company };
+    const isMissing = (c: BrregResult) => {
+      const b = c.naeringskode1?.beskrivelse?.trim().toLowerCase();
+      return !b || b === "uoppgitt" || b === "ikke oppgitt";
+    };
+
+    // 1. Full detail on main entity
+    try {
+      const detailRes = await fetch(
+        `https://data.brreg.no/enhetsregisteret/api/enheter/${company.organisasjonsnummer}`
+      );
+      if (detailRes.ok) {
+        const d = await detailRes.json();
+        enriched = {
+          ...enriched,
+          naeringskode1: d.naeringskode1 || enriched.naeringskode1,
+          antallAnsatte: d.antallAnsatte ?? enriched.antallAnsatte,
+          forretningsadresse: d.forretningsadresse || enriched.forretningsadresse,
+        };
+        if (!isMissing(enriched)) setIndustrySource("brreg_main");
+      }
+    } catch { /* ignore */ }
+
+    // 2. Try subunits if still missing
+    if (isMissing(enriched)) {
+      setEnrichStep("subunit");
+      try {
+        const subRes = await fetch(
+          `https://data.brreg.no/enhetsregisteret/api/underenheter?overordnetEnhet=${company.organisasjonsnummer}&size=10`
+        );
+        if (subRes.ok) {
+          const subData = await subRes.json();
+          const subs: any[] = subData._embedded?.underenheter || [];
+          const hit = subs.find(
+            (s) => s.naeringskode1?.beskrivelse &&
+                   s.naeringskode1.beskrivelse.trim().toLowerCase() !== "uoppgitt"
+          );
+          if (hit) {
+            enriched.naeringskode1 = hit.naeringskode1;
+            setIndustrySource("brreg_subunit");
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
+    // 3. AI fallback
+    if (isMissing(enriched)) {
+      setEnrichStep("ai");
+      try {
+        const { data: aiRes } = await supabase.functions.invoke("suggest-industry", {
+          body: {
+            name: company.navn,
+            org_number: company.organisasjonsnummer,
+            country_code: form.country_code,
+          },
+        });
+        if (aiRes?.industry && aiRes.industry !== "Ukjent bransje") {
+          enriched.naeringskode1 = { kode: "", beskrivelse: aiRes.industry };
+          setIndustrySource("ai_suggested");
+        }
+      } catch { /* ignore */ }
+    } else if (industrySource === "none") {
+      // safety: source set to subunit above already if applicable
+    }
+
+    setEnrichStep("done");
+    setSelectedCompany(enriched);
+    setTimeout(() => setStep("contact"), 800);
   };
 
   const mapEmployees = (n?: number): string => {
@@ -994,13 +1074,35 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                     <span>Verifisert i {COUNTRIES.find(c => c.code === form.country_code)?.registry || "registeret"}</span>
                   </div>
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
-                    <span>Henter bransje, ansatte og adresse</span>
+                    {enrichStep === "main" ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                    ) : (
+                      <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                    )}
+                    <span>Henter bransje, ansatte og adresse fra hovedenhet</span>
                   </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
-                    <span>Foreslår regelverk basert på bransje</span>
-                  </div>
+                  {(enrichStep === "subunit" || industrySource === "brreg_subunit" ||
+                    (enrichStep === "done" && industrySource === "ai_suggested") ||
+                    enrichStep === "ai") && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      {enrichStep === "subunit" ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                      ) : (
+                        <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                      )}
+                      <span>Sjekker underenheter for bransjekode</span>
+                    </div>
+                  )}
+                  {(enrichStep === "ai" || industrySource === "ai_suggested") && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      {enrichStep === "ai" ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
+                      ) : (
+                        <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                      )}
+                      <span>Lara foreslår bransje ut fra virksomhetsnavn</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
                     <span>Klargjør baseline for Trust Profile</span>
@@ -1115,7 +1217,15 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground pl-6">
                   <span>Org.nr: {selectedCompany.organisasjonsnummer}</span>
                   {selectedCompany.naeringskode1?.beskrivelse && (
-                    <span>{selectedCompany.naeringskode1.beskrivelse}</span>
+                    <span className="inline-flex items-center gap-1">
+                      {selectedCompany.naeringskode1.beskrivelse}
+                      {industrySource === "ai_suggested" && (
+                        <Sparkles
+                          className="h-3 w-3 text-primary"
+                          aria-label="Foreslått av Lara – kan endres"
+                        />
+                      )}
+                    </span>
                   )}
                 </div>
               </div>
@@ -1238,7 +1348,15 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <div className="text-xs text-muted-foreground pl-6 space-y-0.5">
                   <p>Org.nr: {selectedCompany.organisasjonsnummer}</p>
                   {selectedCompany.naeringskode1?.beskrivelse && (
-                    <p>Bransje: {selectedCompany.naeringskode1.beskrivelse}</p>
+                    <p className="inline-flex items-center gap-1">
+                      Bransje: {selectedCompany.naeringskode1.beskrivelse}
+                      {industrySource === "ai_suggested" && (
+                        <Sparkles
+                          className="h-3 w-3 text-primary"
+                          aria-label="Foreslått av Lara – kan endres"
+                        />
+                      )}
+                    </p>
                   )}
                   {form.contact_person && <p>Kontakt: {form.contact_person}</p>}
                   {form.contact_email && <p>E-post: {form.contact_email}</p>}
