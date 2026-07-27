@@ -1,33 +1,28 @@
-# Bytt widget: fra aktiveringer til salgspotensial fra gap-analyser
+# Detaljert underside for salgspotensial-widgeten
 
-## Mål
-Widgetet på MSP-partner dashbordet skal ikke lenger vise aktiverte regelverk over tid, men i stedet vise hvor mye partneren potensielt kan selge i tjenester basert på åpne gap i kunders utvalgte regelverk. Beløp vises i partnerens standardvaluta (ikke låst til NOK).
+Widgeten lenker allerede til `/msp-partner/widget/claim-development` (via `MSPWidgetDetail`), men innholdet der viser fortsatt "Aktivering over tid". Bytter derfor ut denne underside-varianten så den matcher det nye widget-formålet.
 
-## Endringer (kun frontend, prototype-data)
+## Endringer i `src/pages/MSPWidgetDetail.tsx`
 
-### 1. `src/pages/MSPPartnerDashboard.tsx` – `ClaimDevelopmentChart`
-Beholder kort-plassering og størrelse, nytt innhold:
+### 1. Rebrand `claim-development`-metadata
+- Tittel: "Salgspotensial fra gap-analyser"
+- Undertittel: "Estimert tjenestesalg partner kan levere for å lukke gap i kundenes regelverk"
+- Ikon: `TrendingUp`
+- Hero: totalt potensial i partnervaluta + støttetekst ("312 åpne gap · 24 kunder · 6 regelverk")
+- Explainer: forklarer at estimatet = åpne gap × snittpris per tjeneste, i partnerens standardvaluta
+- CTAs: "Åpne servicekatalog" (`/msp-service-catalog`), "Kjør kampanje mot kunder med gap" (`/msp-messages`)
 
-- **Tittel:** "Salgspotensial fra gap-analyser"
-- **Undertittel:** "Basert på åpne krav i utvalgte regelverk hos 24 kunder"
-- **Badge (grønn):** total potensial formatert i partnerens valuta, f.eks. "kr 2,4 M" / "$240k" / "€220k"
-- **Graf:** AreaChart over 6 mnd med akkumulert potensial – samme oppsett, ny dataserie.
-- **Bunn – 3 KPI-er:**
-  1. `24 kunder · 6 regelverk`
-  2. `312 åpne gap`
-  3. Potensielt salg i partnervaluta (uthevet i primærfarge)
+### 2. Ny body-seksjon for `claim-development`
+Erstatter dagens aktiveringsgraf-body med:
 
-### 2. Valutahåndtering
-- Leser partnerens standardvaluta fra eksisterende MSP-billing-innstillinger hvis tilgjengelig (`msp_billing_settings` / `usePartnerInfo` / lignende). Undersøkes ved implementasjon; hvis ikke lett tilgjengelig brukes en enkel prototype-konstant `PARTNER_CURRENCY = "NOK"` som lett kan byttes.
-- Formatering via `Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 0 })` med kompakt notasjon for badge/KPI.
-- Ingen konvertering av tall – demo-tallene tolkes i den valgte valutaen.
+1. **Potensial siste 6 mnd** — AreaChart basert på `SERVICE_POTENTIAL_TREND_DETAIL` (samme kurve som dashboard-widgeten, verdier i partnervaluta). Tooltip og hero-tall formateres via `Intl.NumberFormat` med partnervalutaen (samme `PARTNER_CURRENCY = "NOK"`-prototype-konstant, definert lokalt i filen).
+2. **Potensial per regelverk** — BarChart / tabell med kolonner: Regelverk · Åpne gap · Snittpris/gap · Potensial. Demo-data for GDPR, ISO 27001, NIS2, DORA, AI Act, Åpenhetsloven.
+3. **Kunder med størst potensial** — enkel liste (5–7 rader): kundenavn · antall gap · estimert potensial · «Åpne kunde»-knapp.
 
-### 3. Ny data-konstant
-Legger til `SERVICE_POTENTIAL_TREND` (6 måneder, stigende) ved siden av `CLAIM_TREND` som beholdes uendret for `/msp-partner/widget/claim-development`.
-
-### 4. Tooltip
-"Estimert tjenestesalg partner kan levere for å lukke gap i kundenes aktiverte regelverk. Basert på antall åpne krav × snittpris per tjeneste, i partnerens standardvaluta."
+### 3. Partnervaluta
+- Legger til `PARTNER_CURRENCY`/`PARTNER_LOCALE` + `formatPartnerCurrency` lokalt i `MSPWidgetDetail.tsx` (samme mønster som dashboard). Ingen backend/DB-endring.
 
 ## Ikke i scope
-- Ingen ruteendring, ingen backend/DB-endringer, ingen andre widgets.
-- Ingen valutakonvertering eller FX-logikk.
+- Ingen ny rute, ingen navigasjonsendring på dashboardet (kortet er allerede klikkbart).
+- Ingen andre widgets på detaljsiden røres.
+- Ingen ekte data / edge functions – ren prototype.
