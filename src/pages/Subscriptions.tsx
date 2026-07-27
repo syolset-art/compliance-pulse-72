@@ -438,15 +438,15 @@ export default function Subscriptions() {
             <ModuleCard
               icon={LayoutGrid}
               title="Mynder Core"
-              description={planConfig.displayName}
+              description="Grunnmodulen. Oppgaver, avvik, samsvar, behandlingsprotokoll og dokumenter."
               status="active"
-              price={planPrice}
-              priceLabel={currentPlanId === "starter" ? "Gratis" : "Basisplattform"}
+              price={corePrice}
+              priceLabel={coreTier.label}
               usage={String(systemsCount ?? 0)}
-              usageLimit={coreLimit}
+              usageLimit={String(coreTier.systemLimit)}
               usageSuffix="systemer"
               action="change"
-              onClick={() => setChangePlanOpen(true)}
+              onClick={() => setChangeCoreTierOpen(true)}
               accentColor="purple"
             />
 
