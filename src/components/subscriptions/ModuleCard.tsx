@@ -176,6 +176,20 @@ export function ModuleCard({
           )}
         </div>
 
+        {breakdown && breakdown.length > 0 && (
+          <ul className="mt-3 space-y-1 border-t border-border/50 pt-3">
+            {breakdown.slice(0, 4).map((item) => (
+              <li key={item.label} className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <span className="truncate">{item.label}</span>
+                <span className="tabular-nums">{new Intl.NumberFormat("nb-NO").format(item.priceKr)} kr/mnd</span>
+              </li>
+            ))}
+            {breakdown.length > 4 && (
+              <li className="text-[11px] text-muted-foreground/70">+{breakdown.length - 4} flere</li>
+            )}
+          </ul>
+        )}
+
         {action !== "none" && (
           <Button
             variant={status === "inactive" ? "default" : "outline"}
