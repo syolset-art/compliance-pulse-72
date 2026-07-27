@@ -33,16 +33,39 @@ function formatPrice(n: number) {
   return `${n.toLocaleString("nb-NO")} kr`;
 }
 
-export function CustomerModulesTab({ customerId, customerName, activeFrameworkIds }: CustomerModulesTabProps) {
+export function CustomerModulesTab({ customerId, customerName, activeFrameworkIds, onUpdate }: CustomerModulesTabProps) {
+  const [editOpen, setEditOpen] = useState(false);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
   const frameworkNames = useMemo(() => {
     return activeFrameworkIds
       .map((id) => ALL_FRAMEWORKS.find((f) => f.id === id)?.name || id)
       .filter(Boolean);
   }, [activeFrameworkIds]);
 
+  const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
+
   const slug = customerName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const notImplemented = (label: string) => () => toast.info(`${label} — kommer`, { description: "Denne handlingen er ikke koblet på i prototypen." });
+
+  const handleToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
+    setUpdatingId(frameworkId);
+    const next = currentlyActive
+      ? activeFrameworkIds.filter((id) => id !== frameworkId)
+      : [...activeFrameworkIds, frameworkId];
+    const { error } = await supabase
+      .from("msp_customers" as any)
+      .update({ active_frameworks: next } as any)
+      .eq("id", customerId);
+    setUpdatingId(null);
+    if (error) {
+      toast.error("Kunne ikke oppdatere regelverk");
+      return;
+    }
+    toast.success(currentlyActive ? "Regelverk deaktivert" : "Regelverk aktivert");
+    onUpdate?.();
+  };
 
   const modules: ModuleDef[] = [
     {
