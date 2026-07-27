@@ -533,6 +533,19 @@ export default function MSPDashboard() {
               </h1>
             </div>
             <div className="flex items-center gap-2">
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setGapOpen(true)} className="gap-2">
+                      <ScanSearch className="h-4 w-4" />
+                      Kjør GAP-analyse
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs">
+                    Se hvilke krav i valgte regelverk kundene mangler dekning for – og hvilke av dine tjenester som kan lukke gapene.
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon"><MoreVertical className="h-4 w-4" /></Button>
