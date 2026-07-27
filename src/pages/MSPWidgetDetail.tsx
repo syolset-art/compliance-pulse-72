@@ -202,16 +202,21 @@ const WIDGETS: Record<string, WidgetMeta> = {
   },
   "claim-development": {
     id: "claim-development",
-    title: "Aktivering over tid",
-    subtitle: "Hvordan aktiveringsgraden har utviklet seg",
+    title: "Salgspotensial fra gap-analyser",
+    subtitle: "Estimert tjenestesalg partner kan levere for å lukke gap i kundenes regelverk",
     icon: TrendingUp,
-    hero: { value: "+167%", sub: "vekst i aktiveringer siste 6 måneder (fra 6 til 47)" },
+    hero: {
+      value: formatPartnerCurrency(2400000),
+      sub: "312 åpne gap · 24 kunder · 6 aktiverte regelverk",
+    },
     explainer:
-      "Grafen viser nye aktiverte kunder per måned. Trenden lar deg se effekten av kampanjer og oppfølgingsarbeid. Et naturlig mål er å holde en stigende trend frem til 40% aktiveringsgrad er nådd.",
+      "Potensialet estimeres som antall åpne krav (gap) hos kundene × en snittpris per tjeneste for å lukke gapet. Prisene er i partnerens standardvaluta og oppdateres når du justerer tjenestekatalogen. Bruk dette som en topp-linje for hvor mye partneren kan omsette ved å hjelpe kundene å bli compliant.",
     ctas: [
-      { label: "Planlegg ny kampanje", href: "/msp-messages", primary: true },
+      { label: "Åpne servicekatalog", href: "/msp-service-catalog", primary: true },
+      { label: "Kjør kampanje mot kunder med gap", href: "/msp-messages" },
     ],
   },
+
   "segmentation": {
     id: "segmentation",
     title: "Portefølje-segmentering",
