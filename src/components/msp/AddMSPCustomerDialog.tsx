@@ -523,11 +523,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     step === "results" || step === "verifying" || step === "manual" ? "search" : step === "success" ? "confirm" : step
   );
 
-  // Step index needs mapping for manual step too (treat as "search" position)
-  void currentStepIndex;
-  const _unused = (
 
-  );
 
   const stepIndicator = (
     <div className="flex items-center gap-2 mb-4">
