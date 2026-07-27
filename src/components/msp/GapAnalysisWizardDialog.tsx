@@ -294,7 +294,7 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
           {step === 4 && (
             <div className="space-y-4">
               {/* Summary */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border bg-muted/30 p-3">
                   <div className="text-xs text-muted-foreground">Identifiserte gap</div>
                   <div className="text-xl font-semibold tabular-nums">{totals.gaps}</div>
@@ -303,29 +303,20 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
                   <div className="text-xs text-muted-foreground">Tjenester som matcher</div>
                   <div className="text-xl font-semibold tabular-nums">{totals.services}</div>
                 </div>
-                <div className="rounded-lg border bg-primary/5 border-primary/20 p-3">
-                  <div className="text-xs text-primary/80">Salgspotensial</div>
-                  <div className="text-xl font-semibold tabular-nums text-primary">
-                    {formatCurrency(totals.potential)}
-                  </div>
-                </div>
               </div>
 
               {/* Per-customer results */}
               <div className="space-y-2">
                 {results.map((r) => (
                   <div key={r.customerId} className="rounded-lg border p-3 space-y-2">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium text-foreground truncate">{r.customerName}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {r.gapCount} gap · {r.industry || "—"}
-                        </div>
-                      </div>
-                      <div className="text-sm font-semibold tabular-nums text-primary shrink-0">
-                        {formatCurrency(r.totalPotential)}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">{r.customerName}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {r.gapCount} gap · {r.industry || "—"}
                       </div>
                     </div>
+                  </div>
                     <div className="flex flex-wrap gap-1.5">
                       {r.services.map((s) => (
                         <Badge
