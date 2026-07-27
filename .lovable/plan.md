@@ -1,25 +1,28 @@
-Oppgave: Endre layouten i `CustomerModulesTab.tsx` slik at modul-kortene vises to eller tre ved siden av hverandre i stedet for én full kolonne.
+Oppgave: Oppdatere «Regelverk»-kortet på `AdminOrganisation.tsx` slik at det viser de regelverkene Mynder AS (partneren/organisasjonen selv) har aktivert, hentet fra `selected_frameworks`-tabellen.
 
 Nåværende tilstand:
-- `CustomerModulesTab.tsx` rendrer 5 modul-kort i en enkelt `space-y-3`-kolonne (`<div className="space-y-3">{modules.map(...)}</div>`).
-- Hvert kort tar full bredde og inneholder ikon, tittel, status, beskrivelse, ev. meta/usage-bars, pris og knapper.
+- `AdminOrganisation.tsx` henter aktiv regelverkstatus fra `domain_addons` (kolonne `status = 'active'`).
+- Kortet viser bare antall aktiverte: «Aktivert: 0» — og selv dette tallet er feil fordi datakilden ikke er regelverkstabellen.
+- Ingen visning av hvilke regelverk som faktisk er aktivert.
 
 Endringer:
-1. **Rutenett-layout**
-   - Erstatt den ytre `space-y-3`-wrapperen med en CSS-grid: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4`.
-   - Det gir 1 kolonne på mobil, 2 på nettbrett og 3 på større skjermer.
+1. **Hent data fra riktig tabell**
+   - Erstatt spørringen mot `domain_addons` med en spørring mot `selected_frameworks`:
+     - `select('framework_id, framework_name, category, is_selected')`
+     - Filtrer på `is_selected = true` (dette er organisasjonens egne valg).
+   - Oppdater `frameworkNames`-state til å inneholde `framework_name` fra `selected_frameworks` i stedet for `domain_id` fra `domain_addons`.
 
-2. **Kort-innhold må tåle smalere bredde**
-   - Behold eksisterende kort-innhold, men sørg for at interne flex-rader bryter fint ved smal bredde.
-   - Pris- og knapp-seksjonen (`sm:min-w-[140px]`) kan gå fra horisontal til vertikal stabling på små kort; behold `flex-col` på `sm` og opp, men la den gå `flex-row` under `sm` som i dag.
-   - Usage-baren (fremdrift) beholdes, men skalere med kortbredden.
+2. **Oppdater statistikk og visning**
+   - `stats.activeFrameworks` settes til antall rader hvor `is_selected = true`.
+   - I «Regelverk»-kortet (linje ~360-383) legges det under «Aktivert: N» en kompakt liste over aktiverte regelverk, f.eks. som en rad med små badges/chips eller en semikolon-separert tekst.
+   - Hvis ingen regelverk er aktiverte, vises en kort melding som inviterer brukeren til å redigere valg.
 
-3. **Responsivitet**
-   - Sørg for at tittel + status-badges bryter på én linje eller pakker seg ved trang plass.
-   - Knapper og pris justeres til høyre i bunnen av kortet.
+3. **Behold navigasjon og funksjonalitet**
+   - «Rediger valg»-knappen og navigasjon til `/regulations` beholdes uendret.
+   - Ingen endring på andre seksjoner på siden.
 
-4. **Ingen endring i data eller funksjonalitet**
-   - `modules`-array, `monthlyTotal`, `handleToggleFramework`, `EditActiveFrameworksDialog` og `notImplemented` beholdes uendret.
+4. **Kategori-farger/ikoner (valgfri, subtil forbedring)**
+   - Bruk `frameworkDefinitions.ts` til å slå opp kategori og eventuelt vise kategori-ikon eller farge på chips. Dette er subtilt og skal ikke ta for stor plass.
 
 Fil som endres:
-- `src/components/msp/CustomerModulesTab.tsx`
+- `src/pages/AdminOrganisation.tsx`
