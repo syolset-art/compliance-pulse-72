@@ -35,7 +35,7 @@ import {
   PLANS, ORDERED_PLANS, FRAMEWORK_ADDONS, FREE_FRAMEWORKS,
   formatKr, getYearlySavingsKr, planNameToTier, PLAN_TIERS,
   getFrameworkMonthlyPrice,
-  CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier,
+  CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier, getNextCoreTier,
   type PlanId, type BillingInterval, type CoreTierId,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
