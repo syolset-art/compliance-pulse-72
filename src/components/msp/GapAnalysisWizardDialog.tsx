@@ -294,7 +294,7 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
           {step === 4 && (
             <div className="space-y-4">
               {/* Summary */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border bg-muted/30 p-3">
                   <div className="text-xs text-muted-foreground">Identifiserte gap</div>
                   <div className="text-xl font-semibold tabular-nums">{totals.gaps}</div>
@@ -302,12 +302,6 @@ export function GapAnalysisWizardDialog({ open, onOpenChange, customers }: Props
                 <div className="rounded-lg border bg-muted/30 p-3">
                   <div className="text-xs text-muted-foreground">Tjenester som matcher</div>
                   <div className="text-xl font-semibold tabular-nums">{totals.services}</div>
-                </div>
-                <div className="rounded-lg border bg-primary/5 border-primary/20 p-3">
-                  <div className="text-xs text-primary/80">Salgspotensial</div>
-                  <div className="text-xl font-semibold tabular-nums text-primary">
-                    {formatCurrency(totals.potential)}
-                  </div>
                 </div>
               </div>
 
