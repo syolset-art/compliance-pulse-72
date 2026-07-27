@@ -170,6 +170,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
       f === "name" ? (customer.contact_person || "") :
       f === "email" ? (customer.contact_email || "") :
       f === "url" ? (customer.url || "") :
+      f === "description" ? (customer.business_description || "") :
       (customer.contact_company_role || "")
     );
     setEditField(f);
