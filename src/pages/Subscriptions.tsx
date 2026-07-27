@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import {
   PLANS, ORDERED_PLANS, FRAMEWORK_ADDONS, FREE_FRAMEWORKS,
   formatKr, getYearlySavingsKr, planNameToTier, PLAN_TIERS,
+  getFrameworkMonthlyPrice,
   type PlanId, type BillingInterval,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
@@ -279,8 +280,15 @@ export default function Subscriptions() {
   }, [activeFrameworkIds]);
 
   const activeFrameworkCount = activeFrameworks.length;
-  const paidFrameworkCount = activeFrameworks.filter((fw) => !!FRAMEWORK_ADDONS[fw.id] && !(FREE_FRAMEWORKS as readonly string[]).includes(fw.id)).length;
-  const frameworkMonthlyPrice = paidFrameworkCount * 836;
+  const paidActiveFrameworks = activeFrameworks.filter(
+    (fw) => !!FRAMEWORK_ADDONS[fw.id] && !(FREE_FRAMEWORKS as readonly string[]).includes(fw.id)
+  );
+  const paidFrameworkCount = paidActiveFrameworks.length;
+  const frameworkBreakdown = paidActiveFrameworks.map((fw) => ({
+    label: FRAMEWORK_ADDONS[fw.id]?.name ?? fw.name ?? fw.id,
+    priceKr: getFrameworkMonthlyPrice(fw.id),
+  }));
+  const frameworkMonthlyPrice = frameworkBreakdown.reduce((sum, item) => sum + item.priceKr, 0);
 
   const planPrice = planConfig.monthlyPriceKr === -1 ? 0 : (planConfig.monthlyPriceKr || 0);
   const vendorMonthlyPrice = 1089;
@@ -426,6 +434,7 @@ export default function Subscriptions() {
               onClick={() => deactivatedModules.has("frameworks") ? reactivateModule("frameworks") : setEditFrameworksOpen(true)}
               onDeactivate={() => requestDeactivate("frameworks", "Regelverk")}
               deactivateLabel="Deaktiver alle regelverk"
+              breakdown={deactivatedModules.has("frameworks") ? undefined : frameworkBreakdown}
               accentColor="blue"
             />
 
