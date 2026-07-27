@@ -335,6 +335,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         contact_person: form.contact_person || null,
         contact_email: form.contact_email || null,
         contact_company_role: form.contact_company_role || null,
+        account_manager: form.account_manager || null,
+        url: form.has_website ? form.url.trim() || null : null,
         country_code: form.country_code || "NO",
         compliance_score: complianceScore,
         initial_assessment_score: complianceScore,
