@@ -330,9 +330,9 @@ export default function Subscriptions() {
     await executeToggleFramework(fw.id, false);
   };
 
-  const coreLimit = tierConfig.limits.systems === -1 ? "ubegrenset" : `${tierConfig.limits.systems}`;
-  const vendorLimit = tierConfig.limits.vendors === -1 ? "ubegrenset" : `${tierConfig.limits.vendors}`;
-  const assetLimit = tierConfig.limits.assets === -1 ? "ubegrenset" : `${tierConfig.limits.assets}`;
+  const coreLimit = planConfig.limits.systems === -1 ? "ubegrenset" : `${planConfig.limits.systems}`;
+  const vendorLimit = planConfig.limits.vendors === -1 ? "ubegrenset" : `${planConfig.limits.vendors}`;
+  const assetLimit = planConfig.limits.systems === -1 ? "ubegrenset" : `${planConfig.limits.systems}`;
 
   const trustProfileUrl = companyProfile?.domain
     ? `https://trust.mynder.no/${companyProfile.domain}`
