@@ -67,12 +67,13 @@ export const PLANS: Record<PlanId, Plan> = {
     ctaLabel: "Velg Vekst",
     features: [
       "2 arbeidsområder",
-      "Inntil 20 leverandører",
       "Inntil 20 systemer",
-      "2 regelverk inkludert",
+      "Avvikshåndtering",
+      "RoPA",
       "Lara AI (utvidet)",
       "Trust Profile (publiserbar)",
     ],
+
   },
   professional: {
     id: "professional",
