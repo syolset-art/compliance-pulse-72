@@ -49,7 +49,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useSubscription } from "@/hooks/useSubscription";
-import { Badge } from "@/components/ui/badge";
+
 import { CreditMenuItem } from "@/components/sidebar/CreditMenuItem";
 import { WorkspaceSwitcher } from "@/components/sidebar/WorkspaceSwitcher";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
