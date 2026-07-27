@@ -88,7 +88,6 @@ export const PLANS: Record<PlanId, Plan> = {
       "Ubegrensede arbeidsområder",
       "Ubegrenset leverandører og systemer",
       "Lara AI ubegrenset",
-      "Slette-agent inkludert",
       "3 regelverk inkludert",
       "PDF-eksport og deling",
     ],
