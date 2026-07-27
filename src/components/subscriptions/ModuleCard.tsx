@@ -21,6 +21,9 @@ export interface ModuleCardProps {
   accentColor?: "purple" | "blue" | "emerald" | "amber" | "rose" | "slate";
   breakdown?: Array<{ label: string; priceKr: number }>;
   footer?: React.ReactNode;
+}
+
+
 
 
 const statusConfig = {
