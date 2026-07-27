@@ -174,10 +174,15 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
     const value = editField === "url" && trimmed
       ? (trimmed.startsWith("http") ? trimmed : `https://${trimmed}`)
       : trimmed || null;
+    const update =
+      col === "contact_person" ? { contact_person: value } :
+      col === "contact_email" ? { contact_email: value } :
+      col === "url" ? { url: value } :
+      { contact_company_role: value };
     setSaving(true);
     const { error } = await supabase
       .from("msp_customers")
-      .update({ [col]: value } as any)
+      .update(update)
       .eq("id", customer.id);
     setSaving(false);
     if (error) {
