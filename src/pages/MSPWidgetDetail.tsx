@@ -41,6 +41,52 @@ const CLAIM_TREND = [
   { month: "apr", value: 47 },
 ];
 
+// Partner default currency (prototype). Swap here to reflect partner setting.
+const PARTNER_CURRENCY = "NOK";
+const PARTNER_LOCALE = "nb-NO";
+
+function formatPartnerCurrency(amount: number, compact = true) {
+  try {
+    return new Intl.NumberFormat(PARTNER_LOCALE, {
+      style: "currency",
+      currency: PARTNER_CURRENCY,
+      maximumFractionDigits: 0,
+      notation: compact ? "compact" : "standard",
+    }).format(amount);
+  } catch {
+    return `${amount} ${PARTNER_CURRENCY}`;
+  }
+}
+
+const SERVICE_POTENTIAL_TREND_DETAIL = [
+  { month: "nov", value: 420000 },
+  { month: "des", value: 680000 },
+  { month: "jan", value: 1050000 },
+  { month: "feb", value: 1480000 },
+  { month: "mar", value: 1920000 },
+  { month: "apr", value: 2400000 },
+];
+
+const POTENTIAL_BY_FRAMEWORK = [
+  { framework: "GDPR", gaps: 92, avgPrice: 6500, potential: 92 * 6500 },
+  { framework: "ISO 27001", gaps: 78, avgPrice: 9500, potential: 78 * 9500 },
+  { framework: "NIS2", gaps: 54, avgPrice: 11000, potential: 54 * 11000 },
+  { framework: "DORA", gaps: 38, avgPrice: 12500, potential: 38 * 12500 },
+  { framework: "AI Act", gaps: 32, avgPrice: 8500, potential: 32 * 8500 },
+  { framework: "Åpenhetsloven", gaps: 18, avgPrice: 4500, potential: 18 * 4500 },
+];
+
+const TOP_POTENTIAL_CUSTOMERS = [
+  { name: "Bergen Energi AS", gaps: 42, potential: 385000 },
+  { name: "Sognefjord Helse AS", gaps: 36, potential: 312000 },
+  { name: "Nordic Cargo AS", gaps: 31, potential: 268000 },
+  { name: "Vestland Logistikk", gaps: 28, potential: 224000 },
+  { name: "Stavanger Finans", gaps: 24, potential: 205000 },
+  { name: "Fjord IT AS", gaps: 21, potential: 168000 },
+  { name: "Oslo Eiendom AS", gaps: 18, potential: 142000 },
+];
+
+
 const SEGMENTS = [
   { label: "NIS2-eksponert", count: 71, color: "hsl(var(--primary))" },
   { label: "Sky-avhengig", count: 186, color: "hsl(270 70% 70%)" },
