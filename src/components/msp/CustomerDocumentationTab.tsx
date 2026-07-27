@@ -347,8 +347,9 @@ export function CustomerDocumentationTab({
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs bg-popover border border-border p-3 text-popover-foreground shadow-md rounded-md">
                 <p className="text-xs leading-relaxed">
-                  Når tilgang er på, kan Lara sitere dokumenter og oppdatere baseline-svar
-                  automatisk når innholdet endres.
+                  Når Lara-tilgang er på, leser hun opplastede dokumenter og oppdaterer
+                  baseline-svarene. Hun kan også fylle ut gap i aktiverte regelverk der
+                  dokumentet utgjør et bevis — og viser alltid kilden sitatet kommer fra.
                 </p>
               </TooltipContent>
             </Tooltip>
