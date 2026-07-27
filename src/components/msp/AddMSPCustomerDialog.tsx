@@ -310,6 +310,22 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
     setEnrichStep("done");
     setSelectedCompany(enriched);
+
+    // Generate short business description from public register data (best-effort)
+    try {
+      const industryLabel = enriched.naeringskode1?.beskrivelse || "";
+      const { data: descRes } = await supabase.functions.invoke("suggest-company-description", {
+        body: {
+          companyName: enriched.navn,
+          industry: industryLabel,
+          language: "nb",
+        },
+      });
+      if (descRes?.suggestion) {
+        setBusinessDescription(String(descRes.suggestion).slice(0, 500));
+      }
+    } catch { /* ignore — description is optional */ }
+
     setTimeout(() => setStep("contact"), 800);
   };
 
