@@ -36,12 +36,15 @@ import {
   formatKr, getYearlySavingsKr, planNameToTier, PLAN_TIERS,
   getFrameworkMonthlyPrice,
   CORE_TIERS, DEFAULT_CORE_TIER_ID, getCoreTier, getNextCoreTier,
-  type PlanId, type BillingInterval, type CoreTierId,
+  VENDOR_TIERS, DEFAULT_VENDOR_TIER_ID, getVendorTier, getNextVendorTier,
+  type PlanId, type BillingInterval, type CoreTierId, type VendorTierId,
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
 import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
 import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
+import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
+import { ConfirmVendorTierChangeDialog } from "@/components/dialogs/ConfirmVendorTierChangeDialog";
 import { useWorkspaceMode } from "@/contexts/WorkspaceModeContext";
 import { cn } from "@/lib/utils";
 
