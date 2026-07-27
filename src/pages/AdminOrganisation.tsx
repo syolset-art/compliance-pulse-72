@@ -102,13 +102,14 @@ export default function AdminOrganisation() {
         }
       }
 
-      // Fetch active framework names
-      const { data: addons } = await supabase
-        .from("domain_addons")
-        .select("domain_id")
-        .eq("status", "active");
-      if (addons) {
-        setFrameworkNames(addons.map((a: any) => a.domain_id));
+      // Fetch active frameworks for the organization itself
+      const { data: selectedFrameworks } = await supabase
+        .from("selected_frameworks")
+        .select("framework_id, framework_name, category, is_selected")
+        .eq("is_selected", true)
+        .order("framework_name");
+      if (selectedFrameworks) {
+        setFrameworkNames(selectedFrameworks.map((f: any) => f.framework_name));
       }
 
       // Fetch work areas count
@@ -128,11 +129,11 @@ export default function AdminOrganisation() {
       const sysList = systems || [];
       const sysWithOwner = sysList.filter((s) => s.asset_owner);
 
-      // Fetch active frameworks
+      // Fetch active frameworks count
       const { data: frameworks } = await supabase
-        .from("domain_addons")
-        .select("id")
-        .eq("status", "active");
+        .from("selected_frameworks")
+        .select("id", { count: "exact", head: true })
+        .eq("is_selected", true);
 
       setStats({
         users: profile?.brreg_employees || 0,
@@ -376,9 +377,26 @@ export default function AdminOrganisation() {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground mt-3">
-            {isNb ? "Aktivert:" : "Activated:"} <strong>{stats.activeFrameworks}</strong>
-          </p>
+          <div className="mt-3">
+            <p className="text-sm text-muted-foreground">
+              {isNb ? "Aktivert:" : "Activated:"} <strong>{stats.activeFrameworks}</strong>
+            </p>
+            {frameworkNames.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {frameworkNames.map((name) => (
+                  <Badge key={name} variant="secondary" className="text-xs font-normal">
+                    {name}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {isNb
+                  ? "Ingen regelverk aktivert. Klikk Rediger valg for å legge til."
+                  : "No frameworks activated. Click Edit selection to add."}
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
 
