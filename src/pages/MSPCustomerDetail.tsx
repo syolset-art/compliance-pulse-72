@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,7 @@ export default function MSPCustomerDetail() {
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, laraRationales: baselineRationales, setLaraRationales: setBaselineRationales, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
 
 
+  const queryClient = useQueryClient();
   const { data: customer, isLoading } = useQuery({
     queryKey: ["msp-customer", customerId],
     queryFn: async () => {
@@ -469,6 +470,7 @@ export default function MSPCustomerDetail() {
                 customerId={customerId!}
                 customerName={customer.name || customer.customer_name || "Kunden"}
                 activeFrameworkIds={activeFrameworkIds}
+                onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}
               />
             </TabsContent>
 

@@ -1,15 +1,18 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Layers, Shield, Package, Server, Globe, Plus, ExternalLink } from "lucide-react";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
+import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CustomerModulesTabProps {
   customerId: string;
   customerName: string;
   activeFrameworkIds: string[];
+  onUpdate?: () => void;
 }
 
 interface ModuleDef {
@@ -30,16 +33,39 @@ function formatPrice(n: number) {
   return `${n.toLocaleString("nb-NO")} kr`;
 }
 
-export function CustomerModulesTab({ customerId, customerName, activeFrameworkIds }: CustomerModulesTabProps) {
+export function CustomerModulesTab({ customerId, customerName, activeFrameworkIds, onUpdate }: CustomerModulesTabProps) {
+  const [editOpen, setEditOpen] = useState(false);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+
   const frameworkNames = useMemo(() => {
     return activeFrameworkIds
       .map((id) => ALL_FRAMEWORKS.find((f) => f.id === id)?.name || id)
       .filter(Boolean);
   }, [activeFrameworkIds]);
 
+  const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
+
   const slug = customerName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const notImplemented = (label: string) => () => toast.info(`${label} — kommer`, { description: "Denne handlingen er ikke koblet på i prototypen." });
+
+  const handleToggleFramework = async (frameworkId: string, currentlyActive: boolean) => {
+    setUpdatingId(frameworkId);
+    const next = currentlyActive
+      ? activeFrameworkIds.filter((id) => id !== frameworkId)
+      : [...activeFrameworkIds, frameworkId];
+    const { error } = await supabase
+      .from("msp_customers" as any)
+      .update({ active_frameworks: next } as any)
+      .eq("id", customerId);
+    setUpdatingId(null);
+    if (error) {
+      toast.error("Kunne ikke oppdatere regelverk");
+      return;
+    }
+    toast.success(currentlyActive ? "Regelverk deaktivert" : "Regelverk aktivert");
+    onUpdate?.();
+  };
 
   const modules: ModuleDef[] = [
     {
@@ -63,7 +89,7 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
         ? `${activeFrameworkIds.length} aktive: ${frameworkNames.slice(0, 3).join(", ")}${frameworkNames.length > 3 ? "…" : ""}`
         : "Ingen aktive regelverk",
       price: activeFrameworkIds.length * 836, // demo pricing
-      primaryAction: { label: "Legg til regelverk", onClick: notImplemented("Legg til regelverk") },
+      primaryAction: { label: "Endre regelverk", onClick: () => setEditOpen(true) },
     },
     {
       key: "vendors",
@@ -194,7 +220,7 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
                       </button>
                     )}
                     <Button size="sm" variant="outline" onClick={m.primaryAction.onClick}>
-                      {m.primaryAction.label === "Legg til regelverk" && <Plus className="h-3.5 w-3.5 mr-1" />}
+                      {m.primaryAction.label === "Endre regelverk" && <Plus className="h-3.5 w-3.5 mr-1" />}
                       {m.primaryAction.label}
                     </Button>
                   </div>
@@ -204,6 +230,16 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
           );
         })}
       </div>
+
+      <EditActiveFrameworksDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        activeFrameworkIds={activeSet}
+        onToggle={handleToggleFramework}
+        updatingId={updatingId}
+        title={`Endre regelverk — ${customerName}`}
+        description="Aktiver eller deaktiver regelverk for denne kunden. Endringer påvirker månedsprisen."
+      />
     </div>
   );
 }
