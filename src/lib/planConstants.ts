@@ -52,6 +52,25 @@ export const PLANS: Record<PlanId, Plan> = {
       "Lara AI (grunnleggende)",
     ],
   },
+  growth: {
+    id: "growth",
+    displayName: "Vekst",
+    tagline: "For dere som vokser forbi 5",
+    description: "Rom til å vokse med inntil 20 leverandører og systemer, uten å hoppe helt til ubegrenset.",
+    monthlyPriceKr: 1990,
+    yearlyPriceKr: 19900,
+    limits: { vendors: 20, systems: 20, workAreas: 2, frameworksIncluded: 2 },
+    popular: true,
+    ctaLabel: "Velg Vekst",
+    features: [
+      "2 arbeidsområder",
+      "Inntil 20 leverandører",
+      "Inntil 20 systemer",
+      "2 regelverk inkludert",
+      "Lara AI (utvidet)",
+      "Trust Profile (publiserbar)",
+    ],
+  },
   professional: {
     id: "professional",
     displayName: "Profesjonell",
@@ -60,7 +79,6 @@ export const PLANS: Record<PlanId, Plan> = {
     monthlyPriceKr: 2490,
     yearlyPriceKr: 24900,
     limits: { vendors: -1, systems: -1, workAreas: -1, frameworksIncluded: 3 },
-    popular: true,
     ctaLabel: "Velg\u00a0",
     features: [
       "Ubegrensede arbeidsområder",
