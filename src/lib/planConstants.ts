@@ -171,6 +171,11 @@ export function getFrameworkYearlyPrice(frameworkId: string): number {
 }
 
 export function getFrameworkMonthlyPrice(frameworkId: string): number {
+  if (isFrameworkFree(frameworkId)) return 0;
+  return FRAMEWORK_ADDONS[frameworkId]?.monthlyPriceKr ?? 0;
+}
+
+export function getFrameworkMonthlyPrice(frameworkId: string): number {
   const yearly = getFrameworkYearlyPrice(frameworkId);
   return yearly > 0 ? Math.round(yearly / 12) : 0;
 }
