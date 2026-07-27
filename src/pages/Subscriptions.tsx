@@ -12,6 +12,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { frameworks as allFrameworkDefs, getCategoryById, type Framework } from "@/lib/frameworkDefinitions";
 import { EditActiveFrameworksDialog } from "@/components/regulations/EditActiveFrameworksDialog";
 import { FrameworkActivationDialog } from "@/components/dialogs/FrameworkActivationDialog";
@@ -176,6 +186,24 @@ export default function Subscriptions() {
   const [activationFramework, setActivationFramework] = useState<Framework | null>(null);
   const [purchaseFramework, setPurchaseFramework] = useState<Framework | null>(null);
   const [updatingFrameworkId, setUpdatingFrameworkId] = useState<string | null>(null);
+  const [deactivatedModules, setDeactivatedModules] = useState<Set<string>>(new Set());
+  const [confirmDeactivate, setConfirmDeactivate] = useState<{ id: string; title: string } | null>(null);
+
+  const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
+  const confirmDeactivation = () => {
+    if (!confirmDeactivate) return;
+    setDeactivatedModules((prev) => new Set(prev).add(confirmDeactivate.id));
+    toast.success(`${confirmDeactivate.title} er deaktivert. Endringen trer i kraft ved neste faktureringsperiode.`);
+    setConfirmDeactivate(null);
+  };
+  const reactivateModule = (id: string) => {
+    setDeactivatedModules((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+    toast.success("Modulen er reaktivert.");
+  };
 
   const { data: selectedFrameworks, refetch: refetchFrameworks } = useQuery({
     queryKey: ["selected-frameworks-sub"],
@@ -384,14 +412,16 @@ export default function Subscriptions() {
               icon={ShieldCheck}
               title="Regelverk"
               description={`${activeFrameworkCount} regelverk aktivert`}
-              status={activeFrameworkCount > 0 ? "active" : "inactive"}
-              price={frameworkMonthlyPrice}
+              status={deactivatedModules.has("frameworks") ? "inactive" : activeFrameworkCount > 0 ? "active" : "inactive"}
+              price={deactivatedModules.has("frameworks") ? 0 : frameworkMonthlyPrice}
               priceLabel={paidFrameworkCount > 0 ? `${paidFrameworkCount} betalte regelverk` : "Inkluderte regelverk"}
               usage={String(activeFrameworkCount)}
               usageLimit={String(allFrameworkDefs.length)}
               usageSuffix="aktive"
-              action="manage"
-              onClick={() => setEditFrameworksOpen(true)}
+              action={deactivatedModules.has("frameworks") ? "activate" : "manage"}
+              onClick={() => deactivatedModules.has("frameworks") ? reactivateModule("frameworks") : setEditFrameworksOpen(true)}
+              onDeactivate={() => requestDeactivate("frameworks", "Regelverk")}
+              deactivateLabel="Deaktiver alle regelverk"
               accentColor="blue"
             />
 
@@ -399,13 +429,14 @@ export default function Subscriptions() {
               icon={Briefcase}
               title="Leverandørmodul"
               description="TPRM og leverandørvurdering"
-              status="active"
-              price={vendorMonthlyPrice}
+              status={deactivatedModules.has("vendors") ? "inactive" : "active"}
+              price={deactivatedModules.has("vendors") ? 0 : vendorMonthlyPrice}
               usage={String(vendorCount ?? 0)}
               usageLimit={vendorLimit}
               usageSuffix="leverandører"
-              action="open"
-              onClick={() => navigate("/vendors")}
+              action={deactivatedModules.has("vendors") ? "activate" : "open"}
+              onClick={() => deactivatedModules.has("vendors") ? reactivateModule("vendors") : navigate("/vendors")}
+              onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
               accentColor="amber"
             />
 
@@ -413,13 +444,14 @@ export default function Subscriptions() {
               icon={Server}
               title="Assets"
               description="System- og eiendelsregister"
-              status="active"
-              price={assetMonthlyPrice}
+              status={deactivatedModules.has("assets") ? "inactive" : "active"}
+              price={deactivatedModules.has("assets") ? 0 : assetMonthlyPrice}
               usage={String(assetsCount ?? 0)}
               usageLimit={assetLimit}
               usageSuffix="eiendeler"
-              action="open"
-              onClick={() => navigate("/assets")}
+              action={deactivatedModules.has("assets") ? "activate" : "open"}
+              onClick={() => deactivatedModules.has("assets") ? reactivateModule("assets") : navigate("/assets")}
+              onDeactivate={() => requestDeactivate("assets", "Assets")}
               accentColor="emerald"
             />
 
@@ -439,11 +471,15 @@ export default function Subscriptions() {
               icon={Users}
               title="Partner Workspace"
               description="For MSP-er og samarbeidspartnere"
-              status={isMspPartner ? "active" : "inactive"}
-              price={isMspPartner ? partnerWorkspaceMonthlyPrice : 0}
-              priceLabel={isMspPartner ? "Aktivert partnerportal" : "Kontakt salg for aktivering"}
-              action={isMspPartner ? "open" : "activate"}
-              onClick={() => isMspPartner ? navigate("/msp") : toast.info("Ta kontakt med salg på sales@mynder.no for å aktivere Partner Workspace.")}
+              status={deactivatedModules.has("partner") ? "inactive" : isMspPartner ? "active" : "inactive"}
+              price={!deactivatedModules.has("partner") && isMspPartner ? partnerWorkspaceMonthlyPrice : 0}
+              priceLabel={isMspPartner && !deactivatedModules.has("partner") ? "Aktivert partnerportal" : "Kontakt salg for aktivering"}
+              action={deactivatedModules.has("partner") ? "activate" : isMspPartner ? "open" : "activate"}
+              onClick={() => {
+                if (deactivatedModules.has("partner")) return reactivateModule("partner");
+                return isMspPartner ? navigate("/msp") : toast.info("Ta kontakt med salg på sales@mynder.no for å aktivere Partner Workspace.");
+              }}
+              onDeactivate={isMspPartner ? () => requestDeactivate("partner", "Partner Workspace") : undefined}
               accentColor="slate"
             />
           </section>
@@ -556,6 +592,23 @@ export default function Subscriptions() {
         open={!!activationFramework} onOpenChange={(open) => { if (!open) setActivationFramework(null); }}
         framework={activationFramework}
       />
+
+      <AlertDialog open={!!confirmDeactivate} onOpenChange={(open) => { if (!open) setConfirmDeactivate(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deaktivere {confirmDeactivate?.title}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Modulen forblir tilgjengelig til utløpet av inneværende faktureringsperiode. Etter det stanses fakturering, og data forblir lagret i 90 dager før automatisk sletting. Du kan reaktivere modulen når som helst.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeactivation} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Deaktiver modul
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
