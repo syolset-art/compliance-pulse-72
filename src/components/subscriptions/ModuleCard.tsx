@@ -68,6 +68,8 @@ export function ModuleCard({
   onDeactivate,
   deactivateLabel,
   breakdown,
+  footer,
+
 }: ModuleCardProps) {
   const cfg = statusConfig[status];
   const canDeactivate = !!onDeactivate && status === "active";
