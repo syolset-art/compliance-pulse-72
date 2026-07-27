@@ -58,8 +58,8 @@
     "adminNotifications": "Varslinger",
     "accessManagement": "Tilgangsstyring",
     "coming": "Kommer",
-    "moreServices": "Flere tjenester",
-    "exploreBadge": "Utforsk",
+    "moreServices": "Moduler",
+    "exploreBadge": "",
     "registries": "Registre"
   },
   "customerRequests": {
