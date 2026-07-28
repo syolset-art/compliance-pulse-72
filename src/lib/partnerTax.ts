@@ -61,3 +61,25 @@ export function computeTaxBreakdown(subtotal: number, tax: PartnerTaxSettings) {
   const net = Math.round(subtotal / (1 + rate));
   return { net, taxAmount: subtotal - net, gross: subtotal };
 }
+
+export interface CurrencyTaxHint {
+  label: string;
+  /** Standardsats i prosent; null hvis satsen varierer og ikke bør auto-settes. */
+  rate: number | null;
+  note: string;
+}
+
+const CURRENCY_TAX_HINT: Record<string, CurrencyTaxHint> = {
+  NOK: { label: "mva", rate: 25, note: "Standard mva i Norge er 25%." },
+  SEK: { label: "moms", rate: 25, note: "Standard moms i Sverige er 25%." },
+  DKK: { label: "moms", rate: 25, note: "Standard moms i Danmark er 25%." },
+  EUR: { label: "VAT", rate: null, note: "VAT varierer per EU-land (17–27%)." },
+  GBP: { label: "VAT", rate: 20, note: "Standard VAT i Storbritannia er 20%." },
+  USD: { label: "Sales tax", rate: null, note: "Sales tax varierer per delstat i USA." },
+};
+
+export function getCurrencyTaxHint(code: string | undefined): CurrencyTaxHint | null {
+  if (!code) return null;
+  return CURRENCY_TAX_HINT[code.toUpperCase()] ?? null;
+}
+

@@ -1,23 +1,31 @@
 ## Mål
-Gjøre "La Lara foreslå tjenester" mindre dominerende. Knappen skal være fremtredende første gang partneren er inne, men trekke seg tilbake etter det.
+Gjøre det tydelig for partneren at valgt valuta påvirker hvilken skatt/avgift som er naturlig å legge til i tilbud — f.eks. at NOK typisk betyr 25% mva, SEK 25% moms, DKK 25% moms, EUR varierer per EU-land, GBP 20% VAT, USD sales tax pr. delstat.
 
-## Endringer i `src/components/msp/MSPServiceCatalogTab.tsx`
+## Endringer
 
-1. **Persistér "har sett Lara-veiviseren"-tilstand**
-   - Ny `localStorage`-flagg `msp-lara-wizard-seen-v1`.
-   - Settes til `true` når wizarden åpnes eller når partneren allerede har adopterte tjenester / curatedPicks.
+### 1. `src/lib/partnerTax.ts`
+Legg til et lite oppslag `CURRENCY_TAX_HINT` (ren data, ingen logikk-endring):
+```
+NOK → { label: "mva", rate: 25, note: "Standard mva i Norge" }
+SEK → { label: "moms", rate: 25, note: "Standard moms i Sverige" }
+DKK → { label: "moms", rate: 25, note: "Standard moms i Danmark" }
+EUR → { label: "VAT", rate: null, note: "VAT varierer per EU-land (17–27%)" }
+GBP → { label: "VAT", rate: 20, note: "Standard VAT i Storbritannia" }
+USD → { label: "Sales tax", rate: null, note: "Sales tax varierer per delstat" }
+```
+Eksporter en helper `getCurrencyTaxHint(code)` som returnerer hint eller `null`.
 
-2. **To visningsmoduser for Lara-knappen**
-   - **Førstegang (flagget ikke satt, ingen adopterte tjenester):** vises som i dag — tydelig `outline`-knapp med Sparkles + tekst "La Lara foreslå tjenester", plassert oppe til høyre. Beholder dagens vekt slik at nye partnere finner den umiddelbart.
-   - **Etter første gang:** kollapses til et lite, subtilt ikon-only trigger:
-     - `variant="ghost"`, `size="icon"`, kun Sparkles-ikon i muted farge.
-     - Plassert diskret i samme høyre-linje, ved siden av eksisterende Info-knapp.
-     - Tooltip: "La Lara foreslå tjenester på nytt".
-     - Hover gir svak bakgrunn slik at den er oppdagbar uten å konkurrere med "Beskriv egen tjeneste" og tabellen.
+### 2. `src/components/msp/PartnerTaxCard.tsx`
+- Les `currency` fra `useServiceDefaults`.
+- Legg til en informasjons-blokk øverst i kortet (under introteksten, over Switch-raden):
+  - Diskret `Info`-ikon + kort tekst: «Valgt valuta er **{currency}**. {hint.note}. Endre valuta under Standard timepris.»
+  - Hvis hint har rate: liten «Bruk {rate}%»-knapp som setter `draft.label` og `draft.rate` (og aktiverer switch hvis av).
+  - Hvis hint mangler (EUR/USD): kun forklarende tekst, ingen quick-apply.
+- Oppdater intro-teksten kort: nevn at valuta styrer hvilken avgift som er relevant.
+- Ingen andre endringer i lagre-flyt eller datamodell.
 
-3. **Ingen andre endringer**
-   - "Beskriv egen tjeneste"-knappen, Info-tooltip og Lara-banner (som allerede vises når det finnes anbefalinger) står som før.
-   - Lara-banneret fungerer fortsatt som primær CTA for å nullstille/filtrere anbefalinger etter første kartlegging.
+### 3. Ingen andre filer berøres
+Katalog og tilbudsdialog bruker fortsatt `formatTaxNote(draft)` uendret.
 
 ## Resultat
-Nye partnere ser fortsatt tydelig CTA. Erfarne partnere får en ren side der Lara-triggeren er tilgjengelig som et lite ikon — ikke en permanent, dominerende knapp.
+Når partneren står i mva/tax-innstillingene, ser de umiddelbart hvilken valuta som er valgt og hvilken avgift som er normal for det markedet, med ett klikk for å bruke standardsatsen.
