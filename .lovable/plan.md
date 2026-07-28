@@ -1,65 +1,59 @@
+# Integrasjoner — «Datakilder for automatisk kartlegging»
 
-# Aktivitetslogg (kontekstbevisst)
+Nytt menypunkt under **Innstillinger → Integrasjoner** hvor brukeren kobler til eksterne systemer (Microsoft 365, Google Workspace, Okta, Defender for Cloud Apps, osv.). Lara-agenten bruker koblingene til å oppdage systemer og leverandører automatisk, og holder registeret oppdatert når noe legges til eller fjernes hos kilden.
 
-Ny side under Innstillinger som viser hvem som gjorde hva, når. Innholdet speiler alltid aktiv kontekst: **Egen virksomhet** eller **Partner-visning**. Ett hendelseslager, flere views.
+Navneforslag på tjenesten (velges én):
+- **Mynder Connect** — profesjonelt, matcher produktnavnene (Mynder Core, Mynder Trust).
+- **Datakilder** — enkelt, norsk, selvforklarende.
+- **Kildekoblinger** — nøytralt.
 
-## Kontekstmodell
+Anbefaling: **Mynder Connect** som produktnavn, «Integrasjoner» som menyetikett.
 
-Ett sentralt hendelseslager, filtrert av aktiv workspace-kontekst (samme mekanisme som resten av appen bruker for å skille kunde-/partnerdata).
+## Brukerflyt
 
-- **Egen virksomhet** (`/settings/activity-log`): kun hendelser for eget `company_id`. Aktør = intern bruker eller Lara. Ingen partner-metadata vises.
-- **Partner-visning** (`/partner/activity-log`): hendelser på tvers av partnerens kunder, pluss partnerens egne handlinger. Rader viser hvilken kunde hendelsen gjelder + om aktøren var kunde eller partner-konsulent.
-- Bytte av kontekst i global context-switcher bytter automatisk datasett og rutens brødsmuler — ingen egen toggle på siden.
-- Kunde ser aldri partnerens interne handlinger som ikke er relevante for kunden; partner ser kundens hendelser kun for kunder de har tilgang til (RLS via `msp_customers` + `has_role`).
+1. Bruker åpner *Innstillinger → Integrasjoner*.
+2. Ser en katalog av tilgjengelige kilder gruppert etter kategori (Identitet & SSO, Produktivitet, Skysikkerhet, Enhet/MDM, Fakturering/Regnskap, Egendefinert API).
+3. Hver kilde vises som kort: logo, navn, kort beskrivelse, hva Lara henter (systemer / leverandører / brukere), status (Ikke tilkoblet / Aktiv / Feil / Utløpt) og «Koble til».
+4. «Koble til» åpner en sikker dialog:
+   - Forklarer hva som hentes og hvorfor (data-minimalisering).
+   - Viser eksakte scopes/tillatelser som forespørres.
+   - Data Processing-info (hvor lagres tokens, oppbevaringstid, revokering).
+   - Knapp: *Start OAuth* (mock i prototype) eller *Lim inn API-nøkkel* for kilder uten OAuth.
+5. Etter tilkobling: kort viser «Aktiv», sist synk-tidspunkt, antall oppdagede systemer/leverandører, og handlinger: *Synk nå*, *Se oppdagede elementer*, *Innstillinger*, *Koble fra*.
+6. Oppdagede elementer havner i **Oppdag systemer**-flyten (finnes fra før) hvor bruker godkjenner/avslår før de blir aktive assets. Lara foreslår match mot eksisterende leverandører/systemer for å unngå duplikater.
+7. Automatisk re-synk på intervall (daglig som default, justerbart). Ved endring hos kilden: nytt system → forslag i innboks; fjernet system → foreslått avvikling (arkivering, ikke sletting).
+8. Aktivitet logges til eksisterende **Aktivitetslogg** (hvem koblet til, hvem godkjente forslag, feilede synk).
 
-Referanse: brukerens skisse — "Ett hendelseslager" med visningene "På objektet", "På partneren", "Samlet logg" (kunde) og "Hos partner" (partner på tvers).
+## Sikkerhet & tillit (synlig i UI)
 
-## UI
+- Badge «Kryptert lagring» på alle koblinger; forklaring i tooltip.
+- Kun read-only scopes tilbys som default; write-scopes krever ekstra bekreftelse.
+- «Test tilkobling» og «Revokér tilgang» alltid tilgjengelig.
+- Feilstatus vises med tydelig CTA (*Koble til på nytt*) i stedet for å skjule feilen.
+- Ingen hemmeligheter vises i klartekst etter lagring (maskering).
 
-Én tidslinje-side, samme komponent begge kontekster. Forskjeller styres av `context`-prop.
+## Sider & komponenter (prototype, mock-data)
 
-- Topplinje: tittel + kontekst-chip ("Egen virksomhet" / "Partner: [navn]")
-- Filterrad: søk, kategori (Ressurser, Samsvar, Brukere/Abonnement, AI/Lara), tidsrom, aktør. I partner-visning: også **Kunde**-filter.
-- Rader: aktør-avatar, handlingstekst, relativ tid, klikk → relatert ressurs
-  - Partner-visning legger til liten kunde-etikett til venstre og et ikon for aktør-type (kunde / partner-konsulent / AI)
-- Paginering 50 av gangen, "Last flere"
+- `src/pages/Integrations.tsx` — hovedside med søk, kategorifilter, katalog-grid.
+- `src/components/integrations/IntegrationCard.tsx` — kort med status-pill og handlinger.
+- `src/components/integrations/ConnectIntegrationDialog.tsx` — sikker tilkoblingsdialog med scopes, personvern, tokens.
+- `src/components/integrations/IntegrationDetailDrawer.tsx` — sist synk, oppdagede elementer, logg, farlige handlinger (koble fra).
+- `src/lib/integrationCatalog.ts` — statisk katalog: id, navn, kategori, beskrivelse, henter (systemer/leverandører/brukere), scopes, auth-type.
+- Ruting: `/settings/integrations` i `src/App.tsx`.
+- Sidebar: legge til `{ name: "Integrasjoner", href: "/settings/integrations", icon: Plug }` i `settingsMenu` (og speile i partner-visning).
+- Aktivitetslogg: nye event-typer `integration_connected`, `integration_synced`, `integration_disconnected` i `src/lib/activityLogData.ts`.
 
-## Datakilde (kombinert)
+## Katalog (start-sett)
 
-Aggregert visning nå + ny sentral tabell for nye hendelser.
+Identitet & SSO: Microsoft Entra ID, Google Workspace, Okta.
+Produktivitet: Microsoft 365, Google Workspace, Slack.
+Skysikkerhet / SaaS-oppdagelse: Microsoft Defender for Cloud Apps, Netskope.
+Enhet/MDM: Intune, Jamf.
+Fakturering/Regnskap (leverandøroppdagelse): Tripletex, Fiken, Xero.
+Egendefinert: Generisk REST + CSV-import.
 
-- Aggregert fra eksisterende: `assets`, `systems`, `asset_priority_history`, `requirement_status`, `vendor_documents`, `evidence_checks`, `user_roles`, `company_subscriptions`, `credit_transactions`, `lara_suggestion_states`, `process_agent_recommendations`
-- Ny tabell for nye hendelser (se under)
+## Ute av scope (prototype)
 
-## Teknisk
-
-**Ny tabell** `public.activity_log`:
-- `id uuid pk`, `created_at timestamptz default now()`
-- `company_id uuid` — kunden hendelsen gjelder (alltid satt)
-- `partner_id uuid null` — satt når handling utført i partner-visning
-- `actor_id uuid null`, `actor_type text` ('customer_user' | 'partner_user' | 'ai' | 'system')
-- `action text`, `category text` ('resource' | 'compliance' | 'account' | 'ai')
-- `resource_type text`, `resource_id uuid`, `resource_label text`
-- `metadata jsonb`
-- Indekser: `(company_id, created_at desc)`, `(partner_id, created_at desc)`, `category`
-- RLS:
-  - Egen virksomhet: `company_id = <brukerens company>`
-  - Partner: `partner_id = <partner>` OG kunden er i partnerens `msp_customers`
-  - `super_admin` ser alt
-- GRANT `SELECT, INSERT` til `authenticated`, `ALL` til `service_role`
-
-**Frontend**:
-- `src/pages/settings/ActivityLog.tsx` — egen virksomhet
-- `src/pages/partner/PartnerActivityLog.tsx` — partner-visning (samme komponent, `context="partner"`)
-- `src/components/activity-log/ActivityFeed.tsx`, `ActivityRow.tsx`, `ActivityFilters.tsx`
-- `src/hooks/useActivityFeed.ts` — leser aktiv kontekst fra eksisterende workspace-context, henter og fletter fra `activity_log` + aggregerte kilder
-- `src/lib/activityLog.ts` — helper `logActivity({ action, category, resource, metadata })` som setter `company_id`/`partner_id` fra aktiv kontekst automatisk
-- Menypunkt: "Aktivitetslogg" i Innstillinger (egen virksomhet) og i Partner-innstillinger (partner)
-
-**Instrumentering (fase 1)**: kall `logActivity` fra modul-/nivåendringer i `Subscriptions.tsx`, Lara-forslag godtatt/avvist, rolleendringer. Resten dekkes av aggregering til de får eksplisitt logging.
-
-## Utenfor scope
-
-- Eksport (CSV/PDF)
-- Varsler/webhooks
-- Full backfill av historiske hendelser før tabellen finnes
+- Faktisk OAuth mot providere — mockes med simulert flow som setter status «Aktiv».
+- Kryptering av tokens — kun visuell indikator; ingen ekte lagring av hemmeligheter.
+- Bakgrunnsjobb — «Synk nå» oppdaterer mock-data umiddelbart.

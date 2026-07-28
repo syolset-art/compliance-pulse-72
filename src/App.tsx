@@ -36,6 +36,7 @@ import Regulations from "./pages/Regulations";
 
 import Subscriptions from "./pages/Subscriptions";
 import ActivityLog from "./pages/ActivityLog";
+import Integrations from "./pages/Integrations";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Reports from "./pages/Reports";
 import ProcessProfile from "./pages/ProcessProfile";
@@ -150,6 +151,7 @@ const App = () => (
                   <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
                   <Route path="/activity-log" element={<ActivityLog />} />
+                  <Route path="/settings/integrations" element={<Integrations />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/deviations" element={<Deviations />} />
                   <Route path="/resources" element={<Resources />} />
