@@ -25,7 +25,7 @@ import {
   ChevronRight,
   Save,
   Info,
-  ImageIcon,
+  
   Layers,
   Plug,
   Receipt,
