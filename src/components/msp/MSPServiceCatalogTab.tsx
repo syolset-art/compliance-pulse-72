@@ -528,16 +528,16 @@ export function MSPServiceCatalogTab() {
       )}
 
       {/* Mine egne tjenester */}
-      {extras.some((e) => !e.isMynder) && (
+      {extras.some((e) => !e.isMynder && e.status !== "retired") && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
             <h3 className="text-lg font-semibold text-foreground">Mine tjenester</h3>
             <span className="text-base text-foreground/70">
-              {extras.filter((e) => !e.isMynder).length} tjenester
+              {extras.filter((e) => !e.isMynder && e.status !== "retired").length} tjenester
             </span>
           </div>
           <div className="divide-y divide-border rounded-md border border-border bg-card">
-            {extras.filter((e) => !e.isMynder).map((e) => {
+            {extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => {
               const price = e.priceOverride ?? e.hours * hourlyRate;
               return (
                 <div key={e.id} className="flex items-center gap-3 px-3 py-3">
@@ -560,14 +560,95 @@ export function MSPServiceCatalogTab() {
                   >
                     <Pencil className="h-4 w-4" aria-hidden="true" />
                   </Button>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setRetireId(e.id)}
+                          className="h-11 w-11 text-foreground/70 hover:text-foreground"
+                          aria-label="Avvikle tjeneste"
+                        >
+                          <Archive className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        Avvikle — skjuler tjenesten for kunder, bevarer historikk
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeExtra(e.id)}
+                          className="h-11 w-11 text-foreground/70 hover:text-destructive"
+                          aria-label="Slett tjeneste"
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        Slett — kun for tjenester som aldri har vært i bruk
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Avviklede tjenester */}
+      {extras.some((e) => e.status === "retired") && (
+        <section className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <h3 className="text-sm font-medium text-muted-foreground inline-flex items-center gap-1.5">
+              <Archive className="h-3.5 w-3.5" />
+              Avviklet ({extras.filter((e) => e.status === "retired").length})
+            </h3>
+          </div>
+          <div className="divide-y divide-border rounded-md border border-dashed border-border bg-muted/20">
+            {extras.filter((e) => e.status === "retired").map((e) => {
+              const replacement = e.replacedById
+                ? extras.find((x) => x.id === e.replacedById)
+                : null;
+              return (
+                <div key={e.id} className="flex items-center gap-3 px-3 py-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground/70 truncate">
+                      {e.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      Avviklet{" "}
+                      {e.retiredAt
+                        ? new Date(e.retiredAt).toLocaleDateString("nb-NO")
+                        : ""}
+                      {e.retiredReason && ` · ${e.retiredReason}`}
+                      {replacement && ` · erstattet av ${replacement.name}`}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => restoreExtra(e.id)}
+                    className="h-8 gap-1.5 text-xs"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Gjenopprett
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removeExtra(e.id)}
-                    className="h-11 w-11 text-foreground/70 hover:text-destructive"
-                    aria-label="Fjern tjeneste"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    aria-label="Slett permanent"
                   >
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                   </Button>
                 </div>
               );
@@ -575,6 +656,7 @@ export function MSPServiceCatalogTab() {
           </div>
         </section>
       )}
+
 
 
       {/* Avansert: hele biblioteket + framework-kalkulator */}
