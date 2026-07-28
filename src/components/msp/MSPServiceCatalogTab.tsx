@@ -21,7 +21,7 @@ import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type ServiceRole, getMappingRoles, formatRoleVerbs, ROLE_META } from "@/lib/serviceLibrary";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
-import { MynderResellCard } from "./MynderResellCard";
+
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 
 type AllSelections = Record<string, FrameworkSelection>;
