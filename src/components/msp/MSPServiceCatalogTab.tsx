@@ -510,7 +510,7 @@ export function MSPServiceCatalogTab() {
       <section className="space-y-3">
         <div className="flex items-baseline justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-foreground">Mynder-produkter (videresalg)</h3>
+            <h3 className="text-lg font-semibold text-foreground">Mynder-produkter&nbsp;</h3>
             <p className="text-sm text-foreground/70 mt-0.5">
               Videreselg Mynder-lisenser til dine kunder og tjen provisjon.
             </p>
