@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Receipt, Save } from "lucide-react";
+import { Receipt, Save, Info } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
-import { formatTaxNote, type PartnerTaxSettings, type TaxMode } from "@/lib/partnerTax";
+import { formatTaxNote, getCurrencyTaxHint, type PartnerTaxSettings, type TaxMode } from "@/lib/partnerTax";
+import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 
 const QUICK_RATES = [0, 12, 15, 20, 25];
 
