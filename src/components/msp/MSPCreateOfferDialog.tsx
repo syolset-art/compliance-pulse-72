@@ -21,6 +21,7 @@ import { getControlLabel } from "@/lib/serviceControlLabels";
 import { Link2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { computeTaxBreakdown, formatTaxNote } from "@/lib/partnerTax";
+import { saveOffer as persistOffer } from "@/lib/customerOffers";
 
 export interface CoveredControlGroup {
   frameworkId: string;
