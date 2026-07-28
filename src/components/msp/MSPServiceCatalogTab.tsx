@@ -503,7 +503,7 @@ export function MSPServiceCatalogTab() {
       {extras.some((e) => e.isMynder) && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <h3 className="text-lg font-semibold text-foreground">Mynder-tjenester</h3>
+            <h3 className="text-lg font-semibold text-foreground">Produkter fra Mynder</h3>
             <span className="text-base text-foreground/70">Inkludert i alle leveranser</span>
           </div>
           <div className="divide-y divide-border rounded-md border border-border bg-card">
