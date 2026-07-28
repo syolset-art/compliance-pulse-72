@@ -78,7 +78,7 @@ const TAG_META: Record<PickTag, { label: string; className: string }> = {
 
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
-  const { defaultHourlyRate } = useServiceDefaults();
+  const { defaultHourlyRate, currencyOption } = useServiceDefaults();
   const [hourlyRate, setHourlyRate] = useState<number>(defaultHourlyRate);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>(() => []);
