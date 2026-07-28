@@ -829,6 +829,14 @@ export function MSPServiceCatalogTab() {
         onConfirm={(opts) => retireId && retireExtra(retireId, opts)}
       />
 
+      <MSPLaraServiceWizard
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onComplete={(suggestions) => setLaraSuggestions(suggestions)}
+      />
+
+
+
     </div>
   );
 }
