@@ -577,7 +577,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
 
 
-                    {/* Anbefalt dokumentasjon — skjult som standard */}
+                    {/* Veiledning til dokumentasjon — skjult som standard */}
                     {(() => {
                       const docs = getRecommendedDocs(req, isNb);
                       if (docs.length === 0) return null;
@@ -591,7 +591,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                           >
                             <span className="inline-flex items-center gap-1.5">
                               <FileIcon className="h-3.5 w-3.5 text-primary" />
-                              {isNb ? `Anbefalt dokumentasjon (${docs.length})` : `Recommended documentation (${docs.length})`}
+                              {isNb ? `Veiledning til dokumentasjon (${docs.length})` : `Documentation guidance (${docs.length})`}
                             </span>
                             {isOpen ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
                           </button>
