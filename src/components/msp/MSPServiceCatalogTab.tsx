@@ -40,6 +40,7 @@ import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { formatTaxNote } from "@/lib/partnerTax";
 import { useSavedOffers, type LockInfo } from "@/lib/customerOffers";
+import { SetupFeeCell } from "./SetupFeeCell";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -933,19 +934,13 @@ export function MSPServiceCatalogTab() {
                           {trailing ? fmt(share) : `${sym} ${Math.round(share)}`}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                type="button"
-                                className="text-sm text-primary hover:underline"
-                              >
-                                Sett pris
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top">
-                              Etableringsgebyr legges til når du lager tilbud. Valgfritt.
-                            </TooltipContent>
-                          </Tooltip>
+                          <SetupFeeCell
+                            productId={r.id}
+                            productName={r.name}
+                            currencySymbol={sym}
+                            trailing={trailing}
+                            format={fmt}
+                          />
                         </td>
                       </tr>
                     );
