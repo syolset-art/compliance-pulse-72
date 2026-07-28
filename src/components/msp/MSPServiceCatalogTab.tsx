@@ -160,6 +160,15 @@ export function MSPServiceCatalogTab() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<ServiceTemplate | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardSeen, setWizardSeen] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try { return window.localStorage.getItem("msp-lara-wizard-seen-v1") === "1"; } catch { return false; }
+  });
+  const markWizardSeen = () => {
+    setWizardSeen(true);
+    try { window.localStorage.setItem("msp-lara-wizard-seen-v1", "1"); } catch {}
+  };
+  const openWizard = () => { markWizardSeen(); setWizardOpen(true); };
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
@@ -480,10 +489,30 @@ export function MSPServiceCatalogTab() {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          <Button variant="outline" size="sm" onClick={() => setWizardOpen(true)} className="gap-1.5 shrink-0 h-11 text-base">
-            <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
-            La Lara foreslå tjenester
-          </Button>
+          {wizardSeen || extras.length > 0 || (curatedPicks && curatedPicks.length > 0) ? (
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={openWizard}
+                    aria-label="La Lara foreslå tjenester på nytt"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
+                  >
+                    <Sparkles className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs text-sm">
+                  La Lara foreslå tjenester på nytt
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <Button variant="outline" size="sm" onClick={openWizard} className="gap-1.5 shrink-0 h-11 text-base">
+              <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
+              La Lara foreslå tjenester
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0 h-11 text-base">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Beskriv egen tjeneste

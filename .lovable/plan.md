@@ -1,29 +1,23 @@
 ## Mål
+Gjøre "La Lara foreslå tjenester" mindre dominerende. Knappen skal være fremtredende første gang partneren er inne, men trekke seg tilbake etter det.
 
-Partneren skal enkelt se hvilke tjenester som er del av et levert tilbud, og disse skal ikke kunne fjernes eller nullstilles ved et uhell. Avvikling (retire) er fortsatt eneste måte å ta en tjeneste ut av porteføljen på.
+## Endringer i `src/components/msp/MSPServiceCatalogTab.tsx`
 
-## Slik oppleves det
+1. **Persistér "har sett Lara-veiviseren"-tilstand**
+   - Ny `localStorage`-flagg `msp-lara-wizard-seen-v1`.
+   - Settes til `true` når wizarden åpnes eller når partneren allerede har adopterte tjenester / curatedPicks.
 
-1. Når partneren lagrer et tilbud i «Opprett tilbud»-dialogen, blir tjenestene som ligger i tilbudet merket som «På tilbud» på kunden.
-2. I tjenestekatalogen (både tabellen for «Mynder-produkter» og listen for egne tjenester) vises et lite merke «På tilbud · T-2026-1234» på hver slik tjeneste, med tooltip som viser tilbudsnr., dato og navn.
-3. Handlinger som ville fjerne en slik tjeneste er deaktivert:
-   - «Fjern»-knapp (X) på egne tjenester skjules/deaktiveres med tooltip «Kan ikke fjernes — inngår i tilbud T-2026-1234. Bruk Avvikle.»
-   - Lara-banneret sitt «Nullstill»-valg fjerner kun tjenester som ikke ligger i et tilbud; de resterende beholdes og en toast forklarer hvor mange som ble beholdt.
-   - Mynder-produkter kan ikke deaktiveres så lenge de er del av et tilbud (samme tooltip).
-4. Å «Avvikle» en tilbudt tjeneste er fortsatt mulig — det er den kontrollerte utfasingsflyten.
+2. **To visningsmoduser for Lara-knappen**
+   - **Førstegang (flagget ikke satt, ingen adopterte tjenester):** vises som i dag — tydelig `outline`-knapp med Sparkles + tekst "La Lara foreslå tjenester", plassert oppe til høyre. Beholder dagens vekt slik at nye partnere finner den umiddelbart.
+   - **Etter første gang:** kollapses til et lite, subtilt ikon-only trigger:
+     - `variant="ghost"`, `size="icon"`, kun Sparkles-ikon i muted farge.
+     - Plassert diskret i samme høyre-linje, ved siden av eksisterende Info-knapp.
+     - Tooltip: "La Lara foreslå tjenester på nytt".
+     - Hover gir svak bakgrunn slik at den er oppdagbar uten å konkurrere med "Beskriv egen tjeneste" og tabellen.
 
-## Teknisk
+3. **Ingen andre endringer**
+   - "Beskriv egen tjeneste"-knappen, Info-tooltip og Lara-banner (som allerede vises når det finnes anbefalinger) står som før.
+   - Lara-banneret fungerer fortsatt som primær CTA for å nullstille/filtrere anbefalinger etter første kartlegging.
 
-- Ny modul `src/lib/customerOffers.ts` med typene `SavedOffer { id, offerNumber, name, customerId, createdAt, serviceIds[], templateIds[] }` og hjelpere `listOffers(customerId)`, `saveOffer(offer)`, `getLockedServiceIds(customerId)` som slår sammen `serviceIds` + `templateIds` på tvers av kundens tilbud. Persistens i `localStorage` (`msp-customer-offers-v1`), samme mønster som `usePartnerBranding`.
-- `MSPCreateOfferDialog.handleSaveOffer` bygger et `SavedOffer` fra `selections.extras` (id + templateId) og kaller `saveOffer(...)`. Tar imot ny prop `customerId`.
-- `MSPServiceCatalogTab`:
-  - Ny `useMemo` `lockedIds = getLockedServiceIds(customerId)` (både `extras.id` og `templateId`).
-  - `removeExtra(id)` blir no-op når id er låst, viser toast.
-  - «Nullstill»-knappen i Lara-banneret filtrerer bort låste id-er, viser antall beholdt.
-  - Renderer nytt kompakt merke «På tilbud» ved siden av tjenestenavnet i begge tabellene (Mynder + egne) med tooltip som viser tilbudsnummer.
-- Ingen endring i databasemodell — prototype bruker localStorage, konsistent med resten av MSP-flyten.
-
-## Ikke i scope
-
-- Ingen egen «Tilbud»-side eller CRUD-visning; kun merking + låsing.
-- Ingen endring av PDF-generering eller tilbudsnummer-format.
+## Resultat
+Nye partnere ser fortsatt tydelig CTA. Erfarne partnere får en ren side der Lara-triggeren er tilgjengelig som et lite ikon — ikke en permanent, dominerende knapp.
