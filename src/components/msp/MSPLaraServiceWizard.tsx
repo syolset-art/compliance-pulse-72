@@ -100,7 +100,7 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }:
     await new Promise((r) => setTimeout(r, 900));
     const suggestions = suggestServices(answers);
     setGenerating(false);
-    onComplete(suggestions);
+    onComplete(suggestions, answers);
     close();
   };
 
