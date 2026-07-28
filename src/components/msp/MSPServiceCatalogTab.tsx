@@ -324,6 +324,53 @@ export function MSPServiceCatalogTab() {
     setExtras((prev) => prev.filter((e) => e.id !== id));
   };
 
+  const [retireId, setRetireId] = useState<string | null>(null);
+  const retireTarget = retireId ? extras.find((e) => e.id === retireId) ?? null : null;
+
+  const retireExtra = (id: string, opts: RetireServiceOptions) => {
+    const prev = extras.find((e) => e.id === id);
+    if (!prev) return;
+    setExtras((list) =>
+      list.map((e) =>
+        e.id === id
+          ? {
+              ...e,
+              status: "retired",
+              retiredAt: new Date().toISOString(),
+              retiredReason: opts.reason,
+              replacedById: opts.replacedById,
+            }
+          : e,
+      ),
+    );
+    setRetireId(null);
+    toast.success(`«${prev.name}» er avviklet`, {
+      action: {
+        label: "Angre",
+        onClick: () =>
+          setExtras((list) =>
+            list.map((e) =>
+              e.id === id
+                ? { ...e, status: "active", retiredAt: undefined, retiredReason: undefined, replacedById: undefined }
+                : e,
+            ),
+          ),
+      },
+    });
+  };
+
+  const restoreExtra = (id: string) => {
+    setExtras((list) =>
+      list.map((e) =>
+        e.id === id
+          ? { ...e, status: "active", retiredAt: undefined, retiredReason: undefined, replacedById: undefined }
+          : e,
+      ),
+    );
+    toast.success("Tjenesten er gjenopprettet");
+  };
+
+
   const editingService = editingId ? extras.find((e) => e.id === editingId) ?? null : null;
   const editingDraft: CustomServiceDraft | undefined = editingService
     ? {
