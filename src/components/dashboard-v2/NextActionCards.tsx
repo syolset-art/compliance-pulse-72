@@ -1,10 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Zap, AlertTriangle, FileText, Shield, BookOpen, Users } from "lucide-react";
+import { ArrowRight, AlertTriangle, FileText, Shield, BookOpen, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { RequirementWithStatus } from "@/hooks/useComplianceRequirements";
 
-const XP_MAP: Record<string, number> = { critical: 50, high: 30, medium: 20, low: 10 };
 
 const CATEGORY_ICON: Record<string, typeof Shield> = {
   organizational: Shield,
