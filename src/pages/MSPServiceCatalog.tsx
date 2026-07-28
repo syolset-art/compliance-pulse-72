@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { MSPServiceCatalogTab } from "@/components/msp/MSPServiceCatalogTab";
 import { MSPServiceSettingsTab } from "@/components/msp/MSPServiceSettingsTab";
 import { MSPServiceHowItWorksTab } from "@/components/msp/MSPServiceHowItWorksTab";
 
-type ServiceTab = "catalog" | "settings" | "how-it-works";
+type SecondaryView = "settings" | "how-it-works" | null;
 
 export default function MSPServiceCatalog() {
-  const [tab, setTab] = useState<ServiceTab>("catalog");
+  const [secondary, setSecondary] = useState<SecondaryView>(null);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -23,24 +23,25 @@ export default function MSPServiceCatalog() {
             </p>
           </header>
 
-          <Tabs value={tab} onValueChange={(v) => setTab(v as ServiceTab)} className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="catalog">Tjenestekatalog</TabsTrigger>
-              <TabsTrigger value="settings">Innstillinger</TabsTrigger>
-              <TabsTrigger value="how-it-works">Hvordan virker det</TabsTrigger>
-            </TabsList>
-            <TabsContent value="catalog" className="space-y-6">
-              <MSPServiceCatalogTab />
-            </TabsContent>
-            <TabsContent value="settings" className="space-y-6">
-              <MSPServiceSettingsTab />
-            </TabsContent>
-            <TabsContent value="how-it-works" className="space-y-6">
-              <MSPServiceHowItWorksTab onNavigate={(t) => setTab(t)} />
-            </TabsContent>
-          </Tabs>
+          <MSPServiceCatalogTab onOpenSecondary={(v) => setSecondary(v)} />
         </div>
       </main>
+
+      <Sheet open={secondary !== null} onOpenChange={(open) => !open && setSecondary(null)}>
+        <SheetContent side="right" className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>
+              {secondary === "settings" ? "Innstillinger" : "Hvordan virker det"}
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-6">
+            {secondary === "settings" && <MSPServiceSettingsTab />}
+            {secondary === "how-it-works" && (
+              <MSPServiceHowItWorksTab onNavigate={() => setSecondary(null)} />
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
