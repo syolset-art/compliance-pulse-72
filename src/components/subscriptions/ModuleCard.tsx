@@ -21,6 +21,7 @@ export interface ModuleCardProps {
   accentColor?: "purple" | "blue" | "emerald" | "amber" | "rose" | "slate";
   breakdown?: Array<{ label: string; priceKr: number }>;
   footer?: React.ReactNode;
+  ctaOverride?: { label: string; variant?: "default" | "outline" };
 }
 
 
