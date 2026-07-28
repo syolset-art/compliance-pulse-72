@@ -521,13 +521,10 @@ export default function Subscriptions() {
               const nextTier = getNextVendorTier(vendorTierId);
               const isDeactivated = deactivatedModules.has("vendors");
               const capFooter = !isDeactivated && atCap && nextTier ? (
-                <div className="flex items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50/60 px-3 py-2">
+                <div className="rounded-md border border-amber-200 bg-amber-50/60 px-3 py-2">
                   <p className="text-xs text-amber-800">
                     Dere har brukt opp plassen. Neste nivå gir plass til {nextTier.vendorLimit} leverandører for {formatKr(nextTier.monthlyPriceKr)} per måned.
                   </p>
-                  <Button size="sm" variant="outline" className="h-7 text-xs shrink-0" onClick={() => setChangeVendorTierOpen(true)}>
-                    Oppgrader
-                  </Button>
                 </div>
               ) : undefined;
               return (
@@ -546,6 +543,7 @@ export default function Subscriptions() {
                   onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
                   accentColor="amber"
                   footer={capFooter}
+                  ctaOverride={!isDeactivated && atCap && nextTier ? { label: `Oppgrader til ${nextTier.label}`, variant: "default" } : undefined}
                 />
               );
             })()}
