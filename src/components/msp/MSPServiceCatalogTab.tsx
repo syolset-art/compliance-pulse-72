@@ -427,7 +427,30 @@ export function MSPServiceCatalogTab() {
     ? buildDraftFromTemplate(previewTemplate)
     : undefined;
 
-  const activePicks: Pick[] = curatedPicks ?? TEMPLATE_PICKS;
+  const recommendedCodes = useMemo(
+    () => new Set((curatedPicks ?? []).map((p) => p.code)),
+    [curatedPicks],
+  );
+  const mergedPicks: Pick[] = useMemo(() => {
+    if (!curatedPicks || curatedPicks.length === 0) return TEMPLATE_PICKS;
+    const templateCodes = new Set(TEMPLATE_PICKS.map((p) => p.code));
+    const extraFromLara = curatedPicks
+      .filter((p) => !templateCodes.has(p.code))
+      .map((p) => ({ ...p, recommended: true }));
+    const marked = TEMPLATE_PICKS.map((p) =>
+      recommendedCodes.has(p.code) ? { ...p, recommended: true } : p,
+    );
+    // Sort: recommended first, preserve relative order
+    return [...extraFromLara, ...marked].sort((a, b) => {
+      if (!!a.recommended === !!b.recommended) return 0;
+      return a.recommended ? -1 : 1;
+    });
+  }, [curatedPicks, recommendedCodes]);
+  const activePicks: Pick[] = useMemo(
+    () => (onlyRecommended ? mergedPicks.filter((p) => p.recommended) : mergedPicks),
+    [mergedPicks, onlyRecommended],
+  );
+  const recommendedCount = mergedPicks.filter((p) => p.recommended).length;
 
   return (
     <div className="space-y-6">
