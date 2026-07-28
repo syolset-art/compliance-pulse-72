@@ -348,7 +348,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         )}
       </div>
 
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)} className="mb-4">
+      <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)} className="mb-2">
         <TabsList className="w-full grid grid-cols-4">
           <TabsTrigger value="all">Alle</TabsTrigger>
           <TabsTrigger value="not_met">Ikke oppfylt ({counts.notMet})</TabsTrigger>
@@ -356,6 +356,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           <TabsTrigger value="met">Oppfylt ({counts.met})</TabsTrigger>
         </TabsList>
       </Tabs>
+
+      <Tabs value={grouping} onValueChange={(v) => setGrouping(v as "status" | "control_area")} className="mb-4">
+        <TabsList className="w-full grid grid-cols-2">
+          <TabsTrigger value="status">{isNb ? "Grupper etter status" : "Group by status"}</TabsTrigger>
+          <TabsTrigger value="control_area">{isNb ? "Grupper etter kontrollområde" : "Group by control area"}</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
 
       {filtered.length === 0 && (
         <div className="text-center py-8 text-sm text-muted-foreground">
