@@ -79,6 +79,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const isNb = i18n.language !== "en";
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [grouping, setGrouping] = useState<"status" | "control_area">("status");
   const [search, setSearch] = useState("");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
@@ -347,7 +348,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
         )}
       </div>
 
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)} className="mb-4">
+      <Tabs value={filter} onValueChange={(v) => setFilter(v as FilterKey)} className="mb-2">
         <TabsList className="w-full grid grid-cols-4">
           <TabsTrigger value="all">Alle</TabsTrigger>
           <TabsTrigger value="not_met">Ikke oppfylt ({counts.notMet})</TabsTrigger>
@@ -355,6 +356,14 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
           <TabsTrigger value="met">Oppfylt ({counts.met})</TabsTrigger>
         </TabsList>
       </Tabs>
+
+      <Tabs value={grouping} onValueChange={(v) => setGrouping(v as "status" | "control_area")} className="mb-4">
+        <TabsList className="w-full grid grid-cols-2">
+          <TabsTrigger value="status">{isNb ? "Grupper etter status" : "Group by status"}</TabsTrigger>
+          <TabsTrigger value="control_area">{isNb ? "Grupper etter kontrollområde" : "Group by control area"}</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
 
       {filtered.length === 0 && (
         <div className="text-center py-8 text-sm text-muted-foreground">
@@ -481,7 +490,26 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     );
                   })()}
 
+                  {(() => {
+                    const cap = req.agent_capability;
+                    const isAuto = cap === "full";
+                    return (
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "h-6 px-2 text-[10px] font-semibold tracking-wide uppercase",
+                          isAuto
+                            ? "text-status-closed border-status-closed/30 bg-status-closed/5"
+                            : "text-muted-foreground border-border",
+                        )}
+                      >
+                        {isAuto ? "AUTO" : (isNb ? "MANUELL" : "MANUAL")}
+                      </Badge>
+                    );
+                  })()}
+
                   {renderStatusControl(req.requirement_id, state)}
+
 
                   {isVerifiedDue && state.revalidationDaysLeft != null && (
                     <TooltipProvider delayDuration={200}>
