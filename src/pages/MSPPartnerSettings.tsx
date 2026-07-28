@@ -340,6 +340,8 @@ export default function MSPPartnerSettings() {
                 </div>
               </Card>
 
+              <PartnerTaxCard />
+
               {/* 4. Lenke til fakturering */}
               <Card className="p-0 overflow-hidden">
                 <Link
