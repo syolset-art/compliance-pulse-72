@@ -21,6 +21,7 @@ export interface ModuleCardProps {
   accentColor?: "purple" | "blue" | "emerald" | "amber" | "rose" | "slate";
   breakdown?: Array<{ label: string; priceKr: number }>;
   footer?: React.ReactNode;
+  ctaOverride?: { label: string; variant?: "default" | "outline" };
 }
 
 
@@ -69,6 +70,7 @@ export function ModuleCard({
   deactivateLabel,
   breakdown,
   footer,
+  ctaOverride,
 
 }: ModuleCardProps) {
   const cfg = statusConfig[status];
@@ -185,12 +187,12 @@ export function ModuleCard({
                   </button>
                 )}
                 <Button
-                  variant={status === "inactive" ? "default" : "outline"}
+                  variant={ctaOverride?.variant ?? (status === "inactive" ? "default" : "outline")}
                   size="sm"
                   className="h-8 text-xs"
                   onClick={onClick}
                 >
-                  {actionLabel[action]}
+                  {ctaOverride?.label ?? actionLabel[action]}
                 </Button>
               </div>
             )}
