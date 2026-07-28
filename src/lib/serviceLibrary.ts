@@ -28,11 +28,45 @@ export interface TemplateActivity {
   hours?: number;
 }
 
+/**
+ * Rolle en tjeneste har mot et krav. En kobling kan ha flere roller
+ * (f.eks. pentest = vurderende + dokumenterende).
+ */
+export type ServiceRole = "direct" | "enabling" | "documenting" | "assessing";
+
+export const ROLE_META: Record<
+  ServiceRole,
+  { label: string; verb: string; description: string }
+> = {
+  direct: {
+    label: "Direkte tiltak",
+    verb: "utfører",
+    description: "Tjenesten utfører selve kravet (f.eks. drift av MFA).",
+  },
+  enabling: {
+    label: "Muliggjørende",
+    verb: "muliggjør",
+    description: "Tjenesten legger til rette for at kravet kan oppfylles.",
+  },
+  documenting: {
+    label: "Dokumenterende",
+    verb: "dokumenterer",
+    description: "Tjenesten produserer bevis eller dokumentasjon.",
+  },
+  assessing: {
+    label: "Vurderende",
+    verb: "vurderer",
+    description: "Tjenesten vurderer status eller modenhet mot kravet.",
+  },
+};
+
 export interface TemplateFrameworkMapping {
   frameworkId: string;
   /** Vises i UI når vi ikke finner framework i katalogen. */
   frameworkLabel: string;
   controlIds: string[];
+  /** Overstyrer template.defaultRoles for denne konkrete koblingen. */
+  roles?: ServiceRole[];
 }
 
 export interface ServiceTemplate {
@@ -61,8 +95,29 @@ export interface ServiceTemplate {
   };
   activities: TemplateActivity[];
   mappings: TemplateFrameworkMapping[];
+  /** Standard-roller for alle mappings som ikke overstyrer selv. */
+  defaultRoles: ServiceRole[];
   /** Versjon — partner-kopi peker på templateId + version. */
   version: string;
+}
+
+/** Slår opp roller for én mapping — bruker mapping.roles først, ellers template.defaultRoles. */
+export function getMappingRoles(
+  template: Pick<ServiceTemplate, "defaultRoles">,
+  mapping: Pick<TemplateFrameworkMapping, "roles">,
+): ServiceRole[] {
+  const roles = mapping.roles && mapping.roles.length > 0
+    ? mapping.roles
+    : template.defaultRoles;
+  return roles ?? [];
+}
+
+/** "vurderer og dokumenterer" fra ["assessing","documenting"]. */
+export function formatRoleVerbs(roles: ServiceRole[]): string {
+  const verbs = roles.map((r) => ROLE_META[r].verb);
+  if (verbs.length === 0) return "";
+  if (verbs.length === 1) return verbs[0];
+  return `${verbs.slice(0, -1).join(", ")} og ${verbs[verbs.length - 1]}`;
 }
 
 const v = "1.0.0";
