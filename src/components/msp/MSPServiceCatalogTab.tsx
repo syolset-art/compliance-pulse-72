@@ -22,7 +22,18 @@ import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type Servic
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
+import { LaraScopeChangeDialog, type ScopeChangeSelection } from "./LaraScopeChangeDialog";
 import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
+import {
+  diffAnswers,
+  hasScopeChange,
+  buildRecommendations,
+  summarizeDiff,
+  WIZARD_ANSWERS_STORAGE_KEY,
+  type ScopeRecommendations,
+  type ScopeDiff,
+  type AdoptedRef,
+} from "@/lib/laraScopeDiff";
 
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
