@@ -477,7 +477,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
+                  <p className={cn("text-sm text-muted-foreground mt-1", !isExpanded && "line-clamp-2")}>{req.description_no}</p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 mt-1">
                   {/* Subtil dokumentasjonsindikator — kun for besvarte krav */}
@@ -570,66 +570,38 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <Separator className="mb-4" />
                     <div className="space-y-3">
 
-                    {/* Om kravet — full beskrivelse med "Les mer" */}
+                    {/* Anbefalt dokumentasjon — skjult som standard */}
                     {(() => {
-                      const fullDesc = isNb ? req.description_no : (req.description || req.description_no);
-                      const isOpen = readMoreIds.has(req.requirement_id);
-                      const isLong = (fullDesc?.length ?? 0) > 180;
+                      const docs = getRecommendedDocs(req, isNb);
+                      if (docs.length === 0) return null;
+                      const isOpen = showAllDocsIds.has(req.requirement_id);
                       return (
-                        <div className="rounded-md border border-border/60 bg-muted/20 p-3">
-                          <p className={cn("text-sm text-foreground/90 leading-relaxed", !isOpen && isLong && "line-clamp-3")}>
-                            {fullDesc}
-                          </p>
-                          {isLong && (
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); toggleSet(setReadMoreIds, req.requirement_id); }}
-                              className="mt-1.5 text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
-                            >
-                              {isOpen ? (isNb ? "Vis mindre" : "Show less") : (isNb ? "Les mer" : "Read more")}
-                              {isOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                            </button>
+                        <div className="rounded-md border border-border/60 bg-card">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); toggleSet(setShowAllDocsIds, req.requirement_id); }}
+                            className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-foreground hover:bg-muted/30 transition-colors rounded-md"
+                          >
+                            <span className="inline-flex items-center gap-1.5">
+                              <FileIcon className="h-3.5 w-3.5 text-primary" />
+                              {isNb ? `Anbefalt dokumentasjon (${docs.length})` : `Recommended documentation (${docs.length})`}
+                            </span>
+                            {isOpen ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
+                          </button>
+                          {isOpen && (
+                            <ul className="space-y-1 px-3 pb-3 pt-0.5">
+                              {docs.map((d, i) => (
+                                <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                                  <span className="mt-1.5 h-1 w-1 rounded-full bg-muted-foreground/60 shrink-0" />
+                                  <span>{d}</span>
+                                </li>
+                              ))}
+                            </ul>
                           )}
                         </div>
                       );
                     })()}
 
-                    {/* Anbefalt dokumentasjon */}
-                    {(() => {
-                      const docs = getRecommendedDocs(req, isNb);
-                      const showAll = showAllDocsIds.has(req.requirement_id);
-                      const visible = showAll ? docs : docs.slice(0, 3);
-                      return (
-                        <div className="rounded-md border border-border/60 bg-card p-3">
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <FileIcon className="h-3.5 w-3.5 text-primary" />
-                            <p className="text-xs font-medium text-foreground">
-                              {isNb ? "Anbefalt dokumentasjon" : "Recommended documentation"}
-                            </p>
-                          </div>
-                          <ul className="space-y-1">
-                            {visible.map((d, i) => (
-                              <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
-                                <span className="mt-1.5 h-1 w-1 rounded-full bg-muted-foreground/60 shrink-0" />
-                                <span>{d}</span>
-                              </li>
-                            ))}
-                          </ul>
-                          {docs.length > 3 && (
-                            <button
-                              type="button"
-                              onClick={(e) => { e.stopPropagation(); toggleSet(setShowAllDocsIds, req.requirement_id); }}
-                              className="mt-2 text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
-                            >
-                              {showAll
-                                ? (isNb ? "Vis færre" : "Show fewer")
-                                : (isNb ? `Vis alle (${docs.length})` : `Show all (${docs.length})`)}
-                              {showAll ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })()}
 
                     {/* Auto-vurdering: informasjon + overstyringsknapp */}
                     {req.agent_capability === "full" && !readMoreIds.has(`__override_${req.requirement_id}`) && (
