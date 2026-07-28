@@ -1,4 +1,4 @@
-import { useState, KeyboardEvent } from "react";
+import { useEffect, useState, KeyboardEvent } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   onComplete: (suggestions: PartnerService[], answers: WizardAnswers) => void;
   onSkip?: () => void;
+  initialAnswers?: WizardAnswers | null;
 }
 
 const EMPTY: WizardAnswers = {
@@ -26,11 +27,22 @@ const EMPTY: WizardAnswers = {
   maturity: [],
 };
 
-export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }: Props) {
+export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip, initialAnswers }: Props) {
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<WizardAnswers>(EMPTY);
+  const [answers, setAnswers] = useState<WizardAnswers>(initialAnswers ?? EMPTY);
   const [freeText, setFreeText] = useState("");
   const [generating, setGenerating] = useState(false);
+
+  // Forhåndsutfyll svar hver gang wizarden åpnes på nytt.
+  useEffect(() => {
+    if (open) {
+      setAnswers(initialAnswers ?? EMPTY);
+      setStep(0);
+      setFreeText("");
+      setGenerating(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const q = WIZARD_QUESTIONS[step];
   const isLast = step === WIZARD_QUESTIONS.length - 1;

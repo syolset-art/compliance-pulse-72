@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw, Sparkles, Star, FileText, Lock } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw, Sparkles, Star, FileText, Lock, AlertTriangle, Wand2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -22,7 +22,18 @@ import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type Servic
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
+import { LaraScopeChangeDialog, type ScopeChangeSelection } from "./LaraScopeChangeDialog";
 import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
+import {
+  diffAnswers,
+  hasScopeChange,
+  buildRecommendations,
+  summarizeDiff,
+  WIZARD_ANSWERS_STORAGE_KEY,
+  type ScopeRecommendations,
+  type ScopeDiff,
+  type AdoptedRef,
+} from "@/lib/laraScopeDiff";
 
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
@@ -50,6 +61,10 @@ interface ExtraService {
   retiredAt?: string;
   retiredReason?: string;
   replacedById?: string;
+  /** Lara-flagg: tjenesten er utvidet med nye kontrollmappinger etter scope-endring. */
+  laraExtensionSummary?: string;
+  /** Lara-flagg: tjenesten er markert for gjennomgang etter scope-endring. */
+  laraReviewReason?: string;
 }
 
 function formatNOK(n: number): string {
@@ -182,6 +197,16 @@ export function MSPServiceCatalogTab() {
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
 
+  // Forrige wizard-svar — brukes for å oppdage scope-endringer.
+  const [previousAnswers, setPreviousAnswers] = useState<WizardAnswers | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(WIZARD_ANSWERS_STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as WizardAnswers) : null;
+    } catch { return null; }
+  });
+  const [scopeDialog, setScopeDialog] = useState<{ diff: ScopeDiff; recs: ScopeRecommendations } | null>(null);
+
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
     const nis2 = FRAMEWORK_CATALOG.find((f) => f.id === "nis2");
@@ -302,6 +327,77 @@ export function MSPServiceCatalogTab() {
       },
     });
   };
+
+  // Bruk brukervalgt endringer fra Lara-scope-dialogen på tjenestekatalogen.
+  const applyScopeChanges = (recs: ScopeRecommendations, sel: ScopeChangeSelection) => {
+    let addedCount = 0;
+    let extendedCount = 0;
+    let reviewCount = 0;
+
+    // Legg til nye tjenester
+    sel.addTemplateIds.forEach((tid) => {
+      const rec = recs.toAdd.find((r) => r.templateId === tid);
+      const tpl = SERVICE_LIBRARY.find((t) => t.id === tid);
+      if (!tpl || !rec) return;
+      if (adoptedIds.has(tpl.id)) return;
+      adoptTemplate(tpl);
+      addedCount += 1;
+    });
+
+    // Utvid eksisterende + marker for gjennomgang i én setExtras-runde
+    setExtras((prev) =>
+      prev.map((e) => {
+        // Utvid
+        const ext = recs.toExtend.find((r) => r.extraId === e.id);
+        if (ext && sel.extendExtraIds.includes(e.id)) {
+          const tpl = SERVICE_LIBRARY.find((t) => t.id === ext.templateId);
+          if (tpl) {
+            const currentFwIds = new Set(e.mappings.map((m) => m.frameworkId));
+            const newMappings: ServiceMapping[] = tpl.mappings
+              .filter((m) => !currentFwIds.has(m.frameworkId) && ext.addedFrameworkLabels.includes(m.frameworkLabel))
+              .flatMap((m) => {
+                const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
+                const roles = getMappingRoles(tpl, m);
+                return m.controlIds.map((cid) => {
+                  const cp = fw?.controlPoints.find((c) => c.id === cid);
+                  return {
+                    frameworkId: m.frameworkId,
+                    frameworkShortName: fw?.shortName ?? m.frameworkLabel,
+                    controlId: cid,
+                    controlLabel: cp?.label ?? cid,
+                    roles,
+                  } as ServiceMapping;
+                });
+              });
+            if (newMappings.length > 0) {
+              extendedCount += 1;
+              return {
+                ...e,
+                mappings: [...e.mappings, ...newMappings],
+                laraExtensionSummary: `Utvidet med ${ext.addedFrameworkLabels.join(", ")} (${newMappings.length} krav)`,
+                laraReviewReason: undefined,
+              };
+            }
+          }
+        }
+        // Marker for gjennomgang
+        const rev = recs.toReview.find((r) => r.extraId === e.id);
+        if (rev && sel.reviewExtraIds.includes(e.id)) {
+          reviewCount += 1;
+          return { ...e, laraReviewReason: rev.reason };
+        }
+        return e;
+      }),
+    );
+
+    const summary = [
+      addedCount ? `${addedCount} lagt til` : null,
+      extendedCount ? `${extendedCount} utvidet` : null,
+      reviewCount ? `${reviewCount} markert for gjennomgang` : null,
+    ].filter(Boolean).join(" · ");
+    toast.success("Lara oppdaterte tjenestekatalogen", { description: summary || "Ingen endringer" });
+  };
+
 
   const buildDraftFromTemplate = (template: ServiceTemplate): CustomServiceDraft => {
     const hoursAvg = Math.round((template.estimatedHours.min + template.estimatedHours.max) / 2);
@@ -516,14 +612,17 @@ export function MSPServiceCatalogTab() {
                   <button
                     type="button"
                     onClick={openWizard}
-                    aria-label="La Lara foreslå tjenester på nytt"
+                    aria-label="Oppdater tjenester med Lara"
                     className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
                   >
                     <Sparkles className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs text-sm">
-                  La Lara foreslå tjenester på nytt
+                  <div className="font-medium">Oppdater tjenester med Lara</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Bruk når du endrer marked, bransje eller regelverk — Lara foreslår hva som bør legges til, utvides eller gjennomgås.
+                  </div>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -901,6 +1000,42 @@ export function MSPServiceCatalogTab() {
                         </TooltipContent>
                       </Tooltip>
                     )}
+                    {e.laraExtensionSummary && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline" className="text-xs h-6 px-1.5 gap-1 border-primary/30 bg-primary/5 text-primary cursor-help shrink-0">
+                            <Sparkles className="h-3 w-3" aria-hidden="true" />
+                            Lara utvidet
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          {e.laraExtensionSummary}
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                    {e.laraReviewReason && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline" className="text-xs h-6 px-1.5 gap-1 border-warning/40 bg-warning/10 text-warning cursor-help shrink-0">
+                            <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+                            Gjennomgå
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          <div>{e.laraReviewReason}</div>
+                          <button
+                            type="button"
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              setExtras((prev) => prev.map((x) => x.id === e.id ? { ...x, laraReviewReason: undefined } : x));
+                            }}
+                            className="mt-1 text-[11px] underline"
+                          >
+                            Fjern markering
+                          </button>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                   <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
                     {e.hours} t
@@ -1074,6 +1209,7 @@ export function MSPServiceCatalogTab() {
       <MSPLaraServiceWizard
         open={wizardOpen}
         onOpenChange={setWizardOpen}
+        initialAnswers={previousAnswers}
         onComplete={(_suggestions, answers) => {
           const picks = computePicksFromAnswers(answers);
           setCuratedPicks(picks.length > 0 ? picks : null);
@@ -1081,9 +1217,46 @@ export function MSPServiceCatalogTab() {
           if (answers.markets.length) parts.push(`${answers.markets.length} marked${answers.markets.length > 1 ? "er" : ""}`);
           if (answers.domains.length) parts.push(`${answers.domains.length} fagområde${answers.domains.length > 1 ? "r" : ""}`);
           setCurationSummary(parts.join(", ") || null);
-          toast.success(`Lara foreslo ${picks.length} tjenester basert på kartleggingen`);
+
+          const diff = diffAnswers(previousAnswers, answers);
+          const changed = hasScopeChange(diff) && previousAnswers !== null;
+          if (changed) {
+            const adopted: AdoptedRef[] = extras
+              .filter((e) => e.status !== "retired" && !e.isMynder)
+              .map((e) => ({
+                id: e.id,
+                name: e.name,
+                templateId: e.templateId,
+                mappingFrameworkIds: Array.from(new Set(e.mappings.map((m) => m.frameworkId))),
+              }));
+            const recs = buildRecommendations(diff, answers, adopted);
+            const anything = recs.toAdd.length + recs.toExtend.length + recs.toReview.length;
+            if (anything > 0) {
+              setScopeDialog({ diff, recs });
+              toast.info(`Lara fant ${anything} mulige oppdateringer basert på nytt scope`, {
+                description: summarizeDiff(diff),
+              });
+            } else {
+              toast.success(`Lara oppdaterte forslagene — ingen endringer i katalogen`);
+            }
+          } else {
+            toast.success(`Lara foreslo ${picks.length} tjenester basert på kartleggingen`);
+          }
+
+          setPreviousAnswers(answers);
+          try { window.localStorage.setItem(WIZARD_ANSWERS_STORAGE_KEY, JSON.stringify(answers)); } catch {}
         }}
       />
+
+      {scopeDialog && (
+        <LaraScopeChangeDialog
+          open={!!scopeDialog}
+          onOpenChange={(v) => { if (!v) setScopeDialog(null); }}
+          diff={scopeDialog.diff}
+          recs={scopeDialog.recs}
+          onApply={(sel) => applyScopeChanges(scopeDialog.recs, sel)}
+        />
+      )}
 
 
 
