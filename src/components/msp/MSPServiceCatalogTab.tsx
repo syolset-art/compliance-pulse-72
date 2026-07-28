@@ -42,6 +42,7 @@ import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { formatTaxNote } from "@/lib/partnerTax";
 import { useSavedOffers, type LockInfo } from "@/lib/customerOffers";
 import { SetupFeeCell } from "./SetupFeeCell";
+import { MODULE_INFO, type ModuleKey } from "@/lib/moduleInfo";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
