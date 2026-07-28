@@ -1,77 +1,44 @@
-# Gap-analyse mot Playbook v0.2
+## Mål
+Partneren skal kunne **avvikle** en tjeneste — ikke bare slette den. Avvikling er en mykere handling: historikken bevares, tjenesten forsvinner fra kundens portal og fra nye tilbud/kampanjer, men eksisterende leveranser og revisjonsspor beholdes. Slett skal fortsatt finnes for tjenester som aldri har vært i bruk.
 
-**Kilde:** Playbook «Partner etablerer og forvalter tjenestekatalog» v0.2 (Notion, 28. juli 2026)
-**Målt mot:** `src/lib/serviceCatalog.ts`, `src/lib/serviceLibrary.ts`, `src/pages/MSPServiceCatalog.tsx`, `src/components/msp/MSPServiceCatalogTab.tsx`, `ServiceForm.tsx`, `CustomServiceDialog.tsx`, `ServiceLibraryBrowser.tsx`, `MSPLaraServiceWizard.tsx`.
+## Brukerflyt
 
-Ingen kodeendringer er gjort — dette er kun rapport + forslag til arbeidsform.
+1. På hver tjeneste i "Mine tjenester" (både rad-visning i `MSPServiceCatalogTab` og `ServiceCard` i suggestion-flyten) legges det til en handling **"Avvikle"** ved siden av rediger/slett.
+2. Klikk åpner en enkel bekreftelses­dialog (`RetireServiceDialog`):
+   - Viser tjenestenavn + evt. antall aktive leveranser/kampanjer som berøres (hvis vi har tallet tilgjengelig, ellers utelates linjen).
+   - Valgfritt felt **"Årsak"** (fritekst, brukes i audit-loggen).
+   - Valgfritt felt **"Erstattes av"** (velg annen tjeneste fra katalogen) — hjelper Lara å foreslå oppgradering til eksisterende kunder senere.
+   - Primærknapp **"Avvikle tjeneste"**, sekundær "Avbryt".
+3. Etter bekreftelse:
+   - Tjenesten får `status: "retired"`, `retiredAt`, `retiredReason?`, `replacedById?`.
+   - `publishedToCustomers` settes automatisk til `false`.
+   - Toast **"Tjenesten er avviklet — Angre"** (undo gjenoppretter forrige status).
+4. Avviklede tjenester:
+   - Skjules fra standardlisten "Mine tjenester" og fra kundeportalen.
+   - Filtreres bort fra Gap-analyse-forslag og kampanje­wizard.
+   - Vises i en sammenslått **"Avviklet (n)"**-seksjon nederst i katalogen — kompakt liste med navn, dato, årsak og en **"Gjenopprett"**-knapp.
+5. **Slett** beholdes som separat handling og anbefales bare hvis tjenesten aldri har vært brukt; ellers fremhever dialogen at avvikling er tryggere.
 
-## Verdiforslag: hvordan holde UI og Playbook i sync
+## Teknisk
 
-1. **Spec-speil i repo.** Én kort markdown per Playbook under `playbooks/<slug>.md` som lister *akseptansekriterier med ID* (AC-01, AC-02 …) og *UI-anker* (rute + `data-testid`). Notion forblir kilden til *hvorfor*; spec-speilet er maskin-lesbart *hva*.
-2. **Playwright per AC.** `e2e/<slug>.spec.ts` med én `test()` per AC-ID. CI feiler når en AC mangler test eller en test er rød.
-3. **Automatisk gap-rapport.** `scripts/playbook-check.ts` genererer `playbooks/<slug>.gap.md` (Dekket / Delvis / Mangler / Avviker) fra test-resultater + statisk kodesøk.
-4. **Notion-lenke i spec-speilet.** Én lenke tilbake til Playbooken; ved endring i Playbook oppdateres spec-speilet i samme PR — CI blokkerer PR uten oppdatert spec når kode berører merkede filer.
-
-## Gap-rapport for denne Playbooken
-
-Nummerering følger «Akseptansekriterier for produktet» (linje 409–422 i Playbook).
-
-### Dekket
-
-- **AC-01 – Tre innganger** *(delvis dekket, se «Delvis»)*: kuratert mal og opprett fra null finnes i `MSPServiceCatalogTab.tsx` (`ServiceLibraryBrowser`, `CustomServiceDialog`).
-- **AC-02 – Normalisert tjenestekort**: `PartnerService` i `serviceCatalog.ts` + `CustomServiceDialog` dekker navn, beskrivelse, aktiviteter, prising, leveransetype, mapping til rammeverk.
-- **AC-06 – Ingen kundedata kreves**: katalogsiden `/msp-service-catalog` bygger uten kundekontekst.
-- **AC-07 – Ingen kundespesifikke gap**: kundespesifikk gap-analyse ligger i egen flyt (`GapAnalysisWizardDialog`), ikke i katalogen.
-
-### Delvis
-
-- **AC-01 – Import**: «Importer eksisterende katalog» (dokument/nettside/regneark) finnes **ikke** som inngang; kun mal + manuelt.
-- **AC-04 – AI-forslag godkjennes/redigeres/avvises enkeltvis**: `MSPLaraServiceWizard` foreslår tjenester i bulk, men mangler eksplisitt aksept/rediger/avvis per forslag med sporet vedtak.
-- **AC-05 – Mapping viser relasjonstype, begrunnelse, scope, kildeversjon, status**: `ServiceFrameworkMapping` har bare `frameworkId`, `frameworkLabel`, `controlIds`. Mangler alle øvrige felt Playbooken krever (relasjonstype direkte/muliggjørende/dokumenterende/vurderende, begrunnelse, scope, kildeversjon, Confidence, godkjenningsstatus, godkjenner, dato).
-- **AC-08 – Skille eksisterende / foreslått / Mynder-støttet**: `ExtraService.source: "library" | "manual"` og `isMynder` finnes, men er ikke synlig som klassifisering på tjenestekortet, og «foreslått av Lara» spores ikke som egen opprinnelse.
-- **AC-10 – Gjenbruk i skanner/gap/tilbud**: katalogen brukes av `GapAnalysisWizardDialog` og `MSPCreateOfferDialog`, men mangler versjons-lås («hvilken versjon av tjenesten et tilbud bygget på»).
-
-### Mangler
-
-- **AC-03 – Minst én godkjent kravkobling før aktivering**: ingen aktiveringsgate. `publishedToCustomers` er en boolean uten validering av at mapping finnes/er godkjent.
-- **AC-09 – Nødvendige kapabiliteter før aktivering av ny tjenestemulighet**: ingen kapabilitetsmodell på `PartnerService`; forutsetninger fra Playbookens tjenestekort (kompetanse, sertifisering, verktøy, kapasitet) mangler helt.
-- **AC-11 – Versjonert, søkbart, reversibelt**: ingen versjons-/historikk-modell på tjeneste eller mapping. Ingen «må vurderes» ved regelverksendring.
-- **AC-12 – RBAC og tenant-isolasjon testet**: MSP Owner/Admin-skille er ikke håndhevet i katalog-UI; ingen test dekker det.
-- **AC-13 – Lagring, feiltilstander og audit trail verifisert**: katalog holdes i minne/localStorage-lignende state — ingen persistert audit trail (opprettet/importert/endret/godkjent/deaktivert av hvem, når, hvilken versjon).
-- **Arkitekturprinsipp – felles Mynder-bibliotek + private partnerkataloger**: `SERVICE_LIBRARY` er statisk import i klienten. Ingen versjonert forslags-flyt fra global mal til partnervariant, ingen «endring i global mal → versjonert forslag til partner».
-- **Kravkobling som eget objekt**: mapping er innebygd tekst-array (`controlIds: string[]`) på tjenesten. Playbook krever eget, versjonert objekt m/ mange-til-mange-relasjon og full metadata.
-- **KCP-forankring for AI-forslag**: `MSPLaraServiceWizard` returnerer ikke faktiske krav-/artikkel-ID-er fra en versjonert KCP-kilde med Confidence + kildeversjon; forslagene er tekstbaserte tjenester, ikke validerbare mappings.
-- **Safety-guards**: ingen sperre mot ordet «dekker», ingen tvunget standardformulering «støtter dette kravet», ingen stopp ved kildekonflikt.
-- **Steering-tabell / fullmaktskart**: aktiveringspunktene i UI mangler eksplisitte godkjenner-roller (tjenesteeier vs fagansvarlig vs MSP Owner) og «etterkontroll vs før aktivering»-logikk.
-- **Feil-, usikkerhets- og unntaksflyt**: ingen «må vurderes»-status, ingen håndtering av utløpt/erstattet kilde, ingen sperre mot aktivering uten kapasitet.
-- **Evidence/audit trail**: ingen logg over hva som er importert, foreslått av AI, godkjent, endret eller avvist, med Playbook- og katalogversjon.
-
-### Avviker (bevisst avgjørelse trengs)
-
-- **Aktivering vs publisering.** Playbook: `Aktiv`-status ≠ synlig for kunder. Prototype: én boolean `publishedToCustomers`. Beslutning: enten splitte til `status: "draft" | "review" | "active" | "inactive"` + separat `visibleToCustomers`, eller endre Playbooken.
-- **`priceModel: "hourly" | "per-user"`** finnes i prototypen men er ikke nevnt i Playbookens tjenestekort. Sannsynligvis greit å beholde; noter i spec-speilet.
-- **`SERVICE_LIBRARY` som statisk TS-fil.** Ok for MVP, men strider mot «versjonert felles bibliotek». Marker som teknisk gjeld.
-
-## Foreslått pilot-leveranse (neste steg, kun spec — ingen kodeendringer)
-
-```text
-playbooks/
-  partner-etablerer-tjenestekatalog.md      ← spec-speil (AC-01…AC-13, UI-anker)
-  partner-etablerer-tjenestekatalog.gap.md  ← denne gap-rapporten, versjonert
-e2e/
-  partner-etablerer-tjenestekatalog.spec.ts ← stub-tester per AC, .skip inntil implementert
+**Datamodell** (`src/lib/serviceCatalog.ts` og lokal `ExtraService` i `MSPServiceCatalogTab.tsx`):
+```ts
+status?: "active" | "retired";   // default "active"
+retiredAt?: string;              // ISO
+retiredReason?: string;
+replacedById?: string;
 ```
 
-Etter piloten bruker vi det som fungerte for å skrive `playbooks/_template.md` og `scripts/playbook-check.ts`, og ruller ut samme mønster på resten av Playbookene.
+**Nye/endrede filer:**
+- `src/lib/serviceCatalog.ts` — utvid `PartnerService` med feltene over.
+- `src/components/msp/MSPServiceCatalogTab.tsx` — utvid `ExtraService`, legg til `retireExtra`/`restoreExtra`, filtrer aktive vs avviklede, ny "Avviklet"-seksjon, ny handlingsknapp i raden.
+- `src/components/msp/RetireServiceDialog.tsx` (ny) — bekreftelses­dialog med årsak + "erstattes av".
+- `src/components/msp/ServiceCard.tsx` — legg til `onRetire?` action i action-raden (ikon: `Archive` fra lucide), synlig når tjenesten er aktiv.
+- `src/components/msp/ServiceTableRow.tsx` — legg til "Avvikle tjeneste"-knapp ved siden av "Slett tjeneste"; hvis `status === "retired"` vises "Gjenopprett" i stedet.
+- Filtrering: `GapAnalysisWizardDialog`, `CampaignWizardDialog` og eventuelle kundeportal-visninger skal ignorere tjenester med `status === "retired"` (én-linjes filter der listen bygges).
 
-## Anbefalt prioritering for utvikling (basert på Mangler)
+**Playbook-alignment:** Legges inn som ny AC-14 i `playbooks/partner-etablerer-tjenestekatalog.md` ("Avvikling og gjenoppretting") + status "Missing → Covered" i `.gap.md`, og en `test.skip` i `e2e/partner-etablerer-tjenestekatalog.spec.ts`.
 
-1. Kravkobling som eget, versjonert objekt m/ relasjonstype + status + Confidence + kildeversjon (fjerner grunnlaget under flere andre AC).
-2. Status-modell `draft/review/active/inactive` + aktiveringsgate som krever ≥1 godkjent mapping.
-3. Godkjenner-roller (tjenesteeier / fagansvarlig / MSP Owner) og persistert audit trail.
-4. Import-inngang (dokument/regneark) — enkleste vei: CSV/Excel med Lara-strukturering til utkast.
-5. Versjonering av tjeneste og mapping + «må vurderes» ved kildeendring.
+## Avgrensning
 
-## Neste steg
-
-Vil du at jeg oppretter `playbooks/partner-etablerer-tjenestekatalog.md` (spec-speil) + `.gap.md` (denne rapporten) + Playwright-stub som filer i repoet? Da har du malen konkret å reagere på før vi standardiserer resten.
+Ingen backend-endringer nå — feltene lagres i eksisterende lokal state slik resten av katalogen. Persistens i Lovable Cloud kan legges til når tjenestekatalogen migreres til DB (samme runde som versjonering, AC-11).

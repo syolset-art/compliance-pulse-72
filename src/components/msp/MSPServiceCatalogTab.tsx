@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,7 @@ import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping, type
 import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext } from "@/lib/serviceLibrary";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
+import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -37,6 +38,11 @@ interface ExtraService {
   isMynder?: boolean;
   /** Overstyrt totalpris. Hvis satt, brukes denne i stedet for hours × timepris. */
   priceOverride?: number;
+  /** Livssyklus-status. Default "active". */
+  status?: "active" | "retired";
+  retiredAt?: string;
+  retiredReason?: string;
+  replacedById?: string;
 }
 
 function formatNOK(n: number): string {
@@ -318,6 +324,53 @@ export function MSPServiceCatalogTab() {
     setExtras((prev) => prev.filter((e) => e.id !== id));
   };
 
+  const [retireId, setRetireId] = useState<string | null>(null);
+  const retireTarget = retireId ? extras.find((e) => e.id === retireId) ?? null : null;
+
+  const retireExtra = (id: string, opts: RetireServiceOptions) => {
+    const prev = extras.find((e) => e.id === id);
+    if (!prev) return;
+    setExtras((list) =>
+      list.map((e) =>
+        e.id === id
+          ? {
+              ...e,
+              status: "retired",
+              retiredAt: new Date().toISOString(),
+              retiredReason: opts.reason,
+              replacedById: opts.replacedById,
+            }
+          : e,
+      ),
+    );
+    setRetireId(null);
+    toast.success(`«${prev.name}» er avviklet`, {
+      action: {
+        label: "Angre",
+        onClick: () =>
+          setExtras((list) =>
+            list.map((e) =>
+              e.id === id
+                ? { ...e, status: "active", retiredAt: undefined, retiredReason: undefined, replacedById: undefined }
+                : e,
+            ),
+          ),
+      },
+    });
+  };
+
+  const restoreExtra = (id: string) => {
+    setExtras((list) =>
+      list.map((e) =>
+        e.id === id
+          ? { ...e, status: "active", retiredAt: undefined, retiredReason: undefined, replacedById: undefined }
+          : e,
+      ),
+    );
+    toast.success("Tjenesten er gjenopprettet");
+  };
+
+
   const editingService = editingId ? extras.find((e) => e.id === editingId) ?? null : null;
   const editingDraft: CustomServiceDraft | undefined = editingService
     ? {
@@ -475,16 +528,16 @@ export function MSPServiceCatalogTab() {
       )}
 
       {/* Mine egne tjenester */}
-      {extras.some((e) => !e.isMynder) && (
+      {extras.some((e) => !e.isMynder && e.status !== "retired") && (
         <section className="space-y-2">
           <div className="flex items-baseline justify-between">
             <h3 className="text-lg font-semibold text-foreground">Mine tjenester</h3>
             <span className="text-base text-foreground/70">
-              {extras.filter((e) => !e.isMynder).length} tjenester
+              {extras.filter((e) => !e.isMynder && e.status !== "retired").length} tjenester
             </span>
           </div>
           <div className="divide-y divide-border rounded-md border border-border bg-card">
-            {extras.filter((e) => !e.isMynder).map((e) => {
+            {extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => {
               const price = e.priceOverride ?? e.hours * hourlyRate;
               return (
                 <div key={e.id} className="flex items-center gap-3 px-3 py-3">
@@ -507,14 +560,95 @@ export function MSPServiceCatalogTab() {
                   >
                     <Pencil className="h-4 w-4" aria-hidden="true" />
                   </Button>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setRetireId(e.id)}
+                          className="h-11 w-11 text-foreground/70 hover:text-foreground"
+                          aria-label="Avvikle tjeneste"
+                        >
+                          <Archive className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        Avvikle — skjuler tjenesten for kunder, bevarer historikk
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeExtra(e.id)}
+                          className="h-11 w-11 text-foreground/70 hover:text-destructive"
+                          aria-label="Slett tjeneste"
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        Slett — kun for tjenester som aldri har vært i bruk
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Avviklede tjenester */}
+      {extras.some((e) => e.status === "retired") && (
+        <section className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <h3 className="text-sm font-medium text-muted-foreground inline-flex items-center gap-1.5">
+              <Archive className="h-3.5 w-3.5" />
+              Avviklet ({extras.filter((e) => e.status === "retired").length})
+            </h3>
+          </div>
+          <div className="divide-y divide-border rounded-md border border-dashed border-border bg-muted/20">
+            {extras.filter((e) => e.status === "retired").map((e) => {
+              const replacement = e.replacedById
+                ? extras.find((x) => x.id === e.replacedById)
+                : null;
+              return (
+                <div key={e.id} className="flex items-center gap-3 px-3 py-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-foreground/70 truncate">
+                      {e.name}
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">
+                      Avviklet{" "}
+                      {e.retiredAt
+                        ? new Date(e.retiredAt).toLocaleDateString("nb-NO")
+                        : ""}
+                      {e.retiredReason && ` · ${e.retiredReason}`}
+                      {replacement && ` · erstattet av ${replacement.name}`}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => restoreExtra(e.id)}
+                    className="h-8 gap-1.5 text-xs"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Gjenopprett
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => removeExtra(e.id)}
-                    className="h-11 w-11 text-foreground/70 hover:text-destructive"
-                    aria-label="Fjern tjeneste"
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    aria-label="Slett permanent"
                   >
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                   </Button>
                 </div>
               );
@@ -522,6 +656,7 @@ export function MSPServiceCatalogTab() {
           </div>
         </section>
       )}
+
 
 
       {/* Avansert: hele biblioteket + framework-kalkulator */}
@@ -561,6 +696,15 @@ export function MSPServiceCatalogTab() {
         mode={editingId ? "edit" : "create"}
       />
 
+      <RetireServiceDialog
+        open={retireId !== null}
+        onOpenChange={(o) => { if (!o) setRetireId(null); }}
+        serviceName={retireTarget?.name ?? ""}
+        replacementOptions={extras
+          .filter((e) => e.id !== retireId && e.status !== "retired" && !e.isMynder)
+          .map((e) => ({ id: e.id, name: e.name }))}
+        onConfirm={(opts) => retireId && retireExtra(retireId, opts)}
+      />
 
     </div>
   );
