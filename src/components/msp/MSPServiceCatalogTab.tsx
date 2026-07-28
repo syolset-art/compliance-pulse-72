@@ -87,7 +87,7 @@ const PICK_PALETTE: Array<{ bg: string; fg: string; icon: typeof UserCog }> = [
   { bg: "bg-success/10", fg: "text-success", icon: Award },
 ];
 
-type Pick = { code: string; label: string; icon: typeof UserCog; bg: string; fg: string; tag?: PickTag; tagReason?: string };
+type Pick = { code: string; label: string; icon: typeof UserCog; bg: string; fg: string; tag?: PickTag; tagReason?: string; recommended?: boolean };
 
 const DOMAIN_KEYWORDS: Record<string, string[]> = {
   security: ["sikkerhet", "security", "iso 27001", "soc"],
