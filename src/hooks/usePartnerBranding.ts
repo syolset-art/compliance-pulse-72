@@ -86,6 +86,7 @@ export function usePartnerBranding() {
     },
   });
 
+  const { i18n } = useTranslation();
   const [overrides, setOverrides] = useState<PartnerBrandingOverrides>(() => readOverrides());
 
   useEffect(() => {
@@ -105,6 +106,14 @@ export function usePartnerBranding() {
 
   const effectiveLogo = overrides.logoDataUrl || autoLogoUrl;
 
+  const taxDefaults = defaultTaxForLanguage(i18n.language);
+  const tax: PartnerTaxSettings = {
+    enabled: overrides.tax?.enabled ?? taxDefaults.enabled,
+    rate: overrides.tax?.rate ?? taxDefaults.rate,
+    label: overrides.tax?.label?.trim() || taxDefaults.label,
+    mode: overrides.tax?.mode ?? taxDefaults.mode,
+  };
+
   const branding: PartnerBranding = {
     name: overrides.name?.trim() || autoName,
     orgNumber: overrides.orgNumber?.trim() || autoOrgNumber,
@@ -121,6 +130,7 @@ export function usePartnerBranding() {
     autoOrgNumber,
     autoDomain,
     autoLogoUrl,
+    tax,
   };
 
   const save = useCallback((patch: PartnerBrandingOverrides) => {
