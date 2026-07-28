@@ -20,6 +20,7 @@ import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL
 import { getControlLabel } from "@/lib/serviceControlLabels";
 import { Link2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { computeTaxBreakdown, formatTaxNote } from "@/lib/partnerTax";
 
 export interface CoveredControlGroup {
   frameworkId: string;
