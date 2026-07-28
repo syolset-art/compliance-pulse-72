@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -584,10 +585,21 @@ export function MSPServiceCatalogTab() {
   );
   const recommendedCount = mergedPicks.filter((p) => p.recommended).length;
 
+  const mineActiveCount = extras.filter((e) => !e.isMynder && e.status !== "retired").length;
+
   return (
     <div className="space-y-6">
+      <Tabs defaultValue="alle" className="w-full">
+        <TabsList>
+          <TabsTrigger value="alle">Alle</TabsTrigger>
+          <TabsTrigger value="mine">
+            Mine{mineActiveCount ? ` (${mineActiveCount})` : ""}
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="alle" className="space-y-6 mt-4">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
       <section className="space-y-3">
+
         <div className="flex items-center justify-end gap-2">
           <TooltipProvider delayDuration={150}>
             <Tooltip>
@@ -944,10 +956,12 @@ export function MSPServiceCatalogTab() {
           </section>
         );
       })()}
+        </TabsContent>
 
-
+        <TabsContent value="mine" className="space-y-6 mt-4">
 
       {/* Min tjenestekatalog */}
+
       {(() => {
         const mine = extras.filter((e) => !e.isMynder && e.status !== "retired");
         const lockedCount = mine.filter((e) => !!getLockInfo({ templateId: e.templateId, name: e.name })).length;
@@ -1156,10 +1170,13 @@ export function MSPServiceCatalogTab() {
           </div>
         </section>
       )}
+        </TabsContent>
+      </Tabs>
 
 
 
       {/* Avansert: hele biblioteket + framework-kalkulator */}
+
       {showCalculator && (
         <div className="space-y-4 pt-2">
           <ServiceLibraryBrowser
