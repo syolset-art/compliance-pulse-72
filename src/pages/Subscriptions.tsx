@@ -589,7 +589,7 @@ export default function Subscriptions() {
               description="For MSP-er og samarbeidspartnere"
               status={deactivatedModules.has("partner") ? "inactive" : hasPartnerAccess ? "active" : "inactive"}
               price={!deactivatedModules.has("partner") && hasPartnerAccess ? partnerWorkspaceMonthlyPrice : 0}
-              priceLabel={hasPartnerAccess && !deactivatedModules.has("partner") ? "Aktivert partnerportal" : "Kontakt salg for aktivering"}
+              priceLabel={hasPartnerAccess && !deactivatedModules.has("partner") ? undefined : "Kontakt salg for aktivering"}
               action={deactivatedModules.has("partner") ? "activate" : hasPartnerAccess ? "open" : "activate"}
               onClick={() => {
                 if (deactivatedModules.has("partner")) return reactivateModule("partner");
