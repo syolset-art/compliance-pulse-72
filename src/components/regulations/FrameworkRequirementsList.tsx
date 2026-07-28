@@ -28,7 +28,7 @@ import {
 import { inferFulfillment, calculateCoverage } from "@/lib/requirementFulfillment";
 import { getArticlesForRequirement } from "@/lib/requirementArticles";
 import { getRequirementGuidance, getEvaluationCriteriaText } from "@/lib/requirementGuidance";
-import { Info, Target, ListChecks, AlertTriangle, Sparkles as SparklesIcon } from "lucide-react";
+import { Info, Target, ListChecks, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type FilterKey = "all" | "not_met" | "partial" | "met";
