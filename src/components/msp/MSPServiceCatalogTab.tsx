@@ -528,9 +528,9 @@ export function MSPServiceCatalogTab() {
           { id: "vendors", name: "Leverandørmodulen", price: VENDOR_TIERS[1].monthlyPriceKr, commissionPct: 30 },
           { id: "assets", name: "Assets", price: 490, commissionPct: 25 },
         ];
-        const { currencyOption } = useServiceDefaults();
         const sym = currencyOption.symbol;
         const trailing = sym === "kr";
+
         const fmt = (n: number) =>
           `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${sym}`;
         return (
