@@ -12,8 +12,6 @@ import { RiskAndCalendarSection } from "@/components/dashboard-v2/RiskAndCalenda
 import { useComplianceRequirements } from "@/hooks/useComplianceRequirements";
 import { getISOWeek, getISOWeekYear, subWeeks } from "date-fns";
 
-const XP_MAP: Record<string, number> = { critical: 50, high: 30, medium: 20, low: 10 };
-
 const MATURITY_LEVELS = [
   { min: 0, key: "initial", label_no: "Startfase", label_en: "Initial" },
   { min: 20, key: "defined", label_no: "Definert", label_en: "Defined" },
@@ -65,11 +63,6 @@ export default function MSPCustomerPortal() {
   });
 
   const { requirements, grouped, stats } = useComplianceRequirements();
-
-  const xp = useMemo(
-    () => requirements.filter((r) => r.status === "completed").reduce((sum, r) => sum + (XP_MAP[r.priority] || 0), 0),
-    [requirements]
-  );
 
   const streak = useMemo(() => {
     const dates = requirements.filter((r) => r.completed_at).map((r) => r.completed_at!);

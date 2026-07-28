@@ -1,10 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Zap, AlertTriangle, FileText, Shield, BookOpen, Users } from "lucide-react";
+import { ArrowRight, AlertTriangle, FileText, Shield, BookOpen, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { RequirementWithStatus } from "@/hooks/useComplianceRequirements";
 
-const XP_MAP: Record<string, number> = { critical: 50, high: 30, medium: 20, low: 10 };
 
 const CATEGORY_ICON: Record<string, typeof Shield> = {
   organizational: Shield,
@@ -49,7 +48,6 @@ export function NextActionCards({ actions }: NextActionCardsProps) {
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {top.map((action) => {
-          const xp = XP_MAP[action.priority] || 10;
           const Icon = CATEGORY_ICON[action.category] || Shield;
           const route = CATEGORY_ROUTE[action.category] || "/tasks";
 
@@ -76,12 +74,7 @@ export function NextActionCards({ actions }: NextActionCardsProps) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mt-auto pt-1">
-                {/* DEV NOTE: Vis XP-belønning kun dersom det er mulig å beregne poeng i forhold til scoring. */}
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-warning dark:text-warning">
-                  <Zap className="h-3 w-3" />
-                  +{xp} XP
-                </span>
+              <div className="flex items-center justify-end mt-auto pt-1">
                 <Button
                   size="sm"
                   className="h-8 text-xs gap-1.5 px-3"
