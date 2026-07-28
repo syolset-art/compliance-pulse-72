@@ -149,6 +149,7 @@ const App = () => (
                   <Route path="/regulations" element={<Regulations />} />
                   <Route path="/regulations/:frameworkId" element={<FrameworkDetail />} />
                   <Route path="/subscriptions" element={<Subscriptions />} />
+                  <Route path="/activity-log" element={<ActivityLog />} />
                   <Route path="/terms-and-consent" element={<TermsAndConsent />} />
                   <Route path="/deviations" element={<Deviations />} />
                   <Route path="/resources" element={<Resources />} />
