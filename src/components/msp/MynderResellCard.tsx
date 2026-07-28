@@ -12,6 +12,8 @@ export interface MynderResellCardProps {
   description: string;
   monthlyLicenseKr: number; // base license price (Mynder's list price)
   priceNote?: string; // e.g. "fra" for tier-based pricing
+  /** Fast provisjon satt av Mynder (partneren kan ikke endre). */
+  commissionPct: number;
 }
 
 function formatMoney(amount: number, symbol: string, symbolAfter: boolean): string {
@@ -28,6 +30,7 @@ export function MynderResellCard({
   description,
   monthlyLicenseKr,
   priceNote,
+  commissionPct,
 }: MynderResellCardProps) {
   const { get, update } = useMynderResellSettings();
   const setting = get(productId);
@@ -36,7 +39,7 @@ export function MynderResellCard({
   // NOK / SEK / DKK use trailing symbol convention here
   const trailing = ["kr"].includes(sym);
 
-  const commissionAmount = (monthlyLicenseKr * setting.commissionPct) / 100;
+  const commissionAmount = (monthlyLicenseKr * commissionPct) / 100;
   const monthlyIncome =
     commissionAmount + (setting.setupFeeEnabled ? setting.setupFee / 12 : 0);
 
@@ -59,23 +62,14 @@ export function MynderResellCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[140px_1fr_auto] gap-3 items-end pt-2 border-t border-border">
+      <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_auto] gap-3 items-end pt-2 border-t border-border">
         <div className="space-y-1">
-          <Label htmlFor={`comm-${productId}`} className="text-xs text-foreground/70">
-            Din provisjon (20–50 %)
-          </Label>
-          <div className="relative">
-            <Input
-              id={`comm-${productId}`}
-              type="number"
-              min={20}
-              max={50}
-              step={5}
-              value={setting.commissionPct}
-              onChange={(e) => update(productId, { commissionPct: Number(e.target.value) })}
-              className="h-9 text-sm tabular-nums pr-7"
-            />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-foreground/60">%</span>
+          <div className="text-xs text-foreground/70 flex items-center gap-1">
+            Din provisjon
+            <span className="text-[10px] text-muted-foreground">(satt av Mynder)</span>
+          </div>
+          <div className="h-9 px-3 rounded-md border border-border bg-muted/40 flex items-center text-sm tabular-nums text-foreground">
+            {commissionPct} %
           </div>
         </div>
 
