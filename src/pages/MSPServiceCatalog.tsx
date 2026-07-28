@@ -16,7 +16,7 @@ export default function MSPServiceCatalog() {
       <main className="flex-1 overflow-auto pt-11">
         <div className="container max-w-5xl mx-auto py-8 px-4 md:px-8 space-y-6">
           <header className="space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">Tjenester</h1>
+            <h1 className="text-3xl font-bold text-foreground">Produkter og tjenester</h1>
             <p className="text-base text-foreground/80 mt-1 leading-relaxed max-w-3xl">
               Bygg din tjenestekatalog og se hvilke regelverk hver tjeneste dekker.
               Videreselg Mynder-produkter til dine kunder og tjen provisjon på lisenser.
