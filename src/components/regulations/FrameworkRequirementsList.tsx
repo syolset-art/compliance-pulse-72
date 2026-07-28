@@ -68,6 +68,26 @@ const capabilityLabel: Record<AgentCapability, { label: string; tooltip: string;
   },
 };
 
+function getRecommendedDocs(req: ComplianceRequirement, isNb: boolean): string[] {
+  const nb = [
+    "Styrevedtak eller ledelsesprotokoll som godkjenner tiltaket",
+    "Skriftlig policy eller rutine som beskriver hvordan kravet oppfylles",
+    "Risikovurdering som viser vurderte trusler og tiltak",
+    "Sist reviderte versjon av dokumentet (dato og eier)",
+    "Bevis på gjennomføring — logg, sjekkliste eller rapport",
+    "Referanse til relevant artikkel eller kontroll i regelverket",
+  ];
+  const en = [
+    "Board decision or management protocol approving the measure",
+    "Written policy or procedure describing how the requirement is met",
+    "Risk assessment showing evaluated threats and mitigations",
+    "Latest reviewed version of the document (date and owner)",
+    "Proof of execution — log, checklist or report",
+    "Reference to the relevant article or control in the regulation",
+  ];
+  return isNb ? nb : en;
+}
+
 interface FrameworkRequirementsListProps {
   frameworkId: string;
   onCountsChange?: (counts: { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }) => void;
