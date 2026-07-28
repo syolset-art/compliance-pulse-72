@@ -36,6 +36,7 @@ import Regulations from "./pages/Regulations";
 
 import Subscriptions from "./pages/Subscriptions";
 import ActivityLog from "./pages/ActivityLog";
+import Integrations from "./pages/Integrations";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Reports from "./pages/Reports";
 import ProcessProfile from "./pages/ProcessProfile";
