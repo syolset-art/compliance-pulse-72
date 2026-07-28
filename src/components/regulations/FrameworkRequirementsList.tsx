@@ -490,7 +490,26 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     );
                   })()}
 
+                  {(() => {
+                    const cap = req.agent_capability;
+                    const isAuto = cap === "full";
+                    return (
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "h-6 px-2 text-[10px] font-semibold tracking-wide uppercase",
+                          isAuto
+                            ? "text-status-closed border-status-closed/30 bg-status-closed/5"
+                            : "text-muted-foreground border-border",
+                        )}
+                      >
+                        {isAuto ? "AUTO" : (isNb ? "MANUELL" : "MANUAL")}
+                      </Badge>
+                    );
+                  })()}
+
                   {renderStatusControl(req.requirement_id, state)}
+
 
                   {isVerifiedDue && state.revalidationDaysLeft != null && (
                     <TooltipProvider delayDuration={200}>
