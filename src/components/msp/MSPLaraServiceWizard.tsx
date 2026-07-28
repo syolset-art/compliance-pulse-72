@@ -30,11 +30,13 @@ const EMPTY: WizardAnswers = {
   maturity: [],
 };
 
-export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip, initialAnswers }: Props) {
+export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip, initialAnswers, onSaveProfile }: Props) {
+  const profileMode = !!onSaveProfile && !!initialAnswers;
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<WizardAnswers>(initialAnswers ?? EMPTY);
-  const [freeText, setFreeText] = useState("");
+  const [freeText, setFreeText] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState(false);
+
 
   // Forhåndsutfyll svar hver gang wizarden åpnes på nytt.
   useEffect(() => {
