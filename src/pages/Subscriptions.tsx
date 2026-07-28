@@ -449,7 +449,7 @@ export default function Subscriptions() {
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-foreground">Abonnement</h1>
+                <h1 className="text-2xl font-bold text-foreground">Moduler</h1>
                 <Badge variant="secondary" className="text-xs">{activeModuleCount} aktive</Badge>
               </div>
               <OrganizationContextBanner />
