@@ -377,7 +377,7 @@ export function MSPServiceCatalogTab() {
               <tr>
                 <th className="text-left font-semibold px-3 py-2.5 w-12"></th>
                 <th className="text-left font-semibold px-3 py-2.5">Tjeneste</th>
-                <th className="text-left font-semibold px-3 py-2.5">Krav dekket</th>
+                <th className="text-left font-semibold px-3 py-2.5">Krav tjenesten støtter</th>
                 <th className="text-right font-semibold px-3 py-2.5 w-32"></th>
               </tr>
             </thead>
