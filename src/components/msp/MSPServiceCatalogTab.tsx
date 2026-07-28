@@ -541,14 +541,17 @@ export function MSPServiceCatalogTab() {
                   <button
                     type="button"
                     onClick={openWizard}
-                    aria-label="La Lara foreslå tjenester på nytt"
+                    aria-label="Oppdater tjenester med Lara"
                     className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
                   >
                     <Sparkles className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs text-sm">
-                  La Lara foreslå tjenester på nytt
+                  <div className="font-medium">Oppdater tjenester med Lara</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    Bruk når du endrer marked, bransje eller regelverk — Lara foreslår hva som bør legges til, utvides eller gjennomgås.
+                  </div>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
