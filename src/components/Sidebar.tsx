@@ -866,7 +866,7 @@ const SidebarContent = () => {
                 {workspaceMode === "partner" && (() => {
                   const partnerSettings = [
                     { tab: "generelt", labelNb: "Generelt", labelEn: "General", icon: SettingsIcon },
-                    { tab: "tilbudsmerking", labelNb: "Tilbudsmal", labelEn: "Offer template", icon: ImageIcon },
+                    
                     { tab: "integrasjoner", labelNb: "Integrasjoner", labelEn: "Integrations", icon: Plug },
                     { tab: "__activity", labelNb: "Aktivitetslogg", labelEn: "Activity log", icon: ClipboardList },
                   ];
