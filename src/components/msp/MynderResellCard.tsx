@@ -30,6 +30,7 @@ export function MynderResellCard({
   description,
   monthlyLicenseKr,
   priceNote,
+  commissionPct,
 }: MynderResellCardProps) {
   const { get, update } = useMynderResellSettings();
   const setting = get(productId);
@@ -38,7 +39,7 @@ export function MynderResellCard({
   // NOK / SEK / DKK use trailing symbol convention here
   const trailing = ["kr"].includes(sym);
 
-  const commissionAmount = (monthlyLicenseKr * setting.commissionPct) / 100;
+  const commissionAmount = (monthlyLicenseKr * commissionPct) / 100;
   const monthlyIncome =
     commissionAmount + (setting.setupFeeEnabled ? setting.setupFee / 12 : 0);
 
