@@ -599,7 +599,7 @@ export function MSPServiceCatalogTab() {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="mine" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="mine">
             Mine ({mineActiveCount + 3})
