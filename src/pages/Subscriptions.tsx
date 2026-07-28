@@ -41,6 +41,8 @@ import {
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
+import { ModuleInfoDialog } from "@/components/subscriptions/ModuleInfoDialog";
+import type { ModuleKey } from "@/lib/moduleInfo";
 import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
 import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
 import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
@@ -202,6 +204,7 @@ export default function Subscriptions() {
   const [vendorTierId, setVendorTierId] = useState<VendorTierId>(DEFAULT_VENDOR_TIER_ID);
   const [changeVendorTierOpen, setChangeVendorTierOpen] = useState(false);
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
+  const [readMoreKey, setReadMoreKey] = useState<ModuleKey | null>(null);
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
