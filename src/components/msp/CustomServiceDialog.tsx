@@ -16,11 +16,16 @@ import { Sparkles, Link2, Plus, Trash2, ListChecks } from "lucide-react";
 import { suggestControlPoints, type ControlSuggestion } from "@/lib/serviceMappingSuggester";
 import { cn } from "@/lib/utils";
 
+import type { ServiceRole } from "@/lib/serviceLibrary";
+import { ROLE_META } from "@/lib/serviceLibrary";
+
 export interface ServiceMapping {
   frameworkId: string;
   frameworkShortName: string;
   controlId: string;
   controlLabel: string;
+  /** Rolle(r) tjenesten har mot dette kravet. */
+  roles?: ServiceRole[];
 }
 
 export interface ServiceActivity {
@@ -294,6 +299,19 @@ export function CustomServiceDialog({
               .map((m) => {
                 const key = mappingKey(m);
                 const checked = selectedMappings.has(key);
+                const currentRoles: ServiceRole[] = m.roles ?? [];
+                const toggleRole = (role: ServiceRole) => {
+                  setUserTouchedMappings(true);
+                  setExtraMappings((prev) =>
+                    prev.map((x) => {
+                      if (mappingKey(x) !== key) return x;
+                      const existing = new Set(x.roles ?? []);
+                      if (existing.has(role)) existing.delete(role);
+                      else existing.add(role);
+                      return { ...x, roles: Array.from(existing) };
+                    }),
+                  );
+                };
                 return (
                   <label
                     key={`extra-${key}`}
@@ -316,7 +334,7 @@ export function CustomServiceDialog({
                       }}
                       className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
                     />
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
                           {m.frameworkShortName}
@@ -325,6 +343,34 @@ export function CustomServiceDialog({
                           {m.controlLabel} <span className="text-muted-foreground">({m.controlId})</span>
                         </span>
                       </div>
+                      {checked && (
+                        <div className="flex flex-wrap gap-1 pt-0.5">
+                          {(Object.keys(ROLE_META) as ServiceRole[]).map((role) => {
+                            const active = currentRoles.includes(role);
+                            return (
+                              <button
+                                key={role}
+                                type="button"
+                                onClick={(ev) => { ev.preventDefault(); toggleRole(role); }}
+                                title={ROLE_META[role].description}
+                                className={cn(
+                                  "px-1.5 py-0.5 rounded text-[11px] border transition-colors",
+                                  active
+                                    ? "bg-primary/10 border-primary/40 text-primary"
+                                    : "border-border text-muted-foreground hover:text-foreground",
+                                )}
+                              >
+                                {ROLE_META[role].label}
+                              </button>
+                            );
+                          })}
+                          {currentRoles.length === 0 && (
+                            <span className="text-[11px] text-muted-foreground italic self-center">
+                              Velg minst én rolle
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <Button
                       type="button"

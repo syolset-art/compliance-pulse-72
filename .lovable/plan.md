@@ -1,30 +1,40 @@
+
 ## Mål
-I tjenestekatalogen skal hver tjeneste primært vise hvilke **konkrete krav/artikler** den dekker i et regelverk — ikke bare regelverksnavnet. Data ligger allerede: hver `template.mappings[i]` har `frameworkLabel` + `controlIds` (f.eks. `GDPR Art.5, Art.6, Art.13, Art.30`).
+Hver kobling mellom en tjeneste og et krav skal vise hvilken **rolle** tjenesten har mot kravet, slik at partner og kunde forstår om tjenesten faktisk gjennomfører tiltaket, muliggjør det, dokumenterer eller vurderer status.
 
-## Endringer
+Roller:
+- **Direkte tiltak** — tjenesten utfører selve kravet (f.eks. drift av MFA).
+- **Muliggjørende** — tjenesten legger til rette for at kravet kan oppfylles (f.eks. verktøyoppsett).
+- **Dokumenterende** — tjenesten produserer bevis/dokumentasjon (f.eks. rapport, policy).
+- **Vurderende** — tjenesten vurderer status/modenhet (f.eks. pentest, revisjon).
 
-### 1. Tjenestetabellen i `MSPServiceCatalogTab.tsx`
-- Bytt kolonneoverskriften `Regelverk` → `Krav dekket`.
-- Erstatt dagens chip per regelverk med kompakte "krav-chips" gruppert per regelverk, format:
-  - `GDPR · Art.5, Art.6, Art.13 +1`  (viser 3 første artikler, resten som `+N`)
-  - Én rad/chip per regelverk tjenesten mapper til, maks 2 regelverk synlig + `+N regelverk til`.
-- Spesialverdier som `"varierer"`, `"utvalg"`, `"helhetlig"` vises som en nøytral etikett (f.eks. `ISO 27001 · utvalg`) i stedet for artikkelnummer.
-- Tooltip på chip: full liste over artikler for det regelverket.
+En kobling kan ha én eller flere roller (f.eks. pentest = vurderende + dokumenterende).
 
-### 2. Detaljvisning ved klikk (samme fil, `openTemplatePreview`-flyt)
-- I preview-panelet vises hvert regelverk med full artikkelliste + Lara-hint der artikkel finnes i `FRAMEWORK_CATALOG` (label fra `controlPoints`).
-- Behold eksisterende "legg til"-handling uendret.
+## Datamodell
+I `src/lib/serviceLibrary.ts`:
+- Utvid `ServiceMapping` med `roles: ServiceRole[]` (påkrevd, minst én).
+- Definer `type ServiceRole = "direct" | "enabling" | "documenting" | "assessing"` med `ROLE_META` (label, kort beskrivelse, farge-token, ikon).
+- Fyll ut `roles` på alle eksisterende mappings i biblioteket ut fra tjenestens natur (pentest → assessing+documenting, MFA-drift → direct, DPO-tjeneste → enabling+documenting, osv.).
 
-### 3. Ingen endring i datamodell
-- `serviceLibrary.ts` beholdes som den er — vi bruker bare `controlIds` som allerede finnes.
-- Ingen endring i Mynder-videresalgs­kortene (de er produkter, ikke krav-mappede tjenester).
+Samme felt legges på `ServiceMapping` som brukes i `CustomServiceDialog.tsx` — brukeren må velge minst én rolle når de mapper et krav manuelt.
 
-## Teknisk
-- Ny liten helper i samme fil (eller `src/lib/serviceLibrary.ts`) `formatCoveredArticles(mapping, maxShown = 3)` som håndterer artikkel-forkortelse + spesialverdier.
-- Bruk `Tooltip` fra `@/components/ui/tooltip` for full liste.
-- Alt beholdes innenfor eksisterende design tokens; ingen nye farger.
+## UI-endringer
+
+### 1. Tjenestetabellen (`MSPServiceCatalogTab.tsx`)
+I «Krav tjenesten støtter»-cellen: under hver framework-chip vises et lite rolle-merke (samme linje eller rett under), f.eks. `GDPR · Art.5, Art.6  ·  Dokumenterende`. Rollen vises som liten muted tekst eller minipille — subtil, ikke støyende. Tooltip på chipen utvides med én linje: «Rolle: Vurderende, Dokumenterende».
+
+### 2. Preview / Custom-dialog (`CustomServiceDialog.tsx`)
+Ved siden av hver mapping-rad legges en kompakt multi-select for roller (fire toggles med ikon). Minst én må være valgt før mapping kan lagres.
+
+### 3. Foreslåtte tjeneste-preview (adopt flow)
+Vises i sammendraget som `Penetrasjonstest – vurderer og dokumenterer status mot NIS2 Art.21` — bygges automatisk fra rollene på mappingen.
+
+## Design
+- Roller vises som tekst i muted farge (12–13px), ikke fargede pills, for å holde tabellen stram.
+- Ikoner i dialogen: `Wrench` (direkte), `Plug` (muliggjørende), `FileText` (dokumenterende), `ClipboardCheck` (vurderende).
+- Ingen nye farger — bruker eksisterende semantiske tokens.
 
 ## Ut av scope
-- Redigering av hvilke krav en tjeneste dekker (kommer senere som egen "Rediger tjeneste"-flyt).
-- Endringer i "Avansert / regelverks-bygger"-seksjonen — den bygger allerede rundt kontrollpunkter.
-- Mynder-produkter (Core/Leverandør/Assets) — de selges som produkter, ikke krav-tjenester.
+- Ingen backend-endring (prototype, alt i biblioteksfilen).
+- Ingen endring i selve compliance-kravslisten.
+- Rollene brukes ikke ennå til å påvirke gap-analyse-scoring — kun visning. Kan kobles inn senere.
