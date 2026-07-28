@@ -55,15 +55,7 @@ function formatNOK(n: number): string {
 
 type PickTag = "recommended" | "popular" | "trending";
 
-const TEMPLATE_PICKS: Array<{
-  code: string;
-  label: string;
-  icon: typeof UserCog;
-  bg: string;
-  fg: string;
-  tag?: PickTag;
-  tagReason?: string;
-}> = [
+const TEMPLATE_PICKS: Pick[] = [
   { code: "MSP4", label: "DPO-as-a-service", icon: UserCog, bg: "bg-primary/10", fg: "text-primary", tag: "recommended", tagReason: "Matcher din portefølje (GDPR-tunge kunder)" },
   { code: "MSSP7", label: "SOC 2 forberedelse", icon: Radar, bg: "bg-success/10", fg: "text-success", tag: "trending", tagReason: "Etterspurt av SaaS-kunder denne måneden" },
   { code: "MSSP6", label: "Gap-analyse", icon: ClipboardCheck, bg: "bg-warning/10", fg: "text-warning", tag: "popular", tagReason: "Brukt av 78 % av MSP-partnere" },
