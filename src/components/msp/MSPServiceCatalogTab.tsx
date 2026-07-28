@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw, Sparkles, Star } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw, Sparkles, Star, FileText, Lock } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,7 @@ import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { formatTaxNote } from "@/lib/partnerTax";
+import { useSavedOffers, type LockInfo } from "@/lib/customerOffers";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -154,6 +155,7 @@ export function MSPServiceCatalogTab() {
   const [hourlyRate, setHourlyRate] = useState<number>(defaultHourlyRate);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>(() => []);
+  const { getLockInfo, isLocked } = useSavedOffers();
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<ServiceTemplate | null>(null);
@@ -359,6 +361,16 @@ export function MSPServiceCatalogTab() {
   };
 
   const removeExtra = (id: string) => {
+    const target = extras.find((e) => e.id === id);
+    if (target) {
+      const lock = getLockInfo({ templateId: target.templateId, name: target.name });
+      if (lock) {
+        toast.error("Kan ikke slettes", {
+          description: `«${target.name}» inngår i tilbud ${lock.offerNumber}. Bruk «Avvikle» for kontrollert utfasing.`,
+        });
+        return;
+      }
+    }
     setExtras((prev) => prev.filter((e) => e.id !== id));
   };
 
@@ -625,32 +637,52 @@ export function MSPServiceCatalogTab() {
                       })()}
                     </td>
                     <td className="px-3 py-3 text-right">
-                      {isAdopted ? (
-                        <Badge variant="secondary" className="text-sm h-7 px-2.5">Lagt til</Badge>
-                      ) : (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
-                              className="h-9 gap-1 text-sm"
-                            >
-                              {pick.recommended ? (
-                                <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden="true" />
-                              ) : (
-                                <Plus className="h-4 w-4" aria-hidden="true" />
-                              )}
-                              Legg til
-                            </Button>
-                          </TooltipTrigger>
-                          {pick.recommended && (
-                            <TooltipContent side="top" className="max-w-xs text-xs">
-                              Anbefalt av Lara basert på din partnerprofil{curationSummary ? ` (${curationSummary})` : ""}.
-                            </TooltipContent>
-                          )}
-                        </Tooltip>
-                      )}
+                      {(() => {
+                        const lock = getLockInfo({ templateId: template.id, name: pick.label });
+                        if (lock) {
+                          return (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge variant="outline" className="text-xs h-7 px-2 gap-1 border-primary/30 bg-primary/5 text-primary cursor-help">
+                                  <FileText className="h-3 w-3" aria-hidden="true" />
+                                  På tilbud
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs text-xs">
+                                Inngår i {lock.count > 1 ? `${lock.count} tilbud` : `tilbud ${lock.offerNumber}`}
+                                {lock.customerName ? ` · ${lock.customerName}` : ""}. Tjenesten kan ikke fjernes.
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        }
+                        if (isAdopted) {
+                          return <Badge variant="secondary" className="text-sm h-7 px-2.5">Lagt til</Badge>;
+                        }
+                        return (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
+                                className="h-9 gap-1 text-sm"
+                              >
+                                {pick.recommended ? (
+                                  <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden="true" />
+                                ) : (
+                                  <Plus className="h-4 w-4" aria-hidden="true" />
+                                )}
+                                Legg til
+                              </Button>
+                            </TooltipTrigger>
+                            {pick.recommended && (
+                              <TooltipContent side="top" className="max-w-xs text-xs">
+                                Anbefalt av Lara basert på din partnerprofil{curationSummary ? ` (${curationSummary})` : ""}.
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        );
+                      })()}
                     </td>
                   </tr>
                 );
@@ -763,10 +795,25 @@ export function MSPServiceCatalogTab() {
           <div className="divide-y divide-border rounded-md border border-border bg-card">
             {extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => {
               const price = e.priceOverride ?? e.hours * hourlyRate;
+              const lock = getLockInfo({ templateId: e.templateId, name: e.name });
               return (
                 <div key={e.id} className="flex items-center gap-3 px-3 py-3">
                   <div className="flex-1 min-w-0 flex items-center gap-2">
                     <span className="text-base font-medium text-foreground truncate">{e.name}</span>
+                    {lock && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline" className="text-xs h-6 px-1.5 gap-1 border-primary/30 bg-primary/5 text-primary cursor-help shrink-0">
+                            <FileText className="h-3 w-3" aria-hidden="true" />
+                            På tilbud · {lock.offerNumber}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          Inngår i {lock.count > 1 ? `${lock.count} tilbud` : `tilbud ${lock.offerNumber}`}
+                          {lock.customerName ? ` · ${lock.customerName}` : ""}. Kan ikke slettes — bruk «Avvikle».
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                   <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
                     {e.hours} t
@@ -805,18 +852,23 @@ export function MSPServiceCatalogTab() {
                   <TooltipProvider delayDuration={200}>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeExtra(e.id)}
-                          className="h-11 w-11 text-foreground/70 hover:text-destructive"
-                          aria-label="Slett tjeneste"
-                        >
-                          <Trash2 className="h-4 w-4" aria-hidden="true" />
-                        </Button>
+                        <span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeExtra(e.id)}
+                            disabled={!!lock}
+                            className="h-11 w-11 text-foreground/70 hover:text-destructive disabled:opacity-40"
+                            aria-label={lock ? "Låst — kan ikke slettes" : "Slett tjeneste"}
+                          >
+                            {lock ? <Lock className="h-4 w-4" aria-hidden="true" /> : <Trash2 className="h-4 w-4" aria-hidden="true" />}
+                          </Button>
+                        </span>
                       </TooltipTrigger>
                       <TooltipContent side="top">
-                        Slett — kun for tjenester som aldri har vært i bruk
+                        {lock
+                          ? `Kan ikke slettes — inngår i tilbud ${lock.offerNumber}. Bruk «Avvikle».`
+                          : "Slett — kun for tjenester som aldri har vært i bruk"}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

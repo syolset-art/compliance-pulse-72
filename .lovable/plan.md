@@ -1,47 +1,29 @@
-
 ## Mål
-Legg til mva/tax-innstillinger i partnerens Innstillinger, slik at tilbud enten viser priser "eks. mva/tax" eller inkluderer den i totalen. Terminologi tilpasses partnerens språk (NO: "mva", EN: "VAT/Sales tax").
 
-## Endringer
+Partneren skal enkelt se hvilke tjenester som er del av et levert tilbud, og disse skal ikke kunne fjernes eller nullstilles ved et uhell. Avvikling (retire) er fortsatt eneste måte å ta en tjeneste ut av porteføljen på.
 
-### 1. Ny state i `usePartnerBranding` (utvides eller nytt hook)
-Utvid `PartnerBrandingOverrides` + `PartnerBranding` med:
-- `taxEnabled: boolean` (default true — vis mva-info i tilbud)
-- `taxRate: number` (default 25 for NO, 0 ellers)
-- `taxLabel: string` (default "mva" for nb, "VAT" for en)
-- `taxMode: "exclusive" | "inclusive"` (default `exclusive` — priser vises eks. og noteres "Alle priser er eks. mva")
+## Slik oppleves det
 
-Lagres i samme localStorage-nøkkel som eksisterende branding.
+1. Når partneren lagrer et tilbud i «Opprett tilbud»-dialogen, blir tjenestene som ligger i tilbudet merket som «På tilbud» på kunden.
+2. I tjenestekatalogen (både tabellen for «Mynder-produkter» og listen for egne tjenester) vises et lite merke «På tilbud · T-2026-1234» på hver slik tjeneste, med tooltip som viser tilbudsnr., dato og navn.
+3. Handlinger som ville fjerne en slik tjeneste er deaktivert:
+   - «Fjern»-knapp (X) på egne tjenester skjules/deaktiveres med tooltip «Kan ikke fjernes — inngår i tilbud T-2026-1234. Bruk Avvikle.»
+   - Lara-banneret sitt «Nullstill»-valg fjerner kun tjenester som ikke ligger i et tilbud; de resterende beholdes og en toast forklarer hvor mange som ble beholdt.
+   - Mynder-produkter kan ikke deaktiveres så lenge de er del av et tilbud (samme tooltip).
+4. Å «Avvikle» en tilbudt tjeneste er fortsatt mulig — det er den kontrollerte utfasingsflyten.
 
-### 2. Ny seksjon i `MSPPartnerSettings.tsx`
-Kort "Mva / Tax" (under branding-kortet) med:
-- Toggle: "Vis mva/tax i tilbud"
-- Input: sats (%) med hurtigvalg (0, 12, 15, 20, 25)
-- Etikett-felt (auto-forslag basert på språk)
-- Radio: "Eksklusiv (priser vises uten mva, legges til i totalen)" / "Inklusiv (priser inkluderer mva)"
-- Liten preview-linje som viser hvordan det vil stå i tilbud: f.eks. "Alle priser er eks. mva (25%)".
+## Teknisk
 
-### 3. Bruk i tilbud (`MSPCreateOfferDialog.tsx`) og katalog
-- `MSPServiceCatalogTab.tsx` linje 744: erstatt hardkodet "Alle priser er eks. mva." med dynamisk tekst fra branding.
-- `MSPCreateOfferDialog.tsx`: 
-  - Vis mva-linje i summeringen: "Sum eks. mva", "Mva (25%)", "Totalt inkl. mva" når `taxEnabled && taxMode==="exclusive"`.
-  - Ved `inclusive`: vis "Totalt (inkl. mva 25%)" som eneste sum.
-  - Ved `taxEnabled=false`: ingen mva-linje.
-- Samme formatering brukes i eventuell PDF/tilbudsutskrift.
+- Ny modul `src/lib/customerOffers.ts` med typene `SavedOffer { id, offerNumber, name, customerId, createdAt, serviceIds[], templateIds[] }` og hjelpere `listOffers(customerId)`, `saveOffer(offer)`, `getLockedServiceIds(customerId)` som slår sammen `serviceIds` + `templateIds` på tvers av kundens tilbud. Persistens i `localStorage` (`msp-customer-offers-v1`), samme mønster som `usePartnerBranding`.
+- `MSPCreateOfferDialog.handleSaveOffer` bygger et `SavedOffer` fra `selections.extras` (id + templateId) og kaller `saveOffer(...)`. Tar imot ny prop `customerId`.
+- `MSPServiceCatalogTab`:
+  - Ny `useMemo` `lockedIds = getLockedServiceIds(customerId)` (både `extras.id` og `templateId`).
+  - `removeExtra(id)` blir no-op når id er låst, viser toast.
+  - «Nullstill»-knappen i Lara-banneret filtrerer bort låste id-er, viser antall beholdt.
+  - Renderer nytt kompakt merke «På tilbud» ved siden av tjenestenavnet i begge tabellene (Mynder + egne) med tooltip som viser tilbudsnummer.
+- Ingen endring i databasemodell — prototype bruker localStorage, konsistent med resten av MSP-flyten.
 
-### 4. Språktilpasning
-Bruk `i18next` språkvalg for defaults:
-- `nb` → "mva", 25%, exclusive
-- `en` → "VAT", 0%, exclusive
-Bruker kan overstyre.
+## Ikke i scope
 
-## Filer som endres
-- `src/hooks/usePartnerBranding.ts` — utvide interface + defaults
-- `src/pages/MSPPartnerSettings.tsx` — nytt "Mva / Tax"-kort
-- `src/components/msp/MSPServiceCatalogTab.tsx` — dynamisk mva-tekst
-- `src/components/msp/MSPCreateOfferDialog.tsx` — mva-summering i tilbud
-- `src/locales/nb.json` + `en.json` — nye tekster
-
-## Utenfor scope
-- Landsspesifikke mva-regler per kunde (bare partnerens standard)
-- Reverse charge / eksport-regler
+- Ingen egen «Tilbud»-side eller CRUD-visning; kun merking + låsing.
+- Ingen endring av PDF-generering eller tilbudsnummer-format.

@@ -21,6 +21,7 @@ import { getControlLabel } from "@/lib/serviceControlLabels";
 import { Link2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { computeTaxBreakdown, formatTaxNote } from "@/lib/partnerTax";
+import { saveOffer as persistOffer } from "@/lib/customerOffers";
 
 export interface CoveredControlGroup {
   frameworkId: string;
@@ -61,6 +62,12 @@ export interface CreateOfferDialogProps {
   coveredGaps?: CoveredGapsSpec;
   /** Hvilken visning dialogen åpner i. Default "edit". Bruk "preview" for å vise lagrede tilbud. */
   initialView?: "edit" | "preview";
+  /** Kunde som tilbudet skal registreres på. */
+  customerId?: string;
+  customerName?: string;
+  /** Kilde-nøkler for tjenester som inngår i tilbudet — brukes til å låse dem i tjenestekatalogen. */
+  offeredTemplateIds?: string[];
+  offeredServiceNames?: string[];
 }
 
 interface EditableTask extends TaskEstimate {
@@ -85,6 +92,10 @@ export function MSPCreateOfferDialog({
   coveredControls,
   coveredGaps,
   initialView = "edit",
+  customerId,
+  customerName,
+  offeredTemplateIds,
+  offeredServiceNames,
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
   const effectivePartnerName = partnerName ?? branding.name;
@@ -413,6 +424,14 @@ export function MSPCreateOfferDialog({
   };
 
   const handleSaveOffer = () => {
+    persistOffer({
+      offerNumber,
+      name: offerName,
+      customerId,
+      customerName,
+      templateIds: offeredTemplateIds ?? [],
+      serviceKeys: offeredServiceNames ?? (serviceTitle ? [serviceTitle] : [offerName]),
+    });
     setSavedAt(new Date().toLocaleString("nb-NO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }));
     setView("saved");
     toast.success("Tilbud lagret", {
