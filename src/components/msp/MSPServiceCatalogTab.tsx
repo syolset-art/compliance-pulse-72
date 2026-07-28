@@ -81,51 +81,7 @@ export function MSPServiceCatalogTab() {
   const { defaultHourlyRate } = useServiceDefaults();
   const [hourlyRate, setHourlyRate] = useState<number>(defaultHourlyRate);
   const [manualOpen, setManualOpen] = useState(false);
-  const [extras, setExtras] = useState<ExtraService[]>(() => [
-    {
-      id: "default-mynder-core",
-      name: "Mynder Core",
-      description: "Grunnpakke for compliance, styring og rapportering — fundamentet alle kunder starter med.",
-      hours: 10,
-      activities: [
-        { label: "Oppsett av organisasjon og roller", hours: 2 },
-        { label: "Aktivering av compliance-rammeverk", hours: 3 },
-        { label: "Onboarding og opplæring", hours: 3 },
-        { label: "Løpende rådgivning første måned", hours: 2 },
-      ],
-      source: "manual",
-      mappings: [],
-      isMynder: true,
-    },
-    {
-      id: "default-mynder-vendor",
-      name: "Leverandørmodulen\u00a0",
-      description: "Helhetlig styring av tredjeparter: kartlegging, risikovurdering og oppfølging av leverandører.",
-      hours: 8,
-      activities: [
-        { label: "Import og kartlegging av leverandører", hours: 2 },
-        { label: "Risiko- og kritikalitetsvurdering", hours: 3 },
-        { label: "Dokument- og kontraktoppfølging", hours: 3 },
-      ],
-      source: "manual",
-      mappings: [],
-      isMynder: true,
-    },
-    {
-      id: "default-mynder-agents",
-      name: "Assets",
-      description: "Register, klassifisering og kontroll av AI-agenter — MACF-nivå, eierskap og løpende oppfølging.",
-      hours: 8,
-      activities: [
-        { label: "Aktivering av agentregister", hours: 2 },
-        { label: "MACF-klassifisering og eierskap", hours: 3 },
-        { label: "Risiko- og kontrolloppfølging", hours: 3 },
-      ],
-      source: "manual",
-      mappings: [],
-      isMynder: true,
-    },
-  ]);
+  const [extras, setExtras] = useState<ExtraService[]>(() => []);
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<ServiceTemplate | null>(null);
