@@ -67,32 +67,13 @@ export function MynderResellCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end pt-2 border-t border-border">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Switch
-              id={`fee-${productId}`}
-              checked={setting.setupFeeEnabled}
-              onCheckedChange={(v) => update(productId, { setupFeeEnabled: v })}
-            />
-            <Label htmlFor={`fee-${productId}`} className="text-xs text-foreground/70">
-              Etableringsgebyr (engangsbeløp)
-            </Label>
-          </div>
-          <Input
-            type="number"
-            min={0}
-            step={500}
-            value={setting.setupFee}
-            disabled={!setting.setupFeeEnabled}
-            onChange={(e) => update(productId, { setupFee: Number(e.target.value) })}
-            className="h-9 text-sm tabular-nums"
-            placeholder="0"
-          />
+      <div className="pt-2 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="text-[11px] text-muted-foreground italic">
+          Du kan legge til etableringsgebyr når du lager tilbud. Dette er valgfritt.
         </div>
 
-        <div className="text-right text-xs text-muted-foreground">
-          Provisjon satt av Mynder: {commissionPct} %
+        <div className="text-right text-[11px] text-muted-foreground">
+          Provisjon satt av Mynder: <span className="font-medium text-foreground">{commissionPct}%</span>
         </div>
       </div>
     </Card>
