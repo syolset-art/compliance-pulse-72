@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw, Sparkles } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw, Sparkles, Star } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -55,15 +55,7 @@ function formatNOK(n: number): string {
 
 type PickTag = "recommended" | "popular" | "trending";
 
-const TEMPLATE_PICKS: Array<{
-  code: string;
-  label: string;
-  icon: typeof UserCog;
-  bg: string;
-  fg: string;
-  tag?: PickTag;
-  tagReason?: string;
-}> = [
+const TEMPLATE_PICKS: Pick[] = [
   { code: "MSP4", label: "DPO-as-a-service", icon: UserCog, bg: "bg-primary/10", fg: "text-primary", tag: "recommended", tagReason: "Matcher din portefølje (GDPR-tunge kunder)" },
   { code: "MSSP7", label: "SOC 2 forberedelse", icon: Radar, bg: "bg-success/10", fg: "text-success", tag: "trending", tagReason: "Etterspurt av SaaS-kunder denne måneden" },
   { code: "MSSP6", label: "Gap-analyse", icon: ClipboardCheck, bg: "bg-warning/10", fg: "text-warning", tag: "popular", tagReason: "Brukt av 78 % av MSP-partnere" },
@@ -87,7 +79,7 @@ const PICK_PALETTE: Array<{ bg: string; fg: string; icon: typeof UserCog }> = [
   { bg: "bg-success/10", fg: "text-success", icon: Award },
 ];
 
-type Pick = { code: string; label: string; icon: typeof UserCog; bg: string; fg: string; tag?: PickTag; tagReason?: string };
+type Pick = { code: string; label: string; icon: typeof UserCog; bg: string; fg: string; tag?: PickTag; tagReason?: string; recommended?: boolean };
 
 const DOMAIN_KEYWORDS: Record<string, string[]> = {
   security: ["sikkerhet", "security", "iso 27001", "soc"],
@@ -165,6 +157,7 @@ export function MSPServiceCatalogTab() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
+  const [onlyRecommended, setOnlyRecommended] = useState(false);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -426,7 +419,30 @@ export function MSPServiceCatalogTab() {
     ? buildDraftFromTemplate(previewTemplate)
     : undefined;
 
-  const activePicks: Pick[] = curatedPicks ?? TEMPLATE_PICKS;
+  const recommendedCodes = useMemo(
+    () => new Set((curatedPicks ?? []).map((p) => p.code)),
+    [curatedPicks],
+  );
+  const mergedPicks: Pick[] = useMemo(() => {
+    if (!curatedPicks || curatedPicks.length === 0) return TEMPLATE_PICKS;
+    const templateCodes = new Set(TEMPLATE_PICKS.map((p) => p.code));
+    const extraFromLara = curatedPicks
+      .filter((p) => !templateCodes.has(p.code))
+      .map((p) => ({ ...p, recommended: true }));
+    const marked = TEMPLATE_PICKS.map((p) =>
+      recommendedCodes.has(p.code) ? { ...p, recommended: true } : p,
+    );
+    // Sort: recommended first, preserve relative order
+    return [...extraFromLara, ...marked].sort((a, b) => {
+      if (!!a.recommended === !!b.recommended) return 0;
+      return a.recommended ? -1 : 1;
+    });
+  }, [curatedPicks, recommendedCodes]);
+  const activePicks: Pick[] = useMemo(
+    () => (onlyRecommended ? mergedPicks.filter((p) => p.recommended) : mergedPicks),
+    [mergedPicks, onlyRecommended],
+  );
+  const recommendedCount = mergedPicks.filter((p) => p.recommended).length;
 
   return (
     <div className="space-y-6">
@@ -459,24 +475,38 @@ export function MSPServiceCatalogTab() {
           </Button>
         </div>
 
-        {curatedPicks && (
+        {curatedPicks && recommendedCount > 0 && (
           <div className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
             <div className="flex items-center gap-2 text-foreground/80">
               <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
               <span>
-                Lara-forslag basert på din kartlegging{curationSummary ? ` — ${curationSummary}` : ""}.
-                {" "}Trykk <span className="font-medium text-foreground">+ Legg til</span> for å ta i bruk.
+                Lara anbefaler <span className="font-medium text-foreground">{recommendedCount} tjenester</span>{curationSummary ? ` basert på ${curationSummary}` : ""}. Merket med <Star className="inline h-3 w-3 fill-primary text-primary align-[-2px]" /> i listen.
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => { setCuratedPicks(null); setCurationSummary(null); }}
-              className="text-xs text-muted-foreground hover:text-foreground shrink-0"
-            >
-              Nullstill
-            </button>
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => setOnlyRecommended((v) => !v)}
+                className={cn(
+                  "text-xs px-2 py-1 rounded border transition-colors",
+                  onlyRecommended
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-foreground/80 border-border hover:bg-muted/60",
+                )}
+              >
+                {onlyRecommended ? "Viser kun anbefalte" : "Vis kun anbefalte"}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setCuratedPicks(null); setCurationSummary(null); setOnlyRecommended(false); }}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                Nullstill
+              </button>
+            </div>
           </div>
         )}
+
 
 
         <div className="overflow-hidden rounded-md border border-border bg-card">
@@ -515,11 +545,24 @@ export function MSPServiceCatalogTab() {
                       </div>
                     </td>
                     <td className="px-3 py-3">
-                      <div className="text-base font-medium text-foreground">{pick.label}</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-base font-medium text-foreground">{pick.label}</span>
+                        {pick.recommended && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Star className="h-3.5 w-3.5 fill-primary text-primary shrink-0" aria-label="Anbefalt av Lara" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs text-xs">
+                              Anbefalt av Lara basert på din partnerprofil{curationSummary ? ` (${curationSummary})` : ""}.
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
                       <div className="text-sm text-foreground/70 line-clamp-1">
                         {template.shortDescription}
                       </div>
                     </td>
+
                     <td className="px-3 py-3">
                       <div className="flex flex-wrap gap-1">
                         {visibleMappings.length > 0 ? (
