@@ -696,6 +696,15 @@ export function MSPServiceCatalogTab() {
         mode={editingId ? "edit" : "create"}
       />
 
+      <RetireServiceDialog
+        open={retireId !== null}
+        onOpenChange={(o) => { if (!o) setRetireId(null); }}
+        serviceName={retireTarget?.name ?? ""}
+        replacementOptions={extras
+          .filter((e) => e.id !== retireId && e.status !== "retired" && !e.isMynder)
+          .map((e) => ({ id: e.id, name: e.name }))}
+        onConfirm={(opts) => retireId && retireExtra(retireId, opts)}
+      />
 
     </div>
   );
