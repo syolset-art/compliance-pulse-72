@@ -53,7 +53,6 @@ export function ModuleCard({
   ctaOverride,
 
 }: ModuleCardProps) {
-  const cfg = statusConfig[status];
   const canDeactivate = !!onDeactivate && status === "active";
   const isIncluded = status === "included";
 
