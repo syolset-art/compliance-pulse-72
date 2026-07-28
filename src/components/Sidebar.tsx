@@ -103,6 +103,7 @@ const settingsMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
   { name: "nav.accessManagement", href: "/admin/access", icon: Users },
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
+  { name: "Integrasjoner", href: "/settings/integrations", icon: Plug },
   { name: "Aktivitetslogg", href: "/activity-log", icon: ClipboardList },
 ];
 
