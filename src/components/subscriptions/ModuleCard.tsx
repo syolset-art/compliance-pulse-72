@@ -27,26 +27,6 @@ export interface ModuleCardProps {
 
 
 
-const statusConfig = {
-  active: {
-    label: "Aktivert",
-    text: "text-emerald-700",
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
-  },
-  included: {
-    label: "Inkludert",
-    text: "text-primary",
-    bg: "bg-primary/10",
-    border: "border-primary/20",
-  },
-  inactive: {
-    label: "Ikke aktivert",
-    text: "text-slate-600",
-    bg: "bg-slate-100",
-    border: "border-slate-200",
-  },
-};
 
 const actionLabel: Record<Exclude<ModuleCardProps["action"], "none">, string> = {
   open: "Åpne modulen",
