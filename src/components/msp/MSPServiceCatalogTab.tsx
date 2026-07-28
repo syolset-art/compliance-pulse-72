@@ -27,6 +27,7 @@ import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
 import { formatTaxNote } from "@/lib/partnerTax";
+import { useSavedOffers, type LockInfo } from "@/lib/customerOffers";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
