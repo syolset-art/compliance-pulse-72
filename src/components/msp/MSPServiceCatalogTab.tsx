@@ -489,7 +489,7 @@ export function MSPServiceCatalogTab() {
           <div>
             <h3 className="text-lg font-semibold text-foreground">Mynder-produkter (videresalg)</h3>
             <p className="text-sm text-foreground/70 mt-0.5">
-              Videreselg Mynder-lisenser til dine kunder og tjen provisjon. Alltid inkludert i katalogen.
+              Videreselg Mynder-lisenser til dine kunder og tjen provisjon.
             </p>
           </div>
         </div>

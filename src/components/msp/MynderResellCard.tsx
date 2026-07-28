@@ -1,8 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { useMynderResellSettings } from "@/hooks/useMynderResellSettings";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 
 export interface MynderResellCardProps {
@@ -31,16 +27,13 @@ export function MynderResellCard({
   priceNote,
   commissionPct,
 }: MynderResellCardProps) {
-  const { get, update } = useMynderResellSettings();
-  const setting = get(productId);
   const { currencyOption } = useServiceDefaults();
   const sym = currencyOption.symbol;
   // NOK / SEK / DKK use trailing symbol convention here
   const trailing = ["kr"].includes(sym);
 
   const commissionAmount = (monthlyLicenseKr * commissionPct) / 100;
-  const monthlyIncome =
-    commissionAmount + (setting.setupFeeEnabled ? setting.setupFee / 12 : 0);
+  const monthlyIncome = commissionAmount;
 
   return (
     <Card className="p-4 space-y-3">
