@@ -361,6 +361,16 @@ export function MSPServiceCatalogTab() {
   };
 
   const removeExtra = (id: string) => {
+    const target = extras.find((e) => e.id === id);
+    if (target) {
+      const lock = getLockInfo({ templateId: target.templateId, name: target.name });
+      if (lock) {
+        toast.error("Kan ikke slettes", {
+          description: `«${target.name}» inngår i tilbud ${lock.offerNumber}. Bruk «Avvikle» for kontrollert utfasing.`,
+        });
+        return;
+      }
+    }
     setExtras((prev) => prev.filter((e) => e.id !== id));
   };
 
