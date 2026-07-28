@@ -21,7 +21,7 @@ import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type ServiceRole, getMappingRoles, formatRoleVerbs, ROLE_META } from "@/lib/serviceLibrary";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
-import { MynderResellCard } from "./MynderResellCard";
+
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 
 type AllSelections = Record<string, FrameworkSelection>;
@@ -78,7 +78,7 @@ const TAG_META: Record<PickTag, { label: string; className: string }> = {
 
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
-  const { defaultHourlyRate } = useServiceDefaults();
+  const { defaultHourlyRate, currencyOption } = useServiceDefaults();
   const [hourlyRate, setHourlyRate] = useState<number>(defaultHourlyRate);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>(() => []);
@@ -522,42 +522,82 @@ export function MSPServiceCatalogTab() {
       </section>
 
       {/* Mynder-produkter — videresalg med provisjon */}
-      <section className="space-y-3">
-        <div className="flex items-baseline justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Mynder-produkter&nbsp;</h3>
-            <p className="text-sm text-foreground/70 mt-0.5">
-              Videreselg Mynder-lisenser til dine kunder og tjen provisjon.
-            </p>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <MynderResellCard
-            productId="core"
-            name="Mynder Core"
-            description="Grunnpakke for compliance, styring og rapportering."
-            monthlyLicenseKr={CORE_TIERS[0].monthlyPriceKr}
-            priceNote="fra"
-            commissionPct={30}
-          />
-          <MynderResellCard
-            productId="vendors"
-            name="Leverandørmodulen"
-            description="Kartlegging, risiko og oppfølging av leverandører og tredjeparter."
-            monthlyLicenseKr={VENDOR_TIERS[1].monthlyPriceKr}
-            priceNote="fra"
-            commissionPct={30}
-          />
-          <MynderResellCard
-            productId="assets"
-            name="Assets"
-            description="Register og kontroll av systemer og AI-agenter (MACF)."
-            monthlyLicenseKr={490}
-            priceNote="fra"
-            commissionPct={25}
-          />
-        </div>
-      </section>
+      {(() => {
+        const rows = [
+          { id: "core", name: "Mynder Core", price: CORE_TIERS[0].monthlyPriceKr, commissionPct: 30 },
+          { id: "vendors", name: "Leverandørmodulen", price: VENDOR_TIERS[1].monthlyPriceKr, commissionPct: 30 },
+          { id: "assets", name: "Assets", price: 490, commissionPct: 25 },
+        ];
+        const sym = currencyOption.symbol;
+        const trailing = sym === "kr";
+
+        const fmt = (n: number) =>
+          `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${sym}`;
+        return (
+          <section className="space-y-3">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Produkter fra Mynder</h3>
+                <p className="text-sm text-foreground/70 mt-0.5">
+                  Abonnementer du kan selge videre. Din andel utbetales månedlig.
+                </p>
+              </div>
+              <a
+                href="#"
+                onClick={(e) => e.preventDefault()}
+                className="text-sm text-foreground/60 hover:text-foreground whitespace-nowrap"
+              >
+                Mynders produktløfte
+              </a>
+            </div>
+            <div className="rounded-md border border-border bg-card overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-muted-foreground border-b border-border">
+                    <th className="px-4 py-2.5 font-medium">Produkt</th>
+                    <th className="px-4 py-2.5 font-medium text-right">Lisens/mnd</th>
+                    <th className="px-4 py-2.5 font-medium text-right">Din andel</th>
+                    <th className="px-4 py-2.5 font-medium text-right">Etablering</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {rows.map((r) => {
+                    const share = (r.price * r.commissionPct) / 100;
+                    return (
+                      <tr key={r.id}>
+                        <td className="px-4 py-3 font-medium text-foreground">{r.name}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground/80">
+                          {trailing ? fmt(r.price) : `${sym} ${Math.round(r.price)}`}
+                        </td>
+                        <td className="px-4 py-3 text-right tabular-nums font-semibold text-foreground">
+                          {trailing ? fmt(share) : `${sym} ${Math.round(share)}`}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                className="text-sm text-primary hover:underline"
+                              >
+                                Sett pris
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top">
+                              Etableringsgebyr legges til når du lager tilbud. Valgfritt.
+                            </TooltipContent>
+                          </Tooltip>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground">Alle priser er eks. mva.</p>
+          </section>
+        );
+      })()}
+
 
 
       {/* Mine egne tjenester */}
