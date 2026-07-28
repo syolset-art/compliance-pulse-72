@@ -21,6 +21,8 @@ import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext } from "@/lib/serviceLibrary";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
+import { MynderResellCard } from "./MynderResellCard";
+import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -79,51 +81,7 @@ export function MSPServiceCatalogTab() {
   const { defaultHourlyRate } = useServiceDefaults();
   const [hourlyRate, setHourlyRate] = useState<number>(defaultHourlyRate);
   const [manualOpen, setManualOpen] = useState(false);
-  const [extras, setExtras] = useState<ExtraService[]>(() => [
-    {
-      id: "default-mynder-core",
-      name: "Mynder Core",
-      description: "Grunnpakke for compliance, styring og rapportering — fundamentet alle kunder starter med.",
-      hours: 10,
-      activities: [
-        { label: "Oppsett av organisasjon og roller", hours: 2 },
-        { label: "Aktivering av compliance-rammeverk", hours: 3 },
-        { label: "Onboarding og opplæring", hours: 3 },
-        { label: "Løpende rådgivning første måned", hours: 2 },
-      ],
-      source: "manual",
-      mappings: [],
-      isMynder: true,
-    },
-    {
-      id: "default-mynder-vendor",
-      name: "Leverandørmodulen\u00a0",
-      description: "Helhetlig styring av tredjeparter: kartlegging, risikovurdering og oppfølging av leverandører.",
-      hours: 8,
-      activities: [
-        { label: "Import og kartlegging av leverandører", hours: 2 },
-        { label: "Risiko- og kritikalitetsvurdering", hours: 3 },
-        { label: "Dokument- og kontraktoppfølging", hours: 3 },
-      ],
-      source: "manual",
-      mappings: [],
-      isMynder: true,
-    },
-    {
-      id: "default-mynder-agents",
-      name: "Assets",
-      description: "Register, klassifisering og kontroll av AI-agenter — MACF-nivå, eierskap og løpende oppfølging.",
-      hours: 8,
-      activities: [
-        { label: "Aktivering av agentregister", hours: 2 },
-        { label: "MACF-klassifisering og eierskap", hours: 3 },
-        { label: "Risiko- og kontrolloppfølging", hours: 3 },
-      ],
-      source: "manual",
-      mappings: [],
-      isMynder: true,
-    },
-  ]);
+  const [extras, setExtras] = useState<ExtraService[]>(() => []);
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<ServiceTemplate | null>(null);
@@ -499,33 +457,41 @@ export function MSPServiceCatalogTab() {
         </div>
       </section>
 
-      {/* Mynder-tjenester — alltid inkludert */}
-      {extras.some((e) => e.isMynder) && (
-        <section className="space-y-2">
-          <div className="flex items-baseline justify-between">
-            <h3 className="text-lg font-semibold text-foreground">Produkter fra Mynder</h3>
-            <span className="text-base text-foreground/70">Inkludert i alle leveranser</span>
+      {/* Mynder-produkter — videresalg med provisjon */}
+      <section className="space-y-3">
+        <div className="flex items-baseline justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Mynder-produkter (videresalg)</h3>
+            <p className="text-sm text-foreground/70 mt-0.5">
+              Videreselg Mynder-lisenser til dine kunder og tjen provisjon. Alltid inkludert i katalogen.
+            </p>
           </div>
-          <div className="divide-y divide-border rounded-md border border-border bg-card">
-            {extras.filter((e) => e.isMynder).map((e) => {
-              const price = e.hours * hourlyRate;
-              return (
-                <div key={e.id} className="flex items-center gap-3 px-3 py-3">
-                  <div className="flex-1 min-w-0">
-                    <span className="text-base font-medium text-foreground truncate">{e.name}</span>
-                  </div>
-                  <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
-                    {e.hours} t
-                  </div>
-                  <div className="text-base font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
-                    {formatNOK(price)}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+        </div>
+        <div className="space-y-2">
+          <MynderResellCard
+            productId="core"
+            name="Mynder Core"
+            description="Grunnpakke for compliance, styring og rapportering."
+            monthlyLicenseKr={CORE_TIERS[0].monthlyPriceKr}
+            priceNote="fra"
+          />
+          <MynderResellCard
+            productId="vendors"
+            name="Leverandørmodulen"
+            description="Kartlegging, risiko og oppfølging av leverandører og tredjeparter."
+            monthlyLicenseKr={VENDOR_TIERS[1].monthlyPriceKr}
+            priceNote="fra"
+          />
+          <MynderResellCard
+            productId="assets"
+            name="Assets"
+            description="Register og kontroll av systemer og AI-agenter (MACF)."
+            monthlyLicenseKr={490}
+            priceNote="fra"
+          />
+        </div>
+      </section>
+
 
       {/* Mine egne tjenester */}
       {extras.some((e) => !e.isMynder && e.status !== "retired") && (

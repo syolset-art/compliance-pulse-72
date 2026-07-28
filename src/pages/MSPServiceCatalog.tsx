@@ -18,7 +18,8 @@ export default function MSPServiceCatalog() {
           <header className="space-y-2">
             <h1 className="text-3xl font-bold text-foreground">Tjenester</h1>
             <p className="text-base text-foreground/80 mt-1 leading-relaxed max-w-3xl">
-              Definer dine egne tjenester og se hvordan de treffer kontrollpunkter på tvers av regelverk.
+              Bygg din tjenestekatalog og se hvilke regelverk hver tjeneste dekker.
+              Videreselg Mynder-produkter til dine kunder og tjen provisjon på lisenser.
             </p>
           </header>
 
