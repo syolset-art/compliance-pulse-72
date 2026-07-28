@@ -1,42 +1,72 @@
-## Problem
-Sparkles-knappen (linje 496) lar Lara foreslå tjenester på nytt, men wizardens resultat legger bare til nye anbefalinger. Hvis partneren utvider markedet (nye land, nye bransjer, nye regelverk), får de ingen hjelp til å **endre eksisterende tjenester** — bare til å legge til flere. Katalogen blir uendret selv om scope har flyttet seg.
+## Mål
 
-## Løsning — «Oppdater scope med Lara» ved siden av re-forslag
-Kun frontend, i `src/components/msp/MSPServiceCatalogTab.tsx`, `MSPLaraServiceWizard.tsx` og en ny liten diff-dialog. Ingen datamodell-endringer — vi bruker samme `extras`-state.
+Speile «Produkter fra Mynder» i partnerens tjenestekatalog mot det som ligger på Produkter-siden, slik at partneren ser hvilke nivåer kundene kan velge, hva som ligger i hvert produkt, og hva partneren tjener på hvert nivå.
 
-### 1. Fange scope-endringer i wizarden
-Utvide `WizardAnswers` (allerede brukt) med et implisitt «forrige svar» lagret i `localStorage` (`msp-lara-wizard-answers-v1`).
-Når partneren åpner wizarden på nytt:
-- Forhåndsutfyll svarene med forrige runde.
-- Etter fullføring sammenlign nytt vs. gammelt svar → produser et **scope-diff** (nye markeder, nye regelverk, nye bransjer, endret størrelse).
+## Hva som endres
 
-### 2. Diff-dialog «Lara har oppdaget endringer i scope»
-Åpnes automatisk etter wizarden hvis diffen ikke er tom, i stedet for å bare legge til nye rader stille.
-Innhold:
-- **Kort oppsummering** av endringen: «Du har lagt til NIS2 og det svenske markedet.»
-- **Anbefalte handlinger** i tre grupper med sjekkbokser (alle på som default):
-  1. **Legg til** N nye tjenester som dekker de nye kravene (samme som i dag).
-  2. **Utvid** M eksisterende tjenester med nye kontroll-mappinger (f.eks. legge til NIS2-mapping på «SOC-overvåkning»).
-  3. **Marker for gjennomgang** K tjenester som ikke lenger er relevante for nytt scope (foreslå «Avvikle»).
-- «Bruk valgte endringer» commit-knapp + «Avvis» + «Se detaljer» (åpner en tekstlig endringslogg).
+**Fil:** `src/components/msp/MSPServiceCatalogTab.tsx` — kun seksjonen «Produkter fra Mynder» (linje ~1113–1188). Ingen datamodell-endringer.
 
-### 3. Vis Lara-oppdateringer i «Min tjenestekatalog»
-- Rader som ble utvidet får en subtil `Sparkles`-chip: «Lara har utvidet mappinger — se endring» → åpner endringsloggen.
-- Rader som er markert for gjennomgang får en gul `AlertTriangle`-chip: «Foreslått avviklet — nytt scope dekker ikke lenger dette» med knapp «Avvikle» / «Behold».
+### Ny visning: kort per produkt i stedet for én flat tabell
 
-### 4. Endring på Sparkles-knappen (den valgte)
-- Skift label/tooltip fra «La Lara foreslå tjenester på nytt» → **«Oppdater tjenester med Lara»**.
-- Under tooltip-linjen: «Bruk når du endrer marked, bransje eller regelverk.»
-- Ingen endring på førstegangs-CTA (full outline-knapp beholder «La Lara foreslå tjenester»).
+Erstatt dagens 3-rads tabell med ett kort per produkt (Mynder Core, Leverandørmodulen, Assets). Hvert kort:
 
-## Ikke i scope
-- Ingen endring på datamodell, tilbud-låsing eller Mynder-produkter.
-- Ingen backend/edge-funksjon — diffen kjører klient-side mot lagrede wizard-svar.
-- Ingen automatisk avvikling — Lara foreslår, partneren bekrefter.
+- **Header (alltid synlig):**
+  - Produktnavn + kort tagline (fra `MODULE_INFO.tagline`)
+  - Startpris «Fra {laveste betalte tier} kr/mnd»
+  - Provisjons-badge («30 % provisjon» / «25 % provisjon»)
+  - Etableringsgebyr-felt (behold `SetupFeeCell` som i dag)
+  - Chevron for å utvide
+
+- **Utvidet innhold (klikk for å åpne, kollapset som standard):**
+  1. **Kort beskrivelse** — `MODULE_INFO.description`
+  2. **Hva kunden får** — 3–5 første punkter fra `MODULE_INFO.features`
+  3. **Nivåer kunden kan velge** — mini-tabell som viser alle tiers:
+     - Mynder Core: alle 4 nivåer fra `CORE_TIERS` (10/20/50/100 systemer, pris, din andel)
+     - Leverandørmodulen: alle 4 nivåer fra `VENDOR_TIERS` (5 gratis, 20/50/100, pris, din andel — gratis-nivået merkes «Inkludert, ingen provisjon»)
+     - Assets: enkelt nivå (495 kr) — vises som én rad
+  4. Fotnote med mva/tax fra `formatTaxNote(branding.tax)`
+
+### Layout
+
+```text
+┌─ Mynder Core ──────────── Fra 995 kr/mnd · 30 % ─── [Etablering ▢] ── ⌄ ┐
+│ Grunnmodulen i plattformen                                              │
+│  (utvidet:)                                                             │
+│   Beskrivelse …                                                         │
+│   • Oppgavestyring   • Avvikshåndtering   • RoPA   • Dokumentbibliotek  │
+│                                                                         │
+│   Nivåer kunden kan velge                                               │
+│   Inntil 10 systemer      995 kr/mnd    din andel  299 kr               │
+│   Inntil 20 systemer    1 499 kr/mnd    din andel  450 kr               │
+│   Inntil 50 systemer    2 499 kr/mnd    din andel  750 kr               │
+│   Inntil 100 systemer   4 999 kr/mnd    din andel 1 500 kr              │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Beholdes
+
+- Kollapsbar ytre seksjon «Produkter fra Mynder (3)» — uendret.
+- Provisjonssatser: Core 30 %, Vendors 30 %, Assets 25 %.
+- Etableringsgebyr (`SetupFeeCell`) per produkt.
+- Valuta-håndtering via `currencyOption` og eksisterende `fmt`.
+- Mva/tax-fotnote via `formatTaxNote(branding.tax)`.
+
+### Fjernes
+
+- Dagens flate tabell med kolonnene Produkt / Lisens/mnd / Din andel / Etablering.
+- «Abonnementer du kan selge videre.»-teksten (implisitt i konteksten nå).
 
 ## Tekniske detaljer
-- `WizardAnswers` persistert i `localStorage` som JSON.
-- Ny fil `src/lib/laraScopeDiff.ts` med `diffAnswers(prev, next)` → `{ addedMarkets, addedFrameworks, removedFrameworks, addedIndustries, sizeChanged }` og `buildRecommendations(diff, extras, SERVICE_LIBRARY)` → `{ toAdd, toExtend, toReview }`.
-- Ny komponent `src/components/msp/LaraScopeChangeDialog.tsx` (shadcn `Dialog` + `Checkbox` + `ScrollArea`).
-- Utvide `ExtraService` runtime-metadata (in-memory) med `laraReviewReason?: string` og `laraExtendedMappings?: ServiceMapping[]` for chip-visning — ingen schema-endring.
-- Wizard-callback `onComplete(answers)` beholder eksisterende oppførsel når diffen er tom (bakoverkompatibel).
+
+- Ny lokal state: `expandedProduct: string | null` for å styre hvilket kort som er åpent (én om gangen, som accordion — matcher mønsteret i `MSPServiceSettingsTab`).
+- Import `MODULE_INFO` fra `@/lib/moduleInfo`; mapping: `core → MODULE_INFO.core`, `vendors → MODULE_INFO.vendors`, `assets → MODULE_INFO.assets`.
+- Import `CORE_TIERS`, `VENDOR_TIERS` (allerede importert) og bruk direkte for nivå-listene.
+- «Din andel» per tier = `tier.monthlyPriceKr * commissionPct / 100`, formatert med samme `fmt`.
+- Gratis-tier på Vendor: vis «Gratis · ingen provisjon» i «din andel»-kolonnen i stedet for 0.
+- Ingen endringer i database, oversettelser eller andre komponenter.
+
+## Utenfor scope
+
+- Ingen endring på selve Produkter-siden (`src/pages/Subscriptions.tsx`).
+- Ingen ny provisjonslogikk eller nye tiers — kun visning av eksisterende data.
+- Ingen endring i «Min tjenestekatalog»-seksjonen over.
