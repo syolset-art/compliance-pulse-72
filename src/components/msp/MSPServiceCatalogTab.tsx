@@ -955,11 +955,11 @@ export function MSPServiceCatalogTab() {
             <p className="text-xs text-muted-foreground">{formatTaxNote(branding.tax)}</p>
           </section>
         );
-      })()}
+        </TabsContent>
 
-
-
+        <TabsContent value="mine" className="space-y-6 mt-4">
       {/* Min tjenestekatalog */}
+
       {(() => {
         const mine = extras.filter((e) => !e.isMynder && e.status !== "retired");
         const lockedCount = mine.filter((e) => !!getLockInfo({ templateId: e.templateId, name: e.name })).length;
