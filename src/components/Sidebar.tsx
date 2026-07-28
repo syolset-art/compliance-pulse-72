@@ -103,6 +103,7 @@ const settingsMenu = [
   { name: "nav.adminOrganisation", href: "/admin/organisation", icon: Building2 },
   { name: "nav.accessManagement", href: "/admin/access", icon: Users },
   { name: "nav.adminNotifications", href: "/admin/notifications", icon: Bell },
+  { name: "Aktivitetslogg", href: "/activity-log", icon: ClipboardList },
 ];
 
 const TrustCenterMenu = () => {
@@ -947,17 +948,23 @@ const SidebarContent = () => {
                     { tab: "generelt", labelNb: "Generelt", labelEn: "General", icon: SettingsIcon },
                     { tab: "tilbudsmerking", labelNb: "Tilbudsmal", labelEn: "Offer template", icon: ImageIcon },
                     { tab: "integrasjoner", labelNb: "Integrasjoner", labelEn: "Integrations", icon: Plug },
+                    { tab: "__activity", labelNb: "Aktivitetslogg", labelEn: "Activity log", icon: ClipboardList },
                   ];
                   const currentTab = new URLSearchParams(location.search).get("tab") ?? "generelt";
                   return (
                     <>
                       <div className="border-t border-sidebar-border my-2" />
                       {partnerSettings.map((p) => {
-                        const isActive = location.pathname === "/msp-settings" && currentTab === p.tab;
+                        const isActivity = p.tab === "__activity";
+                        const isActive = isActivity
+                          ? location.pathname === "/activity-log"
+                          : location.pathname === "/msp-settings" && currentTab === p.tab;
                         return (
                           <button
                             key={p.tab}
-                            onClick={() => navigate(`/msp-settings?tab=${p.tab}`)}
+                            onClick={() =>
+                              navigate(isActivity ? "/activity-log" : `/msp-settings?tab=${p.tab}`)
+                            }
                             className={cn(
                               "flex w-full items-center gap-3 rounded-lg px-3 py-1.5 text-[0.9375rem] font-medium transition-colors",
                               isActive
