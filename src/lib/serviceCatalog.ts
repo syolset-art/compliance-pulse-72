@@ -404,10 +404,11 @@ export function getService(id: string): PartnerService | undefined {
 // ---------------------------------------------------------------------------
 
 export type WizardAnswers = {
-  segments: string[]; // smb | mid | critical | public
-  domains: string[]; // security | gdpr | iso | ai | nis2 | transparency | dora
-  model: string; // project | subscription | hybrid
-  maturity: string; // low | mid | high
+  markets: string[];
+  segments: string[];
+  domains: string[];
+  models: string[];
+  maturity: string[]; // valgfri
 };
 
 export interface WizardOption {
@@ -421,10 +422,29 @@ export interface WizardQuestion {
   title: string;
   subtitle: string;
   multi: boolean;
+  optional?: boolean;
+  allowFreeText?: boolean;
+  freeTextPlaceholder?: string;
   options: WizardOption[];
 }
 
 export const WIZARD_QUESTIONS: WizardQuestion[] = [
+  {
+    id: "markets",
+    title: "Hvilke markeder betjener dere kundene i?",
+    subtitle: "Velg alle som gjelder. Lara filtrerer regelverksforslag til valgte markeder.",
+    multi: true,
+    options: [
+      { id: "no", label: "Norge" },
+      { id: "se", label: "Sverige" },
+      { id: "dk", label: "Danmark" },
+      { id: "fi", label: "Finland" },
+      { id: "eu", label: "EU / EØS" },
+      { id: "uk", label: "UK" },
+      { id: "au", label: "Australia" },
+      { id: "global", label: "Globalt" },
+    ],
+  },
   {
     id: "segments",
     title: "Hvilke kundesegmenter leverer dere til?",
@@ -433,6 +453,7 @@ export const WIZARD_QUESTIONS: WizardQuestion[] = [
     options: [
       { id: "smb", label: "SMB (1–50 ansatte)" },
       { id: "mid", label: "Mellomstore (50–500)" },
+      { id: "enterprise", label: "Enterprise (500+)" },
       { id: "critical", label: "Kritisk infrastruktur" },
       { id: "public", label: "Offentlig sektor" },
     ],
@@ -440,8 +461,10 @@ export const WIZARD_QUESTIONS: WizardQuestion[] = [
   {
     id: "domains",
     title: "Hvilke fagområder leverer dere på?",
-    subtitle: "Lara bruker dette til å foreslå relevante tjenester.",
+    subtitle: "Lara bruker dette til å foreslå relevante tjenester. Du kan også legge til egne.",
     multi: true,
+    allowFreeText: true,
+    freeTextPlaceholder: "Legg til eget fagområde og trykk Enter",
     options: [
       { id: "security", label: "IT-sikkerhet" },
       { id: "gdpr", label: "Personvern / GDPR" },
@@ -453,21 +476,23 @@ export const WIZARD_QUESTIONS: WizardQuestion[] = [
     ],
   },
   {
-    id: "model",
+    id: "models",
     title: "Hvordan leverer dere typisk?",
-    subtitle: "Lara tilpasser sjekklister etter leveransemodell.",
-    multi: false,
+    subtitle: "Velg alle som passer. Lara tilpasser sjekklister etter leveransemodell.",
+    multi: true,
     options: [
       { id: "project", label: "Engangsprosjekt" },
       { id: "subscription", label: "Løpende abonnement" },
-      { id: "hybrid", label: "Hybrid (begge deler)" },
+      { id: "managed", label: "Managed service" },
+      { id: "hybrid", label: "Hybrid" },
     ],
   },
   {
     id: "maturity",
     title: "Hvor moden er en typisk kunde?",
-    subtitle: "Brukes til å tone forslagene riktig.",
-    multi: false,
+    subtitle: "Valgfritt — brukes til å tone forslagene riktig.",
+    multi: true,
+    optional: true,
     options: [
       { id: "low", label: "Lav — starter fra null" },
       { id: "mid", label: "Middels — har noe på plass" },
@@ -475,6 +500,7 @@ export const WIZARD_QUESTIONS: WizardQuestion[] = [
     ],
   },
 ];
+
 
 /** Maler Lara kan foreslå basert på wizard-svar. */
 export const SUGGESTION_TEMPLATES: PartnerService[] = [
