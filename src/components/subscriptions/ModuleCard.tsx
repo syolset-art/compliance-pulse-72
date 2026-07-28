@@ -147,11 +147,6 @@ export function ModuleCard({
                   {priceLabel}
                 </span>
               )}
-              {showFreePrice && !isIncluded && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-primary/20 bg-primary/5 text-primary">
-                  Gratis
-                </span>
-              )}
             </div>
             {description && (
               <p className="text-sm text-muted-foreground leading-snug mt-1">{description}</p>
