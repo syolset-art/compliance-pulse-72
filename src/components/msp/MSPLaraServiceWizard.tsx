@@ -129,7 +129,7 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip, i
             <span className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
             </span>
-            {profileMode ? "Din Lara-profil" : "Lara setter opp tjenestekatalogen din"}
+            {profileMode ? "Din tjenesteprofil" : "Lara setter opp tjenestekatalogen din"}
           </DialogTitle>
           {profileMode && (
             <p className="text-[13px] text-muted-foreground pt-1">
