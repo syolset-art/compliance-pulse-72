@@ -41,7 +41,6 @@ export function PartnerBrandingCard() {
       name: name.trim() || undefined,
       orgNumber: orgNumber.trim() || undefined,
       domain: domain.trim() || undefined,
-      tagline: tagline.trim() || undefined,
     });
     toast.success("Tilbudsmal lagret");
   };
