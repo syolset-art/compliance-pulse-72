@@ -68,6 +68,26 @@ const capabilityLabel: Record<AgentCapability, { label: string; tooltip: string;
   },
 };
 
+function getRecommendedDocs(req: ComplianceRequirement, isNb: boolean): string[] {
+  const nb = [
+    "Styrevedtak eller ledelsesprotokoll som godkjenner tiltaket",
+    "Skriftlig policy eller rutine som beskriver hvordan kravet oppfylles",
+    "Risikovurdering som viser vurderte trusler og tiltak",
+    "Sist reviderte versjon av dokumentet (dato og eier)",
+    "Bevis på gjennomføring — logg, sjekkliste eller rapport",
+    "Referanse til relevant artikkel eller kontroll i regelverket",
+  ];
+  const en = [
+    "Board decision or management protocol approving the measure",
+    "Written policy or procedure describing how the requirement is met",
+    "Risk assessment showing evaluated threats and mitigations",
+    "Latest reviewed version of the document (date and owner)",
+    "Proof of execution — log, checklist or report",
+    "Reference to the relevant article or control in the regulation",
+  ];
+  return isNb ? nb : en;
+}
+
 interface FrameworkRequirementsListProps {
   frameworkId: string;
   onCountsChange?: (counts: { met: number; partial: number; notMet: number; auto: number; manual: number; total: number }) => void;
@@ -87,6 +107,10 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const [draftNote, setDraftNote] = useState<string>("");
   const [cursorTip, setCursorTip] = useState<{ x: number; y: number } | null>(null);
   const [attachDialog, setAttachDialog] = useState<{ id: string; name: string; description?: string; articles?: string[] } | null>(null);
+  const [readMoreIds, setReadMoreIds] = useState<Set<string>>(new Set());
+  const [showAllDocsIds, setShowAllDocsIds] = useState<Set<string>>(new Set());
+  const toggleSet = (setter: React.Dispatch<React.SetStateAction<Set<string>>>, id: string) =>
+    setter((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const reqRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
@@ -545,6 +569,68 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                 <div className="px-4 pb-4">
                     <Separator className="mb-4" />
                     <div className="space-y-3">
+
+                    {/* Om kravet — full beskrivelse med "Les mer" */}
+                    {(() => {
+                      const fullDesc = isNb ? req.description_no : (req.description || req.description_no);
+                      const isOpen = readMoreIds.has(req.requirement_id);
+                      const isLong = (fullDesc?.length ?? 0) > 180;
+                      return (
+                        <div className="rounded-md border border-border/60 bg-muted/20 p-3">
+                          <p className={cn("text-sm text-foreground/90 leading-relaxed", !isOpen && isLong && "line-clamp-3")}>
+                            {fullDesc}
+                          </p>
+                          {isLong && (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); toggleSet(setReadMoreIds, req.requirement_id); }}
+                              className="mt-1.5 text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
+                            >
+                              {isOpen ? (isNb ? "Vis mindre" : "Show less") : (isNb ? "Les mer" : "Read more")}
+                              {isOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Anbefalt dokumentasjon */}
+                    {(() => {
+                      const docs = getRecommendedDocs(req, isNb);
+                      const showAll = showAllDocsIds.has(req.requirement_id);
+                      const visible = showAll ? docs : docs.slice(0, 3);
+                      return (
+                        <div className="rounded-md border border-border/60 bg-card p-3">
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <FileIcon className="h-3.5 w-3.5 text-primary" />
+                            <p className="text-xs font-medium text-foreground">
+                              {isNb ? "Anbefalt dokumentasjon" : "Recommended documentation"}
+                            </p>
+                          </div>
+                          <ul className="space-y-1">
+                            {visible.map((d, i) => (
+                              <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                                <span className="mt-1.5 h-1 w-1 rounded-full bg-muted-foreground/60 shrink-0" />
+                                <span>{d}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          {docs.length > 3 && (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); toggleSet(setShowAllDocsIds, req.requirement_id); }}
+                              className="mt-2 text-xs font-medium text-primary hover:underline inline-flex items-center gap-1"
+                            >
+                              {showAll
+                                ? (isNb ? "Vis færre" : "Show fewer")
+                                : (isNb ? `Vis alle (${docs.length})` : `Show all (${docs.length})`)}
+                              {showAll ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })()}
+
 
                     {/* Manuell dokumentering — alltid tilgjengelig, inline */}
                     <div className="rounded-md border border-border/60 bg-card p-3 space-y-3">
