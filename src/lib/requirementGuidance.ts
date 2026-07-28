@@ -206,3 +206,39 @@ export function getEvaluationCriteriaText(req: ComplianceRequirement): string {
     ...g.evaluationNo.map((e) => `- ${e}`),
   ].join("\n");
 }
+
+/**
+ * Utvidet beskrivelse (5–6 linjer flytende tekst) som vises når brukeren
+ * åpner kravet. Kombinerer opprinnelig beskrivelse med formål og de viktigste
+ * kriteriene i naturlig prosa — uten å duplisere informasjon som allerede står
+ * andre steder i kortet.
+ */
+export function getExtendedDescription(
+  req: ComplianceRequirement,
+  lang: "no" | "en",
+): string {
+  const g = getRequirementGuidance(req);
+  const isNb = lang === "no";
+  const base = isNb ? req.description_no : req.description;
+  const purpose = isNb ? g.purposeNo : g.purposeEn;
+  const criteria = isNb ? g.criteriaNo : g.criteriaEn;
+
+  // Bygg en prosa-versjon av kriteriene: "X, Y, samt Z."
+  const list = criteria.slice(0, 4);
+  const joiner = isNb ? " samt " : " and ";
+  const criteriaProse =
+    list.length <= 1
+      ? list.join("")
+      : `${list.slice(0, -1).join(", ")}${joiner}${list[list.length - 1]}`;
+
+  const criteriaSentence = isNb
+    ? `I praksis betyr det ${criteriaProse.charAt(0).toLowerCase()}${criteriaProse.slice(1)}.`
+    : `In practice this means ${criteriaProse.charAt(0).toLowerCase()}${criteriaProse.slice(1)}.`;
+
+  // Unngå at "purpose" bare gjentar det som allerede står i base.
+  const purposeSentence =
+    base.toLowerCase().includes(purpose.slice(0, 40).toLowerCase()) ? "" : purpose;
+
+  return [base, purposeSentence, criteriaSentence].filter(Boolean).join(" ");
+}
+
