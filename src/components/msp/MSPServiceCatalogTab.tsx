@@ -913,9 +913,8 @@ export function MSPServiceCatalogTab() {
             <div className="flex items-baseline justify-between gap-3">
               <div>
                 <h3 className="text-lg font-semibold text-foreground">Min tjenestekatalog</h3>
-                <p className="text-sm text-foreground/70 mt-0.5">
-                  Tjenester du tilbyr kundene dine. Brukes i tilbud og gap-analyser.
-                </p>
+                <p className="text-sm text-foreground/70 mt-0.5" />
+
               </div>
               {mine.length > 0 && (
                 <span className="text-sm text-foreground/70 whitespace-nowrap">
