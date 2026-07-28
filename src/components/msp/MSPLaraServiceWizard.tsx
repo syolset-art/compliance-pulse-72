@@ -31,7 +31,7 @@ const EMPTY: WizardAnswers = {
 };
 
 export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip, initialAnswers, onSaveProfile }: Props) {
-  const profileMode = !!onSaveProfile && !!initialAnswers;
+  const profileMode = !!onSaveProfile;
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<WizardAnswers>(initialAnswers ?? EMPTY);
   const [freeText, setFreeText] = useState("");
