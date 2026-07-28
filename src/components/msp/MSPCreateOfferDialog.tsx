@@ -62,6 +62,12 @@ export interface CreateOfferDialogProps {
   coveredGaps?: CoveredGapsSpec;
   /** Hvilken visning dialogen åpner i. Default "edit". Bruk "preview" for å vise lagrede tilbud. */
   initialView?: "edit" | "preview";
+  /** Kunde som tilbudet skal registreres på. */
+  customerId?: string;
+  customerName?: string;
+  /** Kilde-nøkler for tjenester som inngår i tilbudet — brukes til å låse dem i tjenestekatalogen. */
+  offeredTemplateIds?: string[];
+  offeredServiceNames?: string[];
 }
 
 interface EditableTask extends TaskEstimate {
