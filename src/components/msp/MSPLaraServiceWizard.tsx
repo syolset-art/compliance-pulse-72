@@ -34,7 +34,7 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip, i
   const profileMode = !!onSaveProfile && !!initialAnswers;
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<WizardAnswers>(initialAnswers ?? EMPTY);
-  const [freeText, setFreeText] = useState<Record<string, string>>({});
+  const [freeText, setFreeText] = useState("");
   const [generating, setGenerating] = useState(false);
 
 
