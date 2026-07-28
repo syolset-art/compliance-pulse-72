@@ -581,11 +581,18 @@ export function MSPServiceCatalogTab() {
       return a.recommended ? -1 : 1;
     });
   }, [curatedPicks, recommendedCodes]);
-  const activePicks: Pick[] = useMemo(
-    () => (onlyRecommended ? mergedPicks.filter((p) => p.recommended) : mergedPicks),
-    [mergedPicks, onlyRecommended],
+  const availablePicks = useMemo(
+    () => mergedPicks.filter((p) => {
+      const tpl = SERVICE_LIBRARY.find((t) => t.code === p.code);
+      return tpl ? !adoptedIds.has(tpl.id) : true;
+    }),
+    [mergedPicks, adoptedIds],
   );
-  const recommendedCount = mergedPicks.filter((p) => p.recommended).length;
+  const activePicks: Pick[] = useMemo(
+    () => (onlyRecommended ? availablePicks.filter((p) => p.recommended) : availablePicks),
+    [availablePicks, onlyRecommended],
+  );
+  const recommendedCount = availablePicks.filter((p) => p.recommended).length;
 
   const mineActiveCount = extras.filter((e) => !e.isMynder && e.status !== "retired").length;
 
@@ -597,8 +604,9 @@ export function MSPServiceCatalogTab() {
             Mine ({mineActiveCount + 3})
           </TabsTrigger>
           <TabsTrigger value="alle">
-            Alle ({mergedPicks.length})
+            Alle ({availablePicks.length})
           </TabsTrigger>
+
         </TabsList>
         <TabsContent value="alle" className="space-y-6 mt-4">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
