@@ -960,8 +960,10 @@ export function MSPServiceCatalogTab() {
               );
             })}
           </div>
-        </section>
-      )}
+            )}
+          </section>
+        );
+      })()}
 
       {/* Avviklede tjenester */}
       {extras.some((e) => e.status === "retired") && (
