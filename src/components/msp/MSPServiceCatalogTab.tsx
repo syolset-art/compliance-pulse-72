@@ -459,43 +459,29 @@ export function MSPServiceCatalogTab() {
                           <span className="text-sm text-foreground/60">—</span>
                         )}
                       </div>
+                    </td>
+                    <td className="px-3 py-3 align-top">
                       {(() => {
                         const allRoles = Array.from(
                           new Set(mappings.flatMap((m) => getMappingRoles(template, m))),
                         );
-                        if (allRoles.length === 0) return null;
-                        const plainByRole: Record<ServiceRole, string> = {
-                          direct: "Gjør jobben for deg",
-                          enabling: "Gjør det enklere å oppfylle kravene",
-                          documenting: "Gir deg dokumentasjon som bevis",
-                          assessing: "Vurderer hvor godt kravene er oppfylt",
-                        };
-                        const shortText = allRoles.map((r) => plainByRole[r]).join(" · ");
+                        if (allRoles.length === 0) {
+                          return <span className="text-sm text-foreground/60">—</span>;
+                        }
                         return (
-                          <div className="mt-1">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  type="button"
-                                  onClick={(ev) => ev.stopPropagation()}
-                                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                  <Info className="h-3 w-3" aria-hidden="true" />
-                                  <span>{shortText}</span>
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent side="bottom" className="max-w-sm">
-                                <div className="text-xs font-semibold mb-1">Hvordan tjenesten bidrar</div>
-                                <ul className="space-y-1">
-                                  {allRoles.map((r) => (
-                                    <li key={r} className="text-xs">
-                                      <span className="font-medium">{ROLE_META[r].label}:</span>{" "}
-                                      <span className="text-foreground/80">{ROLE_META[r].description}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </TooltipContent>
-                            </Tooltip>
+                          <div className="flex flex-wrap gap-1">
+                            {allRoles.map((r) => (
+                              <Tooltip key={r}>
+                                <TooltipTrigger asChild>
+                                  <span className="text-xs px-2 py-0.5 rounded bg-muted text-foreground/80 whitespace-nowrap cursor-help">
+                                    {ROLE_META[r].label}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs">
+                                  <div className="text-xs">{ROLE_META[r].description}</div>
+                                </TooltipContent>
+                              </Tooltip>
+                            ))}
                           </div>
                         );
                       })()}
