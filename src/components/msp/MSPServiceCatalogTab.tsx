@@ -999,47 +999,53 @@ export function MSPServiceCatalogTab() {
                   >
                     <Pencil className="h-4 w-4" aria-hidden="true" />
                   </Button>
-                  <TooltipProvider delayDuration={200}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setRetireId(e.id)}
-                          className="h-11 w-11 text-foreground/70 hover:text-foreground"
-                          aria-label="Avvikle tjeneste"
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-11 w-11 text-foreground/50 hover:text-foreground"
+                        aria-label="Flere handlinger"
+                      >
+                        <MoreVertical className="h-4 w-4" aria-hidden="true" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuItem onClick={() => setRetireId(e.id)}>
+                        <Archive className="mr-2 h-4 w-4" />
+                        Avvikle tjeneste
+                      </DropdownMenuItem>
+                      {lock ? (
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div>
+                                <DropdownMenuItem
+                                  disabled
+                                  className="text-muted-foreground"
+                                  onSelect={(ev) => ev.preventDefault()}
+                                >
+                                  <Lock className="mr-2 h-4 w-4" />
+                                  Slett tjeneste
+                                </DropdownMenuItem>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                              Kan ikke slettes — inngår i tilbud {lock.offerNumber}. Bruk «Avvikle».
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={() => removeExtra(e.id)}
+                          className="text-destructive focus:text-destructive"
                         >
-                          <Archive className="h-4 w-4" aria-hidden="true" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        Avvikle — skjuler tjenesten for kunder, bevarer historikk
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <TooltipProvider delayDuration={200}>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeExtra(e.id)}
-                            disabled={!!lock}
-                            className="h-11 w-11 text-foreground/70 hover:text-destructive disabled:opacity-40"
-                            aria-label={lock ? "Låst — kan ikke slettes" : "Slett tjeneste"}
-                          >
-                            {lock ? <Lock className="h-4 w-4" aria-hidden="true" /> : <Trash2 className="h-4 w-4" aria-hidden="true" />}
-                          </Button>
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        {lock
-                          ? `Kan ikke slettes — inngår i tilbud ${lock.offerNumber}. Bruk «Avvikle».`
-                          : "Slett — kun for tjenester som aldri har vært i bruk"}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Slett tjeneste
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               );
             })}
