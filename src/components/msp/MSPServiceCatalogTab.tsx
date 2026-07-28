@@ -741,7 +741,7 @@ export function MSPServiceCatalogTab() {
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-muted-foreground">Alle priser er eks. mva.</p>
+            <p className="text-xs text-muted-foreground">{formatTaxNote(branding.tax)}</p>
           </section>
         );
       })()}
