@@ -631,9 +631,31 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       );
                     })()}
 
+                    {/* Auto-vurdering: informasjon + overstyringsknapp */}
+                    {req.agent_capability === "full" && !readMoreIds.has(`__override_${req.requirement_id}`) && (
+                      <>
+                        <div className="rounded-md border border-border/60 bg-muted/20 px-3 py-2.5">
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {isNb
+                              ? "Mynder har ikke nok data til å automatisk vurdere dette kravet ennå. Registrer relevant data i portalen for å forbedre scoren."
+                              : "Mynder does not yet have enough data to automatically assess this requirement. Register relevant data in the portal to improve the score."}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleSet(setReadMoreIds, `__override_${req.requirement_id}`); }}
+                          className="w-full rounded-md bg-primary/10 hover:bg-primary/15 text-primary text-sm font-medium py-2.5 inline-flex items-center justify-center gap-2 transition-colors"
+                        >
+                          <UserCheck className="h-4 w-4" />
+                          {isNb ? "Overstyr med egendefinert vurdering" : "Override with custom assessment"}
+                        </button>
+                      </>
+                    )}
 
-                    {/* Manuell dokumentering — alltid tilgjengelig, inline */}
+                    {/* Manuell dokumentering — alltid for MANUELL, ved klikk for AUTO */}
+                    {(req.agent_capability !== "full" || readMoreIds.has(`__override_${req.requirement_id}`)) && (
                     <div className="rounded-md border border-border/60 bg-card p-3 space-y-3">
+
                       <div className="flex items-start gap-2">
                         <div className="h-6 w-6 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
                           <Users className="h-3.5 w-3.5 text-primary" />
