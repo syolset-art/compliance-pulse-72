@@ -168,6 +168,15 @@ export function MSPServiceCatalogTab() {
     setWizardSeen(true);
     try { window.localStorage.setItem("msp-lara-wizard-seen-v1", "1"); } catch {}
   };
+  const catalogSectionRef = useRef<HTMLElement | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const revealInCatalog = (id: string) => {
+    catalogSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setHighlightId(id);
+    window.setTimeout(() => {
+      setHighlightId((cur) => (cur === id ? null : cur));
+    }, 1800);
+  };
   const openWizard = () => { markWizardSeen(); setWizardOpen(true); };
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
