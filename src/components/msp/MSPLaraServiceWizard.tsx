@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, KeyboardEvent } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Sparkles, ChevronLeft, ChevronRight, Loader2, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Sparkles, ChevronLeft, ChevronRight, Loader2, Check, X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   WIZARD_QUESTIONS,
@@ -18,23 +18,30 @@ interface Props {
   onSkip?: () => void;
 }
 
-const EMPTY: WizardAnswers = { segments: [], domains: [], model: "", maturity: "" };
+const EMPTY: WizardAnswers = {
+  markets: [],
+  segments: [],
+  domains: [],
+  models: [],
+  maturity: [],
+};
 
 export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }: Props) {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<WizardAnswers>(EMPTY);
+  const [freeText, setFreeText] = useState("");
   const [generating, setGenerating] = useState(false);
 
   const q = WIZARD_QUESTIONS[step];
   const isLast = step === WIZARD_QUESTIONS.length - 1;
-  const currentValue = answers[q.id];
-  const hasAnswer = q.multi
-    ? (currentValue as string[]).length > 0
-    : Boolean(currentValue);
+  const currentValues = answers[q.id];
+  const hasAnswer = currentValues.length > 0;
+  const canProceed = hasAnswer || q.optional;
 
   const reset = () => {
     setStep(0);
     setAnswers(EMPTY);
+    setFreeText("");
     setGenerating(false);
   };
 
@@ -45,19 +52,44 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }:
 
   const toggleOption = (id: string) => {
     setAnswers((prev) => {
-      if (q.multi) {
-        const arr = prev[q.id] as string[];
-        const next = arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id];
-        return { ...prev, [q.id]: next };
-      }
-      return { ...prev, [q.id]: id };
+      const arr = prev[q.id];
+      const next = arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id];
+      return { ...prev, [q.id]: next };
     });
   };
 
-  const isSelected = (id: string) => {
-    if (q.multi) return (currentValue as string[]).includes(id);
-    return currentValue === id;
+  const selectAll = () => {
+    setAnswers((prev) => ({ ...prev, [q.id]: q.options.map((o) => o.id) }));
   };
+
+  const clearAll = () => {
+    setAnswers((prev) => ({ ...prev, [q.id]: [] }));
+    if (q.allowFreeText) setFreeText("");
+  };
+
+  const addFreeText = () => {
+    const v = freeText.trim();
+    if (!v) return;
+    setAnswers((prev) => {
+      if (prev[q.id].includes(v)) return prev;
+      return { ...prev, [q.id]: [...prev[q.id], v] };
+    });
+    setFreeText("");
+  };
+
+  const handleFreeTextKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addFreeText();
+    }
+  };
+
+  const isSelected = (id: string) => currentValues.includes(id);
+
+  const knownIds = new Set(q.options.map((o) => o.id));
+  const customValues = currentValues.filter((v) => !knownIds.has(v));
+
+  const allSelected = q.options.every((o) => currentValues.includes(o.id));
 
   const handleNext = async () => {
     if (!isLast) {
@@ -65,7 +97,6 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }:
       return;
     }
     setGenerating(true);
-    // Liten kunstig delay så Lara føles "smart"
     await new Promise((r) => setTimeout(r, 900));
     const suggestions = suggestServices(answers);
     setGenerating(false);
@@ -92,7 +123,6 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }:
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Progress */}
             <div className="flex items-center gap-1.5">
               {WIZARD_QUESTIONS.map((_, i) => (
                 <div
@@ -108,9 +138,25 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }:
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 Steg {step + 1} av {WIZARD_QUESTIONS.length}
+                {q.optional && <span className="ml-1 normal-case text-muted-foreground/70">· valgfritt</span>}
               </p>
               <p className="text-base font-semibold text-foreground">{q.title}</p>
               <p className="text-[13px] text-muted-foreground">{q.subtitle}</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={allSelected ? clearAll : selectAll}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                {allSelected ? "Fjern alle" : "Velg alle"}
+              </button>
+              {currentValues.length > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  · {currentValues.length} valgt
+                </span>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-2">
@@ -132,7 +178,34 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }:
                   </button>
                 );
               })}
+              {customValues.map((v) => (
+                <button
+                  key={v}
+                  onClick={() => toggleOption(v)}
+                  className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] bg-primary text-primary-foreground border-primary"
+                >
+                  <Check className="h-3 w-3" />
+                  {v}
+                  <X className="h-3 w-3 opacity-70" />
+                </button>
+              ))}
             </div>
+
+            {q.allowFreeText && (
+              <div className="flex items-center gap-2">
+                <Input
+                  value={freeText}
+                  onChange={(e) => setFreeText(e.target.value)}
+                  onKeyDown={handleFreeTextKey}
+                  placeholder={q.freeTextPlaceholder ?? "Legg til eget"}
+                  className="h-9 text-sm"
+                />
+                <Button type="button" size="sm" variant="outline" onClick={addFreeText} disabled={!freeText.trim()} className="gap-1">
+                  <Plus className="h-3.5 w-3.5" />
+                  Legg til
+                </Button>
+              </div>
+            )}
 
             <div className="flex items-center justify-between pt-2">
               <Button
@@ -158,7 +231,7 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }:
                     Hopp over
                   </Button>
                 )}
-                <Button size="sm" onClick={handleNext} disabled={!hasAnswer} className="gap-1">
+                <Button size="sm" onClick={handleNext} disabled={!canProceed} className="gap-1">
                   {isLast ? "Vis forslag" : "Neste"}
                   <ChevronRight className="h-4 w-4" />
                 </Button>

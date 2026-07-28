@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw, Sparkles } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,9 @@ import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type ServiceRole, getMappingRoles, formatRoleVerbs, ROLE_META } from "@/lib/serviceLibrary";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
+import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
+import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
+import type { PartnerService } from "@/lib/serviceCatalog";
 
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 
@@ -85,6 +88,8 @@ export function MSPServiceCatalogTab() {
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<ServiceTemplate | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [laraSuggestions, setLaraSuggestions] = useState<PartnerService[] | null>(null);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -332,7 +337,6 @@ export function MSPServiceCatalogTab() {
     toast.success("Tjenesten er gjenopprettet");
   };
 
-
   const editingService = editingId ? extras.find((e) => e.id === editingId) ?? null : null;
   const editingDraft: CustomServiceDraft | undefined = editingService
     ? {
@@ -347,7 +351,39 @@ export function MSPServiceCatalogTab() {
     ? buildDraftFromTemplate(previewTemplate)
     : undefined;
 
-
+  const importLaraSuggestions = (chosen: PartnerService[]) => {
+    const converted: ExtraService[] = chosen.map((s) => {
+      const activities: ServiceActivity[] = (s.defaultChecklist ?? []).map((label) => ({
+        label,
+        hours: 2,
+      }));
+      const totalHours = activities.reduce((sum, a) => sum + a.hours, 0) || 8;
+      const mappings: ServiceMapping[] = s.frameworkMappings.flatMap((m) => {
+        const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
+        return m.controlIds.map((cid) => {
+          const cp = fw?.controlPoints.find((c) => c.id === cid);
+          return {
+            frameworkId: m.frameworkId,
+            frameworkShortName: fw?.shortName ?? m.frameworkLabel,
+            controlId: cid,
+            controlLabel: cp?.label ?? cid,
+          };
+        });
+      });
+      return {
+        id: `lara-${s.id}-${Date.now()}`,
+        name: s.name,
+        description: s.description,
+        hours: totalHours,
+        activities,
+        source: "manual",
+        mappings,
+      };
+    });
+    setExtras((prev) => [...prev, ...converted]);
+    setLaraSuggestions(null);
+    toast.success(`${converted.length} tjenester lagt til i katalogen`);
+  };
 
   return (
     <div className="space-y-6">
@@ -370,11 +406,25 @@ export function MSPServiceCatalogTab() {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          <Button variant="outline" size="sm" onClick={() => setWizardOpen(true)} className="gap-1.5 shrink-0 h-11 text-base">
+            <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
+            La Lara foreslå tjenester
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0 h-11 text-base">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Beskriv egen tjeneste
           </Button>
         </div>
+
+        {laraSuggestions && laraSuggestions.length > 0 && (
+          <MSPLaraServiceSuggestions
+            suggestions={laraSuggestions}
+            onChangeSuggestions={setLaraSuggestions}
+            onImport={importLaraSuggestions}
+            onDismiss={() => setLaraSuggestions(null)}
+          />
+        )}
+
         <div className="overflow-hidden rounded-md border border-border bg-card">
           <table className="w-full text-base">
             <thead className="bg-muted/30 text-sm text-foreground/70">
@@ -778,6 +828,14 @@ export function MSPServiceCatalogTab() {
           .map((e) => ({ id: e.id, name: e.name }))}
         onConfirm={(opts) => retireId && retireExtra(retireId, opts)}
       />
+
+      <MSPLaraServiceWizard
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onComplete={(suggestions) => setLaraSuggestions(suggestions)}
+      />
+
+
 
     </div>
   );
