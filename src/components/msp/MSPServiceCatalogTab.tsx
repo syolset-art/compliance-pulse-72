@@ -614,22 +614,6 @@ export function MSPServiceCatalogTab() {
       <section className="space-y-3">
 
         <div className="flex items-center justify-end gap-2">
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Hvorfor vises disse tjenestene?"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-                >
-                  <Info className="h-4 w-4" aria-hidden="true" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-xs text-sm">
-                Foreslåtte tjenester er basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           {wizardSeen || extras.length > 0 || (curatedPicks && curatedPicks.length > 0) ? (
             <TooltipProvider delayDuration={150}>
               <Tooltip>
