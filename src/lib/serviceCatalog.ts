@@ -743,19 +743,29 @@ export const SUGGESTION_TEMPLATES: PartnerService[] = [
  * Skårer hver mal etter overlapp i tags vs. wizard-svar.
  */
 export function suggestServices(answers: WizardAnswers): PartnerService[] {
+  const knownDomains = new Set(
+    WIZARD_QUESTIONS.find((q) => q.id === "domains")?.options.map((o) => o.id) ?? [],
+  );
+  const presetDomains = answers.domains.filter((d) => knownDomains.has(d));
+  const freeTextDomains = answers.domains
+    .filter((d) => !knownDomains.has(d))
+    .map((d) => d.toLowerCase().trim())
+    .filter(Boolean);
+
   const wanted = new Set<string>([
     ...answers.segments,
-    ...answers.domains,
-    answers.model,
-    answers.maturity,
+    ...presetDomains,
+    ...answers.models,
+    ...answers.maturity,
   ]);
 
   const scored = SUGGESTION_TEMPLATES.map((tpl) => {
     const tags = tpl.tags ?? [];
     let score = 0;
     for (const t of tags) if (wanted.has(t)) score += 1;
-    // Domenetreff veier tyngre
-    for (const d of answers.domains) if (tags.includes(d)) score += 2;
+    for (const d of presetDomains) if (tags.includes(d)) score += 2;
+    const haystack = `${tpl.name} ${tpl.description}`.toLowerCase();
+    for (const q of freeTextDomains) if (haystack.includes(q)) score += 2;
     return { tpl, score };
   })
     .filter((x) => x.score > 0)
@@ -763,9 +773,7 @@ export function suggestServices(answers: WizardAnswers): PartnerService[] {
     .slice(0, 8)
     .map((x) => x.tpl);
 
-  // Fallback: hvis ingen matcher, returner et lite default-utvalg
-  if (scored.length === 0) {
-    return SUGGESTION_TEMPLATES.slice(0, 4);
-  }
+  if (scored.length === 0) return SUGGESTION_TEMPLATES.slice(0, 4);
   return scored;
 }
+
