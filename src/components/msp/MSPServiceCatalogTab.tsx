@@ -379,7 +379,13 @@ export function MSPServiceCatalogTab() {
       priceOverride: draft.priceOverride,
     };
     setExtras((prev) => [...prev, newService]);
-    toast.success(`"${draft.name}" lagt til i katalogen`);
+    revealInCatalog(newService.id);
+    toast.success(`La til «${draft.name}» i din tjenestekatalog`, {
+      action: {
+        label: "Vis i katalogen",
+        onClick: () => revealInCatalog(newService.id),
+      },
+    });
     setPreviewTemplate(null);
   };
 
