@@ -828,9 +828,11 @@ export function MSPServiceCatalogTab() {
                                 <button
                                   type="button"
                                   onClick={(ev) => { ev.stopPropagation(); if (added) revealInCatalog(added.id); }}
-                                  className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+                                  className="inline-flex items-center gap-1.5 h-8 pl-2 pr-2.5 rounded-full border border-primary/20 bg-transparent text-primary/90 text-xs font-medium tracking-tight hover:bg-primary/5 hover:border-primary/30 transition-colors"
+                                  aria-label="I katalogen — klikk for å redigere"
                                 >
-                                  ✓ I katalogen
+                                  <Check className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden="true" />
+                                  <span>I katalogen</span>
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-xs text-xs">
@@ -839,6 +841,7 @@ export function MSPServiceCatalogTab() {
                             </Tooltip>
                           );
                         }
+
                         return (
                           <Tooltip>
                             <TooltipTrigger asChild>
