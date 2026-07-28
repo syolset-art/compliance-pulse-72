@@ -624,17 +624,18 @@ export function MSPServiceCatalogTab() {
                   <button
                     type="button"
                     onClick={openWizard}
-                    aria-label="Oppdater tjenester med Lara"
+                    aria-label="Se og rediger Lara-profilen"
                     className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
                   >
                     <Sparkles className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs text-sm">
-                  <div className="font-medium">Oppdater tjenester med Lara</div>
+                  <div className="font-medium">Se og rediger Lara-profilen</div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    Bruk når du endrer marked, bransje eller regelverk — Lara foreslår hva som bør legges til, utvides eller gjennomgås.
+                    Endre marked, bransje, fagområder eller regelverk — og lagre. Ingen nye tjenester foreslås automatisk.
                   </div>
+
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -1227,6 +1228,15 @@ export function MSPServiceCatalogTab() {
         open={wizardOpen}
         onOpenChange={setWizardOpen}
         initialAnswers={previousAnswers}
+        onSaveProfile={(answers) => {
+          setPreviousAnswers(answers);
+          try { window.localStorage.setItem(WIZARD_ANSWERS_STORAGE_KEY, JSON.stringify(answers)); } catch {}
+          const parts: string[] = [];
+          if (answers.markets.length) parts.push(`${answers.markets.length} marked${answers.markets.length > 1 ? "er" : ""}`);
+          if (answers.domains.length) parts.push(`${answers.domains.length} fagområde${answers.domains.length > 1 ? "r" : ""}`);
+          setCurationSummary(parts.join(", ") || null);
+          toast.success("Lara-profilen er oppdatert");
+        }}
         onComplete={(_suggestions, answers) => {
           const picks = computePicksFromAnswers(answers);
           setCuratedPicks(picks.length > 0 ? picks : null);
@@ -1234,36 +1244,12 @@ export function MSPServiceCatalogTab() {
           if (answers.markets.length) parts.push(`${answers.markets.length} marked${answers.markets.length > 1 ? "er" : ""}`);
           if (answers.domains.length) parts.push(`${answers.domains.length} fagområde${answers.domains.length > 1 ? "r" : ""}`);
           setCurationSummary(parts.join(", ") || null);
-
-          const diff = diffAnswers(previousAnswers, answers);
-          const changed = hasScopeChange(diff) && previousAnswers !== null;
-          if (changed) {
-            const adopted: AdoptedRef[] = extras
-              .filter((e) => e.status !== "retired" && !e.isMynder)
-              .map((e) => ({
-                id: e.id,
-                name: e.name,
-                templateId: e.templateId,
-                mappingFrameworkIds: Array.from(new Set(e.mappings.map((m) => m.frameworkId))),
-              }));
-            const recs = buildRecommendations(diff, answers, adopted);
-            const anything = recs.toAdd.length + recs.toExtend.length + recs.toReview.length;
-            if (anything > 0) {
-              setScopeDialog({ diff, recs });
-              toast.info(`Lara fant ${anything} mulige oppdateringer basert på nytt scope`, {
-                description: summarizeDiff(diff),
-              });
-            } else {
-              toast.success(`Lara oppdaterte forslagene — ingen endringer i katalogen`);
-            }
-          } else {
-            toast.success(`Lara foreslo ${picks.length} tjenester basert på kartleggingen`);
-          }
-
           setPreviousAnswers(answers);
           try { window.localStorage.setItem(WIZARD_ANSWERS_STORAGE_KEY, JSON.stringify(answers)); } catch {}
+          toast.success(`Lara foreslo ${picks.length} tjenester basert på kartleggingen`);
         }}
       />
+
 
       {scopeDialog && (
         <LaraScopeChangeDialog
