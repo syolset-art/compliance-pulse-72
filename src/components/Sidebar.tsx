@@ -900,7 +900,7 @@ const SidebarContent = () => {
                     </>
                   );
                 })()}
-                <CreditMenuItem />
+                
                 {/* Partner-meny er flyttet til workspace-bryteren øverst */}
 
 
