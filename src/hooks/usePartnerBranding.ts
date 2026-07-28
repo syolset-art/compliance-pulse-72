@@ -134,7 +134,11 @@ export function usePartnerBranding() {
   };
 
   const save = useCallback((patch: PartnerBrandingOverrides) => {
-    const next = { ...readOverrides(), ...patch };
+    const current = readOverrides();
+    const next: PartnerBrandingOverrides = { ...current, ...patch };
+    if (patch.tax) {
+      next.tax = { ...(current.tax ?? {}), ...patch.tax };
+    }
     (Object.keys(next) as (keyof PartnerBrandingOverrides)[]).forEach((k) => {
       const v = next[k];
       if (typeof v === "string" && v.trim() === "") delete next[k];
