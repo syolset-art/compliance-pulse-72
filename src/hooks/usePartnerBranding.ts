@@ -32,6 +32,8 @@ export interface PartnerBranding {
   autoOrgNumber: string;
   autoDomain: string;
   autoLogoUrl: string | null;
+  /** Standard mva/tax som brukes i tilbud og priskataloger. */
+  tax: PartnerTaxSettings;
 }
 
 function readOverrides(): PartnerBrandingOverrides {
