@@ -67,17 +67,7 @@ export function MynderResellCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[180px_1fr_auto] gap-3 items-end pt-2 border-t border-border">
-        <div className="space-y-1">
-          <div className="text-xs text-foreground/70 flex items-center gap-1">
-            Din provisjon
-            <span className="text-[10px] text-muted-foreground">(satt av Mynder)</span>
-          </div>
-          <div className="h-9 px-3 rounded-md border border-border bg-muted/40 flex items-center text-sm tabular-nums text-foreground">
-            {commissionPct} %
-          </div>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end pt-2 border-t border-border">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Switch
@@ -101,13 +91,8 @@ export function MynderResellCard({
           />
         </div>
 
-        <div className="text-right md:min-w-[140px]">
-          <div className="text-xs text-muted-foreground">Estimert inntekt</div>
-          <div className="text-base font-semibold tabular-nums text-success">
-            {formatMoney(monthlyIncome, sym, trailing)}
-            <span className="text-sm font-normal text-foreground/60">/mnd</span>
-          </div>
-          <div className="text-xs text-muted-foreground">pr kunde</div>
+        <div className="text-right text-xs text-muted-foreground">
+          Provisjon satt av Mynder: {commissionPct} %
         </div>
       </div>
     </Card>
