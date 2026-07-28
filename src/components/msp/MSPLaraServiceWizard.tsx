@@ -14,7 +14,7 @@ import {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onComplete: (suggestions: PartnerService[]) => void;
+  onComplete: (suggestions: PartnerService[], answers: WizardAnswers) => void;
   onSkip?: () => void;
 }
 
