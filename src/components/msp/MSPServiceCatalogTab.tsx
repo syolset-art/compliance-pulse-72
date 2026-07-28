@@ -705,7 +705,24 @@ export function MSPServiceCatalogTab() {
                           );
                         }
                         if (isAdopted) {
-                          return <Badge variant="secondary" className="text-sm h-7 px-2.5">Lagt til</Badge>;
+                          const added = extras.find((e) => e.templateId === template.id);
+                          return (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(ev) => { ev.stopPropagation(); if (added) revealInCatalog(added.id); }}
+                                  className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+                                >
+                                  ✓ I katalogen
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs text-xs">
+                                Ligger i «Min tjenestekatalog». Klikk for å redigere pris og timer.
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        }
                         }
                         return (
                           <Tooltip>
