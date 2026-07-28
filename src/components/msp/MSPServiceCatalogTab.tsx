@@ -475,24 +475,38 @@ export function MSPServiceCatalogTab() {
           </Button>
         </div>
 
-        {curatedPicks && (
+        {curatedPicks && recommendedCount > 0 && (
           <div className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
             <div className="flex items-center gap-2 text-foreground/80">
               <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
               <span>
-                Lara-forslag basert på din kartlegging{curationSummary ? ` — ${curationSummary}` : ""}.
-                {" "}Trykk <span className="font-medium text-foreground">+ Legg til</span> for å ta i bruk.
+                Lara anbefaler <span className="font-medium text-foreground">{recommendedCount} tjenester</span>{curationSummary ? ` basert på ${curationSummary}` : ""}. Merket med <Star className="inline h-3 w-3 fill-primary text-primary align-[-2px]" /> i listen.
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => { setCuratedPicks(null); setCurationSummary(null); }}
-              className="text-xs text-muted-foreground hover:text-foreground shrink-0"
-            >
-              Nullstill
-            </button>
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => setOnlyRecommended((v) => !v)}
+                className={cn(
+                  "text-xs px-2 py-1 rounded border transition-colors",
+                  onlyRecommended
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-background text-foreground/80 border-border hover:bg-muted/60",
+                )}
+              >
+                {onlyRecommended ? "Viser kun anbefalte" : "Vis kun anbefalte"}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setCuratedPicks(null); setCurationSummary(null); setOnlyRecommended(false); }}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                Nullstill
+              </button>
+            </div>
           </div>
         )}
+
 
 
         <div className="overflow-hidden rounded-md border border-border bg-card">
