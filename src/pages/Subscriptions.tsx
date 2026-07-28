@@ -491,7 +491,7 @@ export default function Subscriptions() {
                   onClick={() => setChangeCoreTierOpen(true)}
                   accentColor="purple"
                   footer={capFooter}
-                  ctaOverride={atCap && nextTier ? { label: `Oppgrader til ${nextTier.label}`, variant: "default" } : undefined}
+                  ctaOverride={atCap && nextTier ? { label: "Oppgrader\u00a0", variant: "default" } : undefined}
                 />
               );
             })()}
@@ -543,7 +543,7 @@ export default function Subscriptions() {
                   onDeactivate={() => requestDeactivate("vendors", "Leverandørmodul")}
                   accentColor="amber"
                   footer={capFooter}
-                  ctaOverride={!isDeactivated && atCap && nextTier ? { label: `Oppgrader til ${nextTier.label}`, variant: "default" } : undefined}
+                  ctaOverride={!isDeactivated && atCap && nextTier ? { label: "Oppgrader\u00a0", variant: "default" } : undefined}
                 />
               );
             })()}
