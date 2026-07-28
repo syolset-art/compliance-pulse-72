@@ -14,7 +14,7 @@ import {
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onComplete: (suggestions: PartnerService[]) => void;
+  onComplete: (suggestions: PartnerService[], answers: WizardAnswers) => void;
   onSkip?: () => void;
 }
 
@@ -100,7 +100,7 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip }:
     await new Promise((r) => setTimeout(r, 900));
     const suggestions = suggestServices(answers);
     setGenerating(false);
-    onComplete(suggestions);
+    onComplete(suggestions, answers);
     close();
   };
 

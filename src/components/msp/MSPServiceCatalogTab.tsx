@@ -22,8 +22,7 @@ import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type Servic
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
-import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
-import type { PartnerService } from "@/lib/serviceCatalog";
+import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
 
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 
@@ -79,6 +78,81 @@ const TAG_META: Record<PickTag, { label: string; className: string }> = {
   trending: { label: "Trender nå", className: "bg-warning/10 text-warning border-warning/20" },
 };
 
+const PICK_PALETTE: Array<{ bg: string; fg: string; icon: typeof UserCog }> = [
+  { bg: "bg-primary/10", fg: "text-primary", icon: UserCog },
+  { bg: "bg-success/10", fg: "text-success", icon: Radar },
+  { bg: "bg-warning/10", fg: "text-warning", icon: ClipboardCheck },
+  { bg: "bg-secondary", fg: "text-secondary-foreground", icon: Bug },
+  { bg: "bg-accent", fg: "text-accent-foreground", icon: Cpu },
+  { bg: "bg-success/10", fg: "text-success", icon: Award },
+];
+
+type Pick = { code: string; label: string; icon: typeof UserCog; bg: string; fg: string; tag?: PickTag; tagReason?: string };
+
+const DOMAIN_KEYWORDS: Record<string, string[]> = {
+  security: ["sikkerhet", "security", "iso 27001", "soc"],
+  gdpr: ["gdpr", "personvern", "privacy", "dpo"],
+  iso: ["iso 27001", "iso 42001", "styringssystem"],
+  nis2: ["nis2"],
+  dora: ["dora"],
+  ai: ["ai act", "ai governance", "iso 42001", "ai-"],
+  transparency: ["åpenhet", "transparency", "leverandørkjede", "supply chain"],
+};
+
+const MARKET_TO_SCOPES: Record<string, string[]> = {
+  no: ["NO", "EU", "global"],
+  se: ["SE", "EU", "global"],
+  dk: ["EU", "global"],
+  fi: ["EU", "global"],
+  eu: ["EU", "global"],
+  uk: ["UK", "global"],
+  au: ["AU", "global"],
+  global: ["global"],
+};
+
+function computePicksFromAnswers(answers: WizardAnswers): Pick[] {
+  const allowedScopes = new Set<string>();
+  answers.markets.forEach((m) => (MARKET_TO_SCOPES[m] ?? ["global"]).forEach((s) => allowedScopes.add(s)));
+  if (allowedScopes.size === 0) allowedScopes.add("global");
+
+  const knownDomains = Object.keys(DOMAIN_KEYWORDS);
+  const presetDomains = answers.domains.filter((d) => knownDomains.includes(d));
+  const freeText = answers.domains
+    .filter((d) => !knownDomains.includes(d))
+    .map((d) => d.toLowerCase().trim())
+    .filter(Boolean);
+  const domainKeywords = [
+    ...presetDomains.flatMap((d) => DOMAIN_KEYWORDS[d]),
+    ...freeText,
+  ];
+
+  const scored = SERVICE_LIBRARY.map((tpl) => {
+    let score = 0;
+    // Market fit
+    const scopeHit = tpl.scopes.some((s) => allowedScopes.has(s));
+    if (!scopeHit) return { tpl, score: -1 };
+    score += 1;
+    // Domain match on name / description / framework labels
+    const hay = `${tpl.name} ${tpl.shortDescription} ${tpl.mappings.map((m) => m.frameworkLabel).join(" ")}`.toLowerCase();
+    for (const kw of domainKeywords) if (hay.includes(kw)) score += 2;
+    // Delivery model preference
+    if (answers.models.includes("subscription") || answers.models.includes("managed")) {
+      if (tpl.delivery === "recurring") score += 1;
+    }
+    if (answers.models.includes("project") && tpl.delivery === "one-off") score += 1;
+    return { tpl, score };
+  })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+
+  return scored.map(({ tpl }, i) => {
+    const p = PICK_PALETTE[i % PICK_PALETTE.length];
+    return { code: tpl.code, label: tpl.name, icon: p.icon, bg: p.bg, fg: p.fg };
+  });
+}
+
+
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
   const { defaultHourlyRate, currencyOption } = useServiceDefaults();
@@ -89,7 +163,8 @@ export function MSPServiceCatalogTab() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<ServiceTemplate | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
-  const [laraSuggestions, setLaraSuggestions] = useState<PartnerService[] | null>(null);
+  const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
+  const [curationSummary, setCurationSummary] = useState<string | null>(null);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
@@ -351,39 +426,7 @@ export function MSPServiceCatalogTab() {
     ? buildDraftFromTemplate(previewTemplate)
     : undefined;
 
-  const importLaraSuggestions = (chosen: PartnerService[]) => {
-    const converted: ExtraService[] = chosen.map((s) => {
-      const activities: ServiceActivity[] = (s.defaultChecklist ?? []).map((label) => ({
-        label,
-        hours: 2,
-      }));
-      const totalHours = activities.reduce((sum, a) => sum + a.hours, 0) || 8;
-      const mappings: ServiceMapping[] = s.frameworkMappings.flatMap((m) => {
-        const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
-        return m.controlIds.map((cid) => {
-          const cp = fw?.controlPoints.find((c) => c.id === cid);
-          return {
-            frameworkId: m.frameworkId,
-            frameworkShortName: fw?.shortName ?? m.frameworkLabel,
-            controlId: cid,
-            controlLabel: cp?.label ?? cid,
-          };
-        });
-      });
-      return {
-        id: `lara-${s.id}-${Date.now()}`,
-        name: s.name,
-        description: s.description,
-        hours: totalHours,
-        activities,
-        source: "manual",
-        mappings,
-      };
-    });
-    setExtras((prev) => [...prev, ...converted]);
-    setLaraSuggestions(null);
-    toast.success(`${converted.length} tjenester lagt til i katalogen`);
-  };
+  const activePicks: Pick[] = curatedPicks ?? TEMPLATE_PICKS;
 
   return (
     <div className="space-y-6">
@@ -416,14 +459,25 @@ export function MSPServiceCatalogTab() {
           </Button>
         </div>
 
-        {laraSuggestions && laraSuggestions.length > 0 && (
-          <MSPLaraServiceSuggestions
-            suggestions={laraSuggestions}
-            onChangeSuggestions={setLaraSuggestions}
-            onImport={importLaraSuggestions}
-            onDismiss={() => setLaraSuggestions(null)}
-          />
+        {curatedPicks && (
+          <div className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
+            <div className="flex items-center gap-2 text-foreground/80">
+              <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span>
+                Lara-forslag basert på din kartlegging{curationSummary ? ` — ${curationSummary}` : ""}.
+                {" "}Trykk <span className="font-medium text-foreground">+ Legg til</span> for å ta i bruk.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setCuratedPicks(null); setCurationSummary(null); }}
+              className="text-xs text-muted-foreground hover:text-foreground shrink-0"
+            >
+              Nullstill
+            </button>
+          </div>
         )}
+
 
         <div className="overflow-hidden rounded-md border border-border bg-card">
           <table className="w-full text-base">
@@ -437,7 +491,7 @@ export function MSPServiceCatalogTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {TEMPLATE_PICKS.map((pick) => {
+              {activePicks.map((pick) => {
                 const template = SERVICE_LIBRARY.find((t) => t.code === pick.code);
                 if (!template) return null;
                 const isAdopted = adoptedIds.has(template.id);
@@ -832,7 +886,15 @@ export function MSPServiceCatalogTab() {
       <MSPLaraServiceWizard
         open={wizardOpen}
         onOpenChange={setWizardOpen}
-        onComplete={(suggestions) => setLaraSuggestions(suggestions)}
+        onComplete={(_suggestions, answers) => {
+          const picks = computePicksFromAnswers(answers);
+          setCuratedPicks(picks.length > 0 ? picks : null);
+          const parts: string[] = [];
+          if (answers.markets.length) parts.push(`${answers.markets.length} marked${answers.markets.length > 1 ? "er" : ""}`);
+          if (answers.domains.length) parts.push(`${answers.domains.length} fagområde${answers.domains.length > 1 ? "r" : ""}`);
+          setCurationSummary(parts.join(", ") || null);
+          toast.success(`Lara foreslo ${picks.length} tjenester basert på kartleggingen`);
+        }}
       />
 
 
