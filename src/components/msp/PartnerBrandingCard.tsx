@@ -172,40 +172,20 @@ export function PartnerBrandingCard() {
               Slik vises det i tilbudet
             </Label>
             <div className="rounded-md border border-border bg-background p-4 shadow-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-2.5 min-w-0">
-                  {branding.logoUrl ? (
-                    <img src={branding.logoUrl} alt="" className="h-9 w-9 object-contain rounded" />
-                  ) : (
-                    <div className="h-9 w-9 rounded bg-muted flex items-center justify-center">
-                      <ImageIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {previewName || "Mangler navn"}
-                    </p>
-                    {previewTagline && (
-                      <p className="text-sm text-muted-foreground italic truncate">
-                        {previewTagline}
-                      </p>
-                    )}
-                    {previewOrg && (
-                      <p className="text-sm text-muted-foreground tabular-nums">
-                        Org.nr {previewOrg}
-                      </p>
-                    )}
-                    {previewDomain && (
-                      <p className="text-sm text-muted-foreground truncate">
-                        {previewDomain}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right text-sm text-muted-foreground">
-                  <div>Tilbud T-2026-1234</div>
-                  <div>{new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" })}</div>
-                </div>
+              <div className="min-w-0 space-y-0.5">
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {previewName || "Mangler navn"}
+                </p>
+                {previewOrg && (
+                  <p className="text-sm text-muted-foreground tabular-nums">
+                    Org.nr {previewOrg}
+                  </p>
+                )}
+                {previewDomain && (
+                  <p className="text-sm text-muted-foreground truncate">
+                    {previewDomain}
+                  </p>
+                )}
               </div>
             </div>
           </div>
