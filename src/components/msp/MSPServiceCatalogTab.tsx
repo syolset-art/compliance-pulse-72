@@ -78,6 +78,81 @@ const TAG_META: Record<PickTag, { label: string; className: string }> = {
   trending: { label: "Trender nå", className: "bg-warning/10 text-warning border-warning/20" },
 };
 
+const PICK_PALETTE: Array<{ bg: string; fg: string; icon: typeof UserCog }> = [
+  { bg: "bg-primary/10", fg: "text-primary", icon: UserCog },
+  { bg: "bg-success/10", fg: "text-success", icon: Radar },
+  { bg: "bg-warning/10", fg: "text-warning", icon: ClipboardCheck },
+  { bg: "bg-secondary", fg: "text-secondary-foreground", icon: Bug },
+  { bg: "bg-accent", fg: "text-accent-foreground", icon: Cpu },
+  { bg: "bg-success/10", fg: "text-success", icon: Award },
+];
+
+type Pick = { code: string; label: string; icon: typeof UserCog; bg: string; fg: string; tag?: PickTag; tagReason?: string };
+
+const DOMAIN_KEYWORDS: Record<string, string[]> = {
+  security: ["sikkerhet", "security", "iso 27001", "soc"],
+  gdpr: ["gdpr", "personvern", "privacy", "dpo"],
+  iso: ["iso 27001", "iso 42001", "styringssystem"],
+  nis2: ["nis2"],
+  dora: ["dora"],
+  ai: ["ai act", "ai governance", "iso 42001", "ai-"],
+  transparency: ["åpenhet", "transparency", "leverandørkjede", "supply chain"],
+};
+
+const MARKET_TO_SCOPES: Record<string, string[]> = {
+  no: ["NO", "EU", "global"],
+  se: ["SE", "EU", "global"],
+  dk: ["EU", "global"],
+  fi: ["EU", "global"],
+  eu: ["EU", "global"],
+  uk: ["UK", "global"],
+  au: ["AU", "global"],
+  global: ["global"],
+};
+
+function computePicksFromAnswers(answers: WizardAnswers): Pick[] {
+  const allowedScopes = new Set<string>();
+  answers.markets.forEach((m) => (MARKET_TO_SCOPES[m] ?? ["global"]).forEach((s) => allowedScopes.add(s)));
+  if (allowedScopes.size === 0) allowedScopes.add("global");
+
+  const knownDomains = Object.keys(DOMAIN_KEYWORDS);
+  const presetDomains = answers.domains.filter((d) => knownDomains.includes(d));
+  const freeText = answers.domains
+    .filter((d) => !knownDomains.includes(d))
+    .map((d) => d.toLowerCase().trim())
+    .filter(Boolean);
+  const domainKeywords = [
+    ...presetDomains.flatMap((d) => DOMAIN_KEYWORDS[d]),
+    ...freeText,
+  ];
+
+  const scored = SERVICE_LIBRARY.map((tpl) => {
+    let score = 0;
+    // Market fit
+    const scopeHit = tpl.scopes.some((s) => allowedScopes.has(s));
+    if (!scopeHit) return { tpl, score: -1 };
+    score += 1;
+    // Domain match on name / description / framework labels
+    const hay = `${tpl.name} ${tpl.shortDescription} ${tpl.mappings.map((m) => m.frameworkLabel).join(" ")}`.toLowerCase();
+    for (const kw of domainKeywords) if (hay.includes(kw)) score += 2;
+    // Delivery model preference
+    if (answers.models.includes("subscription") || answers.models.includes("managed")) {
+      if (tpl.delivery === "recurring") score += 1;
+    }
+    if (answers.models.includes("project") && tpl.delivery === "one-off") score += 1;
+    return { tpl, score };
+  })
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+
+  return scored.map(({ tpl }, i) => {
+    const p = PICK_PALETTE[i % PICK_PALETTE.length];
+    return { code: tpl.code, label: tpl.name, icon: p.icon, bg: p.bg, fg: p.fg };
+  });
+}
+
+
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
   const { defaultHourlyRate, currencyOption } = useServiceDefaults();
