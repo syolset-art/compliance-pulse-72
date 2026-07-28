@@ -27,26 +27,6 @@ export interface ModuleCardProps {
 
 
 
-const statusConfig = {
-  active: {
-    label: "Aktivert",
-    text: "text-emerald-700",
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
-  },
-  included: {
-    label: "Inkludert",
-    text: "text-primary",
-    bg: "bg-primary/10",
-    border: "border-primary/20",
-  },
-  inactive: {
-    label: "Ikke aktivert",
-    text: "text-slate-600",
-    bg: "bg-slate-100",
-    border: "border-slate-200",
-  },
-};
 
 const actionLabel: Record<Exclude<ModuleCardProps["action"], "none">, string> = {
   open: "Åpne modulen",
@@ -73,7 +53,6 @@ export function ModuleCard({
   ctaOverride,
 
 }: ModuleCardProps) {
-  const cfg = statusConfig[status];
   const canDeactivate = !!onDeactivate && status === "active";
   const isIncluded = status === "included";
 
@@ -132,16 +111,6 @@ export function ModuleCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-semibold text-foreground text-base">{title}</h3>
-              <span
-                className={cn(
-                  "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border",
-                  cfg.bg,
-                  cfg.text,
-                  cfg.border,
-                )}
-              >
-                {cfg.label}
-              </span>
               {priceLabel && !isIncluded && status === "active" && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border border-primary/20 bg-primary/5 text-primary">
                   {priceLabel}
