@@ -723,7 +723,6 @@ export function MSPServiceCatalogTab() {
                             </Tooltip>
                           );
                         }
-                        }
                         return (
                           <Tooltip>
                             <TooltipTrigger asChild>
