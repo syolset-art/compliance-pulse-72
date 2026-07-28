@@ -545,11 +545,24 @@ export function MSPServiceCatalogTab() {
                       </div>
                     </td>
                     <td className="px-3 py-3">
-                      <div className="text-base font-medium text-foreground">{pick.label}</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-base font-medium text-foreground">{pick.label}</span>
+                        {pick.recommended && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Star className="h-3.5 w-3.5 fill-primary text-primary shrink-0" aria-label="Anbefalt av Lara" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs text-xs">
+                              Anbefalt av Lara basert på din partnerprofil{curationSummary ? ` (${curationSummary})` : ""}.
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
                       <div className="text-sm text-foreground/70 line-clamp-1">
                         {template.shortDescription}
                       </div>
                     </td>
+
                     <td className="px-3 py-3">
                       <div className="flex flex-wrap gap-1">
                         {visibleMappings.length > 0 ? (
