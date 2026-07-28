@@ -293,8 +293,13 @@ export function MSPServiceCatalogTab() {
       mappings,
     };
     setExtras((prev) => [...prev, next]);
-    toast.success(`${template.name} adoptert`, {
-      description: "Rediger for å justere aktiviteter — pris beregnes fra timepris.",
+    revealInCatalog(next.id);
+    toast.success(`La til «${template.name}» i din tjenestekatalog`, {
+      description: "Rediger for å justere aktiviteter og pris.",
+      action: {
+        label: "Vis i katalogen",
+        onClick: () => revealInCatalog(next.id),
+      },
     });
   };
 
