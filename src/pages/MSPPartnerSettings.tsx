@@ -39,7 +39,7 @@ import {
   type PartnerModuleKey,
 } from "@/lib/partnerModules";
 import { toast } from "sonner";
-import { PartnerBrandingCard } from "@/components/msp/PartnerBrandingCard";
+
 
 const SETTINGS_KEY = "msp-messages-settings-v1";
 
