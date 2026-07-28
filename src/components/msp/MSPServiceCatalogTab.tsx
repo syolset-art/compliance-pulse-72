@@ -426,39 +426,7 @@ export function MSPServiceCatalogTab() {
     ? buildDraftFromTemplate(previewTemplate)
     : undefined;
 
-  const importLaraSuggestions = (chosen: PartnerService[]) => {
-    const converted: ExtraService[] = chosen.map((s) => {
-      const activities: ServiceActivity[] = (s.defaultChecklist ?? []).map((label) => ({
-        label,
-        hours: 2,
-      }));
-      const totalHours = activities.reduce((sum, a) => sum + a.hours, 0) || 8;
-      const mappings: ServiceMapping[] = s.frameworkMappings.flatMap((m) => {
-        const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
-        return m.controlIds.map((cid) => {
-          const cp = fw?.controlPoints.find((c) => c.id === cid);
-          return {
-            frameworkId: m.frameworkId,
-            frameworkShortName: fw?.shortName ?? m.frameworkLabel,
-            controlId: cid,
-            controlLabel: cp?.label ?? cid,
-          };
-        });
-      });
-      return {
-        id: `lara-${s.id}-${Date.now()}`,
-        name: s.name,
-        description: s.description,
-        hours: totalHours,
-        activities,
-        source: "manual",
-        mappings,
-      };
-    });
-    setExtras((prev) => [...prev, ...converted]);
-    setLaraSuggestions(null);
-    toast.success(`${converted.length} tjenester lagt til i katalogen`);
-  };
+  const activePicks: Pick[] = curatedPicks ?? TEMPLATE_PICKS;
 
   return (
     <div className="space-y-6">
@@ -491,14 +459,25 @@ export function MSPServiceCatalogTab() {
           </Button>
         </div>
 
-        {laraSuggestions && laraSuggestions.length > 0 && (
-          <MSPLaraServiceSuggestions
-            suggestions={laraSuggestions}
-            onChangeSuggestions={setLaraSuggestions}
-            onImport={importLaraSuggestions}
-            onDismiss={() => setLaraSuggestions(null)}
-          />
+        {curatedPicks && (
+          <div className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
+            <div className="flex items-center gap-2 text-foreground/80">
+              <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span>
+                Lara-forslag basert på din kartlegging{curationSummary ? ` — ${curationSummary}` : ""}.
+                {" "}Trykk <span className="font-medium text-foreground">+ Legg til</span> for å ta i bruk.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setCuratedPicks(null); setCurationSummary(null); }}
+              className="text-xs text-muted-foreground hover:text-foreground shrink-0"
+            >
+              Nullstill
+            </button>
+          </div>
         )}
+
 
         <div className="overflow-hidden rounded-md border border-border bg-card">
           <table className="w-full text-base">
