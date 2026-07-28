@@ -359,9 +359,6 @@ export default function MSPPartnerSettings() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="tilbudsmerking">
-              <PartnerBrandingCard />
-            </TabsContent>
 
             <TabsContent value="integrasjoner">
               <PartnerIntegrationsTab />
