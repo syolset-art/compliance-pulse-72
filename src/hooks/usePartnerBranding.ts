@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { defaultTaxForLanguage, type PartnerTaxSettings } from "@/lib/partnerTax";
 
 const STORAGE_KEY = "msp-partner-branding-v1";
 
@@ -10,6 +12,7 @@ export interface PartnerBrandingOverrides {
   domain?: string;
   logoDataUrl?: string;
   tagline?: string;
+  tax?: Partial<PartnerTaxSettings>;
 }
 
 export interface PartnerBranding {
