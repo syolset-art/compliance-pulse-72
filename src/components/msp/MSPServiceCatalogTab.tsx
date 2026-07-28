@@ -199,6 +199,7 @@ export function MSPServiceCatalogTab() {
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
+  const [activeTab, setActiveTab] = useState("mine");
 
   // Forrige wizard-svar — brukes for å oppdage scope-endringer.
   const [previousAnswers, setPreviousAnswers] = useState<WizardAnswers | null>(() => {
