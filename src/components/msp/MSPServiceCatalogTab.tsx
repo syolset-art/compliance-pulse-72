@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -168,6 +168,15 @@ export function MSPServiceCatalogTab() {
     setWizardSeen(true);
     try { window.localStorage.setItem("msp-lara-wizard-seen-v1", "1"); } catch {}
   };
+  const catalogSectionRef = useRef<HTMLElement | null>(null);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const revealInCatalog = (id: string) => {
+    catalogSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setHighlightId(id);
+    window.setTimeout(() => {
+      setHighlightId((cur) => (cur === id ? null : cur));
+    }, 1800);
+  };
   const openWizard = () => { markWizardSeen(); setWizardOpen(true); };
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
@@ -284,8 +293,13 @@ export function MSPServiceCatalogTab() {
       mappings,
     };
     setExtras((prev) => [...prev, next]);
-    toast.success(`${template.name} adoptert`, {
-      description: "Rediger for å justere aktiviteter — pris beregnes fra timepris.",
+    revealInCatalog(next.id);
+    toast.success(`La til «${template.name}» i din tjenestekatalog`, {
+      description: "Rediger for å justere aktiviteter og pris.",
+      action: {
+        label: "Vis i katalogen",
+        onClick: () => revealInCatalog(next.id),
+      },
     });
   };
 
@@ -365,7 +379,13 @@ export function MSPServiceCatalogTab() {
       priceOverride: draft.priceOverride,
     };
     setExtras((prev) => [...prev, newService]);
-    toast.success(`"${draft.name}" lagt til i katalogen`);
+    revealInCatalog(newService.id);
+    toast.success(`La til «${draft.name}» i din tjenestekatalog`, {
+      action: {
+        label: "Vis i katalogen",
+        onClick: () => revealInCatalog(newService.id),
+      },
+    });
     setPreviewTemplate(null);
   };
 
@@ -685,7 +705,23 @@ export function MSPServiceCatalogTab() {
                           );
                         }
                         if (isAdopted) {
-                          return <Badge variant="secondary" className="text-sm h-7 px-2.5">Lagt til</Badge>;
+                          const added = extras.find((e) => e.templateId === template.id);
+                          return (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={(ev) => { ev.stopPropagation(); if (added) revealInCatalog(added.id); }}
+                                  className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+                                >
+                                  ✓ I katalogen
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs text-xs">
+                                Ligger i «Min tjenestekatalog». Klikk for å redigere pris og timer.
+                              </TooltipContent>
+                            </Tooltip>
+                          );
                         }
                         return (
                           <Tooltip>
@@ -812,21 +848,43 @@ export function MSPServiceCatalogTab() {
 
 
 
-      {/* Mine egne tjenester */}
-      {extras.some((e) => !e.isMynder && e.status !== "retired") && (
-        <section className="space-y-2">
-          <div className="flex items-baseline justify-between">
-            <h3 className="text-lg font-semibold text-foreground">Mine tjenester</h3>
-            <span className="text-base text-foreground/70">
-              {extras.filter((e) => !e.isMynder && e.status !== "retired").length} tjenester
-            </span>
-          </div>
+      {/* Min tjenestekatalog */}
+      {(() => {
+        const mine = extras.filter((e) => !e.isMynder && e.status !== "retired");
+        const lockedCount = mine.filter((e) => !!getLockInfo({ templateId: e.templateId, name: e.name })).length;
+        return (
+          <section ref={catalogSectionRef} id="min-katalog" className="space-y-2 scroll-mt-24">
+            <div className="flex items-baseline justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Min tjenestekatalog</h3>
+                <p className="text-sm text-foreground/70 mt-0.5">
+                  Tjenester du tilbyr kundene dine. Brukes i tilbud og gap-analyser.
+                </p>
+              </div>
+              {mine.length > 0 && (
+                <span className="text-sm text-foreground/70 whitespace-nowrap">
+                  {mine.length} {mine.length === 1 ? "tjeneste" : "tjenester"}
+                  {lockedCount > 0 && <> · {lockedCount} på tilbud</>}
+                </span>
+              )}
+            </div>
+            {mine.length === 0 ? (
+              <div className="rounded-md border border-dashed border-border bg-muted/20 px-4 py-6 text-center">
+                <p className="text-sm font-medium text-foreground">Min tjenestekatalog er tom</p>
+                <p className="text-sm text-foreground/70 mt-1">
+                  Legg til tjenester fra listen over — de blir tilgjengelige når du lager tilbud.
+                </p>
+              </div>
+            ) : (
           <div className="divide-y divide-border rounded-md border border-border bg-card">
             {extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => {
               const price = e.priceOverride ?? e.hours * hourlyRate;
               const lock = getLockInfo({ templateId: e.templateId, name: e.name });
               return (
-                <div key={e.id} className="flex items-center gap-3 px-3 py-3">
+                <div key={e.id} className={cn(
+                  "flex items-center gap-3 px-3 py-3 transition-colors",
+                  highlightId === e.id && "bg-primary/5 ring-1 ring-inset ring-primary/30",
+                )}>
                   <div className="flex-1 min-w-0 flex items-center gap-2">
                     <span className="text-base font-medium text-foreground truncate">{e.name}</span>
                     {lock && (
@@ -905,8 +963,10 @@ export function MSPServiceCatalogTab() {
               );
             })}
           </div>
-        </section>
-      )}
+            )}
+          </section>
+        );
+      })()}
 
       {/* Avviklede tjenester */}
       {extras.some((e) => e.status === "retired") && (
