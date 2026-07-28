@@ -625,14 +625,14 @@ export function MSPServiceCatalogTab() {
                   <button
                     type="button"
                     onClick={openWizard}
-                    aria-label="Se og rediger Lara-profilen"
+                    aria-label="Se og rediger tjenesteprofilen din"
                     className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
                   >
                     <Sparkles className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs text-sm">
-                  <div className="font-medium">Se og rediger Lara-profilen</div>
+                  <div className="font-medium">Se og rediger tjenesteprofilen din</div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     Endre marked, bransje, fagområder eller regelverk — og lagre. Ingen nye tjenester foreslås automatisk.
                   </div>
