@@ -70,6 +70,7 @@ export function ModuleCard({
   deactivateLabel,
   breakdown,
   footer,
+  ctaOverride,
 
 }: ModuleCardProps) {
   const cfg = statusConfig[status];
