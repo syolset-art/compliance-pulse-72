@@ -296,10 +296,28 @@ export function MSPCreateOfferDialog({
     doc.setFontSize(11);
     doc.setTextColor(90);
     doc.text(`Timepris: ${editableHourlyRate.toLocaleString("nb-NO")} kr`, margin, y);
+    const netForPdf = showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice;
+    const netLabel = showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Sum";
     doc.setFontSize(13);
     doc.setTextColor(20);
-    doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
-    y += 28;
+    doc.text(`${netLabel}: ${totalHours} t · ${netForPdf.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+    y += 20;
+    if (showTax) {
+      doc.setFontSize(11);
+      doc.setTextColor(90);
+      doc.text(`${tax.label} (${tax.rate}%): ${taxBreakdown.taxAmount.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+      y += 16;
+      doc.setFontSize(13);
+      doc.setTextColor(20);
+      doc.text(`Totalt inkl. ${tax.label}: ${taxBreakdown.gross.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+      y += 20;
+    } else if (tax.enabled === false) {
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text(formatTaxNote(tax), pageWidth - margin, y, { align: "right" });
+      y += 16;
+    }
+    y += 8;
 
     // Lukker mangler fra gap-analysen (ny, gap-drevet visning)
     if (showGapsInOffer && coveredGaps && selectedCount > 0) {
