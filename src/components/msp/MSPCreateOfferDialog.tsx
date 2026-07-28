@@ -92,6 +92,10 @@ export function MSPCreateOfferDialog({
   coveredControls,
   coveredGaps,
   initialView = "edit",
+  customerId,
+  customerName,
+  offeredTemplateIds,
+  offeredServiceNames,
 }: CreateOfferDialogProps) {
   const { branding } = usePartnerBranding();
   const effectivePartnerName = partnerName ?? branding.name;
