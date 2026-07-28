@@ -881,7 +881,10 @@ export function MSPServiceCatalogTab() {
               const price = e.priceOverride ?? e.hours * hourlyRate;
               const lock = getLockInfo({ templateId: e.templateId, name: e.name });
               return (
-                <div key={e.id} className="flex items-center gap-3 px-3 py-3">
+                <div key={e.id} className={cn(
+                  "flex items-center gap-3 px-3 py-3 transition-colors",
+                  highlightId === e.id && "bg-primary/5 ring-1 ring-inset ring-primary/30",
+                )}>
                   <div className="flex-1 min-w-0 flex items-center gap-2">
                     <span className="text-base font-medium text-foreground truncate">{e.name}</span>
                     {lock && (
