@@ -131,6 +131,8 @@ export function MSPServiceSettingsTab() {
           </>
         )}
       </Card>
+      <PartnerTaxCard />
+
 
       <div className="space-y-2">
         <div className="flex items-center gap-2">
