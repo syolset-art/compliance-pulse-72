@@ -590,11 +590,13 @@ export function MSPServiceCatalogTab() {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="alle" className="w-full">
+      <Tabs defaultValue="mine" className="w-full">
         <TabsList>
-          <TabsTrigger value="alle">Alle</TabsTrigger>
           <TabsTrigger value="mine">
-            Mine{mineActiveCount ? ` (${mineActiveCount})` : ""}
+            Mine ({mineActiveCount + 3})
+          </TabsTrigger>
+          <TabsTrigger value="alle">
+            Alle ({mergedPicks.length})
           </TabsTrigger>
         </TabsList>
         <TabsContent value="alle" className="space-y-6 mt-4">
@@ -882,6 +884,10 @@ export function MSPServiceCatalogTab() {
         </div>
       </section>
 
+        </TabsContent>
+
+        <TabsContent value="mine" className="space-y-6 mt-4">
+
       {/* Mynder-produkter — videresalg med provisjon */}
       {(() => {
         const rows = [
@@ -952,9 +958,7 @@ export function MSPServiceCatalogTab() {
           </section>
         );
       })()}
-        </TabsContent>
 
-        <TabsContent value="mine" className="space-y-6 mt-4">
 
       {/* Min tjenestekatalog */}
 
