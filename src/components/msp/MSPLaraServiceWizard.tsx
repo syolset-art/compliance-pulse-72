@@ -17,7 +17,10 @@ interface Props {
   onComplete: (suggestions: PartnerService[], answers: WizardAnswers) => void;
   onSkip?: () => void;
   initialAnswers?: WizardAnswers | null;
+  /** When provided, dialog runs in "profile" mode: show all questions on one page and just save. */
+  onSaveProfile?: (answers: WizardAnswers) => void;
 }
+
 
 const EMPTY: WizardAnswers = {
   markets: [],
