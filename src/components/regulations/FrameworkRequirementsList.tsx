@@ -792,7 +792,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                               setAttachDialog({
                                 id: req.requirement_id,
                                 name: isNb ? (req.name_no || req.name) : req.name,
-                                description: isNb ? req.description_no : req.description,
+                                description: `${isNb ? req.description_no : req.description}\n\n${getEvaluationCriteriaText(req)}`,
                                 articles: getArticlesForRequirement(req),
                               });
                             }}
