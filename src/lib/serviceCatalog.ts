@@ -34,6 +34,14 @@ export interface PartnerService {
   questionnaireId?: QuestionnaireId;
   /** Estimert tid for kunden å besvare et spørreskjema, i minutter. */
   estimatedMinutes?: number;
+  /** Livssyklus-status. Default "active". Avviklede tjenester skjules fra kunder og nye tilbud, men bevares i historikk. */
+  status?: "active" | "retired";
+  /** ISO-tidspunkt for når tjenesten ble avviklet. */
+  retiredAt?: string;
+  /** Fritekst årsak til avvikling (audit-logg). */
+  retiredReason?: string;
+  /** Id på tjenesten som erstatter denne. */
+  replacedById?: string;
 }
 
 /**
