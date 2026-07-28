@@ -32,7 +32,7 @@ import {
   Eye,
   Lock,
   ImageIcon,
-  Plug
+  Plug,
   Crown,
 } from "lucide-react";
 import mynderLogoInverted from "@/assets/mynder-logo-inverted.png";
