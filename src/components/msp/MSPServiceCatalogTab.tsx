@@ -377,7 +377,7 @@ export function MSPServiceCatalogTab() {
               <tr>
                 <th className="text-left font-semibold px-3 py-2.5 w-12"></th>
                 <th className="text-left font-semibold px-3 py-2.5">Tjeneste</th>
-                <th className="text-left font-semibold px-3 py-2.5">Regelverk</th>
+                <th className="text-left font-semibold px-3 py-2.5">Krav dekket</th>
                 <th className="text-right font-semibold px-3 py-2.5 w-32"></th>
               </tr>
             </thead>
@@ -387,7 +387,9 @@ export function MSPServiceCatalogTab() {
                 if (!template) return null;
                 const isAdopted = adoptedIds.has(template.id);
                 const Icon = pick.icon;
-                const frameworks = template.mappings.map((m) => m.frameworkLabel).slice(0, 3);
+                const mappings = template.mappings ?? [];
+                const visibleMappings = mappings.slice(0, 2);
+                const extraFrameworks = mappings.length - visibleMappings.length;
                 const tagMeta = pick.tag ? TAG_META[pick.tag] : null;
                 return (
                   <tr
@@ -411,12 +413,36 @@ export function MSPServiceCatalogTab() {
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex flex-wrap gap-1">
-                        {frameworks.length > 0 ? (
-                          frameworks.map((f) => (
-                            <span key={f} className="text-sm px-2 py-0.5 rounded bg-muted text-foreground/80">
-                              {f}
-                            </span>
-                          ))
+                        {visibleMappings.length > 0 ? (
+                          <>
+                            {visibleMappings.map((m) => {
+                              const ids = m.controlIds ?? [];
+                              const shown = ids.slice(0, 3);
+                              const rest = ids.length - shown.length;
+                              const label = shown.length > 0
+                                ? `${m.frameworkLabel} · ${shown.join(", ")}${rest > 0 ? ` +${rest}` : ""}`
+                                : m.frameworkLabel;
+                              const fullList = ids.length > 0 ? ids.join(", ") : "Ingen krav mappet";
+                              return (
+                                <Tooltip key={`${template.id}-${m.frameworkId}`}>
+                                  <TooltipTrigger asChild>
+                                    <span className="text-sm px-2 py-0.5 rounded bg-muted text-foreground/80 whitespace-nowrap">
+                                      {label}
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-xs">
+                                    <div className="text-xs font-semibold mb-0.5">{m.frameworkLabel}</div>
+                                    <div className="text-xs text-foreground/80">{fullList}</div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              );
+                            })}
+                            {extraFrameworks > 0 && (
+                              <span className="text-sm px-2 py-0.5 rounded bg-muted/60 text-foreground/70">
+                                +{extraFrameworks} regelverk til
+                              </span>
+                            )}
+                          </>
                         ) : (
                           <span className="text-sm text-foreground/60">—</span>
                         )}
