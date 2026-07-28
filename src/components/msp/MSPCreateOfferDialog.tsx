@@ -424,6 +424,14 @@ export function MSPCreateOfferDialog({
   };
 
   const handleSaveOffer = () => {
+    persistOffer({
+      offerNumber,
+      name: offerName,
+      customerId,
+      customerName,
+      templateIds: offeredTemplateIds ?? [],
+      serviceKeys: offeredServiceNames ?? (serviceTitle ? [serviceTitle] : [offerName]),
+    });
     setSavedAt(new Date().toLocaleString("nb-NO", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }));
     setView("saved");
     toast.success("Tilbud lagret", {
