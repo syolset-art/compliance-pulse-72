@@ -1230,7 +1230,7 @@ export function MSPServiceCatalogTab() {
           if (answers.markets.length) parts.push(`${answers.markets.length} marked${answers.markets.length > 1 ? "er" : ""}`);
           if (answers.domains.length) parts.push(`${answers.domains.length} fagområde${answers.domains.length > 1 ? "r" : ""}`);
           setCurationSummary(parts.join(", ") || null);
-          toast.success("Lara-profilen er oppdatert");
+          toast.success("Tjenesteprofilen er oppdatert");
         }}
         onComplete={(_suggestions, answers) => {
           const picks = computePicksFromAnswers(answers);
