@@ -16,7 +16,6 @@ export function PartnerBrandingCard() {
   const [name, setName] = useState(branding.isAutoName ? "" : branding.name);
   const [orgNumber, setOrgNumber] = useState(branding.isAutoOrg ? "" : branding.orgNumber);
   const [domain, setDomain] = useState(branding.isAutoDomain ? "" : branding.domain);
-  const [tagline, setTagline] = useState(branding.tagline);
   const [expanded, setExpanded] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
