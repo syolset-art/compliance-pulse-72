@@ -48,7 +48,6 @@ export function PartnerBrandingCard() {
   const previewName = name.trim() || branding.autoName;
   const previewOrg = orgNumber.trim() || branding.autoOrgNumber;
   const previewDomain = domain.trim() || branding.autoDomain;
-  const previewTagline = tagline.trim() || branding.tagline;
 
   return (
     <Card className="p-4 space-y-3">
