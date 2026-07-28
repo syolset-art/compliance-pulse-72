@@ -21,6 +21,9 @@ import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type ServiceRole, getMappingRoles, formatRoleVerbs, ROLE_META } from "@/lib/serviceLibrary";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
+import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
+import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
+import type { PartnerService } from "@/lib/serviceCatalog";
 
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 
