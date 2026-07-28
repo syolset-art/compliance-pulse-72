@@ -337,6 +337,20 @@ export function MSPServiceCatalogTab() {
     toast.success("Tjenesten er gjenopprettet");
   };
 
+  const editingService = editingId ? extras.find((e) => e.id === editingId) ?? null : null;
+  const editingDraft: CustomServiceDraft | undefined = editingService
+    ? {
+        name: editingService.name,
+        description: editingService.description,
+        hours: editingService.hours,
+        activities: editingService.activities,
+        mappings: editingService.mappings,
+        priceOverride: editingService.priceOverride,
+      }
+    : previewTemplate
+    ? buildDraftFromTemplate(previewTemplate)
+    : undefined;
+
   const importLaraSuggestions = (chosen: PartnerService[]) => {
     const converted: ExtraService[] = chosen.map((s) => {
       const activities: ServiceActivity[] = (s.defaultChecklist ?? []).map((label) => ({
