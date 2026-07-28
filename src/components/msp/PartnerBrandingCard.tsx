@@ -65,9 +65,6 @@ export function PartnerBrandingCard() {
             )}
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-base font-semibold text-foreground truncate">Tilbudsmal</h3>
-            </div>
             <p className="text-sm text-muted-foreground truncate">
               {branding.name || "Mangler navn"}
               {branding.orgNumber ? ` · Org.nr ${branding.orgNumber}` : ""}
