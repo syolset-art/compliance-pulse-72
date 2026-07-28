@@ -79,6 +79,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
   const isNb = i18n.language !== "en";
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [grouping, setGrouping] = useState<"status" | "control_area">("status");
   const [search, setSearch] = useState("");
   const [docDialog, setDocDialog] = useState<{ id: string; name: string } | null>(null);
   const [reqNotes, setReqNotes] = useState<Record<string, string>>({});
