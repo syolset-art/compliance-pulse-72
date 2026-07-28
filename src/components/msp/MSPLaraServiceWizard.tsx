@@ -123,21 +123,98 @@ export function MSPLaraServiceWizard({ open, onOpenChange, onComplete, onSkip, i
 
   return (
     <Dialog open={open} onOpenChange={(v) => (v ? onOpenChange(true) : close())}>
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base">
             <span className="h-7 w-7 rounded-full bg-primary/15 flex items-center justify-center">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
             </span>
-            Lara setter opp tjenestekatalogen din
+            {profileMode ? "Din Lara-profil" : "Lara setter opp tjenestekatalogen din"}
           </DialogTitle>
+          {profileMode && (
+            <p className="text-[13px] text-muted-foreground pt-1">
+              Dette er svarene Lara bruker for å skreddersy forslag. Endre og lagre.
+            </p>
+          )}
         </DialogHeader>
 
-        {generating ? (
+        {profileMode ? (
+          <div className="space-y-5">
+            {WIZARD_QUESTIONS.map((question) => {
+              const values = answers[question.id];
+              const known = new Set(question.options.map((o) => o.id));
+              const customs = values.filter((v) => !known.has(v));
+              const toggle = (id: string) =>
+                setAnswers((prev) => {
+                  const arr = prev[question.id];
+                  const next = arr.includes(id) ? arr.filter((x) => x !== id) : [...arr, id];
+                  return { ...prev, [question.id]: next };
+                });
+              return (
+                <div key={question.id} className="space-y-2">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{question.title}</p>
+                    <p className="text-xs text-muted-foreground">{question.subtitle}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {question.options.map((opt) => {
+                      const selected = values.includes(opt.id);
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => toggle(opt.id)}
+                          className={cn(
+                            "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors",
+                            selected
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background text-foreground border-border hover:border-primary/40",
+                          )}
+                        >
+                          {selected && <Check className="h-3 w-3" />}
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                    {customs.map((v) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => toggle(v)}
+                        className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs bg-primary text-primary-foreground border-primary"
+                      >
+                        <Check className="h-3 w-3" />
+                        {v}
+                        <X className="h-3 w-3 opacity-70" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+              <Button variant="ghost" size="sm" onClick={close}>
+                Avbryt
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  onSaveProfile?.(answers);
+                  close();
+                }}
+                className="gap-1"
+              >
+                <Check className="h-4 w-4" />
+                Lagre profil
+              </Button>
+            </div>
+          </div>
+        ) : generating ? (
           <div className="py-12 flex flex-col items-center justify-center gap-3">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground">Lara skreddersyr forslag …</p>
           </div>
+
         ) : (
           <div className="space-y-4">
             <div className="flex items-center gap-1.5">
