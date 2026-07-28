@@ -38,6 +38,11 @@ interface ExtraService {
   isMynder?: boolean;
   /** Overstyrt totalpris. Hvis satt, brukes denne i stedet for hours × timepris. */
   priceOverride?: number;
+  /** Livssyklus-status. Default "active". */
+  status?: "active" | "retired";
+  retiredAt?: string;
+  retiredReason?: string;
+  replacedById?: string;
 }
 
 function formatNOK(n: number): string {
