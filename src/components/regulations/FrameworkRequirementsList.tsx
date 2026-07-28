@@ -515,72 +515,8 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
 
               {isExpanded && (
                 <div className="px-4 pb-4">
-                  <Separator className="mb-4" />
-                  <div className="space-y-3">
-
-                    {/* Dokumentasjon — én tett linje med AI-indikator */}
-                    <div className="border-y border-border/40 py-1.5 text-[11px] text-muted-foreground">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="inline-flex items-center gap-1 font-medium text-muted-foreground shrink-0">
-                          <Paperclip className="h-3 w-3" />
-                          {isNb ? "Dokumentasjon" : "Documentation"}
-                        </span>
-                        {(state.documents?.length ?? 0) > 0 ? (
-                          <>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex items-center gap-0.5 shrink-0 text-primary">
-                                  <Sparkles className="h-3 w-3" />
-                                  <span className="text-[10px] font-medium">AI</span>
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="text-xs">
-                                {isNb ? "Oppdaget automatisk av Lara" : "Detected automatically by Lara"}
-                              </TooltipContent>
-                            </Tooltip>
-                            <div className="flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
-                              {state.documents?.slice(0, 3).map((d) => {
-                                const isVerifiedDoc = (d.verificationStatus ?? "self_reported") === "verified";
-                                return (
-                                  <button
-                                    key={d.name}
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      toast.info(isNb ? "Åpner dokument…" : "Opening document…", { description: d.name });
-                                    }}
-                                    className="inline-flex items-center gap-1 min-w-0 max-w-[180px] hover:text-foreground"
-                                    title={d.name}
-                                  >
-                                    <FileIcon className="h-3 w-3 shrink-0" />
-                                    <span className="truncate">{d.name}</span>
-                                    {isVerifiedDoc && <ShieldCheck className="h-3 w-3 text-success shrink-0" />}
-                                  </button>
-                                );
-                              })}
-                              {state.documents && state.documents.length > 3 && (
-                                <span className="shrink-0">+{state.documents.length - 3}</span>
-                              )}
-                            </div>
-                          </>
-                        ) : (
-                          <span className="truncate flex-1">{isNb ? "Ingen dokumenter lagt til" : "No documents added"}</span>
-                        )}
-                        <button
-                          type="button"
-                          onClick={() => setAttachDialog({
-                            id: req.requirement_id,
-                            name: isNb ? (req.name_no || req.name) : req.name,
-                            description: isNb ? req.description_no : req.description,
-                            articles: getArticlesForRequirement(req),
-                          })}
-                          className="ml-auto shrink-0 text-primary hover:underline"
-                        >
-                          {isNb ? "Legg til" : "Add"}
-                        </button>
-                      </div>
-                    </div>
-
+                    <Separator className="mb-4" />
+                    <div className="space-y-3">
 
                     {/* Manuell dokumentering — alltid tilgjengelig, inline */}
                     <div className="rounded-md border border-border/60 bg-card p-3 space-y-3">
