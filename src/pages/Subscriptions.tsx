@@ -528,7 +528,7 @@ export default function Subscriptions() {
                     Dere har brukt opp plassen. Neste nivå gir plass til {nextTier.vendorLimit} leverandører for {formatKr(nextTier.monthlyPriceKr)} per måned.
                   </p>
                   <Button size="sm" variant="outline" className="h-7 text-xs shrink-0" onClick={() => setChangeVendorTierOpen(true)}>
-                    Endre nivå
+                    Oppgrader
                   </Button>
                 </div>
               ) : undefined;
