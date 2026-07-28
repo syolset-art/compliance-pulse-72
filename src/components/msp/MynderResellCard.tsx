@@ -2,7 +2,6 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { useMynderResellSettings } from "@/hooks/useMynderResellSettings";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 
@@ -47,10 +46,7 @@ export function MynderResellCard({
     <Card className="p-4 space-y-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <h4 className="text-base font-semibold text-foreground">{name}</h4>
-            <Badge variant="secondary" className="text-xs h-5">Alltid inkludert</Badge>
-          </div>
+          <h4 className="text-base font-semibold text-foreground">{name}</h4>
           <p className="text-sm text-foreground/70 mt-0.5 leading-snug">{description}</p>
         </div>
         <div className="text-right shrink-0">
