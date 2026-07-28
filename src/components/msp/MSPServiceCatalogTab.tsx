@@ -20,6 +20,7 @@ import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping, type
 import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
 import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext } from "@/lib/serviceLibrary";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
+import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
