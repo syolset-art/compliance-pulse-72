@@ -474,6 +474,7 @@ export function MSPServiceCatalogTab() {
             description="Grunnpakke for compliance, styring og rapportering."
             monthlyLicenseKr={CORE_TIERS[0].monthlyPriceKr}
             priceNote="fra"
+            commissionPct={30}
           />
           <MynderResellCard
             productId="vendors"
@@ -481,6 +482,7 @@ export function MSPServiceCatalogTab() {
             description="Kartlegging, risiko og oppfølging av leverandører og tredjeparter."
             monthlyLicenseKr={VENDOR_TIERS[1].monthlyPriceKr}
             priceNote="fra"
+            commissionPct={30}
           />
           <MynderResellCard
             productId="assets"
@@ -488,6 +490,7 @@ export function MSPServiceCatalogTab() {
             description="Register og kontroll av systemer og AI-agenter (MACF)."
             monthlyLicenseKr={490}
             priceNote="fra"
+            commissionPct={25}
           />
         </div>
       </section>
