@@ -475,7 +475,7 @@ export default function Subscriptions() {
                     Dere har brukt opp plassen. Neste nivå gir plass til {nextTier.systemLimit} systemer for {formatKr(nextTier.monthlyPriceKr)} per måned.
                   </p>
                   <Button size="sm" variant="outline" className="h-7 text-xs shrink-0" onClick={() => setChangeCoreTierOpen(true)}>
-                    Endre nivå
+                    Oppgrader
                   </Button>
                 </div>
               ) : undefined;
