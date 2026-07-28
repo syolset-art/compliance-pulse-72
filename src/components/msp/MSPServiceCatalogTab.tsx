@@ -160,6 +160,15 @@ export function MSPServiceCatalogTab() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<ServiceTemplate | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardSeen, setWizardSeen] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try { return window.localStorage.getItem("msp-lara-wizard-seen-v1") === "1"; } catch { return false; }
+  });
+  const markWizardSeen = () => {
+    setWizardSeen(true);
+    try { window.localStorage.setItem("msp-lara-wizard-seen-v1", "1"); } catch {}
+  };
+  const openWizard = () => { markWizardSeen(); setWizardOpen(true); };
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
