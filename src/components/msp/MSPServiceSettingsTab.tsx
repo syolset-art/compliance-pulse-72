@@ -7,6 +7,7 @@ import { Clock, FileText, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { useServiceDefaults, SUPPORTED_CURRENCIES } from "@/hooks/useServiceDefaults";
 import { PartnerBrandingCard } from "./PartnerBrandingCard";
+import { PartnerTaxCard } from "./PartnerTaxCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function MSPServiceSettingsTab() {
@@ -130,6 +131,8 @@ export function MSPServiceSettingsTab() {
           </>
         )}
       </Card>
+      <PartnerTaxCard />
+
 
       <div className="space-y-2">
         <div className="flex items-center gap-2">
