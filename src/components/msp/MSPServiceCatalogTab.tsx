@@ -545,19 +545,7 @@ export function MSPServiceCatalogTab() {
                       </div>
                     </td>
                     <td className="px-3 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-base font-medium text-foreground">{pick.label}</span>
-                        {pick.recommended && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Star className="h-3.5 w-3.5 fill-primary text-primary shrink-0" aria-label="Anbefalt av Lara" />
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs text-xs">
-                              Anbefalt av Lara basert på din partnerprofil{curationSummary ? ` (${curationSummary})` : ""}.
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
+                      <div className="text-base font-medium text-foreground">{pick.label}</div>
                       <div className="text-sm text-foreground/70 line-clamp-1">
                         {template.shortDescription}
                       </div>
@@ -637,15 +625,28 @@ export function MSPServiceCatalogTab() {
                       {isAdopted ? (
                         <Badge variant="secondary" className="text-sm h-7 px-2.5">Lagt til</Badge>
                       ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
-                          className="h-9 gap-1 text-sm"
-                        >
-                          <Plus className="h-4 w-4" aria-hidden="true" />
-                          Legg til
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
+                              className="h-9 gap-1 text-sm"
+                            >
+                              {pick.recommended ? (
+                                <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden="true" />
+                              ) : (
+                                <Plus className="h-4 w-4" aria-hidden="true" />
+                              )}
+                              Legg til
+                            </Button>
+                          </TooltipTrigger>
+                          {pick.recommended && (
+                            <TooltipContent side="top" className="max-w-xs text-xs">
+                              Anbefalt av Lara basert på din partnerprofil{curationSummary ? ` (${curationSummary})` : ""}.
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
                       )}
                     </td>
                   </tr>
