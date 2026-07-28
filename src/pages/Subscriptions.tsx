@@ -539,7 +539,7 @@ export default function Subscriptions() {
                   description="TPRM og leverandørvurdering"
                   status={isDeactivated ? "inactive" : "active"}
                   price={isDeactivated ? 0 : vendorTier.monthlyPriceKr}
-                  priceLabel={isDeactivated ? undefined : vendorTier.label}
+                  priceLabel={isDeactivated || vendorTier.monthlyPriceKr === 0 ? undefined : vendorTier.label}
                   usage={String(used)}
                   usageLimit={String(vendorTier.vendorLimit)}
                   usageSuffix="leverandører"
