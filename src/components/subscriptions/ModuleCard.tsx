@@ -187,12 +187,12 @@ export function ModuleCard({
                   </button>
                 )}
                 <Button
-                  variant={status === "inactive" ? "default" : "outline"}
+                  variant={ctaOverride?.variant ?? (status === "inactive" ? "default" : "outline")}
                   size="sm"
                   className="h-8 text-xs"
                   onClick={onClick}
                 >
-                  {actionLabel[action]}
+                  {ctaOverride?.label ?? actionLabel[action]}
                 </Button>
               </div>
             )}
