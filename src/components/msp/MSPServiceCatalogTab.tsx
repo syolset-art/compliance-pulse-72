@@ -1102,6 +1102,7 @@ export function MSPServiceCatalogTab() {
       <MSPLaraServiceWizard
         open={wizardOpen}
         onOpenChange={setWizardOpen}
+        initialAnswers={previousAnswers}
         onComplete={(_suggestions, answers) => {
           const picks = computePicksFromAnswers(answers);
           setCuratedPicks(picks.length > 0 ? picks : null);
@@ -1109,9 +1110,46 @@ export function MSPServiceCatalogTab() {
           if (answers.markets.length) parts.push(`${answers.markets.length} marked${answers.markets.length > 1 ? "er" : ""}`);
           if (answers.domains.length) parts.push(`${answers.domains.length} fagområde${answers.domains.length > 1 ? "r" : ""}`);
           setCurationSummary(parts.join(", ") || null);
-          toast.success(`Lara foreslo ${picks.length} tjenester basert på kartleggingen`);
+
+          const diff = diffAnswers(previousAnswers, answers);
+          const changed = hasScopeChange(diff) && previousAnswers !== null;
+          if (changed) {
+            const adopted: AdoptedRef[] = extras
+              .filter((e) => e.status !== "retired" && !e.isMynder)
+              .map((e) => ({
+                id: e.id,
+                name: e.name,
+                templateId: e.templateId,
+                mappingFrameworkIds: Array.from(new Set(e.mappings.map((m) => m.frameworkId))),
+              }));
+            const recs = buildRecommendations(diff, answers, adopted);
+            const anything = recs.toAdd.length + recs.toExtend.length + recs.toReview.length;
+            if (anything > 0) {
+              setScopeDialog({ diff, recs });
+              toast.info(`Lara fant ${anything} mulige oppdateringer basert på nytt scope`, {
+                description: summarizeDiff(diff),
+              });
+            } else {
+              toast.success(`Lara oppdaterte forslagene — ingen endringer i katalogen`);
+            }
+          } else {
+            toast.success(`Lara foreslo ${picks.length} tjenester basert på kartleggingen`);
+          }
+
+          setPreviousAnswers(answers);
+          try { window.localStorage.setItem(WIZARD_ANSWERS_STORAGE_KEY, JSON.stringify(answers)); } catch {}
         }}
       />
+
+      {scopeDialog && (
+        <LaraScopeChangeDialog
+          open={!!scopeDialog}
+          onOpenChange={(v) => { if (!v) setScopeDialog(null); }}
+          diff={scopeDialog.diff}
+          recs={scopeDialog.recs}
+          onApply={(sel) => applyScopeChanges(scopeDialog.recs, sel)}
+        />
+      )}
 
 
 
