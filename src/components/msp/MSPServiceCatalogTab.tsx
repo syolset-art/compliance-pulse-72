@@ -637,32 +637,52 @@ export function MSPServiceCatalogTab() {
                       })()}
                     </td>
                     <td className="px-3 py-3 text-right">
-                      {isAdopted ? (
-                        <Badge variant="secondary" className="text-sm h-7 px-2.5">Lagt til</Badge>
-                      ) : (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
-                              className="h-9 gap-1 text-sm"
-                            >
-                              {pick.recommended ? (
-                                <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden="true" />
-                              ) : (
-                                <Plus className="h-4 w-4" aria-hidden="true" />
-                              )}
-                              Legg til
-                            </Button>
-                          </TooltipTrigger>
-                          {pick.recommended && (
-                            <TooltipContent side="top" className="max-w-xs text-xs">
-                              Anbefalt av Lara basert på din partnerprofil{curationSummary ? ` (${curationSummary})` : ""}.
-                            </TooltipContent>
-                          )}
-                        </Tooltip>
-                      )}
+                      {(() => {
+                        const lock = getLockInfo({ templateId: template.id, name: pick.label });
+                        if (lock) {
+                          return (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Badge variant="outline" className="text-xs h-7 px-2 gap-1 border-primary/30 bg-primary/5 text-primary cursor-help">
+                                  <FileText className="h-3 w-3" aria-hidden="true" />
+                                  På tilbud
+                                </Badge>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-xs text-xs">
+                                Inngår i {lock.count > 1 ? `${lock.count} tilbud` : `tilbud ${lock.offerNumber}`}
+                                {lock.customerName ? ` · ${lock.customerName}` : ""}. Tjenesten kan ikke fjernes.
+                              </TooltipContent>
+                            </Tooltip>
+                          );
+                        }
+                        if (isAdopted) {
+                          return <Badge variant="secondary" className="text-sm h-7 px-2.5">Lagt til</Badge>;
+                        }
+                        return (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
+                                className="h-9 gap-1 text-sm"
+                              >
+                                {pick.recommended ? (
+                                  <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden="true" />
+                                ) : (
+                                  <Plus className="h-4 w-4" aria-hidden="true" />
+                                )}
+                                Legg til
+                              </Button>
+                            </TooltipTrigger>
+                            {pick.recommended && (
+                              <TooltipContent side="top" className="max-w-xs text-xs">
+                                Anbefalt av Lara basert på din partnerprofil{curationSummary ? ` (${curationSummary})` : ""}.
+                              </TooltipContent>
+                            )}
+                          </Tooltip>
+                        );
+                      })()}
                     </td>
                   </tr>
                 );
