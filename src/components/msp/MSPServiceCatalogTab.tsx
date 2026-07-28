@@ -884,6 +884,10 @@ export function MSPServiceCatalogTab() {
         </div>
       </section>
 
+        </TabsContent>
+
+        <TabsContent value="mine" className="space-y-6 mt-4">
+
       {/* Mynder-produkter — videresalg med provisjon */}
       {(() => {
         const rows = [
@@ -954,9 +958,7 @@ export function MSPServiceCatalogTab() {
           </section>
         );
       })()}
-        </TabsContent>
 
-        <TabsContent value="mine" className="space-y-6 mt-4">
 
       {/* Min tjenestekatalog */}
 
