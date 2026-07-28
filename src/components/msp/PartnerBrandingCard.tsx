@@ -159,57 +159,6 @@ export function PartnerBrandingCard() {
               </p>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
-                Slagord <span className="text-muted-foreground/70 normal-case">(valgfritt)</span>
-              </Label>
-              <Input
-                value={tagline}
-                onChange={(e) => setTagline(e.target.value)}
-                placeholder="F.eks. Din partner for trygg digitalisering"
-                className="h-9 text-base"
-                maxLength={80}
-              />
-              <p className="text-sm text-muted-foreground">Vises under partnernavnet i tilbudet.</p>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">Logo</Label>
-              <div className="flex flex-wrap gap-2">
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/svg+xml"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleLogoSelect(f);
-                    e.target.value = "";
-                  }}
-                />
-                <Button type="button" variant="outline" size="sm" className="h-9 text-sm gap-1.5"
-                  onClick={() => fileRef.current?.click()}>
-                  <Upload className="h-3.5 w-3.5" />
-                  {branding.isAutoLogo
-                    ? (branding.autoLogoUrl ? "Bytt til egen tilbudslogo" : "Last opp logo")
-                    : "Bytt logo"}
-                </Button>
-                {!branding.isAutoLogo && (
-                  <Button type="button" variant="ghost" size="sm" className="h-9 text-sm gap-1"
-                    onClick={() => { clearField("logoDataUrl"); toast.success("Tilbakestilt til auto"); }}>
-                    <RotateCcw className="h-3 w-3" /> Auto
-                  </Button>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {branding.isAutoLogo
-                  ? (branding.autoLogoUrl
-                      ? "Bruker logo fra organisasjonsprofilen. Last opp en egen hvis du vil ha noe annet i tilbudet."
-                      : "PNG eller JPG, maks 300 KB. Vises øverst i tilbudet.")
-                  : "Egen tilbudslogo i bruk."}
-              </p>
-            </div>
-
             <div className="pt-1">
               <Button type="button" size="sm" className="h-9 text-sm" onClick={handleSave}>
                 Lagre tilbudsmal
