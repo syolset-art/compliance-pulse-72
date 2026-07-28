@@ -88,6 +88,8 @@ export function MSPServiceCatalogTab() {
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<ServiceTemplate | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [laraSuggestions, setLaraSuggestions] = useState<PartnerService[] | null>(null);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
