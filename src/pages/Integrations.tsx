@@ -118,11 +118,17 @@ export default function Integrations() {
   return (
     <TooltipProvider>
       <div className="container mx-auto pt-16 px-6 pb-12 max-w-7xl">
-        <PageHeader
-          title="Integrasjoner"
-          subtitle="Mynder Connect – sikre datakilder som lar Lara automatisk kartlegge systemer og leverandører."
-          icon={Plug}
-        />
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+            <Plug className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Integrasjoner</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Mynder Connect – sikre datakilder som lar Lara automatisk kartlegge systemer og leverandører.
+            </p>
+          </div>
+        </div>
 
         {/* Trust strip */}
         <Card className="mt-6 p-4 flex flex-wrap items-center gap-6 bg-gradient-to-r from-primary/5 to-transparent border-primary/20">
