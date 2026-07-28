@@ -1,41 +1,42 @@
 ## Problem
-Når partneren klikker «Legg til» på en foreslått tjeneste skjer det tre ting samtidig, men ingen av dem forklarer resultatet tydelig:
-1. Knappen bytter til badge «Lagt til».
-2. En toast «… lagt til i katalogen» blinker forbi.
-3. Tjenesten dukker opp i seksjonen «Mine tjenester» lenger ned på siden — som er skjult under produkter/anbefalinger og som ikke bruker begrepet «min tjenestekatalog».
+Sparkles-knappen (linje 496) lar Lara foreslå tjenester på nytt, men wizardens resultat legger bare til nye anbefalinger. Hvis partneren utvider markedet (nye land, nye bransjer, nye regelverk), får de ingen hjelp til å **endre eksisterende tjenester** — bare til å legge til flere. Katalogen blir uendret selv om scope har flyttet seg.
 
-Resultat: brukeren skjønner ikke hvor tjenesten havnet, hva «katalogen» er, eller hva neste steg er (prise, tilby, redigere).
+## Løsning — «Oppdater scope med Lara» ved siden av re-forslag
+Kun frontend, i `src/components/msp/MSPServiceCatalogTab.tsx`, `MSPLaraServiceWizard.tsx` og en ny liten diff-dialog. Ingen datamodell-endringer — vi bruker samme `extras`-state.
 
-## Løsning — tre små, sammenhengende UX-grep
-Kun frontend i `src/components/msp/MSPServiceCatalogTab.tsx` (+ liten hjelpekomponent). Ingen datamodell-endringer.
+### 1. Fange scope-endringer i wizarden
+Utvide `WizardAnswers` (allerede brukt) med et implisitt «forrige svar» lagret i `localStorage` (`msp-lara-wizard-answers-v1`).
+Når partneren åpner wizarden på nytt:
+- Forhåndsutfyll svarene med forrige runde.
+- Etter fullføring sammenlign nytt vs. gammelt svar → produser et **scope-diff** (nye markeder, nye regelverk, nye bransjer, endret størrelse).
 
-### 1. Rename og ankerpunkt for «Min tjenestekatalog»
-- Endre overskriften «Mine tjenester» → **«Min tjenestekatalog»** med kort undertekst: «Tjenester du tilbyr kundene dine. Brukes i tilbud og gap-analyser.»
-- Legg til `id="min-katalog"` på seksjonen så vi kan scrolle dit.
-- Tellepille ved siden av tittelen: «3 tjenester · 2 på tilbud».
+### 2. Diff-dialog «Lara har oppdaget endringer i scope»
+Åpnes automatisk etter wizarden hvis diffen ikke er tom, i stedet for å bare legge til nye rader stille.
+Innhold:
+- **Kort oppsummering** av endringen: «Du har lagt til NIS2 og det svenske markedet.»
+- **Anbefalte handlinger** i tre grupper med sjekkbokser (alle på som default):
+  1. **Legg til** N nye tjenester som dekker de nye kravene (samme som i dag).
+  2. **Utvid** M eksisterende tjenester med nye kontroll-mappinger (f.eks. legge til NIS2-mapping på «SOC-overvåkning»).
+  3. **Marker for gjennomgang** K tjenester som ikke lenger er relevante for nytt scope (foreslå «Avvikle»).
+- «Bruk valgte endringer» commit-knapp + «Avvis» + «Se detaljer» (åpner en tekstlig endringslogg).
 
-### 2. Tydelig bekreftelse ved «Legg til»
-Erstatt dagens statiske «Lagt til»-badge og enkle toast med:
-- **Bekreftelses-toast** med handling:
-  «✓ La til «X» i din tjenestekatalog» + knapp **«Vis i katalogen»** som scroller/highlighter raden i seksjon 1.
-- **Badge-varianten** beholdes, men blir klikkbar («Lagt til — vis») og får samme scroll-til-katalog-oppførsel. Tooltip: «Ligger i din tjenestekatalog. Klikk for å redigere pris og timer.»
-- Kort **flash-highlight** (ring/bg-primary/5 i ~1,5 s) på den nye raden i «Min tjenestekatalog» så øyet fanger hvor den landet.
+### 3. Vis Lara-oppdateringer i «Min tjenestekatalog»
+- Rader som ble utvidet får en subtil `Sparkles`-chip: «Lara har utvidet mappinger — se endring» → åpner endringsloggen.
+- Rader som er markert for gjennomgang får en gul `AlertTriangle`-chip: «Foreslått avviklet — nytt scope dekker ikke lenger dette» med knapp «Avvikle» / «Behold».
 
-### 3. Tom-tilstand som forklarer katalogen
-Når `extras` er tomt i dag skjules hele seksjonen. Vi viser i stedet et lite, subtilt kort:
-- Tittel: «Min tjenestekatalog er tom»
-- Én linje: «Legg til tjenester fra listen over — de blir tilgjengelige når du lager tilbud.»
-- Ingen CTA (listen over er allerede der).
-
-Dette gjør at brukeren første gang forstår hva katalogen er *før* første «Legg til»-klikk.
+### 4. Endring på Sparkles-knappen (den valgte)
+- Skift label/tooltip fra «La Lara foreslå tjenester på nytt» → **«Oppdater tjenester med Lara»**.
+- Under tooltip-linjen: «Bruk når du endrer marked, bransje eller regelverk.»
+- Ingen endring på førstegangs-CTA (full outline-knapp beholder «La Lara foreslå tjenester»).
 
 ## Ikke i scope
-- Ingen endring på Mynder-produkter-tabellen, Lara-wizard, tilbud-flyt, priser eller datamodell.
-- Ingen ny rute — alt skjer på samme side, med scroll + highlight.
+- Ingen endring på datamodell, tilbud-låsing eller Mynder-produkter.
+- Ingen backend/edge-funksjon — diffen kjører klient-side mot lagrede wizard-svar.
+- Ingen automatisk avvikling — Lara foreslår, partneren bekrefter.
 
 ## Tekniske detaljer
-- `useRef` på `<section id="min-katalog">` for `scrollIntoView({ behavior: "smooth", block: "start" })`.
-- `useState<string | null>(highlightId)` som settes ved `adoptTemplate` / toast-action, ryddes med `setTimeout` 1600 ms; brukes til å legge `ring-2 ring-primary/40 bg-primary/5` på raden.
-- Toast: bruk `sonner`s `toast.success(..., { action: { label: "Vis i katalogen", onClick: … } })` — allerede i bruk andre steder.
-- Badge «Lagt til» blir en `<button>` med samme onClick som toast-action.
-- i18n: strengene er norske i tråd med resten av filen; ingen ny i18n-nøkkel-infrastruktur her.
+- `WizardAnswers` persistert i `localStorage` som JSON.
+- Ny fil `src/lib/laraScopeDiff.ts` med `diffAnswers(prev, next)` → `{ addedMarkets, addedFrameworks, removedFrameworks, addedIndustries, sizeChanged }` og `buildRecommendations(diff, extras, SERVICE_LIBRARY)` → `{ toAdd, toExtend, toReview }`.
+- Ny komponent `src/components/msp/LaraScopeChangeDialog.tsx` (shadcn `Dialog` + `Checkbox` + `ScrollArea`).
+- Utvide `ExtraService` runtime-metadata (in-memory) med `laraReviewReason?: string` og `laraExtendedMappings?: ServiceMapping[]` for chip-visning — ingen schema-endring.
+- Wizard-callback `onComplete(answers)` beholder eksisterende oppførsel når diffen er tom (bakoverkompatibel).
