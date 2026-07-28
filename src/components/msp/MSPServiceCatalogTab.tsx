@@ -25,6 +25,8 @@ import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
 
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
+import { usePartnerBranding } from "@/hooks/usePartnerBranding";
+import { formatTaxNote } from "@/lib/partnerTax";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
