@@ -1,0 +1,96 @@
+export type ModuleKey =
+  | "core"
+  | "frameworks"
+  | "vendors"
+  | "assets"
+  | "trust"
+  | "partner";
+
+export interface ModuleInfo {
+  title: string;
+  tagline: string;
+  description: string;
+  features: string[];
+}
+
+export const MODULE_INFO: Record<ModuleKey, ModuleInfo> = {
+  core: {
+    title: "Mynder Core",
+    tagline: "Grunnmodulen i plattformen",
+    description:
+      "Mynder Core samler alt daglig samsvarsarbeid på ett sted. Oppgaver, avvik, behandlingsprotokoll og dokumentasjon henger sammen — og Lara hjelper deg å holde tråden.",
+    features: [
+      "Oppgavestyring med prioritet og forfall",
+      "Avvikshåndtering med rotårsak og tiltak",
+      "Behandlingsprotokoll (RoPA) med maler",
+      "Dokumentbibliotek med versjonering",
+      "AI-assistert samsvarsvurdering med Lara",
+      "Aktivitetslogg og revisjonsspor",
+    ],
+  },
+  frameworks: {
+    title: "Regelverk",
+    tagline: "Aktiver rammeverk du må etterleve",
+    description:
+      "Velg blant obligatoriske, anbefalte og valgfrie regelverk. Hvert rammeverk gir kontroller, krav og gap-analyse tilpasset din virksomhet.",
+    features: [
+      "GDPR, NIS2, ISO 27001, DORA og flere",
+      "Automatisk gap-analyse per rammeverk",
+      "Modenhetsscore på 0–4-skala",
+      "Kontroller koblet mot bevis og dokumentasjon",
+      "Kontinuerlig oppdatering ved regelendringer",
+    ],
+  },
+  vendors: {
+    title: "Leverandørmodul",
+    tagline: "TPRM og leverandørvurdering",
+    description:
+      "Kartlegg, vurder og følg opp leverandører og databehandlere. Lara analyserer dokumenter automatisk og foreslår risiko basert på data du allerede har.",
+    features: [
+      "Leverandørregister med kritikalitet og risiko",
+      "AI-analyse av databehandleravtaler og SOC 2",
+      "Automatisk oppfølging av utløpsdatoer",
+      "Trust Profile-integrasjon for delt dokumentasjon",
+      "Portefølje-rapport i PDF",
+    ],
+  },
+  assets: {
+    title: "Assets",
+    tagline: "System- og eiendelsregister",
+    description:
+      "Full oversikt over systemer, tjenester og eiendeler — eid av arbeidsområdene som faktisk bruker dem. Oppdag nye systemer automatisk via integrasjoner.",
+    features: [
+      "Systemregister med eiere og arbeidsområder",
+      "Automatisk oppdagelse via Microsoft og Google Workspace",
+      "Import fra Excel eller manuell registrering",
+      "Kobling mellom systemer, leverandører og data",
+      "Livssyklus fra onboarding til avvikling",
+    ],
+  },
+  trust: {
+    title: "Trust Profile",
+    tagline: "Offentlig tillitsside",
+    description:
+      "Én delbar side som viser hvordan virksomheten jobber med sikkerhet og personvern. Kunder og partnere kan se sertifiseringer, retningslinjer og status uten å sende e-post.",
+    features: [
+      "Offentlig profil på trust.mynder.no",
+      "Kontroll over hva som deles og hva som er privat",
+      "Automatisk oppdatert fra dokumentasjon i Core",
+      "Kundeforespørsler og meldinger samlet",
+      "Inkludert i Mynder Core",
+    ],
+  },
+  partner: {
+    title: "Partner Workspace",
+    tagline: "For MSP-er og samarbeidspartnere",
+    description:
+      "Egen arbeidsflate for konsulenter og MSP-er som forvalter flere kunder. Se portefølje, gap-analyser og salgspotensial på tvers.",
+    features: [
+      "Portefølje-dashboard for alle kunder",
+      "Gap-analyse-veiviser med tjenestematching",
+      "Tjenestekatalog med versjoner og godkjenning",
+      "Salgspotensial basert på reelle gap",
+      "Deling av dokumentasjon på tvers av kunder",
+    ],
+  },
+};

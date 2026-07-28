@@ -22,6 +22,7 @@ export interface ModuleCardProps {
   breakdown?: Array<{ label: string; priceKr: number }>;
   footer?: React.ReactNode;
   ctaOverride?: { label: string; variant?: "default" | "outline" };
+  onReadMore?: () => void;
 }
 
 
@@ -51,6 +52,7 @@ export function ModuleCard({
   breakdown,
   footer,
   ctaOverride,
+  onReadMore,
 
 }: ModuleCardProps) {
   const canDeactivate = !!onDeactivate && status === "active";
@@ -121,6 +123,15 @@ export function ModuleCard({
               <p className="text-sm text-muted-foreground leading-snug mt-1">{description}</p>
             )}
             {usageLine}
+            {onReadMore && (
+              <button
+                type="button"
+                onClick={onReadMore}
+                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 mt-2 transition-colors"
+              >
+                Les mer
+              </button>
+            )}
           </div>
 
           {/* Right: price + actions */}
