@@ -457,7 +457,7 @@ export default function Subscriptions() {
               </div>
               <OrganizationContextBanner />
               <p className="text-sm text-muted-foreground mt-1">
-                Administrer aktive moduler og regelverk for {companyProfile?.name || "din organisasjon"}.
+                Administrer produktene dine her
               </p>
             </div>
             <div className="text-right">
