@@ -18,7 +18,7 @@ import {
 } from "./FrameworkCoverageCard";
 import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping, type ServiceActivity } from "./CustomServiceDialog";
 import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
-import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext } from "@/lib/serviceLibrary";
+import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, getMappingRoles, formatRoleVerbs, ROLE_META } from "@/lib/serviceLibrary";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MynderResellCard } from "./MynderResellCard";
