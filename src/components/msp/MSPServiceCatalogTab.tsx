@@ -423,6 +423,8 @@ export function MSPServiceCatalogTab() {
                                 ? `${m.frameworkLabel} · ${shown.join(", ")}${rest > 0 ? ` +${rest}` : ""}`
                                 : m.frameworkLabel;
                               const fullList = ids.length > 0 ? ids.join(", ") : "Ingen krav mappet";
+                              const roles = getMappingRoles(template, m);
+                              const roleLabels = roles.map((r) => ROLE_META[r].label).join(", ");
                               return (
                                 <Tooltip key={`${template.id}-${m.frameworkId}`}>
                                   <TooltipTrigger asChild>
@@ -433,6 +435,11 @@ export function MSPServiceCatalogTab() {
                                   <TooltipContent side="top" className="max-w-xs">
                                     <div className="text-xs font-semibold mb-0.5">{m.frameworkLabel}</div>
                                     <div className="text-xs text-foreground/80">{fullList}</div>
+                                    {roleLabels && (
+                                      <div className="text-xs text-foreground/70 mt-1 pt-1 border-t border-border/40">
+                                        Rolle: {roleLabels}
+                                      </div>
+                                    )}
                                   </TooltipContent>
                                 </Tooltip>
                               );
@@ -447,6 +454,18 @@ export function MSPServiceCatalogTab() {
                           <span className="text-sm text-foreground/60">—</span>
                         )}
                       </div>
+                      {(() => {
+                        const allRoles = Array.from(
+                          new Set(mappings.flatMap((m) => getMappingRoles(template, m))),
+                        );
+                        if (allRoles.length === 0) return null;
+                        const verbs = formatRoleVerbs(allRoles);
+                        return (
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            Tjenesten {verbs} status mot kravene
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="px-3 py-3 text-right">
                       {isAdopted ? (
