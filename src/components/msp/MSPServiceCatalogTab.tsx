@@ -377,7 +377,7 @@ export function MSPServiceCatalogTab() {
               <tr>
                 <th className="text-left font-semibold px-3 py-2.5 w-12"></th>
                 <th className="text-left font-semibold px-3 py-2.5">Tjeneste</th>
-                <th className="text-left font-semibold px-3 py-2.5">Krav dekket</th>
+                <th className="text-left font-semibold px-3 py-2.5">Krav tjenesten støtter</th>
                 <th className="text-right font-semibold px-3 py-2.5 w-32"></th>
               </tr>
             </thead>
@@ -489,7 +489,7 @@ export function MSPServiceCatalogTab() {
           <div>
             <h3 className="text-lg font-semibold text-foreground">Mynder-produkter (videresalg)</h3>
             <p className="text-sm text-foreground/70 mt-0.5">
-              Videreselg Mynder-lisenser til dine kunder og tjen provisjon. Alltid inkludert i katalogen.
+              Videreselg Mynder-lisenser til dine kunder og tjen provisjon.
             </p>
           </div>
         </div>
