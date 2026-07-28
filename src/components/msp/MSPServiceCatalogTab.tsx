@@ -634,7 +634,7 @@ export function MSPServiceCatalogTab() {
                 <TooltipContent side="left" className="max-w-xs text-sm">
                   <div className="font-medium">Se og rediger tjenesteprofilen din</div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    Endre marked, bransje, fagområder eller regelverk — og lagre. Ingen nye tjenester foreslås automatisk.
+                    Endre marked, bransje, fagområder eller regelverk — og lagre.&nbsp;
                   </div>
 
                 </TooltipContent>
