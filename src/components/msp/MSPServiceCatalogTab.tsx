@@ -1145,7 +1145,7 @@ export function MSPServiceCatalogTab() {
             {showMynderProducts && (
               <div className="space-y-3">
                 <p className="text-sm text-foreground/70 px-1">
-                  Abonnementer du kan selge videre. Din andel utbetales månedlig.
+                  Abonnementer du kan selge videre.
                 </p>
                 <div className="rounded-md border border-border bg-card overflow-hidden">
                   <table className="w-full text-sm">
