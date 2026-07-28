@@ -17,6 +17,8 @@ const QUICK_RATES = [0, 12, 15, 20, 25];
 
 export function PartnerTaxCard() {
   const { branding, save } = usePartnerBranding();
+  const { currency } = useServiceDefaults();
+  const hint = getCurrencyTaxHint(currency);
   const [draft, setDraft] = useState<PartnerTaxSettings>(branding.tax);
 
   useEffect(() => {
@@ -34,6 +36,11 @@ export function PartnerTaxCard() {
   const update = <K extends keyof PartnerTaxSettings>(k: K, v: PartnerTaxSettings[K]) =>
     setDraft((prev) => ({ ...prev, [k]: v }));
 
+  const applyHint = () => {
+    if (!hint || hint.rate == null) return;
+    setDraft((prev) => ({ ...prev, enabled: true, rate: hint.rate as number, label: hint.label }));
+  };
+
   return (
     <Card className="p-5">
       <div className="flex items-start gap-3 mb-4">
@@ -43,13 +50,30 @@ export function PartnerTaxCard() {
         <div className="flex-1">
           <h2 className="text-base font-semibold text-foreground">Mva / Tax i tilbud</h2>
           <p className="text-base text-muted-foreground mt-0.5">
-            Bestem hvordan mva eller tax vises i tilbud og priskataloger. Innstillingen brukes
-            automatisk i totalsummer og prisnotater.
+            Bestem hvordan mva eller tax vises i tilbud og priskataloger. Valgt valuta styrer
+            hvilken avgift som er relevant — innstillingen brukes automatisk i totalsummer og prisnotater.
           </p>
         </div>
       </div>
 
       <div className="space-y-4">
+        <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2.5">
+          <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="flex-1 text-sm text-foreground/80">
+            Valgt valuta er <span className="font-semibold text-foreground">{currency}</span>.{" "}
+            {hint
+              ? hint.note
+              : "Sett satsen manuelt for dette markedet."}{" "}
+            <span className="text-muted-foreground">Endre valuta under «Standard timepris».</span>
+          </div>
+          {hint?.rate != null && (draft.rate !== hint.rate || draft.label !== hint.label || !draft.enabled) && (
+            <Button size="sm" variant="outline" onClick={applyHint} className="shrink-0 h-8 text-xs">
+              Bruk {hint.rate}% {hint.label}
+            </Button>
+          )}
+        </div>
+
+
         <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2.5">
           <div>
             <p className="text-base font-medium text-foreground">Vis mva/tax i tilbud</p>
