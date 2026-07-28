@@ -22,8 +22,7 @@ import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type Servic
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
-import { MSPLaraServiceSuggestions } from "./MSPLaraServiceSuggestions";
-import type { PartnerService } from "@/lib/serviceCatalog";
+import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
 
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
 
