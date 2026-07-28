@@ -572,6 +572,82 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                     <Separator className="mb-4" />
                     <div className="space-y-3">
 
+                    {/* Om kravet — rik strukturert veiledning */}
+                    {(() => {
+                      const g = getRequirementGuidance(req);
+                      const purpose = isNb ? g.purposeNo : g.purposeEn;
+                      const criteria = isNb ? g.criteriaNo : g.criteriaEn;
+                      const evaluation = isNb ? g.evaluationNo : g.evaluationEn;
+                      const pitfalls = isNb ? g.pitfallsNo : g.pitfallsEn;
+                      return (
+                        <div className="rounded-md border border-border/60 bg-muted/10 p-3 space-y-3">
+                          <div className="flex items-start gap-2">
+                            <Target className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold text-foreground mb-0.5">
+                                {isNb ? "Formål" : "Purpose"}
+                              </p>
+                              <p className="text-xs text-muted-foreground leading-relaxed">{purpose}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-2">
+                            <ListChecks className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-semibold text-foreground mb-1">
+                                {isNb ? "Hva må være på plass" : "What must be in place"}
+                              </p>
+                              <ul className="space-y-1">
+                                {criteria.map((c, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                                    <span className="mt-1.5 h-1 w-1 rounded-full bg-primary/70 shrink-0" />
+                                    <span>{c}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+
+                          <div className="flex items-start gap-2">
+                            <Info className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-semibold text-foreground mb-1">
+                                {isNb ? "Hvordan Lara vurderer" : "How Lara evaluates"}
+                              </p>
+                              <ul className="space-y-1">
+                                {evaluation.map((c, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                                    <span className="mt-1.5 h-1 w-1 rounded-full bg-muted-foreground/60 shrink-0" />
+                                    <span>{c}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+
+                          {pitfalls.length > 0 && (
+                            <div className="flex items-start gap-2">
+                              <AlertTriangle className="h-3.5 w-3.5 text-warning mt-0.5 shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs font-semibold text-foreground mb-1">
+                                  {isNb ? "Vanlige fallgruver" : "Common pitfalls"}
+                                </p>
+                                <ul className="space-y-1">
+                                  {pitfalls.map((c, i) => (
+                                    <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                                      <span className="mt-1.5 h-1 w-1 rounded-full bg-warning/60 shrink-0" />
+                                      <span>{c}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+
                     {/* Anbefalt dokumentasjon — skjult som standard */}
                     {(() => {
                       const docs = getRecommendedDocs(req, isNb);
