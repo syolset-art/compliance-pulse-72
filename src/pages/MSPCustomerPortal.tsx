@@ -64,11 +64,6 @@ export default function MSPCustomerPortal() {
 
   const { requirements, grouped, stats } = useComplianceRequirements();
 
-  const xp = useMemo(
-    () => requirements.filter((r) => r.status === "completed").reduce((sum, r) => sum + (XP_MAP[r.priority] || 0), 0),
-    [requirements]
-  );
-
   const streak = useMemo(() => {
     const dates = requirements.filter((r) => r.completed_at).map((r) => r.completed_at!);
     return calculateStreak(dates);
