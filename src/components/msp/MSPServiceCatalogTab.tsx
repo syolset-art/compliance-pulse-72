@@ -197,6 +197,16 @@ export function MSPServiceCatalogTab() {
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
 
+  // Forrige wizard-svar — brukes for å oppdage scope-endringer.
+  const [previousAnswers, setPreviousAnswers] = useState<WizardAnswers | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = window.localStorage.getItem(WIZARD_ANSWERS_STORAGE_KEY);
+      return raw ? (JSON.parse(raw) as WizardAnswers) : null;
+    } catch { return null; }
+  });
+  const [scopeDialog, setScopeDialog] = useState<{ diff: ScopeDiff; recs: ScopeRecommendations } | null>(null);
+
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
     const nis2 = FRAMEWORK_CATALOG.find((f) => f.id === "nis2");
