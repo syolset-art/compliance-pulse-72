@@ -1114,15 +1114,45 @@ export function MSPServiceCatalogTab() {
 
       {/* Mynder-produkter — videresalg med provisjon (kollapsbar) */}
       {(() => {
-        const rows = [
-          { id: "core", name: "Mynder Core", price: CORE_TIERS[0].monthlyPriceKr, commissionPct: 30 },
-          { id: "vendors", name: "Leverandørmodulen", price: VENDOR_TIERS[1].monthlyPriceKr, commissionPct: 30 },
-          { id: "assets", name: "Assets", price: 490, commissionPct: 25 },
+        type ProductRow = {
+          id: string;
+          moduleKey: ModuleKey;
+          name: string;
+          commissionPct: number;
+          fromPrice: number;
+          tiers: Array<{ label: string; priceKr: number; isFree?: boolean }>;
+        };
+        const products: ProductRow[] = [
+          {
+            id: "core",
+            moduleKey: "core",
+            name: "Mynder Core",
+            commissionPct: 30,
+            fromPrice: CORE_TIERS[0].monthlyPriceKr,
+            tiers: CORE_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr })),
+          },
+          {
+            id: "vendors",
+            moduleKey: "vendors",
+            name: "Leverandørmodulen",
+            commissionPct: 30,
+            fromPrice: VENDOR_TIERS[1].monthlyPriceKr,
+            tiers: VENDOR_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr, isFree: t.isFree })),
+          },
+          {
+            id: "assets",
+            moduleKey: "assets",
+            name: "Assets",
+            commissionPct: 25,
+            fromPrice: 490,
+            tiers: [{ label: "Standard", priceKr: 490 }],
+          },
         ];
         const sym = currencyOption.symbol;
         const trailing = sym === "kr";
         const fmt = (n: number) =>
           `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${sym}`;
+        const fmtPrice = (n: number) => (trailing ? fmt(n) : `${sym} ${Math.round(n)}`);
         return (
           <section className="space-y-3">
             <button
@@ -1133,7 +1163,7 @@ export function MSPServiceCatalogTab() {
             >
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-foreground">Produkter fra Mynder</span>
-                <span className="text-xs text-muted-foreground">({rows.length})</span>
+                <span className="text-xs text-muted-foreground">({products.length})</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>{showMynderProducts ? "Skjul" : "Vis"}</span>
@@ -1141,48 +1171,107 @@ export function MSPServiceCatalogTab() {
               </div>
             </button>
             {showMynderProducts && (
-              <div className="space-y-3">
-                <p className="text-sm text-foreground/70 px-1">
-                  Abonnementer du kan selge videre.
-                </p>
-                <div className="rounded-md border border-border bg-card overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-left text-xs text-muted-foreground border-b border-border">
-                        <th className="px-4 py-2.5 font-medium">Produkt</th>
-                        <th className="px-4 py-2.5 font-medium text-right">Lisens/mnd</th>
-                        <th className="px-4 py-2.5 font-medium text-right">Din andel</th>
-                        <th className="px-4 py-2.5 font-medium text-right">Etablering</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {rows.map((r) => {
-                        const share = (r.price * r.commissionPct) / 100;
-                        return (
-                          <tr key={r.id}>
-                            <td className="px-4 py-3 font-medium text-foreground">{r.name}</td>
-                            <td className="px-4 py-3 text-right tabular-nums text-foreground/80">
-                              {trailing ? fmt(r.price) : `${sym} ${Math.round(r.price)}`}
-                            </td>
-                            <td className="px-4 py-3 text-right tabular-nums font-semibold text-foreground">
-                              {trailing ? fmt(share) : `${sym} ${Math.round(share)}`}
-                            </td>
-                            <td className="px-4 py-3 text-right">
-                              <SetupFeeCell
-                                productId={r.id}
-                                productName={r.name}
-                                currencySymbol={sym}
-                                trailing={trailing}
-                                format={fmt}
-                              />
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                <p className="text-xs text-muted-foreground">{formatTaxNote(branding.tax)}</p>
+              <div className="space-y-2">
+                {products.map((p) => {
+                  const info = MODULE_INFO[p.moduleKey];
+                  const isOpen = expandedProduct === p.id;
+                  return (
+                    <div key={p.id} className="rounded-md border border-border bg-card overflow-hidden">
+                      <div className="flex items-center gap-3 px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedProduct(isOpen ? null : p.id)}
+                          className="flex-1 min-w-0 flex items-center gap-3 text-left"
+                          aria-expanded={isOpen}
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-foreground">{p.name}</div>
+                            <div className="text-xs text-muted-foreground truncate">{info.tagline}</div>
+                          </div>
+                          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground whitespace-nowrap">
+                            <span className="tabular-nums">Fra {fmtPrice(p.fromPrice)}/mnd</span>
+                            <span>·</span>
+                            <span>{p.commissionPct} % provisjon</span>
+                          </div>
+                        </button>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <SetupFeeCell
+                            productId={p.id}
+                            productName={p.name}
+                            currencySymbol={sym}
+                            trailing={trailing}
+                            format={fmt}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setExpandedProduct(isOpen ? null : p.id)}
+                          className="text-muted-foreground hover:text-foreground"
+                          aria-label={isOpen ? "Skjul detaljer" : "Vis detaljer"}
+                        >
+                          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </button>
+                      </div>
+                      {isOpen && (
+                        <div className="border-t border-border bg-muted/20 px-4 py-4 space-y-4">
+                          <p className="text-sm text-foreground/80 leading-relaxed">{info.description}</p>
+
+                          <div className="space-y-1.5">
+                            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              Hva kunden får
+                            </div>
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                              {info.features.slice(0, 5).map((f, i) => (
+                                <li key={i} className="flex items-start gap-1.5 text-sm text-foreground/80">
+                                  <Check className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" aria-hidden="true" />
+                                  <span>{f}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                              Nivåer kunden kan velge
+                            </div>
+                            <div className="rounded-md border border-border bg-card overflow-hidden">
+                              <table className="w-full text-sm">
+                                <thead>
+                                  <tr className="text-left text-xs text-muted-foreground border-b border-border">
+                                    <th className="px-3 py-2 font-medium">Nivå</th>
+                                    <th className="px-3 py-2 font-medium text-right">Pris/mnd</th>
+                                    <th className="px-3 py-2 font-medium text-right">Din andel</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border">
+                                  {p.tiers.map((t, i) => {
+                                    const share = (t.priceKr * p.commissionPct) / 100;
+                                    return (
+                                      <tr key={i}>
+                                        <td className="px-3 py-2 text-foreground/80">{t.label}</td>
+                                        <td className="px-3 py-2 text-right tabular-nums text-foreground/80">
+                                          {t.isFree ? "Gratis" : fmtPrice(t.priceKr)}
+                                        </td>
+                                        <td className="px-3 py-2 text-right tabular-nums font-semibold text-foreground">
+                                          {t.isFree ? (
+                                            <span className="text-xs font-normal text-muted-foreground">Ingen provisjon</span>
+                                          ) : (
+                                            fmtPrice(share)
+                                          )}
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                <p className="text-xs text-muted-foreground pt-1">{formatTaxNote(branding.tax)}</p>
               </div>
             )}
           </section>
