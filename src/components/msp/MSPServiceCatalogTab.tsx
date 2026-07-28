@@ -50,6 +50,10 @@ interface ExtraService {
   retiredAt?: string;
   retiredReason?: string;
   replacedById?: string;
+  /** Lara-flagg: tjenesten er utvidet med nye kontrollmappinger etter scope-endring. */
+  laraExtensionSummary?: string;
+  /** Lara-flagg: tjenesten er markert for gjennomgang etter scope-endring. */
+  laraReviewReason?: string;
 }
 
 function formatNOK(n: number): string {
