@@ -141,6 +141,10 @@ export function MSPCreateOfferDialog({
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
   const totalPrice = totalHours * editableHourlyRate;
+  const tax = branding.tax;
+  const taxBreakdown = computeTaxBreakdown(totalPrice, tax);
+  const showTax = tax.enabled && tax.rate > 0;
+  const fmtKr = (n: number) => `${n.toLocaleString("nb-NO")} kr`;
 
   const updateTask = (i: number, patch: Partial<EditableTask>) => {
     setTasks(p => p.map((t, idx) => (idx === i ? { ...t, ...patch } : t)));
