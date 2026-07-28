@@ -25,7 +25,7 @@ import {
   ChevronRight,
   Save,
   Info,
-  ImageIcon,
+  
   Layers,
   Plug,
   Receipt,
@@ -39,7 +39,7 @@ import {
   type PartnerModuleKey,
 } from "@/lib/partnerModules";
 import { toast } from "sonner";
-import { PartnerBrandingCard } from "@/components/msp/PartnerBrandingCard";
+
 
 const SETTINGS_KEY = "msp-messages-settings-v1";
 
@@ -157,9 +157,6 @@ export default function MSPPartnerSettings() {
             <TabsList className="h-10">
               <TabsTrigger value="generelt" className="gap-1.5">
                 <Settings className="h-3.5 w-3.5" /> Generelt
-              </TabsTrigger>
-              <TabsTrigger value="tilbudsmerking" className="gap-1.5">
-                <ImageIcon className="h-3.5 w-3.5" /> Tilbudsmal
               </TabsTrigger>
               <TabsTrigger value="integrasjoner" className="gap-1.5">
                 <Plug className="h-3.5 w-3.5" /> Integrasjoner
@@ -362,9 +359,6 @@ export default function MSPPartnerSettings() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="tilbudsmerking">
-              <PartnerBrandingCard />
-            </TabsContent>
 
             <TabsContent value="integrasjoner">
               <PartnerIntegrationsTab />
