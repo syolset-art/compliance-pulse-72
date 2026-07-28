@@ -477,7 +477,7 @@ export const FrameworkRequirementsList = ({ frameworkId, onCountsChange, highlig
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{req.description_no}</p>
+                  <p className={cn("text-sm text-muted-foreground mt-1", !isExpanded && "line-clamp-2")}>{req.description_no}</p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0 mt-1">
                   {/* Subtil dokumentasjonsindikator — kun for besvarte krav */}
