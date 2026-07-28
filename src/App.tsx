@@ -35,6 +35,7 @@ import PersonalSettings from "./pages/PersonalSettings";
 import Regulations from "./pages/Regulations";
 
 import Subscriptions from "./pages/Subscriptions";
+import ActivityLog from "./pages/ActivityLog";
 import TermsAndConsent from "./pages/TermsAndConsent";
 import Reports from "./pages/Reports";
 import ProcessProfile from "./pages/ProcessProfile";
