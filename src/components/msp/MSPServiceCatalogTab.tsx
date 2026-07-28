@@ -328,6 +328,77 @@ export function MSPServiceCatalogTab() {
     });
   };
 
+  // Bruk brukervalgt endringer fra Lara-scope-dialogen på tjenestekatalogen.
+  const applyScopeChanges = (recs: ScopeRecommendations, sel: ScopeChangeSelection) => {
+    let addedCount = 0;
+    let extendedCount = 0;
+    let reviewCount = 0;
+
+    // Legg til nye tjenester
+    sel.addTemplateIds.forEach((tid) => {
+      const rec = recs.toAdd.find((r) => r.templateId === tid);
+      const tpl = SERVICE_LIBRARY.find((t) => t.id === tid);
+      if (!tpl || !rec) return;
+      if (adoptedIds.has(tpl.id)) return;
+      adoptTemplate(tpl);
+      addedCount += 1;
+    });
+
+    // Utvid eksisterende + marker for gjennomgang i én setExtras-runde
+    setExtras((prev) =>
+      prev.map((e) => {
+        // Utvid
+        const ext = recs.toExtend.find((r) => r.extraId === e.id);
+        if (ext && sel.extendExtraIds.includes(e.id)) {
+          const tpl = SERVICE_LIBRARY.find((t) => t.id === ext.templateId);
+          if (tpl) {
+            const currentFwIds = new Set(e.mappings.map((m) => m.frameworkId));
+            const newMappings: ServiceMapping[] = tpl.mappings
+              .filter((m) => !currentFwIds.has(m.frameworkId) && ext.addedFrameworkLabels.includes(m.frameworkLabel))
+              .flatMap((m) => {
+                const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
+                const roles = getMappingRoles(tpl, m);
+                return m.controlIds.map((cid) => {
+                  const cp = fw?.controlPoints.find((c) => c.id === cid);
+                  return {
+                    frameworkId: m.frameworkId,
+                    frameworkShortName: fw?.shortName ?? m.frameworkLabel,
+                    controlId: cid,
+                    controlLabel: cp?.label ?? cid,
+                    roles,
+                  } as ServiceMapping;
+                });
+              });
+            if (newMappings.length > 0) {
+              extendedCount += 1;
+              return {
+                ...e,
+                mappings: [...e.mappings, ...newMappings],
+                laraExtensionSummary: `Utvidet med ${ext.addedFrameworkLabels.join(", ")} (${newMappings.length} krav)`,
+                laraReviewReason: undefined,
+              };
+            }
+          }
+        }
+        // Marker for gjennomgang
+        const rev = recs.toReview.find((r) => r.extraId === e.id);
+        if (rev && sel.reviewExtraIds.includes(e.id)) {
+          reviewCount += 1;
+          return { ...e, laraReviewReason: rev.reason };
+        }
+        return e;
+      }),
+    );
+
+    const summary = [
+      addedCount ? `${addedCount} lagt til` : null,
+      extendedCount ? `${extendedCount} utvidet` : null,
+      reviewCount ? `${reviewCount} markert for gjennomgang` : null,
+    ].filter(Boolean).join(" · ");
+    toast.success("Lara oppdaterte tjenestekatalogen", { description: summary || "Ingen endringer" });
+  };
+
+
   const buildDraftFromTemplate = (template: ServiceTemplate): CustomServiceDraft => {
     const hoursAvg = Math.round((template.estimatedHours.min + template.estimatedHours.max) / 2);
     const withHours = template.activities.filter((a) => typeof a.hours === "number");
