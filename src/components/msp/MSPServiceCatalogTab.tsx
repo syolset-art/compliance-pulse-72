@@ -97,7 +97,7 @@ export function MSPServiceCatalogTab() {
     },
     {
       id: "default-mynder-vendor",
-      name: "Leverandørmodulen (Mynder)",
+      name: "Leverandørmodulen\u00a0",
       description: "Helhetlig styring av tredjeparter: kartlegging, risikovurdering og oppfølging av leverandører.",
       hours: 8,
       activities: [
@@ -111,7 +111,7 @@ export function MSPServiceCatalogTab() {
     },
     {
       id: "default-mynder-agents",
-      name: "Agentstyring (Mynder)",
+      name: "Assets",
       description: "Register, klassifisering og kontroll av AI-agenter — MACF-nivå, eierskap og løpende oppfølging.",
       hours: 8,
       activities: [
