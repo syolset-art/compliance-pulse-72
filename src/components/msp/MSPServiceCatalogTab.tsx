@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Info, Archive, RotateCcw, Sparkles, Star, FileText, Lock, AlertTriangle, Wand2, Check } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Archive, RotateCcw, Sparkles, Star, FileText, Lock, AlertTriangle, Wand2, Check } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -614,22 +614,6 @@ export function MSPServiceCatalogTab() {
       <section className="space-y-3">
 
         <div className="flex items-center justify-end gap-2">
-          <TooltipProvider delayDuration={150}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Hvorfor vises disse tjenestene?"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-                >
-                  <Info className="h-4 w-4" aria-hidden="true" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left" className="max-w-xs text-sm">
-                Foreslåtte tjenester er basert på det vi har kartlagt om din partnerprofil og tjenestene du leverer i dag.
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
           {wizardSeen || extras.length > 0 || (curatedPicks && curatedPicks.length > 0) ? (
             <TooltipProvider delayDuration={150}>
               <Tooltip>
@@ -646,9 +630,8 @@ export function MSPServiceCatalogTab() {
                 <TooltipContent side="left" className="max-w-xs text-sm">
                   <div className="font-medium">Se og rediger tjenesteprofilen din</div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    Endre marked, bransje, fagområder eller regelverk — og lagre.&nbsp;
+                    Foreslåtte tjenester er basert på din partnerprofil. Du kan få hjelp til å opprette en profil som passer tjenestene dine, og koble dem til regelverk og krav.
                   </div>
-
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
