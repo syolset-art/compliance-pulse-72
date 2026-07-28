@@ -1000,6 +1000,42 @@ export function MSPServiceCatalogTab() {
                         </TooltipContent>
                       </Tooltip>
                     )}
+                    {e.laraExtensionSummary && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline" className="text-xs h-6 px-1.5 gap-1 border-primary/30 bg-primary/5 text-primary cursor-help shrink-0">
+                            <Sparkles className="h-3 w-3" aria-hidden="true" />
+                            Lara utvidet
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          {e.laraExtensionSummary}
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                    {e.laraReviewReason && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="outline" className="text-xs h-6 px-1.5 gap-1 border-warning/40 bg-warning/10 text-warning cursor-help shrink-0">
+                            <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+                            Gjennomgå
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          <div>{e.laraReviewReason}</div>
+                          <button
+                            type="button"
+                            onClick={(ev) => {
+                              ev.stopPropagation();
+                              setExtras((prev) => prev.map((x) => x.id === e.id ? { ...x, laraReviewReason: undefined } : x));
+                            }}
+                            className="mt-1 text-[11px] underline"
+                          >
+                            Fjern markering
+                          </button>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                   </div>
                   <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
                     {e.hours} t
