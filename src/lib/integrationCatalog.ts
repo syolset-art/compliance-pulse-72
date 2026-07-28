@@ -1,0 +1,248 @@
+import {
+  Building2,
+  Cloud,
+  FileText,
+  Fingerprint,
+  Landmark,
+  Layers,
+  Lock,
+  Server,
+  Shield,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
+
+export type IntegrationCategory =
+  | "identity"
+  | "productivity"
+  | "cloud_security"
+  | "device"
+  | "finance"
+  | "custom";
+
+export type IntegrationAuthType = "oauth" | "api_key" | "upload";
+
+export type DiscoveryType = "systems" | "vendors" | "users";
+
+export interface IntegrationDefinition {
+  id: string;
+  name: string;
+  vendor: string;
+  category: IntegrationCategory;
+  description: string;
+  discovers: DiscoveryType[];
+  authType: IntegrationAuthType;
+  scopes: string[];
+  icon: LucideIcon;
+  docsUrl?: string;
+  readOnly: boolean;
+}
+
+export const CATEGORY_LABEL: Record<IntegrationCategory, string> = {
+  identity: "Identitet & SSO",
+  productivity: "Produktivitet",
+  cloud_security: "Skysikkerhet / SaaS-oppdagelse",
+  device: "Enhet & MDM",
+  finance: "Fakturering & Regnskap",
+  custom: "Egendefinert",
+};
+
+export const DISCOVERY_LABEL: Record<DiscoveryType, string> = {
+  systems: "Systemer",
+  vendors: "Leverandører",
+  users: "Brukere",
+};
+
+export const INTEGRATION_CATALOG: IntegrationDefinition[] = [
+  {
+    id: "entra_id",
+    name: "Microsoft Entra ID",
+    vendor: "Microsoft",
+    category: "identity",
+    description:
+      "Oppdag SaaS-applikasjoner koblet til organisasjonens Entra ID (tidligere Azure AD) og hvilke brukere som har tilgang.",
+    discovers: ["systems", "users"],
+    authType: "oauth",
+    scopes: ["Application.Read.All", "Directory.Read.All", "User.Read.All"],
+    icon: Fingerprint,
+    readOnly: true,
+  },
+  {
+    id: "google_workspace",
+    name: "Google Workspace",
+    vendor: "Google",
+    category: "identity",
+    description:
+      "Kartlegg tredjeparts-apper som ansatte har autorisert med sin arbeidskonto, samt brukerlisens-oversikt.",
+    discovers: ["systems", "users"],
+    authType: "oauth",
+    scopes: ["admin.directory.user.readonly", "admin.directory.domain.readonly"],
+    icon: Users,
+    readOnly: true,
+  },
+  {
+    id: "okta",
+    name: "Okta",
+    vendor: "Okta",
+    category: "identity",
+    description:
+      "Hent applikasjonskatalog og gruppetilhørighet fra Okta for automatisk system- og eierkartlegging.",
+    discovers: ["systems", "users"],
+    authType: "api_key",
+    scopes: ["okta.apps.read", "okta.users.read"],
+    icon: Shield,
+    readOnly: true,
+  },
+  {
+    id: "microsoft_365",
+    name: "Microsoft 365",
+    vendor: "Microsoft",
+    category: "productivity",
+    description:
+      "Oppdag Teams, SharePoint-nettsteder og OneDrive-delinger som del av registeret.",
+    discovers: ["systems"],
+    authType: "oauth",
+    scopes: ["Sites.Read.All", "Team.ReadBasic.All"],
+    icon: Layers,
+    readOnly: true,
+  },
+  {
+    id: "slack",
+    name: "Slack",
+    vendor: "Slack",
+    category: "productivity",
+    description:
+      "Kartlegg installerte Slack-apper og integrasjoner som behandler bedriftsdata.",
+    discovers: ["systems"],
+    authType: "oauth",
+    scopes: ["apps:read", "team:read"],
+    icon: Cloud,
+    readOnly: true,
+  },
+  {
+    id: "defender_cloud_apps",
+    name: "Defender for Cloud Apps",
+    vendor: "Microsoft",
+    category: "cloud_security",
+    description:
+      "Bruk Microsofts skysikkerhetslogger til å avdekke Shadow-IT og ukjente SaaS-tjenester i bruk.",
+    discovers: ["systems", "vendors"],
+    authType: "oauth",
+    scopes: ["CloudApp-Discovery.Read.All"],
+    icon: Shield,
+    readOnly: true,
+  },
+  {
+    id: "netskope",
+    name: "Netskope",
+    vendor: "Netskope",
+    category: "cloud_security",
+    description:
+      "Importer oppdagede skytjenester og risiko-score fra Netskope CASB for automatisk berikelse.",
+    discovers: ["systems", "vendors"],
+    authType: "api_key",
+    scopes: ["events:read", "apps:read"],
+    icon: Cloud,
+    readOnly: true,
+  },
+  {
+    id: "intune",
+    name: "Microsoft Intune",
+    vendor: "Microsoft",
+    category: "device",
+    description:
+      "Kartlegg administrerte enheter og installert programvare som del av system- og risikoregisteret.",
+    discovers: ["systems"],
+    authType: "oauth",
+    scopes: ["DeviceManagementManagedDevices.Read.All"],
+    icon: Server,
+    readOnly: true,
+  },
+  {
+    id: "jamf",
+    name: "Jamf Pro",
+    vendor: "Jamf",
+    category: "device",
+    description:
+      "Importer Mac-flåten og installerte apper for komplett systemkartlegging på Apple-enheter.",
+    discovers: ["systems"],
+    authType: "api_key",
+    scopes: ["read:computers", "read:applications"],
+    icon: Server,
+    readOnly: true,
+  },
+  {
+    id: "tripletex",
+    name: "Tripletex",
+    vendor: "Tripletex",
+    category: "finance",
+    description:
+      "Bruk regnskapsdata for å identifisere leverandører organisasjonen faktisk betaler for SaaS og tjenester.",
+    discovers: ["vendors"],
+    authType: "api_key",
+    scopes: ["supplier:read", "ledger:read"],
+    icon: Landmark,
+    readOnly: true,
+  },
+  {
+    id: "fiken",
+    name: "Fiken",
+    vendor: "Fiken",
+    category: "finance",
+    description:
+      "Automatisk leverandøroppdagelse basert på fakturaer registrert i Fiken.",
+    discovers: ["vendors"],
+    authType: "api_key",
+    scopes: ["read:contacts", "read:invoices"],
+    icon: Landmark,
+    readOnly: true,
+  },
+  {
+    id: "xero",
+    name: "Xero",
+    vendor: "Xero",
+    category: "finance",
+    description:
+      "Hent leverandørliste fra Xero for å berike leverandørregisteret og gap-analyser.",
+    discovers: ["vendors"],
+    authType: "oauth",
+    scopes: ["accounting.contacts.read"],
+    icon: Landmark,
+    readOnly: true,
+  },
+  {
+    id: "csv_upload",
+    name: "CSV-import",
+    vendor: "Mynder",
+    category: "custom",
+    description:
+      "Last opp en CSV-fil med systemer eller leverandører for engangs-berikelse. Ingen løpende tilkobling.",
+    discovers: ["systems", "vendors"],
+    authType: "upload",
+    scopes: [],
+    icon: FileText,
+    readOnly: true,
+  },
+  {
+    id: "custom_rest",
+    name: "Generisk REST API",
+    vendor: "Mynder",
+    category: "custom",
+    description:
+      "Koble til en egen kilde via HTTPS med Bearer-token. For interne CMDB-er eller egenutviklede systemer.",
+    discovers: ["systems", "vendors"],
+    authType: "api_key",
+    scopes: [],
+    icon: Building2,
+    readOnly: true,
+  },
+];
+
+export type IntegrationStatus = "not_connected" | "active" | "error" | "expired";
+
+export const STATUS_LABEL: Record<IntegrationStatus, string> = {
+  not_connected: "Ikke tilkoblet",
+  active: "Aktiv",
+  error: "Feil",
+  expired: "Utløpt",
+};
