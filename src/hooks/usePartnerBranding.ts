@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { defaultTaxForLanguage, type PartnerTaxSettings } from "@/lib/partnerTax";
 
 const STORAGE_KEY = "msp-partner-branding-v1";
 
@@ -10,6 +12,7 @@ export interface PartnerBrandingOverrides {
   domain?: string;
   logoDataUrl?: string;
   tagline?: string;
+  tax?: Partial<PartnerTaxSettings>;
 }
 
 export interface PartnerBranding {
@@ -29,6 +32,8 @@ export interface PartnerBranding {
   autoOrgNumber: string;
   autoDomain: string;
   autoLogoUrl: string | null;
+  /** Standard mva/tax som brukes i tilbud og priskataloger. */
+  tax: PartnerTaxSettings;
 }
 
 function readOverrides(): PartnerBrandingOverrides {
@@ -81,6 +86,7 @@ export function usePartnerBranding() {
     },
   });
 
+  const { i18n } = useTranslation();
   const [overrides, setOverrides] = useState<PartnerBrandingOverrides>(() => readOverrides());
 
   useEffect(() => {
@@ -100,6 +106,14 @@ export function usePartnerBranding() {
 
   const effectiveLogo = overrides.logoDataUrl || autoLogoUrl;
 
+  const taxDefaults = defaultTaxForLanguage(i18n.language);
+  const tax: PartnerTaxSettings = {
+    enabled: overrides.tax?.enabled ?? taxDefaults.enabled,
+    rate: overrides.tax?.rate ?? taxDefaults.rate,
+    label: overrides.tax?.label?.trim() || taxDefaults.label,
+    mode: overrides.tax?.mode ?? taxDefaults.mode,
+  };
+
   const branding: PartnerBranding = {
     name: overrides.name?.trim() || autoName,
     orgNumber: overrides.orgNumber?.trim() || autoOrgNumber,
@@ -116,10 +130,15 @@ export function usePartnerBranding() {
     autoOrgNumber,
     autoDomain,
     autoLogoUrl,
+    tax,
   };
 
   const save = useCallback((patch: PartnerBrandingOverrides) => {
-    const next = { ...readOverrides(), ...patch };
+    const current = readOverrides();
+    const next: PartnerBrandingOverrides = { ...current, ...patch };
+    if (patch.tax) {
+      next.tax = { ...(current.tax ?? {}), ...patch.tax };
+    }
     (Object.keys(next) as (keyof PartnerBrandingOverrides)[]).forEach((k) => {
       const v = next[k];
       if (typeof v === "string" && v.trim() === "") delete next[k];

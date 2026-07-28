@@ -20,6 +20,7 @@ import { getFrameworkGap, getGapIdsForControls, severityDotClass, SEVERITY_LABEL
 import { getControlLabel } from "@/lib/serviceControlLabels";
 import { Link2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { computeTaxBreakdown, formatTaxNote } from "@/lib/partnerTax";
 
 export interface CoveredControlGroup {
   frameworkId: string;
@@ -140,6 +141,10 @@ export function MSPCreateOfferDialog({
 
   const totalHours = tasks.reduce((s, t) => s + (Number(t.hours) || 0), 0);
   const totalPrice = totalHours * editableHourlyRate;
+  const tax = branding.tax;
+  const taxBreakdown = computeTaxBreakdown(totalPrice, tax);
+  const showTax = tax.enabled && tax.rate > 0;
+  const fmtKr = (n: number) => `${n.toLocaleString("nb-NO")} kr`;
 
   const updateTask = (i: number, patch: Partial<EditableTask>) => {
     setTasks(p => p.map((t, idx) => (idx === i ? { ...t, ...patch } : t)));
@@ -291,10 +296,28 @@ export function MSPCreateOfferDialog({
     doc.setFontSize(11);
     doc.setTextColor(90);
     doc.text(`Timepris: ${editableHourlyRate.toLocaleString("nb-NO")} kr`, margin, y);
+    const netForPdf = showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice;
+    const netLabel = showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Sum";
     doc.setFontSize(13);
     doc.setTextColor(20);
-    doc.text(`Sum: ${totalHours} t · ${totalPrice.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
-    y += 28;
+    doc.text(`${netLabel}: ${totalHours} t · ${netForPdf.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+    y += 20;
+    if (showTax) {
+      doc.setFontSize(11);
+      doc.setTextColor(90);
+      doc.text(`${tax.label} (${tax.rate}%): ${taxBreakdown.taxAmount.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+      y += 16;
+      doc.setFontSize(13);
+      doc.setTextColor(20);
+      doc.text(`Totalt inkl. ${tax.label}: ${taxBreakdown.gross.toLocaleString("nb-NO")} kr`, pageWidth - margin, y, { align: "right" });
+      y += 20;
+    } else if (tax.enabled === false) {
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text(formatTaxNote(tax), pageWidth - margin, y, { align: "right" });
+      y += 16;
+    }
+    y += 8;
 
     // Lukker mangler fra gap-analysen (ny, gap-drevet visning)
     if (showGapsInOffer && coveredGaps && selectedCount > 0) {
@@ -498,14 +521,31 @@ export function MSPCreateOfferDialog({
                     Brukes for å beregne totalsummen under.
                   </p>
                 </div>
-                <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 flex items-baseline justify-between">
-                  <div className="text-sm text-foreground">
-                    <span className="font-medium">Totalt</span>
-                    <span className="text-muted-foreground"> · {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 space-y-1">
+                  <div className="flex items-baseline justify-between">
+                    <div className="text-sm text-foreground">
+                      <span className="font-medium">{showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalt"}</span>
+                      <span className="text-muted-foreground"> · {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                    </div>
+                    <span className={cn("tabular-nums", showTax && tax.mode === "exclusive" ? "text-sm text-foreground" : "text-lg font-bold text-foreground")}>
+                      {fmtKr(showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice)}
+                    </span>
                   </div>
-                  <span className="text-lg font-bold text-foreground tabular-nums">
-                    {totalPrice.toLocaleString("nb-NO")} kr
-                  </span>
+                  {showTax && (
+                    <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                      <span>{tax.label} ({tax.rate}%)</span>
+                      <span className="tabular-nums">{fmtKr(taxBreakdown.taxAmount)}</span>
+                    </div>
+                  )}
+                  {showTax && (
+                    <div className="flex items-baseline justify-between pt-1 border-t border-border/60">
+                      <span className="text-sm font-medium text-foreground">Totalt inkl. {tax.label}</span>
+                      <span className="text-lg font-bold text-foreground tabular-nums">{fmtKr(taxBreakdown.gross)}</span>
+                    </div>
+                  )}
+                  {!showTax && tax.enabled === false && (
+                    <p className="text-xs text-muted-foreground">Uten mva/tax-beregning.</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -793,11 +833,26 @@ export function MSPCreateOfferDialog({
                   <span className="tabular-nums">{totalHours} t</span>
                 </div>
                 <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
-                  <span className="text-base font-bold text-foreground">Totalsum</span>
-                  <span className="text-lg font-bold text-foreground tabular-nums">
-                    {totalPrice.toLocaleString("nb-NO")} kr
+                  <span className={cn(showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-base font-bold text-foreground")}>
+                    {showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalsum"}
+                  </span>
+                  <span className={cn("tabular-nums", showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-lg font-bold text-foreground")}>
+                    {fmtKr(showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice)}
                   </span>
                 </div>
+                {showTax && (
+                  <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                    <span>{tax.label} ({tax.rate}%)</span>
+                    <span className="tabular-nums">{fmtKr(taxBreakdown.taxAmount)}</span>
+                  </div>
+                )}
+                {showTax && (
+                  <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
+                    <span className="text-base font-bold text-foreground">Totalt inkl. {tax.label}</span>
+                    <span className="text-lg font-bold text-foreground tabular-nums">{fmtKr(taxBreakdown.gross)}</span>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground pt-1">{formatTaxNote(tax)}</p>
               </div>
 
 

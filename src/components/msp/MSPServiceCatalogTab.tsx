@@ -25,6 +25,8 @@ import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
 
 import { CORE_TIERS, VENDOR_TIERS } from "@/lib/planConstants";
+import { usePartnerBranding } from "@/hooks/usePartnerBranding";
+import { formatTaxNote } from "@/lib/partnerTax";
 
 type AllSelections = Record<string, FrameworkSelection>;
 
@@ -148,6 +150,7 @@ function computePicksFromAnswers(answers: WizardAnswers): Pick[] {
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
   const { defaultHourlyRate, currencyOption } = useServiceDefaults();
+  const { branding } = usePartnerBranding();
   const [hourlyRate, setHourlyRate] = useState<number>(defaultHourlyRate);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>(() => []);
@@ -741,7 +744,7 @@ export function MSPServiceCatalogTab() {
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-muted-foreground">Alle priser er eks. mva.</p>
+            <p className="text-xs text-muted-foreground">{formatTaxNote(branding.tax)}</p>
           </section>
         );
       })()}

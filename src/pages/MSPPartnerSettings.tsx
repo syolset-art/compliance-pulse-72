@@ -28,7 +28,9 @@ import {
   ImageIcon,
   Layers,
   Plug,
+  Receipt,
 } from "lucide-react";
+import { PartnerTaxCard } from "@/components/msp/PartnerTaxCard";
 import { PartnerIntegrationsTab } from "@/components/msp/PartnerIntegrationsTab";
 import {
   PARTNER_MODULES,
@@ -337,6 +339,8 @@ export default function MSPPartnerSettings() {
                   })}
                 </div>
               </Card>
+
+              <PartnerTaxCard />
 
               {/* 4. Lenke til fakturering */}
               <Card className="p-0 overflow-hidden">
