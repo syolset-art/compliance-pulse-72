@@ -81,11 +81,6 @@ export function PartnerBrandingCard() {
       {expanded && (
         <div className="grid gap-4 md:grid-cols-[1fr_280px] pt-2 border-t border-border">
           <div className="space-y-3">
-            <p className="text-base text-muted-foreground">
-              Navn, organisasjonsnummer, webadresse og logo hentes automatisk fra organisasjonsprofilen din.
-              Du kan overstyre per felt under, eller{" "}
-              <Link to="/settings" className="text-primary hover:underline">oppdatere profilen</Link>.
-            </p>
 
             <div className="space-y-1.5">
               <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
