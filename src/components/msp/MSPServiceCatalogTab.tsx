@@ -190,6 +190,7 @@ export function MSPServiceCatalogTab() {
   const catalogSectionRef = useRef<HTMLElement | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [showMynderProducts, setShowMynderProducts] = useState(false);
+  const [expandedProduct, setExpandedProduct] = useState<string | null>(null);
   const revealInCatalog = (id: string) => {
     catalogSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     setHighlightId(id);
