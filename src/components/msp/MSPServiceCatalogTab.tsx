@@ -337,22 +337,39 @@ export function MSPServiceCatalogTab() {
     toast.success("Tjenesten er gjenopprettet");
   };
 
-
-  const editingService = editingId ? extras.find((e) => e.id === editingId) ?? null : null;
-  const editingDraft: CustomServiceDraft | undefined = editingService
-    ? {
-        name: editingService.name,
-        description: editingService.description,
-        hours: editingService.hours,
-        activities: editingService.activities,
-        mappings: editingService.mappings,
-        priceOverride: editingService.priceOverride,
-      }
-    : previewTemplate
-    ? buildDraftFromTemplate(previewTemplate)
-    : undefined;
-
-
+  const importLaraSuggestions = (chosen: PartnerService[]) => {
+    const converted: ExtraService[] = chosen.map((s) => {
+      const activities: ServiceActivity[] = (s.defaultChecklist ?? []).map((label) => ({
+        label,
+        hours: 2,
+      }));
+      const totalHours = activities.reduce((sum, a) => sum + a.hours, 0) || 8;
+      const mappings: ServiceMapping[] = s.frameworkMappings.flatMap((m) => {
+        const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
+        return m.controlIds.map((cid) => {
+          const cp = fw?.controlPoints.find((c) => c.id === cid);
+          return {
+            frameworkId: m.frameworkId,
+            frameworkShortName: fw?.shortName ?? m.frameworkLabel,
+            controlId: cid,
+            controlLabel: cp?.label ?? cid,
+          };
+        });
+      });
+      return {
+        id: `lara-${s.id}-${Date.now()}`,
+        name: s.name,
+        description: s.description,
+        hours: totalHours,
+        activities,
+        source: "manual",
+        mappings,
+      };
+    });
+    setExtras((prev) => [...prev, ...converted]);
+    setLaraSuggestions(null);
+    toast.success(`${converted.length} tjenester lagt til i katalogen`);
+  };
 
   return (
     <div className="space-y-6">
@@ -375,11 +392,25 @@ export function MSPServiceCatalogTab() {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
+          <Button variant="outline" size="sm" onClick={() => setWizardOpen(true)} className="gap-1.5 shrink-0 h-11 text-base">
+            <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
+            La Lara foreslå tjenester
+          </Button>
           <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0 h-11 text-base">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Beskriv egen tjeneste
           </Button>
         </div>
+
+        {laraSuggestions && laraSuggestions.length > 0 && (
+          <MSPLaraServiceSuggestions
+            suggestions={laraSuggestions}
+            onChangeSuggestions={setLaraSuggestions}
+            onImport={importLaraSuggestions}
+            onDismiss={() => setLaraSuggestions(null)}
+          />
+        )}
+
         <div className="overflow-hidden rounded-md border border-border bg-card">
           <table className="w-full text-base">
             <thead className="bg-muted/30 text-sm text-foreground/70">
