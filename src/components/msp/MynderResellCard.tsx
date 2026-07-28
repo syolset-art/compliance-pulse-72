@@ -12,6 +12,8 @@ export interface MynderResellCardProps {
   description: string;
   monthlyLicenseKr: number; // base license price (Mynder's list price)
   priceNote?: string; // e.g. "fra" for tier-based pricing
+  /** Fast provisjon satt av Mynder (partneren kan ikke endre). */
+  commissionPct: number;
 }
 
 function formatMoney(amount: number, symbol: string, symbolAfter: boolean): string {
