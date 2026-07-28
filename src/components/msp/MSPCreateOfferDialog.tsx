@@ -503,14 +503,31 @@ export function MSPCreateOfferDialog({
                     Brukes for å beregne totalsummen under.
                   </p>
                 </div>
-                <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 flex items-baseline justify-between">
-                  <div className="text-sm text-foreground">
-                    <span className="font-medium">Totalt</span>
-                    <span className="text-muted-foreground"> · {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 space-y-1">
+                  <div className="flex items-baseline justify-between">
+                    <div className="text-sm text-foreground">
+                      <span className="font-medium">{showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalt"}</span>
+                      <span className="text-muted-foreground"> · {totalHours} timer × {editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                    </div>
+                    <span className={cn("tabular-nums", showTax && tax.mode === "exclusive" ? "text-sm text-foreground" : "text-lg font-bold text-foreground")}>
+                      {fmtKr(showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice)}
+                    </span>
                   </div>
-                  <span className="text-lg font-bold text-foreground tabular-nums">
-                    {totalPrice.toLocaleString("nb-NO")} kr
-                  </span>
+                  {showTax && (
+                    <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                      <span>{tax.label} ({tax.rate}%)</span>
+                      <span className="tabular-nums">{fmtKr(taxBreakdown.taxAmount)}</span>
+                    </div>
+                  )}
+                  {showTax && (
+                    <div className="flex items-baseline justify-between pt-1 border-t border-border/60">
+                      <span className="text-sm font-medium text-foreground">Totalt inkl. {tax.label}</span>
+                      <span className="text-lg font-bold text-foreground tabular-nums">{fmtKr(taxBreakdown.gross)}</span>
+                    </div>
+                  )}
+                  {!showTax && tax.enabled === false && (
+                    <p className="text-xs text-muted-foreground">Uten mva/tax-beregning.</p>
+                  )}
                 </div>
               </div>
             </div>
