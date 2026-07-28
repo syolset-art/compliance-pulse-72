@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Upload, RotateCcw, Image as ImageIcon, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { Upload, RotateCcw, Image as ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { usePartnerBranding } from "@/hooks/usePartnerBranding";
@@ -16,7 +16,6 @@ export function PartnerBrandingCard() {
   const [name, setName] = useState(branding.isAutoName ? "" : branding.name);
   const [orgNumber, setOrgNumber] = useState(branding.isAutoOrg ? "" : branding.orgNumber);
   const [domain, setDomain] = useState(branding.isAutoDomain ? "" : branding.domain);
-  const [tagline, setTagline] = useState(branding.tagline);
   const [expanded, setExpanded] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -42,7 +41,6 @@ export function PartnerBrandingCard() {
       name: name.trim() || undefined,
       orgNumber: orgNumber.trim() || undefined,
       domain: domain.trim() || undefined,
-      tagline: tagline.trim() || undefined,
     });
     toast.success("Tilbudsmal lagret");
   };
@@ -50,7 +48,6 @@ export function PartnerBrandingCard() {
   const previewName = name.trim() || branding.autoName;
   const previewOrg = orgNumber.trim() || branding.autoOrgNumber;
   const previewDomain = domain.trim() || branding.autoDomain;
-  const previewTagline = tagline.trim() || branding.tagline;
 
   return (
     <Card className="p-4 space-y-3">
@@ -68,9 +65,6 @@ export function PartnerBrandingCard() {
             )}
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-base font-semibold text-foreground truncate">Tilbudsmal</h3>
-            </div>
             <p className="text-sm text-muted-foreground truncate">
               {branding.name || "Mangler navn"}
               {branding.orgNumber ? ` · Org.nr ${branding.orgNumber}` : ""}
@@ -84,11 +78,6 @@ export function PartnerBrandingCard() {
       {expanded && (
         <div className="grid gap-4 md:grid-cols-[1fr_280px] pt-2 border-t border-border">
           <div className="space-y-3">
-            <p className="text-base text-muted-foreground">
-              Navn, organisasjonsnummer, webadresse og logo hentes automatisk fra organisasjonsprofilen din.
-              Du kan overstyre per felt under, eller{" "}
-              <Link to="/settings" className="text-primary hover:underline">oppdatere profilen</Link>.
-            </p>
 
             <div className="space-y-1.5">
               <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
@@ -167,57 +156,6 @@ export function PartnerBrandingCard() {
               </p>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">
-                Slagord <span className="text-muted-foreground/70 normal-case">(valgfritt)</span>
-              </Label>
-              <Input
-                value={tagline}
-                onChange={(e) => setTagline(e.target.value)}
-                placeholder="F.eks. Din partner for trygg digitalisering"
-                className="h-9 text-base"
-                maxLength={80}
-              />
-              <p className="text-sm text-muted-foreground">Vises under partnernavnet i tilbudet.</p>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-base uppercase tracking-wide text-muted-foreground font-semibold">Logo</Label>
-              <div className="flex flex-wrap gap-2">
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/svg+xml"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleLogoSelect(f);
-                    e.target.value = "";
-                  }}
-                />
-                <Button type="button" variant="outline" size="sm" className="h-9 text-sm gap-1.5"
-                  onClick={() => fileRef.current?.click()}>
-                  <Upload className="h-3.5 w-3.5" />
-                  {branding.isAutoLogo
-                    ? (branding.autoLogoUrl ? "Bytt til egen tilbudslogo" : "Last opp logo")
-                    : "Bytt logo"}
-                </Button>
-                {!branding.isAutoLogo && (
-                  <Button type="button" variant="ghost" size="sm" className="h-9 text-sm gap-1"
-                    onClick={() => { clearField("logoDataUrl"); toast.success("Tilbakestilt til auto"); }}>
-                    <RotateCcw className="h-3 w-3" /> Auto
-                  </Button>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {branding.isAutoLogo
-                  ? (branding.autoLogoUrl
-                      ? "Bruker logo fra organisasjonsprofilen. Last opp en egen hvis du vil ha noe annet i tilbudet."
-                      : "PNG eller JPG, maks 300 KB. Vises øverst i tilbudet.")
-                  : "Egen tilbudslogo i bruk."}
-              </p>
-            </div>
-
             <div className="pt-1">
               <Button type="button" size="sm" className="h-9 text-sm" onClick={handleSave}>
                 Lagre tilbudsmal
@@ -231,40 +169,20 @@ export function PartnerBrandingCard() {
               Slik vises det i tilbudet
             </Label>
             <div className="rounded-md border border-border bg-background p-4 shadow-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-2.5 min-w-0">
-                  {branding.logoUrl ? (
-                    <img src={branding.logoUrl} alt="" className="h-9 w-9 object-contain rounded" />
-                  ) : (
-                    <div className="h-9 w-9 rounded bg-muted flex items-center justify-center">
-                      <ImageIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {previewName || "Mangler navn"}
-                    </p>
-                    {previewTagline && (
-                      <p className="text-sm text-muted-foreground italic truncate">
-                        {previewTagline}
-                      </p>
-                    )}
-                    {previewOrg && (
-                      <p className="text-sm text-muted-foreground tabular-nums">
-                        Org.nr {previewOrg}
-                      </p>
-                    )}
-                    {previewDomain && (
-                      <p className="text-sm text-muted-foreground truncate">
-                        {previewDomain}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right text-sm text-muted-foreground">
-                  <div>Tilbud T-2026-1234</div>
-                  <div>{new Date().toLocaleDateString("nb-NO", { day: "numeric", month: "short", year: "numeric" })}</div>
-                </div>
+              <div className="min-w-0 space-y-0.5">
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {previewName || "Mangler navn"}
+                </p>
+                {previewOrg && (
+                  <p className="text-sm text-muted-foreground tabular-nums">
+                    Org.nr {previewOrg}
+                  </p>
+                )}
+                {previewDomain && (
+                  <p className="text-sm text-muted-foreground truncate">
+                    {previewDomain}
+                  </p>
+                )}
               </div>
             </div>
           </div>
