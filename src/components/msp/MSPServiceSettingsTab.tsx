@@ -51,7 +51,7 @@ export function MSPServiceSettingsTab() {
   const taxSummary = branding.tax.enabled
     ? `${branding.tax.label} ${branding.tax.rate}% · ${branding.tax.mode === "inclusive" ? "inkl." : "eks."}`
     : "Ikke aktivert";
-  const brandingSummary = branding.partnerName || branding.tagline || "Ikke satt opp";
+  const brandingSummary = branding.name || branding.tagline || "Ikke satt opp";
 
   return (
     <Accordion
