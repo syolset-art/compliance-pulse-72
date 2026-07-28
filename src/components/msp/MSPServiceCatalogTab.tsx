@@ -199,6 +199,7 @@ export function MSPServiceCatalogTab() {
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
   const [onlyRecommended, setOnlyRecommended] = useState(false);
+  const [activeTab, setActiveTab] = useState("mine");
 
   // Forrige wizard-svar — brukes for å oppdage scope-endringer.
   const [previousAnswers, setPreviousAnswers] = useState<WizardAnswers | null>(() => {
@@ -598,7 +599,7 @@ export function MSPServiceCatalogTab() {
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="mine" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="mine">
             Mine ({mineActiveCount + 3})
@@ -925,7 +926,15 @@ export function MSPServiceCatalogTab() {
               <div className="rounded-md border border-dashed border-border bg-muted/20 px-4 py-6 text-center">
                 <p className="text-sm font-medium text-foreground">Min tjenestekatalog er tom</p>
                 <p className="text-sm text-foreground/70 mt-1">
-                  Legg til tjenester fra listen over — de blir tilgjengelige når du lager tilbud.
+                  Gå til arkfanen{" "}
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("alle")}
+                    className="inline font-medium text-primary hover:text-primary/80 underline underline-offset-2"
+                  >
+                    Alle
+                  </button>{" "}
+                  for å legge til tjenester fra Mynders tjenestekatalog.
                 </p>
               </div>
             ) : (
