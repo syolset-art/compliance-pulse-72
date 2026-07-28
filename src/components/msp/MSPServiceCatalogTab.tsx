@@ -848,15 +848,34 @@ export function MSPServiceCatalogTab() {
 
 
 
-      {/* Mine egne tjenester */}
-      {extras.some((e) => !e.isMynder && e.status !== "retired") && (
-        <section className="space-y-2">
-          <div className="flex items-baseline justify-between">
-            <h3 className="text-lg font-semibold text-foreground">Mine tjenester</h3>
-            <span className="text-base text-foreground/70">
-              {extras.filter((e) => !e.isMynder && e.status !== "retired").length} tjenester
-            </span>
-          </div>
+      {/* Min tjenestekatalog */}
+      {(() => {
+        const mine = extras.filter((e) => !e.isMynder && e.status !== "retired");
+        const lockedCount = mine.filter((e) => !!getLockInfo({ templateId: e.templateId, name: e.name })).length;
+        return (
+          <section ref={catalogSectionRef} id="min-katalog" className="space-y-2 scroll-mt-24">
+            <div className="flex items-baseline justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Min tjenestekatalog</h3>
+                <p className="text-sm text-foreground/70 mt-0.5">
+                  Tjenester du tilbyr kundene dine. Brukes i tilbud og gap-analyser.
+                </p>
+              </div>
+              {mine.length > 0 && (
+                <span className="text-sm text-foreground/70 whitespace-nowrap">
+                  {mine.length} {mine.length === 1 ? "tjeneste" : "tjenester"}
+                  {lockedCount > 0 && <> · {lockedCount} på tilbud</>}
+                </span>
+              )}
+            </div>
+            {mine.length === 0 ? (
+              <div className="rounded-md border border-dashed border-border bg-muted/20 px-4 py-6 text-center">
+                <p className="text-sm font-medium text-foreground">Min tjenestekatalog er tom</p>
+                <p className="text-sm text-foreground/70 mt-1">
+                  Legg til tjenester fra listen over — de blir tilgjengelige når du lager tilbud.
+                </p>
+              </div>
+            ) : (
           <div className="divide-y divide-border rounded-md border border-border bg-card">
             {extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => {
               const price = e.priceOverride ?? e.hours * hourlyRate;
