@@ -150,6 +150,7 @@ function computePicksFromAnswers(answers: WizardAnswers): Pick[] {
 export function MSPServiceCatalogTab() {
   const navigate = useNavigate();
   const { defaultHourlyRate, currencyOption } = useServiceDefaults();
+  const { branding } = usePartnerBranding();
   const [hourlyRate, setHourlyRate] = useState<number>(defaultHourlyRate);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>(() => []);
