@@ -165,6 +165,7 @@ export function MSPServiceCatalogTab() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [curatedPicks, setCuratedPicks] = useState<Pick[] | null>(null);
   const [curationSummary, setCurationSummary] = useState<string | null>(null);
+  const [onlyRecommended, setOnlyRecommended] = useState(false);
 
   const [selections, setSelections] = useState<AllSelections>(() => {
     const init: AllSelections = {};
