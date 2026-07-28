@@ -187,6 +187,7 @@ export function MSPServiceCatalogTab() {
   };
   const catalogSectionRef = useRef<HTMLElement | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [showMynderProducts, setShowMynderProducts] = useState(false);
   const revealInCatalog = (id: string) => {
     catalogSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     setHighlightId(id);
@@ -888,76 +889,7 @@ export function MSPServiceCatalogTab() {
 
         <TabsContent value="mine" className="space-y-6 mt-4">
 
-      {/* Mynder-produkter — videresalg med provisjon */}
-      {(() => {
-        const rows = [
-          { id: "core", name: "Mynder Core", price: CORE_TIERS[0].monthlyPriceKr, commissionPct: 30 },
-          { id: "vendors", name: "Leverandørmodulen", price: VENDOR_TIERS[1].monthlyPriceKr, commissionPct: 30 },
-          { id: "assets", name: "Assets", price: 490, commissionPct: 25 },
-        ];
-        const sym = currencyOption.symbol;
-        const trailing = sym === "kr";
 
-        const fmt = (n: number) =>
-          `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${sym}`;
-        return (
-          <section className="space-y-3">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">Produkter fra Mynder</h3>
-                <p className="text-sm text-foreground/70 mt-0.5">
-                  Abonnementer du kan selge videre. Din andel utbetales månedlig.
-                </p>
-              </div>
-              <a
-                href="#"
-                onClick={(e) => e.preventDefault()}
-                className="text-sm text-foreground/60 hover:text-foreground whitespace-nowrap"
-              >
-                Mynders produktløfte
-              </a>
-            </div>
-            <div className="rounded-md border border-border bg-card overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-xs text-muted-foreground border-b border-border">
-                    <th className="px-4 py-2.5 font-medium">Produkt</th>
-                    <th className="px-4 py-2.5 font-medium text-right">Lisens/mnd</th>
-                    <th className="px-4 py-2.5 font-medium text-right">Din andel</th>
-                    <th className="px-4 py-2.5 font-medium text-right">Etablering</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {rows.map((r) => {
-                    const share = (r.price * r.commissionPct) / 100;
-                    return (
-                      <tr key={r.id}>
-                        <td className="px-4 py-3 font-medium text-foreground">{r.name}</td>
-                        <td className="px-4 py-3 text-right tabular-nums text-foreground/80">
-                          {trailing ? fmt(r.price) : `${sym} ${Math.round(r.price)}`}
-                        </td>
-                        <td className="px-4 py-3 text-right tabular-nums font-semibold text-foreground">
-                          {trailing ? fmt(share) : `${sym} ${Math.round(share)}`}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <SetupFeeCell
-                            productId={r.id}
-                            productName={r.name}
-                            currencySymbol={sym}
-                            trailing={trailing}
-                            format={fmt}
-                          />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            <p className="text-xs text-muted-foreground">{formatTaxNote(branding.tax)}</p>
-          </section>
-        );
-      })()}
 
 
       {/* Min tjenestekatalog */}
@@ -1170,7 +1102,85 @@ export function MSPServiceCatalogTab() {
           </div>
         </section>
       )}
+
+      {/* Mynder-produkter — videresalg med provisjon (kollapsbar) */}
+      {(() => {
+        const rows = [
+          { id: "core", name: "Mynder Core", price: CORE_TIERS[0].monthlyPriceKr, commissionPct: 30 },
+          { id: "vendors", name: "Leverandørmodulen", price: VENDOR_TIERS[1].monthlyPriceKr, commissionPct: 30 },
+          { id: "assets", name: "Assets", price: 490, commissionPct: 25 },
+        ];
+        const sym = currencyOption.symbol;
+        const trailing = sym === "kr";
+        const fmt = (n: number) =>
+          `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${sym}`;
+        return (
+          <section className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setShowMynderProducts((v) => !v)}
+              className="w-full flex items-center justify-between gap-3 rounded-md border border-border bg-card px-4 py-3 text-left hover:bg-accent/40 transition-colors"
+              aria-expanded={showMynderProducts}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-foreground">Produkter fra Mynder</span>
+                <span className="text-xs text-muted-foreground">({rows.length})</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>{showMynderProducts ? "Skjul" : "Vis"}</span>
+                {showMynderProducts ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </div>
+            </button>
+            {showMynderProducts && (
+              <div className="space-y-3">
+                <p className="text-sm text-foreground/70 px-1">
+                  Abonnementer du kan selge videre. Din andel utbetales månedlig.
+                </p>
+                <div className="rounded-md border border-border bg-card overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-xs text-muted-foreground border-b border-border">
+                        <th className="px-4 py-2.5 font-medium">Produkt</th>
+                        <th className="px-4 py-2.5 font-medium text-right">Lisens/mnd</th>
+                        <th className="px-4 py-2.5 font-medium text-right">Din andel</th>
+                        <th className="px-4 py-2.5 font-medium text-right">Etablering</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {rows.map((r) => {
+                        const share = (r.price * r.commissionPct) / 100;
+                        return (
+                          <tr key={r.id}>
+                            <td className="px-4 py-3 font-medium text-foreground">{r.name}</td>
+                            <td className="px-4 py-3 text-right tabular-nums text-foreground/80">
+                              {trailing ? fmt(r.price) : `${sym} ${Math.round(r.price)}`}
+                            </td>
+                            <td className="px-4 py-3 text-right tabular-nums font-semibold text-foreground">
+                              {trailing ? fmt(share) : `${sym} ${Math.round(share)}`}
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <SetupFeeCell
+                                productId={r.id}
+                                productName={r.name}
+                                currencySymbol={sym}
+                                trailing={trailing}
+                                format={fmt}
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-muted-foreground">{formatTaxNote(branding.tax)}</p>
+              </div>
+            )}
+          </section>
+        );
+      })()}
         </TabsContent>
+
       </Tabs>
 
 
