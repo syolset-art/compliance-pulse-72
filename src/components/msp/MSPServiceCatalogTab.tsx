@@ -1170,10 +1170,13 @@ export function MSPServiceCatalogTab() {
           </div>
         </section>
       )}
+        </TabsContent>
+      </Tabs>
 
 
 
       {/* Avansert: hele biblioteket + framework-kalkulator */}
+
       {showCalculator && (
         <div className="space-y-4 pt-2">
           <ServiceLibraryBrowser
