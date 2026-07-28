@@ -603,15 +603,36 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList>
-          <TabsTrigger value="mine">
-            Mine ({mineActiveCount + 3})
-          </TabsTrigger>
-          <TabsTrigger value="alle">
-            Alle ({availablePicks.length})
-          </TabsTrigger>
+        <div className="flex items-center justify-between gap-2">
+          <TabsList>
+            <TabsTrigger value="mine">
+              Mine ({mineActiveCount + 3})
+            </TabsTrigger>
+            <TabsTrigger value="alle">
+              Alle ({availablePicks.length})
+            </TabsTrigger>
+          </TabsList>
+          {onOpenSecondary && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Mer">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => onOpenSecondary("settings")}>
+                  <Settings2 className="h-4 w-4 mr-2" />
+                  Innstillinger
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => onOpenSecondary("how-it-works")}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Hvordan virker det
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
 
-        </TabsList>
         <TabsContent value="alle" className="space-y-6 mt-4">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
       <section className="space-y-3">
