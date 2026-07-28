@@ -41,6 +41,8 @@ import {
 } from "@/lib/planConstants";
 import { OrganizationContextBanner } from "@/components/OrganizationContextBanner";
 import { ModuleCard } from "@/components/subscriptions/ModuleCard";
+import { ModuleInfoDialog } from "@/components/subscriptions/ModuleInfoDialog";
+import type { ModuleKey } from "@/lib/moduleInfo";
 import { ChangeCoreTierDialog } from "@/components/dialogs/ChangeCoreTierDialog";
 import { ConfirmCoreTierChangeDialog } from "@/components/dialogs/ConfirmCoreTierChangeDialog";
 import { ChangeVendorTierDialog } from "@/components/dialogs/ChangeVendorTierDialog";
@@ -202,6 +204,7 @@ export default function Subscriptions() {
   const [vendorTierId, setVendorTierId] = useState<VendorTierId>(DEFAULT_VENDOR_TIER_ID);
   const [changeVendorTierOpen, setChangeVendorTierOpen] = useState(false);
   const [pendingVendorTierId, setPendingVendorTierId] = useState<VendorTierId | null>(null);
+  const [readMoreKey, setReadMoreKey] = useState<ModuleKey | null>(null);
 
   const requestDeactivate = (id: string, title: string) => setConfirmDeactivate({ id, title });
   const confirmDeactivation = () => {
@@ -492,6 +495,7 @@ export default function Subscriptions() {
                   accentColor="purple"
                   footer={capFooter}
                   ctaOverride={atCap && nextTier ? { label: "Oppgrader\u00a0", variant: "default" } : undefined}
+                  onReadMore={() => setReadMoreKey("core")}
                 />
               );
             })()}
@@ -513,6 +517,7 @@ export default function Subscriptions() {
               deactivateLabel="Deaktiver alle regelverk"
               breakdown={deactivatedModules.has("frameworks") ? undefined : frameworkBreakdown}
               accentColor="blue"
+              onReadMore={() => setReadMoreKey("frameworks")}
             />
 
             {(() => {
@@ -544,6 +549,7 @@ export default function Subscriptions() {
                   accentColor="amber"
                   footer={capFooter}
                   ctaOverride={!isDeactivated && atCap && nextTier ? { label: "Oppgrader\u00a0", variant: "default" } : undefined}
+                  onReadMore={() => setReadMoreKey("vendors")}
                 />
               );
             })()}
@@ -561,6 +567,7 @@ export default function Subscriptions() {
               onClick={() => deactivatedModules.has("assets") ? reactivateModule("assets") : navigate("/assets")}
               onDeactivate={() => requestDeactivate("assets", "Assets")}
               accentColor="emerald"
+              onReadMore={() => setReadMoreKey("assets")}
             />
 
             <ModuleCard
@@ -573,6 +580,7 @@ export default function Subscriptions() {
               action="open"
               onClick={() => window.open(trustProfileUrl, "_blank", "noopener,noreferrer")}
               accentColor="rose"
+              onReadMore={() => setReadMoreKey("trust")}
             />
 
             <ModuleCard
@@ -589,8 +597,11 @@ export default function Subscriptions() {
               }}
               onDeactivate={hasPartnerAccess ? () => requestDeactivate("partner", "Partner Workspace") : undefined}
               accentColor="slate"
+              onReadMore={() => setReadMoreKey("partner")}
             />
           </section>
+
+          <ModuleInfoDialog moduleKey={readMoreKey} onOpenChange={(open) => !open && setReadMoreKey(null)} />
 
           {/* Payment method */}
           <section className="space-y-3">
