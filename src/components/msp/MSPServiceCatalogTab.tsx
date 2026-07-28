@@ -491,7 +491,7 @@ export function MSPServiceCatalogTab() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {TEMPLATE_PICKS.map((pick) => {
+              {activePicks.map((pick) => {
                 const template = SERVICE_LIBRARY.find((t) => t.code === pick.code);
                 if (!template) return null;
                 const isAdopted = adoptedIds.has(template.id);
