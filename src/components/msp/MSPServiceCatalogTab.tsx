@@ -457,33 +457,41 @@ export function MSPServiceCatalogTab() {
         </div>
       </section>
 
-      {/* Mynder-tjenester — alltid inkludert */}
-      {extras.some((e) => e.isMynder) && (
-        <section className="space-y-2">
-          <div className="flex items-baseline justify-between">
-            <h3 className="text-lg font-semibold text-foreground">Produkter fra Mynder</h3>
-            <span className="text-base text-foreground/70">Inkludert i alle leveranser</span>
+      {/* Mynder-produkter — videresalg med provisjon */}
+      <section className="space-y-3">
+        <div className="flex items-baseline justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Mynder-produkter (videresalg)</h3>
+            <p className="text-sm text-foreground/70 mt-0.5">
+              Videreselg Mynder-lisenser til dine kunder og tjen provisjon. Alltid inkludert i katalogen.
+            </p>
           </div>
-          <div className="divide-y divide-border rounded-md border border-border bg-card">
-            {extras.filter((e) => e.isMynder).map((e) => {
-              const price = e.hours * hourlyRate;
-              return (
-                <div key={e.id} className="flex items-center gap-3 px-3 py-3">
-                  <div className="flex-1 min-w-0">
-                    <span className="text-base font-medium text-foreground truncate">{e.name}</span>
-                  </div>
-                  <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
-                    {e.hours} t
-                  </div>
-                  <div className="text-base font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
-                    {formatNOK(price)}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
+        </div>
+        <div className="space-y-2">
+          <MynderResellCard
+            productId="core"
+            name="Mynder Core"
+            description="Grunnpakke for compliance, styring og rapportering."
+            monthlyLicenseKr={CORE_TIERS[0].monthlyPriceKr}
+            priceNote="fra"
+          />
+          <MynderResellCard
+            productId="vendors"
+            name="Leverandørmodulen"
+            description="Kartlegging, risiko og oppfølging av leverandører og tredjeparter."
+            monthlyLicenseKr={VENDOR_TIERS[1].monthlyPriceKr}
+            priceNote="fra"
+          />
+          <MynderResellCard
+            productId="assets"
+            name="Assets"
+            description="Register og kontroll av systemer og AI-agenter (MACF)."
+            monthlyLicenseKr={490}
+            priceNote="fra"
+          />
+        </div>
+      </section>
+
 
       {/* Mine egne tjenester */}
       {extras.some((e) => !e.isMynder && e.status !== "retired") && (
