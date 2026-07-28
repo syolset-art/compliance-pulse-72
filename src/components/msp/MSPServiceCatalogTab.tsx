@@ -167,7 +167,7 @@ function computePicksFromAnswers(answers: WizardAnswers): Pick[] {
 }
 
 
-export function MSPServiceCatalogTab() {
+export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (view: "settings" | "how-it-works") => void } = {}) {
   const navigate = useNavigate();
   const { defaultHourlyRate, currencyOption } = useServiceDefaults();
   const { branding } = usePartnerBranding();
