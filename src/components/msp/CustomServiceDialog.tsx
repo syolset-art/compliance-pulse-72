@@ -340,7 +340,10 @@ export function CustomServiceDialog({
                           {m.frameworkShortName}
                         </span>
                         <span className="text-xs text-foreground">
-                          {m.controlLabel} <span className="text-muted-foreground">({m.controlId})</span>
+                          {m.controlLabel}
+                          {m.controlId !== m.controlLabel && (
+                            <span className="text-muted-foreground"> ({m.controlId})</span>
+                          )}
                         </span>
                       </div>
                         {checked && (
