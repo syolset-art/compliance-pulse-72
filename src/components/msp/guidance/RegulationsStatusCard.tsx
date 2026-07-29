@@ -49,8 +49,13 @@ export function RegulationsStatusCard({
     frameworkId?: string;
     label?: string;
   }>({ open: false });
+  const [uploadDialog, setUploadDialog] = useState<{
+    open: boolean;
+    presetFrameworkIds?: string[];
+  }>({ open: false });
 
   const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
+
 
   const DEMO_ROWS: Array<{ rec: FrameworkRecommendation; isConfirmed: boolean }> = [
     {
