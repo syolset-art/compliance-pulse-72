@@ -23,14 +23,8 @@ import { COMPANY_ROLES, MSP_SUBSCRIPTION_TIERS } from "@/lib/mspCustomerConstant
 import { PARTNER_TEAM } from "@/lib/partnerTeam";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatKr } from "@/lib/planConstants";
-import {
-  MSP_ASSESSMENT_QUESTIONS,
-  type AssessmentResponse,
-  calculateAssessmentScore,
-  getRecommendedFrameworks,
-} from "@/lib/mspAssessmentQuestions";
-import { MSPAssessmentStep } from "./MSPAssessmentStep";
-import { MSPGapAnalysisStep } from "./MSPGapAnalysisStep";
+import { recommendFrameworks, type FrameworkRecommendation } from "@/lib/regulationRecommender";
+import { CustomerRecommendationsPanel } from "./CustomerRecommendationsPanel";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
 interface AddMSPCustomerDialogProps {
