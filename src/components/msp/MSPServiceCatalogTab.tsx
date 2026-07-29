@@ -649,32 +649,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           </p>
         </div>
 
-        <div className="flex items-center justify-end gap-2">
-          {wizardSeen || extras.length > 0 || (curatedPicks && curatedPicks.length > 0) ? (
-            <TooltipProvider delayDuration={150}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={openWizard}
-                    aria-label="Se og rediger tjenesteprofilen din"
-                    className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
-                  >
-                    <Sparkles className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs text-sm">
-                  <div className="font-medium">Se og rediger tjenesteprofilen din</div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ) : (
-            <Button variant="outline" size="sm" onClick={openWizard} className="gap-1.5 shrink-0 h-11 text-base">
-              <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
-              La Lara foreslå tjenester
-            </Button>
-          )}
-        </div>
+
+
 
         <ServiceCoverageSearch
           existingNames={extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => e.name)}
