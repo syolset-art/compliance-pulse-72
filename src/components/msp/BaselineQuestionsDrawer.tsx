@@ -36,6 +36,8 @@ interface Props {
   laraScan?: Parameters<typeof deriveLaraSources>[0];
   /** Per-question rationales from Laras LLM-suggestion. Takes precedence over scan source. */
   laraRationales?: Record<string, string>;
+  /** Whether the drawer is filled by the partner alone or used together with the customer in a meeting. */
+  mode?: "partner" | "meeting";
 }
 
 interface AnswerMeta {
