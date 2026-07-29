@@ -247,13 +247,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
 
   const renderContext = () => {
     if (status.key === "draft") {
-      return (
-        <div className="flex items-center justify-end gap-2 flex-wrap">
-          <Button size="sm" className="gap-1.5 h-7 text-xs" onClick={() => navigate(`/msp-dashboard/${customer.id}/trust-profile`)}>
-            <Send className="h-3.5 w-3.5" aria-hidden="true" /> Start onboarding
-          </Button>
-        </div>
-      );
+      return null;
     }
     if (status.key === "invited") {
       return (
