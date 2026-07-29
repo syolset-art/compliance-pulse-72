@@ -234,7 +234,7 @@ function ColumnFilter({
 }
 
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "tp_status" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "activated" | "score";
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
@@ -242,18 +242,18 @@ const COLUMN_LABELS: Record<ColumnKey, string> = {
   industry: "Bransje",
   criticality: "Kritikalitet",
   services: "Lara anbefaler",
-  tp_status: "TP-status",
+  activated: "Produkter og tjenester",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "tp_status", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "activated", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
 const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
-  tp_status: 640,
+  activated: 640,
   criticality: 768,
   services: 1024,
   industry: 1024,
