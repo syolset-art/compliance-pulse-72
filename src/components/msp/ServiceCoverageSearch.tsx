@@ -105,7 +105,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
     return existingNames.some((n) => n.toLowerCase() === q);
   }, [debounced, existingNames]);
 
-  const topFrameworkId = groups[0]?.frameworkId;
+  
 
   const selectedCount = selectedKeys.size;
 
@@ -272,16 +272,14 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
               </TableHeader>
             <TableBody>
               {groups.flatMap((g) =>
-                g.items.map((it, idx) => {
+                g.items.map((it) => {
                   const theme = getFrameworkTheme(it.frameworkId);
-                  const isTop = it.frameworkId === topFrameworkId && idx === 0;
                   const k = keyFor(it);
                   const checked = selectedKeys.has(k);
                   return (
                     <TableRow
                       key={k}
                       className={cn(
-                        isTop && "bg-primary/[0.04]",
                         !checked && "opacity-60",
                       )}
                     >
@@ -301,11 +299,6 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
                         >
                           {it.frameworkShortName}
                         </span>
-                        {isTop && (
-                          <span className="ml-2 inline-flex items-center gap-1 text-[11px] text-primary">
-                            <Sparkles className="h-3 w-3" /> Best treff
-                          </span>
-                        )}
                       </TableCell>
                       <TableCell className="font-medium text-foreground/90">
                         {it.controlId}
