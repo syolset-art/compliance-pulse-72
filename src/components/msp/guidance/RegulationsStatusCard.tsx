@@ -27,7 +27,7 @@ interface Props {
   confirmed: FrameworkRecommendation[];
 }
 
-const MAX_CHIPS = 3;
+const MAX_CHIPS = 4;
 
 export function RegulationsStatusCard({ customerId, recommended, confirmed }: Props) {
   const queryClient = useQueryClient();
