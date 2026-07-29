@@ -451,34 +451,24 @@ export default function MSPCustomerDetail() {
                     })}
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                    <p className="text-xs text-muted-foreground max-w-md">
-                      {t(
-                        "baselineCard.helper",
-                        "Jo flere spørsmål som besvares, jo mer presis blir modenhetsvurderingen og gap-analysen.",
-                      )}
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setBaselineDrawer({ open: true, review: false, mode: "partner" })}
-                        className="w-full sm:w-auto"
-                      >
-                        {totalAnswered === 0
-                          ? t("baselineCard.startPartner", "Start kartlegging")
-                          : t("baselineCard.continuePartner", "Fortsett kartlegging")}
-                        <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setBaselineDrawer({ open: true, review: false, mode: "meeting" })}
-                        className="w-full sm:w-auto"
-                      >
-                        <Users className="h-3.5 w-3.5 mr-1.5" />
-                        {t("baselineCard.meetingButton", "Fyll ut sammen med kunden")}
-                      </Button>
-                    </div>
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setBaselineDrawer({ open: true, review: false, mode: "partner" })}
+                    >
+                      {totalAnswered === 0
+                        ? t("baselineCard.startPartner", "Start")
+                        : t("baselineCard.continuePartner", "Fortsett")}
+                      <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => setBaselineDrawer({ open: true, review: false, mode: "meeting" })}
+                    >
+                      <Users className="h-3.5 w-3.5 mr-1" />
+                      {t("baselineCard.meetingButton", "Med kunden")}
+                    </Button>
                   </div>
                 </div>
               </Card>
