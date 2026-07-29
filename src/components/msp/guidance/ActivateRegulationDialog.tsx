@@ -44,7 +44,7 @@ export function ActivateRegulationDialog({
   const catalogServices = useMemo(
     () =>
       PARTNER_SERVICES.filter((s) =>
-        s.frameworkMappings.some((m) => m.frameworkId === frameworkId),
+        ((s as any).frameworkMappings ?? (s as any).mappings ?? []).some((m: any) => m.frameworkId === frameworkId),
       ).slice(0, 6),
     [frameworkId],
   );
@@ -52,7 +52,7 @@ export function ActivateRegulationDialog({
   const mynderServices = useMemo(
     () =>
       SERVICE_LIBRARY.filter((s) =>
-        s.frameworkMappings.some((m) => m.frameworkId === frameworkId),
+        ((s as any).frameworkMappings ?? (s as any).mappings ?? []).some((m: any) => m.frameworkId === frameworkId),
       ).slice(0, 6),
     [frameworkId],
   );

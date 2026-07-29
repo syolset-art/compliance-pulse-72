@@ -97,11 +97,11 @@ export function RegulationsStatusCard({
 
   const servicesFor = (frameworkId: string) => {
     const inCatalog = PARTNER_SERVICES.filter((s) =>
-      s.frameworkMappings.some((m) => m.frameworkId === frameworkId),
+      ((s as any).frameworkMappings ?? (s as any).mappings ?? []).some((m: any) => m.frameworkId === frameworkId),
     ).map((s) => ({ id: s.id, name: s.name, inCatalog: true }));
     const suggested = SERVICE_LIBRARY.filter(
       (s) =>
-        s.frameworkMappings.some((m) => m.frameworkId === frameworkId) &&
+        ((s as any).frameworkMappings ?? (s as any).mappings ?? []).some((m: any) => m.frameworkId === frameworkId) &&
         !inCatalog.some((c) => c.name.toLowerCase() === s.name.toLowerCase()),
     ).map((s) => ({ id: s.id, name: s.name, inCatalog: false }));
     return [...inCatalog, ...suggested];
