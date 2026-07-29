@@ -122,12 +122,17 @@ export function BaselineQuestionsDrawer({
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-primary" />
-            {reviewMode ? "Se over baseline" : "Fyll ut baseline"}
+            {reviewMode
+              ? t("baselineDrawer.reviewTitle", "Se over baseline")
+              : mode === "meeting"
+                ? t("baselineDrawer.meetingTitle", "Fyll ut baseline sammen med kunden")
+                : t("baselineDrawer.partnerTitle", "Fyll ut baseline")}
           </SheetTitle>
           <SheetDescription>
-            Baseline er kundens utgangspunkt: en kort kartlegging av om sentrale GDPR- og
-            sikkerhetstiltak er på plass, fordelt på fem kontrollområder. Svarene blir
-            startpunktet for kundens Trust Profile og gap-analysen.
+            {t(
+              "baselineDrawer.description",
+              "Baseline er kundens utgangspunkt: en kort kartlegging av om sentrale GDPR- og sikkerhetstiltak er på plass, fordelt på fem kontrollområder. Svarene blir startpunktet for kundens Trust Profile og gap-analysen.",
+            )}
           </SheetDescription>
         </SheetHeader>
 
