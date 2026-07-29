@@ -146,17 +146,23 @@ export function BaselineQuestionsDrawer({
           </div>
           <p className="text-sm text-foreground flex-1">
             {reviewMode ? (
-              <>
-                Lara har foreslått svar basert på hva som er typisk for{" "}
-                <span className="font-medium">{customerName}</span>. Gå gjennom hvert
-                spørsmål og bekreft, juster eller marker som ikke relevant.
-              </>
+              <Trans
+                i18nKey="baselineDrawer.reviewInfo"
+                values={{ customerName }}
+                components={{ strong: <span className="font-medium" /> }}
+              />
+            ) : mode === "meeting" ? (
+              <Trans
+                i18nKey="baselineDrawer.meetingInfo"
+                values={{ customerName }}
+                components={{ strong: <span className="font-medium" /> }}
+              />
             ) : (
-              <>
-                Du svarer på vegne av <span className="font-medium">{customerName}</span>.
-                Svarene lagres som partner-bekreftet og brukes som baseline når du kjører
-                gap-analysen.
-              </>
+              <Trans
+                i18nKey="baselineDrawer.partnerInfo"
+                values={{ customerName }}
+                components={{ strong: <span className="font-medium" /> }}
+              />
             )}
           </p>
         </Card>
