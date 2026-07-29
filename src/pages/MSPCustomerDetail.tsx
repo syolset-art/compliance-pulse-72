@@ -337,7 +337,7 @@ export default function MSPCustomerDetail() {
 
             {/* ── Veiledning fra Mynder ── */}
             <TabsContent value="guidance" className="mt-6 space-y-5">
-              <ComplianceMappingCard customerId={customerId!} customerName={customer.customer_name} />
+              
 
 
 
