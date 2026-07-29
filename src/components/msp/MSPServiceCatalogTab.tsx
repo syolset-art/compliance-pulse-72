@@ -660,10 +660,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs text-sm">
                   <div className="font-medium">Se og rediger tjenesteprofilen din</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    Foreslåtte tjenester er basert på din partnerprofil. Du kan få hjelp til å opprette en profil som passer tjenestene dine, og koble dem til regelverk og krav.
-                  </div>
                 </TooltipContent>
+
               </Tooltip>
             </TooltipProvider>
           ) : (
