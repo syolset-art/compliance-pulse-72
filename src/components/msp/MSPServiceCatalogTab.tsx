@@ -5,9 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Archive, RotateCcw, Sparkles, Star, FileText, Lock, AlertTriangle, Wand2, Check, MoreVertical } from "lucide-react";
+import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Settings2, Megaphone, UserCog, Radar, ClipboardCheck, Bug, Cpu, Award, Archive, RotateCcw, Sparkles, Star, FileText, Lock, AlertTriangle, Wand2, Check, MoreVertical, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -669,12 +670,41 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         <TabsContent value="alle" className="space-y-6 mt-4">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
       <section className="space-y-3">
-        <div className="space-y-1.5">
-          <div className="text-sm font-medium text-foreground">Velg tjenester til din katalog</div>
-          <p className="text-xs text-muted-foreground max-w-2xl">
-            Her finner du et utvalg typiske sikkerhets- og compliance-tjenester som dekker krav i kjente regelverk. Du velger selv hvilke tjenester du vil tilby, legger til egne eller tilpasser beskrivelser. Katalogen din brukes når du jobber med kunder, slik at du raskt kan matche riktige tjenester mot deres behov.
-          </p>
-          <AiMappingDisclosure variant="banner" className="max-w-2xl pt-0.5" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <div className="text-sm font-medium text-foreground">Velg tjenester til din katalog</div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center text-muted-foreground/70 hover:text-foreground transition-colors"
+                  aria-label="Om katalogen"
+                >
+                  <Info className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent side="top" className="max-w-sm p-3 space-y-2">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Her finner du et utvalg typiske sikkerhets- og compliance-tjenester som dekker krav i kjente regelverk. Du velger selv hvilke tjenester du vil tilby, legger til egne eller tilpasser beskrivelser. Katalogen din brukes når du jobber med kunder, slik at du raskt kan matche riktige tjenester mot deres behov.
+                </p>
+                <div className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
+                  <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                  <p className="flex-1">
+                    Koblingen mellom tjenester og krav er foreslått av Lara — ikke verifisert av menneske. Forholdet er ikke 1:1.
+                  </p>
+                </div>
+                <div className="space-y-1.5 text-xs text-muted-foreground leading-relaxed">
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    Slik er koblingene laget
+                  </p>
+                  <p>Lara (AI) foreslår hvilke krav og artikler en tjeneste dekker basert på beskrivelser, aktiviteter og nøkkelord.</p>
+                  <p>Forslagene er ikke verifisert av mennesker. Kvalitetssikre før du bruker dem i et tilbud eller en leveranse.</p>
+                  <p>Forholdet er ikke 1:1 — én tjeneste kan dekke flere krav, og ett krav kan kreve flere tiltak eller supplerende dokumentasjon.</p>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
 
