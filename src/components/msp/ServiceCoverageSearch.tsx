@@ -3,6 +3,7 @@ import { Search, Plus, Sparkles, Check, Pencil, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -37,12 +38,17 @@ interface FrameworkGroup {
   items: ControlSuggestion[];
 }
 
+function keyFor(it: ControlSuggestion) {
+  return `${it.frameworkId}:${it.controlId}`;
+}
+
 export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [justAdded, setJustAdded] = useState(false);
   const [descOverride, setDescOverride] = useState<string | null>(null);
   const [descEditing, setDescEditing] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebounced(query.trim()), 250);
@@ -59,6 +65,10 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
     if (debounced.length < 2) return [];
     return suggestControlPoints({ name: debounced });
   }, [debounced]);
+
+  useEffect(() => {
+    setSelectedKeys(new Set(suggestions.map(keyFor)));
+  }, [suggestions]);
 
   const suggestedDescription = useMemo(
     () => (debounced.length >= 2 ? lookupServiceDescription(debounced) : undefined),
@@ -96,9 +106,37 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
 
   const topFrameworkId = groups[0]?.frameworkId;
 
+  const allRows = useMemo(
+    () => groups.flatMap((g) => g.items),
+    [groups],
+  );
+
+  const selectedCount = selectedKeys.size;
+  const allSelected = allRows.length > 0 && selectedCount === allRows.length;
+  const someSelected = selectedCount > 0 && selectedCount < allRows.length;
+
+  const toggleAll = () => {
+    if (allSelected) {
+      setSelectedKeys(new Set());
+    } else {
+      setSelectedKeys(new Set(allRows.map(keyFor)));
+    }
+  };
+
+  const toggleRow = (it: ControlSuggestion) => {
+    const k = keyFor(it);
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(k)) next.delete(k);
+      else next.add(k);
+      return next;
+    });
+  };
+
   const handleAdd = () => {
-    if (!debounced || groups.length === 0 || isDuplicate) return;
-    const mappings: ServiceMapping[] = suggestions.map((s) => ({
+    if (!debounced || groups.length === 0 || isDuplicate || selectedCount === 0) return;
+    const selected = suggestions.filter((s) => selectedKeys.has(keyFor(s)));
+    const mappings: ServiceMapping[] = selected.map((s) => ({
       frameworkId: s.frameworkId,
       frameworkShortName: s.frameworkShortName,
       controlId: s.controlId,
@@ -110,6 +148,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
     setDebounced("");
     setDescOverride(null);
     setDescEditing(false);
+    setSelectedKeys(new Set());
   };
 
   return (
@@ -129,7 +168,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
           <Button
             type="button"
             onClick={handleAdd}
-            disabled={isDuplicate}
+            disabled={isDuplicate || selectedCount === 0}
             className="gap-1.5 shrink-0"
           >
             {isDuplicate ? (
@@ -141,6 +180,11 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
               <>
                 <Plus className="h-4 w-4" />
                 Opprett
+                {selectedCount > 0 && (
+                  <span className="ml-1 inline-flex items-center justify-center rounded-full bg-primary-foreground/20 px-1.5 py-0 text-[10px] font-medium">
+                    {selectedCount}
+                  </span>
+                )}
               </>
             )}
           </Button>
@@ -227,6 +271,13 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[44px] px-3">
+                  <Checkbox
+                    checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                    onCheckedChange={toggleAll}
+                    aria-label="Velg alle krav"
+                  />
+                </TableHead>
                 <TableHead className="w-[140px]">Regelverk</TableHead>
                 <TableHead className="w-[110px]">Krav</TableHead>
                 <TableHead>Kontrollpunkt</TableHead>
@@ -238,13 +289,23 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
                 g.items.map((it, idx) => {
                   const theme = getFrameworkTheme(it.frameworkId);
                   const isTop = it.frameworkId === topFrameworkId && idx === 0;
+                  const k = keyFor(it);
+                  const checked = selectedKeys.has(k);
                   return (
                     <TableRow
-                      key={`${it.frameworkId}:${it.controlId}`}
+                      key={k}
                       className={cn(
                         isTop && "bg-primary/[0.04]",
+                        !checked && "opacity-60",
                       )}
                     >
+                      <TableCell className="px-3">
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={() => toggleRow(it)}
+                          aria-label={`Velg ${it.controlId}`}
+                        />
+                      </TableCell>
                       <TableCell>
                         <span
                           className={cn(
