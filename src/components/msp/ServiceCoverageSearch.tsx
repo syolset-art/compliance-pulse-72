@@ -105,7 +105,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
     return existingNames.some((n) => n.toLowerCase() === q);
   }, [debounced, existingNames]);
 
-  const topFrameworkId = groups[0]?.frameworkId;
+  
 
   const selectedCount = selectedKeys.size;
 
