@@ -945,10 +945,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         const lockedCount = mine.filter((e) => !!getLockInfo({ templateId: e.templateId, name: e.name })).length;
         return (
           <section ref={catalogSectionRef} id="min-katalog" className="space-y-2 scroll-mt-24">
-            <div className="flex items-baseline justify-between gap-3">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">Min tjenestekatalog</h3>
-              </div>
+            <div className="flex items-baseline justify-end gap-3">
               {mine.length > 0 && (
                 <span className="text-sm text-foreground/70 whitespace-nowrap">
                   {mine.length} {mine.length === 1 ? "tjeneste" : "tjenester"}
