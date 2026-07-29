@@ -968,8 +968,15 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                 </p>
               </div>
             ) : (
-          <div className="divide-y divide-border rounded-md border border-border bg-card">
-            {extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => {
+              <div className="divide-y divide-border rounded-md border border-border bg-card">
+                <div className="flex items-center gap-3 px-3 py-2 bg-muted/30 border-b border-border">
+                  <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 uppercase tracking-wide">Tjeneste</div>
+                  <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-12 text-right">Timer</div>
+                  <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-24 text-right">Pris</div>
+                  <div className="w-11" />
+                  <div className="w-11" />
+                </div>
+                {extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => {
               const price = e.priceOverride ?? e.hours * hourlyRate;
               const lock = getLockInfo({ templateId: e.templateId, name: e.name });
               return (
