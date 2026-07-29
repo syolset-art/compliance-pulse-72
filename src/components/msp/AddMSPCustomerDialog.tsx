@@ -57,7 +57,7 @@ const ACRONIS_DEMO_TENANTS: Array<{
   { tenant_id: "ac-003", name: "Polar Maritime AS", org_number: "923456781", industry: "Skipsfart og maritim tjenesteyting", devices: 26, employees: 48 },
 ];
 
-const STEP_LABELS = ["method", "country", "search", "contact", "assessment", "gap", "confirm"];
+const STEP_LABELS = ["method", "country", "search", "contact", "recommend"];
 
 const COUNTRIES: { code: string; name: string; registry: string; supported: boolean }[] = [
   { code: "NO", name: "Norge", registry: "Brønnøysundregistrene", supported: true },
