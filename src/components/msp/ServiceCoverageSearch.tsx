@@ -107,22 +107,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
 
   const topFrameworkId = groups[0]?.frameworkId;
 
-  const allRows = useMemo(
-    () => groups.flatMap((g) => g.items),
-    [groups],
-  );
-
   const selectedCount = selectedKeys.size;
-  const allSelected = allRows.length > 0 && selectedCount === allRows.length;
-  const someSelected = selectedCount > 0 && selectedCount < allRows.length;
-
-  const toggleAll = () => {
-    if (allSelected) {
-      setSelectedKeys(new Set());
-    } else {
-      setSelectedKeys(new Set(allRows.map(keyFor)));
-    }
-  };
 
   const toggleRow = (it: ControlSuggestion) => {
     const k = keyFor(it);
@@ -273,13 +258,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[44px] px-3">
-                    <Checkbox
-                      checked={allSelected ? true : someSelected ? "indeterminate" : false}
-                      onCheckedChange={toggleAll}
-                      aria-label="Velg alle krav"
-                    />
-                  </TableHead>
+                  <TableHead className="w-[44px] px-3" />
                   <TableHead className="w-[140px]">Regelverk</TableHead>
                   <TableHead className="w-[110px]">Krav</TableHead>
                   <TableHead>Kontrollpunkt</TableHead>
