@@ -113,16 +113,6 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
   );
 
   const selectedCount = selectedKeys.size;
-  const allSelected = allRows.length > 0 && selectedCount === allRows.length;
-  const someSelected = selectedCount > 0 && selectedCount < allRows.length;
-
-  const toggleAll = () => {
-    if (allSelected) {
-      setSelectedKeys(new Set());
-    } else {
-      setSelectedKeys(new Set(allRows.map(keyFor)));
-    }
-  };
 
   const toggleRow = (it: ControlSuggestion) => {
     const k = keyFor(it);
