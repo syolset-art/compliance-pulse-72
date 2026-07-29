@@ -22,7 +22,7 @@ import type { LaraPlanTask } from "@/components/lara/types";
 import { MSPCustomerSnapshotCard } from "@/components/msp/MSPCustomerSnapshotCard";
 
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
-import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
+
 import { PartnerActionMenu } from "@/components/msp/PartnerActionMenu";
 import { MandateConfirmDialog, useMandate } from "@/components/msp/PartnerMandateCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
