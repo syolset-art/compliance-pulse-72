@@ -24,6 +24,7 @@ import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type Servic
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
+import { ServiceCoverageSearch } from "./ServiceCoverageSearch";
 import { LaraScopeChangeDialog, type ScopeChangeSelection } from "./LaraScopeChangeDialog";
 import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
 import {
@@ -913,10 +914,29 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
 
         <TabsContent value="mine" className="space-y-6 mt-4">
 
-
-
+      <ServiceCoverageSearch
+        existingNames={extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => e.name)}
+        onAdd={({ name, mappings }) => {
+          const next: ExtraService = {
+            id: `search-${Date.now()}`,
+            name,
+            description: "",
+            hours: 0,
+            activities: [],
+            source: "manual",
+            mappings,
+          };
+          setExtras((prev) => [...prev, next]);
+          revealInCatalog(next.id);
+          toast.success(`La til «${name}» i din tjenestekatalog`, {
+            description: "Rediger for å justere aktiviteter og pris.",
+            action: { label: "Vis i katalogen", onClick: () => revealInCatalog(next.id) },
+          });
+        }}
+      />
 
       {/* Min tjenestekatalog */}
+
 
       {(() => {
         const mine = extras.filter((e) => !e.isMynder && e.status !== "retired");
