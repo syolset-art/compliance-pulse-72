@@ -718,7 +718,12 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               <tr>
                 <th className="text-left font-semibold px-3 py-2.5 w-12"></th>
                 <th className="text-left font-semibold px-3 py-2.5">Tjeneste</th>
-                <th className="text-left font-semibold px-3 py-2.5">Krav tjenesten støtter</th>
+                <th className="text-left font-semibold px-3 py-2.5">
+                  <span className="inline-flex items-center gap-1.5">
+                    Krav tjenesten støtter
+                    <AiMappingDisclosure variant="icon" />
+                  </span>
+                </th>
                 <th className="text-left font-semibold px-3 py-2.5 w-44">Rolle</th>
                 <th className="text-right font-semibold px-3 py-2.5 w-32"></th>
               </tr>
