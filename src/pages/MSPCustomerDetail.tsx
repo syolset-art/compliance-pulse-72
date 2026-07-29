@@ -386,34 +386,101 @@ export default function MSPCustomerDetail() {
               )}
 
 
-              {/* Baseline-kartlegging — valgfri spørreliste, åpner drawer direkte. */}
-              <Card className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-start gap-3 min-w-0">
-                  <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <ClipboardList className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-semibold text-foreground">Baseline-kartlegging</h3>
-                      <span className="text-xs text-muted-foreground rounded-full bg-muted px-2 py-0.5">
-                        {totalAnswered}/{totalQuestions} besvart
-                      </span>
-                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Valgfritt</span>
+              {/* Baseline-kartlegging — koblet til modenhet per kontrollområde. */}
+              <Card className="p-5">
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <ClipboardList className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-sm font-semibold text-foreground">
+                            {t("baselineCard.title", "Baseline-kartlegging")}
+                          </h3>
+                          <span className="text-xs text-muted-foreground rounded-full bg-muted px-2 py-0.5">
+                            {totalAnswered}/{totalQuestions} {t("baselineCard.answered", "besvart")}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                            {t("baselineCard.optional", "Valgfritt")}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {t(
+                            "baselineCard.description",
+                            "Still spørsmålene sammen med kunden for å få laget en baseline. Svarene kobles direkte til modenhet per kontrollområde.",
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Still {totalQuestions} enkle spørsmål sammen med kunden — svarene forbedrer modenhetsestimatet per kontrollområde.
+                    <div className="text-right shrink-0">
+                      <p className="text-[10px] text-muted-foreground">{t("baselineCard.trustScore", "Trust Score")}</p>
+                      <p className="text-sm font-semibold text-foreground tabular-nums">
+                        {totalQuestions > 0 ? Math.round((totalAnswered / totalQuestions) * 100) : 0}
+                        <span className="text-xs text-muted-foreground font-normal">/100</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+                    {MATURITY_AREAS.map((area) => {
+                      const p = areaProgress.find((a) => a.id === area.id);
+                      const answered = p?.answered ?? 0;
+                      const total = p?.total ?? area.questions.length;
+                      const pct = total > 0 ? Math.round((answered / total) * 100) : 0;
+                      const Icon = area.icon;
+                      const color = pct === 0 ? "text-destructive" : pct >= 75 ? "text-success" : "text-warning";
+                      return (
+                        <div key={area.id} className="rounded-lg border border-border/60 px-3 py-2.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span className="text-[13px] font-medium text-foreground truncate">{area.title}</span>
+                            </div>
+                            <span className={`text-xs tabular-nums shrink-0 ${color}`}>{pct}%</span>
+                          </div>
+                          <div className="h-1 mt-2 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary rounded-full transition-all"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                    <p className="text-xs text-muted-foreground max-w-md">
+                      {t(
+                        "baselineCard.helper",
+                        "Jo flere spørsmål som besvares, jo mer presis blir modenhetsvurderingen og gap-analysen.",
+                      )}
                     </p>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setBaselineDrawer({ open: true, review: false, mode: "partner" })}
+                        className="w-full sm:w-auto"
+                      >
+                        {totalAnswered === 0
+                          ? t("baselineCard.startPartner", "Start kartlegging")
+                          : t("baselineCard.continuePartner", "Fortsett kartlegging")}
+                        <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => setBaselineDrawer({ open: true, review: false, mode: "meeting" })}
+                        className="w-full sm:w-auto"
+                      >
+                        <Users className="h-3.5 w-3.5 mr-1.5" />
+                        {t("baselineCard.meetingButton", "Fyll ut sammen med kunden")}
+                      </Button>
+                    </div>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setBaselineDrawer({ open: true, review: false })}
-                  className="w-full sm:w-auto sm:shrink-0"
-                >
-                  {totalAnswered === 0 ? "Start kartlegging" : "Fortsett kartlegging"}
-                  <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
-                </Button>
               </Card>
 
               <RegulationsStatusCard
