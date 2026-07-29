@@ -21,6 +21,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { seedDemoMSP, deleteDemoMSP } from "@/lib/demoSeedMSP";
 import { toast } from "sonner";
+import { getOffersForCustomer } from "@/lib/customerOffers";
 
 type ViewMode = "cards" | "table";
 
