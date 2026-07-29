@@ -83,20 +83,24 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
   }, [recommended, confirmed]);
 
   const servicesFor = (frameworkId: string) => {
-    const mine = PARTNER_SERVICES.filter(
-      (s) =>
-        s.status !== "retired" &&
-        s.frameworkMappings.some((m) => m.frameworkId === frameworkId),
-    ).map((s) => ({ id: s.id, name: s.name }));
+    const mineNames = new Set(
+      PARTNER_SERVICES.filter(
+        (s) =>
+          s.status !== "retired" &&
+          s.frameworkMappings.some((m) => m.frameworkId === frameworkId),
+      ).map((s) => s.name.toLowerCase()),
+    );
 
-    const mineNames = new Set(mine.map((m) => m.name.toLowerCase()));
-    const recommended = SERVICE_LIBRARY.filter(
-      (t) =>
-        t.mappings.some((m) => m.frameworkId === frameworkId) &&
-        !mineNames.has(t.name.toLowerCase()),
-    ).map((t) => ({ id: t.id, name: t.name }));
+    const all = SERVICE_LIBRARY.filter((t) =>
+      t.mappings.some((m) => m.frameworkId === frameworkId),
+    ).map((t) => ({
+      id: t.id,
+      name: t.name,
+      inCatalog: mineNames.has(t.name.toLowerCase()),
+    }));
 
-    return { mine, recommended };
+    // I katalogen først
+    return all.sort((a, b) => Number(b.inCatalog) - Number(a.inCatalog));
   };
 
   const persist = async (
