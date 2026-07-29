@@ -805,20 +805,9 @@ export default function MSPDashboard() {
                             />
                           </TableHead>
                         )}
-                        {isVisible("tp_status") && (
-                          <TableHead className="w-[140px] text-foreground/80">
-                            <div className="inline-flex items-center gap-2">
-                              <button type="button" onClick={() => toggleSort("tp_status")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
-                                TP-status <SortIcon k="tp_status" />
-                              </button>
-                              <ColumnFilter
-                                iconOnly
-                                label="TP-status"
-                                options={(Object.keys(TP_STATUS_LABEL) as TPStatusKey[]).map((k) => ({ value: k, label: TP_STATUS_LABEL[k] }))}
-                                selected={tpStatusFilter}
-                                onChange={(v) => setTpStatusFilter(v as TPStatusKey[])}
-                              />
-                            </div>
+                        {isVisible("activated") && (
+                          <TableHead className="w-[240px] text-foreground/80">
+                            <span className="text-sm font-medium">Produkter og tjenester</span>
                           </TableHead>
                         )}
                         {isVisible("score") && (
