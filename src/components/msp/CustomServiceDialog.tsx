@@ -343,34 +343,34 @@ export function CustomServiceDialog({
                           {m.controlLabel} <span className="text-muted-foreground">({m.controlId})</span>
                         </span>
                       </div>
-                      {checked && (
-                        <div className="flex flex-wrap gap-1 pt-0.5">
-                          {(Object.keys(ROLE_META) as ServiceRole[]).map((role) => {
-                            const active = currentRoles.includes(role);
-                            return (
-                              <button
-                                key={role}
-                                type="button"
-                                onClick={(ev) => { ev.preventDefault(); toggleRole(role); }}
-                                title={ROLE_META[role].description}
-                                className={cn(
-                                  "px-1.5 py-0.5 rounded text-[11px] border transition-colors",
-                                  active
-                                    ? "bg-primary/10 border-primary/40 text-primary"
-                                    : "border-border text-muted-foreground hover:text-foreground",
-                                )}
-                              >
-                                {ROLE_META[role].label}
-                              </button>
-                            );
-                          })}
-                          {currentRoles.length === 0 && (
-                            <span className="text-[11px] text-muted-foreground italic self-center">
-                              Velg minst én rolle
-                            </span>
-                          )}
-                        </div>
-                      )}
+                        {checked && (
+                          <div className="flex flex-wrap gap-1 pt-0.5">
+                            {(Object.keys(ROLE_META) as ServiceRole[]).map((role) => {
+                              const active = currentRoles.includes(role);
+                              return (
+                                <button
+                                  key={role}
+                                  type="button"
+                                  onClick={(ev) => { ev.preventDefault(); toggleRole(role); }}
+                                  title={ROLE_META[role].description}
+                                  className={cn(
+                                    "px-1.5 py-0.5 rounded text-xs transition-colors",
+                                    active
+                                      ? "bg-primary/10 text-primary font-medium"
+                                      : "text-muted-foreground hover:text-foreground",
+                                  )}
+                                >
+                                  {ROLE_META[role].label}
+                                </button>
+                              );
+                            })}
+                            {currentRoles.length === 0 && (
+                              <span className="text-xs text-muted-foreground italic self-center">
+                                Velg minst én rolle
+                              </span>
+                            )}
+                          </div>
+                        )}
                     </div>
                     <Button
                       type="button"
