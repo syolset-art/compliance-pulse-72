@@ -161,7 +161,6 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
                       </Badge>
                     )}
                   </div>
-                  </div>
                   <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{m.description}</p>
 
                   {m.meta && (
