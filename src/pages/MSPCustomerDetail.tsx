@@ -531,6 +531,28 @@ export default function MSPCustomerDetail() {
           onOpenChange={setTakeoverInfoOpen}
         />
 
+        <BaselineQuestionsDrawer
+          open={baselineDrawer.open}
+          onOpenChange={(open) => setBaselineDrawer({ open, review: false })}
+          customerName={customer.name || customer.customer_name || "Kunden"}
+          answers={baselineAnswers}
+          onAnswer={setBaselineAnswer}
+          reviewMode={baselineDrawer.review}
+          laraRationales={baselineRationales}
+        />
+
+        <MSPCreateOfferDialog
+          open={offerDialog.open}
+          onOpenChange={(o) => setOfferDialog((prev) => ({ ...prev, open: o }))}
+          customerId={customerId!}
+          customerName={customer.name || customer.customer_name || undefined}
+          customerContactName={customer.contact_name || undefined}
+          serviceTitle={offerDialog.title}
+          offeredTemplateIds={offerDialog.templateId ? [offerDialog.templateId] : []}
+        />
+
+
+
 
 
         {/* Skjulte saker – kun synlig for partner */}
