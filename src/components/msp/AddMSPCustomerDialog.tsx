@@ -183,6 +183,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setForm({ contact_person: "", contact_email: "", contact_company_role: "", account_manager: "", has_website: true, url: "", subscription_plan: "Gratis", country_code: "NO" });
     setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
     setIndustrySource("none");
+    setWebsiteSource("none");
     setEnrichStep("main");
     setBusinessDescription("");
   }, []);
