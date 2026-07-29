@@ -43,7 +43,12 @@ import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
-import { ComplianceMappingCard } from "@/components/msp/customer-compliance/ComplianceMappingSheet";
+import { MaturityMirrorCard } from "@/components/msp/guidance/MaturityMirrorCard";
+import { RegulationsStatusCard } from "@/components/msp/guidance/RegulationsStatusCard";
+import { ServiceMatchCard } from "@/components/msp/guidance/ServiceMatchCard";
+import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
+import { useSavedOffers } from "@/lib/customerOffers";
+import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 
 
 export default function MSPCustomerDetail() {
@@ -76,6 +81,8 @@ export default function MSPCustomerDetail() {
   usePageHelpListener(setHelpOpen);
   const mandate = useMandate(customerId || "");
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, laraRationales: baselineRationales, setLaraRationales: setBaselineRationales, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
+  const [offerDialog, setOfferDialog] = useState<{ open: boolean; templateId?: string; title?: string }>({ open: false });
+  const { getLockInfo } = useSavedOffers();
 
 
   const queryClient = useQueryClient();
@@ -332,7 +339,7 @@ export default function MSPCustomerDetail() {
 
             {/* ── Veiledning fra Mynder ── */}
             <TabsContent value="guidance" className="mt-6 space-y-5">
-              <ComplianceMappingCard customerId={customerId!} customerName={customer.customer_name} />
+              
 
 
 
@@ -378,9 +385,7 @@ export default function MSPCustomerDetail() {
               )}
 
 
-              {/* Kort baseline-status med lenke til Trust Profile-siden.
-                  Selve utfyllingen ligger under Trust Profile — Veiledning skal
-                  bare gjøre partneren oppmerksom på status og peke videre. */}
+              {/* Baseline-kartlegging — valgfri spørreliste, åpner drawer direkte. */}
               <Card className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -388,26 +393,48 @@ export default function MSPCustomerDetail() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-semibold text-foreground">Baseline</h3>
+                      <h3 className="text-sm font-semibold text-foreground">Baseline-kartlegging</h3>
                       <span className="text-xs text-muted-foreground rounded-full bg-muted px-2 py-0.5">
-                        {totalAnswered} av {totalQuestions} besvart
+                        {totalAnswered}/{totalQuestions} besvart
                       </span>
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Valgfritt</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Baselinen er kundens utgangspunkt for modenhet og gap. Den fylles ut og vedlikeholdes under Trust Profile.
+                      Still {totalQuestions} enkle spørsmål sammen med kunden — svarene forbedrer modenhetsestimatet per kontrollområde.
                     </p>
                   </div>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate(`/msp-dashboard/${customerId}/trust-profile`)}
+                  onClick={() => setBaselineDrawer({ open: true, review: false })}
                   className="w-full sm:w-auto sm:shrink-0"
                 >
-                  Åpne Trust Profile
+                  {totalAnswered === 0 ? "Start kartlegging" : "Fortsett kartlegging"}
                   <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
                 </Button>
               </Card>
+
+              <MaturityMirrorCard
+                areaProgress={areaProgress}
+                totalAnswered={totalAnswered}
+                totalQuestions={totalQuestions}
+              />
+
+              <RegulationsStatusCard
+                customerId={customerId!}
+                recommended={((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]}
+                confirmed={((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]}
+                onOpenAll={() => handleTabChange("regulations")}
+              />
+
+              <ServiceMatchCard
+                activeFrameworkIds={activeFrameworkIds}
+                catalogTemplateIds={new Set<string>()}
+                onCreateOffer={(templateId, title) => setOfferDialog({ open: true, templateId, title })}
+                onSeeAll={() => handleTabChange("assessment")}
+              />
+
 
               {/* TODO: Seksjon "Nye tjenester fra Mynder" plasseres her i senere iterasjon. */}
 
@@ -504,6 +531,28 @@ export default function MSPCustomerDetail() {
           onOpenChange={setTakeoverInfoOpen}
         />
 
+        <BaselineQuestionsDrawer
+          open={baselineDrawer.open}
+          onOpenChange={(open) => setBaselineDrawer({ open, review: false })}
+          customerName={customer.name || customer.customer_name || "Kunden"}
+          answers={baselineAnswers}
+          onAnswer={setBaselineAnswer}
+          reviewMode={baselineDrawer.review}
+          laraRationales={baselineRationales}
+        />
+
+        <MSPCreateOfferDialog
+          open={offerDialog.open}
+          onOpenChange={(o) => setOfferDialog((prev) => ({ ...prev, open: o }))}
+          customerId={customerId!}
+          customerName={customer.name || customer.customer_name || undefined}
+          customerContactName={customer.contact_name || undefined}
+          serviceTitle={offerDialog.title}
+          offeredTemplateIds={offerDialog.templateId ? [offerDialog.templateId] : []}
+        />
+
+
+
 
 
         {/* Skjulte saker – kun synlig for partner */}
@@ -531,10 +580,7 @@ export default function MSPCustomerDetail() {
               ))}
             </ul>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setHiddenIssuesOpen(false)}>Lukk</Button>
-              <Button onClick={() => { setHiddenIssuesOpen(false); navigate(`/msp-dashboard/${customerId}/trust-profile`); }} className="gap-1.5">
-                Åpne Trust Profile <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
+              <Button onClick={() => setHiddenIssuesOpen(false)}>Lukk</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

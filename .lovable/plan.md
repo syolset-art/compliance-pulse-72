@@ -1,89 +1,65 @@
-
 ## Mål
+"Veiledning fra Mynder" skal være partnerens én-side-oversikt over kunden: baseline-svar (valgfri kartlegging), regelverk-status (AI-anbefalt vs. bekreftet), og hvilke tjenester partneren typisk kan levere. Trust Profile-lenken fjernes helt.
 
-En MSP/MSSP skal kunne legge til en kunde på under 30 sekunder. Compliance-kartleggingen (15 spørsmål) skal ikke ligge i onboarding — den flyttes til kundens profil og gjøres når partneren har tid. I stedet skal Lara automatisk foreslå **regelverk** og **matchende tjenester** basert på land, bransje og virksomhetsbeskrivelse. Høy konfidens = anvendt automatisk. Middels/lav = merket "Anbefalt" og krever ett klikk for å bekrefte.
+## Endringer på Veiledning-tab (MSPCustomerDetail.tsx)
 
-## Ny "Legg til kunde"-flyt (3 steg)
+### 1. Baseline-kortet — åpne spørreskjema direkte
+Kortet "Baseline" beholdes, men knappen bytter fra "Åpne Trust Profile" til **"Start kartlegging"** / **"Fortsett kartlegging"** som åpner `BaselineQuestionsDrawer` (finnes allerede). Ingen navigering til Trust Profile.
 
-```text
-1. Identifiser        2. Bekreft         3. Ferdig
-   ─────────────      ──────────         ────────
-   Søk org.nr /       Navn, land,        Kunde opprettet
-   nettside /         bransje, e-post    + Laras forslag
-   manuelt            til kontakt        vises inline
-```
+- Tittel: "Baseline-kartlegging (valgfritt)"
+- Undertekst: "Still 15 enkle spørsmål sammen med kunden for å forbedre modenhetsestimatet per kontrollområde."
+- Chip viser `{totalAnswered}/{totalQuestions}` og mini-progressbar
 
-Alt annet (kartlegging, gap-analyse, tjenestevalg) skjer **etter** at kunden er opprettet, på kundens profil.
+### 2. Ny seksjon: "Modenhet per kontrollområde" (read-only speiling)
+Kompakt speiling av widgeten fra Trust Profile (skjermbildet). 5 rader (Styring, Drift, Personvern, Identitet, Tredjepart) med % og Trust Score til høyre. Ingen drill-down — bare status. Hjelpetekst: "Estimert fra offentlig informasjon. Fyll ut baseline for mer presis vurdering."
 
-### Steg 1 — Identifiser
-En input. Partneren limer inn org.nr, domene eller kundenavn. Under: liten "Legg til manuelt"-lenke.
+### 3. Ny seksjon: "Regelverk kunden må følge"
+Liste over kundens `recommended_frameworks` + `confirmed_frameworks` (fra `msp_customers`, satt under onboarding). Hver rad:
 
-### Steg 2 — Bekreft
-Auto-utfylt kort: navn, land, bransje (NACE), størrelse, kort virksomhetsbeskrivelse (fra Brønnøysund/nettside via eksisterende enrichment). Ett e-post-felt + rolle for hovedkontakt. Bruker kan redigere alle felt.
+- Navn + kort begrunnelse ("Norsk virksomhet > 50 ansatte → NIS2")
+- Status-badge:
+  - `Bekreftet av deg` (solid, primary, Check-ikon) — når `confirmed_frameworks` inneholder id
+  - `AI-anbefalt` (outline, Sparkles-ikon) — når kun i `recommended_frameworks`
+- Handlinger: `Bekreft` (én-klikk flytter til confirmed) eller `Fjern`
 
-### Steg 3 — Ferdig
-Kunden opprettes umiddelbart. Dialogen viser et lite oppsummeringspanel:
+Åpner `RegulationsConfirmSheet` for full liste og bulk-håndtering (gjenbruker eksisterende `MSPCustomerRegulationsTab` som sheet).
 
-- **Regelverk som gjelder** (auto-anvendt, høy konfidens) — små pills med hake
-- **Anbefalt å vurdere** (middels konfidens) — pills med stjerne, ett klikk for å bekrefte/avvise
-- **Tjenester du sannsynligvis leverer** — matchet mot partnerens egen tjenestekatalog, samme konfidens-logikk
+### 4. Ny seksjon: "Tjenester du kan tilby denne kunden"
+Basert på bekreftede + AI-anbefalte regelverk, kryssreferer `serviceMatcher.ts` mot partnerens tjenestekatalog. Viser topp 4–6 tjenester som chip-kort:
 
-Knapper: "Åpne kunde" (primær) og "Legg til én til".
+- Tjenestenavn + hvilke krav den dekker (f.eks. "GDPR Art. 32, NIS2 Art. 21")
+- Badge: `I katalogen` eller `Foreslått fra Mynder`
+- CTA: "Lag tilbud" → åpner `MSPCreateOfferDialog` forhåndsutfylt
 
-## Laras anbefalingsmotor
+Link til full liste: "Se alle matchende tjenester →" (åpner tjenestekatalog filtrert på kunden).
 
-Ren regelbasert scoring — ingen ekstra AI-kall i onboarding, kjøres synkront på klienten basert på allerede-hentet data.
-
-**Input:** `country`, `industryCode` (NACE), `employeeCount`, `businessDescription`, `hasEuCustomers` (utledet), `sector` (utledet: offentlig/finans/helse/kritisk infra).
-
-**Output per regelverk:**
-```ts
-{ frameworkId: string; confidence: "high" | "medium" | "low"; reason: string }
-```
-
-**Regler (eksempler):**
-- `country === "NO"` → GDPR **high**, Personopplysningsloven **high**
-- NACE i {64, 65, 66} (finans) → DORA **high**, NIS2 **high**
-- NACE i {86, 87} (helse) → Normen **high**, GDPR art. 9 **high**
-- Kritisk infra (energi, transport, vann) → NIS2 **high**, Sikkerhetsloven **medium**
-- `employeeCount > 50` OG EU-eksponering → NIS2 **medium**
-- Behandler kortdata (nøkkelord i beskrivelse) → PCI-DSS **medium**
-- Default fallback: ISO 27001 **low** (som "vurder")
-
-**Tjeneste-matching:** Kryssreferer anbefalte regelverk mot partnerens tjenestekatalog (`controlIds` per tjeneste finnes allerede). Tjenester som dekker ≥1 krav fra et high-confidence regelverk vises som "Sannsynlig match".
-
-## UI-prinsipper
-
-- Én dialog, tre steg, samme visuelle stil som eksisterende `AddMSPCustomerDialog` (progress-dots øverst)
-- Ingen kartleggingsspørsmål i onboarding
-- Konfidens vises kun med ikon (hake = auto, stjerne = anbefalt), ikke prosenttall
-- Anbefalinger er alltid reversible fra kundens profil
-- Ingen ekstra forklaringstekst — tooltip ved hover forklarer "hvorfor"
-
-## Compliance-kartlegging (flyttes)
-
-De 15 spørsmålene fra bildet legges som et eget kort på kundens **Veiledning**-fane: "Bekreft compliance-status (0/15)". Åpnes i sidepanel. Ikke blokkerende. Svar overstyrer Laras auto-antakelser der de finnes.
-
----
+### 5. Fjerning
+- Fjern kortet "Skjulte saker – kun synlig for partner" sin knapp `Åpne Trust Profile` (erstatt med "Lukk").
+- `ComplianceMappingCard` (15-spørsmåls-panelet fra forrige iterasjon) fjernes — baseline-kortet dekker samme behov.
 
 ## Teknisk
 
-**Nye filer:**
-- `src/lib/regulationRecommender.ts` — ren funksjon `recommendFrameworks(input) → Recommendation[]`. Rulesett i samme fil, dokumentert per regel.
-- `src/lib/serviceMatcher.ts` — matcher anbefalte regelverk mot partnerens `savedServices` via eksisterende `controlIds`.
-- `src/components/msp/CustomerRecommendationsPanel.tsx` — visning av regelverk-pills + tjeneste-pills med bekreft/avvis.
-- `src/components/msp/customer-compliance/ComplianceMappingSheet.tsx` — flyttet innhold fra dagens `MSPAssessmentStep` (de 15 spørsmålene), åpnes fra Veiledning.
+**Filer som endres:**
+- `src/pages/MSPCustomerDetail.tsx` — refaktorer `guidance`-TabsContent til 4 kort i rekkefølge: Baseline · Modenhet · Regelverk · Tjenester
+- Ny `src/components/msp/guidance/MaturityMirrorCard.tsx` — leser eksisterende modenhet-scores (fra `useCustomerBaseline.areaProgress` eller tilsvarende)
+- Ny `src/components/msp/guidance/RegulationsStatusCard.tsx` — bruker `msp_customers.recommended_frameworks` / `confirmed_frameworks`
+- Ny `src/components/msp/guidance/ServiceMatchCard.tsx` — bruker `serviceMatcher.ts` + `useSavedOffers` for match
 
-**Endrede filer:**
-- `src/components/msp/AddMSPCustomerDialog.tsx` — reduseres kraftig. `Step`-union kortes til `"identify" | "confirm" | "done"` (behold `bulk`/`acronis` som separate innganger). Fjern `assessment` og `gap` fra hovedflyten.
-- `src/pages/MSPCustomerDetail.tsx` — Veiledning-fanen får nytt "Compliance-kartlegging (0/15)"-kort som åpner sheeten. Kundens header viser Laras auto-anvendte regelverk.
-- `src/components/msp/CustomerStatusBanner.tsx` — vis "Regelverk (N)" som chip-liste med ikon for auto vs. anbefalt.
+**Ingen DB-endringer** — kolonnene `recommended_frameworks` og `confirmed_frameworks` finnes allerede.
 
-**Data:**
-- Lagre anbefalinger på kunde-raden i `msp_customers`: `recommended_frameworks jsonb`, `confirmed_frameworks jsonb`. Migrasjon med GRANT + RLS lik eksisterende policyer.
-- Ingen endring i eksisterende `MSPAssessmentStep` — den gjenbrukes inne i sheeten.
+**Ingen ny navigering** — alt skjer i sheets/drawers på samme side.
 
-**Ikke i scope:**
-- Ingen endring i `MSPGapAnalysisStep`, `MSPServiceCatalog`, produktside eller sidebar.
-- Ingen ny AI-gateway-integrasjon — anbefalingene er regelbaserte for å holde onboarding rask og gratis.
+## Layout på Veiledning-tab (etter endring)
 
+```text
+┌─ Åpne oppgaver (uendret) ────────────────┐
+├─ Baseline-kartlegging (valgfritt)  [Start]
+├─ Modenhet per kontrollområde  Trust 0/100
+│    5 rader med %-bar
+├─ Regelverk kunden må følge
+│    GDPR  [Bekreftet]     [Fjern]
+│    NIS2  [AI-anbefalt]   [Bekreft]
+├─ Tjenester du kan tilby
+│    4–6 chip-kort  [Lag tilbud]
+└──────────────────────────────────────────┘
+```
