@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -35,6 +36,8 @@ interface Props {
   laraScan?: Parameters<typeof deriveLaraSources>[0];
   /** Per-question rationales from Laras LLM-suggestion. Takes precedence over scan source. */
   laraRationales?: Record<string, string>;
+  /** Whether the drawer is filled by the partner alone or used together with the customer in a meeting. */
+  mode?: "partner" | "meeting";
 }
 
 interface AnswerMeta {
@@ -65,7 +68,9 @@ export function BaselineQuestionsDrawer({
   reviewMode = false,
   laraScan,
   laraRationales,
+  mode = "partner",
 }: Props) {
+  const { t } = useTranslation();
   const laraSources = deriveLaraSources(laraScan ?? null);
 
   const initialArea = (() => {
@@ -117,12 +122,17 @@ export function BaselineQuestionsDrawer({
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-primary" />
-            {reviewMode ? "Se over baseline" : "Fyll ut baseline"}
+            {reviewMode
+              ? t("baselineDrawer.reviewTitle", "Se over baseline")
+              : mode === "meeting"
+                ? t("baselineDrawer.meetingTitle", "Fyll ut baseline sammen med kunden")
+                : t("baselineDrawer.partnerTitle", "Fyll ut baseline")}
           </SheetTitle>
           <SheetDescription>
-            Baseline er kundens utgangspunkt: en kort kartlegging av om sentrale GDPR- og
-            sikkerhetstiltak er på plass, fordelt på fem kontrollområder. Svarene blir
-            startpunktet for kundens Trust Profile og gap-analysen.
+            {t(
+              "baselineDrawer.description",
+              "Baseline er kundens utgangspunkt: en kort kartlegging av om sentrale GDPR- og sikkerhetstiltak er på plass, fordelt på fem kontrollområder. Svarene blir startpunktet for kundens Trust Profile og gap-analysen.",
+            )}
           </SheetDescription>
         </SheetHeader>
 
@@ -136,17 +146,23 @@ export function BaselineQuestionsDrawer({
           </div>
           <p className="text-sm text-foreground flex-1">
             {reviewMode ? (
-              <>
-                Lara har foreslått svar basert på hva som er typisk for{" "}
-                <span className="font-medium">{customerName}</span>. Gå gjennom hvert
-                spørsmål og bekreft, juster eller marker som ikke relevant.
-              </>
+              <Trans
+                i18nKey="baselineDrawer.reviewInfo"
+                values={{ customerName }}
+                components={{ strong: <span className="font-medium" /> }}
+              />
+            ) : mode === "meeting" ? (
+              <Trans
+                i18nKey="baselineDrawer.meetingInfo"
+                values={{ customerName }}
+                components={{ strong: <span className="font-medium" /> }}
+              />
             ) : (
-              <>
-                Du svarer på vegne av <span className="font-medium">{customerName}</span>.
-                Svarene lagres som partner-bekreftet og brukes som baseline når du kjører
-                gap-analysen.
-              </>
+              <Trans
+                i18nKey="baselineDrawer.partnerInfo"
+                values={{ customerName }}
+                components={{ strong: <span className="font-medium" /> }}
+              />
             )}
           </p>
         </Card>
