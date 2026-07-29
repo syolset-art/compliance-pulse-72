@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Scale, Sparkles, Check, X, ArrowRight } from "lucide-react";
+import { Scale, Sparkles, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
