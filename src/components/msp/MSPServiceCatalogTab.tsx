@@ -1051,7 +1051,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                     )}
                   </div>
                   {(() => {
-                    const fwLabels = Array.from(new Set(e.mappings.map((m) => m.frameworkLabel)));
+                    const fwLabels = Array.from(new Set(e.mappings.map((m) => m.frameworkShortName)));
                     const shown = fwLabels.slice(0, 2);
                     const extra = fwLabels.length - shown.length;
                     return (
