@@ -1287,9 +1287,22 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                       onChange={(e) => setForm({ ...form, url: e.target.value })}
                       placeholder="https://example.no"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Bekreft at nettadressen stemmer. Mynder bruker den til å hente compliance-informasjon automatisk. Skanningen starter først når du går videre.
-                    </p>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span>Bekreft at nettadressen stemmer.</span>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button type="button" className="inline-flex text-muted-foreground hover:text-foreground">
+                              <Info className="h-3.5 w-3.5" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs text-xs">
+                            Mynder henter personvernerklæringen fra nettsiden – hvis den finnes legges den på kundens profil. Vi bruker også innholdet på hjemmesiden til å lage en kort beskrivelse av kunden på kundekortet.
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+
                   </>
                 )}
               </div>
