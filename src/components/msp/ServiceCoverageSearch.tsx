@@ -273,13 +273,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[44px] px-3">
-                    <Checkbox
-                      checked={allSelected ? true : someSelected ? "indeterminate" : false}
-                      onCheckedChange={toggleAll}
-                      aria-label="Velg alle krav"
-                    />
-                  </TableHead>
+                  <TableHead className="w-[44px] px-3" />
                   <TableHead className="w-[140px]">Regelverk</TableHead>
                   <TableHead className="w-[110px]">Krav</TableHead>
                   <TableHead>Kontrollpunkt</TableHead>
