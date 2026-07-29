@@ -46,6 +46,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 
 import { RegulationsStatusCard } from "@/components/msp/guidance/RegulationsStatusCard";
+import { CustomerServiceCoverageSearch } from "@/components/msp/guidance/CustomerServiceCoverageSearch";
+
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { useSavedOffers } from "@/lib/customerOffers";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
@@ -483,6 +485,19 @@ export default function MSPCustomerDetail() {
                 activeFrameworkIds={activeFrameworkIds}
                 onGoToProducts={() => handleTabChange("modules")}
               />
+
+              <CustomerServiceCoverageSearch
+                customerFrameworkIds={Array.from(
+                  new Set([
+                    ...(((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]).map((r) => r.frameworkId),
+                    ...(((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]).map((r) => r.frameworkId),
+                    ...activeFrameworkIds,
+                    // Fallback for demo rows when customer has no persisted frameworks yet
+                    "gdpr", "nis2", "iso27001", "dora",
+                  ]),
+                )}
+              />
+
 
 
 

@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Scale, Sparkles, Check, X, ArrowRight } from "lucide-react";
+import { Scale, Sparkles, Check, X, ArrowRight, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -19,6 +19,9 @@ import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 import { PARTNER_SERVICES } from "@/lib/serviceCatalog";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { ActivateRegulationDialog } from "./ActivateRegulationDialog";
+import { PartnerEvidenceUploadDialog } from "@/components/msp/PartnerEvidenceUploadDialog";
+import { PartnerEvidenceSection } from "@/components/msp/PartnerEvidenceSection";
+
 
 interface Props {
   customerId: string;
@@ -46,8 +49,13 @@ export function RegulationsStatusCard({
     frameworkId?: string;
     label?: string;
   }>({ open: false });
+  const [uploadDialog, setUploadDialog] = useState<{
+    open: boolean;
+    presetFrameworkIds?: string[];
+  }>({ open: false });
 
   const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
+
 
   const DEMO_ROWS: Array<{ rec: FrameworkRecommendation; isConfirmed: boolean }> = [
     {
@@ -209,7 +217,17 @@ export function RegulationsStatusCard({
             </p>
           </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setUploadDialog({ open: true })}
+          className="h-7 gap-1.5 text-xs shrink-0"
+        >
+          <Upload className="h-3.5 w-3.5" />
+          Last opp bevis
+        </Button>
       </div>
+
 
       {rows.length === 0 ? (
         <p className="text-xs text-muted-foreground py-4 text-center">
@@ -302,57 +320,61 @@ export function RegulationsStatusCard({
                             <ArrowRight className="h-3 w-3" />
                           </Button>
                         ) : isConfirmed ? (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() =>
-                                setActivateDialog({
-                                  open: true,
-                                  frameworkId: rec.frameworkId,
-                                  label: rec.label,
-                                })
-                              }
-                              disabled={busyId === rec.frameworkId}
-                              className="h-7 text-xs"
-                            >
-                              Aktiver
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeOne(rec)}
-                              disabled={busyId === rec.frameworkId}
-                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                              aria-label={`Fjern ${rec.label}`}
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </Button>
-                          </>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              setActivateDialog({
+                                open: true,
+                                frameworkId: rec.frameworkId,
+                                label: rec.label,
+                              })
+                            }
+                            disabled={busyId === rec.frameworkId}
+                            className="h-7 text-xs"
+                          >
+                            Aktiver
+                          </Button>
                         ) : (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => confirmOne(rec)}
-                              disabled={busyId === rec.frameworkId}
-                              className="h-7 text-xs"
-                            >
-                              Bekreft
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeOne(rec)}
-                              disabled={busyId === rec.frameworkId}
-                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                              aria-label={`Fjern ${rec.label}`}
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </Button>
-                          </>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => confirmOne(rec)}
+                            disabled={busyId === rec.frameworkId}
+                            className="h-7 text-xs"
+                          >
+                            Bekreft
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setUploadDialog({
+                              open: true,
+                              presetFrameworkIds: [rec.frameworkId],
+                            })
+                          }
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-primary"
+                          aria-label={`Last opp bevis for ${rec.label}`}
+                          title="Last opp bevis for dette regelverket"
+                        >
+                          <Upload className="h-3.5 w-3.5" />
+                        </Button>
+                        {!isActive && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeOne(rec)}
+                            disabled={busyId === rec.frameworkId}
+                            className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                            aria-label={`Fjern ${rec.label}`}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
                         )}
                       </div>
                     </TableCell>
+
                   </TableRow>
                 );
               })}
@@ -360,6 +382,15 @@ export function RegulationsStatusCard({
           </Table>
         </div>
       )}
+
+      {/* Opplastede bevis for denne kunden — kompakt liste */}
+      <div className="mt-4">
+        <PartnerEvidenceSection
+          customerId={customerId}
+          minimal
+          hideUploadButton
+        />
+      </div>
 
       <ActivateRegulationDialog
         open={activateDialog.open}
@@ -373,6 +404,14 @@ export function RegulationsStatusCard({
           }
         }}
       />
+
+      <PartnerEvidenceUploadDialog
+        open={uploadDialog.open}
+        onOpenChange={(o) => setUploadDialog((s) => ({ ...s, open: o }))}
+        customerId={customerId}
+        presetFrameworkIds={uploadDialog.presetFrameworkIds}
+      />
     </Card>
   );
 }
+
