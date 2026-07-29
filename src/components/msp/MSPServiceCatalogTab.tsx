@@ -616,8 +616,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           {onOpenSecondary && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Mer">
-                  <MoreVertical className="h-4 w-4" />
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Innstillinger og hjelp">
+                  <Settings2 className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
