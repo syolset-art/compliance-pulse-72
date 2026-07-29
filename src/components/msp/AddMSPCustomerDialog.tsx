@@ -114,9 +114,12 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     account_manager: "",
     has_website: true,
     url: "",
+    privacy_policy_url: "",
     subscription_plan: "Gratis",
     country_code: "NO",
   });
+  type PrivacyPolicySource = "ai_detected" | "manual" | "none";
+  const [privacyPolicySource, setPrivacyPolicySource] = useState<PrivacyPolicySource>("none");
 
   // Manual entry (used when BrReg has no hit, or country not supported)
   const [manual, setManual] = useState({
