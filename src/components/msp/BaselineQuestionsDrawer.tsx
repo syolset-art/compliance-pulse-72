@@ -68,7 +68,9 @@ export function BaselineQuestionsDrawer({
   reviewMode = false,
   laraScan,
   laraRationales,
+  mode = "partner",
 }: Props) {
+  const { t } = useTranslation();
   const laraSources = deriveLaraSources(laraScan ?? null);
 
   const initialArea = (() => {
