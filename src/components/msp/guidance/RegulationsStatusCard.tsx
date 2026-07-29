@@ -320,57 +320,61 @@ export function RegulationsStatusCard({
                             <ArrowRight className="h-3 w-3" />
                           </Button>
                         ) : isConfirmed ? (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() =>
-                                setActivateDialog({
-                                  open: true,
-                                  frameworkId: rec.frameworkId,
-                                  label: rec.label,
-                                })
-                              }
-                              disabled={busyId === rec.frameworkId}
-                              className="h-7 text-xs"
-                            >
-                              Aktiver
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeOne(rec)}
-                              disabled={busyId === rec.frameworkId}
-                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                              aria-label={`Fjern ${rec.label}`}
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </Button>
-                          </>
+                          <Button
+                            size="sm"
+                            onClick={() =>
+                              setActivateDialog({
+                                open: true,
+                                frameworkId: rec.frameworkId,
+                                label: rec.label,
+                              })
+                            }
+                            disabled={busyId === rec.frameworkId}
+                            className="h-7 text-xs"
+                          >
+                            Aktiver
+                          </Button>
                         ) : (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => confirmOne(rec)}
-                              disabled={busyId === rec.frameworkId}
-                              className="h-7 text-xs"
-                            >
-                              Bekreft
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeOne(rec)}
-                              disabled={busyId === rec.frameworkId}
-                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                              aria-label={`Fjern ${rec.label}`}
-                            >
-                              <X className="h-3.5 w-3.5" />
-                            </Button>
-                          </>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => confirmOne(rec)}
+                            disabled={busyId === rec.frameworkId}
+                            className="h-7 text-xs"
+                          >
+                            Bekreft
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setUploadDialog({
+                              open: true,
+                              presetFrameworkIds: [rec.frameworkId],
+                            })
+                          }
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-primary"
+                          aria-label={`Last opp bevis for ${rec.label}`}
+                          title="Last opp bevis for dette regelverket"
+                        >
+                          <Upload className="h-3.5 w-3.5" />
+                        </Button>
+                        {!isActive && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeOne(rec)}
+                            disabled={busyId === rec.frameworkId}
+                            className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                            aria-label={`Fjern ${rec.label}`}
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </Button>
                         )}
                       </div>
                     </TableCell>
+
                   </TableRow>
                 );
               })}
