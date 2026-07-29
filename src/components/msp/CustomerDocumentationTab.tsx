@@ -42,6 +42,7 @@ import { frameworks } from "@/lib/frameworkDefinitions";
 import { getRequirementsByFramework, type ComplianceRequirement } from "@/lib/complianceRequirementsData";
 import { ALL_ADDITIONAL_REQUIREMENTS } from "@/lib/additionalFrameworkRequirements";
 import { inferFulfillment } from "@/lib/requirementFulfillment";
+import { PartnerEvidenceUploadDialog } from "@/components/msp/PartnerEvidenceUploadDialog";
 
 interface Props {
   customerId: string;
