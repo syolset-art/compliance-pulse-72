@@ -157,7 +157,7 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-foreground">Regelverk kunden må følge</h3>
             <p className="text-xs text-muted-foreground mt-0.5 inline-flex items-center gap-1.5">
-              Chips viser tjenester som kan dekke kravene — dine egne og forslag fra Mynder.
+              Anbefalte tjenester for hvert regelverk — fylte chips ligger allerede i katalogen din.
               <AiMappingDisclosure variant="icon" />
             </p>
           </div>
