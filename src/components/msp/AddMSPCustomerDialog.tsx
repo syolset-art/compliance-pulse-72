@@ -97,8 +97,13 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchResults, setSearchResults] = useState<BrregResult[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<BrregResult | null>(null);
+  const [duplicateFound, setDuplicateFound] = useState(false);
+  const [recommendations, setRecommendations] = useState<FrameworkRecommendation[]>([]);
+  const [confirmedRecommendations, setConfirmedRecommendations] = useState<string[]>([]);
   type WebsiteSource = "brreg" | "ai_suggested" | "manual" | "none";
   const [websiteSource, setWebsiteSource] = useState<WebsiteSource>("none");
+
 
 
 
