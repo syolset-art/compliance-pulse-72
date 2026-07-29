@@ -25,6 +25,7 @@ import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
 import { ServiceCoverageSearch } from "./ServiceCoverageSearch";
+import { AiMappingDisclosure } from "./AiMappingDisclosure";
 import { LaraScopeChangeDialog, type ScopeChangeSelection } from "./LaraScopeChangeDialog";
 import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
 import {
@@ -642,11 +643,12 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         <TabsContent value="alle" className="space-y-6 mt-4">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
       <section className="space-y-3">
-        <div className="space-y-0.5">
+        <div className="space-y-1.5">
           <div className="text-sm font-medium text-foreground">Velg tjenester til din katalog</div>
           <p className="text-xs text-muted-foreground max-w-2xl">
             Her finner du et utvalg typiske sikkerhets- og compliance-tjenester som dekker krav i kjente regelverk. Du velger selv hvilke tjenester du vil tilby, legger til egne eller tilpasser beskrivelser. Katalogen din brukes når du jobber med kunder, slik at du raskt kan matche riktige tjenester mot deres behov.
           </p>
+          <AiMappingDisclosure variant="banner" className="max-w-2xl pt-0.5" />
         </div>
 
 
@@ -716,7 +718,12 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               <tr>
                 <th className="text-left font-semibold px-3 py-2.5 w-12"></th>
                 <th className="text-left font-semibold px-3 py-2.5">Tjeneste</th>
-                <th className="text-left font-semibold px-3 py-2.5">Krav tjenesten støtter</th>
+                <th className="text-left font-semibold px-3 py-2.5">
+                  <span className="inline-flex items-center gap-1.5">
+                    Krav tjenesten støtter
+                    <AiMappingDisclosure variant="icon" />
+                  </span>
+                </th>
                 <th className="text-left font-semibold px-3 py-2.5 w-44">Rolle</th>
                 <th className="text-right font-semibold px-3 py-2.5 w-32"></th>
               </tr>
@@ -955,7 +962,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
             </div>
             <div className="rounded-md border border-border bg-card">
               <div className="flex items-center gap-3 px-3 py-2 bg-muted/30 border-b border-border">
-                <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 uppercase tracking-wide">Tjeneste</div>
+                <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 uppercase tracking-wide inline-flex items-center gap-1.5">
+                  Tjeneste
+                  <AiMappingDisclosure variant="icon" />
+                </div>
                 <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-12 text-right">Timer</div>
                 <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-24 text-right">Pris</div>
                 <div className="w-11" />
