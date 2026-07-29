@@ -223,11 +223,11 @@ export function useCustomerOffers(customerId: string | undefined) {
 
 /** Utled sannsynlige regelverk-IDer fra en liste tjeneste-templateIds. */
 export function deriveFrameworkIdsFromTemplates(templateIds: string[]): string[] {
-  // Lazy import for å unngå sirkulær referanse.
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { SERVICE_LIBRARY } = require("@/lib/serviceLibrary");
+  // Import her (ikke top-of-file) for å unngå potensielle sirkulære referanser.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const mod = require("@/lib/serviceLibrary") as typeof import("@/lib/serviceLibrary");
   const ids = new Set<string>();
-  for (const t of SERVICE_LIBRARY) {
+  for (const t of mod.SERVICE_LIBRARY) {
     if (!templateIds.includes(t.id)) continue;
     for (const m of t.mappings) ids.add(m.frameworkId);
   }
