@@ -7,7 +7,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Server, Wifi, RefreshCw, Sparkles, AlertTriangle, CheckCircle2, ShieldCheck, Shield, EyeOff, Clock as ClockIcon, ArrowRight, HelpCircle, FileText, MessageSquare, BookOpen, Scale, Zap, Target, Users, ClipboardList, Lightbulb } from "lucide-react";
+import { ArrowLeft, Server, Wifi, RefreshCw, Sparkles, AlertTriangle, CheckCircle2, ShieldCheck, Shield, EyeOff, Clock as ClockIcon, ArrowRight, HelpCircle, FileText, MessageSquare, BookOpen, Scale, Zap, Target, ClipboardList, Lightbulb } from "lucide-react";
 import { ContextualHelpPanel } from "@/components/shared/ContextualHelpPanel";
 import { usePageHelpListener } from "@/hooks/usePageHelpListener";
 import { CustomerStatusBanner } from "@/components/msp/CustomerStatusBanner";
@@ -22,7 +22,7 @@ import type { LaraPlanTask } from "@/components/lara/types";
 import { MSPCustomerSnapshotCard } from "@/components/msp/MSPCustomerSnapshotCard";
 
 import { MSPMaturityServiceMatrix } from "@/components/msp/MSPMaturityServiceMatrix";
-import { MSPCustomerTrustProfileCard } from "@/components/msp/MSPCustomerTrustProfileCard";
+
 import { PartnerActionMenu } from "@/components/msp/PartnerActionMenu";
 import { MandateConfirmDialog, useMandate } from "@/components/msp/PartnerMandateCard";
 import { MSPCustomerMessagesTab } from "@/components/msp/MSPCustomerMessagesTab";
@@ -317,9 +317,6 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="messages" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Meldinger
                 </TabsTrigger>
-                <TabsTrigger value="trust-profile" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Trust Profile
-                </TabsTrigger>
                 <TabsTrigger value="documentation" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Dokumentasjon
                 </TabsTrigger>
@@ -377,7 +374,7 @@ export default function MSPCustomerDetail() {
               )}
 
 
-              {/* Kort baseline-status med lenke til Trust Profile-fanen.
+              {/* Kort baseline-status med lenke til Trust Profile-siden.
                   Selve utfyllingen ligger under Trust Profile — Veiledning skal
                   bare gjøre partneren oppmerksom på status og peke videre. */}
               <Card className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
@@ -400,10 +397,10 @@ export default function MSPCustomerDetail() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleTabChange("trust-profile")}
+                  onClick={() => navigate(`/msp-dashboard/${customerId}/trust-profile`)}
                   className="w-full sm:w-auto sm:shrink-0"
                 >
-                  Se i Trust Profile
+                  Åpne Trust Profile
                   <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
                 </Button>
               </Card>
@@ -425,16 +422,6 @@ export default function MSPCustomerDetail() {
             {/* ── Tjenester ── */}
             {/* Removed */}
 
-            {/* ── Trust Profile ── */}
-            <TabsContent value="trust-profile" className="mt-6">
-              <MSPCustomerTrustProfileCard
-                customerId={customerId!}
-                customerName={customer.name || "Kunden"}
-                contactName={customer.contact_name || "kontaktperson"}
-                contactEmail={customer.contact_email}
-                activeFrameworkIds={activeFrameworkIds}
-              />
-            </TabsContent>
 
 
             <TabsContent value="messages" className="mt-6">
@@ -642,24 +629,6 @@ export default function MSPCustomerDetail() {
               laraSuggestions: [
                 { label: "Skriv svar til siste melding", message: `Skriv et utkast til svar på den siste meldingen fra ${customerName}` },
                 { label: "Oppsummer åpne meldinger", message: `Oppsummer åpne meldinger og frister for ${customerName}` },
-              ],
-            },
-            "trust-profile": {
-              open: helpOpen,
-              onOpenChange: setHelpOpen,
-              icon: ShieldCheck,
-              title: "Trust Profile",
-              description: `Trust Profile er kundens offentlige tillitsside. Som rådgiver bygger du den opp og publiserer den på vegne av ${customerName} — eller overlater kontroll til kunden.`,
-              itemsHeading: "Slik fungerer det",
-              items: [
-                { icon: FileText, title: "Innhold", description: "Modenhet, rammeverk, sertifiseringer og dokumenter samles til en publiserbar profil." },
-                { icon: ShieldCheck, title: "Statuser", description: "Utkast → Aktivert → Publisert. Kun publiserte profiler vises eksternt." },
-                { icon: Users, title: "Overlevering", description: "Send invitasjon for at kunden selv skal overta og signere profilen." },
-              ],
-              whyDescription: "En publisert Trust Profile reduserer svartid på sikkerhetsspørsmål fra kundens kunder og partnere.",
-              laraSuggestions: [
-                { label: "Er profilen klar for publisering?", message: `Vurder om Trust Profile for ${customerName} er klar for publisering` },
-                { label: "Hva mangler i profilen?", message: `Hva mangler i Trust Profile for ${customerName}?` },
               ],
             },
             documentation: {
