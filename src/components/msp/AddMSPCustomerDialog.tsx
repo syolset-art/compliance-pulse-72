@@ -183,7 +183,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setAcronisSelected(new Set());
     setAcronisImporting(false);
     setAcronisImportedCount(0);
-    setForm({ contact_person: "", contact_email: "", contact_company_role: "", account_manager: "", has_website: true, url: "", subscription_plan: "Gratis", country_code: "NO" });
+    setForm({ contact_person: "", contact_email: "", contact_company_role: "", account_manager: "", has_website: true, url: "", privacy_policy_url: "", subscription_plan: "Gratis", country_code: "NO" });
+    setPrivacyPolicySource("none");
     setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
     setIndustrySource("none");
     setWebsiteSource("none");
