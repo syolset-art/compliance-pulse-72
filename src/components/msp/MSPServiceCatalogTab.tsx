@@ -637,9 +637,9 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
       <section className="space-y-3">
         <div className="space-y-0.5">
-          <div className="text-sm font-medium text-foreground">Mynders tjenestekatalog</div>
+          <div className="text-sm font-medium text-foreground">Velg tjenester til din katalog</div>
           <p className="text-xs text-muted-foreground max-w-2xl">
-            Tjenester du som partner kan tilby kundene dine. Lara foreslår tjenester basert på partnerprofilen din – du kan tilpasse hvilke som vises, eller beskrive dine egne tjenester og legge dem til i din katalog.
+            Her finner du et utvalg typiske sikkerhets- og compliance-tjenester som dekker krav i kjente regelverk. Du velger selv hvilke tjenester du vil tilby, legger til egne eller tilpasser beskrivelser. Katalogen din brukes når du jobber med kunder, slik at du raskt kan matche riktige tjenester mot deres behov.
           </p>
         </div>
 
