@@ -1050,7 +1050,31 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                       </Tooltip>
                     )}
                   </div>
-                  <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap">
+                  {(() => {
+                    const fwLabels = Array.from(new Set(e.mappings.map((m) => m.frameworkLabel)));
+                    const shown = fwLabels.slice(0, 2);
+                    const extra = fwLabels.length - shown.length;
+                    return (
+                      <div className="hidden md:flex items-center gap-1 w-40 flex-wrap">
+                        {shown.length === 0 ? (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        ) : (
+                          shown.map((label) => (
+                            <Badge key={label} variant="outline" className="text-[11px] h-5 px-1.5 font-normal">
+                              {label}
+                            </Badge>
+                          ))
+                        )}
+                        {extra > 0 && (
+                          <span className="text-[11px] text-muted-foreground">+{extra}</span>
+                        )}
+                      </div>
+                    );
+                  })()}
+                  <div className="hidden md:block text-sm text-foreground/70 tabular-nums whitespace-nowrap w-16 text-right">
+                    {e.mappings.length || "—"}
+                  </div>
+                  <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap w-12 text-right">
                     {e.hours} t
                   </div>
                   <div className="text-base font-semibold tabular-nums text-foreground whitespace-nowrap w-24 text-right">
