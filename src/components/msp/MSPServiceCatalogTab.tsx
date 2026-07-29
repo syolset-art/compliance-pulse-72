@@ -78,6 +78,20 @@ function formatNOK(n: number): string {
   return new Intl.NumberFormat("nb-NO").format(Math.round(n)) + " kr";
 }
 
+function formatSupportedSummary(template: ServiceTemplate): string {
+  const mappings = template.mappings ?? [];
+  if (mappings.length === 0) return "—";
+  const totalControls = mappings.reduce((sum, m) => sum + (m.controlIds?.length ?? 0), 0);
+  const primary = mappings[0];
+  const controlWord = primary.frameworkLabel.toLowerCase().includes("iso") ? "kontroller" : "krav";
+  if (totalControls === 0) return primary.frameworkLabel;
+  return `${primary.frameworkLabel} + ${totalControls} ${controlWord}`;
+}
+
+function templateStatus(template: ServiceTemplate): "Klar til bruk" | "Bør tilpasses" {
+  return template.delivery === "recurring" ? "Bør tilpasses" : "Klar til bruk";
+}
+
 type PickTag = "recommended" | "popular" | "trending";
 
 const TEMPLATE_PICKS: Pick[] = [
