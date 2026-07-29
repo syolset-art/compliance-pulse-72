@@ -390,9 +390,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           industry: selectedCompany.naeringskode1?.beskrivelse || null,
         },
       } as any);
-          industry: selectedCompany.naeringskode1?.beskrivelse || null,
-        },
-      } as any);
 
       // 4. Auto-assign license
       if (licenseInfo?.firstAvailableId) {
