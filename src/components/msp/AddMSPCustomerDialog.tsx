@@ -1350,148 +1350,61 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <Button variant="ghost" size="sm" onClick={() => setStep("results")} className="gap-1">
                   <ArrowLeft className="h-4 w-4" /> Tilbake
                 </Button>
-                <Button onClick={() => setStep("assessment")}>
-                  Kartlegg regelverk
+                <Button onClick={() => setStep("recommend")}>
+                  Se Laras anbefaling
                 </Button>
               </div>
             </div>
           </>
         )}
 
-        {/* Step: Assessment */}
-        {step === "assessment" && (
+        {/* Step: Recommendations (Lara) */}
+        {step === "recommend" && selectedCompany && (
           <>
             <DialogHeader>
-              <DialogTitle className="text-lg">Compliance-kartlegging</DialogTitle>
+              <DialogTitle className="text-lg flex items-center gap-2">
+                <img src={laraButterfly} alt="" className="h-5 w-5" />
+                Laras anbefaling
+              </DialogTitle>
               <DialogDescription className="text-sm">
-                Kartlegg kundens status innen sikkerhet, personvern og styring
+                Basert på land, bransje og beskrivelse — bekreft eller endre før du legger til kunden.
               </DialogDescription>
             </DialogHeader>
             {stepIndicator}
-            <MSPAssessmentStep
-              responses={assessmentResponses}
-              onChange={setAssessmentResponses}
+
+            {/* Company summary — kompakt */}
+            <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground space-y-0.5">
+              <p className="font-medium text-foreground text-sm">{selectedCompany.navn}</p>
+              <p>Org.nr {selectedCompany.organisasjonsnummer}
+                {selectedCompany.naeringskode1?.beskrivelse && ` · ${selectedCompany.naeringskode1.beskrivelse}`}
+              </p>
+            </div>
+
+            <CustomerRecommendationsPanel
+              recommendations={recommendations}
+              confirmed={confirmedRecommendations}
+              onToggleConfirm={(id) =>
+                setConfirmedRecommendations((prev) =>
+                  prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+                )
+              }
             />
+
             <div className="flex justify-between pt-2">
               <Button variant="ghost" size="sm" onClick={() => setStep("contact")} className="gap-1">
                 <ArrowLeft className="h-4 w-4" /> Tilbake
               </Button>
-              <Button onClick={() => setStep("gap")} disabled={!allAnswered}>
-                {allAnswered ? "Se gap-analyse" : `Besvar alle (${assessmentResponses.length}/${MSP_ASSESSMENT_QUESTIONS.length})`}
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? (
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Oppretter...</>
+                ) : (
+                  "Legg til kunde"
+                )}
               </Button>
             </div>
           </>
         )}
 
-        {/* Step: Gap analysis */}
-        {step === "gap" && (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-lg">Gap-analyse</DialogTitle>
-              <DialogDescription className="text-sm">
-                Resultater og anbefalte regelverk for {selectedCompany?.navn}
-              </DialogDescription>
-            </DialogHeader>
-            {stepIndicator}
-            <MSPGapAnalysisStep
-              responses={assessmentResponses}
-              industry={selectedCompany?.naeringskode1?.beskrivelse}
-              selectedFrameworks={selectedFrameworks}
-              onFrameworksChange={setSelectedFrameworks}
-            />
-            <div className="flex justify-between pt-2">
-              <Button variant="ghost" size="sm" onClick={() => setStep("assessment")} className="gap-1">
-                <ArrowLeft className="h-4 w-4" /> Tilbake
-              </Button>
-              <Button onClick={() => setStep("confirm")}>
-                Se oppsummering
-              </Button>
-            </div>
-          </>
-        )}
-
-        {/* Step: Confirm */}
-        {step === "confirm" && selectedCompany && (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-lg">Bekreft og legg til</DialogTitle>
-              <DialogDescription className="text-sm">
-                Kontroller informasjonen før kunden opprettes
-              </DialogDescription>
-            </DialogHeader>
-            {stepIndicator}
-            <div className="space-y-4">
-              {/* Company */}
-              <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-primary" />
-                  <span className="font-medium text-foreground">{selectedCompany.navn}</span>
-                </div>
-                <div className="text-xs text-muted-foreground pl-6 space-y-0.5">
-                  <p>Org.nr: {selectedCompany.organisasjonsnummer}</p>
-                  {selectedCompany.naeringskode1?.beskrivelse && (
-                    <p className="inline-flex items-center gap-1">
-                      Bransje: {selectedCompany.naeringskode1.beskrivelse}
-                      {industrySource === "ai_suggested" && (
-                        <Sparkles
-                          className="h-3 w-3 text-primary"
-                          aria-label="Foreslått av Lara – kan endres"
-                        />
-                      )}
-                    </p>
-                  )}
-                  {form.account_manager && <p>Kundekontakt: {form.account_manager}</p>}
-                  {form.url && <p>Nettside: {form.url}</p>}
-                  {form.contact_person && <p>Kontakt: {form.contact_person}</p>}
-                  {form.contact_email && <p>E-post: {form.contact_email}</p>}
-                </div>
-              </div>
-
-              {/* Score */}
-              <div className="flex items-center justify-between rounded-lg border border-border p-3">
-                <span className="text-sm font-medium text-foreground">Compliance-score</span>
-                <Badge
-                  variant="outline"
-                  className={
-                    complianceScore >= 70
-                      ? "border-status-closed/40 text-status-closed dark:text-status-closed"
-                      : complianceScore >= 40
-                        ? "border-warning/40 text-warning dark:text-warning"
-                        : "border-destructive/40 text-destructive dark:text-destructive"
-                  }
-                >
-                  {complianceScore}%
-                </Badge>
-              </div>
-
-              {/* Frameworks */}
-              <div className="space-y-1.5">
-                <p className="text-sm font-medium text-foreground">Aktive regelverk</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedFrameworks.map((f) => (
-                    <Badge key={f} variant="secondary" className="text-xs">
-                      {f.toUpperCase()}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-
-
-              <div className="flex justify-between pt-2">
-                <Button variant="ghost" size="sm" onClick={() => setStep("gap")} className="gap-1">
-                  <ArrowLeft className="h-4 w-4" /> Tilbake
-                </Button>
-                <Button onClick={handleSave} disabled={saving}>
-                  {saving ? (
-                    <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Oppretter...</>
-                  ) : (
-                    "Legg til kunde"
-                  )}
-                </Button>
-              </div>
-            </div>
-          </>
-        )}
 
         {/* Step: Success */}
         {step === "success" && (
