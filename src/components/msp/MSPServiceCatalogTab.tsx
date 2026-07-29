@@ -1103,9 +1103,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                   </DropdownMenu>
                 </div>
               );
-            })}
-          </div>
-            )}
+              })}
+                </div>
+              )}
+            </div>
           </section>
         );
       })()}
