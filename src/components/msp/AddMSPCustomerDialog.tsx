@@ -1301,7 +1301,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   </button>
                   <button
                     type="button"
-                    onClick={() => setForm({ ...form, has_website: false, url: "" })}
+                    onClick={() => { setForm({ ...form, has_website: false, url: "" }); setWebsiteSource("none"); }}
                     className={cn(
                       "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
                       !form.has_website
@@ -1316,11 +1316,18 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   <>
                     <Input
                       value={form.url}
-                      onChange={(e) => setForm({ ...form, url: e.target.value })}
+                      onChange={(e) => { setForm({ ...form, url: e.target.value }); if (websiteSource !== "manual") setWebsiteSource("manual"); }}
                       placeholder="https://example.no"
                     />
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span>Bekreft at nettadressen stemmer.</span>
+                      {websiteSource === "brreg" || websiteSource === "ai_suggested" ? (
+                        <span className="inline-flex items-center gap-1 text-primary">
+                          <Sparkles className="h-3 w-3" />
+                          Foreslått av Lara – bekreft eller endre
+                        </span>
+                      ) : (
+                        <span>Bekreft at nettadressen stemmer.</span>
+                      )}
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
