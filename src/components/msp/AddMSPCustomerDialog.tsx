@@ -801,7 +801,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                     Lara kobler seg til Acronis for å hente de {count} utvalgte kundene
                   </p>
                   <p className="text-xs text-muted-foreground/80 font-normal">
-                    Oppretter koblinger og klargjør Trust Profiler...
+                    Oppretter koblinger og klargjør kundens profiler…
                   </p>
                 </div>
 
@@ -987,7 +987,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
               <CheckCircle2 className="h-6 w-6 text-success" />
             </div>
             <p className="text-base font-medium text-foreground">{bulkSavedCount} kunder importert</p>
-            <p className="text-sm text-muted-foreground">Trust Profile opprettet for hver kunde.</p>
+            <p className="text-sm text-muted-foreground">Kundens profil opprettet for hver kunde.</p>
           </div>
         )}
 
@@ -1083,7 +1083,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <div>
                   <p className="font-medium text-foreground">Lara analyserer {selectedCompany?.navn}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Henter offentlig informasjon og klargjør baseline for Trust Profile
+                    Henter offentlig informasjon og klargjør kundens profil
                   </p>
                 </div>
                 <div className="space-y-1.5 text-left text-xs">
@@ -1123,7 +1123,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   )}
                   <div className="flex items-center gap-2 text-muted-foreground">
                     <Loader2 className="h-3.5 w-3.5 animate-spin text-primary shrink-0" />
-                    <span>Klargjør baseline for Trust Profile</span>
+                    <span>Klargjør kundens profil</span>
                   </div>
                 </div>
               </div>
@@ -1137,7 +1137,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
             <DialogHeader>
               <DialogTitle className="text-lg">Registrer virksomhet manuelt</DialogTitle>
               <DialogDescription className="text-sm">
-                Fyll inn grunnleggende informasjon. Du kan berike Trust Profilen senere.
+                Fyll inn grunnleggende informasjon. Du kan berike kundens profil senere.
               </DialogDescription>
             </DialogHeader>
             {stepIndicator}
@@ -1414,7 +1414,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
             <div className="text-center space-y-1">
               <p className="text-lg font-semibold text-foreground">Kunden er lagt til!</p>
               <p className="text-sm text-muted-foreground">
-                {selectedCompany?.navn} har fått en Trust Profile og er klar i porteføljen din
+                {selectedCompany?.navn} har fått en kundeprofil og er klar i porteføljen din
               </p>
             </div>
           </div>
