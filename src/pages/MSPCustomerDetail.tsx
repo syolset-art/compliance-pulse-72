@@ -46,6 +46,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 
 import { RegulationsStatusCard } from "@/components/msp/guidance/RegulationsStatusCard";
+import { CustomerServiceCoverageSearch } from "@/components/msp/guidance/CustomerServiceCoverageSearch";
+
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { useSavedOffers } from "@/lib/customerOffers";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
