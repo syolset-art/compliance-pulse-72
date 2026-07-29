@@ -415,12 +415,6 @@ export default function MSPCustomerDetail() {
                 </Button>
               </Card>
 
-              <MaturityMirrorCard
-                areaProgress={areaProgress}
-                totalAnswered={totalAnswered}
-                totalQuestions={totalQuestions}
-              />
-
               <RegulationsStatusCard
                 customerId={customerId!}
                 recommended={((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]}
