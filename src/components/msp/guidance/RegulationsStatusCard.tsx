@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Scale, Sparkles, Check, X, ArrowRight } from "lucide-react";
+import { Scale, Sparkles, Check, X, ArrowRight, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -19,6 +19,9 @@ import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 import { PARTNER_SERVICES } from "@/lib/serviceCatalog";
 import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 import { ActivateRegulationDialog } from "./ActivateRegulationDialog";
+import { PartnerEvidenceUploadDialog } from "@/components/msp/PartnerEvidenceUploadDialog";
+import { PartnerEvidenceSection } from "@/components/msp/PartnerEvidenceSection";
+
 
 interface Props {
   customerId: string;
