@@ -360,10 +360,12 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         account_manager: form.account_manager || null,
         url: form.has_website ? form.url.trim() || null : null,
         country_code: form.country_code || "NO",
-        compliance_score: complianceScore,
-        initial_assessment_score: complianceScore,
+        compliance_score: 0,
+        initial_assessment_score: 0,
         status: "active",
-        active_frameworks: selectedFrameworks,
+        active_frameworks: activeFrameworks,
+        recommended_frameworks: recommendations as any,
+        confirmed_frameworks: confirmedRecommendations as any,
         subscription_plan: form.subscription_plan,
         onboarding_completed: true,
       } as any).select().single();
@@ -372,31 +374,22 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
       const customerId = (customer as any).id;
 
-      // 2. Save assessment responses
-      if (assessmentResponses.length > 0) {
-        const assessmentRows = assessmentResponses.map((r) => ({
-          msp_customer_id: customerId,
-          question_key: r.question_key,
-          answer: r.answer,
-          notes: r.notes || null,
-          assessed_by: user.id,
-        }));
-        await supabase.from("msp_customer_assessments").insert(assessmentRows as any);
-      }
-
       // 3. Create Trust Profile (asset with asset_type: 'self')
       await supabase.from("assets").insert({
         name: selectedCompany.navn,
         asset_type: "self",
         org_number: selectedCompany.organisasjonsnummer,
         description: `Trust Profile for ${selectedCompany.navn}`,
-        compliance_score: complianceScore,
+        compliance_score: 0,
         lifecycle_status: "active",
         metadata: {
           created_by_msp: true,
           msp_customer_id: customerId,
-          assessment_score: complianceScore,
-          active_frameworks: selectedFrameworks,
+          assessment_score: 0,
+          active_frameworks: activeFrameworks,
+          industry: selectedCompany.naeringskode1?.beskrivelse || null,
+        },
+      } as any);
           industry: selectedCompany.naeringskode1?.beskrivelse || null,
         },
       } as any);
