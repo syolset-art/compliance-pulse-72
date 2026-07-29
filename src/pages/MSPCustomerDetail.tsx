@@ -486,6 +486,19 @@ export default function MSPCustomerDetail() {
                 onGoToProducts={() => handleTabChange("modules")}
               />
 
+              <CustomerServiceCoverageSearch
+                customerFrameworkIds={Array.from(
+                  new Set([
+                    ...(((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]).map((r) => r.frameworkId),
+                    ...(((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]).map((r) => r.frameworkId),
+                    ...activeFrameworkIds,
+                    // Fallback for demo rows when customer has no persisted frameworks yet
+                    "gdpr", "nis2", "iso27001", "dora",
+                  ]),
+                )}
+              />
+
+
 
 
 
