@@ -457,14 +457,13 @@ export default function MSPDashboard() {
   const clearAllFilters = () => {
     setIndustryFilter([]);
     setCountryCodeFilter([]);
-    setCriticalityFilter([]);
     setTpStatusFilter([]);
     setServiceFilter([]);
     setServiceTypeFilter([]);
     setPlanFilter([]);
     setSegmentFilter([]);
   };
-  const activeFilterCount = industryFilter.length + countryCodeFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length + serviceTypeFilter.length + planFilter.length + segmentFilter.length;
+  const activeFilterCount = industryFilter.length + countryCodeFilter.length + tpStatusFilter.length + serviceFilter.length + serviceTypeFilter.length + planFilter.length + segmentFilter.length;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -719,15 +718,6 @@ export default function MSPDashboard() {
                         options={industryOptions.map((v) => ({ value: v, label: v }))}
                         selected={industryFilter} onChange={setIndustryFilter} />
                     );
-                    if (!isVisible("criticality")) hiddenFilters.push(
-                      <ColumnFilter key="f-crit" label="Kritikalitet"
-                        options={[
-                          { value: "high", label: "Høy" },
-                          { value: "medium", label: "Medium" },
-                          { value: "low", label: "Lav" },
-                        ]}
-                        selected={criticalityFilter} onChange={setCriticalityFilter} />
-                    );
                     if (!isVisible("services")) hiddenFilters.push(
                       <ColumnFilter key="f-services" label="Lara anbefaler"
                         options={serviceOptions.map((v) => ({ value: v, label: v }))}
@@ -772,20 +762,6 @@ export default function MSPDashboard() {
                             />
                           </TableHead>
                         )}
-                        {isVisible("criticality") && (
-                          <TableHead className="w-[120px] text-foreground/80">
-                            <ColumnFilter
-                              label="Kritikalitet"
-                              options={[
-                                { value: "high", label: "Høy" },
-                                { value: "medium", label: "Medium" },
-                                { value: "low", label: "Lav" },
-                              ]}
-                              selected={criticalityFilter}
-                              onChange={setCriticalityFilter}
-                            />
-                          </TableHead>
-                        )}
                         {isVisible("services") && (
                           <TableHead className="w-auto text-foreground/80">
                             <ColumnFilter
@@ -819,7 +795,6 @@ export default function MSPDashboard() {
                       {filtered.map((c: any) => {
                         const tp = deriveTPStatus(c);
                         const score = c.compliance_score || 0;
-                        const crit = deriveCriticality(c);
                         const services = deriveNeededServices(c);
                         const isNew = highlightIds.has(c.id);
                         return (
@@ -853,13 +828,6 @@ export default function MSPDashboard() {
                             )}
                             {isVisible("industry") && (
                               <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
-                            )}
-                            {isVisible("criticality") && (
-                              <TableCell>
-                                <Badge variant="outline" className={cn("font-normal", crit.tone)}>
-                                  {crit.label}
-                                </Badge>
-                              </TableCell>
                             )}
                             {isVisible("services") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
