@@ -78,6 +78,20 @@ function formatNOK(n: number): string {
   return new Intl.NumberFormat("nb-NO").format(Math.round(n)) + " kr";
 }
 
+function formatSupportedSummary(template: ServiceTemplate): string {
+  const mappings = template.mappings ?? [];
+  if (mappings.length === 0) return "—";
+  const totalControls = mappings.reduce((sum, m) => sum + (m.controlIds?.length ?? 0), 0);
+  const primary = mappings[0];
+  const controlWord = primary.frameworkLabel.toLowerCase().includes("iso") ? "kontroller" : "krav";
+  if (totalControls === 0) return primary.frameworkLabel;
+  return `${primary.frameworkLabel} + ${totalControls} ${controlWord}`;
+}
+
+function templateStatus(template: ServiceTemplate): "Klar til bruk" | "Bør tilpasses" {
+  return template.delivery === "recurring" ? "Bør tilpasses" : "Klar til bruk";
+}
+
 type PickTag = "recommended" | "popular" | "trending";
 
 const TEMPLATE_PICKS: Pick[] = [
@@ -748,19 +762,13 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
 
 
         <div className="overflow-hidden rounded-md border border-border bg-card">
-          <table className="w-full text-base">
-            <thead className="bg-muted/30 text-sm text-foreground/70">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/30 text-foreground/70">
               <tr>
-                <th className="text-left font-semibold px-3 py-2.5 w-12"></th>
-                <th className="text-left font-semibold px-3 py-2.5">Tjeneste</th>
-                <th className="text-left font-semibold px-3 py-2.5">
-                  <span className="inline-flex items-center gap-1.5">
-                    Krav tjenesten støtter
-                    <AiMappingDisclosure variant="icon" />
-                  </span>
-                </th>
-                <th className="text-left font-semibold px-3 py-2.5 w-44">Rolle</th>
-                <th className="text-right font-semibold px-3 py-2.5 w-32"></th>
+                <th className="text-left font-medium px-3 py-2.5">Tjeneste</th>
+                <th className="text-left font-medium px-3 py-2.5">Støtter</th>
+                <th className="text-left font-medium px-3 py-2.5">Status</th>
+                <th className="text-right font-medium px-3 py-2.5 w-32">Handling</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -768,11 +776,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                 const template = SERVICE_LIBRARY.find((t) => t.code === pick.code);
                 if (!template) return null;
                 const isAdopted = adoptedIds.has(template.id);
-                const Icon = pick.icon;
-                const mappings = template.mappings ?? [];
-                const visibleMappings = mappings.slice(0, 2);
-                const extraFrameworks = mappings.length - visibleMappings.length;
-                const tagMeta = pick.tag ? TAG_META[pick.tag] : null;
                 return (
                   <tr
                     key={template.id}
@@ -783,86 +786,20 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                     )}
                   >
                     <td className="px-3 py-3">
-                      <div className={cn("h-9 w-9 rounded-md flex items-center justify-center", pick.bg)}>
-                        <Icon className={cn("h-4 w-4", pick.fg)} aria-hidden="true" />
-                      </div>
+                      <div className="font-medium text-foreground">{pick.label}</div>
+                    </td>
+                    <td className="px-3 py-3 text-foreground/80">
+                      {formatSupportedSummary(template)}
                     </td>
                     <td className="px-3 py-3">
-                      <div className="text-base font-medium text-foreground">{pick.label}</div>
-                      <div className="text-sm text-foreground/70 line-clamp-1">
-                        {template.shortDescription}
-                      </div>
-                    </td>
-
-                    <td className="px-3 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        {visibleMappings.length > 0 ? (
-                          <>
-                            {visibleMappings.map((m) => {
-                              const ids = m.controlIds ?? [];
-                              const shown = ids.slice(0, 3);
-                              const rest = ids.length - shown.length;
-                              const label = shown.length > 0
-                                ? `${m.frameworkLabel} · ${shown.join(", ")}${rest > 0 ? ` +${rest}` : ""}`
-                                : m.frameworkLabel;
-                              const fullList = ids.length > 0 ? ids.join(", ") : "Ingen krav mappet";
-                              const roles = getMappingRoles(template, m);
-                              const roleLabels = roles.map((r) => ROLE_META[r].label).join(", ");
-                              return (
-                                <Tooltip key={`${template.id}-${m.frameworkId}`}>
-                                  <TooltipTrigger asChild>
-                                    <span className="text-sm px-2 py-0.5 rounded bg-muted text-foreground/80 whitespace-nowrap">
-                                      {label}
-                                    </span>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="top" className="max-w-xs">
-                                    <div className="text-xs font-semibold mb-0.5">{m.frameworkLabel}</div>
-                                    <div className="text-xs text-foreground/80">{fullList}</div>
-                                    {roleLabels && (
-                                      <div className="text-xs text-foreground/70 mt-1 pt-1 border-t border-border/40">
-                                        Rolle: {roleLabels}
-                                      </div>
-                                    )}
-                                  </TooltipContent>
-                                </Tooltip>
-                              );
-                            })}
-                            {extraFrameworks > 0 && (
-                              <span className="text-sm px-2 py-0.5 rounded bg-muted/60 text-foreground/70">
-                                +{extraFrameworks} regelverk til
-                              </span>
-                            )}
-                          </>
-                        ) : (
-                          <span className="text-sm text-foreground/60">—</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-3 py-3 align-top">
-                      {(() => {
-                        const allRoles = Array.from(
-                          new Set(mappings.flatMap((m) => getMappingRoles(template, m))),
-                        );
-                        if (allRoles.length === 0) {
-                          return <span className="text-sm text-foreground/60">—</span>;
-                        }
-                        return (
-                          <div className="flex flex-wrap gap-1">
-                            {allRoles.map((r) => (
-                              <Tooltip key={r}>
-                                <TooltipTrigger asChild>
-                                  <span className="text-xs px-2 py-0.5 rounded bg-muted text-foreground/80 whitespace-nowrap cursor-help">
-                                    {ROLE_META[r].label}
-                                  </span>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-xs">
-                                  <div className="text-xs">{ROLE_META[r].description}</div>
-                                </TooltipContent>
-                              </Tooltip>
-                            ))}
-                          </div>
-                        );
-                      })()}
+                      <span className={cn(
+                        "text-xs px-2 py-0.5 rounded-full",
+                        template.delivery === "recurring"
+                          ? "bg-warning/10 text-warning border border-warning/20"
+                          : "bg-success/10 text-success border border-success/20",
+                      )}>
+                        {templateStatus(template)}
+                      </span>
                     </td>
                     <td className="px-3 py-3 text-right">
                       {(() => {
@@ -891,11 +828,11 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                                 <button
                                   type="button"
                                   onClick={(ev) => { ev.stopPropagation(); if (added) revealInCatalog(added.id); }}
-                                  className="inline-flex items-center gap-1.5 h-8 pl-2 pr-2.5 rounded-full border border-primary/20 bg-transparent text-primary/90 text-xs font-medium tracking-tight hover:bg-primary/5 hover:border-primary/30 transition-colors"
-                                  aria-label="I katalogen — klikk for å redigere"
+                                  className="inline-flex items-center gap-1.5 h-8 pl-2 pr-2.5 rounded-full border border-primary/20 bg-transparent text-primary/90 text-xs font-medium hover:bg-primary/5 hover:border-primary/30 transition-colors"
+                                  aria-label="Se tjeneste i katalogen"
                                 >
                                   <Check className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden="true" />
-                                  <span>I katalogen</span>
+                                  <span>Se tjeneste</span>
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent side="top" className="max-w-xs text-xs">
@@ -912,12 +849,12 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                                 size="sm"
                                 variant="outline"
                                 onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
-                                className="h-9 gap-1 text-sm"
+                                className="h-8 gap-1 text-xs"
                               >
                                 {pick.recommended ? (
-                                  <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden="true" />
+                                  <Star className="h-3 w-3 fill-primary text-primary" aria-hidden="true" />
                                 ) : (
-                                  <Plus className="h-4 w-4" aria-hidden="true" />
+                                  <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                                 )}
                                 Legg til
                               </Button>
