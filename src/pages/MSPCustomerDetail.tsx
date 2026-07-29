@@ -54,6 +54,7 @@ import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
 export default function MSPCustomerDetail() {
   const { customerId } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [acronisOpen, setAcronisOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") || "guidance";
