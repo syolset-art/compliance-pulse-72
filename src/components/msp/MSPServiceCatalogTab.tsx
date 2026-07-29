@@ -916,11 +916,11 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
 
       <ServiceCoverageSearch
         existingNames={extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => e.name)}
-        onAdd={({ name, mappings }) => {
+        onAdd={({ name, description, mappings }) => {
           const next: ExtraService = {
             id: `search-${Date.now()}`,
             name,
-            description: "",
+            description,
             hours: 0,
             activities: [],
             source: "manual",
@@ -929,9 +929,12 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           setExtras((prev) => [...prev, next]);
           revealInCatalog(next.id);
           toast.success(`La til «${name}» i din tjenestekatalog`, {
-            description: "Rediger for å justere aktiviteter og pris.",
+            description: description
+              ? "Beskrivelse fylt inn automatisk — juster aktiviteter og pris."
+              : "Rediger for å justere aktiviteter og pris.",
             action: { label: "Vis i katalogen", onClick: () => revealInCatalog(next.id) },
           });
+
         }}
       />
 
