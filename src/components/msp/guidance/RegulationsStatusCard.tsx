@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,20 +10,44 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Scale, Sparkles, Check, X } from "lucide-react";
+import { Scale, Sparkles, Check, X, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
+import { PARTNER_SERVICES } from "@/lib/serviceCatalog";
+import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
+import { ActivateRegulationDialog } from "./ActivateRegulationDialog";
+
 interface Props {
   customerId: string;
+  customerName: string;
   recommended: FrameworkRecommendation[];
   confirmed: FrameworkRecommendation[];
+  activeFrameworkIds: string[];
+  onGoToProducts: () => void;
 }
 
-export function RegulationsStatusCard({ customerId, recommended, confirmed }: Props) {
+const MAX_CHIPS = 3;
+
+export function RegulationsStatusCard({
+  customerId,
+  customerName,
+  recommended,
+  confirmed,
+  activeFrameworkIds,
+  onGoToProducts,
+}: Props) {
   const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [activateDialog, setActivateDialog] = useState<{
+    open: boolean;
+    frameworkId?: string;
+    label?: string;
+  }>({ open: false });
+
+  const activeSet = useMemo(() => new Set(activeFrameworkIds), [activeFrameworkIds]);
 
   const DEMO_ROWS: Array<{ rec: FrameworkRecommendation; isConfirmed: boolean }> = [
     {
@@ -71,6 +95,18 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
         ...recommended.map((rec) => ({ rec, isConfirmed: false as const })),
       ].sort((a, b) => Number(b.isConfirmed) - Number(a.isConfirmed));
 
+  const servicesFor = (frameworkId: string) => {
+    const inCatalog = PARTNER_SERVICES.filter((s) =>
+      s.frameworkMappings.some((m) => m.frameworkId === frameworkId),
+    ).map((s) => ({ id: s.id, name: s.name, inCatalog: true }));
+    const suggested = SERVICE_LIBRARY.filter(
+      (s) =>
+        s.frameworkMappings.some((m) => m.frameworkId === frameworkId) &&
+        !inCatalog.some((c) => c.name.toLowerCase() === s.name.toLowerCase()),
+    ).map((s) => ({ id: s.id, name: s.name, inCatalog: false }));
+    return [...inCatalog, ...suggested];
+  };
+
   const persist = async (
     nextConfirmed: FrameworkRecommendation[],
     nextRecommended: FrameworkRecommendation[],
@@ -117,6 +153,49 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
     }
   };
 
+  const activateOne = async (frameworkId: string, label: string) => {
+    setBusyId(frameworkId);
+    try {
+      // Persist active frameworks locally (mirrors what MSPCustomerDetail reads).
+      const key = `msp.customer.activatedFrameworks.${customerId}`;
+      const raw = localStorage.getItem(key);
+      const parsed: string[] = raw ? JSON.parse(raw) : [];
+      const set = new Set(parsed);
+      set.add(frameworkId);
+      localStorage.setItem(key, JSON.stringify(Array.from(set)));
+
+      // Also write to DB (best effort — soft-fail).
+      try {
+        const { data: cur } = await supabase
+          .from("msp_customers" as any)
+          .select("active_frameworks")
+          .eq("id", customerId)
+          .single();
+        const existing: string[] = ((cur as any)?.active_frameworks || []) as string[];
+        if (!existing.includes(label) && !existing.includes(frameworkId)) {
+          await supabase
+            .from("msp_customers" as any)
+            .update({ active_frameworks: [...existing, label] } as any)
+            .eq("id", customerId);
+        }
+      } catch {
+        // ignore, local store is source of truth for demo
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] });
+      toast.success(`${label} aktivert i Produkter`, {
+        action: {
+          label: "Se i Produkter",
+          onClick: onGoToProducts,
+        },
+      });
+    } catch (e: any) {
+      toast.error("Kunne ikke aktivere", { description: e.message });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -141,19 +220,62 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[70%]">Regelverk</TableHead>
-                <TableHead className="w-[30%] text-right">Handling</TableHead>
+                <TableHead className="w-[32%]">Regelverk</TableHead>
+                <TableHead className="w-[38%]">Anbefalte tjenester</TableHead>
+                <TableHead className="w-[12%]">Status</TableHead>
+                <TableHead className="w-[18%] text-right">Handling</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map(({ rec, isConfirmed }) => (
-                <TableRow key={rec.frameworkId} className="align-top">
-                  <TableCell className="py-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[13px] font-medium text-foreground">
+              {rows.map(({ rec, isConfirmed }) => {
+                const isActive = activeSet.has(rec.frameworkId);
+                const services = servicesFor(rec.frameworkId);
+                const shown = services.slice(0, MAX_CHIPS);
+                const extra = services.length - shown.length;
+                return (
+                  <TableRow key={rec.frameworkId} className="align-top">
+                    <TableCell className="py-3">
+                      <div className="text-[13px] font-medium text-foreground">
                         {rec.label}
-                      </span>
-                      {isConfirmed ? (
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        {rec.reason}
+                      </p>
+                    </TableCell>
+
+                    <TableCell className="py-3">
+                      {services.length === 0 ? (
+                        <span className="text-xs text-muted-foreground">Ingen tjenester koblet</span>
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          {shown.map((s) => (
+                            <Badge
+                              key={s.id}
+                              variant={s.inCatalog ? "secondary" : "outline"}
+                              className={cn(
+                                "text-[10px] font-normal max-w-[180px] truncate",
+                                !s.inCatalog && "border-dashed text-muted-foreground",
+                              )}
+                              title={s.name}
+                            >
+                              {s.name}
+                            </Badge>
+                          ))}
+                          {extra > 0 && (
+                            <Badge variant="outline" className="text-[10px] font-normal border-dashed">
+                              +{extra}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+
+                    <TableCell className="py-3">
+                      {isActive ? (
+                        <Badge className="h-5 gap-1 bg-success text-success-foreground text-[10px] font-medium">
+                          <Check className="h-2.5 w-2.5" /> Aktivert
+                        </Badge>
+                      ) : isConfirmed ? (
                         <Badge className="h-5 gap-1 bg-primary text-primary-foreground text-[10px] font-medium">
                           <Check className="h-2.5 w-2.5" /> Bekreftet
                         </Badge>
@@ -165,44 +287,92 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
                           <Sparkles className="h-2.5 w-2.5" /> AI-anbefalt
                         </Badge>
                       )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                      {rec.reason}
-                    </p>
-                  </TableCell>
+                    </TableCell>
 
-                  <TableCell className="py-3 text-right">
-                    <div className="inline-flex items-center gap-1">
-                      {!isConfirmed && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => confirmOne(rec)}
-                          disabled={busyId === rec.frameworkId}
-                          className="h-7 text-xs"
-                        >
-                          Bekreft
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeOne(rec)}
-                        disabled={busyId === rec.frameworkId}
-                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                        aria-label={`Fjern ${rec.label}`}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    <TableCell className="py-3 text-right">
+                      <div className="inline-flex items-center gap-1">
+                        {isActive ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onGoToProducts}
+                            className="h-7 text-xs gap-1"
+                          >
+                            Se i Produkter
+                            <ArrowRight className="h-3 w-3" />
+                          </Button>
+                        ) : isConfirmed ? (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                setActivateDialog({
+                                  open: true,
+                                  frameworkId: rec.frameworkId,
+                                  label: rec.label,
+                                })
+                              }
+                              disabled={busyId === rec.frameworkId}
+                              className="h-7 text-xs"
+                            >
+                              Aktiver
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeOne(rec)}
+                              disabled={busyId === rec.frameworkId}
+                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                              aria-label={`Fjern ${rec.label}`}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => confirmOne(rec)}
+                              disabled={busyId === rec.frameworkId}
+                              className="h-7 text-xs"
+                            >
+                              Bekreft
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeOne(rec)}
+                              disabled={busyId === rec.frameworkId}
+                              className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                              aria-label={`Fjern ${rec.label}`}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
       )}
+
+      <ActivateRegulationDialog
+        open={activateDialog.open}
+        onOpenChange={(o) => setActivateDialog((s) => ({ ...s, open: o }))}
+        frameworkId={activateDialog.frameworkId || ""}
+        frameworkLabel={activateDialog.label || ""}
+        customerName={customerName}
+        onConfirm={async () => {
+          if (activateDialog.frameworkId && activateDialog.label) {
+            await activateOne(activateDialog.frameworkId, activateDialog.label);
+          }
+        }}
+      />
     </Card>
   );
 }
-
