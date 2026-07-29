@@ -304,6 +304,10 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
             enriched.naeringskode1 = hit.naeringskode1;
             setIndustrySource("brreg_subunit");
           }
+          if (!enriched.hjemmeside) {
+            const withSite = subs.find((s) => s.hjemmeside);
+            if (withSite?.hjemmeside) enriched.hjemmeside = withSite.hjemmeside;
+          }
         }
       } catch { /* ignore */ }
     }
