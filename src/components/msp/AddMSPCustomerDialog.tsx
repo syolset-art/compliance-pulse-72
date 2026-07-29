@@ -125,10 +125,12 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     enabled: !!user?.id && open,
   });
 
-  const complianceScore = useMemo(
-    () => calculateAssessmentScore(assessmentResponses),
-    [assessmentResponses]
-  );
+  // High-confidence recommendations are auto-applied; medium ones require confirm.
+  const activeFrameworks = useMemo(() => {
+    const set = new Set<string>(recommendations.filter((r) => r.confidence === "high").map((r) => r.frameworkId));
+    confirmedRecommendations.forEach((id) => set.add(id));
+    return Array.from(set);
+  }, [recommendations, confirmedRecommendations]);
 
   // Bulk import state
   const [bulkText, setBulkText] = useState("");
