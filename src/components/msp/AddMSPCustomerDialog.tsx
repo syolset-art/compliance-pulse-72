@@ -1386,8 +1386,13 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                       <Sparkles className="h-3 w-3" />
                       Funnet av Lara – bekreft eller endre
                     </span>
+                  ) : privacyPolicySource === "manual" && form.privacy_policy_url ? (
+                    <span>Lagt inn manuelt.</span>
                   ) : (
-                    <span>Valgfritt – limes inn dersom Lara ikke finner den automatisk.</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Info className="h-3 w-3" />
+                      Lara fant ikke personvernerklæringen – du kan legge den inn manuelt.
+                    </span>
                   )}
                 </div>
               </div>
