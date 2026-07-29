@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Scale, Sparkles, Check, X, ArrowRight } from "lucide-react";
+import { Scale, Sparkles, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -12,7 +12,6 @@ interface Props {
   customerId: string;
   recommended: FrameworkRecommendation[];
   confirmed: FrameworkRecommendation[];
-  onOpenAll?: () => void;
 }
 
 /**
@@ -20,7 +19,8 @@ interface Props {
  * AI-anbefalt versus bekreftet av partneren. Partneren kan bekrefte eller
  * fjerne med ett klikk direkte fra Veiledning-tab.
  */
-export function RegulationsStatusCard({ customerId, recommended, confirmed, onOpenAll }: Props) {
+export function RegulationsStatusCard({ customerId, recommended, confirmed }: Props) {
+
   const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -83,12 +83,7 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed, onOp
             </p>
           </div>
         </div>
-        {onOpenAll && (
-          <Button variant="ghost" size="sm" onClick={onOpenAll} className="shrink-0 h-7 text-xs">
-            Se alle
-            <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
-        )}
+
       </div>
 
       {rows.length === 0 ? (

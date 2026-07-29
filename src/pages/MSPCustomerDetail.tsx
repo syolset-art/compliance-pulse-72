@@ -425,8 +425,8 @@ export default function MSPCustomerDetail() {
                 customerId={customerId!}
                 recommended={((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]}
                 confirmed={((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]}
-                onOpenAll={() => handleTabChange("regulations")}
               />
+
 
               <ServiceMatchCard
                 activeFrameworkIds={activeFrameworkIds}
