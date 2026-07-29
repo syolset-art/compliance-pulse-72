@@ -685,7 +685,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               </PopoverTrigger>
               <PopoverContent side="top" className="max-w-sm p-3 space-y-2">
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Her finner du et utvalg typiske sikkerhets- og compliance-tjenester som dekker krav i kjente regelverk. Du velger selv hvilke tjenester du vil tilby, legger til egne eller tilpasser beskrivelser. Katalogen din brukes når du jobber med kunder, slik at du raskt kan matche riktige tjenester mot deres behov.
+                  Bygg din egen tjenestekatalog fra Mynders bibliotek av sikkerhets- og compliance-tjenester. Hver tjeneste er koblet mot relevante regelverk og krav, slik at du raskt kan matche kundens behov med riktig tilbud. Du beholder full kontroll: velg, tilpass eller legg til egne tjenester og priser.
                 </p>
                 <div className="flex items-start gap-2 text-xs text-muted-foreground leading-relaxed">
                   <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
@@ -976,14 +976,14 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
             </div>
             <div className="rounded-md border border-border bg-card">
               <div className="flex items-center gap-3 px-3 py-2 bg-muted/30 border-b border-border">
-                <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 uppercase tracking-wide inline-flex items-center gap-1.5">
+                <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 inline-flex items-center gap-1.5">
                   Tjeneste
                   <AiMappingDisclosure variant="icon" />
                 </div>
-                <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-40 hidden md:block">Regelverk</div>
-                <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-16 text-right hidden md:block">Krav</div>
-                <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-12 text-right">Timer</div>
-                <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-24 text-right">Pris</div>
+                <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-40 hidden md:block">Regelverk</div>
+                <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-16 text-right hidden md:block">Krav</div>
+                <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-12 text-right">Timer</div>
+                <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-24 text-right">Pris</div>
                 <div className="w-11" />
                 <div className="w-11" />
               </div>
@@ -1320,7 +1320,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                           <p className="text-sm text-foreground/80 leading-relaxed">{info.description}</p>
 
                           <div className="space-y-1.5">
-                            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            <div className="text-xs font-medium text-muted-foreground">
                               Hva kunden får
                             </div>
                             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
@@ -1334,7 +1334,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                           </div>
 
                           <div className="space-y-1.5">
-                            <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            <div className="text-xs font-medium text-muted-foreground">
                               Nivåer kunden kan velge
                             </div>
                             <div className="rounded-md border border-border bg-card overflow-hidden">
