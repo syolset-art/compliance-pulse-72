@@ -426,6 +426,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           assessment_score: 0,
           active_frameworks: activeFrameworks,
           industry: selectedCompany.naeringskode1?.beskrivelse || null,
+          privacy_policy_url: form.privacy_policy_url.trim() || null,
         },
       } as any);
 
