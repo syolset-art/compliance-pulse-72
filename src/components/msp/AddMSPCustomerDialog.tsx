@@ -88,8 +88,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const [searchResults, setSearchResults] = useState<BrregResult[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<BrregResult | null>(null);
   const [duplicateFound, setDuplicateFound] = useState(false);
-  const [assessmentResponses, setAssessmentResponses] = useState<AssessmentResponse[]>([]);
-  const [selectedFrameworks, setSelectedFrameworks] = useState<string[]>([]);
+  const [recommendations, setRecommendations] = useState<FrameworkRecommendation[]>([]);
+  const [confirmedRecommendations, setConfirmedRecommendations] = useState<string[]>([]);
 
   const [form, setForm] = useState({
     contact_person: "",
