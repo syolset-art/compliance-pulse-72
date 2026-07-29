@@ -43,6 +43,7 @@ import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
+import { ComplianceMappingCard } from "@/components/msp/customer-compliance/ComplianceMappingSheet";
 
 
 export default function MSPCustomerDetail() {
