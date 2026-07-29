@@ -580,10 +580,7 @@ export default function MSPCustomerDetail() {
               ))}
             </ul>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setHiddenIssuesOpen(false)}>Lukk</Button>
-              <Button onClick={() => { setHiddenIssuesOpen(false); navigate(`/msp-dashboard/${customerId}/trust-profile`); }} className="gap-1.5">
-                Åpne Trust Profile <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
+              <Button onClick={() => setHiddenIssuesOpen(false)}>Lukk</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
