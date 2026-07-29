@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
-import { Search, Plus, Sparkles, Check } from "lucide-react";
+import { Search, Plus, Sparkles, Check, Pencil, RotateCcw } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -8,12 +9,14 @@ import {
   type ControlSuggestion,
 } from "@/lib/serviceMappingSuggester";
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
+import { lookupServiceDescription } from "@/lib/serviceDescriptionLookup";
 import type { ServiceMapping } from "./CustomServiceDialog";
 
 interface Props {
   existingNames: string[];
   onAdd: (payload: {
     name: string;
+    description: string;
     mappings: ServiceMapping[];
   }) => void;
 }
@@ -30,6 +33,8 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [justAdded, setJustAdded] = useState(false);
+  const [descOverride, setDescOverride] = useState<string | null>(null);
+  const [descEditing, setDescEditing] = useState(false);
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebounced(query.trim()), 250);
@@ -38,12 +43,22 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
 
   useEffect(() => {
     setJustAdded(false);
+    setDescOverride(null);
+    setDescEditing(false);
   }, [query]);
 
   const suggestions = useMemo<ControlSuggestion[]>(() => {
     if (debounced.length < 2) return [];
     return suggestControlPoints({ name: debounced });
   }, [debounced]);
+
+  const suggestedDescription = useMemo(
+    () => (debounced.length >= 2 ? lookupServiceDescription(debounced) : undefined),
+    [debounced],
+  );
+
+  const currentDescription = descOverride ?? suggestedDescription ?? "";
+  const isOverridden = descOverride !== null && descOverride !== suggestedDescription;
 
   const groups = useMemo<FrameworkGroup[]>(() => {
     const map = new Map<string, FrameworkGroup>();
@@ -81,10 +96,12 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
       controlId: s.controlId,
       controlLabel: s.controlLabel,
     }));
-    onAdd({ name: debounced, mappings });
+    onAdd({ name: debounced, description: currentDescription.trim(), mappings });
     setJustAdded(true);
     setQuery("");
     setDebounced("");
+    setDescOverride(null);
+    setDescEditing(false);
   };
 
   return (
@@ -133,6 +150,68 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
           Ingen tydelige treff. Prøv nøkkelord som beskriver aktiviteten
           (patch, awareness, DPO, backup …).
         </p>
+      )}
+
+      {debounced.length >= 2 && (suggestedDescription || descEditing) && (
+        <div className="rounded-md border border-border bg-card px-3 py-2.5 space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+              {suggestedDescription && !isOverridden ? (
+                <>
+                  <Sparkles className="h-3 w-3 text-primary" />
+                  Foreslått beskrivelse
+                </>
+              ) : (
+                <>
+                  <Pencil className="h-3 w-3" />
+                  Egen beskrivelse
+                </>
+              )}
+            </span>
+            <div className="flex items-center gap-1">
+              {isOverridden && suggestedDescription && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-[11px] gap-1"
+                  onClick={() => {
+                    setDescOverride(null);
+                    setDescEditing(false);
+                  }}
+                >
+                  <RotateCcw className="h-3 w-3" /> Tilbakestill
+                </Button>
+              )}
+              {!descEditing && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-[11px] gap-1"
+                  onClick={() => setDescEditing(true)}
+                >
+                  <Pencil className="h-3 w-3" /> Rediger
+                </Button>
+              )}
+            </div>
+          </div>
+          {descEditing ? (
+            <Textarea
+              value={currentDescription}
+              onChange={(e) => setDescOverride(e.target.value)}
+              onBlur={() => setDescEditing(false)}
+              rows={3}
+              className="text-sm resize-none"
+              placeholder="Beskriv tjenesten kort — hva leveres og hvordan?"
+              autoFocus
+            />
+          ) : (
+            <p className="text-sm text-foreground/85 leading-relaxed">
+              {currentDescription}
+            </p>
+          )}
+        </div>
       )}
 
       {groups.length > 0 && (
