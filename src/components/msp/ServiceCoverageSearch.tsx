@@ -132,7 +132,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
             ) : (
               <>
                 <Plus className="h-4 w-4" />
-                Legg til i katalogen
+                Opprett
               </>
             )}
           </Button>
