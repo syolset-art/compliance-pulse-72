@@ -25,12 +25,11 @@ import { cn } from "@/lib/utils";
 const SHORT_TEXT =
   "Koblingen mellom tjenester og krav er foreslått av Lara — ikke verifisert av menneske. Forholdet er ikke 1:1.";
 
-const LONG_TITLE = "Slik er koblingene laget";
+const LONG_TITLE = "Slik er koblingen laget";
 
 const LONG_BODY = [
-  "Lara (AI) foreslår hvilke krav og artikler en tjeneste dekker basert på beskrivelser, aktiviteter og nøkkelord.",
-  "Forslagene er ikke verifisert av mennesker. Kvalitetssikre før du bruker dem i et tilbud eller en leveranse.",
-  "Forholdet er ikke 1:1 — én tjeneste kan dekke flere krav, og ett krav kan kreve flere tiltak eller supplerende dokumentasjon.",
+  "Lara foreslår relevante krav og artikler basert på tjenestens beskrivelse og aktiviteter.",
+  "Forslagene genereres med AI og kan inneholde feil.",
 ];
 
 function LongContent() {
