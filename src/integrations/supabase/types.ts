@@ -2141,6 +2141,7 @@ export type Database = {
           active_frameworks: string[] | null
           business_description: string | null
           compliance_score: number | null
+          confirmed_frameworks: Json
           contact_company_role: string | null
           contact_compliance_role: string | null
           contact_email: string | null
@@ -2158,6 +2159,7 @@ export type Database = {
           msp_user_id: string
           onboarding_completed: boolean | null
           org_number: string | null
+          recommended_frameworks: Json
           status: string | null
           subscription_plan: string
           url: string | null
@@ -2168,6 +2170,7 @@ export type Database = {
           active_frameworks?: string[] | null
           business_description?: string | null
           compliance_score?: number | null
+          confirmed_frameworks?: Json
           contact_company_role?: string | null
           contact_compliance_role?: string | null
           contact_email?: string | null
@@ -2185,6 +2188,7 @@ export type Database = {
           msp_user_id: string
           onboarding_completed?: boolean | null
           org_number?: string | null
+          recommended_frameworks?: Json
           status?: string | null
           subscription_plan?: string
           url?: string | null
@@ -2195,6 +2199,7 @@ export type Database = {
           active_frameworks?: string[] | null
           business_description?: string | null
           compliance_score?: number | null
+          confirmed_frameworks?: Json
           contact_company_role?: string | null
           contact_compliance_role?: string | null
           contact_email?: string | null
@@ -2212,6 +2217,7 @@ export type Database = {
           msp_user_id?: string
           onboarding_completed?: boolean | null
           org_number?: string | null
+          recommended_frameworks?: Json
           status?: string | null
           subscription_plan?: string
           url?: string | null
