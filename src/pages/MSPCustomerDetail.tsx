@@ -317,9 +317,6 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="messages" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Meldinger
                 </TabsTrigger>
-                <TabsTrigger value="trust-profile" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
-                  Trust Profile
-                </TabsTrigger>
                 <TabsTrigger value="documentation" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Dokumentasjon
                 </TabsTrigger>
