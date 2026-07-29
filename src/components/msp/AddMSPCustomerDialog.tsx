@@ -1291,29 +1291,41 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <Label className="flex items-center gap-1.5 text-sm">
                   <Globe className="h-3.5 w-3.5" /> Nettside
                 </Label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, has_website: true })}
                     className={cn(
-                      "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
+                      "flex items-center gap-1.5 text-sm transition-colors",
                       form.has_website
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background text-foreground hover:bg-muted"
+                        ? "text-primary font-medium"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                   >
+                    <span className={cn(
+                      "h-4 w-4 rounded-full border transition-colors",
+                      form.has_website
+                        ? "border-primary bg-primary"
+                        : "border-border bg-background"
+                    )} />
                     Ja, har nettside
                   </button>
                   <button
                     type="button"
                     onClick={() => { setForm({ ...form, has_website: false, url: "" }); setWebsiteSource("none"); }}
                     className={cn(
-                      "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
+                      "flex items-center gap-1.5 text-sm transition-colors",
                       !form.has_website
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-background text-foreground hover:bg-muted"
+                        ? "text-primary font-medium"
+                        : "text-muted-foreground hover:text-foreground"
                     )}
                   >
+                    <span className={cn(
+                      "h-4 w-4 rounded-full border transition-colors",
+                      !form.has_website
+                        ? "border-primary bg-primary"
+                        : "border-border bg-background"
+                    )} />
                     Har ikke nettside
                   </button>
                 </div>
