@@ -83,12 +83,7 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
             </p>
           </div>
         </div>
-        {onOpenAll && (
-          <Button variant="ghost" size="sm" onClick={onOpenAll} className="shrink-0 h-7 text-xs">
-            Se alle
-            <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
-        )}
+
       </div>
 
       {rows.length === 0 ? (
