@@ -280,6 +280,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           naeringskode1: d.naeringskode1 || enriched.naeringskode1,
           antallAnsatte: d.antallAnsatte ?? enriched.antallAnsatte,
           forretningsadresse: d.forretningsadresse || enriched.forretningsadresse,
+          hjemmeside: d.hjemmeside || enriched.hjemmeside || null,
         };
         if (!isMissing(enriched)) setIndustrySource("brreg_main");
       }
