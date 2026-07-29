@@ -75,7 +75,7 @@ export default function MSPCustomerDetail() {
   const [handoverEmailOpen, setHandoverEmailOpen] = useState(false);
   const [hiddenIssuesOpen, setHiddenIssuesOpen] = useState(false);
   const [deadlineOpen, setDeadlineOpen] = useState(false);
-  const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean }>({ open: false, review: false });
+  const [baselineDrawer, setBaselineDrawer] = useState<{ open: boolean; review: boolean; mode?: "partner" | "meeting" }>({ open: false, review: false, mode: "partner" });
   const [isLaraSuggesting, setIsLaraSuggesting] = useState(false);
   const [mandateDialogOpen, setMandateDialogOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
