@@ -24,11 +24,51 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
   const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
 
+  const DEMO_ROWS: Array<{ rec: FrameworkRecommendation; isConfirmed: boolean }> = [
+    {
+      isConfirmed: true,
+      rec: {
+        frameworkId: "gdpr",
+        label: "GDPR / Personvernforordningen",
+        confidence: "high",
+        reason: "Virksomhet i EØS som behandler personopplysninger om kunder og ansatte.",
+      },
+    },
+    {
+      isConfirmed: true,
+      rec: {
+        frameworkId: "nis2",
+        label: "NIS2",
+        confidence: "high",
+        reason: "Bransje klassifisert som viktig enhet under NIS2 (IKT-tjenester).",
+      },
+    },
+    {
+      isConfirmed: false,
+      rec: {
+        frameworkId: "iso27001",
+        label: "ISO/IEC 27001",
+        confidence: "medium",
+        reason: "Anbefalt styringssystem for informasjonssikkerhet basert på kundens tjenester.",
+      },
+    },
+    {
+      isConfirmed: false,
+      rec: {
+        frameworkId: "dora",
+        label: "DORA",
+        confidence: "medium",
+        reason: "Mulig relevant hvis kunden leverer IKT-tjenester til finanssektoren.",
+      },
+    },
+  ];
+
   const rows = useMemo(() => {
     const map = new Map<string, { rec: FrameworkRecommendation; isConfirmed: boolean }>();
     for (const r of recommended) map.set(r.frameworkId, { rec: r, isConfirmed: false });
     for (const c of confirmed) map.set(c.frameworkId, { rec: c, isConfirmed: true });
-    return Array.from(map.values()).sort((a, b) => Number(b.isConfirmed) - Number(a.isConfirmed));
+    const real = Array.from(map.values()).sort((a, b) => Number(b.isConfirmed) - Number(a.isConfirmed));
+    return real.length === 0 ? DEMO_ROWS : real;
   }, [recommended, confirmed]);
 
   const persist = async (nextConfirmed: FrameworkRecommendation[], nextRecommended: FrameworkRecommendation[]) => {
