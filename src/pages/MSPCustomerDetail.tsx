@@ -81,6 +81,8 @@ export default function MSPCustomerDetail() {
   usePageHelpListener(setHelpOpen);
   const mandate = useMandate(customerId || "");
   const { answers: baselineAnswers, setAnswer: setBaselineAnswer, setAllAnswers: setAllBaselineAnswers, laraRationales: baselineRationales, setLaraRationales: setBaselineRationales, areaProgress, totalAnswered, totalQuestions } = useCustomerBaseline(customerId);
+  const [offerDialog, setOfferDialog] = useState<{ open: boolean; templateId?: string; title?: string }>({ open: false });
+  const { getLockInfo } = useSavedOffers();
 
 
   const queryClient = useQueryClient();
