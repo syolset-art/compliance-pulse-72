@@ -427,11 +427,7 @@ export function CustomerDocumentationTab({
                         size="sm"
                         variant="outline"
                         className="gap-1.5"
-                        onClick={() =>
-                          toast.info("Opplasting kommer snart", {
-                            description: "I prototypen er dokumentopplasting ikke aktivert.",
-                          })
-                        }
+                        onClick={() => openUpload([doc.frameworkId])}
                       >
                         <Upload className="h-3.5 w-3.5" />
                         Last opp
