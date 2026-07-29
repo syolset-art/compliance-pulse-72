@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 
 /**
  * Persistert register over tilbud partneren har levert.
@@ -6,6 +7,15 @@ import { useEffect, useState, useCallback } from "react";
  * tjenester som inngår i minst ett levert tilbud, slik at de ikke
  * kan fjernes eller nullstilles ved et uhell.
  */
+
+export type OfferStatus = "draft" | "sent" | "delivered";
+
+export interface DeliveryImpact {
+  /** Modenhet per kontrollområde før leveransen (fra baseline). */
+  maturityBefore?: Record<string, number>;
+  /** Modenhet per kontrollområde etter leveransen. */
+  maturityAfter?: Record<string, number>;
+}
 
 export interface SavedOffer {
   id: string;
@@ -18,6 +28,19 @@ export interface SavedOffer {
   templateIds: string[];
   /** Fallback-nøkler når templateId ikke finnes (normalisert navn). */
   serviceKeys: string[];
+
+  /** Livssyklus for tilbud → leveranse. */
+  status?: OfferStatus;
+  sentAt?: string;
+  deliveredAt?: string;
+  /** Regelverk denne leveransen skal styrke. */
+  frameworkIds?: string[];
+  /** Bevis-IDer (fra partnerEvidence-store) koblet til leveransen. */
+  evidenceIds?: string[];
+  /** Effekt-snapshot ved leveranse. */
+  impact?: DeliveryImpact;
+  /** Om rapport er sendt til kunden. */
+  reportSentAt?: string;
 }
 
 const STORAGE_KEY = "msp-customer-offers-v1";
@@ -45,7 +68,9 @@ function writeAll(offers: SavedOffer[]): void {
   window.dispatchEvent(new CustomEvent(EVENT_NAME));
 }
 
-export function saveOffer(offer: Omit<SavedOffer, "id" | "createdAt"> & { id?: string; createdAt?: string }): SavedOffer {
+export function saveOffer(
+  offer: Omit<SavedOffer, "id" | "createdAt"> & { id?: string; createdAt?: string },
+): SavedOffer {
   const all = readAll();
   const record: SavedOffer = {
     id: offer.id ?? `offer-${Date.now()}`,
@@ -56,9 +81,47 @@ export function saveOffer(offer: Omit<SavedOffer, "id" | "createdAt"> & { id?: s
     customerName: offer.customerName,
     templateIds: Array.from(new Set(offer.templateIds ?? [])),
     serviceKeys: Array.from(new Set((offer.serviceKeys ?? []).map(normalizeServiceKey))),
+    status: offer.status ?? "draft",
+    frameworkIds: offer.frameworkIds,
+    evidenceIds: offer.evidenceIds,
   };
-  writeAll([...all, record]);
+  writeAll([record, ...all]);
   return record;
+}
+
+export function updateOffer(id: string, patch: Partial<SavedOffer>): SavedOffer | null {
+  const all = readAll();
+  const idx = all.findIndex((o) => o.id === id);
+  if (idx < 0) return null;
+  const next = { ...all[idx], ...patch };
+  all[idx] = next;
+  writeAll(all);
+  return next;
+}
+
+export function markOfferSent(id: string): SavedOffer | null {
+  return updateOffer(id, { status: "sent", sentAt: new Date().toISOString() });
+}
+
+export function markOfferDelivered(
+  id: string,
+  args: { frameworkIds: string[]; evidenceIds: string[]; impact?: DeliveryImpact },
+): SavedOffer | null {
+  return updateOffer(id, {
+    status: "delivered",
+    deliveredAt: new Date().toISOString(),
+    frameworkIds: args.frameworkIds,
+    evidenceIds: args.evidenceIds,
+    impact: args.impact,
+  });
+}
+
+export function markReportSent(id: string): SavedOffer | null {
+  return updateOffer(id, { reportSentAt: new Date().toISOString() });
+}
+
+export function getOffersForCustomer(customerId: string): SavedOffer[] {
+  return readAll().filter((o) => o.customerId === customerId);
 }
 
 export interface LockInfo {
@@ -139,4 +202,32 @@ export function useSavedOffers() {
   const save = useCallback((offer: Parameters<typeof saveOffer>[0]) => saveOffer(offer), []);
 
   return { offers, getLockInfo, isLocked, saveOffer: save };
+}
+
+/** Hook: alle tilbud for en gitt kunde (reaktiv). */
+export function useCustomerOffers(customerId: string | undefined) {
+  const [offers, setOffers] = useState<SavedOffer[]>(() =>
+    customerId ? getOffersForCustomer(customerId) : [],
+  );
+  useEffect(() => {
+    const refresh = () => setOffers(customerId ? getOffersForCustomer(customerId) : []);
+    refresh();
+    window.addEventListener(EVENT_NAME, refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener(EVENT_NAME, refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, [customerId]);
+  return offers;
+}
+
+/** Utled sannsynlige regelverk-IDer fra en liste tjeneste-templateIds. */
+export function deriveFrameworkIdsFromTemplates(templateIds: string[]): string[] {
+  const ids = new Set<string>();
+  for (const t of SERVICE_LIBRARY) {
+    if (!templateIds.includes(t.id)) continue;
+    for (const m of t.mappings) ids.add(m.frameworkId);
+  }
+  return Array.from(ids);
 }

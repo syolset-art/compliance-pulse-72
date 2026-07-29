@@ -36,6 +36,7 @@ import { BaselineReadinessCard } from "@/components/msp/BaselineReadinessCard";
 import { BaselineQuestionsDrawer } from "@/components/msp/BaselineQuestionsDrawer";
 import { CustomerDocumentationTab } from "@/components/msp/CustomerDocumentationTab";
 import { CustomerModulesTab } from "@/components/msp/CustomerModulesTab";
+import { CustomerDeliveriesTab } from "@/components/msp/deliveries/CustomerDeliveriesTab";
 import { useCustomerBaseline } from "@/hooks/useCustomerBaseline";
 import { MATURITY_AREAS, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 
@@ -337,6 +338,9 @@ export default function MSPCustomerDetail() {
                 <TabsTrigger value="modules" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
                   Produkter
                 </TabsTrigger>
+                <TabsTrigger value="deliveries" className="text-sm font-medium text-foreground/75 data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg whitespace-nowrap px-3 py-2">
+                  Leveranser
+                </TabsTrigger>
               </TabsList>
             </nav>
 
@@ -555,6 +559,14 @@ export default function MSPCustomerDetail() {
                 customerName={customer.name || customer.customer_name || "Kunden"}
                 activeFrameworkIds={activeFrameworkIds}
                 onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}
+              />
+            </TabsContent>
+
+            <TabsContent value="deliveries" className="mt-6">
+              <CustomerDeliveriesTab
+                customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
+                activeFrameworkIds={activeFrameworkIds}
               />
             </TabsContent>
 
