@@ -742,11 +742,6 @@ export default function MSPDashboard() {
                         options={serviceOptions.map((v) => ({ value: v, label: v }))}
                         selected={serviceFilter} onChange={setServiceFilter} />
                     );
-                    if (!isVisible("tp_status")) hiddenFilters.push(
-                      <ColumnFilter key="f-tp" label="TP-status"
-                        options={(Object.keys(TP_STATUS_LABEL) as TPStatusKey[]).map((k) => ({ value: k, label: TP_STATUS_LABEL[k] }))}
-                        selected={tpStatusFilter} onChange={(v) => setTpStatusFilter(v as TPStatusKey[])} />
-                    );
                     if (hiddenFilters.length === 0) return null;
                     return (
                       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-dashed border-border bg-muted/30 px-3 py-2">
