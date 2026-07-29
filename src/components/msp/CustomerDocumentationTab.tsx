@@ -282,6 +282,11 @@ export function CustomerDocumentationTab({
             {visibleDocCount} bevis · {allSelected ? groupedDocs.size : `${selectedFrameworks.size}/${groupedDocs.size}`} regelverk
           </span>
 
+          <Button size="sm" className="h-7 gap-1.5" onClick={() => openUpload()}>
+            <Upload className="h-3.5 w-3.5" />
+            Last opp bevis
+          </Button>
+
           {/* Regelverk-filter */}
           <Popover open={filterOpen} onOpenChange={setFilterOpen}>
             <PopoverTrigger asChild>
