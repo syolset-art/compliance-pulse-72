@@ -385,9 +385,7 @@ export default function MSPCustomerDetail() {
               )}
 
 
-              {/* Kort baseline-status med lenke til Trust Profile-siden.
-                  Selve utfyllingen ligger under Trust Profile — Veiledning skal
-                  bare gjøre partneren oppmerksom på status og peke videre. */}
+              {/* Baseline-kartlegging — valgfri spørreliste, åpner drawer direkte. */}
               <Card className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex items-start gap-3 min-w-0">
                   <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -395,26 +393,48 @@ export default function MSPCustomerDetail() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-semibold text-foreground">Baseline</h3>
+                      <h3 className="text-sm font-semibold text-foreground">Baseline-kartlegging</h3>
                       <span className="text-xs text-muted-foreground rounded-full bg-muted px-2 py-0.5">
-                        {totalAnswered} av {totalQuestions} besvart
+                        {totalAnswered}/{totalQuestions} besvart
                       </span>
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Valgfritt</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Baselinen er kundens utgangspunkt for modenhet og gap. Den fylles ut og vedlikeholdes under Trust Profile.
+                      Still {totalQuestions} enkle spørsmål sammen med kunden — svarene forbedrer modenhetsestimatet per kontrollområde.
                     </p>
                   </div>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate(`/msp-dashboard/${customerId}/trust-profile`)}
+                  onClick={() => setBaselineDrawer({ open: true, review: false })}
                   className="w-full sm:w-auto sm:shrink-0"
                 >
-                  Åpne Trust Profile
+                  {totalAnswered === 0 ? "Start kartlegging" : "Fortsett kartlegging"}
                   <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
                 </Button>
               </Card>
+
+              <MaturityMirrorCard
+                areaProgress={areaProgress}
+                totalAnswered={totalAnswered}
+                totalQuestions={totalQuestions}
+              />
+
+              <RegulationsStatusCard
+                customerId={customerId!}
+                recommended={((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]}
+                confirmed={((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]}
+                onOpenAll={() => handleTabChange("regulations")}
+              />
+
+              <ServiceMatchCard
+                activeFrameworkIds={activeFrameworkIds}
+                catalogTemplateIds={new Set<string>()}
+                onCreateOffer={(templateId, title) => setOfferDialog({ open: true, templateId, title })}
+                onSeeAll={() => handleTabChange("assessment")}
+              />
+
 
               {/* TODO: Seksjon "Nye tjenester fra Mynder" plasseres her i senere iterasjon. */}
 
