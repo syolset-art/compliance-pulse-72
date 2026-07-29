@@ -235,7 +235,7 @@ function ColumnFilter({
 }
 
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "activated" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "frameworks" | "products" | "score";
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
@@ -243,18 +243,20 @@ const COLUMN_LABELS: Record<ColumnKey, string> = {
   industry: "Bransje",
   criticality: "Kritikalitet",
   services: "Lara anbefaler",
-  activated: "Produkter og tjenester",
+  frameworks: "Regelverk",
+  products: "Produkter og tjenester",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "activated", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "frameworks", "products", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
 const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
-  activated: 640,
+  frameworks: 640,
+  products: 768,
   criticality: 768,
   services: 1024,
   industry: 1024,
@@ -806,7 +808,12 @@ export default function MSPDashboard() {
                             />
                           </TableHead>
                         )}
-                        {isVisible("activated") && (
+                        {isVisible("frameworks") && (
+                          <TableHead className="w-[180px] text-foreground/80">
+                            <span className="text-sm font-medium">Regelverk</span>
+                          </TableHead>
+                        )}
+                        {isVisible("products") && (
                           <TableHead className="w-[240px] text-foreground/80">
                             <span className="text-sm font-medium">Produkter og tjenester</span>
                           </TableHead>
@@ -889,19 +896,15 @@ export default function MSPDashboard() {
                                 )}
                               </TableCell>
                             )}
-                            {isVisible("activated") && (
+                            {isVisible("frameworks") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
                                 {(() => {
                                   const frameworks: string[] = c.active_frameworks || [];
-                                  const delivered = getOffersForCustomer(c.id).filter((o) => o.status === "delivered");
-                                  const serviceCount = new Set(
-                                    delivered.flatMap((o) => [...(o.templateIds || []), ...(o.serviceKeys || [])]),
-                                  ).size;
-                                  if (frameworks.length === 0 && serviceCount === 0) {
+                                  if (frameworks.length === 0) {
                                     return <span className="text-muted-foreground text-sm">—</span>;
                                   }
                                   return (
-                                    <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[180px]">
                                       {frameworks.slice(0, 3).map((f) => (
                                         <Badge key={f} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
                                           {f}
@@ -910,8 +913,32 @@ export default function MSPDashboard() {
                                       {frameworks.length > 3 && (
                                         <span className="text-[11px] text-muted-foreground">+{frameworks.length - 3}</span>
                                       )}
+                                    </div>
+                                  );
+                                })()}
+                              </TableCell>
+                            )}
+                            {isVisible("products") && (
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                {(() => {
+                                  // Demo: samme aktiveringslogikk som CustomerModulesTab
+                                  const products: string[] = ["Mynder Core", "Leverandør", "Assets"];
+                                  const delivered = getOffersForCustomer(c.id).filter((o) => o.status === "delivered");
+                                  const serviceCount = new Set(
+                                    delivered.flatMap((o) => [...(o.templateIds || []), ...(o.serviceKeys || [])]),
+                                  ).size;
+                                  if (products.length === 0 && serviceCount === 0) {
+                                    return <span className="text-muted-foreground text-sm">—</span>;
+                                  }
+                                  return (
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
+                                      {products.map((p) => (
+                                        <Badge key={p} variant="outline" className="font-normal bg-primary/10 text-foreground border-primary/30 text-[11px]">
+                                          {p}
+                                        </Badge>
+                                      ))}
                                       {serviceCount > 0 && (
-                                        <Badge variant="outline" className="font-normal bg-primary/10 text-foreground border-primary/30 text-[11px]">
+                                        <Badge variant="outline" className="font-normal bg-primary/15 text-foreground border-primary/40 text-[11px]">
                                           {serviceCount} {serviceCount === 1 ? "tjeneste" : "tjenester"}
                                         </Badge>
                                       )}
