@@ -44,7 +44,7 @@ import { getQuestionnaire } from "@/lib/questionnaireRegistry";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
-import { MaturityMirrorCard } from "@/components/msp/guidance/MaturityMirrorCard";
+
 import { RegulationsStatusCard } from "@/components/msp/guidance/RegulationsStatusCard";
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { useSavedOffers } from "@/lib/customerOffers";
