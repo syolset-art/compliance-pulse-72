@@ -89,9 +89,10 @@ function deriveNeededServices(c: any): string[] {
   const score = c.compliance_score || 0;
   const frameworks: string[] = c.active_frameworks || [];
   const ind = c.industry || "";
+  const highCritIndustries = new Set(["Energi", "Helse", "Finans"]);
 
   // NIS2 — kritiske bransjer eller manglende rammeverk
-  if (HIGH_CRIT_INDUSTRIES.has(ind) || ind === "Energi" || ind === "Transport" || ind === "Helse" || ind === "Finans") {
+  if (highCritIndustries.has(ind) || ind === "Energi" || ind === "Transport" || ind === "Helse" || ind === "Finans") {
     services.push("NIS2-klargjøring");
   }
 
@@ -112,6 +113,7 @@ function deriveNeededServices(c: any): string[] {
 
   return Array.from(new Set(services)).slice(0, 3);
 }
+
 
 // Typical MSP/MSSP groupings — derived from existing customer data
 const SECURITY_FRAMEWORKS = new Set(["ISO 27001", "NIS2", "NIS 2", "CIS", "SOC 2", "Cyber Essentials"]);
@@ -235,20 +237,19 @@ function ColumnFilter({
 }
 
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "frameworks" | "products" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "services" | "frameworks" | "products" | "score";
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
   country: "Land",
   industry: "Bransje",
-  criticality: "Kritikalitet",
   services: "Lara anbefaler",
   frameworks: "Regelverk",
   products: "Produkter og tjenester",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "frameworks", "products", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "services", "frameworks", "products", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
@@ -257,11 +258,11 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   score: 0,
   frameworks: 640,
   products: 768,
-  criticality: 768,
   services: 1024,
   industry: 1024,
   country: 1280,
 };
+
 
 const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v1";
 
