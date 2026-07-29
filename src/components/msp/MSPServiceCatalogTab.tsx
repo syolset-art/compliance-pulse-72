@@ -645,7 +645,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         </div>
 
         <div className="flex items-center justify-end gap-2">
-
           {wizardSeen || extras.length > 0 || (curatedPicks && curatedPicks.length > 0) ? (
             <TooltipProvider delayDuration={150}>
               <Tooltip>
@@ -662,7 +661,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                 <TooltipContent side="left" className="max-w-xs text-sm">
                   <div className="font-medium">Se og rediger tjenesteprofilen din</div>
                 </TooltipContent>
-
               </Tooltip>
             </TooltipProvider>
           ) : (
@@ -671,11 +669,31 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               La Lara foreslå tjenester
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={() => setManualOpen(true)} className="gap-1.5 shrink-0 h-11 text-base">
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Beskriv egen tjeneste
-          </Button>
         </div>
+
+        <ServiceCoverageSearch
+          existingNames={extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => e.name)}
+          onAdd={({ name, description, mappings }) => {
+            const next: ExtraService = {
+              id: `search-${Date.now()}`,
+              name,
+              description,
+              hours: 0,
+              activities: [],
+              source: "manual",
+              mappings,
+            };
+            setExtras((prev) => [...prev, next]);
+            setActiveTab("mine");
+            revealInCatalog(next.id);
+            toast.success(`La til «${name}» i din tjenestekatalog`, {
+              description: description
+                ? "Beskrivelse fylt inn automatisk — juster aktiviteter og pris."
+                : "Rediger for å justere aktiviteter og pris.",
+              action: { label: "Vis i katalogen", onClick: () => revealInCatalog(next.id) },
+            });
+          }}
+        />
 
         {curatedPicks && recommendedCount > 0 && (
           <div className="flex items-center justify-between gap-3 rounded-md border border-primary/20 bg-primary/5 px-3 py-2 text-sm">
