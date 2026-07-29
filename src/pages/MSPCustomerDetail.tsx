@@ -451,22 +451,24 @@ export default function MSPCustomerDetail() {
                     })}
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 pt-1">
+                  <div className="flex items-center justify-end gap-1.5">
                     <Button
                       variant="outline"
                       size="sm"
+                      className="h-7 px-2.5 text-xs"
                       onClick={() => setBaselineDrawer({ open: true, review: false, mode: "partner" })}
                     >
                       {totalAnswered === 0
                         ? t("baselineCard.startPartner", "Start")
                         : t("baselineCard.continuePartner", "Fortsett")}
-                      <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                      <ArrowRight className="h-3 w-3 ml-1" />
                     </Button>
                     <Button
                       size="sm"
+                      className="h-7 px-2.5 text-xs"
                       onClick={() => setBaselineDrawer({ open: true, review: false, mode: "meeting" })}
                     >
-                      <Users className="h-3.5 w-3.5 mr-1" />
+                      <Users className="h-3 w-3 mr-1" />
                       {t("baselineCard.meetingButton", "Med kunden")}
                     </Button>
                   </div>
