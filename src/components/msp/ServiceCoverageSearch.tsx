@@ -20,6 +20,7 @@ import {
 import { getFrameworkTheme } from "@/lib/serviceFrameworkTheme";
 import { lookupServiceDescription } from "@/lib/serviceDescriptionLookup";
 import type { ServiceMapping } from "./CustomServiceDialog";
+import { AiMappingDisclosure } from "./AiMappingDisclosure";
 
 interface Props {
   existingNames: string[];
