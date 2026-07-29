@@ -114,9 +114,12 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     account_manager: "",
     has_website: true,
     url: "",
+    privacy_policy_url: "",
     subscription_plan: "Gratis",
     country_code: "NO",
   });
+  type PrivacyPolicySource = "ai_detected" | "manual" | "none";
+  const [privacyPolicySource, setPrivacyPolicySource] = useState<PrivacyPolicySource>("none");
 
   // Manual entry (used when BrReg has no hit, or country not supported)
   const [manual, setManual] = useState({
@@ -180,7 +183,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setAcronisSelected(new Set());
     setAcronisImporting(false);
     setAcronisImportedCount(0);
-    setForm({ contact_person: "", contact_email: "", contact_company_role: "", account_manager: "", has_website: true, url: "", subscription_plan: "Gratis", country_code: "NO" });
+    setForm({ contact_person: "", contact_email: "", contact_company_role: "", account_manager: "", has_website: true, url: "", privacy_policy_url: "", subscription_plan: "Gratis", country_code: "NO" });
+    setPrivacyPolicySource("none");
     setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
     setIndustrySource("none");
     setWebsiteSource("none");
@@ -422,6 +426,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           assessment_score: 0,
           active_frameworks: activeFrameworks,
           industry: selectedCompany.naeringskode1?.beskrivelse || null,
+          privacy_policy_url: form.privacy_policy_url.trim() || null,
         },
       } as any);
 
@@ -1340,7 +1345,40 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                    </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-1.5 text-sm">
+                  <Globe className="h-3.5 w-3.5" /> Personvernerklæring
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button type="button" className="inline-flex text-muted-foreground hover:text-foreground">
+                          <Info className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs">
+                        Lara forsøker å finne personvernerklæringen på kundens nettside. URL-en brukes til å vurdere GDPR-status og databehandling. Du kan lime inn lenken selv om Lara ikke finner den.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </Label>
+                <Input
+                  value={form.privacy_policy_url}
+                  onChange={(e) => { setForm({ ...form, privacy_policy_url: e.target.value }); if (privacyPolicySource !== "manual") setPrivacyPolicySource("manual"); }}
+                  placeholder="https://example.no/personvern"
+                />
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  {privacyPolicySource === "ai_detected" && form.privacy_policy_url ? (
+                    <span className="inline-flex items-center gap-1 text-primary">
+                      <Sparkles className="h-3 w-3" />
+                      Funnet av Lara – bekreft eller endre
+                    </span>
+                  ) : (
+                    <span>Valgfritt – limes inn dersom Lara ikke finner den automatisk.</span>
+                  )}
+                </div>
+              </div>
 
                   </>
                 )}
