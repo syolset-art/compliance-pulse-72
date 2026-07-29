@@ -21,6 +21,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { seedDemoMSP, deleteDemoMSP } from "@/lib/demoSeedMSP";
 import { toast } from "sonner";
+import { getOffersForCustomer } from "@/lib/customerOffers";
 
 type ViewMode = "cards" | "table";
 
@@ -234,7 +235,7 @@ function ColumnFilter({
 }
 
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "tp_status" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "activated" | "score";
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
@@ -242,18 +243,18 @@ const COLUMN_LABELS: Record<ColumnKey, string> = {
   industry: "Bransje",
   criticality: "Kritikalitet",
   services: "Lara anbefaler",
-  tp_status: "TP-status",
+  activated: "Produkter og tjenester",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "tp_status", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "activated", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
 const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   customer: 0,
   score: 0,
-  tp_status: 640,
+  activated: 640,
   criticality: 768,
   services: 1024,
   industry: 1024,
@@ -742,11 +743,6 @@ export default function MSPDashboard() {
                         options={serviceOptions.map((v) => ({ value: v, label: v }))}
                         selected={serviceFilter} onChange={setServiceFilter} />
                     );
-                    if (!isVisible("tp_status")) hiddenFilters.push(
-                      <ColumnFilter key="f-tp" label="TP-status"
-                        options={(Object.keys(TP_STATUS_LABEL) as TPStatusKey[]).map((k) => ({ value: k, label: TP_STATUS_LABEL[k] }))}
-                        selected={tpStatusFilter} onChange={(v) => setTpStatusFilter(v as TPStatusKey[])} />
-                    );
                     if (hiddenFilters.length === 0) return null;
                     return (
                       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md border border-dashed border-border bg-muted/30 px-3 py-2">
@@ -810,20 +806,9 @@ export default function MSPDashboard() {
                             />
                           </TableHead>
                         )}
-                        {isVisible("tp_status") && (
-                          <TableHead className="w-[140px] text-foreground/80">
-                            <div className="inline-flex items-center gap-2">
-                              <button type="button" onClick={() => toggleSort("tp_status")} className="inline-flex items-center gap-1.5 text-sm font-medium hover:text-foreground transition-colors">
-                                TP-status <SortIcon k="tp_status" />
-                              </button>
-                              <ColumnFilter
-                                iconOnly
-                                label="TP-status"
-                                options={(Object.keys(TP_STATUS_LABEL) as TPStatusKey[]).map((k) => ({ value: k, label: TP_STATUS_LABEL[k] }))}
-                                selected={tpStatusFilter}
-                                onChange={(v) => setTpStatusFilter(v as TPStatusKey[])}
-                              />
-                            </div>
+                        {isVisible("activated") && (
+                          <TableHead className="w-[240px] text-foreground/80">
+                            <span className="text-sm font-medium">Produkter og tjenester</span>
                           </TableHead>
                         )}
                         {isVisible("score") && (
@@ -904,11 +889,35 @@ export default function MSPDashboard() {
                                 )}
                               </TableCell>
                             )}
-                            {isVisible("tp_status") && (
-                              <TableCell>
-                                <Badge variant="outline" className={cn("font-normal", TP_STATUS_TONE[tp])}>
-                                  {TP_STATUS_LABEL[tp]}
-                                </Badge>
+                            {isVisible("activated") && (
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                {(() => {
+                                  const frameworks: string[] = c.active_frameworks || [];
+                                  const delivered = getOffersForCustomer(c.id).filter((o) => o.status === "delivered");
+                                  const serviceCount = new Set(
+                                    delivered.flatMap((o) => [...(o.templateIds || []), ...(o.serviceKeys || [])]),
+                                  ).size;
+                                  if (frameworks.length === 0 && serviceCount === 0) {
+                                    return <span className="text-muted-foreground text-sm">—</span>;
+                                  }
+                                  return (
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
+                                      {frameworks.slice(0, 3).map((f) => (
+                                        <Badge key={f} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
+                                          {f}
+                                        </Badge>
+                                      ))}
+                                      {frameworks.length > 3 && (
+                                        <span className="text-[11px] text-muted-foreground">+{frameworks.length - 3}</span>
+                                      )}
+                                      {serviceCount > 0 && (
+                                        <Badge variant="outline" className="font-normal bg-primary/10 text-foreground border-primary/30 text-[11px]">
+                                          {serviceCount} {serviceCount === 1 ? "tjeneste" : "tjenester"}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
                               </TableCell>
                             )}
                             {isVisible("score") && (
