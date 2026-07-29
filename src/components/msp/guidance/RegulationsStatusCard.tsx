@@ -12,7 +12,6 @@ interface Props {
   customerId: string;
   recommended: FrameworkRecommendation[];
   confirmed: FrameworkRecommendation[];
-  onOpenAll?: () => void;
 }
 
 /**
@@ -20,7 +19,8 @@ interface Props {
  * AI-anbefalt versus bekreftet av partneren. Partneren kan bekrefte eller
  * fjerne med ett klikk direkte fra Veiledning-tab.
  */
-export function RegulationsStatusCard({ customerId, recommended, confirmed, onOpenAll }: Props) {
+export function RegulationsStatusCard({ customerId, recommended, confirmed }: Props) {
+
   const queryClient = useQueryClient();
   const [busyId, setBusyId] = useState<string | null>(null);
 
