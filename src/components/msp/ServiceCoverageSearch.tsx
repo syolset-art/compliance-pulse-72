@@ -269,7 +269,6 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
 
       {groups.length > 0 && (
         <div className="space-y-2">
-          <AiMappingDisclosure variant="banner" />
           <div className="rounded-md border border-border bg-card overflow-hidden">
             <Table>
               <TableHeader>
