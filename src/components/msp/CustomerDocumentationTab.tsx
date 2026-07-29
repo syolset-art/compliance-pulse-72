@@ -489,9 +489,7 @@ export function CustomerDocumentationTab({
                 className="text-primary hover:underline"
                 onClick={() => {
                   setPrivacyOpen(false);
-                  toast.info("Opplasting kommer snart", {
-                    description: "I prototypen er dokumentopplasting ikke aktivert.",
-                  });
+                  openUpload();
                 }}
               >
                 Last opp dokumentet i stedet
@@ -509,6 +507,13 @@ export function CustomerDocumentationTab({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <PartnerEvidenceUploadDialog
+        open={uploadOpen}
+        onOpenChange={setUploadOpen}
+        customerId={customerId}
+        presetFrameworkIds={uploadFrameworkIds}
+      />
     </div>
   );
 }
