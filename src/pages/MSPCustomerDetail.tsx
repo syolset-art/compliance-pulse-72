@@ -589,12 +589,13 @@ export default function MSPCustomerDetail() {
 
         <BaselineQuestionsDrawer
           open={baselineDrawer.open}
-          onOpenChange={(open) => setBaselineDrawer({ open, review: false })}
+          onOpenChange={(open) => setBaselineDrawer((prev) => ({ ...prev, open, review: false }))}
           customerName={customer.name || customer.customer_name || "Kunden"}
           answers={baselineAnswers}
           onAnswer={setBaselineAnswer}
           reviewMode={baselineDrawer.review}
           laraRationales={baselineRationales}
+          mode={baselineDrawer.mode ?? "partner"}
         />
 
         <MSPCreateOfferDialog
