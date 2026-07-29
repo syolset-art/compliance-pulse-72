@@ -1,20 +1,30 @@
-## Bakgrunn
-Brukeren ønsker å beholde dagens modenhetsvisning (5 kontrollområder med prosent og fremdriftslinjer, Trust Score) i baseline-kortet på kundevdetail-siden, men de to handlingsknappene nederst tar for mye plass.
 
 ## Mål
-Redusere visuelt fotavtrykk for knappene "Fortsett kartlegging" / "Med kunden" / "Fyll ut sammen med kunden" i `src/pages/MSPCustomerDetail.tsx` (området rundt linje 454–472).
+I «Veiledning fra Mynder» skal partneren kunne:
+1. Skrive inn en tjeneste og se hvilke av **denne kundens** anbefalte/aktiverte regelverk den treffer.
+2. Laste opp dokumentasjon (bevis) de allerede har, og få det koblet til ett eller flere av kundens regelverk.
 
-## Endringsforslag
-1. **Behold modenhetsvisningen uendret** (linjer 425–452).
-2. **Komprimer knapperaden**:
-   - Reduser eller fjern top-padding (`pt-1`) og gap mellom knappene.
-   - Bruk en mer kompakt knappestil, f.eks. `h-7`/`h-8` med `px-2`/`px-3` og `text-xs`.
-   - Vurder å forkorte teksten til "Fortsett" / "Med kunden" (allerede kort variant) eller bruke ikon + tooltip for den minste varianten.
-   - Alternativ: Legg knappene i en knappegruppe (`ButtonGroup`/`SegmentedControl`) for å spare horisontal plass.
-3. **Oppdater i18n-nøkler** kun hvis tekstendres.
+## 1) Tjenestesøk mot kundens regelverk
+- Ny komponent `CustomerServiceCoverageSearch` (i `src/components/msp/guidance/`) basert på `ServiceCoverageSearch`, men:
+  - Filtrerer alle treff mot `customerFrameworkIds` (union av `recommended_frameworks` + `activeFrameworkIds`).
+  - Hvis en tjeneste ikke treffer noen av kundens regelverk → vis subtil melding «Ingen treff mot kundens regelverk» + evt. hvilke andre regelverk den ellers dekker.
+  - Fjerner «Opprett»-CTA i denne konteksten — kun visning, siden formålet er relevanssjekk for kunden.
+- Plasseres i `MSPCustomerDetail.tsx` (guidance-tab) rett over `RegulationsStatusCard`, i et smalt kort med tittel «Sjekk en tjeneste mot kundens regelverk» og kort AI-disclaimer via eksisterende `AiMappingDisclosure` (icon-variant).
 
-## Akseptansekriterier
-- Modenhetsvisningen (5 områder + Trust Score) ser identisk ut.
-- Knappene tar mindre vertikal/horisontal plass.
-- Begge handlingene (partner-modus og møte-modus) er fortsatt tilgjengelige og klikkbare.
-- Drawer for baseline åpnes med samme funksjonalitet som i dag.
+## 2) Last opp bevis fra regelverkstabellen
+- Utvid `RegulationsStatusCard` med en ny handling per rad: knapp «Last opp bevis» (subtil, `Upload`-ikon) i «Handling»-kolonnen ved siden av eksisterende Bekreft/Aktiver/Se i Produkter.
+- Åpner eksisterende `PartnerEvidenceUploadDialog` (fra `src/lib/partnerEvidence.ts`) med regelverket forhåndsvalgt (nytt prop `presetFrameworkIds`).
+- Over tabellen: én samlet «Last opp bevis»-knapp som åpner samme dialog uten forhåndsvalg (bruker kan krysse av flere regelverk).
+- Under tabellen: kompakt liste over allerede opplastede bevis for kunden (gjenbruk `PartnerEvidenceSection` med `minimal` og `hideUploadButton`), slik at partneren ser koblingen mellom bevis og regelverk uten å bytte fane.
+
+## Tekniske detaljer
+- `PartnerEvidenceUploadDialog` må ta imot valgfri `presetFrameworkIds: string[]` og forhåndsvelge disse i skjemaet (påvirker ikke lagring ellers).
+- Ingen DB-endringer — `partnerEvidence` er allerede lokal demo-store.
+- Ingen endring i modenhetsvisning eller baseline-kort.
+- Norsk tekst, kort og subtilt design i tråd med resten av guidance-fanen.
+
+## Filer som endres/opprettes
+- Ny: `src/components/msp/guidance/CustomerServiceCoverageSearch.tsx`
+- Endre: `src/components/msp/guidance/RegulationsStatusCard.tsx` (opplastningsknapper + evidence-liste)
+- Endre: `src/components/msp/PartnerEvidenceUploadDialog.tsx` (støtte `presetFrameworkIds`)
+- Endre: `src/pages/MSPCustomerDetail.tsx` (montér søkekortet i guidance-tab)
