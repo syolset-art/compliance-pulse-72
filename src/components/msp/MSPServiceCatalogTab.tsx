@@ -24,6 +24,7 @@ import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type Servic
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
+import { ServiceCoverageSearch } from "./ServiceCoverageSearch";
 import { LaraScopeChangeDialog, type ScopeChangeSelection } from "./LaraScopeChangeDialog";
 import type { PartnerService, WizardAnswers } from "@/lib/serviceCatalog";
 import {
