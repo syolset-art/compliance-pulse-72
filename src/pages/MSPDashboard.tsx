@@ -70,17 +70,6 @@ const TP_STATUS_TONE: Record<TPStatusKey, string> = {
 
 const TP_STATUS_ORDER: Record<TPStatusKey, number> = { draft: 0, onboarding: 1, claimed: 2, published: 3 };
 
-// Derived criticality based on industry + size — purely presentational
-const HIGH_CRIT_INDUSTRIES = new Set(["Energi", "Helse", "Finans"]);
-const MED_CRIT_INDUSTRIES = new Set(["Teknologi", "Transport", "Utdanning"]);
-function deriveCriticality(c: any): { key: "high" | "medium" | "low"; label: string; tone: string } {
-  const ind = c.industry || "";
-  const emp = c.employees || "";
-  const big = /201|500|1000|\+/.test(emp);
-  if (HIGH_CRIT_INDUSTRIES.has(ind) || big) return { key: "high", label: "Høy", tone: "bg-crit-high-soft text-crit-high-fg border border-crit-high" };
-  if (MED_CRIT_INDUSTRIES.has(ind)) return { key: "medium", label: "Moderat", tone: "bg-crit-moderate-soft text-crit-moderate-fg border border-crit-moderate" };
-  return { key: "low", label: "Lav", tone: "bg-crit-low-soft text-crit-low-fg border border-crit-low" };
-}
 
 // Suggested services Lara recommends — MUST match titles used in MSPMaturityServiceMatrix
 // (Anbefalte tjenester på kundens TP-detaljside) slik at klikk fra tabellen lander på riktig kort.
@@ -89,9 +78,10 @@ function deriveNeededServices(c: any): string[] {
   const score = c.compliance_score || 0;
   const frameworks: string[] = c.active_frameworks || [];
   const ind = c.industry || "";
+  const highCritIndustries = new Set(["Energi", "Helse", "Finans"]);
 
   // NIS2 — kritiske bransjer eller manglende rammeverk
-  if (HIGH_CRIT_INDUSTRIES.has(ind) || ind === "Energi" || ind === "Transport" || ind === "Helse" || ind === "Finans") {
+  if (highCritIndustries.has(ind) || ind === "Energi" || ind === "Transport" || ind === "Helse" || ind === "Finans") {
     services.push("NIS2-klargjøring");
   }
 
@@ -112,6 +102,7 @@ function deriveNeededServices(c: any): string[] {
 
   return Array.from(new Set(services)).slice(0, 3);
 }
+
 
 // Typical MSP/MSSP groupings — derived from existing customer data
 const SECURITY_FRAMEWORKS = new Set(["ISO 27001", "NIS2", "NIS 2", "CIS", "SOC 2", "Cyber Essentials"]);
@@ -235,20 +226,19 @@ function ColumnFilter({
 }
 
 // ===== Responsive column config =====
-type ColumnKey = "customer" | "country" | "industry" | "criticality" | "services" | "frameworks" | "products" | "score";
+type ColumnKey = "customer" | "country" | "industry" | "services" | "frameworks" | "products" | "score";
 
 const COLUMN_LABELS: Record<ColumnKey, string> = {
   customer: "Kunde",
   country: "Land",
   industry: "Bransje",
-  criticality: "Kritikalitet",
   services: "Lara anbefaler",
   frameworks: "Regelverk",
   products: "Produkter og tjenester",
   score: "Modenhet",
 };
 
-const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "criticality", "services", "frameworks", "products", "score"];
+const COLUMN_ORDER: ColumnKey[] = ["customer", "country", "industry", "services", "frameworks", "products", "score"];
 
 // Min Tailwind breakpoint (in px) where each column becomes visible by default.
 // 0 = always shown; 640=sm, 768=md, 1024=lg, 1280=xl
@@ -257,11 +247,11 @@ const COLUMN_MIN_BP: Record<ColumnKey, number> = {
   score: 0,
   frameworks: 640,
   products: 768,
-  criticality: 768,
   services: 1024,
   industry: 1024,
   country: 1280,
 };
+
 
 const COLUMN_STORAGE_KEY = "msp_dashboard_columns_v1";
 
@@ -344,7 +334,6 @@ export default function MSPDashboard() {
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
   const [countryCodeFilter, setCountryCodeFilter] = useState<string[]>([]);
-  const [criticalityFilter, setCriticalityFilter] = useState<string[]>([]);
   const [tpStatusFilter, setTpStatusFilter] = useState<TPStatusKey[]>([]);
   const [serviceFilter, setServiceFilter] = useState<string[]>([]);
   const [serviceTypeFilter, setServiceTypeFilter] = useState<string[]>([]);
@@ -424,7 +413,6 @@ export default function MSPDashboard() {
     const list = (customers as any[]).filter((c) => {
       if (industryFilter.length && !industryFilter.includes(c.industry)) return false;
       if (countryCodeFilter.length && !countryCodeFilter.includes(c.country_code || "NO")) return false;
-      if (criticalityFilter.length && !criticalityFilter.includes(deriveCriticality(c).key)) return false;
       if (tpStatusFilter.length && !tpStatusFilter.includes(deriveTPStatus(c))) return false;
       if (serviceTypeFilter.length && !serviceTypeFilter.includes(deriveServiceType(c))) return false;
       if (planFilter.length && !planFilter.includes(c.subscription_plan || "Gratis")) return false;
@@ -464,19 +452,18 @@ export default function MSPDashboard() {
       });
     }
     return sorted;
-  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, serviceTypeFilter, planFilter, segmentFilter, sortKey, sortDir, highlightIds]);
+  }, [customers, search, industryFilter, countryCodeFilter, tpStatusFilter, serviceFilter, serviceTypeFilter, planFilter, segmentFilter, sortKey, sortDir, highlightIds]);
 
   const clearAllFilters = () => {
     setIndustryFilter([]);
     setCountryCodeFilter([]);
-    setCriticalityFilter([]);
     setTpStatusFilter([]);
     setServiceFilter([]);
     setServiceTypeFilter([]);
     setPlanFilter([]);
     setSegmentFilter([]);
   };
-  const activeFilterCount = industryFilter.length + countryCodeFilter.length + criticalityFilter.length + tpStatusFilter.length + serviceFilter.length + serviceTypeFilter.length + planFilter.length + segmentFilter.length;
+  const activeFilterCount = industryFilter.length + countryCodeFilter.length + tpStatusFilter.length + serviceFilter.length + serviceTypeFilter.length + planFilter.length + segmentFilter.length;
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -731,15 +718,6 @@ export default function MSPDashboard() {
                         options={industryOptions.map((v) => ({ value: v, label: v }))}
                         selected={industryFilter} onChange={setIndustryFilter} />
                     );
-                    if (!isVisible("criticality")) hiddenFilters.push(
-                      <ColumnFilter key="f-crit" label="Kritikalitet"
-                        options={[
-                          { value: "high", label: "Høy" },
-                          { value: "medium", label: "Medium" },
-                          { value: "low", label: "Lav" },
-                        ]}
-                        selected={criticalityFilter} onChange={setCriticalityFilter} />
-                    );
                     if (!isVisible("services")) hiddenFilters.push(
                       <ColumnFilter key="f-services" label="Lara anbefaler"
                         options={serviceOptions.map((v) => ({ value: v, label: v }))}
@@ -784,20 +762,6 @@ export default function MSPDashboard() {
                             />
                           </TableHead>
                         )}
-                        {isVisible("criticality") && (
-                          <TableHead className="w-[120px] text-foreground/80">
-                            <ColumnFilter
-                              label="Kritikalitet"
-                              options={[
-                                { value: "high", label: "Høy" },
-                                { value: "medium", label: "Medium" },
-                                { value: "low", label: "Lav" },
-                              ]}
-                              selected={criticalityFilter}
-                              onChange={setCriticalityFilter}
-                            />
-                          </TableHead>
-                        )}
                         {isVisible("services") && (
                           <TableHead className="w-auto text-foreground/80">
                             <ColumnFilter
@@ -831,7 +795,6 @@ export default function MSPDashboard() {
                       {filtered.map((c: any) => {
                         const tp = deriveTPStatus(c);
                         const score = c.compliance_score || 0;
-                        const crit = deriveCriticality(c);
                         const services = deriveNeededServices(c);
                         const isNew = highlightIds.has(c.id);
                         return (
@@ -865,13 +828,6 @@ export default function MSPDashboard() {
                             )}
                             {isVisible("industry") && (
                               <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
-                            )}
-                            {isVisible("criticality") && (
-                              <TableCell>
-                                <Badge variant="outline" className={cn("font-normal", crit.tone)}>
-                                  {crit.label}
-                                </Badge>
-                              </TableCell>
                             )}
                             {isVisible("services") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
