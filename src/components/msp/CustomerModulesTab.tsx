@@ -155,11 +155,12 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-sm font-semibold text-foreground">{m.title}</h3>
-                  </div>
+                    {m.usage && (
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
                         Inntil {m.usage.max} {m.usage.label}
                       </Badge>
                     )}
+                  </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{m.description}</p>
 
