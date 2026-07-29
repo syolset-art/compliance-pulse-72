@@ -156,8 +156,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setSearchResults([]);
     setSelectedCompany(null);
     setDuplicateFound(false);
-    setAssessmentResponses([]);
-    setSelectedFrameworks([]);
+    setRecommendations([]);
+    setConfirmedRecommendations([]);
     setBulkText("");
     setBulkRows([]);
     setBulkSavedCount(0);
