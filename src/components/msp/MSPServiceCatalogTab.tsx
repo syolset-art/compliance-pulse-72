@@ -636,8 +636,15 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         <TabsContent value="alle" className="space-y-6 mt-4">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
       <section className="space-y-3">
+        <div className="space-y-0.5">
+          <div className="text-sm font-medium text-foreground">Mynders tjenestekatalog</div>
+          <p className="text-xs text-muted-foreground max-w-2xl">
+            Tjenester du som partner kan tilby kundene dine. Lara foreslår tjenester basert på partnerprofilen din – du kan tilpasse hvilke som vises, eller beskrive dine egne tjenester og legge dem til i din katalog.
+          </p>
+        </div>
 
         <div className="flex items-center justify-end gap-2">
+
           {wizardSeen || extras.length > 0 || (curatedPicks && curatedPicks.length > 0) ? (
             <TooltipProvider delayDuration={150}>
               <Tooltip>
@@ -653,10 +660,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs text-sm">
                   <div className="font-medium">Se og rediger tjenesteprofilen din</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    Foreslåtte tjenester er basert på din partnerprofil. Du kan få hjelp til å opprette en profil som passer tjenestene dine, og koble dem til regelverk og krav.
-                  </div>
                 </TooltipContent>
+
               </Tooltip>
             </TooltipProvider>
           ) : (
