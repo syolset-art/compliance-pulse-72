@@ -643,11 +643,12 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         <TabsContent value="alle" className="space-y-6 mt-4">
       {/* Foreslåtte tjenester — vises øverst når brukeren kommer inn */}
       <section className="space-y-3">
-        <div className="space-y-0.5">
+        <div className="space-y-1.5">
           <div className="text-sm font-medium text-foreground">Velg tjenester til din katalog</div>
           <p className="text-xs text-muted-foreground max-w-2xl">
             Her finner du et utvalg typiske sikkerhets- og compliance-tjenester som dekker krav i kjente regelverk. Du velger selv hvilke tjenester du vil tilby, legger til egne eller tilpasser beskrivelser. Katalogen din brukes når du jobber med kunder, slik at du raskt kan matche riktige tjenester mot deres behov.
           </p>
+          <AiMappingDisclosure variant="banner" className="max-w-2xl pt-0.5" />
         </div>
 
 
