@@ -132,7 +132,7 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Moduler</h2>
+          <h2 className="text-lg font-semibold text-foreground">Produkter</h2>
           <p className="text-sm text-muted-foreground max-w-2xl mt-0.5">
             Se hva {customerName} har aktivert, og hva som kan legges til. Aktiverte moduler dukker opp i menyen. Endringer påvirker månedsprisen.
           </p>
