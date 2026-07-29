@@ -155,15 +155,6 @@ export function CustomerModulesTab({ customerId, customerName, activeFrameworkId
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-sm font-semibold text-foreground">{m.title}</h3>
-                    {m.activated ? (
-                      <Badge variant="secondary" className="bg-success/15 text-success border-transparent text-[10px] px-1.5 py-0">
-                        Aktivert
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground">
-                        Ikke aktivert
-                      </Badge>
-                    )}
                     {m.usage && (
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/30 text-primary">
                         Inntil {m.usage.max} {m.usage.label}
