@@ -625,6 +625,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                   <Settings2 className="h-4 w-4 mr-2" />
                   Innstillinger
                 </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => openWizard()}>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Tjenesteprofil
+                </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => onOpenSecondary("how-it-works")}>
                   <FileText className="h-4 w-4 mr-2" />
                   Hvordan virker det
@@ -632,6 +636,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+
         </div>
 
         <TabsContent value="alle" className="space-y-6 mt-4">
