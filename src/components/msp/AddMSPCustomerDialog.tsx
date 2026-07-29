@@ -176,16 +176,23 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     if (!open) reset();
   }, [open, reset]);
 
-  // Initialize recommended frameworks when entering gap step
+  // Compute recommendations when entering the recommend step
   useEffect(() => {
-    if (step === "gap" && selectedFrameworks.length === 0) {
-      const rec = getRecommendedFrameworks(
-        assessmentResponses,
-        selectedCompany?.naeringskode1?.beskrivelse
-      );
-      setSelectedFrameworks(rec);
-    }
-  }, [step]);
+    if (step !== "recommend") return;
+    const employeeCount = manual.employees
+      ? Number(manual.employees.split("-")[0].replace("+", ""))
+      : null;
+    const recs = recommendFrameworks({
+      countryCode: form.country_code,
+      industryCode: selectedCompany?.naeringskode1?.kode ?? null,
+      industryLabel:
+        selectedCompany?.naeringskode1?.beskrivelse ?? manual.industry ?? null,
+      employees: employeeCount,
+      businessDescription: businessDescription,
+    });
+    setRecommendations(recs);
+    setConfirmedRecommendations([]);
+  }, [step, form.country_code, selectedCompany, manual.industry, manual.employees, businessDescription]);
 
   // Search BrReg
   const handleSearch = async () => {
