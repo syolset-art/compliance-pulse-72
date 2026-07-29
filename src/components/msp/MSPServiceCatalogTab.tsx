@@ -962,7 +962,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
             </div>
             <div className="rounded-md border border-border bg-card">
               <div className="flex items-center gap-3 px-3 py-2 bg-muted/30 border-b border-border">
-                <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 uppercase tracking-wide">Tjeneste</div>
+                <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 uppercase tracking-wide inline-flex items-center gap-1.5">
+                  Tjeneste
+                  <AiMappingDisclosure variant="icon" />
+                </div>
                 <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-12 text-right">Timer</div>
                 <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-24 text-right">Pris</div>
                 <div className="w-11" />
