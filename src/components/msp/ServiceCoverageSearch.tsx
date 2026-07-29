@@ -357,6 +357,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
               )}
             </TableBody>
           </Table>
+          </div>
         </div>
       )}
     </section>
