@@ -107,11 +107,6 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
 
   const topFrameworkId = groups[0]?.frameworkId;
 
-  const allRows = useMemo(
-    () => groups.flatMap((g) => g.items),
-    [groups],
-  );
-
   const selectedCount = selectedKeys.size;
 
   const toggleRow = (it: ControlSuggestion) => {
