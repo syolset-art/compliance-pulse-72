@@ -1,42 +1,36 @@
-# Transparens: AI-generert kobling mellom tjenester og krav
+## Mål
 
-Alle koblinger mellom tjenester (oppgaver) og regelverk/artikler/krav er foreslått av en AI-agent (Lara) basert på nøkkelord og kontrollpunktbeskrivelser. De er ikke verifisert av mennesker, og forholdet er ikke 1:1 — én tjeneste kan dekke flere krav, og ett krav kan dekkes helt, delvis eller sammen med andre tiltak. Dette må kommuniseres tydelig, men elegant, der koblingen faktisk vises.
+Endre «Regelverk kunden må følge» fra en enkel liste til en tabell som samtidig viser hvilke tjenester som kan mappes mot hvert regelverk — med tydelig skille mellom **Mine tjenester** (fra partnerens egen katalog) og **Anbefalt fra Mynder** (fra Mynder-biblioteket).
 
-## Hvor det skal formidles
+## Endringer
 
-Fire overflater viser AI-koblinger og trenger konsistent transparens:
+**Fil:** `src/components/msp/guidance/RegulationsStatusCard.tsx`
 
-1. **`ServiceCoverageSearch.tsx`** — søkeresultattabellen (Regelverk / Krav / Kontrollpunkt / Treff)
-2. **`MSPServiceCatalogTab.tsx`** — «Alle»-fanens header og «Mine»-liste når en tjeneste viser antall koblede krav
-3. **`ServiceTableRow.tsx` / kravlister på tjenestekortet** — når brukeren utvider en tjeneste og ser koblede kontrollpunkter
-4. **`CustomerRecommendationsPanel.tsx` / `MSPMaturityServiceMatrix.tsx`** — når anbefalte tjenester matches mot kundens regelverk
+Erstatt `<ul>`-lista med en `Table` (shadcn) med kolonner:
 
-## Løsning
+| Kolonne | Innhold |
+| --- | --- |
+| Regelverk | Navn + statusbadge (`Bekreftet` / `AI-anbefalt`) på samme linje, begrunnelse som liten linje under |
+| Mine tjenester | Chips for hver tjeneste i `PARTNER_SERVICES` som treffer regelverket (primær-farget, `Check`-ikon). Tomt = subtil «Ingen tjeneste dekker dette ennå» med lenke til `/msp-service-catalog`. |
+| Anbefalt fra Mynder | Chips for tjenester fra `SERVICE_LIBRARY` (som ikke allerede finnes i partnerens katalog), maks 3 + «+N flere». Sparkles-ikon, outline-stil. Klikk = lenke til `/msp-service-catalog?tab=all&highlight=<id>`. |
+| Handling | Bekreft/Fjern-knapper som i dag (kompakt) |
 
-### 1. Én gjenbrukbar komponent
-Ny `src/components/msp/AiMappingDisclosure.tsx`:
-- **Variant `inline`** — liten `Sparkles` + tekst «AI-forslag» med `Tooltip`/`HoverCard` som forklarer i én-to setninger.
-- **Variant `banner`** — subtil linje øverst i seksjoner: liten ikon + «Forslag fra Lara — ikke verifisert av menneske. Én tjeneste kan dekke flere krav, og ett krav kan kreve flere tiltak.» Med «Les mer»-lenke som åpner en `Popover` med lengre forklaring.
-- **Variant `icon`** — kun `Info`-ikon med tooltip, for kompakte steder (tabellheader).
+Legg til en liten hjelpetekst-linje under tittelen: «Chips viser tjenester som kan dekke kravene — Mine er fra din katalog, Anbefalt fra Mynder er forslag du kan legge til.» med `AiMappingDisclosure variant="icon"`.
 
-Tekst (norsk, kort):
-> «Koblingene mellom tjenester og krav er foreslått av Lara basert på beskrivelser og nøkkelord. De er ikke verifisert av mennesker, og forholdet er ikke 1:1 — én tjeneste kan dekke flere krav, og ett krav kan kreve flere tiltak. Kvalitetssikre før tilbud sendes.»
+## Datakoblinger
 
-Engelsk versjon speiles for i18n-kompatibilitet (om nøkler brukes).
+- Importér `PARTNER_SERVICES` fra `@/lib/serviceCatalog` og `SERVICE_LIBRARY` fra `@/lib/serviceLibrary`.
+- Per rad, filtrer:
+  - `mine = PARTNER_SERVICES.filter(s => s.frameworkMappings.some(m => m.frameworkId === rec.frameworkId) && s.status !== "retired")`
+  - `anbefalt = SERVICE_LIBRARY.filter(t => t.mappings.some(m => m.frameworkId === rec.frameworkId) && !mine.some(m => m.name.toLowerCase() === t.name.toLowerCase()))`
 
-### 2. Plassering
-- **`ServiceCoverageSearch.tsx`**: `banner`-variant rett over resultattabellen når det finnes treff. `icon`-variant i «Treff»-kolonnens header som ekstra kontekst.
-- **`MSPServiceCatalogTab.tsx`** («Alle»-fanen): `banner`-variant i den eksisterende infoblokken «Velg tjenester til din katalog» — utvid teksten med AI-disclaimer.
-- **`MSPServiceCatalogTab.tsx`** («Mine»-fanen): `icon`-variant ved siden av kolonneoverskriften «Tjeneste» eller i tellen «X koblede krav» på hver rad.
-- **`ServiceTableRow.tsx`** (utvidet visning av koblede kontrollpunkter): `inline`-variant øverst i listen med kravene.
-- **`CustomerRecommendationsPanel.tsx` / `MSPMaturityServiceMatrix.tsx`**: `banner`-variant øverst — matchen mot kundens regelverk er også AI-basert.
+## Visuelt skille
 
-### 3. Visuell stil
-- Bruk `Sparkles` (Lara-ikon) + `Info` konsistent — matcher eksisterende Lara-mønster.
-- `text-muted-foreground text-xs` for banner-tekst, ingen boks/border — hold det luftig.
-- Tooltip/Popover: `max-w-xs`, samme innhold uansett variant.
+- **Mine tjenester**: fylt chip, `bg-primary/10 text-primary border-primary/30`, `Check` ikon.
+- **Anbefalt fra Mynder**: outline chip, `border-dashed border-muted-foreground/40 text-muted-foreground`, `Sparkles` ikon.
+- Kolonneoverskriftene bruker vanlig sentence case (ikke uppercase), i tråd med resten av appen.
 
 ## Utenfor scope
-- Ingen endring i selve matchings-algoritmen.
-- Ingen ny «verifiser kobling»-flyt (kan foreslås senere hvis ønsket).
-- Ingen endringer på kundeside — kun MSP-partnerflaten.
+
+- Ingen endringer i datamodell, hooks eller andre komponenter.
+- Ingen ny persistering — chips er visuelle koblinger basert på eksisterende mappings.
