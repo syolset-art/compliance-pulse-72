@@ -42,6 +42,15 @@ interface BrregResult {
   naeringskode1?: { kode: string; beskrivelse: string };
   antallAnsatte?: number;
   forretningsadresse?: { kommune: string; poststed: string };
+  hjemmeside?: string | null;
+}
+
+function normalizeWebsite(raw: string | null | undefined): string {
+  if (!raw) return "";
+  const s = String(raw).trim();
+  if (!s || s.includes(" ") || !s.includes(".")) return "";
+  if (/^https?:\/\//i.test(s)) return s;
+  return `https://${s.replace(/^\/+/, "")}`;
 }
 
 type Step = "method" | "country" | "search" | "results" | "verifying" | "manual" | "contact" | "recommend" | "success" | "bulk" | "bulk-success" | "acronis" | "acronis-processing";
