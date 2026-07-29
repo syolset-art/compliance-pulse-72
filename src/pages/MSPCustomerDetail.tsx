@@ -644,24 +644,6 @@ export default function MSPCustomerDetail() {
                 { label: "Oppsummer åpne meldinger", message: `Oppsummer åpne meldinger og frister for ${customerName}` },
               ],
             },
-            "trust-profile": {
-              open: helpOpen,
-              onOpenChange: setHelpOpen,
-              icon: ShieldCheck,
-              title: "Trust Profile",
-              description: `Trust Profile er kundens offentlige tillitsside. Som rådgiver bygger du den opp og publiserer den på vegne av ${customerName} — eller overlater kontroll til kunden.`,
-              itemsHeading: "Slik fungerer det",
-              items: [
-                { icon: FileText, title: "Innhold", description: "Modenhet, rammeverk, sertifiseringer og dokumenter samles til en publiserbar profil." },
-                { icon: ShieldCheck, title: "Statuser", description: "Utkast → Aktivert → Publisert. Kun publiserte profiler vises eksternt." },
-                { icon: Users, title: "Overlevering", description: "Send invitasjon for at kunden selv skal overta og signere profilen." },
-              ],
-              whyDescription: "En publisert Trust Profile reduserer svartid på sikkerhetsspørsmål fra kundens kunder og partnere.",
-              laraSuggestions: [
-                { label: "Er profilen klar for publisering?", message: `Vurder om Trust Profile for ${customerName} er klar for publisering` },
-                { label: "Hva mangler i profilen?", message: `Hva mangler i Trust Profile for ${customerName}?` },
-              ],
-            },
             documentation: {
               open: helpOpen,
               onOpenChange: setHelpOpen,
