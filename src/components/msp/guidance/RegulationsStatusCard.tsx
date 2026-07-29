@@ -71,7 +71,6 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
         ...recommended.map((rec) => ({ rec, isConfirmed: false as const })),
       ].sort((a, b) => Number(b.isConfirmed) - Number(a.isConfirmed));
 
-
   const persist = async (
     nextConfirmed: FrameworkRecommendation[],
     nextRecommended: FrameworkRecommendation[],
