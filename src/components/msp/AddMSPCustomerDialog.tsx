@@ -42,6 +42,15 @@ interface BrregResult {
   naeringskode1?: { kode: string; beskrivelse: string };
   antallAnsatte?: number;
   forretningsadresse?: { kommune: string; poststed: string };
+  hjemmeside?: string | null;
+}
+
+function normalizeWebsite(raw: string | null | undefined): string {
+  if (!raw) return "";
+  const s = String(raw).trim();
+  if (!s || s.includes(" ") || !s.includes(".")) return "";
+  if (/^https?:\/\//i.test(s)) return s;
+  return `https://${s.replace(/^\/+/, "")}`;
 }
 
 type Step = "method" | "country" | "search" | "results" | "verifying" | "manual" | "contact" | "recommend" | "success" | "bulk" | "bulk-success" | "acronis" | "acronis-processing";
@@ -92,6 +101,11 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const [duplicateFound, setDuplicateFound] = useState(false);
   const [recommendations, setRecommendations] = useState<FrameworkRecommendation[]>([]);
   const [confirmedRecommendations, setConfirmedRecommendations] = useState<string[]>([]);
+  type WebsiteSource = "brreg" | "ai_suggested" | "manual" | "none";
+  const [websiteSource, setWebsiteSource] = useState<WebsiteSource>("none");
+
+
+
 
   const [form, setForm] = useState({
     contact_person: "",
@@ -169,6 +183,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setForm({ contact_person: "", contact_email: "", contact_company_role: "", account_manager: "", has_website: true, url: "", subscription_plan: "Gratis", country_code: "NO" });
     setManual({ customer_name: "", org_number: "", industry: "", employees: "" });
     setIndustrySource("none");
+    setWebsiteSource("none");
     setEnrichStep("main");
     setBusinessDescription("");
   }, []);
@@ -266,6 +281,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           naeringskode1: d.naeringskode1 || enriched.naeringskode1,
           antallAnsatte: d.antallAnsatte ?? enriched.antallAnsatte,
           forretningsadresse: d.forretningsadresse || enriched.forretningsadresse,
+          hjemmeside: d.hjemmeside || enriched.hjemmeside || null,
         };
         if (!isMissing(enriched)) setIndustrySource("brreg_main");
       }
@@ -289,6 +305,10 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
             enriched.naeringskode1 = hit.naeringskode1;
             setIndustrySource("brreg_subunit");
           }
+          if (!enriched.hjemmeside) {
+            const withSite = subs.find((s) => s.hjemmeside);
+            if (withSite?.hjemmeside) enriched.hjemmeside = withSite.hjemmeside;
+          }
         }
       } catch { /* ignore */ }
     }
@@ -308,9 +328,21 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           enriched.naeringskode1 = { kode: "", beskrivelse: aiRes.industry };
           setIndustrySource("ai_suggested");
         }
+        if (!enriched.hjemmeside && (aiRes?.website || aiRes?.hjemmeside)) {
+          enriched.hjemmeside = aiRes.website || aiRes.hjemmeside;
+        }
       } catch { /* ignore */ }
     } else if (industrySource === "none") {
       // safety: source set to subunit above already if applicable
+    }
+
+    // Prefill website from register / AI suggestion (user can always override)
+    const suggestedUrl = normalizeWebsite(enriched.hjemmeside);
+    if (suggestedUrl) {
+      setForm((f) => ({ ...f, has_website: true, url: suggestedUrl }));
+      setWebsiteSource(enriched.hjemmeside && industrySource !== "ai_suggested" ? "brreg" : "ai_suggested");
+    } else {
+      setWebsiteSource("none");
     }
 
     setEnrichStep("done");
@@ -1269,7 +1301,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   </button>
                   <button
                     type="button"
-                    onClick={() => setForm({ ...form, has_website: false, url: "" })}
+                    onClick={() => { setForm({ ...form, has_website: false, url: "" }); setWebsiteSource("none"); }}
                     className={cn(
                       "flex-1 rounded-md border px-3 py-2 text-sm font-medium transition-colors",
                       !form.has_website
@@ -1284,11 +1316,18 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   <>
                     <Input
                       value={form.url}
-                      onChange={(e) => setForm({ ...form, url: e.target.value })}
+                      onChange={(e) => { setForm({ ...form, url: e.target.value }); if (websiteSource !== "manual") setWebsiteSource("manual"); }}
                       placeholder="https://example.no"
                     />
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <span>Bekreft at nettadressen stemmer.</span>
+                      {websiteSource === "brreg" || websiteSource === "ai_suggested" ? (
+                        <span className="inline-flex items-center gap-1 text-primary">
+                          <Sparkles className="h-3 w-3" />
+                          Foreslått av Lara – bekreft eller endre
+                        </span>
+                      ) : (
+                        <span>Bekreft at nettadressen stemmer.</span>
+                      )}
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
