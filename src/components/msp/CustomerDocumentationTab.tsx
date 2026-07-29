@@ -93,6 +93,13 @@ export function CustomerDocumentationTab({
   onGoToRegulations,
 }: Props) {
   const [access, setAccess] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadFrameworkIds, setUploadFrameworkIds] = useState<string[]>([]);
+
+  const openUpload = (frameworkIds: string[] = []) => {
+    setUploadFrameworkIds(frameworkIds);
+    setUploadOpen(true);
+  };
 
   useEffect(() => {
     try {
