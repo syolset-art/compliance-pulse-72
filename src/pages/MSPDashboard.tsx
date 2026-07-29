@@ -808,7 +808,12 @@ export default function MSPDashboard() {
                             />
                           </TableHead>
                         )}
-                        {isVisible("activated") && (
+                        {isVisible("frameworks") && (
+                          <TableHead className="w-[180px] text-foreground/80">
+                            <span className="text-sm font-medium">Regelverk</span>
+                          </TableHead>
+                        )}
+                        {isVisible("products") && (
                           <TableHead className="w-[240px] text-foreground/80">
                             <span className="text-sm font-medium">Produkter og tjenester</span>
                           </TableHead>
