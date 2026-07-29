@@ -955,8 +955,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
             </div>
             {mine.length === 0 ? (
               <div className="rounded-md border border-dashed border-border bg-muted/20 px-4 py-6 text-center">
-                <p className="text-sm font-medium text-foreground">Min tjenestekatalog er tom</p>
-                <p className="text-sm text-foreground/70 mt-1">
+                <p className="text-sm text-foreground/70">
                   Gå til arkfanen{" "}
                   <button
                     type="button"
