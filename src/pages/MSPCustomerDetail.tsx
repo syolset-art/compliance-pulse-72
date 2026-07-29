@@ -45,7 +45,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import { MaturityMirrorCard } from "@/components/msp/guidance/MaturityMirrorCard";
 import { RegulationsStatusCard } from "@/components/msp/guidance/RegulationsStatusCard";
-import { ServiceMatchCard } from "@/components/msp/guidance/ServiceMatchCard";
 import { MSPCreateOfferDialog } from "@/components/msp/MSPCreateOfferDialog";
 import { useSavedOffers } from "@/lib/customerOffers";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
@@ -428,12 +427,6 @@ export default function MSPCustomerDetail() {
               />
 
 
-              <ServiceMatchCard
-                activeFrameworkIds={activeFrameworkIds}
-                catalogTemplateIds={new Set<string>()}
-                onCreateOffer={(templateId, title) => setOfferDialog({ open: true, templateId, title })}
-                onSeeAll={() => handleTabChange("assessment")}
-              />
 
 
               {/* TODO: Seksjon "Nye tjenester fra Mynder" plasseres her i senere iterasjon. */}
