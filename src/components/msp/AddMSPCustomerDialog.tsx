@@ -1344,7 +1344,40 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                    </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-1.5 text-sm">
+                  <Globe className="h-3.5 w-3.5" /> Personvernerklæring
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button type="button" className="inline-flex text-muted-foreground hover:text-foreground">
+                          <Info className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs">
+                        Lara forsøker å finne personvernerklæringen på kundens nettside. URL-en brukes til å vurdere GDPR-status og databehandling. Du kan lime inn lenken selv om Lara ikke finner den.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </Label>
+                <Input
+                  value={form.privacy_policy_url}
+                  onChange={(e) => { setForm({ ...form, privacy_policy_url: e.target.value }); if (privacyPolicySource !== "manual") setPrivacyPolicySource("manual"); }}
+                  placeholder="https://example.no/personvern"
+                />
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  {privacyPolicySource === "ai_detected" && form.privacy_policy_url ? (
+                    <span className="inline-flex items-center gap-1 text-primary">
+                      <Sparkles className="h-3 w-3" />
+                      Funnet av Lara – bekreft eller endre
+                    </span>
+                  ) : (
+                    <span>Valgfritt – limes inn dersom Lara ikke finner den automatisk.</span>
+                  )}
+                </div>
+              </div>
 
                   </>
                 )}
