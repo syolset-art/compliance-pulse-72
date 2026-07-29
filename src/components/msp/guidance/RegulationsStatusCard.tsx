@@ -1,5 +1,4 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,18 +15,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { FrameworkRecommendation } from "@/lib/regulationRecommender";
-import { PARTNER_SERVICES } from "@/lib/serviceCatalog";
-import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
-import { AiMappingDisclosure } from "@/components/msp/AiMappingDisclosure";
-import { cn } from "@/lib/utils";
-
 interface Props {
   customerId: string;
   recommended: FrameworkRecommendation[];
   confirmed: FrameworkRecommendation[];
 }
-
-const MAX_CHIPS = 4;
 
 export function RegulationsStatusCard({ customerId, recommended, confirmed }: Props) {
   const queryClient = useQueryClient();
@@ -72,36 +64,12 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
     },
   ];
 
-  const rows = useMemo(() => {
-    const map = new Map<string, { rec: FrameworkRecommendation; isConfirmed: boolean }>();
-    for (const r of recommended) map.set(r.frameworkId, { rec: r, isConfirmed: false });
-    for (const c of confirmed) map.set(c.frameworkId, { rec: c, isConfirmed: true });
-    const real = Array.from(map.values()).sort(
-      (a, b) => Number(b.isConfirmed) - Number(a.isConfirmed),
-    );
-    return real.length === 0 ? DEMO_ROWS : real;
-  }, [recommended, confirmed]);
-
-  const servicesFor = (frameworkId: string) => {
-    const mineNames = new Set(
-      PARTNER_SERVICES.filter(
-        (s) =>
-          s.status !== "retired" &&
-          s.frameworkMappings.some((m) => m.frameworkId === frameworkId),
-      ).map((s) => s.name.toLowerCase()),
-    );
-
-    const all = SERVICE_LIBRARY.filter((t) =>
-      t.mappings.some((m) => m.frameworkId === frameworkId),
-    ).map((t) => ({
-      id: t.id,
-      name: t.name,
-      inCatalog: mineNames.has(t.name.toLowerCase()),
-    }));
-
-    // I katalogen først
-    return all.sort((a, b) => Number(b.inCatalog) - Number(a.inCatalog));
-  };
+  const rows = recommended.length === 0 && confirmed.length === 0
+    ? DEMO_ROWS
+    : [
+        ...confirmed.map((rec) => ({ rec, isConfirmed: true as const })),
+        ...recommended.map((rec) => ({ rec, isConfirmed: false as const })),
+      ].sort((a, b) => Number(b.isConfirmed) - Number(a.isConfirmed));
 
   const persist = async (
     nextConfirmed: FrameworkRecommendation[],
@@ -155,10 +123,10 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
         <div className="flex items-start gap-2.5 min-w-0">
           <Scale className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
           <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-foreground">Regelverk kunden må følge</h3>
-            <p className="text-xs text-muted-foreground mt-0.5 inline-flex items-center gap-1.5">
-              Anbefalte tjenester for hvert regelverk — fylte chips ligger allerede i katalogen din.
-              <AiMappingDisclosure variant="icon" />
+            <h3 className="text-sm font-semibold text-foreground">Regelverk anbefalt for denne kunden</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Lara har gjort en enkel analyse av virksomhet og bransje.
+              Forslagene genereres med AI og kan inneholde feil.
             </p>
           </div>
         </div>
@@ -173,120 +141,63 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[40%]">Regelverk</TableHead>
-                <TableHead className="w-[48%]">
-                  <span className="inline-flex items-center gap-1.5">
-                    Anbefalte tjenester
-                    <AiMappingDisclosure variant="icon" />
-                  </span>
-                </TableHead>
-                <TableHead className="w-[12%] text-right">Handling</TableHead>
+                <TableHead className="w-[70%]">Regelverk</TableHead>
+                <TableHead className="w-[30%] text-right">Handling</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map(({ rec, isConfirmed }) => {
-                const services = servicesFor(rec.frameworkId);
-                const shown = services.slice(0, MAX_CHIPS);
-                const more = services.length - shown.length;
-
-                return (
-                  <TableRow key={rec.frameworkId} className="align-top">
-                    <TableCell className="py-3">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[13px] font-medium text-foreground">
-                          {rec.label}
-                        </span>
-                        {isConfirmed ? (
-                          <Badge className="h-5 gap-1 bg-primary text-primary-foreground text-[10px] font-medium">
-                            <Check className="h-2.5 w-2.5" /> Bekreftet
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="outline"
-                            className="h-5 gap-1 border-primary/40 text-primary text-[10px] font-medium"
-                          >
-                            <Sparkles className="h-2.5 w-2.5" /> AI-anbefalt
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                        {rec.reason}
-                      </p>
-                    </TableCell>
-
-                    <TableCell className="py-3">
-                      {shown.length === 0 ? (
-                        <span className="text-xs text-muted-foreground">—</span>
+              {rows.map(({ rec, isConfirmed }) => (
+                <TableRow key={rec.frameworkId} className="align-top">
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[13px] font-medium text-foreground">
+                        {rec.label}
+                      </span>
+                      {isConfirmed ? (
+                        <Badge className="h-5 gap-1 bg-primary text-primary-foreground text-[10px] font-medium">
+                          <Check className="h-2.5 w-2.5" /> Bekreftet
+                        </Badge>
                       ) : (
-                        <div className="flex flex-wrap gap-1">
-                          {shown.map((s) =>
-                            s.inCatalog ? (
-                              <span
-                                key={s.id}
-                                title="Ligger i katalogen din"
-                                className={cn(
-                                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                                  "bg-primary/10 text-primary border-primary/30",
-                                )}
-                              >
-                                <Check className="h-2.5 w-2.5" />
-                                {s.name}
-                              </span>
-                            ) : (
-                              <Link
-                                key={s.id}
-                                to={`/msp-service-catalog?tab=all&highlight=${s.id}`}
-                                title="Ikke i katalogen — legg til"
-                                className={cn(
-                                  "inline-flex items-center gap-1 rounded-full border border-dashed px-2 py-0.5 text-[11px]",
-                                  "border-muted-foreground/40 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors",
-                                )}
-                              >
-                                <Sparkles className="h-2.5 w-2.5" />
-                                {s.name}
-                              </Link>
-                            ),
-                          )}
-                          {more > 0 && (
-                            <Link
-                              to="/msp-service-catalog?tab=all"
-                              className="inline-flex items-center rounded-full border border-dashed border-muted-foreground/40 px-2 py-0.5 text-[11px] text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
-                            >
-                              +{more} flere
-                            </Link>
-                          )}
-                        </div>
-                      )}
-                    </TableCell>
-
-                    <TableCell className="py-3 text-right">
-                      <div className="inline-flex items-center gap-1">
-                        {!isConfirmed && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => confirmOne(rec)}
-                            disabled={busyId === rec.frameworkId}
-                            className="h-7 text-xs"
-                          >
-                            Bekreft
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeOne(rec)}
-                          disabled={busyId === rec.frameworkId}
-                          className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                          aria-label={`Fjern ${rec.label}`}
+                        <Badge
+                          variant="outline"
+                          className="h-5 gap-1 border-primary/40 text-primary text-[10px] font-medium"
                         >
-                          <X className="h-3.5 w-3.5" />
+                          <Sparkles className="h-2.5 w-2.5" /> AI-anbefalt
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                      {rec.reason}
+                    </p>
+                  </TableCell>
+
+                  <TableCell className="py-3 text-right">
+                    <div className="inline-flex items-center gap-1">
+                      {!isConfirmed && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => confirmOne(rec)}
+                          disabled={busyId === rec.frameworkId}
+                          className="h-7 text-xs"
+                        >
+                          Bekreft
                         </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeOne(rec)}
+                        disabled={busyId === rec.frameworkId}
+                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                        aria-label={`Fjern ${rec.label}`}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>
@@ -294,3 +205,4 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
     </Card>
   );
 }
+
