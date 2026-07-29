@@ -327,9 +327,21 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
           enriched.naeringskode1 = { kode: "", beskrivelse: aiRes.industry };
           setIndustrySource("ai_suggested");
         }
+        if (!enriched.hjemmeside && (aiRes?.website || aiRes?.hjemmeside)) {
+          enriched.hjemmeside = aiRes.website || aiRes.hjemmeside;
+        }
       } catch { /* ignore */ }
     } else if (industrySource === "none") {
       // safety: source set to subunit above already if applicable
+    }
+
+    // Prefill website from register / AI suggestion (user can always override)
+    const suggestedUrl = normalizeWebsite(enriched.hjemmeside);
+    if (suggestedUrl) {
+      setForm((f) => ({ ...f, has_website: true, url: suggestedUrl }));
+      setWebsiteSource(enriched.hjemmeside && industrySource !== "ai_suggested" ? "brreg" : "ai_suggested");
+    } else {
+      setWebsiteSource("none");
     }
 
     setEnrichStep("done");
