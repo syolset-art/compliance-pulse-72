@@ -25,6 +25,8 @@ interface Props {
   customerId: string;
   partnerName?: string;
   uploaderName?: string;
+  /** Framework IDs to pre-check in step 2 (matches PartnerEvidence.frameworks[i].framework). */
+  presetFrameworkIds?: string[];
 }
 
 export function PartnerEvidenceUploadDialog({
@@ -33,6 +35,7 @@ export function PartnerEvidenceUploadDialog({
   customerId,
   partnerName = "MSSP Partner",
   uploaderName = "Deg",
+  presetFrameworkIds,
 }: Props) {
   const [step, setStep] = useState<1 | 2>(1);
   const [fileName, setFileName] = useState<string>("");
@@ -48,14 +51,20 @@ export function PartnerEvidenceUploadDialog({
 
   useEffect(() => {
     if (step === 2) {
+      const preset = presetFrameworkIds && presetFrameworkIds.length > 0
+        ? new Set(presetFrameworkIds.map((s) => s.toLowerCase()))
+        : null;
       const fw: Record<number, boolean> = {};
-      suggestion.frameworks.forEach((_, i) => (fw[i] = true));
+      suggestion.frameworks.forEach((f, i) => {
+        fw[i] = preset ? preset.has(f.framework.toLowerCase()) : true;
+      });
       const d: Record<number, boolean> = {};
       suggestion.maturityDelta.forEach((_, i) => (d[i] = true));
       setSelectedFw(fw);
       setSelectedDelta(d);
     }
-  }, [step, suggestion]);
+  }, [step, suggestion, presetFrameworkIds]);
+
 
   function reset() {
     setStep(1);
