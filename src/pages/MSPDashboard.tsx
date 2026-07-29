@@ -70,17 +70,6 @@ const TP_STATUS_TONE: Record<TPStatusKey, string> = {
 
 const TP_STATUS_ORDER: Record<TPStatusKey, number> = { draft: 0, onboarding: 1, claimed: 2, published: 3 };
 
-// Derived criticality based on industry + size — purely presentational
-const HIGH_CRIT_INDUSTRIES = new Set(["Energi", "Helse", "Finans"]);
-const MED_CRIT_INDUSTRIES = new Set(["Teknologi", "Transport", "Utdanning"]);
-function deriveCriticality(c: any): { key: "high" | "medium" | "low"; label: string; tone: string } {
-  const ind = c.industry || "";
-  const emp = c.employees || "";
-  const big = /201|500|1000|\+/.test(emp);
-  if (HIGH_CRIT_INDUSTRIES.has(ind) || big) return { key: "high", label: "Høy", tone: "bg-crit-high-soft text-crit-high-fg border border-crit-high" };
-  if (MED_CRIT_INDUSTRIES.has(ind)) return { key: "medium", label: "Moderat", tone: "bg-crit-moderate-soft text-crit-moderate-fg border border-crit-moderate" };
-  return { key: "low", label: "Lav", tone: "bg-crit-low-soft text-crit-low-fg border border-crit-low" };
-}
 
 // Suggested services Lara recommends — MUST match titles used in MSPMaturityServiceMatrix
 // (Anbefalte tjenester på kundens TP-detaljside) slik at klikk fra tabellen lander på riktig kort.
@@ -345,7 +334,6 @@ export default function MSPDashboard() {
   const [search, setSearch] = useState("");
   const [industryFilter, setIndustryFilter] = useState<string[]>([]);
   const [countryCodeFilter, setCountryCodeFilter] = useState<string[]>([]);
-  const [criticalityFilter, setCriticalityFilter] = useState<string[]>([]);
   const [tpStatusFilter, setTpStatusFilter] = useState<TPStatusKey[]>([]);
   const [serviceFilter, setServiceFilter] = useState<string[]>([]);
   const [serviceTypeFilter, setServiceTypeFilter] = useState<string[]>([]);
@@ -425,7 +413,6 @@ export default function MSPDashboard() {
     const list = (customers as any[]).filter((c) => {
       if (industryFilter.length && !industryFilter.includes(c.industry)) return false;
       if (countryCodeFilter.length && !countryCodeFilter.includes(c.country_code || "NO")) return false;
-      if (criticalityFilter.length && !criticalityFilter.includes(deriveCriticality(c).key)) return false;
       if (tpStatusFilter.length && !tpStatusFilter.includes(deriveTPStatus(c))) return false;
       if (serviceTypeFilter.length && !serviceTypeFilter.includes(deriveServiceType(c))) return false;
       if (planFilter.length && !planFilter.includes(c.subscription_plan || "Gratis")) return false;
@@ -465,7 +452,7 @@ export default function MSPDashboard() {
       });
     }
     return sorted;
-  }, [customers, search, industryFilter, countryCodeFilter, criticalityFilter, tpStatusFilter, serviceFilter, serviceTypeFilter, planFilter, segmentFilter, sortKey, sortDir, highlightIds]);
+  }, [customers, search, industryFilter, countryCodeFilter, tpStatusFilter, serviceFilter, serviceTypeFilter, planFilter, segmentFilter, sortKey, sortDir, highlightIds]);
 
   const clearAllFilters = () => {
     setIndustryFilter([]);
