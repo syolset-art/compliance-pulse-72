@@ -383,6 +383,15 @@ export function RegulationsStatusCard({
         </div>
       )}
 
+      {/* Opplastede bevis for denne kunden — kompakt liste */}
+      <div className="mt-4">
+        <PartnerEvidenceSection
+          customerId={customerId}
+          minimal
+          hideUploadButton
+        />
+      </div>
+
       <ActivateRegulationDialog
         open={activateDialog.open}
         onOpenChange={(o) => setActivateDialog((s) => ({ ...s, open: o }))}
@@ -395,6 +404,14 @@ export function RegulationsStatusCard({
           }
         }}
       />
+
+      <PartnerEvidenceUploadDialog
+        open={uploadDialog.open}
+        onOpenChange={(o) => setUploadDialog((s) => ({ ...s, open: o }))}
+        customerId={customerId}
+        presetFrameworkIds={uploadDialog.presetFrameworkIds}
+      />
     </Card>
   );
 }
+
