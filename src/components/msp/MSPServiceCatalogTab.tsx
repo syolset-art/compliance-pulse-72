@@ -913,10 +913,29 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
 
         <TabsContent value="mine" className="space-y-6 mt-4">
 
-
-
+      <ServiceCoverageSearch
+        existingNames={extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => e.name)}
+        onAdd={({ name, mappings }) => {
+          const next: ExtraService = {
+            id: `search-${Date.now()}`,
+            name,
+            description: "",
+            hours: 0,
+            activities: [],
+            source: "manual",
+            mappings,
+          };
+          setExtras((prev) => [...prev, next]);
+          revealInCatalog(next.id);
+          toast.success(`La til «${name}» i din tjenestekatalog`, {
+            description: "Rediger for å justere aktiviteter og pris.",
+            action: { label: "Vis i katalogen", onClick: () => revealInCatalog(next.id) },
+          });
+        }}
+      />
 
       {/* Min tjenestekatalog */}
+
 
       {(() => {
         const mine = extras.filter((e) => !e.isMynder && e.status !== "retired");
