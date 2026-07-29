@@ -896,19 +896,15 @@ export default function MSPDashboard() {
                                 )}
                               </TableCell>
                             )}
-                            {isVisible("activated") && (
+                            {isVisible("frameworks") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
                                 {(() => {
                                   const frameworks: string[] = c.active_frameworks || [];
-                                  const delivered = getOffersForCustomer(c.id).filter((o) => o.status === "delivered");
-                                  const serviceCount = new Set(
-                                    delivered.flatMap((o) => [...(o.templateIds || []), ...(o.serviceKeys || [])]),
-                                  ).size;
-                                  if (frameworks.length === 0 && serviceCount === 0) {
+                                  if (frameworks.length === 0) {
                                     return <span className="text-muted-foreground text-sm">—</span>;
                                   }
                                   return (
-                                    <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[180px]">
                                       {frameworks.slice(0, 3).map((f) => (
                                         <Badge key={f} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
                                           {f}
@@ -917,8 +913,32 @@ export default function MSPDashboard() {
                                       {frameworks.length > 3 && (
                                         <span className="text-[11px] text-muted-foreground">+{frameworks.length - 3}</span>
                                       )}
+                                    </div>
+                                  );
+                                })()}
+                              </TableCell>
+                            )}
+                            {isVisible("products") && (
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                {(() => {
+                                  // Demo: samme aktiveringslogikk som CustomerModulesTab
+                                  const products: string[] = ["Mynder Core", "Leverandør", "Assets"];
+                                  const delivered = getOffersForCustomer(c.id).filter((o) => o.status === "delivered");
+                                  const serviceCount = new Set(
+                                    delivered.flatMap((o) => [...(o.templateIds || []), ...(o.serviceKeys || [])]),
+                                  ).size;
+                                  if (products.length === 0 && serviceCount === 0) {
+                                    return <span className="text-muted-foreground text-sm">—</span>;
+                                  }
+                                  return (
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
+                                      {products.map((p) => (
+                                        <Badge key={p} variant="outline" className="font-normal bg-primary/10 text-foreground border-primary/30 text-[11px]">
+                                          {p}
+                                        </Badge>
+                                      ))}
                                       {serviceCount > 0 && (
-                                        <Badge variant="outline" className="font-normal bg-primary/10 text-foreground border-primary/30 text-[11px]">
+                                        <Badge variant="outline" className="font-normal bg-primary/15 text-foreground border-primary/40 text-[11px]">
                                           {serviceCount} {serviceCount === 1 ? "tjeneste" : "tjenester"}
                                         </Badge>
                                       )}
