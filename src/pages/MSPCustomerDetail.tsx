@@ -485,8 +485,11 @@ export default function MSPCustomerDetail() {
 
               <RegulationsStatusCard
                 customerId={customerId!}
+                customerName={customer.name || customer.customer_name || "Kunden"}
                 recommended={((customer?.recommended_frameworks as any) || []) as FrameworkRecommendation[]}
                 confirmed={((customer?.confirmed_frameworks as any) || []) as FrameworkRecommendation[]}
+                activeFrameworkIds={activeFrameworkIds}
+                onGoToProducts={() => handleTabChange("modules")}
               />
 
 
