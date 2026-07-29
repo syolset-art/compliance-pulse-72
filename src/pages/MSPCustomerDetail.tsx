@@ -422,16 +422,6 @@ export default function MSPCustomerDetail() {
             {/* ── Tjenester ── */}
             {/* Removed */}
 
-            {/* ── Trust Profile ── */}
-            <TabsContent value="trust-profile" className="mt-6">
-              <MSPCustomerTrustProfileCard
-                customerId={customerId!}
-                customerName={customer.name || "Kunden"}
-                contactName={customer.contact_name || "kontaktperson"}
-                contactEmail={customer.contact_email}
-                activeFrameworkIds={activeFrameworkIds}
-              />
-            </TabsContent>
 
 
             <TabsContent value="messages" className="mt-6">
