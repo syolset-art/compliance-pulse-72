@@ -953,23 +953,31 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                 </span>
               )}
             </div>
-            {mine.length === 0 ? (
-              <div className="rounded-md border border-dashed border-border bg-muted/20 px-4 py-6 text-center">
-                <p className="text-sm text-foreground/70">
-                  Gå til arkfanen{" "}
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("alle")}
-                    className="inline font-medium text-primary hover:text-primary/80 underline underline-offset-2"
-                  >
-                    Alle
-                  </button>{" "}
-                  for å legge til tjenester fra Mynders tjenestekatalog.
-                </p>
+            <div className="rounded-md border border-border bg-card">
+              <div className="flex items-center gap-3 px-3 py-2 bg-muted/30 border-b border-border">
+                <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 uppercase tracking-wide">Tjeneste</div>
+                <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-12 text-right">Timer</div>
+                <div className="text-xs font-medium text-foreground/60 uppercase tracking-wide whitespace-nowrap w-24 text-right">Pris</div>
+                <div className="w-11" />
+                <div className="w-11" />
               </div>
-            ) : (
-          <div className="divide-y divide-border rounded-md border border-border bg-card">
-            {extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => {
+              {mine.length === 0 ? (
+                <div className="px-4 py-6 text-center border-b border-dashed border-border last:border-b-0">
+                  <p className="text-sm text-foreground/70">
+                    Gå til arkfanen{" "}
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("alle")}
+                      className="inline font-medium text-primary hover:text-primary/80 underline underline-offset-2"
+                    >
+                      Alle
+                    </button>{" "}
+                    for å legge til tjenester fra Mynders tjenestekatalog.
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border">
+                  {extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => {
               const price = e.priceOverride ?? e.hours * hourlyRate;
               const lock = getLockInfo({ templateId: e.templateId, name: e.name });
               return (
@@ -1095,9 +1103,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                   </DropdownMenu>
                 </div>
               );
-            })}
-          </div>
-            )}
+              })}
+                </div>
+              )}
+            </div>
           </section>
         );
       })()}
