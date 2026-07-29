@@ -1455,7 +1455,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   <ArrowLeft className="h-4 w-4" /> Tilbake
                 </Button>
                 <Button onClick={() => setStep("recommend")}>
-                  Se Laras anbefaling
+                  Fullfør
                 </Button>
               </div>
             </div>
