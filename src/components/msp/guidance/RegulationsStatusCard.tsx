@@ -217,7 +217,17 @@ export function RegulationsStatusCard({
             </p>
           </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setUploadDialog({ open: true })}
+          className="h-7 gap-1.5 text-xs shrink-0"
+        >
+          <Upload className="h-3.5 w-3.5" />
+          Last opp bevis
+        </Button>
       </div>
+
 
       {rows.length === 0 ? (
         <p className="text-xs text-muted-foreground py-4 text-center">
