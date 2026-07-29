@@ -223,58 +223,71 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
       )}
 
       {groups.length > 0 && (
-        <div className="rounded-md border border-border bg-card divide-y divide-border">
-          {groups.map((g) => {
-            const theme = getFrameworkTheme(g.frameworkId);
-            const isTop = g.frameworkId === topFrameworkId;
-            return (
-              <div
-                key={g.frameworkId}
-                className={cn(
-                  "px-3 py-2.5 space-y-1.5",
-                  isTop && "ring-1 ring-inset ring-primary/30 bg-primary/5",
-                )}
-              >
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={cn(
-                      "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                      theme.chip,
-                    )}
-                  >
-                    {g.frameworkShortName}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {g.items.length} {g.items.length === 1 ? "krav" : "krav"}
-                  </span>
-                  {isTop && (
-                    <span className="inline-flex items-center gap-1 text-[11px] text-primary">
-                      <Sparkles className="h-3 w-3" /> Best treff
-                    </span>
-                  )}
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {g.items.map((it) => (
-                    <span
+        <div className="rounded-md border border-border bg-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[140px]">Regelverk</TableHead>
+                <TableHead className="w-[110px]">Krav</TableHead>
+                <TableHead>Kontrollpunkt</TableHead>
+                <TableHead className="w-[160px]">Treff</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {groups.flatMap((g) =>
+                g.items.map((it, idx) => {
+                  const theme = getFrameworkTheme(it.frameworkId);
+                  const isTop = it.frameworkId === topFrameworkId && idx === 0;
+                  return (
+                    <TableRow
                       key={`${it.frameworkId}:${it.controlId}`}
-                      title={
-                        it.matchedTerms.length > 0
-                          ? `Traff: ${it.matchedTerms.join(", ")}`
-                          : undefined
-                      }
-                      className="inline-flex items-center rounded border border-border bg-background px-1.5 py-0.5 text-[11px] text-foreground/80"
+                      className={cn(
+                        isTop && "bg-primary/[0.04]",
+                      )}
                     >
-                      <span className="font-medium">{it.controlId}</span>
-                      <span className="text-muted-foreground mx-1">·</span>
-                      <span className="truncate max-w-[220px]">
+                      <TableCell>
+                        <span
+                          className={cn(
+                            "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                            theme.chip,
+                          )}
+                        >
+                          {it.frameworkShortName}
+                        </span>
+                        {isTop && (
+                          <span className="ml-2 inline-flex items-center gap-1 text-[11px] text-primary">
+                            <Sparkles className="h-3 w-3" /> Best treff
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium text-foreground/90">
+                        {it.controlId}
+                      </TableCell>
+                      <TableCell className="text-foreground/80">
                         {it.controlLabel}
-                      </span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+                      </TableCell>
+                      <TableCell>
+                        {it.matchedTerms.length > 0 ? (
+                          <span className="inline-flex flex-wrap gap-1">
+                            {it.matchedTerms.map((term) => (
+                              <span
+                                key={term}
+                                className="inline-flex items-center rounded border border-border bg-background px-1.5 py-0.5 text-[11px] text-muted-foreground"
+                              >
+                                {term}
+                              </span>
+                            ))}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                }),
+              )}
+            </TableBody>
+          </Table>
         </div>
       )}
     </section>
