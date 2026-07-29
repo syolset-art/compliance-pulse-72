@@ -374,7 +374,7 @@ export default function MSPCustomerDetail() {
               )}
 
 
-              {/* Kort baseline-status med lenke til Trust Profile-fanen.
+              {/* Kort baseline-status med lenke til Trust Profile-siden.
                   Selve utfyllingen ligger under Trust Profile — Veiledning skal
                   bare gjøre partneren oppmerksom på status og peke videre. */}
               <Card className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
@@ -397,10 +397,10 @@ export default function MSPCustomerDetail() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleTabChange("trust-profile")}
+                  onClick={() => navigate(`/msp-dashboard/${customerId}/trust-profile`)}
                   className="w-full sm:w-auto sm:shrink-0"
                 >
-                  Se i Trust Profile
+                  Åpne Trust Profile
                   <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
                 </Button>
               </Card>
