@@ -637,7 +637,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     </div>
   );
 
-  const allAnswered = assessmentResponses.length === MSP_ASSESSMENT_QUESTIONS.length;
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); onOpenChange(o); }}>
