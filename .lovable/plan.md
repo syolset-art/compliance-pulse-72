@@ -1,30 +1,101 @@
 
 ## Mål
-I «Veiledning fra Mynder» skal partneren kunne:
-1. Skrive inn en tjeneste og se hvilke av **denne kundens** anbefalte/aktiverte regelverk den treffer.
-2. Laste opp dokumentasjon (bevis) de allerede har, og få det koblet til ett eller flere av kundens regelverk.
 
-## 1) Tjenestesøk mot kundens regelverk
-- Ny komponent `CustomerServiceCoverageSearch` (i `src/components/msp/guidance/`) basert på `ServiceCoverageSearch`, men:
-  - Filtrerer alle treff mot `customerFrameworkIds` (union av `recommended_frameworks` + `activeFrameworkIds`).
-  - Hvis en tjeneste ikke treffer noen av kundens regelverk → vis subtil melding «Ingen treff mot kundens regelverk» + evt. hvilke andre regelverk den ellers dekker.
-  - Fjerner «Opprett»-CTA i denne konteksten — kun visning, siden formålet er relevanssjekk for kunden.
-- Plasseres i `MSPCustomerDetail.tsx` (guidance-tab) rett over `RegulationsStatusCard`, i et smalt kort med tittel «Sjekk en tjeneste mot kundens regelverk» og kort AI-disclaimer via eksisterende `AiMappingDisclosure` (icon-variant).
+Én rød tråd for partneren på kundeprofilen:
+1. **Last opp dokument → få AI-forslag** på hvilke regelverk og krav det dekker (én knapp, samme flyt overalt).
+2. **Fullfør leveranse → koble til regelverk → send rapport** som viser at gapet er redusert og modenheten økt.
 
-## 2) Last opp bevis fra regelverkstabellen
-- Utvid `RegulationsStatusCard` med en ny handling per rad: knapp «Last opp bevis» (subtil, `Upload`-ikon) i «Handling»-kolonnen ved siden av eksisterende Bekreft/Aktiver/Se i Produkter.
-- Åpner eksisterende `PartnerEvidenceUploadDialog` (fra `src/lib/partnerEvidence.ts`) med regelverket forhåndsvalgt (nytt prop `presetFrameworkIds`).
-- Over tabellen: én samlet «Last opp bevis»-knapp som åpner samme dialog uten forhåndsvalg (bruker kan krysse av flere regelverk).
-- Under tabellen: kompakt liste over allerede opplastede bevis for kunden (gjenbruk `PartnerEvidenceSection` med `minimal` og `hideUploadButton`), slik at partneren ser koblingen mellom bevis og regelverk uten å bytte fane.
+## Del 1 — Universell "Last opp dokumentasjon"-flyt
+
+Bygger på eksisterende `PartnerEvidenceUploadDialog` og `laraSuggestForDocType`, men gjør analysen automatisk og synlig.
+
+**Ny komponent:** `UploadEvidenceWithAiSuggestions.tsx` (drop-in wrapper)
+- Steg 1: dra-og-slipp fil + doc-type
+- Steg 2: **Lara analyserer** (spinner 1–2 s) → viser forslag som en ryddig tabell:
+  - Regelverk (chip) · Krav/artikkel · Konfidens (høy/middels/lav) · Checkbox
+  - Alle forslag forhåndsvalgt; brukeren huker av det som ikke passer
+- Steg 3: bekreftelse med berikelse per kontrollområde (+X %) og «Lagre bevis»
+
+**Plassering (samme komponent, én knapp):**
+- **Dokumentasjon-fanen** — primær «Last opp bevis»-knapp øverst (i dag går den til toast «kommer snart»)
+- **Veiledning → Regelverk anbefalt** — allerede eksisterende «Last opp bevis» bruker samme komponent
+- **Produkter/Moduler** — per aktivert regelverk-kort: «Legg til bevis»
+- Per rad i dokumentasjons-checklisten (lovpålagte dokumenter): forhåndsvelg det spesifikke kravet
+
+Alle steder havner bevis i samme `partnerEvidence`-store og oppdaterer `enrichmentByArea`.
+
+## Del 2 — Fullfør leveranse og send kunderapport
+
+I dag: `saveOffer` i `customerOffers.ts` lagrer bare tilbud. Ingen «levert»-status, ingen kobling til regelverk, ingen rapport.
+
+**Utvidelse av `customerOffers.ts`:**
+```ts
+interface SavedOffer {
+  ...eksisterende felt,
+  status: 'draft' | 'sent' | 'delivered',
+  deliveredAt?: string,
+  frameworkIds: string[],        // regelverk tilbudet skal styrke
+  evidenceIds: string[],         // bevis knyttet til leveransen
+  maturityBefore?: Record<string, number>,
+  maturityAfter?: Record<string, number>,
+}
+```
+Nye funksjoner: `markOfferDelivered(id, { evidenceIds, frameworkIds })`, `getDeliveryImpact(offer)`.
+
+**Ny fane på kundeprofilen: «Leveranser»** (mellom Produkter og Meldinger)
+Enkelt kort per tilbud:
+- Header: navn · status-pill (Utkast / Sendt / Levert) · kunde
+- Regelverk-chips
+- Bevis-teller: «3 av 5 bevis lastet opp»
+- Én primærknapp avhengig av status:
+  - `draft` → «Marker som sendt»
+  - `sent` → **«Fullfør leveranse»** → åpner `CompleteDeliveryDialog`
+  - `delivered` → «Se rapport» + «Send til kunde»
+
+**Ny dialog: `CompleteDeliveryDialog.tsx`** (3 enkle steg)
+1. **Velg regelverk** — checkboxes over kundens aktive regelverk (forhåndsvalgt fra tilbudets tjenester → controlIds → frameworks)
+2. **Knytt bevis** — liste over partnerens opplastede bevis for kunden; velg de som er del av leveransen. Knapp «Last opp nytt» åpner Del 1-komponenten.
+3. **Forhåndsvisning av effekt** — viser før/etter modenhet per kontrollområde (delta fra `enrichmentByArea` for valgte bevis), oppsummering av dekkede krav
+
+Knapp «Fullfør og generer rapport» → status=`delivered`.
+
+**Ny komponent: `DeliveryReport.tsx`** (kunderapport)
+Kompakt PDF-lignende visning, kan sendes/lastes ned:
+- Kundenavn, leveransenavn, dato
+- **Regelverk dekket** (chips)
+- **Modenhet før/etter** — én liten stolpe per kontrollområde, grønn delta
+- **Krav dekket** — tabell: krav · bevis · dato
+- **Vedlagt dokumentasjon** — liste med filnavn
+- Signatur: partnernavn
+
+Knapp «Send til kunde» → toast (mock e-post) + logg i offer.
+
+**Kobling til Produkter/Moduler-fanen:**
+På hvert aktivert regelverk-kort, en liten linje:
+> «2 leveranser fullført · modenhet +18 %» → klikk → filtrert Leveranser-fane
 
 ## Tekniske detaljer
-- `PartnerEvidenceUploadDialog` må ta imot valgfri `presetFrameworkIds: string[]` og forhåndsvelge disse i skjemaet (påvirker ikke lagring ellers).
-- Ingen DB-endringer — `partnerEvidence` er allerede lokal demo-store.
-- Ingen endring i modenhetsvisning eller baseline-kort.
-- Norsk tekst, kort og subtilt design i tråd med resten av guidance-fanen.
 
-## Filer som endres/opprettes
-- Ny: `src/components/msp/guidance/CustomerServiceCoverageSearch.tsx`
-- Endre: `src/components/msp/guidance/RegulationsStatusCard.tsx` (opplastningsknapper + evidence-liste)
-- Endre: `src/components/msp/PartnerEvidenceUploadDialog.tsx` (støtte `presetFrameworkIds`)
-- Endre: `src/pages/MSPCustomerDetail.tsx` (montér søkekortet i guidance-tab)
+Filer å opprette:
+- `src/components/msp/UploadEvidenceWithAiSuggestions.tsx`
+- `src/components/msp/deliveries/CustomerDeliveriesTab.tsx`
+- `src/components/msp/deliveries/CompleteDeliveryDialog.tsx`
+- `src/components/msp/deliveries/DeliveryReport.tsx`
+- `src/lib/deliveryImpact.ts` (beregner før/etter fra bevis)
+
+Filer å endre:
+- `src/lib/customerOffers.ts` — nye felt + status-funksjoner
+- `src/components/msp/MSPCreateOfferDialog.tsx` — sett `status: 'draft'`, foreslå `frameworkIds` fra valgte tjenester
+- `src/components/msp/CustomerDocumentationTab.tsx` — bytt «kommer snart»-toast med den nye opplastingskomponenten
+- `src/components/msp/guidance/RegulationsStatusCard.tsx` — bruk samme komponent
+- `src/components/msp/CustomerModulesTab.tsx` — link «Se leveranser» + «Legg til bevis» per regelverk
+- `src/pages/MSPCustomerDetail.tsx` — ny «Leveranser»-fane
+
+Alt lagres i localStorage (prototype), samme mønster som `partnerEvidence` og `customerOffers` i dag. Ingen DB-endringer nødvendig i dette steget.
+
+## UX-prinsipp (én tydelig flyt)
+
+> Last opp dokument → Lara foreslår krav → Godkjenn → Bevis lagret →
+> Ved fullført leveranse: velg bevis → generer rapport → send til kunde.
+
+Samme knapp, samme forslag-tabell, samme berikelses-visning overalt — brukeren trenger bare å lære det én gang.
