@@ -268,23 +268,30 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
       )}
 
       {groups.length > 0 && (
-        <div className="rounded-md border border-border bg-card overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[44px] px-3">
-                  <Checkbox
-                    checked={allSelected ? true : someSelected ? "indeterminate" : false}
-                    onCheckedChange={toggleAll}
-                    aria-label="Velg alle krav"
-                  />
-                </TableHead>
-                <TableHead className="w-[140px]">Regelverk</TableHead>
-                <TableHead className="w-[110px]">Krav</TableHead>
-                <TableHead>Kontrollpunkt</TableHead>
-                <TableHead className="w-[160px]">Treff</TableHead>
-              </TableRow>
-            </TableHeader>
+        <div className="space-y-2">
+          <AiMappingDisclosure variant="banner" />
+          <div className="rounded-md border border-border bg-card overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[44px] px-3">
+                    <Checkbox
+                      checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                      onCheckedChange={toggleAll}
+                      aria-label="Velg alle krav"
+                    />
+                  </TableHead>
+                  <TableHead className="w-[140px]">Regelverk</TableHead>
+                  <TableHead className="w-[110px]">Krav</TableHead>
+                  <TableHead>Kontrollpunkt</TableHead>
+                  <TableHead className="w-[160px]">
+                    <span className="inline-flex items-center gap-1">
+                      Treff
+                      <AiMappingDisclosure variant="icon" />
+                    </span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
             <TableBody>
               {groups.flatMap((g) =>
                 g.items.map((it, idx) => {
