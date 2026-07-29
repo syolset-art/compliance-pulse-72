@@ -141,7 +141,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
 
       {justAdded && (
         <p className="text-xs text-success flex items-center gap-1.5">
-          <Check className="h-3.5 w-3.5" /> Lagt til i katalogen.
+          <Check className="h-3.5 w-3.5" /> Opprettet.
         </p>
       )}
 
