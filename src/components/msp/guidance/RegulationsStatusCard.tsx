@@ -27,7 +27,7 @@ interface Props {
   confirmed: FrameworkRecommendation[];
 }
 
-const MAX_CHIPS = 3;
+const MAX_CHIPS = 4;
 
 export function RegulationsStatusCard({ customerId, recommended, confirmed }: Props) {
   const queryClient = useQueryClient();
@@ -83,20 +83,24 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
   }, [recommended, confirmed]);
 
   const servicesFor = (frameworkId: string) => {
-    const mine = PARTNER_SERVICES.filter(
-      (s) =>
-        s.status !== "retired" &&
-        s.frameworkMappings.some((m) => m.frameworkId === frameworkId),
-    ).map((s) => ({ id: s.id, name: s.name }));
+    const mineNames = new Set(
+      PARTNER_SERVICES.filter(
+        (s) =>
+          s.status !== "retired" &&
+          s.frameworkMappings.some((m) => m.frameworkId === frameworkId),
+      ).map((s) => s.name.toLowerCase()),
+    );
 
-    const mineNames = new Set(mine.map((m) => m.name.toLowerCase()));
-    const recommended = SERVICE_LIBRARY.filter(
-      (t) =>
-        t.mappings.some((m) => m.frameworkId === frameworkId) &&
-        !mineNames.has(t.name.toLowerCase()),
-    ).map((t) => ({ id: t.id, name: t.name }));
+    const all = SERVICE_LIBRARY.filter((t) =>
+      t.mappings.some((m) => m.frameworkId === frameworkId),
+    ).map((t) => ({
+      id: t.id,
+      name: t.name,
+      inCatalog: mineNames.has(t.name.toLowerCase()),
+    }));
 
-    return { mine, recommended };
+    // I katalogen først
+    return all.sort((a, b) => Number(b.inCatalog) - Number(a.inCatalog));
   };
 
   const persist = async (
@@ -153,7 +157,7 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
           <div className="min-w-0">
             <h3 className="text-sm font-semibold text-foreground">Regelverk kunden må følge</h3>
             <p className="text-xs text-muted-foreground mt-0.5 inline-flex items-center gap-1.5">
-              Chips viser tjenester som kan dekke kravene — dine egne og forslag fra Mynder.
+              Anbefalte tjenester for hvert regelverk — fylte chips ligger allerede i katalogen din.
               <AiMappingDisclosure variant="icon" />
             </p>
           </div>
@@ -169,19 +173,21 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[34%]">Regelverk</TableHead>
-                <TableHead className="w-[28%]">Mine tjenester</TableHead>
-                <TableHead className="w-[28%]">Anbefalt fra Mynder</TableHead>
-                <TableHead className="w-[10%] text-right">Handling</TableHead>
+                <TableHead className="w-[40%]">Regelverk</TableHead>
+                <TableHead className="w-[48%]">
+                  <span className="inline-flex items-center gap-1.5">
+                    Anbefalte tjenester
+                    <AiMappingDisclosure variant="icon" />
+                  </span>
+                </TableHead>
+                <TableHead className="w-[12%] text-right">Handling</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.map(({ rec, isConfirmed }) => {
-                const { mine, recommended: rec_services } = servicesFor(rec.frameworkId);
-                const mineShown = mine.slice(0, MAX_CHIPS);
-                const mineMore = mine.length - mineShown.length;
-                const recShown = rec_services.slice(0, MAX_CHIPS);
-                const recMore = rec_services.length - recShown.length;
+                const services = servicesFor(rec.frameworkId);
+                const shown = services.slice(0, MAX_CHIPS);
+                const more = services.length - shown.length;
 
                 return (
                   <TableRow key={rec.frameworkId} className="align-top">
@@ -209,60 +215,44 @@ export function RegulationsStatusCard({ customerId, recommended, confirmed }: Pr
                     </TableCell>
 
                     <TableCell className="py-3">
-                      {mineShown.length === 0 ? (
-                        <Link
-                          to="/msp-service-catalog"
-                          className="text-xs text-muted-foreground hover:text-primary underline-offset-2 hover:underline"
-                        >
-                          Ingen tjeneste dekker dette ennå
-                        </Link>
-                      ) : (
-                        <div className="flex flex-wrap gap-1">
-                          {mineShown.map((s) => (
-                            <span
-                              key={s.id}
-                              className={cn(
-                                "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                                "bg-primary/10 text-primary border-primary/30",
-                              )}
-                            >
-                              <Check className="h-2.5 w-2.5" />
-                              {s.name}
-                            </span>
-                          ))}
-                          {mineMore > 0 && (
-                            <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-[11px] text-primary">
-                              +{mineMore}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </TableCell>
-
-                    <TableCell className="py-3">
-                      {recShown.length === 0 ? (
+                      {shown.length === 0 ? (
                         <span className="text-xs text-muted-foreground">—</span>
                       ) : (
                         <div className="flex flex-wrap gap-1">
-                          {recShown.map((t) => (
-                            <Link
-                              key={t.id}
-                              to={`/msp-service-catalog?tab=all&highlight=${t.id}`}
-                              className={cn(
-                                "inline-flex items-center gap-1 rounded-full border border-dashed px-2 py-0.5 text-[11px]",
-                                "border-muted-foreground/40 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors",
-                              )}
-                            >
-                              <Sparkles className="h-2.5 w-2.5" />
-                              {t.name}
-                            </Link>
-                          ))}
-                          {recMore > 0 && (
+                          {shown.map((s) =>
+                            s.inCatalog ? (
+                              <span
+                                key={s.id}
+                                title="Ligger i katalogen din"
+                                className={cn(
+                                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                                  "bg-primary/10 text-primary border-primary/30",
+                                )}
+                              >
+                                <Check className="h-2.5 w-2.5" />
+                                {s.name}
+                              </span>
+                            ) : (
+                              <Link
+                                key={s.id}
+                                to={`/msp-service-catalog?tab=all&highlight=${s.id}`}
+                                title="Ikke i katalogen — legg til"
+                                className={cn(
+                                  "inline-flex items-center gap-1 rounded-full border border-dashed px-2 py-0.5 text-[11px]",
+                                  "border-muted-foreground/40 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors",
+                                )}
+                              >
+                                <Sparkles className="h-2.5 w-2.5" />
+                                {s.name}
+                              </Link>
+                            ),
+                          )}
+                          {more > 0 && (
                             <Link
                               to="/msp-service-catalog?tab=all"
                               className="inline-flex items-center rounded-full border border-dashed border-muted-foreground/40 px-2 py-0.5 text-[11px] text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
                             >
-                              +{recMore} flere
+                              +{more} flere
                             </Link>
                           )}
                         </div>
