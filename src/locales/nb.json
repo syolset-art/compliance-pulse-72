@@ -1719,6 +1719,26 @@
       "agentsName": "Agentstyring (Mynder)",
       "agentsDesc": "Register, klassifisering og kontroll av AI-agenter — MACF-nivå, eierskap og løpende oppfølging."
     }
+  },
+  "baselineCard": {
+    "title": "Baseline-kartlegging",
+    "answered": "besvart",
+    "optional": "Valgfritt",
+    "description": "Still spørsmålene sammen med kunden for å få laget en baseline. Svarene kobles direkte til modenhet per kontrollområde.",
+    "trustScore": "Trust Score",
+    "helper": "Jo flere spørsmål som besvares, jo mer presis blir modenhetsvurderingen og gap-analysen.",
+    "startPartner": "Start kartlegging",
+    "continuePartner": "Fortsett kartlegging",
+    "meetingButton": "Fyll ut sammen med kunden"
+  },
+  "baselineDrawer": {
+    "reviewTitle": "Se over baseline",
+    "partnerTitle": "Fyll ut baseline",
+    "meetingTitle": "Fyll ut baseline sammen med kunden",
+    "description": "Baseline er kundens utgangspunkt: en kort kartlegging av om sentrale GDPR- og sikkerhetstiltak er på plass, fordelt på fem kontrollområder. Svarene blir startpunktet for kundens Trust Profile og gap-analysen.",
+    "reviewInfo": "Lara har foreslått svar basert på hva som er typisk for <strong>{{customerName}}</strong>. Gå gjennom hvert spørsmål og bekreft, juster eller marker som ikke relevant.",
+    "partnerInfo": "Du svarer på vegne av <strong>{{customerName}}</strong>. Svarene lagres som partner-bekreftet og brukes som baseline når du kjører gap-analysen.",
+    "meetingInfo": "Still spørsmålene høyt og velg svaret sammen med <strong>{{customerName}}</strong>. Svarene lagres som baseline og brukes som utgangspunkt for Trust Profile og gap-analyse."
   }
 }
 
