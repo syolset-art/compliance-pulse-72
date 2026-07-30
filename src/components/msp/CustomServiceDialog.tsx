@@ -219,15 +219,25 @@ export function CustomServiceDialog({
                 {descriptionFromAi && (
                   <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
                     <Sparkles className="h-3 w-3" />
-                    Foreslått av KI
+                    Foreslått av Lara — kontroller før lagring
                   </span>
                 )}
               </Label>
-              {descriptionFromAi && (
-                <span className="text-[11px] text-muted-foreground">
-                  Kontroller før lagring
-                </span>
-              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={!name.trim() || suggesting}
+                onClick={handleSuggestDescription}
+                className="h-7 px-2 text-[11px] text-primary hover:text-primary"
+              >
+                <Sparkles className={cn("h-3 w-3 mr-1", suggesting && "animate-pulse")} />
+                {suggesting
+                  ? "Lara skriver …"
+                  : description.trim()
+                    ? "Foreslå på nytt"
+                    : "Foreslå med Lara"}
+              </Button>
             </div>
             <Textarea
               id="cs-desc"
@@ -236,10 +246,11 @@ export function CustomServiceDialog({
                 setDescription(e.target.value);
                 setDescriptionFromAi(false);
               }}
-              placeholder="Legg til detaljer for bedre forslag"
+              placeholder="Legg til detaljer for bedre forslag — eller la Lara foreslå"
               rows={2}
             />
           </div>
+
 
           {/* Aktiviteter */}
           <div className="rounded-lg border border-border bg-card p-3 space-y-2">
