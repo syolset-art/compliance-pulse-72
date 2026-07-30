@@ -104,6 +104,7 @@ export function OfferListRow({
   onOpen,
   onDelete,
   onDownload,
+  onSetState,
 }: Props) {
   const [open, setOpen] = useState(false);
   const isDraft = offer.offerState === "draft";
