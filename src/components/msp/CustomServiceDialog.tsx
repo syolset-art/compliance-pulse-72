@@ -90,6 +90,7 @@ export function CustomServiceDialog({
     if (initial) {
       setName(initial.name);
       setDescription(initial.description ?? "");
+      setDescriptionFromAi(initial.descriptionFromAi ?? false);
       setActivities(
         initial.activities.length > 0
           ? initial.activities
@@ -104,6 +105,7 @@ export function CustomServiceDialog({
     } else {
       setName("");
       setDescription("");
+      setDescriptionFromAi(false);
       setActivities([{ label: "", hours: 1 }]);
       setSelectedMappings(new Set());
       setExtraMappings([]);
