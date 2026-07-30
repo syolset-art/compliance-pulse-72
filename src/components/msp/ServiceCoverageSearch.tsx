@@ -52,7 +52,7 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [justAdded, setJustAdded] = useState(false);
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   useEffect(() => {
     const t = window.setTimeout(() => setDebounced(query.trim()), 250);
@@ -69,7 +69,11 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
   }, [debounced]);
 
   useEffect(() => {
-    setSelectedKeys(new Set(suggestions.map(keyFor)));
+    if (suggestions.length > 0) {
+      setSelectedKey(keyFor(suggestions[0]));
+    } else {
+      setSelectedKey(null);
+    }
   }, [suggestions]);
 
   const groups = useMemo<FrameworkGroup[]>(() => {
