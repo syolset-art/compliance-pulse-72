@@ -213,11 +213,29 @@ export function CustomServiceDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="cs-desc">Beskrivelse (valgfritt)</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="cs-desc">
+                Beskrivelse
+                {descriptionFromAi && (
+                  <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+                    <Sparkles className="h-3 w-3" />
+                    Foreslått av KI
+                  </span>
+                )}
+              </Label>
+              {descriptionFromAi && (
+                <span className="text-[11px] text-muted-foreground">
+                  Kontroller før lagring
+                </span>
+              )}
+            </div>
             <Textarea
               id="cs-desc"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setDescriptionFromAi(false);
+              }}
               placeholder="Legg til detaljer for bedre forslag"
               rows={2}
             />
