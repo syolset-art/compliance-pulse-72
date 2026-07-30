@@ -68,6 +68,7 @@ export function BaselineQuestionsDrawer({
   open,
   onOpenChange,
   customerName,
+  customerId,
   answers,
   onAnswer,
   reviewMode = false,
@@ -77,6 +78,9 @@ export function BaselineQuestionsDrawer({
 }: Props) {
   const { t } = useTranslation();
   const laraSources = deriveLaraSources(laraScan ?? null);
+  const { docsForArea, docsForQuestion, addDocument, linkDocument, removeDocument } =
+    useBaselineDocuments(customerId);
+
 
   const initialArea = (() => {
     if (reviewMode) {
