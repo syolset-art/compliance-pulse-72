@@ -771,17 +771,22 @@ export function MSPMaturityServiceMatrix({
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
         <TabsList>
           <TabsTrigger value="recommended" className="gap-2">
-            Anbefalte tjenester
+            Tjenester
             <Badge variant="secondary" className="h-5 px-1.5 text-xs">{RECOMMENDATIONS.length}</Badge>
           </TabsTrigger>
+          <TabsTrigger value="drafts" className="gap-2">
+            Utkast
+            <Badge variant="secondary" className="h-5 px-1.5 text-xs">{draftOffers.length}</Badge>
+          </TabsTrigger>
           <TabsTrigger value="ongoing" className="gap-2">
-            Tilbud
-            <Badge variant="secondary" className="h-5 px-1.5 text-xs">{savedOffers.length}</Badge>
+            Tilbud levert
+            <Badge variant="secondary" className="h-5 px-1.5 text-xs">{sentOffers.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="deliveries" className="gap-2">
             Pågående oppdrag
             <Badge variant="secondary" className="h-5 px-1.5 text-xs">{DELIVERIES.length}</Badge>
           </TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="recommended" className="mt-0">
