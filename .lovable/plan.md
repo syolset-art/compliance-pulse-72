@@ -1,19 +1,44 @@
-## Problem
+## Mål
 
-Siste steg i «Legg til kunde» (`step === "recommend"`, Laras anbefaling) er tett, vanskelig å lese og gjentar informasjon som allerede finnes på kundekortet. Regelverksanbefalinger hører hjemme i **Veiledning fra Mynder**, der `RegulationsStatusCard` allerede viser dem i tabellform med Bekreft/Aktiver-handlinger.
+Fanene i «Vurdering» (kundeprofil → `MSPMaturityServiceMatrix`) skal skille tydelig mellom **utkast**, **leverte tilbud** og **pågående oppdrag**, og partneren skal kunne bekrefte at et sendt tilbud er godkjent av kunden — slik skissene viser.
 
-## Endring
+I dag finnes bare tre faner: «Anbefalte tjenester», «Tilbud» og «Pågående oppdrag», og lagrede tilbud har ingen livssyklus (utkast → sendt → akseptert).
 
-**1. Fjern anbefalingssteget i `src/components/msp/AddMSPCustomerDialog.tsx`**
-- Ta bort hele `step === "recommend"`-blokken og `"recommend"` fra `STEP_LABELS` (wizarden blir metode → land → søk → kontakt).
-- «Fullfør»-knappen på kontaktsteget kaller `handleSave` direkte i stedet for `setStep("recommend")`.
-- Behold beregningen av anbefalinger, men kjør den i `handleSave` (samme `recommendFrameworks`-kall med land, bransje, ansatte, beskrivelse) og lagre resultatet som `recommended_frameworks`. `confirmed_frameworks` lagres tomt — partneren bekrefter i Veiledning.
-- Fjern nå ubrukt state (`confirmedRecommendations`, `recommendations`-effekten som var bundet til steget) og import av `CustomerRecommendationsPanel` hvis den ikke brukes andre steder.
+## Ny fanestripe
 
-**2. Suksess-steget får en peker videre**
-- Teksten utvides med en kort linje: «Lara har foreslått relevante regelverk — du finner dem under Veiledning fra Mynder.» Ingen ny knapp.
+```text
+[ Tjenester 7 ] [ Utkast 2 ] [ Tilbud levert 3 ] [ Pågående oppdrag 2 ]
+```
 
-**3. Lesbarhet i `RegulationsStatusCard`**
-- Regelverksnavnet står i dag som label + alias-span på samme linje i liten grå tekst (f.eks. «GDPR Personopplysningsloven»). Endres til: navn i normal vekt/foreground på egen linje, alias som `text-xs text-muted-foreground` under — med tydelig kontrast (WCAG AA).
+- **Tjenester** — dagens «Anbefalte tjenester»-tabell, kun nytt navn + antall.
+- **Utkast** — tilbud som ikke er sendt. Handlinger: Åpne/rediger, Send til kunde, Last ned, Slett utkast.
+- **Tilbud levert** — sendte tilbud. Handlinger: bekreft aksept / avslå.
+- **Pågående oppdrag** — uendret (`OngoingDeliveriesList`).
 
-Ingen endringer i datamodell eller edge functions; `recommended_frameworks` skrives allerede av wizarden i dag.
+## «Tilbud levert» — radoppsett (som bilde)
+
+Kompakt rad per tilbud, ikke tabell:
+
+- Statusikon til venstre (klokke = venter, grønn hake = akseptert, rød = avslått)
+- Tittel (regelverk/tjeneste) + liten «Mottatt»-brikke
+- Undertekst: `Sendt 30. juli 2026 · Besvart 30. juli 2026 · Mynder AS`
+- Høyre: statuspille **Venter** / **Akseptert** / **Avslått**, chevron for å utvide, nedlastingsikon
+- Utvidet visning: «Foreslåtte aktiviteter» med timer per linje, totalsum og timepris, vedlegg (f.eks. gap-analyse) og — når status er *Venter* — knappene **Aksepter tilbud** (primær) og **Avslå tilbud** (outline, destruktiv tekst)
+
+## Bekreftelse av aksept
+
+«Aksepter tilbud» åpner en liten bekreftelsesdialog der partneren registrerer kundens godkjenning:
+
+- Godkjent av (navn) + rolle
+- Metode: E-post / E-signatur / Muntlig / Portal
+- Dato
+- Valgfri referanse/kommentar
+
+Ved lagring: status → **Akseptert**, raden viser «Godkjent av <navn> · <metode> · <dato>» og en «Se bevis»-linje i utvidet visning. Toast bekrefter, og tilbudet blir tilgjengelig som oppdrag under «Pågående oppdrag». «Avslå tilbud» setter status **Avslått** med valgfri årsak.
+
+## Teknisk
+
+- `src/components/msp/MSPMaturityServiceMatrix.tsx`: utvid lokal `SavedOffer`-type med `offerState: "draft" | "sent" | "accepted" | "declined"`, `sentAt`, `respondedAt`, `approval?` og `tasks[]` (label + timer) til den utvidede visningen. Seed-data justeres så demoen viser 2 utkast og 3 leverte (én ventende med aktiviteter og vedlegg, à la bildet).
+- Ny fane-verdi `drafts` i `Tabs`, filtrering av `savedOffers` på `offerState`.
+- Nye presentasjonskomponenter i `src/components/msp/offers/`: `OfferListRow.tsx` (rad + utvidet innhold) og `ConfirmOfferAcceptanceDialog.tsx`.
+- Alt er prototype-state i komponenten (som i dag) — ingen databaseendringer.
