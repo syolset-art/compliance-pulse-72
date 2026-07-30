@@ -1,7 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
-import { Search, Plus, Sparkles, Check, Pencil, RotateCcw } from "lucide-react";
+import { Search, Plus, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -24,9 +23,9 @@ import { AiMappingDisclosure } from "./AiMappingDisclosure";
 
 interface Props {
   existingNames: string[];
-  onAdd: (payload: {
+  onCreate: (payload: {
     name: string;
-    description: string;
+    suggestedDescription: string;
     mappings: ServiceMapping[];
   }) => void;
 }
@@ -43,12 +42,10 @@ function keyFor(it: ControlSuggestion) {
   return `${it.frameworkId}:${it.controlId}`;
 }
 
-export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
+export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [justAdded, setJustAdded] = useState(false);
-  const [descOverride, setDescOverride] = useState<string | null>(null);
-  const [descEditing, setDescEditing] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -58,8 +55,6 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
 
   useEffect(() => {
     setJustAdded(false);
-    setDescOverride(null);
-    setDescEditing(false);
   }, [query]);
 
   const suggestions = useMemo<ControlSuggestion[]>(() => {
@@ -70,14 +65,6 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
   useEffect(() => {
     setSelectedKeys(new Set(suggestions.map(keyFor)));
   }, [suggestions]);
-
-  const suggestedDescription = useMemo(
-    () => (debounced.length >= 2 ? lookupServiceDescription(debounced) : undefined),
-    [debounced],
-  );
-
-  const currentDescription = descOverride ?? suggestedDescription ?? "";
-  const isOverridden = descOverride !== null && descOverride !== suggestedDescription;
 
   const groups = useMemo<FrameworkGroup[]>(() => {
     const map = new Map<string, FrameworkGroup>();
@@ -105,8 +92,6 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
     return existingNames.some((n) => n.toLowerCase() === q);
   }, [debounced, existingNames]);
 
-  
-
   const selectedCount = selectedKeys.size;
 
   const toggleRow = (it: ControlSuggestion) => {
@@ -119,7 +104,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
     });
   };
 
-  const handleAdd = () => {
+  const handleOpenForEdit = () => {
     if (!debounced || groups.length === 0 || isDuplicate || selectedCount === 0) return;
     const selected = suggestions.filter((s) => selectedKeys.has(keyFor(s)));
     const mappings: ServiceMapping[] = selected.map((s) => ({
@@ -128,12 +113,11 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
       controlId: s.controlId,
       controlLabel: s.controlLabel,
     }));
-    onAdd({ name: debounced, description: currentDescription.trim(), mappings });
+    const suggestedDescription = lookupServiceDescription(debounced) ?? "";
+    onCreate({ name: debounced, suggestedDescription, mappings });
     setJustAdded(true);
     setQuery("");
     setDebounced("");
-    setDescOverride(null);
-    setDescEditing(false);
     setSelectedKeys(new Set());
   };
 
@@ -153,7 +137,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
         {debounced.length >= 2 && groups.length > 0 && (
           <Button
             type="button"
-            onClick={handleAdd}
+            onClick={handleOpenForEdit}
             disabled={isDuplicate || selectedCount === 0}
             className="gap-1.5 shrink-0"
           >
@@ -165,7 +149,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
             ) : (
               <>
                 <Plus className="h-4 w-4" />
-                Opprett
+                Åpne og rediger
                 {selectedCount > 0 && (
                   <span className="ml-1 inline-flex items-center justify-center rounded-full bg-primary-foreground/20 px-1.5 py-0 text-[10px] font-medium">
                     {selectedCount}
@@ -179,7 +163,7 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
 
       {justAdded && (
         <p className="text-xs text-success flex items-center gap-1.5">
-          <Check className="h-3.5 w-3.5" /> Opprettet.
+          <Check className="h-3.5 w-3.5" /> Åpnet for redigering.
         </p>
       )}
 
@@ -188,68 +172,6 @@ export function ServiceCoverageSearch({ existingNames, onAdd }: Props) {
           Ingen tydelige treff. Prøv nøkkelord som beskriver aktiviteten
           (patch, awareness, DPO, backup …).
         </p>
-      )}
-
-      {debounced.length >= 2 && (suggestedDescription || descEditing) && (
-        <div className="rounded-md border border-border bg-card px-3 py-2.5 space-y-1.5">
-          <div className="flex items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-              {suggestedDescription && !isOverridden ? (
-                <>
-                  <Sparkles className="h-3 w-3 text-primary" />
-                  Foreslått beskrivelse
-                </>
-              ) : (
-                <>
-                  <Pencil className="h-3 w-3" />
-                  Egen beskrivelse
-                </>
-              )}
-            </span>
-            <div className="flex items-center gap-1">
-              {isOverridden && suggestedDescription && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-[11px] gap-1"
-                  onClick={() => {
-                    setDescOverride(null);
-                    setDescEditing(false);
-                  }}
-                >
-                  <RotateCcw className="h-3 w-3" /> Tilbakestill
-                </Button>
-              )}
-              {!descEditing && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-[11px] gap-1"
-                  onClick={() => setDescEditing(true)}
-                >
-                  <Pencil className="h-3 w-3" /> Rediger
-                </Button>
-              )}
-            </div>
-          </div>
-          {descEditing ? (
-            <Textarea
-              value={currentDescription}
-              onChange={(e) => setDescOverride(e.target.value)}
-              onBlur={() => setDescEditing(false)}
-              rows={3}
-              className="text-sm resize-none"
-              placeholder="Beskriv tjenesten kort — hva leveres og hvordan?"
-              autoFocus
-            />
-          ) : (
-            <p className="text-sm text-foreground/85 leading-relaxed">
-              {currentDescription}
-            </p>
-          )}
-        </div>
       )}
 
       {groups.length > 0 && (
