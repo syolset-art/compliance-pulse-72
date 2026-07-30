@@ -1412,7 +1412,14 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
 
       <CustomServiceDialog
         open={manualOpen}
-        onOpenChange={(o) => { setManualOpen(o); if (!o) { setEditingId(null); setPreviewTemplate(null); } }}
+        onOpenChange={(o) => {
+          setManualOpen(o);
+          if (!o) {
+            setEditingId(null);
+            setPreviewTemplate(null);
+            setSearchDraft(null);
+          }
+        }}
         onSave={handleManualSave}
         defaultHourlyRate={hourlyRate}
         initial={editingDraft}
