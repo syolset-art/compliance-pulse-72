@@ -412,14 +412,15 @@ export function CustomServiceDialog({
                           className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
                         />
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
-                              {s.frameworkShortName}
-                            </span>
-                            <span className="text-xs text-foreground">
-                              {s.controlLabel} <span className="text-muted-foreground">({s.controlId})</span>
-                            </span>
-                          </div>
+                        <div className="flex items-center gap-1.5 text-xs flex-wrap">
+                          <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground">
+                            {s.frameworkShortName}
+                          </span>
+                          <span className="text-muted-foreground">›</span>
+                          <span className="font-medium text-foreground">{s.controlId}</span>
+                          <span className="text-muted-foreground">›</span>
+                          <span className="text-foreground/80">{s.controlLabel}</span>
+                        </div>
                         </div>
 
                       </label>
