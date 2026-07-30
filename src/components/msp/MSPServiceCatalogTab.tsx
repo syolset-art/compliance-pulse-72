@@ -880,7 +880,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                                 <button
                                   type="button"
                                   onClick={(ev) => { ev.stopPropagation(); if (added) revealInCatalog(added.id); }}
-                                  className="inline-flex items-center gap-1.5 h-8 pl-2 pr-2.5 rounded-full border border-primary/20 bg-transparent text-primary/90 text-xs font-medium hover:bg-primary/5 hover:border-primary/30 transition-colors"
+                                  className="inline-flex items-center gap-1.5 h-8 pl-2 pr-2.5 rounded-full bg-primary text-primary-foreground text-xs font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
                                   aria-label="Se tjeneste i katalogen"
                                 >
                                   <Check className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden="true" />
@@ -899,12 +899,11 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                             <TooltipTrigger asChild>
                               <Button
                                 size="sm"
-                                variant="outline"
                                 onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
-                                className="h-8 gap-1 text-xs"
+                                className="h-8 gap-1 text-xs bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground"
                               >
                                 {pick.recommended ? (
-                                  <Star className="h-3 w-3 fill-primary text-primary" aria-hidden="true" />
+                                  <Star className="h-3 w-3 fill-primary-foreground text-primary-foreground" aria-hidden="true" />
                                 ) : (
                                   <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                                 )}
@@ -1180,10 +1179,9 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                     </div>
                   </div>
                   <Button
-                    variant="ghost"
                     size="sm"
                     onClick={() => restoreExtra(e.id)}
-                    className="h-8 gap-1.5 text-xs"
+                    className="h-8 gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                     Gjenopprett
