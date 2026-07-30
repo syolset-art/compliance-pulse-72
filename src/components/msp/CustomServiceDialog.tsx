@@ -75,6 +75,7 @@ export function CustomServiceDialog({
 }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionFromAi, setDescriptionFromAi] = useState(false);
   const [activities, setActivities] = useState<ServiceActivity[]>([]);
   const [selectedMappings, setSelectedMappings] = useState<Set<string>>(new Set());
   /** Mappings som ikke finnes blant Lara-forslag (f.eks. fra adopterte maler) — beholdes som-er. */
