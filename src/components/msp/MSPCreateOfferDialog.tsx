@@ -788,25 +788,20 @@ export function MSPCreateOfferDialog({
                       <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform shrink-0", gapsExpanded && "rotate-180")} />
                     </button>
 
-                    {/* "Vis i tilbudet"-bryteren – alltid synlig */}
+                    {/* Hva som tas med i dokumentet – alltid synlig */}
                     <div className="border-t border-border px-3 py-2 flex items-center justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground">Vis i tilbudet</p>
-                        <p className="text-xs text-muted-foreground">Inkluder mangellisten direkte i tilbudsteksten.</p>
-                      </div>
+                      <p className="text-sm text-foreground min-w-0">Ta med dekningsside (side 2)</p>
                       <Switch checked={showGapsInOffer} onCheckedChange={setShowGapsInOffer} />
+                    </div>
+                    <div className="border-t border-border px-3 py-2 flex items-center justify-between gap-3">
+                      <p className="text-sm text-foreground min-w-0">Legg ved gap-analysen (vedlegg)</p>
+                      <Switch checked={attachGap} onCheckedChange={setAttachGap} />
                     </div>
 
                     {/* Utvidet innhold */}
                     {gapsExpanded && (
                       <>
-                        <div className="border-t border-border px-3 py-2 flex items-center justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-foreground">Legg ved som vedlegg i PDF</p>
-                            <p className="text-xs text-muted-foreground">Hele gap-analysen som øyeblikksbilde bak i tilbudet.</p>
-                          </div>
-                          <Switch checked={attachGap} onCheckedChange={setAttachGap} />
-                        </div>
+
 
                         {/* Dekningsbanner */}
                         <div className={cn("border-t border-border px-3 py-2 flex items-center gap-2 flex-wrap", coverageClass)}>
