@@ -224,7 +224,22 @@ export function BaselineQuestionsDrawer({
                               <span>Lara: {explanation}</span>
                             </p>
                           )}
+                          {docsForQuestion(q.id).length > 0 && (
+                            <div className="mt-1 flex flex-wrap items-center gap-1">
+                              {docsForQuestion(q.id).map((d) => (
+                                <span
+                                  key={d.id}
+                                  className="inline-flex items-center gap-1 rounded border border-border bg-muted/40 px-1.5 py-0.5 text-xs text-muted-foreground max-w-[200px]"
+                                  title={d.fileName}
+                                >
+                                  <Paperclip className="h-3 w-3 shrink-0" />
+                                  <span className="truncate">{d.fileName}</span>
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
+
 
                         <Tooltip>
                           <TooltipTrigger asChild>
