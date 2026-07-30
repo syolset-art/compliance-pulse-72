@@ -250,8 +250,11 @@ export function PartnerEvidenceUploadDialog({
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{AREA_LABEL[d.area]}</p>
-                      <p className="text-xs text-success font-semibold">+{d.delta}%</p>
+                      <span className="mt-1 inline-flex items-center rounded-md bg-success/15 px-1.5 py-0.5 text-sm font-semibold text-success-foreground">
+                        +{d.delta}%
+                      </span>
                     </div>
+
                   </label>
                 ))}
               </div>
