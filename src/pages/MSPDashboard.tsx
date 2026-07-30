@@ -111,11 +111,11 @@ function deriveActiveServices(c: any): string[] {
   for (const o of delivered) {
     for (const tid of o.templateIds || []) {
       const tpl = SERVICE_LIBRARY.find((t) => t.id === tid);
-      names.add(tpl ? tpl.title : tid);
+      names.add(tpl ? tpl.name : tid);
     }
     for (const key of o.serviceKeys || []) {
-      const tpl = SERVICE_LIBRARY.find((t) => normalizeServiceKey(t.title) === key);
-      names.add(tpl ? tpl.title : key);
+      const tpl = SERVICE_LIBRARY.find((t) => normalizeServiceKey(t.name) === key);
+      names.add(tpl ? tpl.name : key);
     }
   }
   return Array.from(names);
