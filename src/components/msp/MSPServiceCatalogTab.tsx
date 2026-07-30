@@ -822,6 +822,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                         );
                       })()}
                     </td>
+                    <td className="px-3 py-3">
 
                       {(() => {
                         const activities = template.activities ?? [];
