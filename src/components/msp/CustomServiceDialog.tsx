@@ -42,6 +42,8 @@ export interface CustomServiceDraft {
   mappings: ServiceMapping[];
   /** Overstyrt totalpris. Hvis satt, brukes denne i stedet for hours × timepris. */
   priceOverride?: number;
+  /** Beskrivelsen kom fra KI-forslag (f.eks. ServiceCoverageSearch). */
+  descriptionFromAi?: boolean;
 }
 
 interface Props {
