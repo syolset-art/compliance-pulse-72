@@ -88,8 +88,9 @@ function formatSupportedSummary(template: ServiceTemplate): string {
   return `${primary.frameworkLabel} + ${totalControls} ${controlWord}`;
 }
 
-function templateStatus(template: ServiceTemplate): "Klar til bruk" | "Bør tilpasses" {
-  return template.delivery === "recurring" ? "Bør tilpasses" : "Klar til bruk";
+function activityCountLabel(count: number): string {
+  if (count === 0) return "—";
+  return count === 1 ? "1 aktivitet" : `${count} aktiviteter`;
 }
 
 type PickTag = "recommended" | "popular" | "trending";
