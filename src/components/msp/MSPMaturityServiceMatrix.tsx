@@ -837,32 +837,6 @@ export function MSPMaturityServiceMatrix({
 
   return (
     <div className="space-y-5">
-      {/* Lara recommendation banner */}
-      {!dismissedBanner && (
-        <Card className="p-4 border-primary/30 bg-primary/5">
-          <div className="flex items-start gap-3">
-            <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-              <Sparkles className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground">Lara har en anbefaling til deg</p>
-              <p className="text-[13px] text-muted-foreground mt-0.5">
-                Du har {RECOMMENDATIONS.length} tjenester som matcher denne kundens behov.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <Button size="sm" className="h-8">Vis forslag</Button>
-              <button
-                type="button"
-                onClick={() => setDismissedBanner(true)}
-                className="text-xs text-muted-foreground hover:text-foreground px-2"
-              >
-                Ikke nå
-              </button>
-            </div>
-          </div>
-        </Card>
-      )}
 
       {/* Tabs: Anbefalt / Pågående */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
