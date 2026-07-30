@@ -616,6 +616,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         mappings: editingService.mappings,
         priceOverride: editingService.priceOverride,
       }
+    : searchDraft
+    ? searchDraft
     : previewTemplate
     ? buildDraftFromTemplate(previewTemplate)
     : undefined;
