@@ -817,7 +817,16 @@ export default function MSPDashboard() {
                         )}
                         {isVisible("products") && (
                           <TableHead className="w-[240px] text-foreground/80">
-                            <span className="text-sm font-medium">Produkter</span>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Produkter <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px]">
+                                <p>Grønn betyr at produktet er aktivert. Lilla betyr at det er en anbefaling fra Mynder.</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </TableHead>
                         )}
                         {isVisible("score") && (
