@@ -143,18 +143,7 @@ const RECOMMENDATIONS: Recommendation[] = [
   },
 ];
 
-interface SavedOffer {
-  id: string;
-  offerNumber: string;
-  serviceTitle: string;
-  frameworkLabel?: string;
-  createdAt: string; // ISO
-  createdBy: string;
-  taskCount: number;
-  totalHours: number;
-  totalPrice: number;
-  status: "not_started" | "in_progress";
-}
+type SavedOffer = PartnerOffer;
 
 const SAVED_OFFERS_SEED: SavedOffer[] = [
   {
@@ -164,22 +153,47 @@ const SAVED_OFFERS_SEED: SavedOffer[] = [
     frameworkLabel: "ISO 27001",
     createdAt: "2026-05-12T09:20:00Z",
     createdBy: "Truls Hansen",
-    taskCount: 6,
+    taskCount: 3,
     totalHours: 90,
     totalPrice: 135000,
-    status: "in_progress",
+    hourlyRate: 1500,
+    offerState: "accepted",
+    sentAt: "2026-05-13T09:00:00Z",
+    respondedAt: "2026-05-20T09:00:00Z",
+    approval: {
+      approvedBy: "Marte Lie",
+      approverRole: "Daglig leder",
+      method: "E-post",
+      date: "2026-05-20",
+      reference: "E-post 20.05.2026",
+    },
+    tasks: [
+      { label: "Scoping og forankring", hours: 12 },
+      { label: "Gap-analyse mot ISO 27001", hours: 38 },
+      { label: "Dokumentasjon og innføring", hours: 40 },
+    ],
+    attachmentLabel: "Gap-analyse ISO 27001.pdf",
   },
   {
     id: "of-2",
     offerNumber: "T-2026-1231",
     serviceTitle: "Awareness-program",
-    frameworkLabel: "ISO 27001",
-    createdAt: "2026-04-28T13:05:00Z",
+    frameworkLabel: "Åpenhetsloven",
+    createdAt: "2026-07-28T13:05:00Z",
     createdBy: "Truls Hansen",
-    taskCount: 4,
+    taskCount: 3,
     totalHours: 60,
     totalPrice: 90000,
-    status: "not_started",
+    hourlyRate: 1500,
+    offerState: "sent",
+    sentAt: "2026-07-30T08:10:00Z",
+    respondedAt: "2026-07-30T11:00:00Z",
+    tasks: [
+      { label: "Scoping", hours: 8 },
+      { label: "Gap-analyse", hours: 22 },
+      { label: "Leveranse og opplæring", hours: 30 },
+    ],
+    attachmentLabel: "Gap-analyse Åpenhetsloven.pdf",
   },
   {
     id: "of-3",
@@ -188,12 +202,55 @@ const SAVED_OFFERS_SEED: SavedOffer[] = [
     frameworkLabel: "NIS2",
     createdAt: "2026-04-15T10:42:00Z",
     createdBy: "Anita Berg",
-    taskCount: 5,
+    taskCount: 3,
     totalHours: 100,
     totalPrice: 150000,
-    status: "not_started",
+    hourlyRate: 1500,
+    offerState: "sent",
+    sentAt: "2026-04-16T10:00:00Z",
+    tasks: [
+      { label: "Scoping og kartlegging", hours: 20 },
+      { label: "Gap-analyse mot NIS2", hours: 40 },
+      { label: "Tiltaksplan og rapport", hours: 40 },
+    ],
+  },
+  {
+    id: "of-4",
+    offerNumber: "T-2026-1288",
+    serviceTitle: "Penetrasjonstest",
+    frameworkLabel: "GDPR",
+    createdAt: "2026-07-24T09:00:00Z",
+    createdBy: "Truls Hansen",
+    taskCount: 3,
+    totalHours: 60,
+    totalPrice: 90000,
+    hourlyRate: 1500,
+    offerState: "draft",
+    tasks: [
+      { label: "Scoping og forberedelse", hours: 8 },
+      { label: "Ekstern penetrasjonstest", hours: 40 },
+      { label: "Rapport og gjennomgang", hours: 12 },
+    ],
+  },
+  {
+    id: "of-5",
+    offerNumber: "T-2026-1290",
+    serviceTitle: "Personvernrutiner",
+    frameworkLabel: "GDPR",
+    createdAt: "2026-07-29T14:30:00Z",
+    createdBy: "Anita Berg",
+    taskCount: 2,
+    totalHours: 24,
+    totalPrice: 36000,
+    hourlyRate: 1500,
+    offerState: "draft",
+    tasks: [
+      { label: "Kartlegging av behandlinger", hours: 10 },
+      { label: "Rutiner og dokumentasjon", hours: 14 },
+    ],
   },
 ];
+
 
 
 export type LaraStep = string | { text: string; via?: string };
