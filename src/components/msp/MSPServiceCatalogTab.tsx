@@ -1127,7 +1127,10 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => { setEditingId(e.id); setManualOpen(true); }}
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      setEditingId(e.id); setManualOpen(true);
+                    }}
                     className="h-11 w-11 text-foreground/70 hover:text-foreground"
                     aria-label="Rediger tjeneste"
                   >
@@ -1138,6 +1141,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={(ev) => ev.stopPropagation()}
                         className="h-11 w-11 text-foreground/50 hover:text-foreground"
                         aria-label="Flere handlinger"
                       >
