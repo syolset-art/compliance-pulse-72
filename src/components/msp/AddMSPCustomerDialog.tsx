@@ -1370,9 +1370,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-
-                        </Tooltip>
-                      </TooltipProvider>
               </div>
 
               <div className="space-y-1.5">
