@@ -21,7 +21,8 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { seedDemoMSP, deleteDemoMSP } from "@/lib/demoSeedMSP";
 import { toast } from "sonner";
-import { getOffersForCustomer } from "@/lib/customerOffers";
+import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
+import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 
 type ViewMode = "cards" | "table";
 
