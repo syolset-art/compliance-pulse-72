@@ -1024,7 +1024,8 @@ export function MSPMaturityServiceMatrix({
                   key={o.id}
                   offer={o}
                   onAccept={(offer) => setAcceptCtx({ open: true, offer })}
-                  onDecline={declineOffer}
+                  onDecline={(offer) => setDeclineCtx({ open: true, offer })}
+                  onSetState={handleSetOfferState}
                   onDownload={(offer) => toast.success(`Lastet ned ${offer.offerNumber}.pdf`)}
                 />
               ))}
