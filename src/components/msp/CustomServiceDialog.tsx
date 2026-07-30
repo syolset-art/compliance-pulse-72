@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Sparkles, Link2, Plus, Trash2, ListChecks } from "lucide-react";
 import { suggestControlPoints, type ControlSuggestion } from "@/lib/serviceMappingSuggester";
+import { lookupServiceDescription } from "@/lib/serviceDescriptionLookup";
 import { cn } from "@/lib/utils";
 
 import type { ServiceRole } from "@/lib/serviceLibrary";
