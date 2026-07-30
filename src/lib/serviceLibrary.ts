@@ -34,8 +34,6 @@ export interface TemplateFrameworkMapping {
   /** Vises i UI når vi ikke finner framework i katalogen. */
   frameworkLabel: string;
   controlIds: string[];
-  /** Overstyrer template.defaultRoles for denne konkrete koblingen. */
-  roles?: ServiceRole[];
 }
 
 export interface ServiceTemplate {
