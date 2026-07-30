@@ -7,6 +7,10 @@ import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import { computeDeliveryImpact, findEvidenceByIds, totalMaturityDelta } from "@/lib/deliveryImpact";
 import { markReportSent, type SavedOffer } from "@/lib/customerOffers";
 import { DOC_TYPE_LABEL } from "@/lib/partnerEvidence";
+import {
+  pickDeliveryFormTemplate,
+  loadDeliveryForm,
+} from "@/lib/deliveryFormTemplates";
 
 interface Props {
   open: boolean;
