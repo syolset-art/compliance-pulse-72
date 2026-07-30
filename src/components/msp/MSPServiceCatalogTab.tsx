@@ -899,12 +899,11 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                             <TooltipTrigger asChild>
                               <Button
                                 size="sm"
-                                variant="outline"
                                 onClick={(ev) => { ev.stopPropagation(); adoptTemplate(template); }}
-                                className="h-8 gap-1 text-xs"
+                                className="h-8 gap-1 text-xs bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground"
                               >
                                 {pick.recommended ? (
-                                  <Star className="h-3 w-3 fill-primary text-primary" aria-hidden="true" />
+                                  <Star className="h-3 w-3 fill-primary-foreground text-primary-foreground" aria-hidden="true" />
                                 ) : (
                                   <Plus className="h-3.5 w-3.5" aria-hidden="true" />
                                 )}
