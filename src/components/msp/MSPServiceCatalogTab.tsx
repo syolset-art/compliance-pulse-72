@@ -1390,7 +1390,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           />
           <div className="space-y-2">
             <p className="text-base text-foreground/75 italic leading-relaxed">
-              Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
+              Bygg en helt egen tjeneste ved å hake av krav på tvers av regelverk. Lara estimerer omfang basert på valgte krav.
             </p>
             {FRAMEWORK_CATALOG.map((fw) => (
               <FrameworkCoverageCard
