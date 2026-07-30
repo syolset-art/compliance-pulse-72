@@ -765,7 +765,7 @@ export default function MSPDashboard() {
                         {isVisible("services") && (
                           <TableHead className="w-auto text-foreground/80">
                             <ColumnFilter
-                              label="Lara anbefaler"
+                              label="Anbefalte tjenester"
                               options={serviceOptions.map((v) => ({ value: v, label: v }))}
                               selected={serviceFilter}
                               onChange={setServiceFilter}
