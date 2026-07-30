@@ -23,13 +23,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BaselineAreaDocuments } from "@/components/msp/BaselineAreaDocuments";
+import { useBaselineDocuments } from "@/hooks/useBaselineDocuments";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   customerName: string;
+  /** Used to persist per-area documentation. */
+  customerId?: string;
   answers: MaturityAnswers;
   onAnswer: (questionId: string, value: MaturityAnswer) => void;
+
   /** When provided, the drawer opens on the first area with Lara suggestions that are not yet confirmed. */
   reviewMode?: boolean;
   /** Optional Lara scan to derive suggested-source labels. */
