@@ -564,7 +564,7 @@ export function MSPCreateOfferDialog({
                 </div>
                 <div className="divide-y divide-border">
                   {tasks.map((t, i) => (
-                    <div key={i} className="grid grid-cols-[1fr_90px_32px] gap-2 px-3 py-2 items-center">
+                    <div key={i} className="grid grid-cols-[1fr_90px_32px] gap-2 px-3 py-2 items-start">
                       <div className="min-w-0">
                         <Input
                           value={t.label}
@@ -572,6 +572,55 @@ export function MSPCreateOfferDialog({
                           className="h-8 text-sm font-medium border-0 bg-transparent px-0 focus-visible:ring-0"
                         />
                         {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
+                        {coveredGaps && totalGapCount > 0 && (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button
+                                type="button"
+                                className="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline inline-flex items-center gap-1"
+                              >
+                                <ShieldCheck className="h-3 w-3" />
+                                {(t.gapIds ?? []).length > 0
+                                  ? `Lukker ${(t.gapIds ?? []).length} ${(t.gapIds ?? []).length === 1 ? "mangel" : "mangler"}`
+                                  : "Koble mangler"}
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="w-80 p-0">
+                              <div className="px-3 py-2 border-b border-border">
+                                <p className="text-xs font-semibold text-foreground">Mangler denne oppgaven lukker</p>
+                                <p className="text-xs text-muted-foreground">{coveredGaps.frameworkLabel} · {snapshotLabel}</p>
+                              </div>
+                              <ul className="max-h-64 overflow-y-auto divide-y divide-border">
+                                {sortedGaps.map(g => {
+                                  const checked = (t.gapIds ?? []).includes(g.id);
+                                  const takenByOther = !checked && selectedGapIds.has(g.id);
+                                  return (
+                                    <li key={g.id} className="flex items-start gap-2 px-3 py-2">
+                                      <Checkbox
+                                        id={`t${i}-${g.id}`}
+                                        checked={checked}
+                                        onCheckedChange={() => toggleGapOnTask(i, g.id)}
+                                        className="mt-0.5"
+                                      />
+                                      <label htmlFor={`t${i}-${g.id}`} className="flex-1 min-w-0 cursor-pointer">
+                                        <span className="text-xs text-foreground leading-snug">
+                                          {g.title}
+                                          {g.reference && (
+                                            <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                                          )}
+                                        </span>
+                                        {takenByOther && (
+                                          <span className="block text-xs text-muted-foreground">Dekkes av en annen oppgave</span>
+                                        )}
+                                      </label>
+                                      <span className={cn("h-2 w-2 rounded-full mt-1 shrink-0", severityDotClass(g.severity))} />
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            </PopoverContent>
+                          </Popover>
+                        )}
                       </div>
                       <Input
                         type="number"
@@ -583,12 +632,13 @@ export function MSPCreateOfferDialog({
                       <button
                         type="button"
                         onClick={() => removeTask(i)}
-                        className="text-muted-foreground hover:text-destructive flex items-center justify-center"
+                        className="text-muted-foreground hover:text-destructive flex items-center justify-center h-8"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   ))}
+
                 </div>
               </div>
               <Button
