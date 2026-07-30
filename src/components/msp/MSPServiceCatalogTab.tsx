@@ -725,6 +725,21 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           </div>
         </div>
 
+        <p className="flex items-start gap-1.5 text-xs text-muted-foreground leading-relaxed">
+          <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+          <span>
+            Tjenestene under er anbefalinger basert på tjenesteprofilen din — bransjen du opererer i, kundetypene og fagområdene du har oppgitt. Du kan endre profilen under{" "}
+            <button
+              type="button"
+              onClick={() => openWizard()}
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              Tjenesteprofil
+            </button>{" "}
+            i innstillingsknappen (<Settings2 className="inline h-3 w-3 align-[-1px]" aria-hidden="true" />) øverst til høyre.
+          </span>
+        </p>
+
 
 
 
