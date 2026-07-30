@@ -14,7 +14,9 @@ import {
   CheckCircle2,
   MinusCircle,
   type LucideIcon,
+  Paperclip,
 } from "lucide-react";
+
 import { MATURITY_AREAS, deriveLaraSources, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
