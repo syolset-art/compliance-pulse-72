@@ -338,24 +338,11 @@ export function CustomServiceDialog({
               .map((m) => {
                 const key = mappingKey(m);
                 const checked = selectedMappings.has(key);
-                const currentRoles: ServiceRole[] = m.roles ?? [];
-                const toggleRole = (role: ServiceRole) => {
-                  setUserTouchedMappings(true);
-                  setExtraMappings((prev) =>
-                    prev.map((x) => {
-                      if (mappingKey(x) !== key) return x;
-                      const existing = new Set(x.roles ?? []);
-                      if (existing.has(role)) existing.delete(role);
-                      else existing.add(role);
-                      return { ...x, roles: Array.from(existing) };
-                    }),
-                  );
-                };
                 return (
                   <label
                     key={`extra-${key}`}
                     className={cn(
-                      "flex items-start gap-2 rounded-md border bg-background px-2 py-1.5 cursor-pointer transition-colors",
+                      "flex items-center gap-2 rounded-md border bg-background px-2 py-1.5 cursor-pointer transition-colors",
                       checked ? "border-primary/40" : "border-border hover:border-foreground/30",
                     )}
                   >
@@ -373,46 +360,16 @@ export function CustomServiceDialog({
                       }}
                       className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
                     />
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 text-xs flex-wrap">
+                        <span className="inline-flex items-center rounded bg-muted px-1.5 py-0.5 font-semibold text-muted-foreground">
                           {m.frameworkShortName}
                         </span>
-                        <span className="text-xs text-foreground">
-                          {m.controlLabel}
-                          {m.controlId !== m.controlLabel && (
-                            <span className="text-muted-foreground"> ({m.controlId})</span>
-                          )}
-                        </span>
+                        <span className="text-muted-foreground">›</span>
+                        <span className="font-medium text-foreground">{m.controlId}</span>
+                        <span className="text-muted-foreground">›</span>
+                        <span className="text-foreground/80">{m.controlLabel}</span>
                       </div>
-                        {checked && (
-                          <div className="flex flex-wrap gap-1 pt-0.5">
-                            {(Object.keys(ROLE_META) as ServiceRole[]).map((role) => {
-                              const active = currentRoles.includes(role);
-                              return (
-                                <button
-                                  key={role}
-                                  type="button"
-                                  onClick={(ev) => { ev.preventDefault(); toggleRole(role); }}
-                                  title={ROLE_META[role].description}
-                                  className={cn(
-                                    "px-1.5 py-0.5 rounded text-xs transition-colors",
-                                    active
-                                      ? "bg-primary/10 text-primary font-medium"
-                                      : "text-muted-foreground hover:text-foreground",
-                                  )}
-                                >
-                                  {ROLE_META[role].label}
-                                </button>
-                              );
-                            })}
-                            {currentRoles.length === 0 && (
-                              <span className="text-xs text-muted-foreground italic self-center">
-                                Velg minst én rolle
-                              </span>
-                            )}
-                          </div>
-                        )}
                     </div>
                     <Button
                       type="button"
