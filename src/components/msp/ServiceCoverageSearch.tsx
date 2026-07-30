@@ -104,11 +104,6 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
 
   const selectedCount = selectedKey ? 1 : 0;
 
-  const toggleRow = (it: ControlSuggestion) => {
-    const k = keyFor(it);
-    setSelectedKey((prev) => (prev === k ? null : k));
-  };
-
   const handleOpenForEdit = () => {
     if (!debounced || groups.length === 0 || isDuplicate || selectedCount === 0) return;
     const selected = suggestions.find((s) => selectedKey === keyFor(s));
@@ -156,11 +151,6 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
               <>
                 <Plus className="h-4 w-4" />
                 Åpne og rediger
-                {selectedCount > 0 && (
-                  <span className="ml-1 inline-flex items-center justify-center rounded-full bg-primary-foreground/20 px-1.5 py-0 text-[10px] font-medium">
-                    {selectedCount}
-                  </span>
-                )}
               </>
             )}
           </Button>
@@ -183,90 +173,91 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
       {groups.length > 0 && (
         <div className="space-y-2">
           <div className="rounded-md border border-border bg-card overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[44px] px-3" />
-                  <TableHead className="w-[140px]">Regelverk</TableHead>
-                  <TableHead className="w-[110px]">Krav</TableHead>
-                  <TableHead>Kontrollpunkt
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Info className="inline h-3.5 w-3.5 ml-1 text-muted-foreground cursor-help" aria-label="Hva er et kontrollpunkt?" />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-xs">
-                          <p>Et kontrollpunkt er et spesifikt krav eller sikkerhetstiltak i regelverket som tjenesten din kan bidra til å oppfylle.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </TableHead>
-                  <TableHead className="w-[160px]">
-                    <span className="inline-flex items-center gap-1">
-                      Treff
-                      <AiMappingDisclosure variant="icon" />
-                    </span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-            <TableBody>
-              {groups.flatMap((g) =>
-                g.items.map((it) => {
-                  const theme = getFrameworkTheme(it.frameworkId);
-                  const k = keyFor(it);
-                  const checked = selectedKeys.has(k);
-                  return (
-                    <TableRow
-                      key={k}
-                      className={cn(
-                        !checked && "opacity-60",
-                      )}
-                    >
-                      <TableCell className="px-3">
-                        <Checkbox
-                          checked={checked}
-                          onCheckedChange={() => toggleRow(it)}
-                          aria-label={`Velg ${it.controlId}`}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <span
+            <RadioGroup value={selectedKey ?? ""} onValueChange={setSelectedKey}>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[44px] px-3" />
+                    <TableHead className="w-[140px]">Regelverk</TableHead>
+                    <TableHead className="w-[110px]">Krav</TableHead>
+                    <TableHead>
+                      <span className="inline-flex items-center gap-1">
+                        Kontrollpunkt
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="inline h-3.5 w-3.5 text-muted-foreground cursor-help" aria-label="Hva er et kontrollpunkt?" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              <p>Et kontrollpunkt er et spesifikt krav eller sikkerhetstiltak i regelverket som tjenesten din kan bidra til å oppfylle.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </span>
+                    </TableHead>
+                    <TableHead className="w-[160px]">
+                      <span className="inline-flex items-center gap-1">
+                        Treff
+                        <AiMappingDisclosure variant="icon" />
+                      </span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {groups.flatMap((g) =>
+                    g.items.map((it) => {
+                      const theme = getFrameworkTheme(it.frameworkId);
+                      const k = keyFor(it);
+                      const checked = selectedKey === k;
+                      return (
+                        <TableRow
+                          key={k}
                           className={cn(
-                            "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                            theme.chip,
+                            !checked && "opacity-60",
                           )}
                         >
-                          {it.frameworkShortName}
-                        </span>
-                      </TableCell>
-                      <TableCell className="font-medium text-foreground/90">
-                        {it.controlId}
-                      </TableCell>
-                      <TableCell className="text-foreground/80">
-                        {it.controlLabel}
-                      </TableCell>
-                      <TableCell>
-                        {it.matchedTerms.length > 0 ? (
-                          <span className="inline-flex flex-wrap gap-1">
-                            {it.matchedTerms.map((term) => (
-                              <span
-                                key={term}
-                                className="inline-flex items-center rounded border border-border bg-background px-1.5 py-0.5 text-[11px] text-muted-foreground"
-                              >
-                                {term}
+                          <TableCell className="px-3">
+                            <RadioGroupItem value={k} aria-label={`Velg ${it.controlId}`} />
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={cn(
+                                "inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                                theme.chip,
+                              )}
+                            >
+                              {it.frameworkShortName}
+                            </span>
+                          </TableCell>
+                          <TableCell className="font-medium text-foreground/90">
+                            {it.controlId}
+                          </TableCell>
+                          <TableCell className="text-foreground/80">
+                            {it.controlLabel}
+                          </TableCell>
+                          <TableCell>
+                            {it.matchedTerms.length > 0 ? (
+                              <span className="inline-flex flex-wrap gap-1">
+                                {it.matchedTerms.map((term) => (
+                                  <span
+                                    key={term}
+                                    className="inline-flex items-center rounded border border-border bg-background px-1.5 py-0.5 text-[11px] text-muted-foreground"
+                                  >
+                                    {term}
+                                  </span>
+                                ))}
                               </span>
-                            ))}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                }),
-              )}
-            </TableBody>
-          </Table>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </RadioGroup>
           </div>
         </div>
       )}
