@@ -78,6 +78,41 @@ function formatNOK(n: number): string {
   return new Intl.NumberFormat("nb-NO").format(Math.round(n)) + " kr";
 }
 
+const MYNDER_PRODUCTS: Array<{
+  id: string;
+  moduleKey: ModuleKey;
+  name: string;
+  commissionPct: number;
+  fromPrice: number;
+  tiers: Array<{ label: string; priceKr: number; isFree?: boolean }>;
+}> = [
+  {
+    id: "core",
+    moduleKey: "core",
+    name: "Mynder Core",
+    commissionPct: 30,
+    fromPrice: CORE_TIERS[0].monthlyPriceKr,
+    tiers: CORE_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr })),
+  },
+  {
+    id: "vendors",
+    moduleKey: "vendors",
+    name: "Leverandørmodulen",
+    commissionPct: 30,
+    fromPrice: VENDOR_TIERS[1].monthlyPriceKr,
+    tiers: VENDOR_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr, isFree: t.isFree })),
+  },
+  {
+    id: "assets",
+    moduleKey: "assets",
+    name: "Assets",
+    commissionPct: 25,
+    fromPrice: 490,
+    tiers: [{ label: "Standard", priceKr: 490 }],
+  },
+];
+
+
 function formatSupportedSummary(template: ServiceTemplate): string {
   const mappings = template.mappings ?? [];
   if (mappings.length === 0) return "—";
@@ -969,15 +1004,21 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         const lockedCount = mine.filter((e) => !!getLockInfo({ templateId: e.templateId, name: e.name })).length;
         return (
           <section ref={catalogSectionRef} id="min-katalog" className="space-y-2 scroll-mt-24">
-            <div className="flex items-baseline justify-end gap-3">
-              {mine.length > 0 && (
-                <span className="text-sm text-foreground/70 whitespace-nowrap">
-                  {mine.length} {mine.length === 1 ? "tjeneste" : "tjenester"}
-                  {lockedCount > 0 && <> · {lockedCount} på tilbud</>}
-                </span>
-              )}
+            <div className="flex flex-col items-end gap-0.5">
+              <div className="flex items-baseline justify-end gap-3">
+                {mine.length > 0 && (
+                  <span className="text-sm text-foreground/70 whitespace-nowrap">
+                    {mine.length} {mine.length === 1 ? "tjeneste" : "tjenester"}
+                    {lockedCount > 0 && <> · {lockedCount} på tilbud</>}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground text-right">
+                {mine.length} {mine.length === 1 ? "tjeneste" : "tjenester"} og {MYNDER_PRODUCTS.length} produkter fra Mynder i katalogen.
+              </p>
             </div>
             <div className="rounded-md border border-border bg-card">
+
               <div className="flex items-center gap-3 px-3 py-2 bg-muted/30 border-b border-border">
                 <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 inline-flex items-center gap-1.5">
                   Tjeneste
@@ -1219,46 +1260,14 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
 
       {/* Mynder-produkter — videresalg med provisjon (kollapsbar) */}
       {(() => {
-        type ProductRow = {
-          id: string;
-          moduleKey: ModuleKey;
-          name: string;
-          commissionPct: number;
-          fromPrice: number;
-          tiers: Array<{ label: string; priceKr: number; isFree?: boolean }>;
-        };
-        const products: ProductRow[] = [
-          {
-            id: "core",
-            moduleKey: "core",
-            name: "Mynder Core",
-            commissionPct: 30,
-            fromPrice: CORE_TIERS[0].monthlyPriceKr,
-            tiers: CORE_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr })),
-          },
-          {
-            id: "vendors",
-            moduleKey: "vendors",
-            name: "Leverandørmodulen",
-            commissionPct: 30,
-            fromPrice: VENDOR_TIERS[1].monthlyPriceKr,
-            tiers: VENDOR_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr, isFree: t.isFree })),
-          },
-          {
-            id: "assets",
-            moduleKey: "assets",
-            name: "Assets",
-            commissionPct: 25,
-            fromPrice: 490,
-            tiers: [{ label: "Standard", priceKr: 490 }],
-          },
-        ];
+        const products = MYNDER_PRODUCTS;
         const sym = currencyOption.symbol;
         const trailing = sym === "kr";
         const fmt = (n: number) =>
           `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${sym}`;
         const fmtPrice = (n: number) => (trailing ? fmt(n) : `${sym} ${Math.round(n)}`);
         return (
+
           <section className="space-y-3">
             <button
               type="button"
