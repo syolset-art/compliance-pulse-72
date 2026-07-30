@@ -344,9 +344,23 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                     {urlErr && <span className="text-[10px] text-destructive ml-1">{urlErr}</span>}
                   </span>
                 ) : hostname ? (
-                  <a href={customer.url || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
-                    {hostname} <ExternalLink className="h-3 w-3" aria-hidden="true" />
-                  </a>
+                  <span className="inline-flex items-center gap-1">
+                    <a href={customer.url || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+                      {hostname} <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                    <TooltipProvider delayDuration={150}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex align-middle">
+                            <Sparkles className="h-3 w-3 text-primary/70" aria-hidden="true" />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <p className="text-sm">Kartlagt automatisk da kunden ble opprettet. Klikk på blyanten for å endre.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </span>
                 ) : (
                   <button onClick={() => startEdit("url")} className="inline-flex items-center gap-1 text-primary hover:underline text-xs">
                     <Globe className="h-3 w-3" aria-hidden="true" /> Legg til nettsted
