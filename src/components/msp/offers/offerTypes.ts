@@ -32,6 +32,10 @@ export interface PartnerOffer {
   declineReason?: string;
   tasks?: OfferTaskLine[];
   attachmentLabel?: string;
+  /** Hvor statusen kom fra: satt manuelt av partner, eller automatisk av en agent. */
+  statusSource?: "partner" | "agent";
+  /** Navn på person eller agent som satte gjeldende status. */
+  statusSetBy?: string;
 }
 
 export function formatOfferDate(iso?: string): string {
