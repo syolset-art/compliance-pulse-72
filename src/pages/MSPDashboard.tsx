@@ -879,25 +879,46 @@ export default function MSPDashboard() {
                             )}
                             {isVisible("services") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
-                                {services.length === 0 ? (
-                                  <span className="text-muted-foreground text-sm">—</span>
-                                ) : (
-                                  <div className="flex flex-wrap gap-1 max-w-[280px]">
-                                    {services.map((s) => (
-                                      <button
-                                        key={s}
-                                        type="button"
-                                        onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
-                                        className="inline-flex"
-                                        title={`Åpne tjenester for ${c.customer_name}`}
-                                      >
-                                        <Badge variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[12px] cursor-pointer hover:bg-primary/20 transition-colors">
-                                          {s}
-                                        </Badge>
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
+                                {(() => {
+                                  const recommended = services.filter((s) => !activeServices.includes(s));
+                                  const all = [...activeServices, ...recommended];
+                                  if (all.length === 0) {
+                                    return <span className="text-muted-foreground text-sm">—</span>;
+                                  }
+                                  return (
+                                    <div className="flex flex-wrap gap-1 max-w-[280px]">
+                                      {activeServices.slice(0, 3).map((s) => (
+                                        <button
+                                          key={s}
+                                          type="button"
+                                          onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
+                                          className="inline-flex"
+                                          title={`Aktiv tjeneste for ${c.customer_name}`}
+                                        >
+                                          <Badge variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[12px] cursor-pointer hover:bg-success/20 transition-colors">
+                                            {s}
+                                          </Badge>
+                                        </button>
+                                      ))}
+                                      {recommended.slice(0, Math.max(0, 3 - activeServices.length)).map((s) => (
+                                        <button
+                                          key={s}
+                                          type="button"
+                                          onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
+                                          className="inline-flex"
+                                          title={`Anbefalt tjeneste for ${c.customer_name}`}
+                                        >
+                                          <Badge variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[12px] cursor-pointer hover:bg-primary/20 transition-colors">
+                                            {s}
+                                          </Badge>
+                                        </button>
+                                      ))}
+                                      {all.length > 3 && (
+                                        <span className="text-[11px] text-muted-foreground self-center">+{all.length - 3}</span>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
                               </TableCell>
                             )}
                             {isVisible("products") && (
