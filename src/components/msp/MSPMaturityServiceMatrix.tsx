@@ -35,6 +35,9 @@ import { ConfirmActivityDialog, type EvidenceFileMeta, type ConfirmPayload } fro
 import { OngoingDeliveriesList } from "./OngoingDeliveriesList";
 import { toast } from "sonner";
 import { PARTNER_SERVICES, getService } from "@/lib/serviceCatalog";
+import { OfferListRow } from "./offers/OfferListRow";
+import { ConfirmOfferAcceptanceDialog } from "./offers/ConfirmOfferAcceptanceDialog";
+import type { OfferApproval, PartnerOffer } from "./offers/offerTypes";
 
 export type TaskOwner = "Partner" | "Kunde";
 
@@ -143,18 +146,7 @@ const RECOMMENDATIONS: Recommendation[] = [
   },
 ];
 
-interface SavedOffer {
-  id: string;
-  offerNumber: string;
-  serviceTitle: string;
-  frameworkLabel?: string;
-  createdAt: string; // ISO
-  createdBy: string;
-  taskCount: number;
-  totalHours: number;
-  totalPrice: number;
-  status: "not_started" | "in_progress";
-}
+type SavedOffer = PartnerOffer;
 
 const SAVED_OFFERS_SEED: SavedOffer[] = [
   {
@@ -164,22 +156,47 @@ const SAVED_OFFERS_SEED: SavedOffer[] = [
     frameworkLabel: "ISO 27001",
     createdAt: "2026-05-12T09:20:00Z",
     createdBy: "Truls Hansen",
-    taskCount: 6,
+    taskCount: 3,
     totalHours: 90,
     totalPrice: 135000,
-    status: "in_progress",
+    hourlyRate: 1500,
+    offerState: "accepted",
+    sentAt: "2026-05-13T09:00:00Z",
+    respondedAt: "2026-05-20T09:00:00Z",
+    approval: {
+      approvedBy: "Marte Lie",
+      approverRole: "Daglig leder",
+      method: "E-post",
+      date: "2026-05-20",
+      reference: "E-post 20.05.2026",
+    },
+    tasks: [
+      { label: "Scoping og forankring", hours: 12 },
+      { label: "Gap-analyse mot ISO 27001", hours: 38 },
+      { label: "Dokumentasjon og innføring", hours: 40 },
+    ],
+    attachmentLabel: "Gap-analyse ISO 27001.pdf",
   },
   {
     id: "of-2",
     offerNumber: "T-2026-1231",
     serviceTitle: "Awareness-program",
-    frameworkLabel: "ISO 27001",
-    createdAt: "2026-04-28T13:05:00Z",
+    frameworkLabel: "Åpenhetsloven",
+    createdAt: "2026-07-28T13:05:00Z",
     createdBy: "Truls Hansen",
-    taskCount: 4,
+    taskCount: 3,
     totalHours: 60,
     totalPrice: 90000,
-    status: "not_started",
+    hourlyRate: 1500,
+    offerState: "sent",
+    sentAt: "2026-07-30T08:10:00Z",
+    respondedAt: "2026-07-30T11:00:00Z",
+    tasks: [
+      { label: "Scoping", hours: 8 },
+      { label: "Gap-analyse", hours: 22 },
+      { label: "Leveranse og opplæring", hours: 30 },
+    ],
+    attachmentLabel: "Gap-analyse Åpenhetsloven.pdf",
   },
   {
     id: "of-3",
@@ -188,12 +205,55 @@ const SAVED_OFFERS_SEED: SavedOffer[] = [
     frameworkLabel: "NIS2",
     createdAt: "2026-04-15T10:42:00Z",
     createdBy: "Anita Berg",
-    taskCount: 5,
+    taskCount: 3,
     totalHours: 100,
     totalPrice: 150000,
-    status: "not_started",
+    hourlyRate: 1500,
+    offerState: "sent",
+    sentAt: "2026-04-16T10:00:00Z",
+    tasks: [
+      { label: "Scoping og kartlegging", hours: 20 },
+      { label: "Gap-analyse mot NIS2", hours: 40 },
+      { label: "Tiltaksplan og rapport", hours: 40 },
+    ],
+  },
+  {
+    id: "of-4",
+    offerNumber: "T-2026-1288",
+    serviceTitle: "Penetrasjonstest",
+    frameworkLabel: "GDPR",
+    createdAt: "2026-07-24T09:00:00Z",
+    createdBy: "Truls Hansen",
+    taskCount: 3,
+    totalHours: 60,
+    totalPrice: 90000,
+    hourlyRate: 1500,
+    offerState: "draft",
+    tasks: [
+      { label: "Scoping og forberedelse", hours: 8 },
+      { label: "Ekstern penetrasjonstest", hours: 40 },
+      { label: "Rapport og gjennomgang", hours: 12 },
+    ],
+  },
+  {
+    id: "of-5",
+    offerNumber: "T-2026-1290",
+    serviceTitle: "Personvernrutiner",
+    frameworkLabel: "GDPR",
+    createdAt: "2026-07-29T14:30:00Z",
+    createdBy: "Anita Berg",
+    taskCount: 2,
+    totalHours: 24,
+    totalPrice: 36000,
+    hourlyRate: 1500,
+    offerState: "draft",
+    tasks: [
+      { label: "Kartlegging av behandlinger", hours: 10 },
+      { label: "Rutiner og dokumentasjon", hours: 14 },
+    ],
   },
 ];
+
 
 
 export type LaraStep = string | { text: string; via?: string };
@@ -549,6 +609,67 @@ export function MSPMaturityServiceMatrix({
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
   const [savedOffers, setSavedOffers] = useState<SavedOffer[]>(SAVED_OFFERS_SEED);
+  const draftOffers = savedOffers.filter((o) => o.offerState === "draft");
+  const sentOffers = savedOffers.filter((o) => o.offerState !== "draft");
+
+  const [acceptCtx, setAcceptCtx] = useState<{ open: boolean; offer: SavedOffer | null }>({
+    open: false,
+    offer: null,
+  });
+
+  const patchOffer = (id: string, patch: Partial<SavedOffer>) =>
+    setSavedOffers((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)));
+
+  const sendOffer = (offer: SavedOffer) => {
+    patchOffer(offer.id, { offerState: "sent", sentAt: new Date().toISOString() });
+    toast.success(`${offer.offerNumber} sendt til ${customerName}`);
+    setActiveTab("ongoing");
+  };
+
+  const deleteDraft = (offer: SavedOffer) => {
+    setSavedOffers((prev) => prev.filter((o) => o.id !== offer.id));
+    toast.success(`Utkast ${offer.offerNumber} slettet`);
+  };
+
+  const declineOffer = (offer: SavedOffer) => {
+    patchOffer(offer.id, {
+      offerState: "declined",
+      respondedAt: new Date().toISOString(),
+      declineReason: "Registrert som avslått av partner",
+    });
+    toast(`${offer.offerNumber} markert som avslått`);
+  };
+
+  const acceptOffer = (approval: OfferApproval) => {
+    const offer = acceptCtx.offer;
+    if (!offer) return;
+    patchOffer(offer.id, {
+      offerState: "accepted",
+      respondedAt: new Date(approval.date).toISOString(),
+      approval,
+    });
+    toast.success(`${offer.offerNumber} er akseptert`, {
+      description: `Godkjent av ${approval.approvedBy} · ${approval.method}. Oppdraget er klart til levering.`,
+    });
+  };
+
+  const openOfferPreview = (o: SavedOffer) =>
+    setOfferCtx({
+      open: true,
+      serviceTitle: o.serviceTitle,
+      variant: "Tjeneste",
+      attachGap: false,
+      gapFrameworkId: undefined,
+      hourlyRate: o.hourlyRate ?? (o.totalHours > 0 ? Math.round(o.totalPrice / o.totalHours) : 1500),
+      defaultTasks: (o.tasks ?? [{ label: o.serviceTitle, hours: o.totalHours }]).map((t) => ({
+        label: t.label,
+        hours: t.hours,
+        owner: "Partner" as TaskOwner,
+        weeks: "",
+      })),
+      initialView: "preview",
+    });
+
 
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
@@ -711,17 +832,22 @@ export function MSPMaturityServiceMatrix({
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
         <TabsList>
           <TabsTrigger value="recommended" className="gap-2">
-            Anbefalte tjenester
+            Tjenester
             <Badge variant="secondary" className="h-5 px-1.5 text-xs">{RECOMMENDATIONS.length}</Badge>
           </TabsTrigger>
+          <TabsTrigger value="drafts" className="gap-2">
+            Utkast
+            <Badge variant="secondary" className="h-5 px-1.5 text-xs">{draftOffers.length}</Badge>
+          </TabsTrigger>
           <TabsTrigger value="ongoing" className="gap-2">
-            Tilbud
-            <Badge variant="secondary" className="h-5 px-1.5 text-xs">{savedOffers.length}</Badge>
+            Tilbud levert
+            <Badge variant="secondary" className="h-5 px-1.5 text-xs">{sentOffers.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="deliveries" className="gap-2">
             Pågående oppdrag
             <Badge variant="secondary" className="h-5 px-1.5 text-xs">{DELIVERIES.length}</Badge>
           </TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="recommended" className="mt-0">
@@ -830,104 +956,47 @@ export function MSPMaturityServiceMatrix({
         </TabsContent>
 
 
-        <TabsContent value="ongoing" className="mt-0">
-          {savedOffers.length === 0 ? (
+        <TabsContent value="drafts" className="mt-0">
+          {draftOffers.length === 0 ? (
             <Card className="p-8 text-center text-sm text-muted-foreground">
-              Ingen tilbud er lagret enda. Bruk "Lag tilbud" på en anbefalt tjeneste for å komme i gang.
+              Ingen utkast. Bruk «Lag tilbud» på en tjeneste for å komme i gang.
             </Card>
           ) : (
-            <Card className="overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[110px] text-left">Tilbudsnr.</TableHead>
-                    <TableHead className="text-left">Tjeneste</TableHead>
-                    <TableHead className="w-[120px] text-left">Regelverk</TableHead>
-                    <TableHead className="w-[120px] text-left">Laget</TableHead>
-                    <TableHead className="w-[140px] text-left">Av</TableHead>
-                    <TableHead className="w-[140px] text-left">Sum</TableHead>
-                    <TableHead className="w-[100px] text-left">Handlinger</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {savedOffers.map(o => {
-                    const created = new Date(o.createdAt).toLocaleDateString("nb-NO", {
-                      day: "2-digit", month: "short", year: "numeric",
-                    });
-                    return (
-                      <TableRow
-                        key={o.id}
-                        className="cursor-pointer hover:bg-muted/40"
-                        onClick={() =>
-                          setOfferCtx({
-                            open: true,
-                            serviceTitle: o.serviceTitle,
-                            variant: "Tjeneste",
-                            attachGap: false,
-                            gapFrameworkId: undefined,
-                            hourlyRate: o.totalHours > 0 ? Math.round(o.totalPrice / o.totalHours) : 1500,
-                            defaultTasks: [
-                              { label: o.serviceTitle, hours: o.totalHours, owner: "Partner", weeks: "" },
-                            ],
-                            initialView: "preview",
-                          })
-                        }
-                      >
-                        <TableCell className="font-mono text-[12px] text-muted-foreground">
-                          {o.offerNumber}
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-foreground text-sm">{o.serviceTitle}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {o.taskCount} tiltak · {o.totalHours} timer
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {o.frameworkLabel ? (
-                            <Badge variant="outline" className="text-xs gap-1">
-                              <FileText className="h-3 w-3" />
-                              {o.frameworkLabel}
-                            </Badge>
-                          ) : (
-                            <span className="text-[12px] text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-[12px] text-muted-foreground">{created}</TableCell>
-                        <TableCell className="text-[12px] text-foreground">{o.createdBy}</TableCell>
-                        <TableCell className="text-right text-sm font-medium tabular-nums">
-                          {o.totalPrice.toLocaleString("nb-NO")} kr
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0"
-                              title="Del tilbud"
-                              onClick={() => setShareCtx({ open: true, offerNumber: o.offerNumber, serviceTitle: o.serviceTitle })}
-                            >
-                              <Share2 className="h-3.5 w-3.5" />
-                            </Button>
-
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0"
-                              title="Last ned PDF"
-                              onClick={() => toast.success(`Lastet ned ${o.offerNumber}.pdf`)}
-                            >
-                              <Download className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </Card>
+            <div className="space-y-2">
+              {draftOffers.map((o) => (
+                <OfferListRow
+                  key={o.id}
+                  offer={o}
+                  onOpen={openOfferPreview}
+                  onSend={sendOffer}
+                  onDelete={deleteDraft}
+                  onDownload={(offer) => toast.success(`Lastet ned ${offer.offerNumber}.pdf`)}
+                />
+              ))}
+            </div>
           )}
         </TabsContent>
+
+        <TabsContent value="ongoing" className="mt-0">
+          {sentOffers.length === 0 ? (
+            <Card className="p-8 text-center text-sm text-muted-foreground">
+              Ingen tilbud er sendt til kunden enda.
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {sentOffers.map((o) => (
+                <OfferListRow
+                  key={o.id}
+                  offer={o}
+                  onAccept={(offer) => setAcceptCtx({ open: true, offer })}
+                  onDecline={declineOffer}
+                  onDownload={(offer) => toast.success(`Lastet ned ${offer.offerNumber}.pdf`)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
 
 
 
@@ -958,6 +1027,14 @@ export function MSPMaturityServiceMatrix({
         coveredControls={offerCtx.coveredControls}
         coveredGaps={offerCtx.coveredGaps}
         initialView={offerCtx.initialView}
+      />
+
+      <ConfirmOfferAcceptanceDialog
+        open={acceptCtx.open}
+        onOpenChange={(o) => setAcceptCtx((s) => ({ ...s, open: o }))}
+        offer={acceptCtx.offer}
+        customerName={customerName}
+        onConfirm={acceptOffer}
       />
 
       <ShareOfferDialog
