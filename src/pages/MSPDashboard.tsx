@@ -936,12 +936,12 @@ export default function MSPDashboard() {
                                   return (
                                     <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
                                       {products.map((p) => (
-                                        <Badge key={p} variant="outline" className="font-normal bg-primary/10 text-foreground border-primary/30 text-[11px]">
+                                        <Badge key={p} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
                                           {p}
                                         </Badge>
                                       ))}
                                       {serviceCount > 0 && (
-                                        <Badge variant="outline" className="font-normal bg-primary/15 text-foreground border-primary/40 text-[11px]">
+                                        <Badge variant="outline" className="font-normal bg-success/15 text-foreground border-success/40 text-[11px]">
                                           {serviceCount} {serviceCount === 1 ? "tjeneste" : "tjenester"}
                                         </Badge>
                                       )}
