@@ -23,13 +23,13 @@ import { cn } from "@/lib/utils";
  */
 
 const SHORT_TEXT =
-  "Koblingen mellom tjenester og krav er foreslått av Lara — ikke verifisert av menneske. Forholdet er ikke 1:1.";
+  "Alle tjenester har en kobling til regelverk og krav. Aktiviteter er foreslått av en AI-agent — ikke verifisert av menneske. Forholdet er ikke 1:1.";
 
 const LONG_TITLE = "Slik er koblingen laget";
 
 const LONG_BODY = [
-  "Lara foreslår relevante krav og artikler basert på tjenestens beskrivelse og aktiviteter.",
-  "Forslagene genereres med AI og kan inneholde feil.",
+  "Alle tjenester har en kobling til regelverk og krav.",
+  "Aktiviteter er foreslått av en AI-agent og kan inneholde feil.",
 ];
 
 function LongContent() {
