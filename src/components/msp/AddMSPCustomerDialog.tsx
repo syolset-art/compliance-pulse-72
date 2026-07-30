@@ -268,10 +268,12 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
     // Enrich industry
     let enriched: BrregResult = { ...company };
+    let websiteFromAi = false;
     const isMissing = (c: BrregResult) => {
       const b = c.naeringskode1?.beskrivelse?.trim().toLowerCase();
       return !b || b === "uoppgitt" || b === "ikke oppgitt";
     };
+
 
     // 1. Full detail on main entity
     try {
