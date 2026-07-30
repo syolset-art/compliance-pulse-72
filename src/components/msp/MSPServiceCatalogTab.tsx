@@ -227,6 +227,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
   const [hourlyRate, setHourlyRate] = useState<number>(defaultHourlyRate);
   const [manualOpen, setManualOpen] = useState(false);
   const [extras, setExtras] = useState<ExtraService[]>(() => []);
+  const [searchDraft, setSearchDraft] = useState<CustomServiceDraft | null>(null);
   const { getLockInfo, isLocked } = useSavedOffers();
   const [showCalculator, setShowCalculator] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -518,6 +519,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
       );
       toast.success(`"${draft.name}" oppdatert`);
       setEditingId(null);
+      setSearchDraft(null);
       return;
     }
     const fromTemplate = previewTemplate;
@@ -543,6 +545,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
       },
     });
     setPreviewTemplate(null);
+    setSearchDraft(null);
   };
 
   const removeExtra = (id: string) => {
@@ -615,6 +618,8 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         mappings: editingService.mappings,
         priceOverride: editingService.priceOverride,
       }
+    : searchDraft
+    ? searchDraft
     : previewTemplate
     ? buildDraftFromTemplate(previewTemplate)
     : undefined;
@@ -658,25 +663,18 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
       {/* Global søk — over arkfanene, alltid tilgjengelig */}
       <ServiceCoverageSearch
         existingNames={extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => e.name)}
-        onAdd={({ name, description, mappings }) => {
-          const next: ExtraService = {
-            id: `search-${Date.now()}`,
+        onCreate={({ name, suggestedDescription, mappings }) => {
+          setSearchDraft({
             name,
-            description,
+            description: suggestedDescription,
+            descriptionFromAi: true,
             hours: 0,
             activities: [],
-            source: "manual",
             mappings,
-          };
-          setExtras((prev) => [...prev, next]);
-          setActiveTab("mine");
-          revealInCatalog(next.id);
-          toast.success(`La til «${name}» i din tjenestekatalog`, {
-            description: description
-              ? "Beskrivelse fylt inn automatisk — juster aktiviteter og pris."
-              : "Rediger for å justere aktiviteter og pris.",
-            action: { label: "Vis i katalogen", onClick: () => revealInCatalog(next.id) },
           });
+          setEditingId(null);
+          setPreviewTemplate(null);
+          setManualOpen(true);
         }}
       />
 
@@ -1417,7 +1415,14 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
 
       <CustomServiceDialog
         open={manualOpen}
-        onOpenChange={(o) => { setManualOpen(o); if (!o) { setEditingId(null); setPreviewTemplate(null); } }}
+        onOpenChange={(o) => {
+          setManualOpen(o);
+          if (!o) {
+            setEditingId(null);
+            setPreviewTemplate(null);
+            setSearchDraft(null);
+          }
+        }}
         onSave={handleManualSave}
         defaultHourlyRate={hourlyRate}
         initial={editingDraft}

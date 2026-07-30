@@ -42,6 +42,8 @@ export interface CustomServiceDraft {
   mappings: ServiceMapping[];
   /** Overstyrt totalpris. Hvis satt, brukes denne i stedet for hours × timepris. */
   priceOverride?: number;
+  /** Beskrivelsen kom fra KI-forslag (f.eks. ServiceCoverageSearch). */
+  descriptionFromAi?: boolean;
 }
 
 interface Props {
@@ -73,6 +75,7 @@ export function CustomServiceDialog({
 }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionFromAi, setDescriptionFromAi] = useState(false);
   const [activities, setActivities] = useState<ServiceActivity[]>([]);
   const [selectedMappings, setSelectedMappings] = useState<Set<string>>(new Set());
   /** Mappings som ikke finnes blant Lara-forslag (f.eks. fra adopterte maler) — beholdes som-er. */
@@ -87,6 +90,7 @@ export function CustomServiceDialog({
     if (initial) {
       setName(initial.name);
       setDescription(initial.description ?? "");
+      setDescriptionFromAi(initial.descriptionFromAi ?? false);
       setActivities(
         initial.activities.length > 0
           ? initial.activities
@@ -101,6 +105,7 @@ export function CustomServiceDialog({
     } else {
       setName("");
       setDescription("");
+      setDescriptionFromAi(false);
       setActivities([{ label: "", hours: 1 }]);
       setSelectedMappings(new Set());
       setExtraMappings([]);
@@ -208,11 +213,29 @@ export function CustomServiceDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="cs-desc">Beskrivelse (valgfritt)</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="cs-desc">
+                Beskrivelse
+                {descriptionFromAi && (
+                  <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
+                    <Sparkles className="h-3 w-3" />
+                    Foreslått av KI
+                  </span>
+                )}
+              </Label>
+              {descriptionFromAi && (
+                <span className="text-[11px] text-muted-foreground">
+                  Kontroller før lagring
+                </span>
+              )}
+            </div>
             <Textarea
               id="cs-desc"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setDescriptionFromAi(false);
+              }}
               placeholder="Legg til detaljer for bedre forslag"
               rows={2}
             />

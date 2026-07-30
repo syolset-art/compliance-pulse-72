@@ -1,27 +1,52 @@
-## Problem
+## Mål
+Endre `ServiceCoverageSearch` slik at AI-forslag til beskrivelse ikke vises mens brukeren søker. Beskrivelsesforslaget skal først vises når brukeren har valgt treff og åpner tjenesten for redigering.
 
-I tabellen på «Alle»-fanen viser Status-kolonnen «Klar til bruk» / «Bør tilpasses». Skillet er utledet av `template.delivery` (`recurring` = «Bør tilpasses») og sier lite for partneren.
+## Nåværende tilstand (bekreftet)
+- `src/components/msp/ServiceCoverageSearch.tsx` viser umiddelbart et "Foreslått beskrivelse"-felt (linje 193-253) basert på `debounced` søketekst.
+- `onAdd` i `ServiceCoverageSearch` legger tjenesten direkte til i katalogen uten redigeringssteg.
+- `src/components/msp/CustomServiceDialog.tsx` støtter redigering av navn, beskrivelse, aktiviteter, timer, pris og mappings.
 
-## Endring
+## Endringer
 
-Bytt Status-kolonnen med **Aktiviteter** — antall foreslåtte aktiviteter i malen (`template.activities`), som brukeren ser i detalj når tjenesten åpnes.
+### 1. Fjern beskrivelsesforslag fra søkepanelet
+- I `ServiceCoverageSearch.tsx`: Slett hele beskrivelsesseksjonen (linje 193-253) som viser `suggestedDescription` / `descEditing` / `descOverride`.
+- Slett tilhørende tilstand: `descOverride`, `descEditing`, `suggestedDescription`, `currentDescription`, `isOverridden`.
+- Slett import av `Textarea`, `Pencil`, `RotateCcw`, `Sparkles` dersom de ikke lenger brukes.
 
-```text
-Tjeneste            Støtter                  Aktiviteter        Handling
-DPO-as-a-service    GDPR + 6 krav            5 aktiviteter      [Legg til]
-Penetrasjonstest    NIS2 + 4 krav            4 aktiviteter      [Legg til]
-```
+### 2. Endre "Opprett" til "Åpne for redigering"
+- Bytt ut `onAdd`-proppen med `onCreate` som returnerer:
+  - `name` (søketekst)
+  - `selectedMappings` (de valgte kontrollpunktene)
+  - `suggestedDescription` (AI-forslag hentet ved `lookupServiceDescription`)
+- Knappetekst endres fra "Opprett" til "Åpne og rediger" eller lignende.
+- Tjenesten legges IKKE til i katalogen før brukeren lagrer i dialogen.
 
-**Konkret i `src/components/msp/MSPServiceCatalogTab.tsx`:**
-- Kolonneoverskrift «Status» → «Aktiviteter».
-- Cellen viser `template.activities.length` som nøytral tekst («5 aktiviteter», «1 aktivitet», «—» hvis tom) — ikke en farget pille, siden dette er et tall og ikke en tilstand.
-- Tooltip på tallet lister de 3–4 første aktivitetsnavnene med «… og N til», og avsluttes med «Åpne tjenesten for å se alle aktivitetene».
-- `templateStatus()`-hjelperen fjernes hvis den ikke brukes andre steder; ellers beholdes den urørt.
-- Estimert timetall per aktivitet vises ikke her — det ligger allerede i detaljvisningen.
+### 3. Prefill `CustomServiceDialog` med forslag
+- I `MSPServiceCatalogTab.tsx`: mottak `onCreate` fra `ServiceCoverageSearch`.
+- Åpne `CustomServiceDialog` i create-modus med `initial` satt til:
+  - `name`
+  - `description` = AI-forslag
+  - `mappings` = valgte mappings
+  - `hours` = 0 eller sum fra valgte kontrollpunkter
+  - `activities` = tom liste
+- `CustomServiceDialog` viser allerede `initial.description` i beskrivelsesfeltet ved åpning (bekreftet linje 87-89).
 
-Ingen andre kolonner, filtre eller handlinger endres, og «På tilbud»/«Lagt til»-logikken i Handling-kolonnen står urørt.
+### 4. Vis AI-forslag tydelig i dialogen
+- I `CustomServiceDialog.tsx`: marker beskrivelsesfeltet med `Sparkles`-ikon og tekst "Beskrivelse foreslått av KI — kontroller før lagring" når beskrivelsen kommer fra AI-forslag.
+- Behold redigeringsmuligheten som i dag.
 
-## Teknisk
+### 5. Lagring
+- Når brukeren klikker "Lagre" i `CustomServiceDialog`, legges tjenesten til i `extras` på samme måte som i dagens `handleAdd`.
+- Hvis brukeren avbryter, legges ingenting til.
 
-- Kun presentasjon i `MSPServiceCatalogTab.tsx`; ingen endringer i `src/lib/serviceLibrary.ts` eller datamodellen.
-- Tekst holdes på `text-sm`/`text-xs` (min. 12 px) av hensyn til UU, med `tabular-nums` på tallet.
+## Tekniske detaljer
+- Filer: `src/components/msp/ServiceCoverageSearch.tsx`, `src/components/msp/MSPServiceCatalogTab.tsx`, eventuelt `src/components/msp/CustomServiceDialog.tsx`.
+- Ingen database- eller backend-endringer nødvendig.
+- Ingen endringer i `serviceMappingSuggester` eller `serviceDescriptionLookup`.
+
+## Akseptansekriterier
+- Brukeren ser kun regelverk/krav-tabell når de skriver i søkefeltet.
+- Ingen beskrivelsesboks vises før brukeren velger treff og klikker "Åpne og rediger".
+- Etter klikk åpnes `CustomServiceDialog` med AI-forslag til beskrivelse forhåndsutfylt.
+- Brukeren kan redigere beskrivelsen og lagre tjenesten i katalogen.
+- Avbryt lar brukeren fortsette søket uten å legge til noe.
