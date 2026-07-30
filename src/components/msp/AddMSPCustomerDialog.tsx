@@ -1462,7 +1462,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   {saving ? (
                     <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Oppretter...</>
                   ) : (
-                    "Fullfør"
+                    "Opprett kundeprofil"
                   )}
                 </Button>
               </div>
