@@ -96,10 +96,10 @@ export function CustomServiceDialog({
         found ??
           `${trimmed} leveres som en tilbakevendende tjeneste med kartlegging, gjennomføring og dokumentert oppfølging, slik at kunden kan vise etterlevelse av relevante krav.`,
       );
-      setDescriptionFromAi(true);
       setSuggesting(false);
     }, 600);
   };
+
 
 
   // Prefill ved åpning
