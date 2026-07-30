@@ -360,10 +360,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
   // Save customer + assessment + Trust Profile
   const handleSave = async () => {
-    if (!user?.id) {
-      toast.error("Du må være innlogget for å opprette kundeprofil");
-      return;
-    }
     if (!selectedCompany) {
       toast.error("Mangler virksomhetsdata — gå tilbake og velg eller fyll inn virksomheten");
       return;
