@@ -103,13 +103,12 @@ export function PartnerEvidenceSection({
 
       {/* Table */}
       {items.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border bg-muted/20 p-6 text-center">
-          <FileText className="h-6 w-6 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm font-medium text-foreground">Ingen partner-bevis ennå</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Last opp f.eks. en pentest-rapport, DPIA eller BCP for å berike kundens modenhet.
-          </p>
-        </div>
+        !hideUploadButton && minimal ? (
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setOpen(true)}>
+            <Upload className="h-3.5 w-3.5" />
+            Last opp bevis
+          </Button>
+        ) : null
       ) : (
         <div className="rounded-lg border border-border/60 overflow-hidden">
           <Table>
