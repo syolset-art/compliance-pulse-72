@@ -1343,13 +1343,20 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                       placeholder="https://example.no"
                     />
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      {websiteSource === "brreg" || websiteSource === "ai_suggested" ? (
+                      {websiteSource === "brreg" && form.url ? (
+                        <span>Hentet fra virksomhetsregisteret – bekreft eller endre</span>
+                      ) : websiteSource === "ai_suggested" && form.url ? (
                         <span className="inline-flex items-center gap-1 text-primary">
                           <Sparkles className="h-3 w-3" />
                           Foreslått av Lara – bekreft eller endre
                         </span>
+                      ) : websiteSource === "manual" && form.url ? (
+                        <span>Lagt inn manuelt.</span>
                       ) : (
-                        <span>Bekreft at nettadressen stemmer.</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Info className="h-3 w-3" />
+                          Vi fant ingen nettside for virksomheten – du kan legge den inn nå eller senere.
+                        </span>
                       )}
                       <TooltipProvider>
                         <Tooltip>
@@ -1359,8 +1366,11 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                             </button>
                           </TooltipTrigger>
                           <TooltipContent side="top" className="max-w-xs text-xs">
-                            Mynder henter personvernerklæringen fra nettsiden – hvis den finnes legges den på kundens profil. Vi bruker også innholdet på hjemmesiden til å lage en kort beskrivelse av kunden på kundekortet.
+                            Vi slår først opp navn og org.nr i landets offisielle virksomhetsregister for å hente bransje, ansatte og nettside. Deretter kartlegger Lara nettsiden og personvernerklæringen. Finner vi ingenting, kan du legge det inn manuelt nå eller senere på kundekortet.
                           </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+
                         </Tooltip>
                       </TooltipProvider>
               </div>
