@@ -1004,15 +1004,21 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
         const lockedCount = mine.filter((e) => !!getLockInfo({ templateId: e.templateId, name: e.name })).length;
         return (
           <section ref={catalogSectionRef} id="min-katalog" className="space-y-2 scroll-mt-24">
-            <div className="flex items-baseline justify-end gap-3">
-              {mine.length > 0 && (
-                <span className="text-sm text-foreground/70 whitespace-nowrap">
-                  {mine.length} {mine.length === 1 ? "tjeneste" : "tjenester"}
-                  {lockedCount > 0 && <> · {lockedCount} på tilbud</>}
-                </span>
-              )}
+            <div className="flex flex-col items-end gap-0.5">
+              <div className="flex items-baseline justify-end gap-3">
+                {mine.length > 0 && (
+                  <span className="text-sm text-foreground/70 whitespace-nowrap">
+                    {mine.length} {mine.length === 1 ? "tjeneste" : "tjenester"}
+                    {lockedCount > 0 && <> · {lockedCount} på tilbud</>}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground text-right">
+                {mine.length} {mine.length === 1 ? "tjeneste" : "tjenester"} og {MYNDER_PRODUCTS.length} produkter fra Mynder i katalogen.
+              </p>
             </div>
             <div className="rounded-md border border-border bg-card">
+
               <div className="flex items-center gap-3 px-3 py-2 bg-muted/30 border-b border-border">
                 <div className="flex-1 min-w-0 text-xs font-medium text-foreground/60 inline-flex items-center gap-1.5">
                   Tjeneste
