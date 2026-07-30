@@ -880,7 +880,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                                 <button
                                   type="button"
                                   onClick={(ev) => { ev.stopPropagation(); if (added) revealInCatalog(added.id); }}
-                                  className="inline-flex items-center gap-1.5 h-8 pl-2 pr-2.5 rounded-full border border-primary/20 bg-transparent text-primary/90 text-xs font-medium hover:bg-primary/5 hover:border-primary/30 transition-colors"
+                                  className="inline-flex items-center gap-1.5 h-8 pl-2 pr-2.5 rounded-full bg-primary text-primary-foreground text-xs font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
                                   aria-label="Se tjeneste i katalogen"
                                 >
                                   <Check className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden="true" />
