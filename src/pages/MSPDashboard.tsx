@@ -788,7 +788,7 @@ export default function MSPDashboard() {
                         {isVisible("services") && (
                           <TableHead className="w-auto text-foreground/80">
                             <ColumnFilter
-                              label="Anbefalte tjenester"
+                              label="Tjenester"
                               options={serviceOptions.map((v) => ({ value: v, label: v }))}
                               selected={serviceFilter}
                               onChange={setServiceFilter}
@@ -797,7 +797,7 @@ export default function MSPDashboard() {
                         )}
                         {isVisible("products") && (
                           <TableHead className="w-[240px] text-foreground/80">
-                            <span className="text-sm font-medium">Aktive Produkter</span>
+                            <span className="text-sm font-medium">Produkter</span>
                           </TableHead>
                         )}
                         {isVisible("score") && (
