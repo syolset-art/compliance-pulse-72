@@ -308,7 +308,10 @@ export default function MSPCustomerDetail() {
           </div>
 
           {/* Customer status banner — same template as vendor */}
-          <CustomerStatusBanner customer={customer} />
+          <CustomerStatusBanner
+            customer={customer}
+            onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}
+          />
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full min-w-0">

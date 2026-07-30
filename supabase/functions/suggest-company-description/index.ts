@@ -9,7 +9,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { companyName, industry, existingDescription, language } = await req.json();
+    const { companyName, industry, existingDescription, language, website } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -20,8 +20,8 @@ serve(async (req) => {
       : `You are a professional copywriter specializing in business descriptions for compliance and digital trust. Write short, professional, and trust-inspiring descriptions of 2-3 sentences suitable for a Digital Trust Profile. Focus on the company's purpose, industry, and commitment to security and compliance. Reply only with the description itself – no explanations, no introduction.`;
 
     const userPrompt = isNorwegian
-      ? `Skriv en virksomhetsbeskrivelse for: "${companyName}", bransje: "${industry || "generell"}"${existingDescription ? `\n\nEksisterende beskrivelse (forbedre denne):\n${existingDescription}` : ""}`
-      : `Write a company description for: "${companyName}", industry: "${industry || "general"}"${existingDescription ? `\n\nExisting description (improve this):\n${existingDescription}` : ""}`;
+      ? `Skriv en virksomhetsbeskrivelse for: "${companyName}", bransje: "${industry || "generell"}"${website ? `, nettsted: ${website}` : ""}${existingDescription ? `\n\nEksisterende beskrivelse (forbedre denne):\n${existingDescription}` : ""}`
+      : `Write a company description for: "${companyName}", industry: "${industry || "general"}"${website ? `, website: ${website}` : ""}${existingDescription ? `\n\nExisting description (improve this):\n${existingDescription}` : ""}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

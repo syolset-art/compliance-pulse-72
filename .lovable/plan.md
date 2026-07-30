@@ -1,44 +1,36 @@
-## Mål
+## Hva som er galt
 
-Fanene i «Vurdering» (kundeprofil → `MSPMaturityServiceMatrix`) skal skille tydelig mellom **utkast**, **leverte tilbud** og **pågående oppdrag**, og partneren skal kunne bekrefte at et sendt tilbud er godkjent av kunden — slik skissene viser.
-
-I dag finnes bare tre faner: «Anbefalte tjenester», «Tilbud» og «Pågående oppdrag», og lagrede tilbud har ingen livssyklus (utkast → sendt → akseptert).
-
-## Ny fanestripe
+`CustomerStatusBanner` lagrer faktisk til databasen (kolonnene `url` og `business_description` finnes, og RLS tillater oppdatering), men på kundeprofilen rendres kortet uten `onUpdate`-callback:
 
 ```text
-[ Tjenester 7 ] [ Utkast 2 ] [ Tilbud levert 3 ] [ Pågående oppdrag 2 ]
+src/pages/MSPCustomerDetail.tsx:311
+<CustomerStatusBanner customer={customer} />        ← mangler onUpdate
+src/pages/MSPCustomerDetail.tsx:561
+... onUpdate={() => queryClient.invalidateQueries(...)}   ← finnes bare her
 ```
 
-- **Tjenester** — dagens «Anbefalte tjenester»-tabell, kun nytt navn + antall.
-- **Utkast** — tilbud som ikke er sendt. Handlinger: Åpne/rediger, Send til kunde, Last ned, Slett utkast.
-- **Tilbud levert** — sendte tilbud. Handlinger: bekreft aksept / avslå.
-- **Pågående oppdrag** — uendret (`OngoingDeliveriesList`).
+React Query-cachen (`["msp-customer", customerId]`) blir derfor aldri invalidert, feltet faller tilbake til gammel verdi, og det ser ut som lagringen ikke gikk gjennom.
 
-## «Tilbud levert» — radoppsett (som bilde)
+## Fiks 1 — nettadressen lagres synlig
 
-Kompakt rad per tilbud, ikke tabell:
+- Send `onUpdate={() => queryClient.invalidateQueries({ queryKey: ["msp-customer", customerId] })}` til `CustomerStatusBanner` på linje 311.
+- I `saveEdit` i `CustomerStatusBanner.tsx`: legg til `.select().single()` på oppdateringen og bruk resultatet til å oppdatere et lokalt overstyringsobjekt, slik at verdien vises umiddelbart selv før refetch er ferdig.
+- Vis konkret feilmelding fra backend i toasten i stedet for bare «Kunne ikke lagre», så reelle feil blir synlige.
 
-- Statusikon til venstre (klokke = venter, grønn hake = akseptert, rød = avslått)
-- Tittel (regelverk/tjeneste) + liten «Mottatt»-brikke
-- Undertekst: `Sendt 30. juli 2026 · Besvart 30. juli 2026 · Mynder AS`
-- Høyre: statuspille **Venter** / **Akseptert** / **Avslått**, chevron for å utvide, nedlastingsikon
-- Utvidet visning: «Foreslåtte aktiviteter» med timer per linje, totalsum og timepris, vedlegg (f.eks. gap-analyse) og — når status er *Venter* — knappene **Aksepter tilbud** (primær) og **Avslå tilbud** (outline, destruktiv tekst)
+## Fiks 2 — Lara henter beskrivelse automatisk
 
-## Bekreftelse av aksept
+Når nettadressen lagres og `business_description` er tom:
 
-«Aksepter tilbud» åpner en liten bekreftelsesdialog der partneren registrerer kundens godkjenning:
+1. Kortet viser en diskret linje under Beskrivelse: «Lara henter beskrivelse fra nettstedet…» med Sparkles-ikon (spinner).
+2. Kall eksisterende edge-funksjon `suggest-company-description` med `companyName`, `industry`, `website` (ny valgfri parameter) og `language: "nb"`.
+3. Lagre forslaget på `business_description` for kunden, invalidér spørringen og vis toast: «Lara la til en beskrivelse — klikk på blyanten for å justere».
+4. Feiler kallet (429/402/nett), gjør vi ingenting utover en stille info-toast; nettadressen er allerede lagret.
 
-- Godkjent av (navn) + rolle
-- Metode: E-post / E-signatur / Muntlig / Portal
-- Dato
-- Valgfri referanse/kommentar
-
-Ved lagring: status → **Akseptert**, raden viser «Godkjent av <navn> · <metode> · <dato>» og en «Se bevis»-linje i utvidet visning. Toast bekrefter, og tilbudet blir tilgjengelig som oppdrag under «Pågående oppdrag». «Avslå tilbud» setter status **Avslått** med valgfri årsak.
+Beskrivelsen overskrives aldri hvis den finnes fra før.
 
 ## Teknisk
 
-- `src/components/msp/MSPMaturityServiceMatrix.tsx`: utvid lokal `SavedOffer`-type med `offerState: "draft" | "sent" | "accepted" | "declined"`, `sentAt`, `respondedAt`, `approval?` og `tasks[]` (label + timer) til den utvidede visningen. Seed-data justeres så demoen viser 2 utkast og 3 leverte (én ventende med aktiviteter og vedlegg, à la bildet).
-- Ny fane-verdi `drafts` i `Tabs`, filtrering av `savedOffers` på `offerState`.
-- Nye presentasjonskomponenter i `src/components/msp/offers/`: `OfferListRow.tsx` (rad + utvidet innhold) og `ConfirmOfferAcceptanceDialog.tsx`.
-- Alt er prototype-state i komponenten (som i dag) — ingen databaseendringer.
+- `src/pages/MSPCustomerDetail.tsx`: legg til `onUpdate` på `CustomerStatusBanner` (linje 311).
+- `src/components/msp/CustomerStatusBanner.tsx`: forbedret `saveEdit` (feilmelding + lokal ekko-verdi), ny `maybeGenerateDescription(url)`-funksjon og `generatingDesc`-state med inline statuslinje.
+- `supabase/functions/suggest-company-description/index.ts`: ta imot valgfri `website` og ta den med i prompten; ingen endring i responsformatet (`{ suggestion }`).
+- Ingen databaseendringer.
