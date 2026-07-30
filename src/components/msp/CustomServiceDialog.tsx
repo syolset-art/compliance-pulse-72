@@ -108,7 +108,6 @@ export function CustomServiceDialog({
     if (initial) {
       setName(initial.name);
       setDescription(initial.description ?? "");
-      setDescriptionFromAi(initial.descriptionFromAi ?? false);
       setActivities(
         initial.activities.length > 0
           ? initial.activities
