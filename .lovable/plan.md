@@ -1,31 +1,41 @@
 ## Mål
+Brukeren skal ikke lenger velge dokumenttype selv. De laster bare opp filen — Lara analyserer, foreslår type, regelverk/krav og viser hvilke steder i dokumentet som underbygger forslaget. Brukeren aksepterer, avslår, eller gjør en manuell vurdering.
 
-Partneren skal selv kunne sette status på et sendt tilbud — godkjent eller avvist — direkte fra statusen i listen, uten å måtte åpne raden. Senere kan en agent gjøre det samme automatisk fra partnerens egen infrastruktur (e-post/signering), så statusen må vise hvor den kom fra.
-
-## Slik blir det
-
-**Statusen blir klikkbar.** I `OfferListRow` blir «Venter»/«Akseptert»/«Avslått» en liten knapp med chevron. Klikk åpner en meny:
+## Ny flyt i «Last opp partner-bevis»
 
 ```text
-Venter ▾
- ├ ✓ Marker som godkjent      → åpner bekreftelsesdialogen (hvem godkjente, metode, dato)
- ├ ✕ Marker som avslått       → liten dialog for kort begrunnelse (valgfri)
- └ ↺ Sett tilbake til venter  → kun synlig når status er godkjent/avslått
+Steg 1  Last opp fil            (kun fil + valgfritt notat — ingen typevalg)
+   ↓    Lara analyserer dokumentet
+Steg 2  Laras vurdering
+        • Foreslått type            Penetrasjonstest (konfidens 87 %)
+        • Regelverk og krav         NIS2 Art.21.2.e · ISO A.8.8 …
+        • Kilder i dokumentet       «s. 4: Ekstern pentest utført av …»
+        • Modenhetsløft             +8 % Sikkerhet
+        [Avslå forslaget]  [Vurder manuelt]  [Aksepter forslag]
+Steg 3  Manuell vurdering (kun hvis valgt eller ved avslag)
+        Dagens skjema: type-velger + avhuking av regelverk/kontroller/løft
 ```
 
-- Menyen vises kun for tilbud som er sendt (ikke for utkast).
-- Godkjent gjenbruker `ConfirmOfferAcceptanceDialog` som allerede finnes, så godkjenner, rolle, metode og referanse blir registrert.
-- Avslag får nå en enkel begrunnelsesdialog i stedet for dagens faste tekst «Registrert som avslått av partner».
-- «Sett tilbake til venter» nullstiller `approval`/`declineReason`/`respondedAt` — nyttig hvis partneren feilregistrerer.
-- De store knappene «Aksepter tilbud» / «Avslå tilbud» i den utvidede raden beholdes; de peker på samme handlinger.
+- **Aksepter** → bevis lagres med Laras mapping, merket «Bekreftet av deg, foreslått av Lara».
+- **Avslå** → går videre til manuell vurdering med blanke/nøytrale forslag, og avslaget logges på beviset.
+- **Vurder manuelt** → samme skjema, men forhåndsutfylt med Laras forslag som brukeren kan endre.
 
-**Kilde til statusen.** Vi utvider tilbudsmodellen med `statusSource: "partner" | "agent"` (default `partner`). Manuelt satt status viser en diskret «Satt manuelt av {navn}» i den utvidede raden. Menyen får en inaktiv bunnlinje: «Automatisk oppdatering via agent — kommer», slik at det er tydelig i prototypen at samme statusfelt senere kan settes av en agent fra partnerens egen infrastruktur. Ingen agent-integrasjon bygges nå.
+## Kildehenvisninger
+Hvert forslag (type og hvert regelverk) får en liste med utdrag fra dokumentet: sidetall/seksjon + kort sitat. Vises som subtile «Kilde»-linjer under hvert element, med mulighet til å ekspandere hvis det er flere. Uten sitater merkes forslaget som «lav dekning» slik at det ikke fremstår mer sikkert enn det er.
 
 ## Teknisk
 
-- `src/components/msp/offers/offerTypes.ts`: legg til `statusSource?: "partner" | "agent"` og `statusSetBy?: string` på `PartnerOffer`.
-- `src/components/msp/offers/OfferListRow.tsx`: gjør `StatusPill` til en `DropdownMenu`-trigger (shadcn) når `offerState !== "draft"` og `onSetState` er gitt; ellers uendret ren tekst. Legg til ny prop `onSetState?: (offer, next: "accepted" | "declined" | "sent") => void`. Vis kilde-linje når `statusSetBy` finnes.
-- Ny `src/components/msp/offers/DeclineOfferDialog.tsx`: liten dialog med tekstfelt for begrunnelse + «Marker som avslått».
-- `src/components/msp/MSPMaturityServiceMatrix.tsx`: utvid `declineOffer` til å ta imot begrunnelse, legg til `resetOfferToSent`, sett `statusSource: "partner"` og `statusSetBy` i `acceptOffer`/`declineOffer`, og send `onSetState` til `OfferListRow` i «Pågående oppdrag»-fanen.
+**`src/lib/partnerEvidence.ts`**
+- Utvid `FrameworkMapping` med `citations?: { page?: string; quote: string }[]`.
+- Nytt felt på `PartnerEvidence`: `laraVerdict: "accepted" | "declined" | "manual"`, `laraSuggestedType`, `confidence`.
+- Legg til `mockLaraAnalysis(fileName)` som utleder type fra filnavn/heuristikk og returnerer forslag med sitater (demo-fallback når edge-funksjonen ikke svarer).
 
-Ingen databaseendringer — tilbudene ligger fortsatt i lokal state/demo-seed.
+**Edge-funksjon**
+Gjenbruk `classify-evidence-document` og utvid promptet til også å returnere `citations` (sidetall + sitat) per foreslått kontrollpunkt, samt mapping mot partnerbevis-typene. Faller tilbake til mock ved feil eller manglende tekstuttrekk, slik at prototypen alltid viser noe.
+
+**`PartnerEvidenceUploadDialog.tsx`**
+- Fjern `Select` for type i steg 1.
+- Steg 2 blir «Laras vurdering» (lesevisning med konfidens, kilder, tre handlingsknapper).
+- Steg 3 er dagens avhukingsskjema, gjenbrukt som manuell vurdering.
+
+**Visning av lagret bevis** (`PartnerEvidenceSection.tsx`): liten indikator på om mappingen er Lara-foreslått og akseptert, eller manuelt satt.
