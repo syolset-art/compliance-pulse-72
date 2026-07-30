@@ -83,6 +83,23 @@ export function CustomServiceDialog({
   const [userTouchedMappings, setUserTouchedMappings] = useState(false);
   const [usePriceOverride, setUsePriceOverride] = useState(false);
   const [priceOverride, setPriceOverride] = useState<number>(0);
+  const [suggesting, setSuggesting] = useState(false);
+
+  const handleSuggestDescription = () => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    setSuggesting(true);
+    window.setTimeout(() => {
+      const found = lookupServiceDescription(trimmed);
+      setDescription(
+        found ??
+          `${trimmed} leveres som en tilbakevendende tjeneste med kartlegging, gjennomføring og dokumentert oppfølging, slik at kunden kan vise etterlevelse av relevante krav.`,
+      );
+      setDescriptionFromAi(true);
+      setSuggesting(false);
+    }, 600);
+  };
+
 
   // Prefill ved åpning
   useEffect(() => {
