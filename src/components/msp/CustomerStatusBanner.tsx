@@ -399,7 +399,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                   </span>
                 ) : hostname ? (
                   <span className="inline-flex items-center gap-1">
-                    <a href={customer.url || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+                    <a href={view.url || "#"} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
                       {hostname} <ExternalLink className="h-3 w-3" aria-hidden="true" />
                     </a>
                     <TooltipProvider delayDuration={150}>
