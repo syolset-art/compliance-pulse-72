@@ -609,6 +609,67 @@ export function MSPMaturityServiceMatrix({
   const [gapOpen, setGapOpen] = useState(false);
   const [gapFrameworkId, setGapFrameworkId] = useState<string | undefined>(undefined);
   const [savedOffers, setSavedOffers] = useState<SavedOffer[]>(SAVED_OFFERS_SEED);
+  const draftOffers = savedOffers.filter((o) => o.offerState === "draft");
+  const sentOffers = savedOffers.filter((o) => o.offerState !== "draft");
+
+  const [acceptCtx, setAcceptCtx] = useState<{ open: boolean; offer: SavedOffer | null }>({
+    open: false,
+    offer: null,
+  });
+
+  const patchOffer = (id: string, patch: Partial<SavedOffer>) =>
+    setSavedOffers((prev) => prev.map((o) => (o.id === id ? { ...o, ...patch } : o)));
+
+  const sendOffer = (offer: SavedOffer) => {
+    patchOffer(offer.id, { offerState: "sent", sentAt: new Date().toISOString() });
+    toast.success(`${offer.offerNumber} sendt til ${customerName}`);
+    setActiveTab("ongoing");
+  };
+
+  const deleteDraft = (offer: SavedOffer) => {
+    setSavedOffers((prev) => prev.filter((o) => o.id !== offer.id));
+    toast.success(`Utkast ${offer.offerNumber} slettet`);
+  };
+
+  const declineOffer = (offer: SavedOffer) => {
+    patchOffer(offer.id, {
+      offerState: "declined",
+      respondedAt: new Date().toISOString(),
+      declineReason: "Registrert som avslått av partner",
+    });
+    toast(`${offer.offerNumber} markert som avslått`);
+  };
+
+  const acceptOffer = (approval: OfferApproval) => {
+    const offer = acceptCtx.offer;
+    if (!offer) return;
+    patchOffer(offer.id, {
+      offerState: "accepted",
+      respondedAt: new Date(approval.date).toISOString(),
+      approval,
+    });
+    toast.success(`${offer.offerNumber} er akseptert`, {
+      description: `Godkjent av ${approval.approvedBy} · ${approval.method}. Oppdraget er klart til levering.`,
+    });
+  };
+
+  const openOfferPreview = (o: SavedOffer) =>
+    setOfferCtx({
+      open: true,
+      serviceTitle: o.serviceTitle,
+      variant: "Tjeneste",
+      attachGap: false,
+      gapFrameworkId: undefined,
+      hourlyRate: o.hourlyRate ?? (o.totalHours > 0 ? Math.round(o.totalPrice / o.totalHours) : 1500),
+      defaultTasks: (o.tasks ?? [{ label: o.serviceTitle, hours: o.totalHours }]).map((t) => ({
+        label: t.label,
+        hours: t.hours,
+        owner: "Partner" as TaskOwner,
+        weeks: "",
+      })),
+      initialView: "preview",
+    });
+
 
   const [deliveries, setDeliveries] = useState<DeliveryItem[]>(DELIVERIES);
   const [expandedDelivery, setExpandedDelivery] = useState<string | null>("d1");
