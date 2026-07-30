@@ -779,7 +779,7 @@ export default function MSPDashboard() {
                         )}
                         {isVisible("products") && (
                           <TableHead className="w-[240px] text-foreground/80">
-                            <span className="text-sm font-medium">Produkter og tjenester</span>
+                            <span className="text-sm font-medium">Produkter</span>
                           </TableHead>
                         )}
                         {isVisible("score") && (
