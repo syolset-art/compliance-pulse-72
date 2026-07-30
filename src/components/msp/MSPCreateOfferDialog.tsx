@@ -23,7 +23,59 @@ import { cn } from "@/lib/utils";
 import { computeTaxBreakdown, formatTaxNote } from "@/lib/partnerTax";
 import { saveOffer as persistOffer } from "@/lib/customerOffers";
 
+/** Ett "ark" i tilbudsdokumentet — brukes for side 1, side 2 og vedlegget. */
+function OfferSheet({
+  page,
+  total,
+  footer,
+  children,
+}: {
+  page: number;
+  total: number;
+  footer: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mx-auto max-w-xl bg-background border border-border rounded-md shadow-sm p-8 space-y-5">
+      {children}
+      <div className="flex items-baseline justify-between gap-3 pt-4 border-t border-border text-xs text-muted-foreground">
+        <span className="min-w-0 truncate">{footer}</span>
+        <span className="shrink-0 tabular-nums">Side {page} av {total}</span>
+      </div>
+    </div>
+  );
+}
+
+/** Fordeler gap på oppgaver ut fra tekstlikhet (Lara-forslag i prototypen). */
+function autoAssignGaps(taskLabels: string[], gaps: GapItem[], gapIds: string[]): string[][] {
+  const result = taskLabels.map(() => [] as string[]);
+  if (taskLabels.length === 0) return result;
+  const norm = (s: string) => s.toLowerCase();
+  const deliveryIdx = taskLabels.findIndex(l => /leveran|gjennomfør|implement|tiltak|utfør/i.test(l));
+  const fallback = deliveryIdx >= 0 ? deliveryIdx : Math.min(1, taskLabels.length - 1);
+  for (const id of gapIds) {
+    const gap = gaps.find(g => g.id === id);
+    if (!gap) continue;
+    let best = -1;
+    let bestScore = 0;
+    taskLabels.forEach((label, i) => {
+      const l = norm(label);
+      let score = 0;
+      if (gap.domain && l.includes(norm(gap.domain))) score += 3;
+      const words = norm(gap.title).split(/[^a-zæøå]+/).filter(w => w.length > 5);
+      score += words.filter(w => l.includes(w)).length;
+      if (score > bestScore) {
+        bestScore = score;
+        best = i;
+      }
+    });
+    result[best >= 0 ? best : fallback].push(id);
+  }
+  return result;
+}
+
 export interface CoveredControlGroup {
+
   frameworkId: string;
   frameworkLabel: string;
   controlIds: string[];
