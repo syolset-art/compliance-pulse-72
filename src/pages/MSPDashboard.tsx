@@ -797,7 +797,18 @@ export default function MSPDashboard() {
                         {isVisible("services") && (
                           <TableHead className="w-auto text-foreground/80">
                             <ColumnFilter
-                              label="Tjenester"
+                              label={
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="inline-flex items-center gap-1.5 cursor-help">
+                                      Tjenester <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-[240px]">
+                                    <p>Grønn betyr at tjenesten er levert eller aktiv. Lilla betyr at det er en anbefaling fra Mynder.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              }
                               options={serviceOptions.map((v) => ({ value: v, label: v }))}
                               selected={serviceFilter}
                               onChange={setServiceFilter}
