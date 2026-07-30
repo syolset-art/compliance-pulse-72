@@ -21,7 +21,8 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { seedDemoMSP, deleteDemoMSP } from "@/lib/demoSeedMSP";
 import { toast } from "sonner";
-import { getOffersForCustomer } from "@/lib/customerOffers";
+import { getOffersForCustomer, normalizeServiceKey } from "@/lib/customerOffers";
+import { SERVICE_LIBRARY } from "@/lib/serviceLibrary";
 
 type ViewMode = "cards" | "table";
 
@@ -101,6 +102,23 @@ function deriveNeededServices(c: any): string[] {
   }
 
   return Array.from(new Set(services)).slice(0, 3);
+}
+
+// Aktive (leverte) tjenester for denne kunden — vises grønt i kolonnen.
+function deriveActiveServices(c: any): string[] {
+  const delivered = getOffersForCustomer(c.id).filter((o) => o.status === "delivered");
+  const names = new Set<string>();
+  for (const o of delivered) {
+    for (const tid of o.templateIds || []) {
+      const tpl = SERVICE_LIBRARY.find((t) => t.id === tid);
+      names.add(tpl ? tpl.name : tid);
+    }
+    for (const key of o.serviceKeys || []) {
+      const tpl = SERVICE_LIBRARY.find((t) => normalizeServiceKey(t.name) === key);
+      names.add(tpl ? tpl.name : key);
+    }
+  }
+  return Array.from(names);
 }
 
 
@@ -770,7 +788,7 @@ export default function MSPDashboard() {
                         {isVisible("services") && (
                           <TableHead className="w-auto text-foreground/80">
                             <ColumnFilter
-                              label="Anbefalte tjenester"
+                              label="Tjenester"
                               options={serviceOptions.map((v) => ({ value: v, label: v }))}
                               selected={serviceFilter}
                               onChange={setServiceFilter}
@@ -779,7 +797,7 @@ export default function MSPDashboard() {
                         )}
                         {isVisible("products") && (
                           <TableHead className="w-[240px] text-foreground/80">
-                            <span className="text-sm font-medium">Aktive Produkter</span>
+                            <span className="text-sm font-medium">Produkter</span>
                           </TableHead>
                         )}
                         {isVisible("score") && (
@@ -796,6 +814,7 @@ export default function MSPDashboard() {
                         const tp = deriveTPStatus(c);
                         const score = c.compliance_score || 0;
                         const services = deriveNeededServices(c);
+                        const activeServices = deriveActiveServices(c);
                         const isNew = highlightIds.has(c.id);
                         return (
                           <TableRow
@@ -832,19 +851,26 @@ export default function MSPDashboard() {
                             {isVisible("frameworks") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
                                 {(() => {
-                                  const frameworks: string[] = c.active_frameworks || [];
-                                  if (frameworks.length === 0) {
+                                  const active: string[] = c.active_frameworks || [];
+                                  const recommended: string[] = (c.recommended_frameworks || []).filter((f: string) => !active.includes(f));
+                                  const all = [...active, ...recommended];
+                                  if (all.length === 0) {
                                     return <span className="text-muted-foreground text-sm">—</span>;
                                   }
                                   return (
                                     <div className="flex flex-wrap items-center gap-1 max-w-[180px]">
-                                      {frameworks.slice(0, 3).map((f) => (
+                                      {active.slice(0, 3).map((f) => (
                                         <Badge key={f} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
                                           {f}
                                         </Badge>
                                       ))}
-                                      {frameworks.length > 3 && (
-                                        <span className="text-[11px] text-muted-foreground">+{frameworks.length - 3}</span>
+                                      {recommended.slice(0, Math.max(0, 3 - active.length)).map((f) => (
+                                        <Badge key={f} variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[11px]">
+                                          {f}
+                                        </Badge>
+                                      ))}
+                                      {all.length > 3 && (
+                                        <span className="text-[11px] text-muted-foreground">+{all.length - 3}</span>
                                       )}
                                     </div>
                                   );
@@ -853,25 +879,46 @@ export default function MSPDashboard() {
                             )}
                             {isVisible("services") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
-                                {services.length === 0 ? (
-                                  <span className="text-muted-foreground text-sm">—</span>
-                                ) : (
-                                  <div className="flex flex-wrap gap-1 max-w-[280px]">
-                                    {services.map((s) => (
-                                      <button
-                                        key={s}
-                                        type="button"
-                                        onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
-                                        className="inline-flex"
-                                        title={`Åpne tjenester for ${c.customer_name}`}
-                                      >
-                                        <Badge variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[12px] cursor-pointer hover:bg-primary/20 transition-colors">
-                                          {s}
-                                        </Badge>
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
+                                {(() => {
+                                  const recommended = services.filter((s) => !activeServices.includes(s));
+                                  const all = [...activeServices, ...recommended];
+                                  if (all.length === 0) {
+                                    return <span className="text-muted-foreground text-sm">—</span>;
+                                  }
+                                  return (
+                                    <div className="flex flex-wrap gap-1 max-w-[280px]">
+                                      {activeServices.slice(0, 3).map((s) => (
+                                        <button
+                                          key={s}
+                                          type="button"
+                                          onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
+                                          className="inline-flex"
+                                          title={`Aktiv tjeneste for ${c.customer_name}`}
+                                        >
+                                          <Badge variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[12px] cursor-pointer hover:bg-success/20 transition-colors">
+                                            {s}
+                                          </Badge>
+                                        </button>
+                                      ))}
+                                      {recommended.slice(0, Math.max(0, 3 - activeServices.length)).map((s) => (
+                                        <button
+                                          key={s}
+                                          type="button"
+                                          onClick={() => navigate(`/msp-dashboard/${c.id}?tab=assessment&service=${encodeURIComponent(s)}`)}
+                                          className="inline-flex"
+                                          title={`Anbefalt tjeneste for ${c.customer_name}`}
+                                        >
+                                          <Badge variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[12px] cursor-pointer hover:bg-primary/20 transition-colors">
+                                            {s}
+                                          </Badge>
+                                        </button>
+                                      ))}
+                                      {all.length > 3 && (
+                                        <span className="text-[11px] text-muted-foreground self-center">+{all.length - 3}</span>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
                               </TableCell>
                             )}
                             {isVisible("products") && (
@@ -889,12 +936,12 @@ export default function MSPDashboard() {
                                   return (
                                     <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
                                       {products.map((p) => (
-                                        <Badge key={p} variant="outline" className="font-normal bg-primary/10 text-foreground border-primary/30 text-[11px]">
+                                        <Badge key={p} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
                                           {p}
                                         </Badge>
                                       ))}
                                       {serviceCount > 0 && (
-                                        <Badge variant="outline" className="font-normal bg-primary/15 text-foreground border-primary/40 text-[11px]">
+                                        <Badge variant="outline" className="font-normal bg-success/15 text-foreground border-success/40 text-[11px]">
                                           {serviceCount} {serviceCount === 1 ? "tjeneste" : "tjenester"}
                                         </Badge>
                                       )}
