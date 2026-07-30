@@ -659,25 +659,17 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
       {/* Global søk — over arkfanene, alltid tilgjengelig */}
       <ServiceCoverageSearch
         existingNames={extras.filter((e) => !e.isMynder && e.status !== "retired").map((e) => e.name)}
-        onAdd={({ name, description, mappings }) => {
-          const next: ExtraService = {
-            id: `search-${Date.now()}`,
+        onCreate={({ name, suggestedDescription, mappings }) => {
+          setSearchDraft({
             name,
-            description,
+            description: suggestedDescription,
             hours: 0,
             activities: [],
-            source: "manual",
             mappings,
-          };
-          setExtras((prev) => [...prev, next]);
-          setActiveTab("mine");
-          revealInCatalog(next.id);
-          toast.success(`La til «${name}» i din tjenestekatalog`, {
-            description: description
-              ? "Beskrivelse fylt inn automatisk — juster aktiviteter og pris."
-              : "Rediger for å justere aktiviteter og pris.",
-            action: { label: "Vis i katalogen", onClick: () => revealInCatalog(next.id) },
           });
+          setEditingId(null);
+          setPreviewTemplate(null);
+          setManualOpen(true);
         }}
       />
 
