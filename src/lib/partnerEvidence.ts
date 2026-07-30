@@ -22,6 +22,13 @@ export interface MaturityDelta {
   delta: number;
 }
 
+export interface EvidenceCitation {
+  /** Page or section reference, e.g. "s. 4" or "Kap. 3.2" */
+  page?: string;
+  /** Short verbatim excerpt from the document */
+  quote: string;
+}
+
 export interface FrameworkMapping {
   /** Framework slug, e.g. "nis2", "iso27001", "gdpr", "dora" */
   framework: string;
@@ -29,7 +36,12 @@ export interface FrameworkMapping {
   label: string;
   /** Control point identifiers, e.g. ["A.5.1", "A.5.2"] */
   controlIds: string[];
+  /** Excerpts in the document that support this mapping */
+  citations?: EvidenceCitation[];
 }
+
+/** How the final mapping was decided. */
+export type LaraVerdict = "accepted" | "declined" | "manual";
 
 export interface PartnerEvidence {
   id: string;
@@ -42,7 +54,14 @@ export interface PartnerEvidence {
   uploadedByPartner: string;
   frameworks: FrameworkMapping[];
   maturityDelta: MaturityDelta[];
+  /** Whether Lara's proposal was accepted, declined or replaced by a manual assessment */
+  laraVerdict?: LaraVerdict;
+  /** Document type Lara proposed (may differ from final docType) */
+  laraSuggestedType?: PartnerEvidenceDocType;
+  /** Lara's confidence 0..1 */
+  confidence?: number;
 }
+
 
 const STORAGE_KEY = "msp.partner-evidence.v1";
 const EVENT_NAME = "msp:partner-evidence-changed";
@@ -207,3 +226,86 @@ export function enrichmentByArea(customerId: string): Record<MaturityDelta["area
   }
   return out;
 }
+
+// ---------- Lara document analysis (demo) ----------
+// In production this calls an edge function that reads the document text and
+// returns type + mapping + verbatim citations. Here we derive a plausible
+// analysis from the file name so the prototype always shows the full flow.
+
+export interface LaraAnalysis {
+  docType: PartnerEvidenceDocType;
+  confidence: number;
+  summary: string;
+  /** Excerpts supporting the proposed document type */
+  typeCitations: EvidenceCitation[];
+  frameworks: FrameworkMapping[];
+  maturityDelta: MaturityDelta[];
+}
+
+const TYPE_HINTS: { type: PartnerEvidenceDocType; keys: string[] }[] = [
+  { type: "pentest", keys: ["pentest", "penetration", "pen-test", "sårbarhet", "vulnerability"] },
+  { type: "dpia", keys: ["dpia", "personvernkonsekvens", "pvk"] },
+  { type: "risk_assessment", keys: ["risiko", "risk", "rov"] },
+  { type: "bcp", keys: ["bcp", "beredskap", "continuity", "kontinuitet"] },
+  { type: "certification", keys: ["iso", "sertifikat", "certificate", "27001"] },
+  { type: "audit_report", keys: ["revisjon", "audit", "soc2", "soc-2"] },
+];
+
+const TYPE_CITATIONS: Record<PartnerEvidenceDocType, EvidenceCitation[]> = {
+  pentest: [
+    { page: "s. 1", quote: "Rapport fra ekstern penetrasjonstest av produksjonsmiljø" },
+    { page: "s. 4", quote: "Testomfang: nettverk, webapplikasjon og autentiseringsflyt" },
+  ],
+  dpia: [
+    { page: "s. 2", quote: "Vurdering av personvernkonsekvenser for behandlingsaktiviteten" },
+    { page: "s. 6", quote: "Risikoreduserende tiltak og restrisiko er vurdert" },
+  ],
+  risk_assessment: [
+    { page: "s. 2", quote: "Identifiserte risikoer er scoret på sannsynlighet og konsekvens" },
+    { page: "s. 5", quote: "Risikoeier og behandlingsplan er dokumentert" },
+  ],
+  bcp: [
+    { page: "s. 3", quote: "Gjenopprettingstid (RTO) og datatapstoleranse (RPO) definert" },
+    { page: "s. 9", quote: "Beredskapsøvelse gjennomført og evaluert" },
+  ],
+  certification: [
+    { page: "s. 1", quote: "Sertifikatet bekrefter samsvar med ISO/IEC 27001:2022" },
+    { page: "s. 1", quote: "Utstedt av akkreditert sertifiseringsorgan" },
+  ],
+  audit_report: [
+    { page: "s. 2", quote: "Uavhengig revisjon av styringssystemet er gjennomført" },
+    { page: "s. 7", quote: "Avvik og observasjoner med frist for lukking" },
+  ],
+  other: [],
+};
+
+const FRAMEWORK_CITATIONS: Record<string, EvidenceCitation[]> = {
+  nis2: [{ page: "s. 4", quote: "Testing av tekniske sikkerhetstiltak i drift" }],
+  iso27001: [{ page: "s. 5", quote: "Funn knyttet til sårbarhetshåndtering og sikker utvikling" }],
+  gdpr: [{ page: "s. 6", quote: "Behandling av personopplysninger er kartlagt" }],
+  dora: [{ page: "s. 8", quote: "Krav til operasjonell motstandsdyktighet omtalt" }],
+};
+
+/** Derive a demo analysis with citations from the uploaded file name. */
+export function mockLaraAnalysis(fileName: string): LaraAnalysis {
+  const lower = fileName.toLowerCase();
+  const hit = TYPE_HINTS.find((h) => h.keys.some((k) => lower.includes(k)));
+  const docType: PartnerEvidenceDocType = hit?.type ?? "other";
+  const base = laraSuggestForDocType(docType);
+  const confidence = hit ? 0.87 : 0.42;
+
+  return {
+    docType,
+    confidence,
+    summary: hit
+      ? `Dokumentet fremstår som ${DOC_TYPE_LABEL[docType].toLowerCase()} utført av ekstern part.`
+      : "Lara finner ikke tydelige holdepunkter for dokumenttypen. Gjør en manuell vurdering.",
+    typeCitations: TYPE_CITATIONS[docType] ?? [],
+    frameworks: base.frameworks.map((f) => ({
+      ...f,
+      citations: FRAMEWORK_CITATIONS[f.framework] ?? [],
+    })),
+    maturityDelta: base.maturityDelta,
+  };
+}
+
