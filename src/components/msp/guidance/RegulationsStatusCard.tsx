@@ -290,20 +290,17 @@ export function RegulationsStatusCard({
 
                     <TableCell className="py-3">
                       {isActive ? (
-                        <Badge className="h-5 gap-1 bg-success text-success-foreground text-[10px] font-medium">
-                          <Check className="h-2.5 w-2.5" /> Aktivert
-                        </Badge>
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-success">
+                          <Check className="h-3.5 w-3.5" /> Aktivert
+                        </span>
                       ) : isConfirmed ? (
-                        <Badge className="h-5 gap-1 bg-primary text-primary-foreground text-[10px] font-medium">
-                          <Check className="h-2.5 w-2.5" /> Bekreftet
-                        </Badge>
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-success">
+                          <Check className="h-3.5 w-3.5" /> Bekreftet
+                        </span>
                       ) : (
-                        <Badge
-                          variant="outline"
-                          className="h-5 gap-1 border-primary/40 text-primary text-[10px] font-medium"
-                        >
-                          <Sparkles className="h-2.5 w-2.5" /> AI-anbefalt
-                        </Badge>
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                          <Sparkles className="h-3 w-3" /> AI-anbefalt
+                        </span>
                       )}
                     </TableCell>
 
