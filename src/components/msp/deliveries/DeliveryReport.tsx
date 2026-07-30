@@ -159,6 +159,34 @@ export function DeliveryReport({ open, onOpenChange, offer, customerName, partne
             </div>
           </div>
 
+          {/* Gjennomføring — fra leveranseskjemaet */}
+          {formSections.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-2">
+                Gjennomføring · {formTemplate.label}
+              </p>
+              <div className="rounded-lg border border-border/60 divide-y divide-border/50">
+                {formSections.map((s) => (
+                  <div key={s.title} className="p-3">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1.5">
+                      {s.title}
+                    </p>
+                    <dl className="space-y-1">
+                      {s.rows.map((r) => (
+                        <div key={r.label} className="flex gap-3 text-xs">
+                          <dt className="text-muted-foreground w-44 shrink-0">{r.label}</dt>
+                          <dd className="text-foreground/90 flex-1 whitespace-pre-wrap">
+                            {r.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Vedlagt dokumentasjon */}
           <div>
             <p className="text-sm font-semibold text-foreground mb-2">
