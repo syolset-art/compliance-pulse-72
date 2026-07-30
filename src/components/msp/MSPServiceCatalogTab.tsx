@@ -81,17 +81,20 @@ function formatNOK(n: number): string {
 function formatSupportedSummary(template: ServiceTemplate): string {
   const mappings = template.mappings ?? [];
   if (mappings.length === 0) return "—";
-  const totalControls = mappings.reduce((sum, m) => sum + (m.controlIds?.length ?? 0), 0);
   const primary = mappings[0];
-  const controlWord = primary.frameworkLabel.toLowerCase().includes("iso") ? "kontroller" : "krav";
-  if (totalControls === 0) return primary.frameworkLabel;
-  return `${primary.frameworkLabel} + ${totalControls} ${controlWord}`;
+  const rest = mappings.length - 1;
+  return rest > 0 ? `${primary.frameworkLabel} +${rest}` : primary.frameworkLabel;
+}
+
+function countRequirements(template: ServiceTemplate): number {
+  return (template.mappings ?? []).reduce((sum, m) => sum + (m.controlIds?.length ?? 0), 0);
 }
 
 function activityCountLabel(count: number): string {
   if (count === 0) return "—";
   return count === 1 ? "1 aktivitet" : `${count} aktiviteter`;
 }
+
 
 type PickTag = "recommended" | "popular" | "trending";
 
