@@ -771,7 +771,9 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               <tr>
                 <th className="text-left font-medium px-3 py-2.5">Tjeneste</th>
                 <th className="text-left font-medium px-3 py-2.5">Støtter</th>
+                <th className="text-left font-medium px-3 py-2.5 w-24">Krav</th>
                 <th className="text-left font-medium px-3 py-2.5">Aktiviteter</th>
+
                 <th className="text-right font-medium px-3 py-2.5 w-32">Handling</th>
               </tr>
             </thead>
