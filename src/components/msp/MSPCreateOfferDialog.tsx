@@ -449,7 +449,7 @@ export function MSPCreateOfferDialog({
                 <Sparkles className="h-2.5 w-2.5" /> Utkast fra Lara
               </Badge>
             ) : (
-              <Badge variant="outline" className="bg-success/10 text-success border-success/30 text-xs gap-1">
+              <Badge variant="outline" className="bg-muted/50 text-muted-foreground border-border text-xs gap-1">
                 <Eye className="h-2.5 w-2.5" /> Forhåndsvisning · slik ser kunden tilbudet
               </Badge>
             )}
