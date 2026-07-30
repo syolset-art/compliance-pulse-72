@@ -102,33 +102,29 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
     return existingNames.some((n) => n.toLowerCase() === q);
   }, [debounced, existingNames]);
 
-  const selectedCount = selectedKeys.size;
+  const selectedCount = selectedKey ? 1 : 0;
 
   const toggleRow = (it: ControlSuggestion) => {
     const k = keyFor(it);
-    setSelectedKeys((prev) => {
-      const next = new Set(prev);
-      if (next.has(k)) next.delete(k);
-      else next.add(k);
-      return next;
-    });
+    setSelectedKey((prev) => (prev === k ? null : k));
   };
 
   const handleOpenForEdit = () => {
     if (!debounced || groups.length === 0 || isDuplicate || selectedCount === 0) return;
-    const selected = suggestions.filter((s) => selectedKeys.has(keyFor(s)));
-    const mappings: ServiceMapping[] = selected.map((s) => ({
-      frameworkId: s.frameworkId,
-      frameworkShortName: s.frameworkShortName,
-      controlId: s.controlId,
-      controlLabel: s.controlLabel,
-    }));
+    const selected = suggestions.find((s) => selectedKey === keyFor(s));
+    if (!selected) return;
+    const mappings: ServiceMapping[] = [{
+      frameworkId: selected.frameworkId,
+      frameworkShortName: selected.frameworkShortName,
+      controlId: selected.controlId,
+      controlLabel: selected.controlLabel,
+    }];
     const suggestedDescription = lookupServiceDescription(debounced) ?? "";
     onCreate({ name: debounced, suggestedDescription, mappings });
     setJustAdded(true);
     setQuery("");
     setDebounced("");
-    setSelectedKeys(new Set());
+    setSelectedKey(null);
   };
 
   return (
