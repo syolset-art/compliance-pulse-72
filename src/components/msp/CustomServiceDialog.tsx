@@ -122,8 +122,8 @@ export function CustomServiceDialog({
     } else {
       setName("");
       setDescription("");
-      setDescriptionFromAi(false);
       setActivities([{ label: "", hours: 1 }]);
+
       setSelectedMappings(new Set());
       setExtraMappings([]);
       setUserTouchedMappings(false);
