@@ -133,17 +133,20 @@ export function PartnerEvidenceSection({
                         <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">{e.fileName}</p>
-                          <p className="text-xs text-muted-foreground">{DOC_TYPE_LABEL[e.docType]}</p>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            {DOC_TYPE_LABEL[e.docType]}
+                            {e.laraVerdict === "accepted" && (
+                              <span className="inline-flex items-center gap-0.5 text-primary">
+                                <Sparkles className="h-3 w-3" /> Lara-forslag akseptert
+                              </span>
+                            )}
+                            {e.laraVerdict === "manual" && <span>· Justert manuelt</span>}
+                            {e.laraVerdict === "declined" && <span>· Manuell vurdering</span>}
+                          </p>
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {e.frameworks.map((f) => (
-                          <Badge key={f.framework} variant="outline" className="text-xs">{f.label}</Badge>
-                        ))}
-                      </div>
-                    </TableCell>
+
                     <TableCell>
                       <span className="text-sm tabular-nums">{totalControls}</span>
                     </TableCell>
