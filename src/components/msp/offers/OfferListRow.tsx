@@ -149,7 +149,7 @@ export function OfferListRow({
         </button>
 
         <div className="flex shrink-0 items-center gap-2">
-          <StatusPill offer={offer} />
+          <StatusPill offer={offer} onSetState={onSetState} />
           {onDownload && (
             <Button
               size="sm"
