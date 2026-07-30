@@ -7,6 +7,10 @@ import { frameworks as ALL_FRAMEWORKS } from "@/lib/frameworkDefinitions";
 import { computeDeliveryImpact, findEvidenceByIds, totalMaturityDelta } from "@/lib/deliveryImpact";
 import { markReportSent, type SavedOffer } from "@/lib/customerOffers";
 import { DOC_TYPE_LABEL } from "@/lib/partnerEvidence";
+import {
+  pickDeliveryFormTemplate,
+  loadDeliveryForm,
+} from "@/lib/deliveryFormTemplates";
 
 interface Props {
   open: boolean;
@@ -22,6 +26,30 @@ export function DeliveryReport({ open, onOpenChange, offer, customerName, partne
   const rows = computeDeliveryImpact(offer.customerId ?? "", evidenceIds);
   const total = totalMaturityDelta(rows);
   const evidence = findEvidenceByIds(offer.customerId ?? "", evidenceIds);
+
+  const formTemplate = pickDeliveryFormTemplate({
+    name: offer.name,
+    templateIds: offer.templateIds,
+  });
+  const formState = loadDeliveryForm(offer.id);
+  const formSections =
+    formState && formState.templateId === formTemplate.id
+      ? formTemplate.steps
+          .filter((s) => !formState.skipped[s.id])
+          .map((s) => ({
+            title: s.title,
+            rows: s.fields
+              .map((f) => {
+                const v = formState.values[f.id];
+                const text = Array.isArray(v) ? v.join(", ") : (v ?? "");
+                return text.trim() ? { label: f.label, value: text } : null;
+              })
+              .filter(Boolean) as { label: string; value: string }[],
+          }))
+          .filter((s) => s.rows.length > 0)
+      : [];
+
+
 
   const dateLabel = new Date(offer.deliveredAt ?? offer.createdAt).toLocaleDateString("nb-NO", {
     day: "numeric",
@@ -130,6 +158,34 @@ export function DeliveryReport({ open, onOpenChange, offer, customerName, partne
               ))}
             </div>
           </div>
+
+          {/* Gjennomføring — fra leveranseskjemaet */}
+          {formSections.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-2">
+                Gjennomføring · {formTemplate.label}
+              </p>
+              <div className="rounded-lg border border-border/60 divide-y divide-border/50">
+                {formSections.map((s) => (
+                  <div key={s.title} className="p-3">
+                    <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-semibold mb-1.5">
+                      {s.title}
+                    </p>
+                    <dl className="space-y-1">
+                      {s.rows.map((r) => (
+                        <div key={r.label} className="flex gap-3 text-xs">
+                          <dt className="text-muted-foreground w-44 shrink-0">{r.label}</dt>
+                          <dd className="text-foreground/90 flex-1 whitespace-pre-wrap">
+                            {r.value}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Vedlagt dokumentasjon */}
           <div>
