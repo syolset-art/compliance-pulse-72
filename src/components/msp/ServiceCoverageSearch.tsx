@@ -189,7 +189,18 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
                   <TableHead className="w-[44px] px-3" />
                   <TableHead className="w-[140px]">Regelverk</TableHead>
                   <TableHead className="w-[110px]">Krav</TableHead>
-                  <TableHead>Kontrollpunkt</TableHead>
+                  <TableHead>Kontrollpunkt
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="inline h-3.5 w-3.5 ml-1 text-muted-foreground cursor-help" aria-label="Hva er et kontrollpunkt?" />
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <p>Et kontrollpunkt er et spesifikt krav eller sikkerhetstiltak i regelverket som tjenesten din kan bidra til å oppfylle.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableHead>
                   <TableHead className="w-[160px]">
                     <span className="inline-flex items-center gap-1">
                       Treff
