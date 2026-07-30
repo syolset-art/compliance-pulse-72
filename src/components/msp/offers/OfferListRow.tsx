@@ -13,8 +13,17 @@ import {
   FileText,
   Send,
   Trash2,
+  RotateCcw,
+  Bot,
 } from "lucide-react";
-import { formatOfferDate, type PartnerOffer } from "./offerTypes";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { formatOfferDate, type PartnerOffer, type OfferLifecycle } from "./offerTypes";
 
 interface Props {
   offer: PartnerOffer;
@@ -25,36 +34,66 @@ interface Props {
   onOpen?: (offer: PartnerOffer) => void;
   onDelete?: (offer: PartnerOffer) => void;
   onDownload?: (offer: PartnerOffer) => void;
+  /** Lar partneren sette status manuelt fra statusfeltet. */
+  onSetState?: (offer: PartnerOffer, next: Extract<OfferLifecycle, "accepted" | "declined" | "sent">) => void;
 }
 
-function StatusPill({ offer }: { offer: PartnerOffer }) {
-  if (offer.offerState === "accepted") {
-    return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-success">
-        <CheckCircle2 className="h-3.5 w-3.5" /> Akseptert
-      </span>
-    );
-  }
-  if (offer.offerState === "declined") {
-    return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-destructive">
-        <XCircle className="h-3.5 w-3.5" /> Avslått
-      </span>
-    );
-  }
-  if (offer.offerState === "sent") {
-    return (
-      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
-        <Clock className="h-3.5 w-3.5" /> Venter
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
-      <FileText className="h-3.5 w-3.5" /> Utkast
+function statusVisual(state: OfferLifecycle) {
+  if (state === "accepted") return { Icon: CheckCircle2, label: "Akseptert", cls: "text-success" };
+  if (state === "declined") return { Icon: XCircle, label: "Avslått", cls: "text-destructive" };
+  if (state === "sent") return { Icon: Clock, label: "Venter", cls: "text-muted-foreground" };
+  return { Icon: FileText, label: "Utkast", cls: "text-muted-foreground" };
+}
+
+function StatusPill({ offer, onSetState }: { offer: PartnerOffer; onSetState?: Props["onSetState"] }) {
+  const { Icon, label, cls } = statusVisual(offer.offerState);
+  const editable = offer.offerState !== "draft" && !!onSetState;
+
+  const content = (
+    <span className={cn("inline-flex items-center gap-1 text-[11px] font-medium", cls)}>
+      <Icon className="h-3.5 w-3.5" /> {label}
     </span>
   );
+
+  if (!editable) return content;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 hover:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={`Endre status — nå: ${label}`}
+        >
+          {content}
+          <ChevronDown className="h-3 w-3 text-muted-foreground" aria-hidden="true" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-60">
+        {offer.offerState !== "accepted" && (
+          <DropdownMenuItem onSelect={() => onSetState?.(offer, "accepted")}>
+            <CheckCircle2 className="mr-2 h-3.5 w-3.5 text-success" /> Marker som godkjent
+          </DropdownMenuItem>
+        )}
+        {offer.offerState !== "declined" && (
+          <DropdownMenuItem onSelect={() => onSetState?.(offer, "declined")}>
+            <XCircle className="mr-2 h-3.5 w-3.5 text-destructive" /> Marker som avslått
+          </DropdownMenuItem>
+        )}
+        {offer.offerState !== "sent" && (
+          <DropdownMenuItem onSelect={() => onSetState?.(offer, "sent")}>
+            <RotateCcw className="mr-2 h-3.5 w-3.5 text-muted-foreground" /> Sett tilbake til venter
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem disabled className="text-[11px]">
+          <Bot className="mr-2 h-3.5 w-3.5" /> Automatisk oppdatering via agent — kommer
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
+
 
 export function OfferListRow({
   offer,
