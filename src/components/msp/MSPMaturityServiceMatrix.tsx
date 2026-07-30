@@ -895,104 +895,47 @@ export function MSPMaturityServiceMatrix({
         </TabsContent>
 
 
-        <TabsContent value="ongoing" className="mt-0">
-          {savedOffers.length === 0 ? (
+        <TabsContent value="drafts" className="mt-0">
+          {draftOffers.length === 0 ? (
             <Card className="p-8 text-center text-sm text-muted-foreground">
-              Ingen tilbud er lagret enda. Bruk "Lag tilbud" på en anbefalt tjeneste for å komme i gang.
+              Ingen utkast. Bruk «Lag tilbud» på en tjeneste for å komme i gang.
             </Card>
           ) : (
-            <Card className="overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[110px] text-left">Tilbudsnr.</TableHead>
-                    <TableHead className="text-left">Tjeneste</TableHead>
-                    <TableHead className="w-[120px] text-left">Regelverk</TableHead>
-                    <TableHead className="w-[120px] text-left">Laget</TableHead>
-                    <TableHead className="w-[140px] text-left">Av</TableHead>
-                    <TableHead className="w-[140px] text-left">Sum</TableHead>
-                    <TableHead className="w-[100px] text-left">Handlinger</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {savedOffers.map(o => {
-                    const created = new Date(o.createdAt).toLocaleDateString("nb-NO", {
-                      day: "2-digit", month: "short", year: "numeric",
-                    });
-                    return (
-                      <TableRow
-                        key={o.id}
-                        className="cursor-pointer hover:bg-muted/40"
-                        onClick={() =>
-                          setOfferCtx({
-                            open: true,
-                            serviceTitle: o.serviceTitle,
-                            variant: "Tjeneste",
-                            attachGap: false,
-                            gapFrameworkId: undefined,
-                            hourlyRate: o.totalHours > 0 ? Math.round(o.totalPrice / o.totalHours) : 1500,
-                            defaultTasks: [
-                              { label: o.serviceTitle, hours: o.totalHours, owner: "Partner", weeks: "" },
-                            ],
-                            initialView: "preview",
-                          })
-                        }
-                      >
-                        <TableCell className="font-mono text-[12px] text-muted-foreground">
-                          {o.offerNumber}
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium text-foreground text-sm">{o.serviceTitle}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {o.taskCount} tiltak · {o.totalHours} timer
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {o.frameworkLabel ? (
-                            <Badge variant="outline" className="text-xs gap-1">
-                              <FileText className="h-3 w-3" />
-                              {o.frameworkLabel}
-                            </Badge>
-                          ) : (
-                            <span className="text-[12px] text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-[12px] text-muted-foreground">{created}</TableCell>
-                        <TableCell className="text-[12px] text-foreground">{o.createdBy}</TableCell>
-                        <TableCell className="text-right text-sm font-medium tabular-nums">
-                          {o.totalPrice.toLocaleString("nb-NO")} kr
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0"
-                              title="Del tilbud"
-                              onClick={() => setShareCtx({ open: true, offerNumber: o.offerNumber, serviceTitle: o.serviceTitle })}
-                            >
-                              <Share2 className="h-3.5 w-3.5" />
-                            </Button>
-
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0"
-                              title="Last ned PDF"
-                              onClick={() => toast.success(`Lastet ned ${o.offerNumber}.pdf`)}
-                            >
-                              <Download className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </Card>
+            <div className="space-y-2">
+              {draftOffers.map((o) => (
+                <OfferListRow
+                  key={o.id}
+                  offer={o}
+                  onOpen={openOfferPreview}
+                  onSend={sendOffer}
+                  onDelete={deleteDraft}
+                  onDownload={(offer) => toast.success(`Lastet ned ${offer.offerNumber}.pdf`)}
+                />
+              ))}
+            </div>
           )}
         </TabsContent>
+
+        <TabsContent value="ongoing" className="mt-0">
+          {sentOffers.length === 0 ? (
+            <Card className="p-8 text-center text-sm text-muted-foreground">
+              Ingen tilbud er sendt til kunden enda.
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {sentOffers.map((o) => (
+                <OfferListRow
+                  key={o.id}
+                  offer={o}
+                  onAccept={(offer) => setAcceptCtx({ open: true, offer })}
+                  onDecline={declineOffer}
+                  onDownload={(offer) => toast.success(`Lastet ned ${offer.offerNumber}.pdf`)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
 
 
 
