@@ -104,6 +104,23 @@ function deriveNeededServices(c: any): string[] {
   return Array.from(new Set(services)).slice(0, 3);
 }
 
+// Aktive (leverte) tjenester for denne kunden — vises grønt i kolonnen.
+function deriveActiveServices(c: any): string[] {
+  const delivered = getOffersForCustomer(c.id).filter((o) => o.status === "delivered");
+  const names = new Set<string>();
+  for (const o of delivered) {
+    for (const tid of o.templateIds || []) {
+      const tpl = SERVICE_LIBRARY.find((t) => t.id === tid);
+      names.add(tpl ? tpl.title : tid);
+    }
+    for (const key of o.serviceKeys || []) {
+      const tpl = SERVICE_LIBRARY.find((t) => normalizeServiceKey(t.title) === key);
+      names.add(tpl ? tpl.title : key);
+    }
+  }
+  return Array.from(names);
+}
+
 
 // Typical MSP/MSSP groupings — derived from existing customer data
 const SECURITY_FRAMEWORKS = new Set(["ISO 27001", "NIS2", "NIS 2", "CIS", "SOC 2", "Cyber Essentials"]);
