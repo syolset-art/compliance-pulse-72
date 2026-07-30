@@ -121,9 +121,6 @@ function formatSupportedSummary(template: ServiceTemplate): string {
   return rest > 0 ? `${primary.frameworkLabel} +${rest}` : primary.frameworkLabel;
 }
 
-function countRequirements(template: ServiceTemplate): number {
-  return (template.mappings ?? []).reduce((sum, m) => sum + (m.controlIds?.length ?? 0), 0);
-}
 
 function activityCountLabel(count: number): string {
   if (count === 0) return "—";
@@ -821,9 +818,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               <tr>
                 <th className="text-left font-medium px-3 py-2.5">Tjeneste</th>
                 <th className="text-left font-medium px-3 py-2.5">Støtter</th>
-                <th className="text-left font-medium px-3 py-2.5 w-24">Krav</th>
                 <th className="text-left font-medium px-3 py-2.5">Aktiviteter</th>
-
                 <th className="text-right font-medium px-3 py-2.5 w-32">Handling</th>
               </tr>
             </thead>
@@ -846,31 +841,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                     </td>
                     <td className="px-3 py-3 text-foreground/80">
                       {formatSupportedSummary(template)}
-                    </td>
-                    <td className="px-3 py-3">
-                      {(() => {
-                        const reqs = countRequirements(template);
-                        if (reqs === 0) return <span className="text-sm text-muted-foreground">—</span>;
-                        return (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="text-sm text-foreground/80 tabular-nums cursor-help underline decoration-dotted underline-offset-4">
-                                {reqs}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs text-xs">
-                              <ul className="space-y-0.5">
-                                {(template.mappings ?? []).map((m) => (
-                                  <li key={m.frameworkLabel}>
-                                    • {m.frameworkLabel}: {m.controlIds?.length ?? 0}
-                                  </li>
-                                ))}
-                              </ul>
-                              <p className="mt-1.5 text-muted-foreground">Åpne tjenesten for å se hvilke krav den dekker.</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        );
-                      })()}
                     </td>
                     <td className="px-3 py-3">
 
@@ -1025,7 +995,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                   <AiMappingDisclosure variant="icon" />
                 </div>
                 <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-40 hidden md:block">Regelverk</div>
-                <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-16 text-right hidden md:block">Krav</div>
+                <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-16 text-right hidden md:block">Aktiviteter</div>
                 <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-12 text-right">Timer</div>
                 <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-24 text-right">Pris</div>
                 <div className="w-11" />
@@ -1130,7 +1100,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                     );
                   })()}
                   <div className="hidden md:block text-sm text-foreground/70 tabular-nums whitespace-nowrap w-16 text-right">
-                    {e.mappings.length || "—"}
+                    {e.activities.length || "—"}
                   </div>
                   <div className="text-base text-foreground/70 tabular-nums whitespace-nowrap w-12 text-right">
                     {e.hours} t
