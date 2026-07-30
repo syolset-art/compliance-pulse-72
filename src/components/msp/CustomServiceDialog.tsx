@@ -254,9 +254,9 @@ export function CustomServiceDialog({
               value={description}
               onChange={(e) => {
                 setDescription(e.target.value);
-                setDescriptionFromAi(false);
               }}
               placeholder="Legg til detaljer for bedre forslag — eller la Lara foreslå"
+
               rows={2}
             />
           </div>
