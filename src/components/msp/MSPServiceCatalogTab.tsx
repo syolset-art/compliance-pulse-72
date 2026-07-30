@@ -416,7 +416,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               .filter((m) => !currentFwIds.has(m.frameworkId) && ext.addedFrameworkLabels.includes(m.frameworkLabel))
               .flatMap((m) => {
                 const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
-                const roles = getMappingRoles(tpl, m);
                 return m.controlIds.map((cid) => {
                   const cp = fw?.controlPoints.find((c) => c.id === cid);
                   return {
@@ -424,7 +423,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                     frameworkShortName: fw?.shortName ?? m.frameworkLabel,
                     controlId: cid,
                     controlLabel: cp?.label ?? cid,
-                    roles,
                   } as ServiceMapping;
                 });
               });
