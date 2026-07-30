@@ -188,7 +188,7 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
                               <Info className="inline h-3.5 w-3.5 text-muted-foreground cursor-help" aria-label="Hva vises i tabellen?" />
                             </TooltipTrigger>
                             <TooltipContent side="top" className="max-w-xs">
-                              <p>Foreslåtte regelverk og krav og hvilke kontrollområder de er tilknyttet.</p>
+                              <p>Foreslåtte regelverk, krav, aktiviteter og kontrollområder de er tilknyttet.</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>

@@ -21,7 +21,7 @@ import {
 } from "./FrameworkCoverageCard";
 import { CustomServiceDialog, type CustomServiceDraft, type ServiceMapping, type ServiceActivity } from "./CustomServiceDialog";
 import { ServiceLibraryBrowser } from "./ServiceLibraryBrowser";
-import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext, type ServiceRole, getMappingRoles, formatRoleVerbs, ROLE_META } from "@/lib/serviceLibrary";
+import { SERVICE_LIBRARY, type ServiceTemplate, type PartnerContext } from "@/lib/serviceLibrary";
 import { useServiceDefaults } from "@/hooks/useServiceDefaults";
 import { RetireServiceDialog, type RetireServiceOptions } from "./RetireServiceDialog";
 import { MSPLaraServiceWizard } from "./MSPLaraServiceWizard";
@@ -354,7 +354,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
     const totalHours = activities.reduce((s, a) => s + a.hours, 0) || hoursAvg;
     const mappings: ServiceMapping[] = template.mappings.flatMap((m) => {
       const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
-      const roles = getMappingRoles(template, m);
       return m.controlIds.map((cid) => {
         const cp = fw?.controlPoints.find((c) => c.id === cid);
         return {
@@ -362,7 +361,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           frameworkShortName: fw?.shortName ?? m.frameworkLabel,
           controlId: cid,
           controlLabel: cp?.label ?? cid,
-          roles,
         };
       });
     });
@@ -418,7 +416,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               .filter((m) => !currentFwIds.has(m.frameworkId) && ext.addedFrameworkLabels.includes(m.frameworkLabel))
               .flatMap((m) => {
                 const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
-                const roles = getMappingRoles(tpl, m);
                 return m.controlIds.map((cid) => {
                   const cp = fw?.controlPoints.find((c) => c.id === cid);
                   return {
@@ -426,7 +423,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                     frameworkShortName: fw?.shortName ?? m.frameworkLabel,
                     controlId: cid,
                     controlLabel: cp?.label ?? cid,
-                    roles,
                   } as ServiceMapping;
                 });
               });
@@ -473,7 +469,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
     const totalHours = activities.reduce((s, a) => s + a.hours, 0) || hoursAvg;
     const mappings: ServiceMapping[] = template.mappings.flatMap((m) => {
       const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
-      const roles = getMappingRoles(template, m);
       return m.controlIds.map((cid) => {
         const cp = fw?.controlPoints.find((c) => c.id === cid);
         return {
@@ -481,7 +476,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           frameworkShortName: fw?.shortName ?? m.frameworkLabel,
           controlId: cid,
           controlLabel: cp?.label ?? cid,
-          roles,
         };
       });
     });
@@ -1396,7 +1390,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           />
           <div className="space-y-2">
             <p className="text-base text-foreground/75 italic leading-relaxed">
-              Bygg en helt egen tjeneste ved å hake av kontrollpunkter på tvers av regelverk. Lara estimerer omfang basert på valgte KP.
+              Bygg en helt egen tjeneste ved å hake av krav på tvers av regelverk. Lara estimerer omfang basert på valgte krav.
             </p>
             {FRAMEWORK_CATALOG.map((fw) => (
               <FrameworkCoverageCard
