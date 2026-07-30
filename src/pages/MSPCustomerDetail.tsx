@@ -462,14 +462,23 @@ export default function MSPCustomerDetail() {
                   </div>
 
                   <div className="flex items-center justify-end gap-1.5">
-                    <Button
-                      size="sm"
-                      className="h-7 px-2.5 text-xs"
-                      onClick={() => setBaselineDrawer({ open: true, review: false, mode: "meeting" })}
-                    >
-                      <Users className="h-3 w-3 mr-1" />
-                      {t("baselineCard.meetingButton", "Med kunden")}
-                    </Button>
+                  <TooltipProvider delayDuration={200}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="sm"
+                          className="h-7 px-2.5 text-xs"
+                          onClick={() => setBaselineDrawer({ open: true, review: false, mode: "meeting" })}
+                        >
+                          <Users className="h-3 w-3 mr-1" />
+                          {t("baselineCard.meetingButton", "Start modenhetsvurdering")}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs">
+                        {t("baselineCard.meetingButtonTooltip", "Åpner et spørreskjema der du og kunden sammen vurderer modenhet på fem kontrollområder. Resultatet blir grunnlaget for Trust Profile og gap-analysen.")}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                   </div>
                 </div>
               </Card>
