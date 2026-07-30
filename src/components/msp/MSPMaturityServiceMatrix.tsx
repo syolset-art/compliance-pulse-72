@@ -866,20 +866,20 @@ export function MSPMaturityServiceMatrix({
 
       {/* Tabs: Anbefalt / Pågående */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3">
-        <TabsList>
-          <TabsTrigger value="recommended" className="gap-2">
+        <TabsList className="text-sm">
+          <TabsTrigger value="recommended" className="gap-2 text-sm">
             Tjenester
             <Badge variant="secondary" className="h-5 px-1.5 text-xs">{RECOMMENDATIONS.length}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="drafts" className="gap-2">
+          <TabsTrigger value="drafts" className="gap-2 text-sm">
             Utkast
             <Badge variant="secondary" className="h-5 px-1.5 text-xs">{draftOffers.length}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="ongoing" className="gap-2">
+          <TabsTrigger value="ongoing" className="gap-2 text-sm">
             Tilbud levert
             <Badge variant="secondary" className="h-5 px-1.5 text-xs">{sentOffers.length}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="deliveries" className="gap-2">
+          <TabsTrigger value="deliveries" className="gap-2 text-sm">
             Pågående oppdrag
             <Badge variant="secondary" className="h-5 px-1.5 text-xs">{DELIVERIES.length}</Badge>
           </TabsTrigger>
