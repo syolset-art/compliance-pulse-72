@@ -23,13 +23,13 @@ import { cn } from "@/lib/utils";
  */
 
 const SHORT_TEXT =
-  "Alle tjenester har en kobling til regelverk og krav. Aktiviteter er foreslått av en AI-agent — ikke verifisert av menneske. Forholdet er ikke 1:1.";
+  "Tjenestene kobles til relevante regelverk og krav. Aktivitetsforslag er generert ved hjelp av KI og kan inneholde feil.";
 
 const LONG_TITLE = "Slik er koblingen laget";
 
 const LONG_BODY = [
-  "Alle tjenester har en kobling til regelverk og krav.",
-  "Aktiviteter er foreslått av en AI-agent og kan inneholde feil.",
+  "Tjenestene kobles til relevante regelverk og krav.",
+  "Aktivitetsforslag er generert ved hjelp av KI og kan inneholde feil.",
 ];
 
 function LongContent() {
