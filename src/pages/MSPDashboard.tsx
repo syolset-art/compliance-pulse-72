@@ -814,6 +814,7 @@ export default function MSPDashboard() {
                         const tp = deriveTPStatus(c);
                         const score = c.compliance_score || 0;
                         const services = deriveNeededServices(c);
+                        const activeServices = deriveActiveServices(c);
                         const isNew = highlightIds.has(c.id);
                         return (
                           <TableRow
