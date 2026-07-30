@@ -100,7 +100,7 @@ export function DeliveryFormStepper({ template, state, onChange }: Props) {
             </div>
 
             {!skipped && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-6">
                 {step.fields.map((f) => (
                   <FieldControl
                     key={f.id}
