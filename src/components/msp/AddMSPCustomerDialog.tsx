@@ -336,6 +336,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         }
         if (!enriched.hjemmeside && (aiRes?.website || aiRes?.hjemmeside)) {
           enriched.hjemmeside = aiRes.website || aiRes.hjemmeside;
+          websiteFromAi = true;
         }
       } catch { /* ignore */ }
     } else if (industrySource === "none") {
@@ -346,10 +347,13 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     const suggestedUrl = normalizeWebsite(enriched.hjemmeside);
     if (suggestedUrl) {
       setForm((f) => ({ ...f, has_website: true, url: suggestedUrl }));
-      setWebsiteSource(enriched.hjemmeside && industrySource !== "ai_suggested" ? "brreg" : "ai_suggested");
+      setWebsiteSource(websiteFromAi ? "ai_suggested" : "brreg");
     } else {
+      // Ingen treff – behold "Ja, har nettside" med tomt felt så partneren kan fylle inn senere
+      setForm((f) => ({ ...f, has_website: true, url: "" }));
       setWebsiteSource("none");
     }
+
 
     setEnrichStep("done");
     setSelectedCompany(enriched);
