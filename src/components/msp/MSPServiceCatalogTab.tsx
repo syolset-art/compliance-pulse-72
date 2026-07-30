@@ -667,6 +667,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           setSearchDraft({
             name,
             description: suggestedDescription,
+            descriptionFromAi: true,
             hours: 0,
             activities: [],
             mappings,
