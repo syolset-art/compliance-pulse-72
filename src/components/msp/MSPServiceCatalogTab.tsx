@@ -354,7 +354,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
     const totalHours = activities.reduce((s, a) => s + a.hours, 0) || hoursAvg;
     const mappings: ServiceMapping[] = template.mappings.flatMap((m) => {
       const fw = FRAMEWORK_CATALOG.find((f) => f.id === m.frameworkId);
-      const roles = getMappingRoles(template, m);
       return m.controlIds.map((cid) => {
         const cp = fw?.controlPoints.find((c) => c.id === cid);
         return {
@@ -362,7 +361,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
           frameworkShortName: fw?.shortName ?? m.frameworkLabel,
           controlId: cid,
           controlLabel: cp?.label ?? cid,
-          roles,
         };
       });
     });
