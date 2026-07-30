@@ -87,7 +87,7 @@ export async function seedDemoMSP(): Promise<SeedResult> {
   // 3) Customers — seed only if none exist
   const { data: existingCustomers } = await supabase
     .from("msp_customers" as any)
-    .select("id")
+    .select("id, customer_name, url, business_description, contact_company_role")
     .eq("msp_user_id", effectiveUserId);
 
   let custIds: string[];
