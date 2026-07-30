@@ -1728,7 +1728,8 @@
     "helper": "The more questions answered, the more accurate the maturity assessment and gap analysis will be.",
     "startPartner": "Start mapping",
     "continuePartner": "Continue mapping",
-    "meetingButton": "Fill out together with customer"
+    "meetingButton": "Start maturity assessment",
+    "meetingButtonTooltip": "Opens a questionnaire where you and the customer jointly assess maturity across five control areas. The result forms the basis for the Trust Profile and gap analysis."
   },
   "baselineDrawer": {
     "reviewTitle": "Review baseline",

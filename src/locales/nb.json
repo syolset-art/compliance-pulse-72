@@ -1729,7 +1729,8 @@
     "helper": "Jo flere spørsmål som besvares, jo mer presis blir modenhetsvurderingen og gap-analysen.",
     "startPartner": "Start kartlegging",
     "continuePartner": "Fortsett kartlegging",
-    "meetingButton": "Fyll ut sammen med kunden"
+    "meetingButton": "Start modenhetsvurdering",
+    "meetingButtonTooltip": "Åpner et spørreskjema der du og kunden sammen vurderer modenhet på fem kontrollområder. Resultatet blir grunnlaget for Trust Profile og gap-analysen."
   },
   "baselineDrawer": {
     "reviewTitle": "Se over baseline",
