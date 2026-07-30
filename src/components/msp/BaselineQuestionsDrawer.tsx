@@ -187,7 +187,17 @@ export function BaselineQuestionsDrawer({
               <TabsContent key={area.id} value={area.id} className="mt-4">
                 <p className="text-sm text-muted-foreground mb-2">{area.subtitle}</p>
 
+                <BaselineAreaDocuments
+                  areaId={area.id}
+                  questions={area.questions}
+                  documents={docsForArea(area.id)}
+                  onAdd={addDocument}
+                  onLink={linkDocument}
+                  onRemove={removeDocument}
+                />
+
                 <div className="divide-y divide-border/60">
+
                   {area.questions.map((q) => {
                     const current = draft[q.id] ?? "not_started";
                     const meta = META_BY_VALUE[current];
