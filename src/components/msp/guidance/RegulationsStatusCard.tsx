@@ -380,11 +380,10 @@ export function RegulationsStatusCard({
       )}
 
       {/* Opplastede bevis for denne kunden — kompakt liste */}
-      <div className="mt-4">
+      <div className="mt-3">
         <PartnerEvidenceSection
           customerId={customerId}
           minimal
-          hideUploadButton
         />
       </div>
 
