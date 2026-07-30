@@ -216,6 +216,20 @@ export function OfferListRow({
             </div>
           )}
 
+          {offer.statusSetBy && offer.offerState !== "draft" && (
+            <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              {offer.statusSource === "agent" ? (
+                <Bot className="h-3 w-3" aria-hidden="true" />
+              ) : (
+                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+              )}
+              {offer.statusSource === "agent" ? "Satt automatisk av" : "Satt manuelt av"}{" "}
+              {offer.statusSetBy}
+            </p>
+          )}
+
+
+
           <div className={cn("flex flex-wrap items-center gap-2 pt-0.5")}>
             {isDraft ? (
               <>
