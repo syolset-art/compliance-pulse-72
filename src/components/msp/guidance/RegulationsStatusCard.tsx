@@ -253,9 +253,22 @@ export function RegulationsStatusCard({
                 return (
                   <TableRow key={rec.frameworkId} className="align-top">
                     <TableCell className="py-3">
-                      <div className="text-[13px] font-medium text-foreground">
-                        {rec.label}
-                      </div>
+                      {(() => {
+                        const [primary, ...aliasParts] = rec.label.split(/\s*[/·]\s*/);
+                        const alias = aliasParts.join(" / ");
+                        return (
+                          <>
+                            <div className="text-sm font-medium text-foreground leading-snug">
+                              {primary}
+                            </div>
+                            {alias && (
+                              <div className="text-xs text-muted-foreground leading-snug">
+                                {alias}
+                              </div>
+                            )}
+                          </>
+                        );
+                      })()}
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                         {rec.reason}
                       </p>

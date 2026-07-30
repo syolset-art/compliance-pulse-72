@@ -26,7 +26,6 @@ import { PARTNER_TEAM } from "@/lib/partnerTeam";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatKr } from "@/lib/planConstants";
 import { recommendFrameworks, type FrameworkRecommendation } from "@/lib/regulationRecommender";
-import { CustomerRecommendationsPanel } from "./CustomerRecommendationsPanel";
 import laraButterfly from "@/assets/lara-butterfly.png";
 
 interface AddMSPCustomerDialogProps {
@@ -68,7 +67,7 @@ const ACRONIS_DEMO_TENANTS: Array<{
   { tenant_id: "ac-003", name: "Polar Maritime AS", org_number: "923456781", industry: "Skipsfart og maritim tjenesteyting", devices: 26, employees: 48 },
 ];
 
-const STEP_LABELS = ["method", "country", "search", "contact", "recommend"];
+const STEP_LABELS = ["method", "country", "search", "contact"];
 
 const COUNTRIES: { code: string; name: string; registry: string; supported: boolean }[] = [
   { code: "NO", name: "Norge", registry: "Brønnøysundregistrene", supported: true },
@@ -99,8 +98,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   const [searchResults, setSearchResults] = useState<BrregResult[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<BrregResult | null>(null);
   const [duplicateFound, setDuplicateFound] = useState(false);
-  const [recommendations, setRecommendations] = useState<FrameworkRecommendation[]>([]);
-  const [confirmedRecommendations, setConfirmedRecommendations] = useState<string[]>([]);
   type WebsiteSource = "brreg" | "ai_suggested" | "manual" | "none";
   const [websiteSource, setWebsiteSource] = useState<WebsiteSource>("none");
 
@@ -144,12 +141,8 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     enabled: !!user?.id && open,
   });
 
-  // High-confidence recommendations are auto-applied; medium ones require confirm.
-  const activeFrameworks = useMemo(() => {
-    const set = new Set<string>(recommendations.filter((r) => r.confidence === "high").map((r) => r.frameworkId));
-    confirmedRecommendations.forEach((id) => set.add(id));
-    return Array.from(set);
-  }, [recommendations, confirmedRecommendations]);
+  // Regelverk aktiveres av partneren i «Veiledning fra Mynder», ikke i wizarden.
+  const activeFrameworks: string[] = [];
 
   // Bulk import state
   const [bulkText, setBulkText] = useState("");
@@ -175,8 +168,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     setSearchResults([]);
     setSelectedCompany(null);
     setDuplicateFound(false);
-    setRecommendations([]);
-    setConfirmedRecommendations([]);
     setBulkText("");
     setBulkRows([]);
     setBulkSavedCount(0);
@@ -196,24 +187,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
   useEffect(() => {
     if (!open) reset();
   }, [open, reset]);
-
-  // Compute recommendations when entering the recommend step
-  useEffect(() => {
-    if (step !== "recommend") return;
-    const employeeCount = manual.employees
-      ? Number(manual.employees.split("-")[0].replace("+", ""))
-      : null;
-    const recs = recommendFrameworks({
-      countryCode: form.country_code,
-      industryCode: selectedCompany?.naeringskode1?.kode ?? null,
-      industryLabel:
-        selectedCompany?.naeringskode1?.beskrivelse ?? manual.industry ?? null,
-      employees: employeeCount,
-      businessDescription: businessDescription,
-    });
-    setRecommendations(recs);
-    setConfirmedRecommendations([]);
-  }, [step, form.country_code, selectedCompany, manual.industry, manual.employees, businessDescription]);
 
   // Search BrReg
   const handleSearch = async () => {
@@ -390,6 +363,19 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
     if (!user?.id || !selectedCompany) return;
     setSaving(true);
     try {
+      // Lara beregner regelverksforslag i bakgrunnen — partneren bekrefter dem
+      // senere under «Veiledning fra Mynder».
+      const employeeCount = manual.employees
+        ? Number(manual.employees.split("-")[0].replace("+", ""))
+        : null;
+      const recommendations = recommendFrameworks({
+        countryCode: form.country_code,
+        industryCode: selectedCompany?.naeringskode1?.kode ?? null,
+        industryLabel:
+          selectedCompany?.naeringskode1?.beskrivelse ?? manual.industry ?? null,
+        employees: employeeCount,
+        businessDescription: businessDescription,
+      });
       // 1. Create customer
       const { data: customer, error } = await supabase.from("msp_customers").insert({
         msp_user_id: user.id,
@@ -409,7 +395,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
         status: "active",
         active_frameworks: activeFrameworks,
         recommended_frameworks: recommendations as any,
-        confirmed_frameworks: confirmedRecommendations as any,
+        confirmed_frameworks: [] as any,
         subscription_plan: form.subscription_plan,
         onboarding_completed: true,
       } as any).select().single();
@@ -1472,61 +1458,17 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                 <Button variant="ghost" size="sm" onClick={() => setStep("results")} className="gap-1">
                   <ArrowLeft className="h-4 w-4" /> Tilbake
                 </Button>
-                <Button onClick={() => setStep("recommend")}>
-                  Fullfør
+                <Button onClick={handleSave} disabled={saving}>
+                  {saving ? (
+                    <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Oppretter...</>
+                  ) : (
+                    "Fullfør"
+                  )}
                 </Button>
               </div>
             </div>
           </>
         )}
-
-        {/* Step: Recommendations (Lara) */}
-        {step === "recommend" && selectedCompany && (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-lg flex items-center gap-2">
-                <img src={laraButterfly} alt="" className="h-5 w-5" />
-                Laras anbefaling
-              </DialogTitle>
-              <DialogDescription className="text-sm">
-                Basert på land, bransje og beskrivelse — bekreft eller endre før du legger til kunden.
-              </DialogDescription>
-            </DialogHeader>
-            {stepIndicator}
-
-            {/* Company summary — kompakt */}
-            <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground space-y-0.5">
-              <p className="font-medium text-foreground text-sm">{selectedCompany.navn}</p>
-              <p>Org.nr {selectedCompany.organisasjonsnummer}
-                {selectedCompany.naeringskode1?.beskrivelse && ` · ${selectedCompany.naeringskode1.beskrivelse}`}
-              </p>
-            </div>
-
-            <CustomerRecommendationsPanel
-              recommendations={recommendations}
-              confirmed={confirmedRecommendations}
-              onToggleConfirm={(id) =>
-                setConfirmedRecommendations((prev) =>
-                  prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-                )
-              }
-            />
-
-            <div className="flex justify-between pt-2">
-              <Button variant="ghost" size="sm" onClick={() => setStep("contact")} className="gap-1">
-                <ArrowLeft className="h-4 w-4" /> Tilbake
-              </Button>
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? (
-                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Oppretter...</>
-                ) : (
-                  "Legg til kunde"
-                )}
-              </Button>
-            </div>
-          </>
-        )}
-
 
         {/* Step: Success */}
         {step === "success" && (
@@ -1537,6 +1479,9 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
               <p className="text-lg font-semibold text-foreground">Kunden er lagt til!</p>
               <p className="text-sm text-muted-foreground">
                 {selectedCompany?.navn} har fått en kundeprofil og er klar i porteføljen din
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Lara har foreslått relevante regelverk — du finner dem under «Veiledning fra Mynder».
               </p>
             </div>
           </div>
