@@ -790,127 +790,191 @@ export function MSPCreateOfferDialog({
           </div>
         )}
 
-        {view === "preview" && (
-          <div className="flex-1 overflow-y-auto p-5 bg-muted/30">
-            {/* Paper-like preview */}
-            <div className="mx-auto bg-background border border-border rounded-md shadow-sm p-8 max-w-xl space-y-5">
-              <div className="flex items-start justify-between gap-4 text-xs text-muted-foreground">
-                <div className="flex items-start gap-2.5 min-w-0">
-                  {effectiveLogo && (
-                    <img src={effectiveLogo} alt="" className="h-9 w-9 object-contain rounded shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <div className="font-semibold text-foreground truncate">{effectivePartnerName}</div>
-                    {effectiveOrgNumber && (
-                      <div className="text-xs tabular-nums">Org.nr {effectiveOrgNumber}</div>
+        {view === "preview" && (() => {
+          const coverageRows = tasks
+            .map(t => ({ task: t, gaps: sortedGaps.filter(g => (t.gapIds ?? []).includes(g.id)) }))
+            .filter(r => r.gaps.length > 0);
+          const uncovered = sortedGaps.filter(g => !selectedGapIds.has(g.id));
+          const showCoveragePage = showGapsInOffer && !!coveredGaps && coverageRows.length > 0;
+          const showAttachmentPage = attachGap && (!!coveredGaps || !!gapFrameworkId);
+          const totalPages = 1 + (showCoveragePage ? 1 : 0) + (showAttachmentPage ? 1 : 0);
+          const coveragePageNo = 2;
+          const attachmentPageNo = showCoveragePage ? 3 : 2;
+          const docFooter = `${effectivePartnerName}${effectiveOrgNumber ? ` · Org.nr ${effectiveOrgNumber}` : ""} · Tilbud ${offerNumber} · ${todayLabel}`;
+          const fwLabel = coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase() ?? "";
+
+          return (
+            <div className="flex-1 overflow-y-auto p-5 bg-muted/30 space-y-5">
+              {/* SIDE 1 — tilbudet */}
+              <OfferSheet page={1} total={totalPages} footer={docFooter}>
+                <div className="flex items-start justify-between gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    {effectiveLogo && (
+                      <img src={effectiveLogo} alt="" className="h-9 w-9 object-contain rounded shrink-0" />
                     )}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div>Tilbud <span className="tabular-nums">{offerNumber}</span></div>
-                  <div>{todayLabel}</div>
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-bold text-foreground">{offerName}</h2>
-                <p className="text-sm text-muted-foreground mt-1">Til: {customerContactName}</p>
-              </div>
-
-              {message.trim() && (
-                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{message.trim()}</p>
-              )}
-
-              <div className="space-y-1.5">
-                <div className="grid grid-cols-[1fr_70px_100px] gap-3 text-xs uppercase tracking-wide text-muted-foreground font-semibold border-b border-border pb-1.5">
-                  <span>Oppgave</span>
-                  <span className="text-right">Timer</span>
-                  <span className="text-right">Beløp</span>
-                </div>
-                {tasks.map((t, i) => {
-                  const hrs = Number(t.hours) || 0;
-                  return (
-                    <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-sm py-1.5 border-b border-border/50">
-                      <div>
-                        <p className="text-foreground">{t.label}</p>
-                        {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
-                      </div>
-                      <span className="text-right tabular-nums text-foreground">{hrs}</span>
-                      <span className="text-right tabular-nums text-foreground">{(hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
+                    <div className="min-w-0">
+                      <div className="font-semibold text-foreground truncate">{effectivePartnerName}</div>
+                      {effectiveOrgNumber && (
+                        <div className="text-xs tabular-nums">Org.nr {effectiveOrgNumber}</div>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div>Tilbud <span className="tabular-nums">{offerNumber}</span></div>
+                    <div>{todayLabel}</div>
+                  </div>
+                </div>
 
-              <div className="pt-3 mt-1 border-t-2 border-foreground/80 space-y-1.5">
-                <div className="flex items-baseline justify-between text-sm text-muted-foreground">
-                  <span>Timepris</span>
-                  <span className="tabular-nums">{editableHourlyRate.toLocaleString("nb-NO")} kr</span>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">{offerName}</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Til: {customerContactName}</p>
                 </div>
-                <div className="flex items-baseline justify-between text-sm text-muted-foreground">
-                  <span>Sum timer</span>
-                  <span className="tabular-nums">{totalHours} t</span>
+
+                {message.trim() && (
+                  <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{message.trim()}</p>
+                )}
+
+                <div className="space-y-1.5">
+                  <div className="grid grid-cols-[1fr_70px_100px] gap-3 text-xs uppercase tracking-wide text-muted-foreground font-semibold border-b border-border pb-1.5">
+                    <span>Oppgave</span>
+                    <span className="text-right">Timer</span>
+                    <span className="text-right">Beløp</span>
+                  </div>
+                  {tasks.map((t, i) => {
+                    const hrs = Number(t.hours) || 0;
+                    return (
+                      <div key={i} className="grid grid-cols-[1fr_70px_100px] gap-3 text-sm py-1.5 border-b border-border/50">
+                        <div>
+                          <p className="text-foreground">{t.label}</p>
+                          {t.note && <p className="text-xs text-muted-foreground">{t.note}</p>}
+                        </div>
+                        <span className="text-right tabular-nums text-foreground">{hrs}</span>
+                        <span className="text-right tabular-nums text-foreground">{(hrs * editableHourlyRate).toLocaleString("nb-NO")} kr</span>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
-                  <span className={cn(showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-base font-bold text-foreground")}>
-                    {showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalsum"}
-                  </span>
-                  <span className={cn("tabular-nums", showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-lg font-bold text-foreground")}>
-                    {fmtKr(showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice)}
-                  </span>
-                </div>
-                {showTax && (
+
+                <div className="pt-3 mt-1 border-t-2 border-foreground/80 space-y-1.5">
                   <div className="flex items-baseline justify-between text-sm text-muted-foreground">
-                    <span>{tax.label} ({tax.rate}%)</span>
-                    <span className="tabular-nums">{fmtKr(taxBreakdown.taxAmount)}</span>
+                    <span>Timepris</span>
+                    <span className="tabular-nums">{editableHourlyRate.toLocaleString("nb-NO")} kr</span>
                   </div>
-                )}
-                {showTax && (
+                  <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                    <span>Sum timer</span>
+                    <span className="tabular-nums">{totalHours} t</span>
+                  </div>
                   <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
-                    <span className="text-base font-bold text-foreground">Totalt inkl. {tax.label}</span>
-                    <span className="text-lg font-bold text-foreground tabular-nums">{fmtKr(taxBreakdown.gross)}</span>
-                  </div>
-                )}
-                <p className="text-xs text-muted-foreground pt-1">{formatTaxNote(tax)}</p>
-              </div>
-
-
-              {showGapsInOffer && coveredGaps && selectedCount > 0 && (
-                <div className="pt-3 border-t border-border space-y-2">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">
-                      Lukker mangler fra gap-analysen
-                    </p>
-                    <span className="text-xs text-foreground tabular-nums font-medium">
-                      {selectedCount} av {totalGapCount}
+                    <span className={cn(showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-base font-bold text-foreground")}>
+                      {showTax && tax.mode === "exclusive" ? `Sum eks. ${tax.label}` : "Totalsum"}
+                    </span>
+                    <span className={cn("tabular-nums", showTax && tax.mode === "exclusive" ? "text-sm text-muted-foreground" : "text-lg font-bold text-foreground")}>
+                      {fmtKr(showTax && tax.mode === "inclusive" ? taxBreakdown.net : totalPrice)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    {(() => {
-                      const theme = getFrameworkTheme(coveredGaps.frameworkId);
-                      return (
-                        <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
-                          {coveredGaps.frameworkLabel}
-                        </span>
-                      );
-                    })()}
-                    <span className="text-muted-foreground">status per {snapshotLabel}</span>
-                  </div>
-                  <ul className="space-y-1.5">
-                    {sortedGaps.filter(g => selectedGapIds.has(g.id)).map(g => (
-                      <li key={g.id} className="flex items-start gap-2 text-sm text-foreground">
-                        <span className={cn("h-1.5 w-1.5 rounded-full mt-2 shrink-0", severityDotClass(g.severity))} />
-                        <span className="leading-snug">
-                          {g.title}
-                          {g.reference && (
-                            <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
-                          )}
-                        </span>
-                      </li>
+                  {showTax && (
+                    <div className="flex items-baseline justify-between text-sm text-muted-foreground">
+                      <span>{tax.label} ({tax.rate}%)</span>
+                      <span className="tabular-nums">{fmtKr(taxBreakdown.taxAmount)}</span>
+                    </div>
+                  )}
+                  {showTax && (
+                    <div className="flex items-baseline justify-between pt-1.5 border-t border-border">
+                      <span className="text-base font-bold text-foreground">Totalt inkl. {tax.label}</span>
+                      <span className="text-lg font-bold text-foreground tabular-nums">{fmtKr(taxBreakdown.gross)}</span>
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground pt-1">{formatTaxNote(tax)}</p>
+                </div>
+
+                {!coveredGaps && safeCoveredControls.length > 0 && (
+                  <div className="pt-3 border-t border-border space-y-1">
+                    {safeCoveredControls.map(group => (
+                      <p key={group.frameworkId} className="text-xs text-muted-foreground">
+                        Dekker {group.frameworkLabel}: {group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ")}
+                      </p>
                     ))}
-                  </ul>
+                  </div>
+                )}
+
+                {(showCoveragePage || showAttachmentPage) && (
+                  <p className="text-xs text-muted-foreground pt-3 border-t border-border">
+                    {showCoveragePage && `Side ${coveragePageNo}: hvordan oppgavene dekker gap-analysen.`}
+                    {showCoveragePage && showAttachmentPage && " "}
+                    {showAttachmentPage && `Side ${attachmentPageNo}: gap-analysen ${fwLabel} som vedlegg.`}
+                  </p>
+                )}
+              </OfferSheet>
+
+              {/* SIDE 2 — dekning mot gap-analysen */}
+              {showCoveragePage && coveredGaps && (
+                <OfferSheet page={coveragePageNo} total={totalPages} footer={docFooter}>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Dekning mot gap-analysen</p>
+                    <h3 className="text-base font-bold text-foreground">
+                      Tilbudet lukker {selectedCount} av {totalGapCount} mangler
+                    </h3>
+                    <div className="flex items-center gap-2 text-xs flex-wrap">
+                      {(() => {
+                        const theme = getFrameworkTheme(coveredGaps.frameworkId);
+                        return (
+                          <span className={cn("inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold border", theme.chip)}>
+                            {coveredGaps.frameworkLabel}
+                          </span>
+                        );
+                      })()}
+                      <span className="text-muted-foreground">status per {snapshotLabel}</span>
+                      {criticalSelected > 0 && (
+                        <span className="text-destructive font-medium">{criticalSelected} kritiske lukkes</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-md border border-border overflow-hidden">
+                    <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-3 px-3 py-2 bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground font-semibold">
+                      <span>Oppgave</span>
+                      <span>Lukker disse manglene</span>
+                    </div>
+                    <div className="divide-y divide-border">
+                      {coverageRows.map((row, i) => (
+                        <div key={i} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-3 px-3 py-2.5">
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-foreground leading-snug">{row.task.label}</p>
+                            <p className="text-xs text-muted-foreground tabular-nums">{Number(row.task.hours) || 0} timer</p>
+                          </div>
+                          <ul className="space-y-1 min-w-0">
+                            {row.gaps.map(g => (
+                              <li key={g.id} className="flex items-start gap-2">
+                                <span className={cn("h-1.5 w-1.5 rounded-full mt-1.5 shrink-0", severityDotClass(g.severity))} />
+                                <span className="text-sm text-foreground leading-snug">
+                                  {g.title}
+                                  {g.reference && (
+                                    <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                                  )}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                      {uncovered.length > 0 && (
+                        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] gap-3 px-3 py-2.5 bg-muted/20">
+                          <p className="text-sm font-medium text-muted-foreground leading-snug">Ikke dekket i dette tilbudet</p>
+                          <ul className="space-y-1 min-w-0">
+                            {uncovered.map(g => (
+                              <li key={g.id} className="text-sm text-muted-foreground leading-snug">
+                                {g.title}
+                                {g.reference && <span className="font-mono text-xs ml-1">({g.reference})</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   {crosswalkChips.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1 pt-1">
+                    <div className="flex flex-wrap items-center gap-1">
                       <Link2 className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground mr-1">Også relevant for:</span>
                       {crosswalkChips.map(r => {
@@ -926,37 +990,50 @@ export function MSPCreateOfferDialog({
                       })}
                     </div>
                   )}
-                </div>
+                </OfferSheet>
               )}
 
-              {!coveredGaps && safeCoveredControls.length > 0 && (
-                <div className="pt-3 border-t border-border space-y-1">
-                  {safeCoveredControls.map(group => (
-                    <p key={group.frameworkId} className="text-xs text-muted-foreground">
-                      Dekker {group.frameworkLabel}: {group.controlIds.map(id => `${getControlLabel(group.frameworkId, id)} (${id})`).join(", ")}
+              {/* VEDLEGG — gap-analysen */}
+              {showAttachmentPage && (
+                <OfferSheet page={attachmentPageNo} total={totalPages} footer={docFooter}>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Vedlegg</p>
+                    <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-primary" /> Gap-analyse {fwLabel}
+                    </h3>
+                    <p className="text-xs text-muted-foreground">
+                      Øyeblikksbilde per {snapshotLabel} · {totalGapCount > 0 ? totalGapCount : gapCount} mangler
                     </p>
-                  ))}
-                </div>
-              )}
-
-
-              {attachGap && (coveredGaps || gapFrameworkId) && (
-                <div className="pt-3 border-t border-border">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-1.5">Vedlegg</p>
-                  <div className="flex items-center gap-2 text-sm text-foreground">
-                    <FileText className="h-3.5 w-3.5 text-primary" />
-                    Gap-analyse {coveredGaps?.frameworkLabel ?? gapFrameworkId?.toUpperCase()} · utført dato {snapshotLabel} · {gapCount} mangler
                   </div>
-                </div>
+                  {sortedGaps.length > 0 ? (
+                    <ul className="divide-y divide-border rounded-md border border-border">
+                      {sortedGaps.map(g => {
+                        const covered = selectedGapIds.has(g.id);
+                        return (
+                          <li key={g.id} className="flex items-start gap-2.5 px-3 py-2">
+                            <span className={cn("h-2 w-2 rounded-full mt-1.5 shrink-0", severityDotClass(g.severity))} />
+                            <span className="flex-1 min-w-0 text-sm text-foreground leading-snug">
+                              {g.title}
+                              {g.reference && (
+                                <span className="font-mono text-xs text-muted-foreground ml-1">({g.reference})</span>
+                              )}
+                            </span>
+                            <span className={cn("text-xs shrink-0 mt-0.5", covered ? "text-success font-medium" : "text-muted-foreground")}>
+                              {covered ? "Dekkes" : "Ikke dekket"}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{gapCount} mangler dokumentert.</p>
+                  )}
+                </OfferSheet>
               )}
-
-
-              <p className="text-xs text-muted-foreground pt-4 border-t border-border">
-                {effectivePartnerName}{effectiveOrgNumber ? ` · Org.nr ${effectiveOrgNumber}` : ""} · Tilbud {offerNumber} · {todayLabel}
-              </p>
             </div>
-          </div>
-        )}
+          );
+        })()}
+
 
         {view === "saved" && (
           <div className="flex-1 overflow-y-auto p-6 space-y-5">
