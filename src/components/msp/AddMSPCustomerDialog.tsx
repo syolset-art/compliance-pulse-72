@@ -381,7 +381,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
       });
       // 1. Create customer
       const { data: customer, error } = await supabase.from("msp_customers").insert({
-        msp_user_id: user.id,
+        msp_user_id: user?.id ?? DEMO_MSP_USER_ID,
         customer_name: selectedCompany.navn,
         org_number: selectedCompany.organisasjonsnummer,
         industry: selectedCompany.naeringskode1?.beskrivelse || null,
