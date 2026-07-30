@@ -631,13 +631,42 @@ export function MSPMaturityServiceMatrix({
     toast.success(`Utkast ${offer.offerNumber} slettet`);
   };
 
-  const declineOffer = (offer: SavedOffer) => {
+  const [declineCtx, setDeclineCtx] = useState<{ open: boolean; offer: SavedOffer | null }>({
+    open: false,
+    offer: null,
+  });
+
+  const declineOffer = (offer: SavedOffer, reason = "Registrert som avslått av partner") => {
     patchOffer(offer.id, {
       offerState: "declined",
       respondedAt: new Date().toISOString(),
-      declineReason: "Registrert som avslått av partner",
+      declineReason: reason,
+      approval: undefined,
+      statusSource: "partner",
+      statusSetBy: PARTNER_STATUS_ACTOR,
     });
     toast(`${offer.offerNumber} markert som avslått`);
+  };
+
+  const resetOfferToSent = (offer: SavedOffer) => {
+    patchOffer(offer.id, {
+      offerState: "sent",
+      respondedAt: undefined,
+      approval: undefined,
+      declineReason: undefined,
+      statusSource: "partner",
+      statusSetBy: PARTNER_STATUS_ACTOR,
+    });
+    toast(`${offer.offerNumber} satt tilbake til venter`);
+  };
+
+  const handleSetOfferState = (
+    offer: SavedOffer,
+    next: "accepted" | "declined" | "sent",
+  ) => {
+    if (next === "accepted") setAcceptCtx({ open: true, offer });
+    else if (next === "declined") setDeclineCtx({ open: true, offer });
+    else resetOfferToSent(offer);
   };
 
   const acceptOffer = (approval: OfferApproval) => {
@@ -647,6 +676,9 @@ export function MSPMaturityServiceMatrix({
       offerState: "accepted",
       respondedAt: new Date(approval.date).toISOString(),
       approval,
+      declineReason: undefined,
+      statusSource: "partner",
+      statusSetBy: PARTNER_STATUS_ACTOR,
     });
     toast.success(`${offer.offerNumber} er akseptert`, {
       description: `Godkjent av ${approval.approvedBy} · ${approval.method}. Oppdraget er klart til levering.`,
