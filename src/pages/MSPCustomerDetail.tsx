@@ -462,17 +462,6 @@ export default function MSPCustomerDetail() {
 
                   <div className="flex items-center justify-end gap-1.5">
                     <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 px-2.5 text-xs"
-                      onClick={() => setBaselineDrawer({ open: true, review: false, mode: "partner" })}
-                    >
-                      {totalAnswered === 0
-                        ? t("baselineCard.startPartner", "Start")
-                        : t("baselineCard.continuePartner", "Fortsett")}
-                      <ArrowRight className="h-3 w-3 ml-1" />
-                    </Button>
-                    <Button
                       size="sm"
                       className="h-7 px-2.5 text-xs"
                       onClick={() => setBaselineDrawer({ open: true, review: false, mode: "meeting" })}
