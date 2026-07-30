@@ -829,6 +829,28 @@ export default function MSPDashboard() {
                             {isVisible("industry") && (
                               <TableCell className="text-muted-foreground">{c.industry || "—"}</TableCell>
                             )}
+                            {isVisible("frameworks") && (
+                              <TableCell onClick={(e) => e.stopPropagation()}>
+                                {(() => {
+                                  const frameworks: string[] = c.active_frameworks || [];
+                                  if (frameworks.length === 0) {
+                                    return <span className="text-muted-foreground text-sm">—</span>;
+                                  }
+                                  return (
+                                    <div className="flex flex-wrap items-center gap-1 max-w-[180px]">
+                                      {frameworks.slice(0, 3).map((f) => (
+                                        <Badge key={f} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
+                                          {f}
+                                        </Badge>
+                                      ))}
+                                      {frameworks.length > 3 && (
+                                        <span className="text-[11px] text-muted-foreground">+{frameworks.length - 3}</span>
+                                      )}
+                                    </div>
+                                  );
+                                })()}
+                              </TableCell>
+                            )}
                             {isVisible("services") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
                                 {services.length === 0 ? (
@@ -850,28 +872,6 @@ export default function MSPDashboard() {
                                     ))}
                                   </div>
                                 )}
-                              </TableCell>
-                            )}
-                            {isVisible("frameworks") && (
-                              <TableCell onClick={(e) => e.stopPropagation()}>
-                                {(() => {
-                                  const frameworks: string[] = c.active_frameworks || [];
-                                  if (frameworks.length === 0) {
-                                    return <span className="text-muted-foreground text-sm">—</span>;
-                                  }
-                                  return (
-                                    <div className="flex flex-wrap items-center gap-1 max-w-[180px]">
-                                      {frameworks.slice(0, 3).map((f) => (
-                                        <Badge key={f} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
-                                          {f}
-                                        </Badge>
-                                      ))}
-                                      {frameworks.length > 3 && (
-                                        <span className="text-[11px] text-muted-foreground">+{frameworks.length - 3}</span>
-                                      )}
-                                    </div>
-                                  );
-                                })()}
                               </TableCell>
                             )}
                             {isVisible("products") && (
