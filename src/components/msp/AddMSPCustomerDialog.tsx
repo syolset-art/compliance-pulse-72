@@ -89,6 +89,10 @@ interface BulkRow {
   reason?: string;
 }
 
+// Demo/prototype: tillat oppretting av kundeprofil uten innlogget bruker
+const DEMO_MSP_USER_ID = "00000000-0000-0000-0000-000000000000";
+
+
 export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCustomerDialogProps) {
   const { user } = useAuth();
   const [step, setStep] = useState<Step>("method");
@@ -360,10 +364,6 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
   // Save customer + assessment + Trust Profile
   const handleSave = async () => {
-    if (!user?.id) {
-      toast.error("Du må være innlogget for å opprette kundeprofil");
-      return;
-    }
     if (!selectedCompany) {
       toast.error("Mangler virksomhetsdata — gå tilbake og velg eller fyll inn virksomheten");
       return;
@@ -385,7 +385,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
       });
       // 1. Create customer
       const { data: customer, error } = await supabase.from("msp_customers").insert({
-        msp_user_id: user.id,
+        msp_user_id: user?.id ?? DEMO_MSP_USER_ID,
         customer_name: selectedCompany.navn,
         org_number: selectedCompany.organisasjonsnummer,
         industry: selectedCompany.naeringskode1?.beskrivelse || null,
