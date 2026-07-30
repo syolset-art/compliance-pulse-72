@@ -168,7 +168,7 @@ export function OfferListRow({
         <div className="space-y-3 border-t border-border px-3 py-3">
           <div>
             <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Foreslåtte aktiviteter
+              AKTIVITETER
             </p>
             <div className="space-y-1">
               {(offer.tasks ?? [{ label: offer.serviceTitle, hours: offer.totalHours }]).map(
