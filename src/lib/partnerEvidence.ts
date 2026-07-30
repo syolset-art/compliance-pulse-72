@@ -22,6 +22,13 @@ export interface MaturityDelta {
   delta: number;
 }
 
+export interface EvidenceCitation {
+  /** Page or section reference, e.g. "s. 4" or "Kap. 3.2" */
+  page?: string;
+  /** Short verbatim excerpt from the document */
+  quote: string;
+}
+
 export interface FrameworkMapping {
   /** Framework slug, e.g. "nis2", "iso27001", "gdpr", "dora" */
   framework: string;
@@ -29,7 +36,12 @@ export interface FrameworkMapping {
   label: string;
   /** Control point identifiers, e.g. ["A.5.1", "A.5.2"] */
   controlIds: string[];
+  /** Excerpts in the document that support this mapping */
+  citations?: EvidenceCitation[];
 }
+
+/** How the final mapping was decided. */
+export type LaraVerdict = "accepted" | "declined" | "manual";
 
 export interface PartnerEvidence {
   id: string;
@@ -42,7 +54,14 @@ export interface PartnerEvidence {
   uploadedByPartner: string;
   frameworks: FrameworkMapping[];
   maturityDelta: MaturityDelta[];
+  /** Whether Lara's proposal was accepted, declined or replaced by a manual assessment */
+  laraVerdict?: LaraVerdict;
+  /** Document type Lara proposed (may differ from final docType) */
+  laraSuggestedType?: PartnerEvidenceDocType;
+  /** Lara's confidence 0..1 */
+  confidence?: number;
 }
+
 
 const STORAGE_KEY = "msp.partner-evidence.v1";
 const EVENT_NAME = "msp:partner-evidence-changed";
