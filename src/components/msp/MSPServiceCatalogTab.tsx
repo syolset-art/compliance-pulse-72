@@ -846,31 +846,6 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                       {formatSupportedSummary(template)}
                     </td>
                     <td className="px-3 py-3">
-                      {(() => {
-                        const reqs = countRequirements(template);
-                        if (reqs === 0) return <span className="text-sm text-muted-foreground">—</span>;
-                        return (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="text-sm text-foreground/80 tabular-nums cursor-help underline decoration-dotted underline-offset-4">
-                                {reqs}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs text-xs">
-                              <ul className="space-y-0.5">
-                                {(template.mappings ?? []).map((m) => (
-                                  <li key={m.frameworkLabel}>
-                                    • {m.frameworkLabel}: {m.controlIds?.length ?? 0}
-                                  </li>
-                                ))}
-                              </ul>
-                              <p className="mt-1.5 text-muted-foreground">Åpne tjenesten for å se hvilke krav den dekker.</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        );
-                      })()}
-                    </td>
-                    <td className="px-3 py-3">
 
                       {(() => {
                         const activities = template.activities ?? [];
