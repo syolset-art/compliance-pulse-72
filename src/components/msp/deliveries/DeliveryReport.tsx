@@ -27,6 +27,30 @@ export function DeliveryReport({ open, onOpenChange, offer, customerName, partne
   const total = totalMaturityDelta(rows);
   const evidence = findEvidenceByIds(offer.customerId ?? "", evidenceIds);
 
+  const formTemplate = pickDeliveryFormTemplate({
+    name: offer.name,
+    templateIds: offer.templateIds,
+  });
+  const formState = loadDeliveryForm(offer.id);
+  const formSections =
+    formState && formState.templateId === formTemplate.id
+      ? formTemplate.steps
+          .filter((s) => !formState.skipped[s.id])
+          .map((s) => ({
+            title: s.title,
+            rows: s.fields
+              .map((f) => {
+                const v = formState.values[f.id];
+                const text = Array.isArray(v) ? v.join(", ") : (v ?? "");
+                return text.trim() ? { label: f.label, value: text } : null;
+              })
+              .filter(Boolean) as { label: string; value: string }[],
+          }))
+          .filter((s) => s.rows.length > 0)
+      : [];
+
+
+
   const dateLabel = new Date(offer.deliveredAt ?? offer.createdAt).toLocaleDateString("nb-NO", {
     day: "numeric",
     month: "long",
