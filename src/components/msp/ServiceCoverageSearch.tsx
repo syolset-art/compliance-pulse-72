@@ -1,8 +1,14 @@
 import { useMemo, useState, useEffect } from "react";
-import { Search, Plus, Check } from "lucide-react";
+import { Search, Plus, Check, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
