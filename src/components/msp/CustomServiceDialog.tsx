@@ -231,16 +231,9 @@ export function CustomServiceDialog({
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label htmlFor="cs-desc">
-                Beskrivelse
-                {descriptionFromAi && (
-                  <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
-                    <Sparkles className="h-3 w-3" />
-                    Foreslått av Lara — kontroller før lagring
-                  </span>
-                )}
-              </Label>
+              <Label htmlFor="cs-desc">Beskrivelse</Label>
               <Button
+
                 type="button"
                 variant="ghost"
                 size="sm"
