@@ -1179,10 +1179,9 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                     </div>
                   </div>
                   <Button
-                    variant="ghost"
                     size="sm"
                     onClick={() => restoreExtra(e.id)}
-                    className="h-8 gap-1.5 text-xs"
+                    className="h-8 gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                     Gjenopprett
