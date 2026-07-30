@@ -81,17 +81,20 @@ function formatNOK(n: number): string {
 function formatSupportedSummary(template: ServiceTemplate): string {
   const mappings = template.mappings ?? [];
   if (mappings.length === 0) return "—";
-  const totalControls = mappings.reduce((sum, m) => sum + (m.controlIds?.length ?? 0), 0);
   const primary = mappings[0];
-  const controlWord = primary.frameworkLabel.toLowerCase().includes("iso") ? "kontroller" : "krav";
-  if (totalControls === 0) return primary.frameworkLabel;
-  return `${primary.frameworkLabel} + ${totalControls} ${controlWord}`;
+  const rest = mappings.length - 1;
+  return rest > 0 ? `${primary.frameworkLabel} +${rest}` : primary.frameworkLabel;
+}
+
+function countRequirements(template: ServiceTemplate): number {
+  return (template.mappings ?? []).reduce((sum, m) => sum + (m.controlIds?.length ?? 0), 0);
 }
 
 function activityCountLabel(count: number): string {
   if (count === 0) return "—";
   return count === 1 ? "1 aktivitet" : `${count} aktiviteter`;
 }
+
 
 type PickTag = "recommended" | "popular" | "trending";
 
@@ -768,7 +771,9 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               <tr>
                 <th className="text-left font-medium px-3 py-2.5">Tjeneste</th>
                 <th className="text-left font-medium px-3 py-2.5">Støtter</th>
+                <th className="text-left font-medium px-3 py-2.5 w-24">Krav</th>
                 <th className="text-left font-medium px-3 py-2.5">Aktiviteter</th>
+
                 <th className="text-right font-medium px-3 py-2.5 w-32">Handling</th>
               </tr>
             </thead>
@@ -793,6 +798,32 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                       {formatSupportedSummary(template)}
                     </td>
                     <td className="px-3 py-3">
+                      {(() => {
+                        const reqs = countRequirements(template);
+                        if (reqs === 0) return <span className="text-sm text-muted-foreground">—</span>;
+                        return (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-sm text-foreground/80 tabular-nums cursor-help underline decoration-dotted underline-offset-4">
+                                {reqs}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs text-xs">
+                              <ul className="space-y-0.5">
+                                {(template.mappings ?? []).map((m) => (
+                                  <li key={m.frameworkLabel}>
+                                    • {m.frameworkLabel}: {m.controlIds?.length ?? 0}
+                                  </li>
+                                ))}
+                              </ul>
+                              <p className="mt-1.5 text-muted-foreground">Åpne tjenesten for å se hvilke krav den dekker.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        );
+                      })()}
+                    </td>
+                    <td className="px-3 py-3">
+
                       {(() => {
                         const activities = template.activities ?? [];
                         if (activities.length === 0) {
