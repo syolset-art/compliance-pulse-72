@@ -185,7 +185,7 @@ function ColumnFilter({
   onChange,
   iconOnly = false,
 }: {
-  label: string;
+  label: React.ReactNode;
   options: { value: string; label: string }[];
   selected: string[];
   onChange: (next: string[]) => void;
