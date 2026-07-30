@@ -333,7 +333,6 @@ export function RegulationsStatusCard({
                           </Button>
                         ) : (
                           <Button
-                            variant="outline"
                             size="sm"
                             onClick={() => confirmOne(rec)}
                             disabled={busyId === rec.frameworkId}
