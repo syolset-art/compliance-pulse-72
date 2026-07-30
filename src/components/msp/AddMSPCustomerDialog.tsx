@@ -360,7 +360,14 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
 
   // Save customer + assessment + Trust Profile
   const handleSave = async () => {
-    if (!user?.id || !selectedCompany) return;
+    if (!user?.id) {
+      toast.error("Du må være innlogget for å opprette kundeprofil");
+      return;
+    }
+    if (!selectedCompany) {
+      toast.error("Mangler virksomhetsdata — gå tilbake og velg eller fyll inn virksomheten");
+      return;
+    }
     setSaving(true);
     try {
       // Lara beregner regelverksforslag i bakgrunnen — partneren bekrefter dem
@@ -1462,7 +1469,7 @@ export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCu
                   {saving ? (
                     <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Oppretter...</>
                   ) : (
-                    "Fullfør"
+                    "Opprett kundeprofil"
                   )}
                 </Button>
               </div>
