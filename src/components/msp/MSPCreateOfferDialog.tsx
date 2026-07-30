@@ -124,7 +124,10 @@ export interface CreateOfferDialogProps {
 
 interface EditableTask extends TaskEstimate {
   owner: TaskOwner;
+  /** Gap fra gap-analysen som denne oppgaven lukker. */
+  gapIds: string[];
 }
+
 
 export function MSPCreateOfferDialog({
   open,
