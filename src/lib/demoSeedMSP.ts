@@ -116,6 +116,18 @@ export async function seedDemoMSP(): Promise<SeedResult> {
     }
   } else {
     custIds = (existingCustomers as any[]).map(c => c.id);
+
+    // Backfill onboarding-kartlagte felter på eksisterende demokunder
+    for (const row of existingCustomers as any[]) {
+      const demo = DEMO_CUSTOMERS.find(d => d.customer_name === row.customer_name);
+      if (!demo) continue;
+      const patch: Record<string, string> = {};
+      if (!row.url) patch.url = demo.url;
+      if (!row.business_description) patch.business_description = demo.business_description;
+      if (!row.contact_company_role) patch.contact_company_role = demo.contact_company_role;
+      if (Object.keys(patch).length === 0) continue;
+      await supabase.from("msp_customers" as any).update(patch).eq("id", row.id);
+    }
   }
 
   // 4) Invoices — seed only if none exist
