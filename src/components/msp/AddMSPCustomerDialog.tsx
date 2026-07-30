@@ -89,6 +89,10 @@ interface BulkRow {
   reason?: string;
 }
 
+// Demo/prototype: tillat oppretting av kundeprofil uten innlogget bruker
+const DEMO_MSP_USER_ID = "00000000-0000-0000-0000-000000000000";
+
+
 export function AddMSPCustomerDialog({ open, onOpenChange, onSuccess }: AddMSPCustomerDialogProps) {
   const { user } = useAuth();
   const [step, setStep] = useState<Step>("method");
