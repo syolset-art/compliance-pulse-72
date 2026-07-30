@@ -1260,46 +1260,14 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
 
       {/* Mynder-produkter — videresalg med provisjon (kollapsbar) */}
       {(() => {
-        type ProductRow = {
-          id: string;
-          moduleKey: ModuleKey;
-          name: string;
-          commissionPct: number;
-          fromPrice: number;
-          tiers: Array<{ label: string; priceKr: number; isFree?: boolean }>;
-        };
-        const products: ProductRow[] = [
-          {
-            id: "core",
-            moduleKey: "core",
-            name: "Mynder Core",
-            commissionPct: 30,
-            fromPrice: CORE_TIERS[0].monthlyPriceKr,
-            tiers: CORE_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr })),
-          },
-          {
-            id: "vendors",
-            moduleKey: "vendors",
-            name: "Leverandørmodulen",
-            commissionPct: 30,
-            fromPrice: VENDOR_TIERS[1].monthlyPriceKr,
-            tiers: VENDOR_TIERS.map((t) => ({ label: t.label, priceKr: t.monthlyPriceKr, isFree: t.isFree })),
-          },
-          {
-            id: "assets",
-            moduleKey: "assets",
-            name: "Assets",
-            commissionPct: 25,
-            fromPrice: 490,
-            tiers: [{ label: "Standard", priceKr: 490 }],
-          },
-        ];
+        const products = MYNDER_PRODUCTS;
         const sym = currencyOption.symbol;
         const trailing = sym === "kr";
         const fmt = (n: number) =>
           `${new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(Math.round(n))} ${sym}`;
         const fmtPrice = (n: number) => (trailing ? fmt(n) : `${sym} ${Math.round(n)}`);
         return (
+
           <section className="space-y-3">
             <button
               type="button"
