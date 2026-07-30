@@ -14,7 +14,9 @@ import {
   CheckCircle2,
   MinusCircle,
   type LucideIcon,
+  Paperclip,
 } from "lucide-react";
+
 import { MATURITY_AREAS, deriveLaraSources, type MaturityAnswer, type MaturityAnswers } from "@/lib/trustMaturityQuestions";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
@@ -23,13 +25,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BaselineAreaDocuments } from "@/components/msp/BaselineAreaDocuments";
+import { useBaselineDocuments } from "@/hooks/useBaselineDocuments";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   customerName: string;
+  /** Used to persist per-area documentation. */
+  customerId?: string;
   answers: MaturityAnswers;
   onAnswer: (questionId: string, value: MaturityAnswer) => void;
+
   /** When provided, the drawer opens on the first area with Lara suggestions that are not yet confirmed. */
   reviewMode?: boolean;
   /** Optional Lara scan to derive suggested-source labels. */
@@ -63,6 +70,7 @@ export function BaselineQuestionsDrawer({
   open,
   onOpenChange,
   customerName,
+  customerId,
   answers,
   onAnswer,
   reviewMode = false,
@@ -72,6 +80,9 @@ export function BaselineQuestionsDrawer({
 }: Props) {
   const { t } = useTranslation();
   const laraSources = deriveLaraSources(laraScan ?? null);
+  const { docsForArea, docsForQuestion, addDocument, linkDocument, removeDocument } =
+    useBaselineDocuments(customerId);
+
 
   const initialArea = (() => {
     if (reviewMode) {
@@ -187,7 +198,17 @@ export function BaselineQuestionsDrawer({
               <TabsContent key={area.id} value={area.id} className="mt-4">
                 <p className="text-sm text-muted-foreground mb-2">{area.subtitle}</p>
 
+                <BaselineAreaDocuments
+                  areaId={area.id}
+                  questions={area.questions}
+                  documents={docsForArea(area.id)}
+                  onAdd={addDocument}
+                  onLink={linkDocument}
+                  onRemove={removeDocument}
+                />
+
                 <div className="divide-y divide-border/60">
+
                   {area.questions.map((q) => {
                     const current = draft[q.id] ?? "not_started";
                     const meta = META_BY_VALUE[current];
@@ -205,7 +226,22 @@ export function BaselineQuestionsDrawer({
                               <span>Lara: {explanation}</span>
                             </p>
                           )}
+                          {docsForQuestion(q.id).length > 0 && (
+                            <div className="mt-1 flex flex-wrap items-center gap-1">
+                              {docsForQuestion(q.id).map((d) => (
+                                <span
+                                  key={d.id}
+                                  className="inline-flex items-center gap-1 rounded border border-border bg-muted/40 px-1.5 py-0.5 text-xs text-muted-foreground max-w-[200px]"
+                                  title={d.fileName}
+                                >
+                                  <Paperclip className="h-3 w-3 shrink-0" />
+                                  <span className="truncate">{d.fileName}</span>
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
+
 
                         <Tooltip>
                           <TooltipTrigger asChild>
