@@ -179,7 +179,21 @@ export function ServiceCoverageSearch({ existingNames, onCreate }: Props) {
                   <TableRow>
                     <TableHead className="w-[44px] px-3" />
                     <TableHead className="w-[140px]">Regelverk</TableHead>
-                    <TableHead className="w-[110px]">Krav</TableHead>
+                    <TableHead className="w-[110px]">
+                      <span className="inline-flex items-center gap-1">
+                        Krav (art. 20)
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="inline h-3.5 w-3.5 text-muted-foreground cursor-help" aria-label="Hva vises i tabellen?" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              <p>Foreslåtte regelverk og krav og hvilke kontrollområder de er tilknyttet.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </span>
+                    </TableHead>
                     <TableHead>
                       <span className="inline-flex items-center gap-1">
                         Kontrollområde
