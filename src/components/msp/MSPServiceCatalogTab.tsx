@@ -998,7 +998,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                   <AiMappingDisclosure variant="icon" />
                 </div>
                 <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-40 hidden md:block">Regelverk</div>
-                <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-16 text-right hidden md:block">Krav</div>
+                <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-16 text-right hidden md:block">Aktiviteter</div>
                 <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-12 text-right">Timer</div>
                 <div className="text-xs font-medium text-foreground/60 whitespace-nowrap w-24 text-right">Pris</div>
                 <div className="w-11" />
