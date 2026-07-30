@@ -1,25 +1,19 @@
 ## Problem
 
-I kundeveiviseren (steg 2, «Bekreft») står det alltid «Bekreft at nettadressen stemmer.» under nettside-feltet — også når feltet er tomt fordi verken virksomhetsregisteret eller Lara fant en nettside. Det er misvisende: det finnes ingen adresse å bekrefte.
+Siste steg i «Legg til kunde» (`step === "recommend"`, Laras anbefaling) er tett, vanskelig å lese og gjentar informasjon som allerede finnes på kundekortet. Regelverksanbefalinger hører hjemme i **Veiledning fra Mynder**, der `RegulationsStatusCard` allerede viser dem i tabellform med Bekreft/Aktiver-handlinger.
 
-Dagens flyt gjør allerede riktig oppslag: navn/org.nr → offisielt virksomhetsregister (hovedenhet, deretter underenheter) for org.nr, bransje, ansatte, adresse og hjemmeside → AI-fallback for bransje/nettside → forsøk på å finne personvernerklæring. Det som mangler er ærlig tilbakemelding når kartleggingen ikke gir treff.
+## Endring
 
-## Endringer (kun tekst/tilstand i `AddMSPCustomerDialog.tsx`)
+**1. Fjern anbefalingssteget i `src/components/msp/AddMSPCustomerDialog.tsx`**
+- Ta bort hele `step === "recommend"`-blokken og `"recommend"` fra `STEP_LABELS` (wizarden blir metode → land → søk → kontakt).
+- «Fullfør»-knappen på kontaktsteget kaller `handleSave` direkte i stedet for `setStep("recommend")`.
+- Behold beregningen av anbefalinger, men kjør den i `handleSave` (samme `recommendFrameworks`-kall med land, bransje, ansatte, beskrivelse) og lagre resultatet som `recommended_frameworks`. `confirmed_frameworks` lagres tomt — partneren bekrefter i Veiledning.
+- Fjern nå ubrukt state (`confirmedRecommendations`, `recommendations`-effekten som var bundet til steget) og import av `CustomerRecommendationsPanel` hvis den ikke brukes andre steder.
 
-Hjelpeteksten under nettside-feltet blir tilstandsstyrt:
+**2. Suksess-steget får en peker videre**
+- Teksten utvides med en kort linje: «Lara har foreslått relevante regelverk — du finner dem under Veiledning fra Mynder.» Ingen ny knapp.
 
-| Tilstand | Tekst |
-|---|---|
-| Funnet i virksomhetsregisteret | «Hentet fra virksomhetsregisteret – bekreft eller endre» |
-| Foreslått av Lara (AI) | Sparkles + «Foreslått av Lara – bekreft eller endre» |
-| Ingen treff (feltet tomt) | Info-ikon + «Vi fant ingen nettside for virksomheten – du kan legge den inn nå eller senere.» |
-| Partner har skrevet inn selv | «Lagt inn manuelt.» |
+**3. Lesbarhet i `RegulationsStatusCard`**
+- Regelverksnavnet står i dag som label + alias-span på samme linje i liten grå tekst (f.eks. «GDPR Personopplysningsloven»). Endres til: navn i normal vekt/foreground på egen linje, alias som `text-xs text-muted-foreground` under — med tydelig kontrast (WCAG AA).
 
-Samme mønster brukes allerede for personvernerklæring; teksten der justeres til å være tydelig på at den kan legges inn senere: «Fant ingen personvernerklæring – du kan legge den inn nå eller senere.»
-
-I tillegg:
-- Skill `websiteSource` mellom `brreg` og `ai_suggested` korrekt (i dag settes `ai_suggested` når bransjen kom fra AI, selv om nettsiden kom fra registeret).
-- Når nettside ikke ble funnet: ikke tving «Har ikke nettside» — behold «Ja, har nettside» med tomt felt, slik at partneren kan fylle inn senere fra kundekortet.
-- Tooltip-teksten oppdateres slik at den beskriver hele kjeden: register → nettside → personvernerklæring, og at manglende data kan fylles inn manuelt senere.
-
-Ingen endringer i datamodell, lagring eller edge functions.
+Ingen endringer i datamodell eller edge functions; `recommended_frameworks` skrives allerede av wizarden i dag.
