@@ -262,8 +262,8 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                   { label: "Lav", cls: "text-destructive" };
 
   const hostname = (() => {
-    if (!customer.url) return null;
-    try { return new URL(customer.url).hostname; } catch { return customer.url; }
+    if (!view.url) return null;
+    try { return new URL(view.url).hostname; } catch { return view.url; }
   })();
 
   const statusIcon =
