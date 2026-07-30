@@ -9,6 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2, FileText, Eye, Sparkles, ArrowLeft, Download, Save, CheckCircle2, Inbox, Send, ClipboardList, ArrowRight, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { toast } from "sonner";
 import { MSPGapAnalysisDialog } from "./MSPGapAnalysisDialog";
 import jsPDF from "jspdf";
