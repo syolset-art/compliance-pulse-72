@@ -851,19 +851,26 @@ export default function MSPDashboard() {
                             {isVisible("frameworks") && (
                               <TableCell onClick={(e) => e.stopPropagation()}>
                                 {(() => {
-                                  const frameworks: string[] = c.active_frameworks || [];
-                                  if (frameworks.length === 0) {
+                                  const active: string[] = c.active_frameworks || [];
+                                  const recommended: string[] = (c.recommended_frameworks || []).filter((f: string) => !active.includes(f));
+                                  const all = [...active, ...recommended];
+                                  if (all.length === 0) {
                                     return <span className="text-muted-foreground text-sm">—</span>;
                                   }
                                   return (
                                     <div className="flex flex-wrap items-center gap-1 max-w-[180px]">
-                                      {frameworks.slice(0, 3).map((f) => (
+                                      {active.slice(0, 3).map((f) => (
                                         <Badge key={f} variant="outline" className="font-normal bg-success/10 text-foreground border-success/30 text-[11px]">
                                           {f}
                                         </Badge>
                                       ))}
-                                      {frameworks.length > 3 && (
-                                        <span className="text-[11px] text-muted-foreground">+{frameworks.length - 3}</span>
+                                      {recommended.slice(0, Math.max(0, 3 - active.length)).map((f) => (
+                                        <Badge key={f} variant="outline" className="font-normal bg-primary/10 text-foreground dark:text-primary-foreground border-primary/30 dark:border-primary/50 text-[11px]">
+                                          {f}
+                                        </Badge>
+                                      ))}
+                                      {all.length > 3 && (
+                                        <span className="text-[11px] text-muted-foreground">+{all.length - 3}</span>
                                       )}
                                     </div>
                                   );
