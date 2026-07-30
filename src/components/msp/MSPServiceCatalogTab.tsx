@@ -792,15 +792,25 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                       {formatSupportedSummary(template)}
                     </td>
                     <td className="px-3 py-3">
-                      <span className={cn(
-                        "text-xs px-2 py-0.5 rounded-full",
-                        template.delivery === "recurring"
-                          ? "bg-warning/10 text-warning border border-warning/20"
-                          : "bg-success/10 text-success border border-success/20",
-                      )}>
-                        {templateStatus(template)}
-                      </span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className={cn(
+                            "text-xs px-2 py-0.5 rounded-full cursor-help",
+                            template.delivery === "recurring"
+                              ? "bg-warning/10 text-warning border border-warning/20"
+                              : "bg-success/10 text-success border border-success/20",
+                          )}>
+                            {templateStatus(template)}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs text-xs">
+                          {template.delivery === "recurring"
+                            ? "Løpende tjeneste: juster omfang, frekvens og pris til kunden før du legger den i katalogen din."
+                            : "Engangsleveranse med ferdig beskrivelse, omfang og prisforslag — kan legges til uten endringer."}
+                        </TooltipContent>
+                      </Tooltip>
                     </td>
+
                     <td className="px-3 py-3 text-right">
                       {(() => {
                         const lock = getLockInfo({ templateId: template.id, name: pick.label });
