@@ -454,9 +454,14 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                       </div>
                     </div>
                   </div>
-                ) : customer.business_description ? (
+                ) : generatingDesc ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Sparkles className="h-3 w-3 animate-pulse text-primary" aria-hidden="true" />
+                    Lara henter beskrivelse fra nettstedet…
+                  </span>
+                ) : view.business_description ? (
                   <p className="leading-snug text-foreground/80">
-                    {customer.business_description}
+                    {view.business_description}
                     <TooltipProvider delayDuration={150}>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -465,7 +470,7 @@ export function CustomerStatusBanner({ customer, actionSlot, onUpdate }: { custo
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs">
-                          <p className="text-sm">Hentet fra offentlige registre under onboarding. Klikk på blyanten for å justere manuelt.</p>
+                          <p className="text-sm">Hentet fra offentlige registre og nettstedet. Klikk på blyanten for å justere manuelt.</p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
