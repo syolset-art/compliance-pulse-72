@@ -88,8 +88,9 @@ function formatSupportedSummary(template: ServiceTemplate): string {
   return `${primary.frameworkLabel} + ${totalControls} ${controlWord}`;
 }
 
-function templateStatus(template: ServiceTemplate): "Klar til bruk" | "Bør tilpasses" {
-  return template.delivery === "recurring" ? "Bør tilpasses" : "Klar til bruk";
+function activityCountLabel(count: number): string {
+  if (count === 0) return "—";
+  return count === 1 ? "1 aktivitet" : `${count} aktiviteter`;
 }
 
 type PickTag = "recommended" | "popular" | "trending";
@@ -767,7 +768,7 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
               <tr>
                 <th className="text-left font-medium px-3 py-2.5">Tjeneste</th>
                 <th className="text-left font-medium px-3 py-2.5">Støtter</th>
-                <th className="text-left font-medium px-3 py-2.5">Status</th>
+                <th className="text-left font-medium px-3 py-2.5">Aktiviteter</th>
                 <th className="text-right font-medium px-3 py-2.5 w-32">Handling</th>
               </tr>
             </thead>
@@ -792,24 +793,34 @@ export function MSPServiceCatalogTab({ onOpenSecondary }: { onOpenSecondary?: (v
                       {formatSupportedSummary(template)}
                     </td>
                     <td className="px-3 py-3">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className={cn(
-                            "text-xs px-2 py-0.5 rounded-full cursor-help",
-                            template.delivery === "recurring"
-                              ? "bg-warning/10 text-warning border border-warning/20"
-                              : "bg-success/10 text-success border border-success/20",
-                          )}>
-                            {templateStatus(template)}
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-xs text-xs">
-                          {template.delivery === "recurring"
-                            ? "Løpende tjeneste: juster omfang, frekvens og pris til kunden før du legger den i katalogen din."
-                            : "Engangsleveranse med ferdig beskrivelse, omfang og prisforslag — kan legges til uten endringer."}
-                        </TooltipContent>
-                      </Tooltip>
+                      {(() => {
+                        const activities = template.activities ?? [];
+                        if (activities.length === 0) {
+                          return <span className="text-sm text-muted-foreground">—</span>;
+                        }
+                        const preview = activities.slice(0, 4);
+                        const rest = activities.length - preview.length;
+                        return (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-sm text-foreground/80 tabular-nums cursor-help underline decoration-dotted underline-offset-4">
+                                {activityCountLabel(activities.length)}
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs text-xs">
+                              <ul className="space-y-0.5">
+                                {preview.map((a) => (
+                                  <li key={a.label}>• {a.label}</li>
+                                ))}
+                                {rest > 0 && <li className="text-muted-foreground">… og {rest} til</li>}
+                              </ul>
+                              <p className="mt-1.5 text-muted-foreground">Åpne tjenesten for å se alle aktivitetene.</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        );
+                      })()}
                     </td>
+
 
                     <td className="px-3 py-3 text-right">
                       {(() => {
