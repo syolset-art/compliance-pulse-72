@@ -94,7 +94,6 @@ const UNIVERSAL: ServiceTemplate[] = [
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.5", "Art.6", "Art.13", "Art.30"] },
       { frameworkId: "iso27701", frameworkLabel: "ISO 27701", controlIds: ["utvalg"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -119,7 +118,6 @@ const UNIVERSAL: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["varierer"] },
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.32"] },
     ],
-    defaultRoles: ['documenting'],
     version: v,
   },
   {
@@ -143,7 +141,6 @@ const UNIVERSAL: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["varierer"] },
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.32"] },
     ],
-    defaultRoles: ['documenting'],
     version: v,
   },
 ];
@@ -171,7 +168,6 @@ const MSP: ServiceTemplate[] = [
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.5", "Art.6", "Art.13", "Art.32", "Art.33", "Art.34"] },
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["utvalg"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -192,7 +188,6 @@ const MSP: ServiceTemplate[] = [
     mappings: [
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.7", "Art.12", "Art.13"] },
     ],
-    defaultRoles: ['direct', 'documenting'],
     version: v,
   },
   {
@@ -213,7 +208,6 @@ const MSP: ServiceTemplate[] = [
     mappings: [
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.28"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -233,7 +227,6 @@ const MSP: ServiceTemplate[] = [
     mappings: [
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["helhetlig", "Art.37"] },
     ],
-    defaultRoles: ['enabling', 'documenting'],
     version: v,
   },
   {
@@ -256,7 +249,6 @@ const MSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.24"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.23"] },
     ],
-    defaultRoles: ['enabling', 'documenting'],
     version: v,
   },
   {
@@ -278,7 +270,6 @@ const MSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.6.3"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['direct'],
     version: v,
   },
   {
@@ -299,7 +290,6 @@ const MSP: ServiceTemplate[] = [
     mappings: [
       { frameworkId: "transparency", frameworkLabel: "Åpenhetsloven", controlIds: ["§4", "§5", "§6"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
 ];
@@ -327,7 +317,6 @@ const MSSP: ServiceTemplate[] = [
     mappings: [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["alle Annex A"] },
     ],
-    defaultRoles: ['assessing'],
     version: v,
   },
   {
@@ -351,7 +340,6 @@ const MSSP: ServiceTemplate[] = [
     mappings: [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["helhetlig"] },
     ],
-    defaultRoles: ['direct', 'enabling', 'documenting'],
     version: v,
   },
   {
@@ -374,7 +362,6 @@ const MSSP: ServiceTemplate[] = [
     mappings: [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.20", "Art.21", "Art.22", "Art.23"] },
     ],
-    defaultRoles: ['direct', 'enabling', 'documenting'],
     version: v,
   },
   {
@@ -396,7 +383,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.20"] },
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.24"] },
     ],
-    defaultRoles: ['enabling'],
     version: v,
   },
   {
@@ -419,7 +405,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.7", "A.8.8"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -441,7 +426,6 @@ const MSSP: ServiceTemplate[] = [
     mappings: [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.4"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -464,7 +448,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "soc2", frameworkLabel: "SOC 2", controlIds: ["Trust Service Criteria"] },
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["overlapp"] },
     ],
-    defaultRoles: ['enabling', 'documenting'],
     version: v,
   },
   {
@@ -486,7 +469,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "aiact", frameworkLabel: "AI Act", controlIds: ["risikoklassifisering"] },
       { frameworkId: "iso42001", frameworkLabel: "ISO 42001", controlIds: ["utvalg"] },
     ],
-    defaultRoles: ['assessing', 'enabling'],
     version: v,
   },
   {
@@ -511,7 +493,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "dora", frameworkLabel: "DORA", controlIds: ["Art.5", "Art.8", "Art.25"] },
       { frameworkId: "cps234", frameworkLabel: "CPS 234 (AU)", controlIds: ["helhetlig"] },
     ],
-    defaultRoles: ['direct', 'enabling', 'documenting'],
     version: v,
   },
   {
@@ -534,7 +515,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21", "Art.23"] },
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.32", "Art.33"] },
     ],
-    defaultRoles: ['direct', 'documenting'],
     version: v,
   },
   {
@@ -556,7 +536,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.8.7", "A.8.16"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['direct'],
     version: v,
   },
   {
@@ -578,7 +557,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.8.8", "A.8.9"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -601,7 +579,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
       { frameworkId: "dora", frameworkLabel: "DORA", controlIds: ["Art.11", "Art.12"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -625,7 +602,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.32"] },
     ],
-    defaultRoles: ['direct', 'documenting'],
     version: v,
   },
   {
@@ -647,7 +623,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.15", "A.8.2", "A.8.15"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['direct', 'documenting'],
     version: v,
   },
   {
@@ -669,7 +644,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.8.23", "A.8.20"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['direct'],
     version: v,
   },
   {
@@ -691,7 +665,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.6.3"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['assessing', 'enabling'],
     version: v,
   },
   {
@@ -715,7 +688,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
       { frameworkId: "dora", frameworkLabel: "DORA", controlIds: ["Art.26", "Art.27"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -738,7 +710,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
       { frameworkId: "soc2", frameworkLabel: "SOC 2", controlIds: ["CC6.1", "CC7.1"] },
     ],
-    defaultRoles: ['assessing', 'direct'],
     version: v,
   },
   {
@@ -760,7 +731,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.5.12", "A.5.13", "A.8.12"] },
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.5", "Art.32"] },
     ],
-    defaultRoles: ['direct', 'documenting'],
     version: v,
   },
   {
@@ -782,7 +752,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["A.8.25", "A.8.28", "A.8.29"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -805,7 +774,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iec62443", frameworkLabel: "IEC 62443", controlIds: ["helhetlig"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['direct', 'documenting'],
     version: v,
   },
   {
@@ -828,7 +796,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
       { frameworkId: "dora", frameworkLabel: "DORA", controlIds: ["Art.28"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -851,7 +818,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "gdpr", frameworkLabel: "GDPR", controlIds: ["Art.33", "Art.34"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.23"] },
     ],
-    defaultRoles: ['direct', 'documenting'],
     version: v,
   },
   {
@@ -873,7 +839,6 @@ const MSSP: ServiceTemplate[] = [
       { frameworkId: "iso27001", frameworkLabel: "ISO 27001", controlIds: ["utvalg"] },
       { frameworkId: "nis2", frameworkLabel: "NIS2", controlIds: ["Art.21"] },
     ],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
 ];
@@ -898,7 +863,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Lever rapport med gap og tiltak", hours: 4 },
     ],
     mappings: [{ frameworkId: "normen", frameworkLabel: "Normen v7.0", controlIds: ["helhetlig"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -916,7 +880,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Rapport og presentasjon", hours: 4 },
     ],
     mappings: [{ frameworkId: "nsm", frameworkLabel: "NSM grunnprinsipper", controlIds: ["4 prinsipper"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -934,7 +897,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Lever rapport og handlingsplan", hours: 8 },
     ],
     mappings: [{ frameworkId: "sikkerhetsloven", frameworkLabel: "Sikkerhetsloven", controlIds: ["helhetlig"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
 
@@ -954,7 +916,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Lever rapport", hours: 4 },
     ],
     mappings: [{ frameworkId: "patientdatalagen", frameworkLabel: "Patientdatalagen", controlIds: ["helhetlig"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -972,7 +933,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Lever rapport", hours: 8 },
     ],
     mappings: [{ frameworkId: "sakerhetsskydd", frameworkLabel: "Säkerhetsskyddslag", controlIds: ["helhetlig"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -990,7 +950,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Dokumentasjon og rapport", hours: 16 },
     ],
     mappings: [{ frameworkId: "fffs", frameworkLabel: "FFFS 2024:20", controlIds: ["helhetlig"] }],
-    defaultRoles: ['direct', 'documenting'],
     version: v,
   },
 
@@ -1010,7 +969,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Lever rapport", hours: 8 },
     ],
     mappings: [{ frameworkId: "bio2", frameworkLabel: "BIO2", controlIds: ["helhetlig"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -1028,7 +986,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Lever rapport", hours: 4 },
     ],
     mappings: [{ frameworkId: "nen7510", frameworkLabel: "NEN 7510", controlIds: ["helhetlig"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -1046,7 +1003,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Rapportering og dokumentasjon", hours: 8 },
     ],
     mappings: [{ frameworkId: "wwft", frameworkLabel: "Wwft", controlIds: ["helhetlig"] }],
-    defaultRoles: ['enabling', 'documenting'],
     version: v,
   },
 
@@ -1065,7 +1021,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Lever rapport", hours: 2 },
     ],
     mappings: [{ frameworkId: "privacy-act-au", frameworkLabel: "Privacy Act 1988 / APPs", controlIds: ["APP 1–13"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -1082,7 +1037,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Lever rapport", hours: 4 },
     ],
     mappings: [{ frameworkId: "essential8", frameworkLabel: "Essential Eight", controlIds: ["8 tiltak"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -1100,7 +1054,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Implementering og rapportering", hours: 16 },
     ],
     mappings: [{ frameworkId: "soci", frameworkLabel: "SOCI Act", controlIds: ["helhetlig"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -1118,7 +1071,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Rapport og evidens", hours: 8 },
     ],
     mappings: [{ frameworkId: "cps234", frameworkLabel: "CPS 234", controlIds: ["helhetlig"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
   {
@@ -1135,7 +1087,6 @@ const REGIONAL: ServiceTemplate[] = [
       { label: "Skrive Modern Slavery Statement", hours: 4 },
     ],
     mappings: [{ frameworkId: "modern-slavery-au", frameworkLabel: "Modern Slavery Act (AU)", controlIds: ["helhetlig"] }],
-    defaultRoles: ['assessing', 'documenting'],
     version: v,
   },
 ];
