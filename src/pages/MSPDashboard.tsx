@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, ArrowRight, Filter, X, Columns3, ScanSearch } from "lucide-react";
+import { Plus, MoreVertical, Database, Trash2, LayoutGrid, Rows3, Search, ArrowUp, ArrowDown, ArrowUpDown, Users, ArrowRight, Filter, X, Columns3, ScanSearch, Info } from "lucide-react";
 import { MSPCustomerCard } from "@/components/msp/MSPCustomerCard";
 import { AddMSPCustomerDialog } from "@/components/msp/AddMSPCustomerDialog";
 import { GapAnalysisWizardDialog } from "@/components/msp/GapAnalysisWizardDialog";
@@ -185,7 +185,7 @@ function ColumnFilter({
   onChange,
   iconOnly = false,
 }: {
-  label: string;
+  label: React.ReactNode;
   options: { value: string; label: string }[];
   selected: string[];
   onChange: (next: string[]) => void;
@@ -782,13 +782,33 @@ export default function MSPDashboard() {
                         )}
                         {isVisible("frameworks") && (
                           <TableHead className="w-[180px] text-foreground/80">
-                            <span className="text-sm font-medium">Regelverk</span>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Regelverk <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px]">
+                                <p>Grønn betyr at regelverket er aktivert. Lilla betyr at det er en anbefaling fra Mynder.</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </TableHead>
                         )}
                         {isVisible("services") && (
                           <TableHead className="w-auto text-foreground/80">
                             <ColumnFilter
-                              label="Tjenester"
+                              label={
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="inline-flex items-center gap-1.5 cursor-help">
+                                      Tjenester <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top" className="max-w-[240px]">
+                                    <p>Grønn betyr at tjenesten er levert eller aktiv. Lilla betyr at det er en anbefaling fra Mynder.</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              }
                               options={serviceOptions.map((v) => ({ value: v, label: v }))}
                               selected={serviceFilter}
                               onChange={setServiceFilter}
@@ -797,7 +817,16 @@ export default function MSPDashboard() {
                         )}
                         {isVisible("products") && (
                           <TableHead className="w-[240px] text-foreground/80">
-                            <span className="text-sm font-medium">Produkter</span>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center gap-1.5 text-sm font-medium cursor-help">
+                                  Produkter <Info className="h-3.5 w-3.5 text-foreground/50" />
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="max-w-[240px]">
+                                <p>Grønn betyr at produktet er aktivert. Lilla betyr at det er en anbefaling fra Mynder.</p>
+                              </TooltipContent>
+                            </Tooltip>
                           </TableHead>
                         )}
                         {isVisible("score") && (
