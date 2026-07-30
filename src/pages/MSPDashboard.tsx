@@ -762,6 +762,11 @@ export default function MSPDashboard() {
                             />
                           </TableHead>
                         )}
+                        {isVisible("frameworks") && (
+                          <TableHead className="w-[180px] text-foreground/80">
+                            <span className="text-sm font-medium">Regelverk</span>
+                          </TableHead>
+                        )}
                         {isVisible("services") && (
                           <TableHead className="w-auto text-foreground/80">
                             <ColumnFilter
@@ -772,14 +777,9 @@ export default function MSPDashboard() {
                             />
                           </TableHead>
                         )}
-                        {isVisible("frameworks") && (
-                          <TableHead className="w-[180px] text-foreground/80">
-                            <span className="text-sm font-medium">Regelverk</span>
-                          </TableHead>
-                        )}
                         {isVisible("products") && (
                           <TableHead className="w-[240px] text-foreground/80">
-                            <span className="text-sm font-medium">Produkter</span>
+                            <span className="text-sm font-medium">Aktive Produkter</span>
                           </TableHead>
                         )}
                         {isVisible("score") && (
