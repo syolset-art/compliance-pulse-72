@@ -76,8 +76,8 @@ export function CustomServiceDialog({
 }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [descriptionFromAi, setDescriptionFromAi] = useState(false);
   const [activities, setActivities] = useState<ServiceActivity[]>([]);
+
   const [selectedMappings, setSelectedMappings] = useState<Set<string>>(new Set());
   /** Mappings som ikke finnes blant Lara-forslag (f.eks. fra adopterte maler) — beholdes som-er. */
   const [extraMappings, setExtraMappings] = useState<ServiceMapping[]>([]);
@@ -96,10 +96,10 @@ export function CustomServiceDialog({
         found ??
           `${trimmed} leveres som en tilbakevendende tjeneste med kartlegging, gjennomføring og dokumentert oppfølging, slik at kunden kan vise etterlevelse av relevante krav.`,
       );
-      setDescriptionFromAi(true);
       setSuggesting(false);
     }, 600);
   };
+
 
 
   // Prefill ved åpning
@@ -108,7 +108,6 @@ export function CustomServiceDialog({
     if (initial) {
       setName(initial.name);
       setDescription(initial.description ?? "");
-      setDescriptionFromAi(initial.descriptionFromAi ?? false);
       setActivities(
         initial.activities.length > 0
           ? initial.activities
@@ -123,8 +122,8 @@ export function CustomServiceDialog({
     } else {
       setName("");
       setDescription("");
-      setDescriptionFromAi(false);
       setActivities([{ label: "", hours: 1 }]);
+
       setSelectedMappings(new Set());
       setExtraMappings([]);
       setUserTouchedMappings(false);
@@ -232,16 +231,9 @@ export function CustomServiceDialog({
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label htmlFor="cs-desc">
-                Beskrivelse
-                {descriptionFromAi && (
-                  <span className="ml-2 inline-flex items-center gap-1 text-[11px] font-medium text-primary">
-                    <Sparkles className="h-3 w-3" />
-                    Foreslått av Lara — kontroller før lagring
-                  </span>
-                )}
-              </Label>
+              <Label htmlFor="cs-desc">Beskrivelse</Label>
               <Button
+
                 type="button"
                 variant="ghost"
                 size="sm"
@@ -262,9 +254,9 @@ export function CustomServiceDialog({
               value={description}
               onChange={(e) => {
                 setDescription(e.target.value);
-                setDescriptionFromAi(false);
               }}
               placeholder="Legg til detaljer for bedre forslag — eller la Lara foreslå"
+
               rows={2}
             />
           </div>
