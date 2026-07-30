@@ -1,26 +1,25 @@
-## Mål
-Partner-bevis skal ikke ta plass når det er tomt, og statusmerker skal ikke se ut som handlingsknapper.
+## Problem
 
-## 1. Partner-bevis: kollaps når tomt
-`src/components/msp/PartnerEvidenceSection.tsx`
-- Når det ikke finnes bevis: fjern hele tomtilstands-boksen (ikon + to tekstlinjer). Ingen ramme, ingen forklaringstekst.
-- I `minimal`-modus med 0 bevis rendres kun én liten knapp «Last opp bevis» (sekundær, kompakt) — ingenting annet.
-- Når det finnes bevis: behold tabell + berikelses-oppsummering som i dag, men uten den store overskriftsblokken i minimal-modus.
+I kundeveiviseren (steg 2, «Bekreft») står det alltid «Bekreft at nettadressen stemmer.» under nettside-feltet — også når feltet er tomt fordi verken virksomhetsregisteret eller Lara fant en nettside. Det er misvisende: det finnes ingen adresse å bekrefte.
 
-`src/components/msp/guidance/RegulationsStatusCard.tsx`
-- Bevis-seksjonen nederst får `hideUploadButton` fjernet, slik at den ene «Last opp bevis»-knappen vises der. Marg reduseres når seksjonen er tom.
+Dagens flyt gjør allerede riktig oppslag: navn/org.nr → offisielt virksomhetsregister (hovedenhet, deretter underenheter) for org.nr, bransje, ansatte, adresse og hjemmeside → AI-fallback for bransje/nettside → forsøk på å finne personvernerklæring. Det som mangler er ærlig tilbakemelding når kartleggingen ikke gir treff.
 
-## 2. Status vs. handling — visuelt skille
-`src/components/msp/guidance/RegulationsStatusCard.tsx`, statuskolonnen:
-- «Bekreftet»: ikke lenger en fylt pille. Vises som grønn hake + grønn tekst (`text-success`) uten bakgrunn/ramme.
-- «Aktivert»: samme prinsipp — grønn hake + tekst, men med fylt/markert vekt slik at aktivert fortsatt leses som sluttstatus (alternativt beholdes den lette grønne pillen kun her).
-- «AI-anbefalt» beholdes som dempet outline-merke med Sparkles.
+## Endringer (kun tekst/tilstand i `AddMSPCustomerDialog.tsx`)
 
-## 3. Handlingsknapper i én mørk farge
-- «Aktiver» beholder primær (mørk) CTA-stil — den er referansen.
-- «Bekreft» endres fra `outline` til samme mørke primærstil (evt. `size="sm"` primær) slik at aksjoner er konsistente.
-- Ikon-knapper (last opp, fjern) forblir `ghost` — de er sekundære, ikke primære aksjoner.
-- Ingen statusmerke får lenger `bg-primary`, slik at den mørke fargen kun betyr «trykkbar handling».
+Hjelpeteksten under nettside-feltet blir tilstandsstyrt:
 
-## Teknisk
-Kun presentasjonsendringer i to filer; ingen endring i `partnerEvidence.ts`-logikk, datamodell eller aktiveringsflyt.
+| Tilstand | Tekst |
+|---|---|
+| Funnet i virksomhetsregisteret | «Hentet fra virksomhetsregisteret – bekreft eller endre» |
+| Foreslått av Lara (AI) | Sparkles + «Foreslått av Lara – bekreft eller endre» |
+| Ingen treff (feltet tomt) | Info-ikon + «Vi fant ingen nettside for virksomheten – du kan legge den inn nå eller senere.» |
+| Partner har skrevet inn selv | «Lagt inn manuelt.» |
+
+Samme mønster brukes allerede for personvernerklæring; teksten der justeres til å være tydelig på at den kan legges inn senere: «Fant ingen personvernerklæring – du kan legge den inn nå eller senere.»
+
+I tillegg:
+- Skill `websiteSource` mellom `brreg` og `ai_suggested` korrekt (i dag settes `ai_suggested` når bransjen kom fra AI, selv om nettsiden kom fra registeret).
+- Når nettside ikke ble funnet: ikke tving «Har ikke nettside» — behold «Ja, har nettside» med tomt felt, slik at partneren kan fylle inn senere fra kundekortet.
+- Tooltip-teksten oppdateres slik at den beskriver hele kjeden: register → nettside → personvernerklæring, og at manglende data kan fylles inn manuelt senere.
+
+Ingen endringer i datamodell, lagring eller edge functions.
