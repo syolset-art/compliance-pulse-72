@@ -597,7 +597,6 @@ export function MSPMaturityServiceMatrix({
   }, []);
 
 
-  const [dismissedBanner, setDismissedBanner] = useState(false);
   const [offerCtx, setOfferCtx] = useState<{
     open: boolean;
     serviceTitle?: string;
